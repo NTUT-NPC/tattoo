@@ -2,9 +2,18 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:best-practices",
-    ":pinVersions",
     "group:allNonMajor",
     "schedule:monthly"
   ],
-  "timezone": "Asia/Taipei"
+  "timezone": "Asia/Taipei",
+  "packageRules": [
+    {
+      "matchPackageNames": ["*"],
+      "rangeStrategy": "pin"
+    },
+    {
+      "matchPackageNames": ["dart"],
+      "rangeStrategy": "auto"
+    }
+  ]
 }
