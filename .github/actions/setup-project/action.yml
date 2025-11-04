@@ -1,12 +1,9 @@
 name: Setup Project
-description: Checkout code, read Flutter version, setup Flutter, and get dependencies
+description: Read Flutter version, setup Flutter, and get dependencies
 
 runs:
   using: composite
   steps:
-    - name: Checkout code
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-
     - name: Read Flutter version from .fvmrc
       id: fvm
       shell: bash
