@@ -16,6 +16,14 @@ jobs:
       - name: Setup project
         uses: ./.github/actions/setup-project
 
+      - name: Setup Gradle cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
+        with:
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+
       - name: Build APK
         run: flutter build apk
 
