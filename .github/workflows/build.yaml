@@ -14,7 +14,14 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
 
       - name: Setup project
+        id: setup
         uses: ./.github/actions/setup-project
+
+      - name: Verify Flutter version
+        if: ${{ steps.setup.outputs.flutter-version != '3.35.7' }}
+        run: |
+          echo "::error file=.github/workflows/build.yaml::Flutter version has changed to ${{ steps.setup.outputs.flutter-version }}. Please update build.yaml accordingly."
+          exit 1
 
       - name: Setup Gradle cache
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
@@ -29,10 +36,10 @@ jobs:
       - name: Setup Android SDK cache
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
         with:
-          key: ${{ runner.os }}-android-sdk-${{ hashFiles('android/app/build.gradle.kts') }}
+          key: ${{ runner.os }}-android-sdk-${{ steps.setup.outputs.flutter-version }}
           path: |
-            /usr/local/lib/android/sdk/ndk
-            /usr/local/lib/android/sdk/cmake
+            /usr/local/lib/android/sdk/ndk/27.0.12077973
+            /usr/local/lib/android/sdk/cmake/3.22.1
           restore-keys: |
             ${{ runner.os }}-android-sdk-
 

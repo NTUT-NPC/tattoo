@@ -1,6 +1,11 @@
 name: Setup Project
 description: Read Flutter version, setup Flutter, and get dependencies
 
+outputs:
+  flutter-version:
+    description: 'The Flutter version read from .fvmrc'
+    value: ${{ steps.fvm.outputs.version }}
+
 runs:
   using: composite
   steps:
