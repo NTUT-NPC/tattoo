@@ -2,6 +2,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 
 // Interceptor to convert HTTP requests to HTTPS
 class HttpsInterceptor extends Interceptor {
@@ -49,7 +50,10 @@ Dio get dio {
       LenientCookieManager(cookieJar), // Store cookies with lenient parsing
       HttpsInterceptor(), // Enforce HTTPS
       RedirectInterceptor(() => _dio!), // Handle redirects within Dio
-      LogInterceptor(responseBody: true), // Log requests and responses
+      LogInterceptor(
+        responseBody: true,
+        logPrint: (o) => debugPrint(o.toString()),
+      ), // Log requests and responses
     ]);
 
   return _dio!;
