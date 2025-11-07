@@ -51,7 +51,6 @@ Dio createDio() {
     HttpsInterceptor(), // Enforce HTTPS
     RedirectInterceptor(() => dio), // Handle redirects within this Dio instance
     LogInterceptor(
-      responseBody: true,
       logPrint: (o) => debugPrint(o.toString()),
     ), // Log requests and responses
   ]);
