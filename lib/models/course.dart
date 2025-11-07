@@ -38,34 +38,41 @@ enum CourseType {
   const CourseType(this.code);
 }
 
-class CourseSchedule {
+class EntityRef {
   final String? id;
   final String? name;
+
+  EntityRef({this.id, this.name});
+}
+
+class CourseSchedule {
+  final String? number;
+  final EntityRef? course;
   final double? credits;
   final int? hours;
   final CourseType? type;
-  final String? teacher;
-  final String? className;
+  final EntityRef? teacher;
+  final List<EntityRef>? classes;
   final List<(DayOfWeek, Period)>? schedule;
-  final String? classroom;
+  final EntityRef? classroom;
   final String? status;
   final String? language;
+  final String? syllabusId;
   final String? remarks;
-  final bool? isPractice;
 
   CourseSchedule({
-    this.id,
-    this.name,
+    this.number,
+    this.course,
     this.credits,
     this.hours,
     this.type,
     this.teacher,
-    this.className,
+    this.classes,
     this.schedule,
     this.classroom,
     this.status,
     this.language,
+    this.syllabusId,
     this.remarks,
-    this.isPractice,
   });
 }
