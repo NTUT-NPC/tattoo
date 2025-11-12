@@ -14,7 +14,10 @@ abstract class EntityRef with _$EntityRef {
 
 @freezed
 abstract class LocalizedString with _$LocalizedString {
-  const factory LocalizedString({String? en, String? zh}) = _LocalizedString;
+  const factory LocalizedString({
+    String? en,
+    String? zh, //
+  }) = _LocalizedString;
 
   factory LocalizedString.fromJson(Map<String, Object?> json) =>
       _$LocalizedStringFromJson(json);
