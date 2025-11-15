@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
@@ -18,18 +20,31 @@ class HttpsInterceptor extends Interceptor {
   }
 }
 
-// Cookie manager that ignores invalid cookies
-// The i-School Plus service sets cookies with invalid names, causing parsing errors.
-class LenientCookieManager extends CookieManager {
-  const LenientCookieManager(super.cookieJar);
-
+/// Interceptor to filter out invalid Set-Cookie headers from responses.
+///
+/// The i-School Plus service sets cookies with invalid names, causing parsing errors.
+class InvalidCookieFilter extends Interceptor {
   @override
-  Future<void> saveCookies(Response response) async {
-    try {
-      await super.saveCookies(response);
-    } on FormatException {
-      // Ignore cookies with invalid format
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    final setCookieHeaders = response.headers[HttpHeaders.setCookieHeader];
+    if (setCookieHeaders == null || setCookieHeaders.isEmpty) {
+      handler.next(response);
+      return;
     }
+
+    final validCookies = <String>[];
+    for (final header in setCookieHeaders) {
+      try {
+        Cookie.fromSetCookieValue(header);
+        validCookies.add(header);
+      } on FormatException {
+        // Ignore invalid cookie
+        debugPrint('Filtered invalid Set-Cookie header: $header');
+      }
+    }
+    response.headers.set(HttpHeaders.setCookieHeader, validCookies);
+
+    handler.next(response);
   }
 }
 
@@ -47,7 +62,8 @@ Dio createDio() {
     );
 
   dio.interceptors.addAll([
-    LenientCookieManager(cookieJar), // Store cookies with lenient parsing
+    InvalidCookieFilter(), // Filter invalid Set-Cookie headers
+    CookieManager(cookieJar), // Store cookies
     HttpsInterceptor(), // Enforce HTTPS
     RedirectInterceptor(() => dio), // Handle redirects within this Dio instance
     LogInterceptor(
