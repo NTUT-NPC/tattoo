@@ -22,14 +22,14 @@ class PortalClient {
   PortalClient() {
     // Emulate the NTUT iOS app's HTTP client
     _ntutAppDio = createDio()
-      ..options.baseUrl = 'https://app.ntut.edu.tw'
+      ..options.baseUrl = 'https://app.ntut.edu.tw/'
       ..options.headers = {'User-Agent': 'Direk ios App'};
   }
 
   // Sets the JSESSIONID cookie in app.ntut.edu.tw domain
   Future<User> login(String username, String password) async {
     final response = await _ntutAppDio.post(
-      '/login.do',
+      'login.do',
       queryParameters: {'muid': username, 'mpassword': password},
     );
 
@@ -47,14 +47,14 @@ class PortalClient {
   }
 
   Future<bool> isLoggedIn() async {
-    final response = await _ntutAppDio.get('/sessionCheckApp.do');
+    final response = await _ntutAppDio.get('sessionCheckApp.do');
     final body = jsonDecode(response.data);
     return body["success"] == true;
   }
 
   Future<Uint8List> getAvatar(String filename) async {
     final response = await _ntutAppDio.get(
-      '/photoView.do',
+      'photoView.do',
       queryParameters: {'realname': filename},
       options: Options(responseType: ResponseType.bytes),
     );
@@ -65,7 +65,7 @@ class PortalClient {
   Future<void> sso(PortalServiceCode serviceCode) async {
     // Fetch a self-submitting SSO form
     final response = await _ntutAppDio.get(
-      '/ssoIndex.do',
+      'ssoIndex.do',
       queryParameters: {'apOu': serviceCode.code},
     );
 
@@ -93,7 +93,7 @@ class PortalClient {
     // Submit the SSO form and follow redirects
     // Sets the necessary cookies for the target service
     await _ntutAppDio.post(
-      '/$actionUrl',
+      actionUrl,
       data: formData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
