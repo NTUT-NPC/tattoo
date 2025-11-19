@@ -17,18 +17,18 @@ enum PortalServiceCode {
 }
 
 class PortalClient {
-  late final Dio _ntutAppDio;
+  late final Dio _portalDio;
 
   PortalClient() {
     // Emulate the NTUT iOS app's HTTP client
-    _ntutAppDio = createDio()
+    _portalDio = createDio()
       ..options.baseUrl = 'https://app.ntut.edu.tw/'
       ..options.headers = {'User-Agent': 'Direk ios App'};
   }
 
   // Sets the JSESSIONID cookie in app.ntut.edu.tw domain
   Future<User> login(String username, String password) async {
-    final response = await _ntutAppDio.post(
+    final response = await _portalDio.post(
       'login.do',
       queryParameters: {'muid': username, 'mpassword': password},
     );
@@ -47,13 +47,13 @@ class PortalClient {
   }
 
   Future<bool> isLoggedIn() async {
-    final response = await _ntutAppDio.get('sessionCheckApp.do');
+    final response = await _portalDio.get('sessionCheckApp.do');
     final body = jsonDecode(response.data);
     return body["success"] == true;
   }
 
   Future<Uint8List> getAvatar(String filename) async {
-    final response = await _ntutAppDio.get(
+    final response = await _portalDio.get(
       'photoView.do',
       queryParameters: {'realname': filename},
       options: Options(responseType: ResponseType.bytes),
@@ -64,7 +64,7 @@ class PortalClient {
   // Perform SSO and set cookies for the target service
   Future<void> sso(PortalServiceCode serviceCode) async {
     // Fetch a self-submitting SSO form
-    final response = await _ntutAppDio.get(
+    final response = await _portalDio.get(
       'ssoIndex.do',
       queryParameters: {'apOu': serviceCode.code},
     );
@@ -87,12 +87,12 @@ class PortalClient {
 
     // Prepend the invalid cookie filter interceptor for i-School Plus SSO
     if (serviceCode == PortalServiceCode.iSchoolPlusService) {
-      _ntutAppDio.interceptors.insert(0, InvalidCookieFilter());
+      _portalDio.interceptors.insert(0, InvalidCookieFilter());
     }
 
     // Submit the SSO form and follow redirects
     // Sets the necessary cookies for the target service
-    await _ntutAppDio.post(
+    await _portalDio.post(
       actionUrl,
       data: formData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
