@@ -93,4 +93,32 @@ class ISchoolPlusClient {
         )
         .toList();
   }
+
+  /// Fetches the list of files/materials for the specified [courseNumber].
+  Future<List<ISchoolPlusMaterialRef>> getMaterials(String courseNumber) async {
+    await _selectCourse(courseNumber);
+
+    // Fetch and parse the SCORM manifest XML for file listings
+    final manifestResponse = await _iSchoolPlusDio.get('path/SCORM_loadCA.php');
+    final manifestDocument = parse(manifestResponse.data);
+
+    // Extract all <item> elements that have identifierref attribute (actual files)
+    // Items without identifierref are folders/directories and are excluded
+    final items = manifestDocument.querySelectorAll('item[identifierref]');
+
+    return items.map((item) {
+      final titleElement = item.querySelector('title');
+      final title = titleElement?.text.split('\t').first.trim();
+
+      // Find the corresponding <resource> element
+      final identifierRef = item.attributes['identifierref']!;
+      final resource = manifestDocument.querySelector(
+        'resource[identifier="$identifierRef"]',
+      );
+
+      final href = resource?.attributes['href'];
+
+      return ISchoolPlusMaterialRef(title: title, href: href);
+    }).toList();
+  }
 }

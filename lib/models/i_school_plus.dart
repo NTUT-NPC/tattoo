@@ -13,3 +13,14 @@ abstract class ISchoolPlusStudent with _$ISchoolPlusStudent {
   factory ISchoolPlusStudent.fromJson(Map<String, Object?> json) =>
       _$ISchoolPlusStudentFromJson(json);
 }
+
+@freezed
+abstract class ISchoolPlusMaterialRef with _$ISchoolPlusMaterialRef {
+  const factory ISchoolPlusMaterialRef({
+    String? title,
+    String? href, //
+  }) = _ISchoolPlusMaterialRef;
+
+  factory ISchoolPlusMaterialRef.fromJson(Map<String, Object?> json) =>
+      _$ISchoolPlusMaterialRefFromJson(json);
+}

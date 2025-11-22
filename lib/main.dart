@@ -89,12 +89,20 @@ class _MyHomePageState extends State<MyHomePage> {
           semester: semesterList.first,
         );
 
-        final courseNumber = courseSchedule
-            .firstWhere((course) => course.number != null)
-            .number!;
+        final courses = courseSchedule.where((course) => course.number != null);
+        inspect(courses);
 
-        final students = await _iSchoolPlusClient.getStudents(courseNumber);
+        final students = await _iSchoolPlusClient.getStudents(
+          courses.first.number!,
+        );
         inspect(students);
+
+        for (final course in courses) {
+          final files = await _iSchoolPlusClient.getMaterials(course.number!);
+          if (files.isEmpty) continue;
+          inspect(files);
+          break;
+        }
         break;
       default:
         break;
