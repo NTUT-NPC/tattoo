@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/models/i_school_plus.dart';
@@ -120,5 +123,116 @@ class ISchoolPlusClient {
 
       return ISchoolPlusMaterialRef(title: title, href: href);
     }).toList();
+  }
+
+  /// Fetches the required information to download a material for the specified [courseNumber].
+  Future<ISchoolPlusMaterial> getMaterial(
+    String courseNumber,
+    ISchoolPlusMaterialRef material,
+  ) async {
+    await _selectCourse(courseNumber);
+
+    // Step 1: Get launch.php to extract the course ID (cid)
+    final launchResponse = await _iSchoolPlusDio.get('path/launch.php');
+
+    // Extract cid from the JavaScript
+    // e.g.: parent.s_catalog.location.replace('/learn/path/manifest.php?cid=...')
+    final cidMatch = RegExp(r"cid=([^']+)").firstMatch(launchResponse.data);
+    if (cidMatch == null) {
+      throw Exception('Could not extract course ID from launch page.');
+    }
+    final cid = cidMatch.group(1)!;
+
+    // Step 2: Get resource token from the course material tree endpoint
+    // It contains a form with a token needed to fetch downloadable resources
+    final materialTreeResponse = await _iSchoolPlusDio.get(
+      'path/pathtree.php',
+      queryParameters: {'cid': cid},
+    );
+
+    // Extract the read_key token from the HTML form
+    final materialTreeDocument = parse(materialTreeResponse.data);
+    final readKeyInput = materialTreeDocument.querySelector(
+      '#fetchResourceForm>input[name="read_key"][value]',
+    );
+    if (readKeyInput == null) {
+      throw Exception('Could not find read_key in material tree page.');
+    }
+    final fetchResourceToken = readKeyInput.attributes['value']!;
+
+    // Step 3: Submit resource form and get resource URI
+    final dioWithoutRedirects = _iSchoolPlusDio.clone()
+      ..interceptors.removeWhere(
+        (interceptor) => interceptor is RedirectInterceptor,
+      );
+
+    final resourceResponse = await dioWithoutRedirects.post(
+      'path/SCORM_fetchResource.php',
+      data: {
+        'href': '@${material.href!}',
+        'course_id': cid,
+        'read_key': fetchResourceToken,
+      },
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
+
+    // Case 1: Response is a redirect
+    // Replace preview URL with download URL
+    if (resourceResponse.statusCode == HttpStatus.found) {
+      final location =
+          resourceResponse.headers[HttpHeaders.locationHeader]?.first;
+      if (location == null) {
+        throw Exception('Redirect location header is missing.');
+      }
+
+      final previewUri = Uri.tryParse(location);
+      if (previewUri == null) {
+        throw Exception('Invalid redirect URI: $location');
+      }
+
+      return ISchoolPlusMaterial(
+        downloadUrl: previewUri.replace(path: "download.php"),
+      );
+    }
+
+    // Response is HTML with embedded download script, e.g.,
+    // <script>location.replace("viewPDF.php?id=KheOh_TuNgPJOQTEmRW1zg,,");</script>
+
+    // URI can be enclosed in either single or double quotes
+    final quoteRegExp = RegExp(r'''(['"])([^'"]+)\1''');
+    final quoteMatch = quoteRegExp.firstMatch(resourceResponse.data);
+    if (quoteMatch == null || quoteMatch.groupCount < 2) {
+      throw Exception('Could not extract download URI from response.');
+    }
+
+    // URI can be relative, so resolve against base URL
+    final baseUrl = '${_iSchoolPlusDio.options.baseUrl}path/';
+    final downloadUri = Uri.parse(baseUrl).resolve(quoteMatch.group(2)!);
+
+    // Case 2: Material is a course recording
+    if (downloadUri.host.contains("istream.ntut.edu.tw")) {
+      throw UnimplementedError();
+    }
+
+    // Case 3: Material is a PDF
+    if (downloadUri.path.contains('viewPDF.php')) {
+      // Fetch and find the value of DEFAULT_URL in JavaScript
+      final viewPdfResponse = await _iSchoolPlusDio.getUri(downloadUri);
+
+      final defaultUrlRegExp = RegExp(r'DEFAULT_URL[ =]+\"(.+)\"');
+      final defaultUrlMatch = defaultUrlRegExp.firstMatch(viewPdfResponse.data);
+      if (defaultUrlMatch == null || defaultUrlMatch.groupCount < 1) {
+        throw Exception('Could not find DEFAULT_URL in PDF viewer page.');
+      }
+      final defaultUrl = defaultUrlMatch.group(1)!;
+
+      return ISchoolPlusMaterial(
+        downloadUrl: Uri.parse(baseUrl).resolve(defaultUrl),
+        referer: downloadUri.toString(),
+      );
+    }
+
+    // Case 4: Material is a standard downloadable file
+    return ISchoolPlusMaterial(downloadUrl: downloadUri);
   }
 }

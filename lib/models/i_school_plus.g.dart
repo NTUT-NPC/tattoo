@@ -25,3 +25,16 @@ _ISchoolPlusMaterialRef _$ISchoolPlusMaterialRefFromJson(
 Map<String, dynamic> _$ISchoolPlusMaterialRefToJson(
   _ISchoolPlusMaterialRef instance,
 ) => <String, dynamic>{'title': instance.title, 'href': instance.href};
+
+_ISchoolPlusMaterial _$ISchoolPlusMaterialFromJson(Map<String, dynamic> json) =>
+    _ISchoolPlusMaterial(
+      downloadUrl: Uri.parse(json['downloadUrl'] as String),
+      referer: json['referer'] as String?,
+    );
+
+Map<String, dynamic> _$ISchoolPlusMaterialToJson(
+  _ISchoolPlusMaterial instance,
+) => <String, dynamic>{
+  'downloadUrl': instance.downloadUrl.toString(),
+  'referer': instance.referer,
+};

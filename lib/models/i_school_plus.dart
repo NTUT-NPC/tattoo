@@ -24,3 +24,14 @@ abstract class ISchoolPlusMaterialRef with _$ISchoolPlusMaterialRef {
   factory ISchoolPlusMaterialRef.fromJson(Map<String, Object?> json) =>
       _$ISchoolPlusMaterialRefFromJson(json);
 }
+
+@freezed
+abstract class ISchoolPlusMaterial with _$ISchoolPlusMaterial {
+  const factory ISchoolPlusMaterial({
+    required Uri downloadUrl,
+    String? referer,
+  }) = _ISchoolPlusMaterial;
+
+  factory ISchoolPlusMaterial.fromJson(Map<String, Object?> json) =>
+      _$ISchoolPlusMaterialFromJson(json);
+}

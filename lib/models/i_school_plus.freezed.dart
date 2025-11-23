@@ -543,4 +543,270 @@ as String?,
 
 }
 
+
+/// @nodoc
+mixin _$ISchoolPlusMaterial {
+
+ Uri get downloadUrl; String? get referer;
+/// Create a copy of ISchoolPlusMaterial
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ISchoolPlusMaterialCopyWith<ISchoolPlusMaterial> get copyWith => _$ISchoolPlusMaterialCopyWithImpl<ISchoolPlusMaterial>(this as ISchoolPlusMaterial, _$identity);
+
+  /// Serializes this ISchoolPlusMaterial to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ISchoolPlusMaterial&&(identical(other.downloadUrl, downloadUrl) || other.downloadUrl == downloadUrl)&&(identical(other.referer, referer) || other.referer == referer));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,downloadUrl,referer);
+
+@override
+String toString() {
+  return 'ISchoolPlusMaterial(downloadUrl: $downloadUrl, referer: $referer)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ISchoolPlusMaterialCopyWith<$Res>  {
+  factory $ISchoolPlusMaterialCopyWith(ISchoolPlusMaterial value, $Res Function(ISchoolPlusMaterial) _then) = _$ISchoolPlusMaterialCopyWithImpl;
+@useResult
+$Res call({
+ Uri downloadUrl, String? referer
+});
+
+
+
+
+}
+/// @nodoc
+class _$ISchoolPlusMaterialCopyWithImpl<$Res>
+    implements $ISchoolPlusMaterialCopyWith<$Res> {
+  _$ISchoolPlusMaterialCopyWithImpl(this._self, this._then);
+
+  final ISchoolPlusMaterial _self;
+  final $Res Function(ISchoolPlusMaterial) _then;
+
+/// Create a copy of ISchoolPlusMaterial
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? downloadUrl = null,Object? referer = freezed,}) {
+  return _then(_self.copyWith(
+downloadUrl: null == downloadUrl ? _self.downloadUrl : downloadUrl // ignore: cast_nullable_to_non_nullable
+as Uri,referer: freezed == referer ? _self.referer : referer // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ISchoolPlusMaterial].
+extension ISchoolPlusMaterialPatterns on ISchoolPlusMaterial {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ISchoolPlusMaterial value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ISchoolPlusMaterial() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ISchoolPlusMaterial value)  $default,){
+final _that = this;
+switch (_that) {
+case _ISchoolPlusMaterial():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ISchoolPlusMaterial value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ISchoolPlusMaterial() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Uri downloadUrl,  String? referer)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ISchoolPlusMaterial() when $default != null:
+return $default(_that.downloadUrl,_that.referer);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Uri downloadUrl,  String? referer)  $default,) {final _that = this;
+switch (_that) {
+case _ISchoolPlusMaterial():
+return $default(_that.downloadUrl,_that.referer);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Uri downloadUrl,  String? referer)?  $default,) {final _that = this;
+switch (_that) {
+case _ISchoolPlusMaterial() when $default != null:
+return $default(_that.downloadUrl,_that.referer);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ISchoolPlusMaterial implements ISchoolPlusMaterial {
+  const _ISchoolPlusMaterial({required this.downloadUrl, this.referer});
+  factory _ISchoolPlusMaterial.fromJson(Map<String, dynamic> json) => _$ISchoolPlusMaterialFromJson(json);
+
+@override final  Uri downloadUrl;
+@override final  String? referer;
+
+/// Create a copy of ISchoolPlusMaterial
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ISchoolPlusMaterialCopyWith<_ISchoolPlusMaterial> get copyWith => __$ISchoolPlusMaterialCopyWithImpl<_ISchoolPlusMaterial>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ISchoolPlusMaterialToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ISchoolPlusMaterial&&(identical(other.downloadUrl, downloadUrl) || other.downloadUrl == downloadUrl)&&(identical(other.referer, referer) || other.referer == referer));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,downloadUrl,referer);
+
+@override
+String toString() {
+  return 'ISchoolPlusMaterial(downloadUrl: $downloadUrl, referer: $referer)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ISchoolPlusMaterialCopyWith<$Res> implements $ISchoolPlusMaterialCopyWith<$Res> {
+  factory _$ISchoolPlusMaterialCopyWith(_ISchoolPlusMaterial value, $Res Function(_ISchoolPlusMaterial) _then) = __$ISchoolPlusMaterialCopyWithImpl;
+@override @useResult
+$Res call({
+ Uri downloadUrl, String? referer
+});
+
+
+
+
+}
+/// @nodoc
+class __$ISchoolPlusMaterialCopyWithImpl<$Res>
+    implements _$ISchoolPlusMaterialCopyWith<$Res> {
+  __$ISchoolPlusMaterialCopyWithImpl(this._self, this._then);
+
+  final _ISchoolPlusMaterial _self;
+  final $Res Function(_ISchoolPlusMaterial) _then;
+
+/// Create a copy of ISchoolPlusMaterial
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? downloadUrl = null,Object? referer = freezed,}) {
+  return _then(_ISchoolPlusMaterial(
+downloadUrl: null == downloadUrl ? _self.downloadUrl : downloadUrl // ignore: cast_nullable_to_non_nullable
+as Uri,referer: freezed == referer ? _self.referer : referer // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
 // dart format on
