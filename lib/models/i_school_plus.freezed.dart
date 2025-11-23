@@ -281,7 +281,7 @@ as String?,
 /// @nodoc
 mixin _$ISchoolPlusMaterialRef {
 
- String? get title; String? get href;
+ String get courseNumber; String? get title; String? get href;
 /// Create a copy of ISchoolPlusMaterialRef
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -294,16 +294,16 @@ $ISchoolPlusMaterialRefCopyWith<ISchoolPlusMaterialRef> get copyWith => _$ISchoo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ISchoolPlusMaterialRef&&(identical(other.title, title) || other.title == title)&&(identical(other.href, href) || other.href == href));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ISchoolPlusMaterialRef&&(identical(other.courseNumber, courseNumber) || other.courseNumber == courseNumber)&&(identical(other.title, title) || other.title == title)&&(identical(other.href, href) || other.href == href));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,title,href);
+int get hashCode => Object.hash(runtimeType,courseNumber,title,href);
 
 @override
 String toString() {
-  return 'ISchoolPlusMaterialRef(title: $title, href: $href)';
+  return 'ISchoolPlusMaterialRef(courseNumber: $courseNumber, title: $title, href: $href)';
 }
 
 
@@ -314,7 +314,7 @@ abstract mixin class $ISchoolPlusMaterialRefCopyWith<$Res>  {
   factory $ISchoolPlusMaterialRefCopyWith(ISchoolPlusMaterialRef value, $Res Function(ISchoolPlusMaterialRef) _then) = _$ISchoolPlusMaterialRefCopyWithImpl;
 @useResult
 $Res call({
- String? title, String? href
+ String courseNumber, String? title, String? href
 });
 
 
@@ -331,9 +331,10 @@ class _$ISchoolPlusMaterialRefCopyWithImpl<$Res>
 
 /// Create a copy of ISchoolPlusMaterialRef
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? title = freezed,Object? href = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? courseNumber = null,Object? title = freezed,Object? href = freezed,}) {
   return _then(_self.copyWith(
-title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+courseNumber: null == courseNumber ? _self.courseNumber : courseNumber // ignore: cast_nullable_to_non_nullable
+as String,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,href: freezed == href ? _self.href : href // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -420,10 +421,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? title,  String? href)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String courseNumber,  String? title,  String? href)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ISchoolPlusMaterialRef() when $default != null:
-return $default(_that.title,_that.href);case _:
+return $default(_that.courseNumber,_that.title,_that.href);case _:
   return orElse();
 
 }
@@ -441,10 +442,10 @@ return $default(_that.title,_that.href);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? title,  String? href)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String courseNumber,  String? title,  String? href)  $default,) {final _that = this;
 switch (_that) {
 case _ISchoolPlusMaterialRef():
-return $default(_that.title,_that.href);case _:
+return $default(_that.courseNumber,_that.title,_that.href);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -461,10 +462,10 @@ return $default(_that.title,_that.href);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? title,  String? href)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String courseNumber,  String? title,  String? href)?  $default,) {final _that = this;
 switch (_that) {
 case _ISchoolPlusMaterialRef() when $default != null:
-return $default(_that.title,_that.href);case _:
+return $default(_that.courseNumber,_that.title,_that.href);case _:
   return null;
 
 }
@@ -476,9 +477,10 @@ return $default(_that.title,_that.href);case _:
 @JsonSerializable()
 
 class _ISchoolPlusMaterialRef implements ISchoolPlusMaterialRef {
-  const _ISchoolPlusMaterialRef({this.title, this.href});
+  const _ISchoolPlusMaterialRef({required this.courseNumber, this.title, this.href});
   factory _ISchoolPlusMaterialRef.fromJson(Map<String, dynamic> json) => _$ISchoolPlusMaterialRefFromJson(json);
 
+@override final  String courseNumber;
 @override final  String? title;
 @override final  String? href;
 
@@ -495,16 +497,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ISchoolPlusMaterialRef&&(identical(other.title, title) || other.title == title)&&(identical(other.href, href) || other.href == href));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ISchoolPlusMaterialRef&&(identical(other.courseNumber, courseNumber) || other.courseNumber == courseNumber)&&(identical(other.title, title) || other.title == title)&&(identical(other.href, href) || other.href == href));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,title,href);
+int get hashCode => Object.hash(runtimeType,courseNumber,title,href);
 
 @override
 String toString() {
-  return 'ISchoolPlusMaterialRef(title: $title, href: $href)';
+  return 'ISchoolPlusMaterialRef(courseNumber: $courseNumber, title: $title, href: $href)';
 }
 
 
@@ -515,7 +517,7 @@ abstract mixin class _$ISchoolPlusMaterialRefCopyWith<$Res> implements $ISchoolP
   factory _$ISchoolPlusMaterialRefCopyWith(_ISchoolPlusMaterialRef value, $Res Function(_ISchoolPlusMaterialRef) _then) = __$ISchoolPlusMaterialRefCopyWithImpl;
 @override @useResult
 $Res call({
- String? title, String? href
+ String courseNumber, String? title, String? href
 });
 
 
@@ -532,9 +534,10 @@ class __$ISchoolPlusMaterialRefCopyWithImpl<$Res>
 
 /// Create a copy of ISchoolPlusMaterialRef
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = freezed,Object? href = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? courseNumber = null,Object? title = freezed,Object? href = freezed,}) {
   return _then(_ISchoolPlusMaterialRef(
-title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+courseNumber: null == courseNumber ? _self.courseNumber : courseNumber // ignore: cast_nullable_to_non_nullable
+as String,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,href: freezed == href ? _self.href : href // ignore: cast_nullable_to_non_nullable
 as String?,
   ));

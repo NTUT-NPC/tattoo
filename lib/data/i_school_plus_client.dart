@@ -121,16 +121,19 @@ class ISchoolPlusClient {
 
       final href = resource?.attributes['href'];
 
-      return ISchoolPlusMaterialRef(title: title, href: href);
+      return ISchoolPlusMaterialRef(
+        courseNumber: courseNumber,
+        title: title,
+        href: href,
+      );
     }).toList();
   }
 
-  /// Fetches the required information to download a material for the specified [courseNumber].
+  /// Fetches the required information to download a material.
   Future<ISchoolPlusMaterial> getMaterial(
-    String courseNumber,
     ISchoolPlusMaterialRef material,
   ) async {
-    await _selectCourse(courseNumber);
+    await _selectCourse(material.courseNumber);
 
     // Step 1: Get launch.php to extract the course ID (cid)
     final launchResponse = await _iSchoolPlusDio.get('path/launch.php');

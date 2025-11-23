@@ -18,13 +18,18 @@ Map<String, dynamic> _$ISchoolPlusStudentToJson(_ISchoolPlusStudent instance) =>
 _ISchoolPlusMaterialRef _$ISchoolPlusMaterialRefFromJson(
   Map<String, dynamic> json,
 ) => _ISchoolPlusMaterialRef(
+  courseNumber: json['courseNumber'] as String,
   title: json['title'] as String?,
   href: json['href'] as String?,
 );
 
 Map<String, dynamic> _$ISchoolPlusMaterialRefToJson(
   _ISchoolPlusMaterialRef instance,
-) => <String, dynamic>{'title': instance.title, 'href': instance.href};
+) => <String, dynamic>{
+  'courseNumber': instance.courseNumber,
+  'title': instance.title,
+  'href': instance.href,
+};
 
 _ISchoolPlusMaterial _$ISchoolPlusMaterialFromJson(Map<String, dynamic> json) =>
     _ISchoolPlusMaterial(

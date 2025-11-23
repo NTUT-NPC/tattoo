@@ -17,8 +17,9 @@ abstract class ISchoolPlusStudent with _$ISchoolPlusStudent {
 @freezed
 abstract class ISchoolPlusMaterialRef with _$ISchoolPlusMaterialRef {
   const factory ISchoolPlusMaterialRef({
+    required String courseNumber,
     String? title,
-    String? href, //
+    String? href,
   }) = _ISchoolPlusMaterialRef;
 
   factory ISchoolPlusMaterialRef.fromJson(Map<String, Object?> json) =>
