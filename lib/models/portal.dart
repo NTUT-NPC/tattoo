@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'user.freezed.dart';
-part 'user.g.dart';
+part 'portal.freezed.dart';
+part 'portal.g.dart';
 
 /// Represents a logged-in NTUT Portal user.
 @freezed

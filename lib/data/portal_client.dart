@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
-import 'package:tattoo/models/user.dart';
+import 'package:tattoo/models/portal.dart';
 import 'package:tattoo/utils/http.dart';
 
 // Identification codes for NTUT services used in SSO
