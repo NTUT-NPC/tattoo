@@ -1,0 +1,68 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+platform :ios do
+  desc "Build and sign release IPA"
+  lane :build_ipa do
+    setup_ci if is_ci
+
+    match(
+      type: "development",
+      readonly: is_ci
+    )
+
+    flutter_build(
+      build: "ipa",
+    )
+  end
+end
+
+platform :android do
+  # Shared keystore configuration
+  def keystore_config
+    {
+      git_url: ENV["MATCH_KEYSTORE_GIT_URL"],
+      package_name: "club.ntut.tattoo",
+      match_secret: ENV["MATCH_KEYSTORE_SECRET"]
+    }
+  end
+
+  desc "Build and sign release APK"
+  lane :build_apk do
+    output_files = flutter_build(
+      build: "apk",
+      build_args: "--split-per-abi"
+    )
+
+    output_files.each do |output_file|
+      match_keystore(
+        **keystore_config,
+        apk_path: output_file
+      )
+    end
+  end
+
+  desc "Build and sign release AAB"
+  lane :build_aab do
+    output_file = flutter_build(
+      build: "appbundle",
+    )
+
+    match_keystore(
+      **keystore_config,
+      aab_path: output_file
+    )
+  end
+end
