@@ -22,27 +22,11 @@ platform :ios do
 
     match(
       type: "development",
-      app_identifier: "club.ntut.tattoo",
-      git_url: ENV["SIGNING_GIT_URL"],
-      readonly: true
+      readonly: is_ci
     )
 
-    Dir.chdir("..") do
-      sh("flutter", "build", "ios", "--release", "--no-codesign")
-    end
-
-    build_app(
-      workspace: "ios/Runner.xcworkspace",
-      scheme: "Runner",
-      configuration: "Release",
-      export_method: "development",
-      export_options: {
-        provisioningProfiles: {
-          "club.ntut.tattoo" => "match Development club.ntut.tattoo"
-        }
-      },
-      output_directory: "build/ios/ipa",
-      output_name: "tattoo.ipa"
+    flutter_build(
+      build: "ipa",
     )
   end
 end
@@ -59,28 +43,28 @@ platform :android do
 
   desc "Build and sign release APK"
   lane :build_apk do
-    Dir.chdir("..") do
-      sh("flutter", "build", "apk", "--release", "--split-per-abi")
-    end
+    output_files = flutter_build(
+      build: "apk",
+      build_args: "--split-per-abi"
+    )
 
-    # Sign each split APK
-    ["armeabi-v7a", "arm64-v8a", "x86_64"].each do |abi|
+    output_files.each do |output_file|
       match_keystore(
         **keystore_config,
-        apk_path: "build/app/outputs/flutter-apk/app-#{abi}-release.apk"
+        apk_path: output_file
       )
     end
   end
 
   desc "Build and sign release AAB"
   lane :build_aab do
-    Dir.chdir("..") do
-      sh("flutter", "build", "appbundle", "--release")
-    end
+    output_file = flutter_build(
+      build: "appbundle",
+    )
 
     match_keystore(
       **keystore_config,
-      aab_path: "build/app/outputs/bundle/release/app-release.aab"
+      aab_path: output_file
     )
   end
 end
