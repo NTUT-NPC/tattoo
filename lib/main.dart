@@ -118,28 +118,35 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: AutofillGroup(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 16.0,
-              children: [
-                TextField(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Username',
+          child: Column(
+            spacing: 24.0,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+                AutofillGroup(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 16.0,
+                    children: [
+                      TextField(
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Username',
+                        ),
+                        controller: _usernameController,
+                        autofillHints: const [AutofillHints.username],
+                      ),
+                      TextField(
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Password',
+                        ),
+                        controller: _passwordController,
+                        autofillHints: const [AutofillHints.password],
+                        obscureText: true,
+                      ),
+                    ],
                   ),
-                  controller: _usernameController,
-                  autofillHints: const [AutofillHints.username],
-                ),
-                TextField(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Password',
-                  ),
-                  controller: _passwordController,
-                  autofillHints: const [AutofillHints.password],
-                  obscureText: true,
-                ),
+               ),
                 DropdownMenu<PortalServiceCode>(
                   initialSelection: PortalServiceCode.courseService,
                   onSelected: (value) {
@@ -153,8 +160,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       DropdownMenuEntry(value: service, label: service.name),
                   ],
                 ),
-              ],
-            ),
+            ],
           ),
         ),
       ),
