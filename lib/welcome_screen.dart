@@ -31,122 +31,124 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
 
-        child: Column(
-          spacing: 24,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Spacer(),
+          child: Column(
+            spacing: 24,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Spacer(),
 
-            // Logo and Title
-            Column(
-              children: [
-                SvgPicture.asset('assets/tat_icon.svg', height: 96),
-                const Text(
-                  'Project Tattoo 北科生活2',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-
-            // Features List
-            Column(
-              spacing: 12.0,
-              children: [
-                const _FeatureCard(
-                  title: '查課表',
-                  description: '快速查看課表和課程資訊，並可快速切換學期。',
-                  icon: Icons.calendar_month,
-                ),
-                const _FeatureCard(
-                  title: '看成績',
-                  description: '即時查詢各科成績與學分，整合歷年成績紀錄。',
-                  icon: Icons.bar_chart,
-                ),
-                const _FeatureCard(
-                  title: '北科生活',
-                  description: '彙整其他校園生活資訊，更多功能敬請期待。',
-                  icon: Icons.location_city,
-                ),
-              ],
-            ),
-
-            Spacer(),
-
-            // LOGO and Disclaimer Text
-            Column(
-              spacing: 4.0,
-              children: [
-                SvgPicture.asset(
-                  'assets/NPC_horizontal.svg',
-                  height: 24,
-                  colorFilter: ColorFilter.mode(
-                    Colors.grey[600]!,
-                    BlendMode.srcIn,
+              // Logo and Title
+              Column(
+                children: [
+                  SvgPicture.asset('assets/tat_icon.svg', height: 96),
+                  const Text(
+                    'Project Tattoo 北科生活2',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                Text(
-                  '由北科程式設計研究社開發\n所有資訊僅供參考，請以學校官方系統為準',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    height: 1.6,
-                    color: Colors.grey[600],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
+                ],
+              ),
 
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(0, _controller.value * 10 - 5),
-                  child: child,
-                );
-              },
-              child: SizedBox(
-                child: Column(
-                  spacing: 8.0,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.keyboard_double_arrow_up,
+              // Features List
+              Column(
+                spacing: 12.0,
+                children: [
+                  const _FeatureCard(
+                    title: '查課表',
+                    description: '快速查看課表和課程資訊，並可快速切換學期。',
+                    icon: Icons.calendar_month,
+                  ),
+                  const _FeatureCard(
+                    title: '看成績',
+                    description: '即時查詢各科成績與學分，整合歷年成績紀錄。',
+                    icon: Icons.bar_chart,
+                  ),
+                  const _FeatureCard(
+                    title: '北科生活',
+                    description: '彙整其他校園生活資訊，更多功能敬請期待。',
+                    icon: Icons.location_city,
+                  ),
+                ],
+              ),
+
+              Spacer(),
+
+              // LOGO and Disclaimer Text
+              Column(
+                spacing: 4.0,
+                children: [
+                  SvgPicture.asset(
+                    'assets/NPC_horizontal.svg',
+                    height: 24,
+                    colorFilter: ColorFilter.mode(
+                      Colors.grey[600]!,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  Text(
+                    '由北科程式設計研究社開發\n所有資訊僅供參考，請以學校官方系統為準',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      height: 1.6,
                       color: Colors.grey[600],
                     ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
 
-                    Text(
-                      '向上滑動以繼續',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                    ),
-                  ],
+              AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _controller.value * 10 - 5),
+                    child: child,
+                  );
+                },
+                child: SizedBox(
+                  child: Column(
+                    spacing: 8.0,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.keyboard_double_arrow_up,
+                        color: Colors.grey[600],
+                      ),
+
+                      Text(
+                        '向上滑動以繼續',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            SizedBox(height: 8.0),
-            // // Get Started Button
-            // Padding(
-            //   padding: const EdgeInsets.only(bottom: 32.0),
-            //   child: SizedBox(
-            //     width: 200,
-            //     height: 64,
-            //     child: FilledButton(
-            //       onPressed: () {
-            //         Navigator.of(context).pushReplacement(
-            //           MaterialPageRoute(builder: (_) => const MyHomePage()),
-            //         );
-            //       },
-            //       child: const Text('開始使用'),
-            //     ),
-            //   ),
-            // ),
-          ],
+              SizedBox(height: 8.0),
+              // // Get Started Button
+              // Padding(
+              //   padding: const EdgeInsets.only(bottom: 32.0),
+              //   child: SizedBox(
+              //     width: 200,
+              //     height: 64,
+              //     child: FilledButton(
+              //       onPressed: () {
+              //         Navigator.of(context).pushReplacement(
+              //           MaterialPageRoute(builder: (_) => const MyHomePage()),
+              //         );
+              //       },
+              //       child: const Text('開始使用'),
+              //     ),
+              //   ),
+              // ),
+            ],
+          ),
         ),
       ),
     );
