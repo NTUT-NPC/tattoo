@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "club.ntut.tattoo"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -37,6 +37,10 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+}
+
+dependencies {
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }
 
 flutter {
