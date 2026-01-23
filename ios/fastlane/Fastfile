@@ -16,8 +16,33 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Description of what the lane does"
-  lane :custom_lane do
-    # add actions here: https://docs.fastlane.tools/actions
+  desc "Build and sign release IPA"
+  lane :build_ipa do
+    setup_ci if is_ci
+
+    match(
+      type: "development",
+      app_identifier: "club.ntut.tattoo",
+      git_url: ENV["SIGNING_GIT_URL"],
+      readonly: true
+    )
+
+    Dir.chdir("..") do
+      sh("flutter", "build", "ios", "--release", "--no-codesign")
+    end
+
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "development",
+      export_options: {
+        provisioningProfiles: {
+          "club.ntut.tattoo" => "match Development club.ntut.tattoo"
+        }
+      },
+      output_directory: "../build/ios/ipa",
+      output_name: "tattoo.ipa"
+    )
   end
 end
