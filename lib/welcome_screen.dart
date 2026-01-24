@@ -36,7 +36,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               if (!_pageController.hasClients) return;
               // Called by the intro page when the user swipes up at the bottom.
               _pageController.nextPage(
-                duration: const Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 1000),
                 curve: Curves.easeOut,
               );
             },
