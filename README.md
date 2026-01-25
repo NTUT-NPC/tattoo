@@ -30,6 +30,8 @@ fvm flutter run
 
 For IDE configuration (VS Code, Android Studio, IntelliJ), see [FVM IDE Configuration](https://fvm.app/documentation/guides/workflows#ide-configuration).
 
+**VS Code users:** See [.vscode/README.md](.vscode/README.md) for project-specific setup instructions.
+
 ## Project Context
 
 This project exists alongside two other implementations:
