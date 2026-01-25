@@ -186,9 +186,11 @@ class _WelcomeIntroductionPageState extends State<WelcomeIntroductionPage>
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                   colors: [
-                    Colors.white.withValues(alpha: 1.0),
-                    Colors.white.withValues(alpha: 1.0),
-                    Colors.white.withValues(alpha: 0),
+                    Theme.of(context).scaffoldBackgroundColor,
+                    Theme.of(context).scaffoldBackgroundColor,
+                    Theme.of(
+                      context,
+                    ).scaffoldBackgroundColor.withValues(alpha: 0),
                   ],
                   stops: const [0, 0.5, 1.0],
                 ),
