@@ -1,9 +1,11 @@
 import 'dart:developer';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:tattoo/data/course_client.dart';
 import 'package:tattoo/data/i_school_plus_client.dart';
 import 'package:tattoo/data/portal_client.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WelcomeLoginPage extends StatefulWidget {
   const WelcomeLoginPage({super.key});
@@ -91,64 +93,170 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Project Tattoo'),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            spacing: 24.0,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AutofillGroup(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 16.0,
-                  children: [
-                    TextField(
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Username',
-                      ),
-                      controller: _usernameController,
-                      autofillHints: const [AutofillHints.username],
+    final double screenHeight = MediaQuery.of(context).size.height;
+
+    // A helper function to style login fields
+    loginDecoration(String hintText) {
+      final surfaceColor = Theme.of(
+        context,
+      ).colorScheme.surfaceContainerHighest;
+      return InputDecoration(
+        hintText: hintText,
+        hintStyle: TextStyle(
+          color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha(150),
+          fontWeight: FontWeight.w500,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(50),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(50),
+          borderSide: BorderSide(color: surfaceColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(50),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+            width: 2,
+          ),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 16,
+        ),
+        filled: true,
+        fillColor: surfaceColor,
+      );
+    }
+
+    return SafeArea(
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 24,
+              children: [
+                // welcome title
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.w800,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
-                    TextField(
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Password',
+                    children: [
+                      const TextSpan(text: '歡迎加入'),
+                      const TextSpan(text: '\n'),
+                      TextSpan(
+                        text: '北科生活',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
-                      controller: _passwordController,
-                      autofillHints: const [AutofillHints.password],
-                      obscureText: true,
+                    ],
+                  ),
+                ),
+
+                // login instruction
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontSize: 16,
+                      height: 1.6,
+                      color: Colors.grey[600],
+                    ),
+                    children: [
+                      const TextSpan(text: '請使用'),
+                      TextSpan(
+                        text: '北科校園入口網站',
+                        style: const TextStyle(
+                          decoration: TextDecoration.underline,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            launchUrl(Uri.parse('https://nportal.ntut.edu.tw'));
+                          },
+                      ),
+                      const TextSpan(text: '的帳號密碼登入。'),
+                    ],
+                  ),
+                ),
+
+                // login form
+                AutofillGroup(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 16,
+                    children: [
+                      TextField(
+                        controller: _usernameController,
+                        maxLines: 1,
+                        decoration: loginDecoration('學號'),
+                      ),
+                      TextField(
+                        controller: _passwordController,
+                        maxLines: 1,
+                        decoration: loginDecoration('密碼'),
+                        autofillHints: const [AutofillHints.password],
+                        obscureText: true,
+                      ),
+                    ],
+                  ),
+                ),
+
+                // login button
+                ElevatedButton(
+                  onPressed: _login,
+                  child: const Text('登入'),
+                ),
+
+                // terms of privacy
+                Column(
+                  spacing: 8.0,
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: screenHeight * 0.03,
+                      color: Colors.grey[600],
+                    ),
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          height: 1.6,
+                          color: Colors.grey[600],
+                        ),
+                        children: [
+                          const TextSpan(text: '登入資訊將被安全地儲存在您的裝置中'),
+                          const TextSpan(text: '\n'),
+                          const TextSpan(text: '登入即表示您同意我們的'),
+                          TextSpan(
+                            text: '隱私條款',
+                            style: const TextStyle(
+                              decoration: TextDecoration.underline,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                launchUrl(
+                                  Uri.parse(
+                                    'https://example.com/terms-of-service',
+                                  ),
+                                );
+                              },
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-              DropdownMenu<PortalServiceCode>(
-                initialSelection: PortalServiceCode.courseService,
-                onSelected: (value) {
-                  if (value == null) return;
-                  setState(() {
-                    _selectedService = value;
-                  });
-                },
-                dropdownMenuEntries: [
-                  for (final service in PortalServiceCode.values)
-                    DropdownMenuEntry(value: service, label: service.name),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _login,
-        tooltip: 'Login',
-        child: const Icon(Icons.login),
+        ],
       ),
     );
   }
