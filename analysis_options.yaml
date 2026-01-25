@@ -3,3 +3,6 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   plugins:
     - custom_lint
+
+formatter:
+  trailing_commas: preserve
