@@ -66,6 +66,7 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
 
       try {
         user = await _login();
+        if (user.name == null) throw Exception('Simulated login failure');
       } catch (_) {
         errorMessage = '登入失敗，請確認帳號密碼';
         usernameHasError = true;
