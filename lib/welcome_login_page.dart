@@ -193,7 +193,9 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
                   controller: _scrollController,
                   physics: const ClampingScrollPhysics(),
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),

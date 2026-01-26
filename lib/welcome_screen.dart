@@ -51,8 +51,7 @@ Future<void> springToPreviousPage(PageController controller) {
   final double pageExtent = viewportDimension * viewportFraction;
   if (pageExtent == 0) return Future.value();
 
-  final double currentPage =
-      metrics.page ?? (position.pixels / pageExtent);
+  final double currentPage = metrics.page ?? (position.pixels / pageExtent);
   final int targetPage = currentPage.ceil() - 1;
   double targetPixels = targetPage * pageExtent;
   targetPixels = targetPixels.clamp(
