@@ -1,9 +1,9 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:tattoo/data/course_client.dart';
-import 'package:tattoo/data/i_school_plus_client.dart';
-import 'package:tattoo/data/portal_client.dart';
+import 'package:tattoo/services/course_service.dart';
+import 'package:tattoo/services/i_school_plus_service.dart';
+import 'package:tattoo/services/portal_service.dart';
 
 class WelcomeLoginPage extends StatefulWidget {
   const WelcomeLoginPage({super.key});
@@ -16,9 +16,9 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   var _selectedService = PortalServiceCode.courseService;
-  final _portalClient = PortalClient();
-  final _courseClient = CourseClient();
-  final _iSchoolPlusClient = ISchoolPlusClient();
+  final _portalClient = PortalService();
+  final _courseClient = CourseService();
+  final _iSchoolPlusClient = ISchoolPlusService();
 
   @override
   void dispose() {

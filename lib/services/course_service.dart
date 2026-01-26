@@ -5,10 +5,10 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/utils/http.dart';
 import 'package:collection/collection.dart';
 
-class CourseClient {
+class CourseService {
   late final Dio _courseDio;
 
-  CourseClient() {
+  CourseService() {
     _courseDio = createDio()
       ..options.baseUrl = 'https://aps.ntut.edu.tw/course/tw/';
   }

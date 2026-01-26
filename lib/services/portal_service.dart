@@ -16,10 +16,10 @@ enum PortalServiceCode {
   const PortalServiceCode(this.code);
 }
 
-class PortalClient {
+class PortalService {
   late final Dio _portalDio;
 
-  PortalClient() {
+  PortalService() {
     // Emulate the NTUT iOS app's HTTP client
     _portalDio = createDio()
       ..options.baseUrl = 'https://app.ntut.edu.tw/'

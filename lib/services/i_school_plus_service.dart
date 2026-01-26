@@ -7,7 +7,7 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/models/i_school_plus.dart';
 import 'package:tattoo/utils/http.dart';
 
-class ISchoolPlusClient {
+class ISchoolPlusService {
   late final Dio _iSchoolPlusDio;
 
   /// A [CourseSchedule.number] of the selected course.
@@ -15,7 +15,7 @@ class ISchoolPlusClient {
   /// All operations in this client will pertain to this course.
   String? _selectedCourseNumber;
 
-  ISchoolPlusClient() {
+  ISchoolPlusService() {
     _iSchoolPlusDio = createDio()
       ..options.baseUrl = 'https://istudy.ntut.edu.tw/learn/'
       ..interceptors.insert(0, InvalidCookieFilter()) // Prepend cookie filter
