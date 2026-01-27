@@ -8,13 +8,13 @@ import 'package:tattoo/utils/http.dart';
 /// Represents a logged-in NTUT Portal user.
 typedef UserDTO = ({
   /// User's display name from NTUT Portal (givenName).
-  String name,
+  String? name,
 
   /// Filename of the user's profile photo (e.g., "111360109_temp1714460935341.jpeg").
-  String avatarFilename,
+  String? avatarFilename,
 
   /// User's NTUT email address (e.g., "t111360109@ntut.edu.tw").
-  String email,
+  String? email,
 
   /// Number of days until the password expires.
   ///
@@ -80,9 +80,9 @@ class PortalService {
     final String? passwordExpiredRemind = body['passwordExpiredRemind'];
 
     return (
-      name: body['givenName'] as String,
-      avatarFilename: body['userPhoto'] as String,
-      email: body['userMail'] as String,
+      name: body['givenName'] as String?,
+      avatarFilename: body['userPhoto'] as String?,
+      email: body['userMail'] as String?,
       passwordExpiresInDays: passwordExpiredRemind != null
           ? int.tryParse(passwordExpiredRemind)
           : null,
