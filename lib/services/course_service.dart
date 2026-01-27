@@ -5,6 +5,36 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/utils/http.dart';
 import 'package:collection/collection.dart';
 
+typedef ReferenceDTO = ({String? id, String? name});
+
+typedef SemesterDTO = ({int? year, int? semester});
+
+typedef ScheduleDTO = ({
+  String? number,
+  ReferenceDTO? course,
+  double? credits,
+  int? hours,
+  CourseType? type,
+  ReferenceDTO? teacher,
+  List<ReferenceDTO>? classes,
+  List<(DayOfWeek, Period)>? schedule,
+  ReferenceDTO? classroom,
+  String? status,
+  String? language,
+  String? syllabusId,
+  String? remarks,
+});
+
+typedef CourseDTO = ({
+  String? id,
+  String? nameZh,
+  String? nameEn,
+  double? credits,
+  int? hours,
+  String? descriptionZh,
+  String? descriptionEn,
+});
+
 class CourseService {
   late final Dio _courseDio;
 
@@ -13,7 +43,9 @@ class CourseService {
       ..options.baseUrl = 'https://aps.ntut.edu.tw/course/tw/';
   }
 
-  Future<List<CourseSemester>> getCourseSemesterList(String username) async {
+  Future<List<SemesterDTO>> getCourseSemesterList(
+    String username,
+  ) async {
     final response = await _courseDio.post(
       'Select.jsp',
       data: {'code': username, 'format': '-3'},
@@ -29,16 +61,16 @@ class CourseService {
     // Link format: Select.jsp?format=-2&code=111360109&year=114&sem=1
     return tableLinks.map((link) {
       final queryParams = Uri.parse(link!).queryParameters;
-      return CourseSemester(
+      return (
         year: int.parse(queryParams['year']!),
         semester: int.parse(queryParams['sem']!),
       );
     }).toList();
   }
 
-  Future<List<CourseSchedule>> getCourseTable({
+  Future<List<ScheduleDTO>> getCourseTable({
     required String username,
-    required CourseSemester semester,
+    required SemesterDTO semester,
   }) async {
     final response = await _courseDio.get(
       'Select.jsp',
@@ -100,10 +132,10 @@ class CourseService {
       final classroom = _parseCellRef(cells[15]);
       final status = _parseCellText(cells[16]);
       final language = _parseCellText(cells[17]);
-      final syllabusId = _parseCellRef(cells[18])?.id;
+      final syllabusId = _parseCellRef(cells[18]).id;
       final remarks = _parseCellText(cells[19]);
 
-      return CourseSchedule(
+      return (
         number: number,
         course: course,
         credits: credits,
@@ -121,10 +153,10 @@ class CourseService {
     }).toList();
   }
 
-  Future<Course> getCourse(EntityRef course) async {
+  Future<CourseDTO> getCourse(String courseId) async {
     final response = await _courseDio.get(
       'Curr.jsp',
-      queryParameters: {'format': '-2', 'code': course.id},
+      queryParameters: {'format': '-2', 'code': courseId},
     );
 
     final document = parse(response.data);
@@ -138,31 +170,29 @@ class CourseService {
     // Second row containes id, name, credits, hours
     final secondRowCells = tableRows[1].children;
     final id = _parseCellText(secondRowCells[0]);
-    final name = LocalizedString(
-      zh: _parseCellText(secondRowCells[1]),
-      en: _parseCellText(secondRowCells[2]),
-    );
+    final nameZh = _parseCellText(secondRowCells[1]);
+    final nameEn = _parseCellText(secondRowCells[2]);
     final credits = double.tryParse(secondRowCells[3].text.trim());
     final hours = int.tryParse(secondRowCells[4].text.trim());
 
     // Second column of the third and fourth rows contain description
-    final description = LocalizedString(
-      zh: _parseCellText(tableRows[2].children[1]),
-      en: _parseCellText(tableRows[3].children[1]),
-    );
+    final descriptionZh = _parseCellText(tableRows[2].children[1]);
+    final descriptionEn = _parseCellText(tableRows[3].children[1]);
 
-    return Course(
+    return (
       id: id,
-      name: name,
+      nameZh: nameZh,
+      nameEn: nameEn,
       credits: credits,
       hours: hours,
-      description: description,
+      descriptionZh: descriptionZh,
+      descriptionEn: descriptionEn,
     );
   }
 
   Future getTeacher({
-    required EntityRef teacher,
-    required CourseSemester semester,
+    required String teacherId,
+    required SemesterDTO semester,
   }) async {
     await _courseDio.get(
       'Teach.jsp',
@@ -170,7 +200,7 @@ class CourseService {
         'format': '-3',
         'year': semester.year,
         'sem': semester.semester,
-        'code': teacher.id,
+        'code': teacherId,
       },
     );
 
@@ -178,8 +208,8 @@ class CourseService {
   }
 
   Future getClassroom({
-    required EntityRef classroom,
-    required CourseSemester semester,
+    required String classroomId,
+    required SemesterDTO semester,
   }) async {
     await _courseDio.get(
       'Croom.jsp',
@@ -187,14 +217,17 @@ class CourseService {
         'format': '-3',
         'year': semester.year,
         'sem': semester.semester,
-        'code': classroom.id,
+        'code': classroomId,
       },
     );
 
     throw UnimplementedError();
   }
 
-  Future getSyllabus({required String courseNumber, required String id}) async {
+  Future getSyllabus({
+    required String courseNumber,
+    required String id,
+  }) async {
     await _courseDio.get(
       'ShowSyllabus.jsp',
       queryParameters: {'snum': courseNumber, 'code': id},
@@ -208,28 +241,28 @@ class CourseService {
     return text.isNotEmpty ? text : null;
   }
 
-  EntityRef? _parseCellRef(Element cell) {
+  ReferenceDTO _parseCellRef(Element cell) {
     final name = _parseCellText(cell);
-    if (name == null) return null;
+    if (name == null) return (id: null, name: null);
     final href = cell.querySelector('a')?.attributes['href'];
-    if (href == null) return EntityRef(name: name);
+    if (href == null) return (id: null, name: name);
     final code = Uri.parse(href).queryParameters['code'];
-    return EntityRef(id: code, name: name);
+    return (id: code, name: name);
   }
 
-  List<EntityRef>? _parseCellRefs(Element cell) {
+  List<ReferenceDTO>? _parseCellRefs(Element cell) {
     final anchors = cell.querySelectorAll('a');
     if (anchors.isEmpty) return null;
-    final refs = anchors
-        .map((a) {
-          final name = a.text.trim();
-          final href = a.attributes['href'];
-          if (href == null) return EntityRef(name: name);
-          final code = Uri.parse(href).queryParameters['code'];
-          return EntityRef(id: code, name: name);
-        })
-        .whereType<EntityRef>()
-        .toList();
+
+    ReferenceDTO toReference(Element anchor) {
+      final name = anchor.text.trim();
+      final href = anchor.attributes['href'];
+      if (href == null) return (id: null, name: name);
+      final code = Uri.parse(href).queryParameters['code'];
+      return (id: code, name: name);
+    }
+
+    final refs = anchors.map(toReference).toList();
     return refs.isNotEmpty ? refs : null;
   }
 }

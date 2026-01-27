@@ -3,9 +3,23 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
-import 'package:tattoo/models/course.dart';
-import 'package:tattoo/models/i_school_plus.dart';
 import 'package:tattoo/utils/http.dart';
+
+typedef StudentDTO = ({
+  String? id,
+  String? name,
+});
+
+typedef MaterialRefDTO = ({
+  String courseNumber,
+  String? title,
+  String? href,
+});
+
+typedef MaterialDTO = ({
+  Uri downloadUrl,
+  String? referer,
+});
 
 class ISchoolPlusService {
   late final Dio _iSchoolPlusDio;
@@ -60,7 +74,7 @@ class ISchoolPlusService {
   }
 
   /// Fetches the list of students enrolled in the specified [courseNumber].
-  Future<List<ISchoolPlusStudent>> getStudents(String courseNumber) async {
+  Future<List<StudentDTO>> getStudents(String courseNumber) async {
     await _selectCourse(courseNumber);
 
     final response = await _iSchoolPlusDio.get('learn_ranking.php');
@@ -87,7 +101,7 @@ class ISchoolPlusService {
           final id = parts[0];
           final name = parts[1].replaceAll(')', '').trim();
 
-          return ISchoolPlusStudent(
+          return (
             id: id.isEmpty ? null : id,
             name: name.isEmpty ? null : name,
           );
@@ -99,7 +113,7 @@ class ISchoolPlusService {
   }
 
   /// Fetches the list of files/materials for the specified [courseNumber].
-  Future<List<ISchoolPlusMaterialRef>> getMaterials(String courseNumber) async {
+  Future<List<MaterialRefDTO>> getMaterials(String courseNumber) async {
     await _selectCourse(courseNumber);
 
     // Fetch and parse the SCORM manifest XML for file listings
@@ -122,7 +136,7 @@ class ISchoolPlusService {
 
       final href = resource?.attributes['href'];
 
-      return ISchoolPlusMaterialRef(
+      return (
         courseNumber: courseNumber,
         title: title,
         href: href,
@@ -131,8 +145,8 @@ class ISchoolPlusService {
   }
 
   /// Fetches the required information to download a material.
-  Future<ISchoolPlusMaterial> getMaterial(
-    ISchoolPlusMaterialRef material,
+  Future<MaterialDTO> getMaterial(
+    MaterialRefDTO material,
   ) async {
     await _selectCourse(material.courseNumber);
 
@@ -194,8 +208,9 @@ class ISchoolPlusService {
         throw Exception('Invalid redirect URI: $location');
       }
 
-      return ISchoolPlusMaterial(
+      return (
         downloadUrl: previewUri.replace(path: "download.php"),
+        referer: null,
       );
     }
 
@@ -230,13 +245,13 @@ class ISchoolPlusService {
       }
       final defaultUrl = defaultUrlMatch.group(1)!;
 
-      return ISchoolPlusMaterial(
+      return (
         downloadUrl: Uri.parse(baseUrl).resolve(defaultUrl),
         referer: downloadUri.toString(),
       );
     }
 
     // Case 4: Material is a standard downloadable file
-    return ISchoolPlusMaterial(downloadUrl: downloadUri);
+    return (downloadUrl: downloadUri, referer: null);
   }
 }

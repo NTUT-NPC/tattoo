@@ -12,6 +12,7 @@
 library;
 
 import 'package:drift/drift.dart';
+import 'package:tattoo/models/course.dart';
 
 /// Mixin for tables that use an auto-incrementing integer primary key.
 mixin AutoIncrementId on Table {
@@ -163,18 +164,6 @@ class Users extends Table with AutoIncrementId {
   late final passwordExpiresInDays = integer().nullable()();
 }
 
-/// Type of course for graduation requirements.
-enum CourseTypeEnum {
-  /// Required course for the major/program.
-  required,
-
-  /// Elective course within the major/program.
-  elective,
-
-  /// General education course.
-  general,
-}
-
 /// Specific offering of a course in a particular semester.
 ///
 /// Represents a course section (班級) in a specific semester with its
@@ -197,7 +186,7 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   late final phase = text()();
 
   /// Type of course (required/elective/general).
-  late final courseType = textEnum<CourseTypeEnum>()();
+  late final courseType = textEnum<CourseType>()();
 
   /// Enrollment status (e.g., "撤選").
   late final status = text().nullable()();
@@ -273,41 +262,6 @@ class CourseOfferingStudents extends Table {
 
   @override
   Set<Column> get primaryKey => {courseOffering, student};
-}
-
-/// Day of the week for class schedules.
-enum DayOfWeek {
-  sunday,
-  monday,
-  tuesday,
-  wednesday,
-  thursday,
-  friday,
-  saturday,
-}
-
-/// Class period within a day, following NTUT's schedule structure.
-///
-/// NTUT uses periods 1-4, N (noon), 5-9, and A-D:
-/// - 1-4: Morning periods
-/// - N: Noon period
-/// - 5-9: Afternoon periods
-/// - A-D: Evening periods
-enum Period {
-  first,
-  second,
-  third,
-  fourth,
-  nPeriod,
-  fifth,
-  sixth,
-  seventh,
-  eighth,
-  ninth,
-  aPeriod,
-  bPeriod,
-  cPeriod,
-  dPeriod,
 }
 
 /// Class schedule time slots for course offerings.

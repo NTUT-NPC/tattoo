@@ -2491,14 +2491,14 @@ class $CourseOfferingsTable extends CourseOfferings
     requiredDuringInsert: true,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<CourseTypeEnum, String>
-  courseType = GeneratedColumn<String>(
-    'course_type',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<CourseTypeEnum>($CourseOfferingsTable.$convertercourseType);
+  late final GeneratedColumnWithTypeConverter<CourseType, String> courseType =
+      GeneratedColumn<String>(
+        'course_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<CourseType>($CourseOfferingsTable.$convertercourseType);
   static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
   late final GeneratedColumn<String> status = GeneratedColumn<String>(
@@ -2695,10 +2695,8 @@ class $CourseOfferingsTable extends CourseOfferings
     return $CourseOfferingsTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<CourseTypeEnum, String, String>
-  $convertercourseType = const EnumNameConverter<CourseTypeEnum>(
-    CourseTypeEnum.values,
-  );
+  static JsonTypeConverter2<CourseType, String, String> $convertercourseType =
+      const EnumNameConverter<CourseType>(CourseType.values);
 }
 
 class CourseOffering extends DataClass implements Insertable<CourseOffering> {
@@ -2731,7 +2729,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   final String phase;
 
   /// Type of course (required/elective/general).
-  final CourseTypeEnum courseType;
+  final CourseType courseType;
 
   /// Enrollment status (e.g., "撤選").
   final String? status;
@@ -2864,7 +2862,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     int? semester,
     String? number,
     String? phase,
-    CourseTypeEnum? courseType,
+    CourseType? courseType,
     Value<String?> status = const Value.absent(),
     Value<String?> language = const Value.absent(),
     Value<String?> remarks = const Value.absent(),
@@ -2958,7 +2956,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   final Value<int> semester;
   final Value<String> number;
   final Value<String> phase;
-  final Value<CourseTypeEnum> courseType;
+  final Value<CourseType> courseType;
   final Value<String?> status;
   final Value<String?> language;
   final Value<String?> remarks;
@@ -2983,7 +2981,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     required int semester,
     required String number,
     required String phase,
-    required CourseTypeEnum courseType,
+    required CourseType courseType,
     this.status = const Value.absent(),
     this.language = const Value.absent(),
     this.remarks = const Value.absent(),
@@ -3028,7 +3026,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Value<int>? semester,
     Value<String>? number,
     Value<String>? phase,
-    Value<CourseTypeEnum>? courseType,
+    Value<CourseType>? courseType,
     Value<String?>? status,
     Value<String?>? language,
     Value<String?>? remarks,
@@ -6963,7 +6961,7 @@ typedef $$CourseOfferingsTableCreateCompanionBuilder =
       required int semester,
       required String number,
       required String phase,
-      required CourseTypeEnum courseType,
+      required CourseType courseType,
       Value<String?> status,
       Value<String?> language,
       Value<String?> remarks,
@@ -6977,7 +6975,7 @@ typedef $$CourseOfferingsTableUpdateCompanionBuilder =
       Value<int> semester,
       Value<String> number,
       Value<String> phase,
-      Value<CourseTypeEnum> courseType,
+      Value<CourseType> courseType,
       Value<String?> status,
       Value<String?> language,
       Value<String?> remarks,
@@ -7214,7 +7212,7 @@ class $$CourseOfferingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<CourseTypeEnum, CourseTypeEnum, String>
+  ColumnWithTypeConverterFilters<CourseType, CourseType, String>
   get courseType => $composableBuilder(
     column: $table.courseType,
     builder: (column) => ColumnWithTypeConverterFilters(column),
@@ -7564,7 +7562,7 @@ class $$CourseOfferingsTableAnnotationComposer
   GeneratedColumn<String> get phase =>
       $composableBuilder(column: $table.phase, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<CourseTypeEnum, String> get courseType =>
+  GeneratedColumnWithTypeConverter<CourseType, String> get courseType =>
       $composableBuilder(
         column: $table.courseType,
         builder: (column) => column,
@@ -7831,7 +7829,7 @@ class $$CourseOfferingsTableTableManager
                 Value<int> semester = const Value.absent(),
                 Value<String> number = const Value.absent(),
                 Value<String> phase = const Value.absent(),
-                Value<CourseTypeEnum> courseType = const Value.absent(),
+                Value<CourseType> courseType = const Value.absent(),
                 Value<String?> status = const Value.absent(),
                 Value<String?> language = const Value.absent(),
                 Value<String?> remarks = const Value.absent(),
@@ -7857,7 +7855,7 @@ class $$CourseOfferingsTableTableManager
                 required int semester,
                 required String number,
                 required String phase,
-                required CourseTypeEnum courseType,
+                required CourseType courseType,
                 Value<String?> status = const Value.absent(),
                 Value<String?> language = const Value.absent(),
                 Value<String?> remarks = const Value.absent(),

@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:tattoo/database/schema.dart';
+import 'package:tattoo/models/course.dart';
 
 part 'database.g.dart';
 

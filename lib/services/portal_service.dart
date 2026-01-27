@@ -3,8 +3,14 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
-import 'package:tattoo/models/portal.dart';
 import 'package:tattoo/utils/http.dart';
+
+typedef UserDTO = ({
+  String name,
+  String avatarFilename,
+  String email,
+  int? passwordExpiresInDays,
+});
 
 // Identification codes for NTUT services used in SSO
 enum PortalServiceCode {
@@ -27,7 +33,7 @@ class PortalService {
   }
 
   // Sets the JSESSIONID cookie in app.ntut.edu.tw domain
-  Future<User> login(String username, String password) async {
+  Future<UserDTO> login(String username, String password) async {
     final response = await _portalDio.post(
       'login.do',
       queryParameters: {'muid': username, 'mpassword': password},
@@ -40,10 +46,10 @@ class PortalService {
     final body = jsonDecode(response.data);
     final String? passwordExpiredRemind = body['passwordExpiredRemind'];
 
-    return User(
-      name: body['givenName'],
-      avatarFilename: body['userPhoto'],
-      email: body['userMail'],
+    return (
+      name: body['givenName'] as String,
+      avatarFilename: body['userPhoto'] as String,
+      email: body['userMail'] as String,
       passwordExpiresInDays: passwordExpiredRemind != null
           ? int.tryParse(passwordExpiredRemind)
           : null,
