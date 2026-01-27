@@ -27,7 +27,7 @@ class HttpsInterceptor extends Interceptor {
 
 /// [Interceptor] to filter out invalid Set-Cookie headers from responses.
 ///
-/// [ISchoolPlusClient] sets cookies with invalid names, causing parsing errors.
+/// [ISchoolPlusService] sets cookies with invalid names, causing parsing errors.
 class InvalidCookieFilter extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
@@ -55,7 +55,7 @@ class InvalidCookieFilter extends Interceptor {
 
 /// Minimal [Transformer] that skips JSON parsing and Content-Type validation.
 ///
-/// [ISchoolPlusClient] return HTML/XML and send malformed Content-Type headers
+/// [ISchoolPlusService] return HTML/XML and send malformed Content-Type headers
 /// like "text/html;;charset=UTF-8" which cause MediaType.parse() to fail.
 /// This transformer bypasses all JSON/MIME type handling and returns raw strings.
 class PlainTextTransformer extends BackgroundTransformer {
