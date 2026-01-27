@@ -2483,11 +2483,11 @@ class $CourseOfferingsTable extends CourseOfferings
   );
   static const VerificationMeta _phaseMeta = const VerificationMeta('phase');
   @override
-  late final GeneratedColumn<String> phase = GeneratedColumn<String>(
+  late final GeneratedColumn<int> phase = GeneratedColumn<int>(
     'phase',
     aliasedName,
     false,
-    type: DriftSqlType.string,
+    type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
   @override
@@ -2662,7 +2662,7 @@ class $CourseOfferingsTable extends CourseOfferings
         data['${effectivePrefix}number'],
       )!,
       phase: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
+        DriftSqlType.int,
         data['${effectivePrefix}phase'],
       )!,
       courseType: $CourseOfferingsTable.$convertercourseType.fromSql(
@@ -2719,19 +2719,21 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   /// Reference to the semester when this course is offered.
   final int semester;
 
-  /// Unique course offering number/section identifier (e.g., "CS101-01").
+  /// Unique course offering number (e.g., "313146", "352902").
   final String number;
 
   /// Course sequence phase/stage number (階段, e.g., "1", "2").
   ///
   /// For multi-part courses like 物理 with the same name. Some courses
   /// encode the sequence in the name instead (e.g., 英文溝通與應用(一)).
-  final String phase;
+  final int phase;
 
   /// Type of course (required/elective/general).
   final CourseType courseType;
 
-  /// Enrollment status (e.g., "撤選").
+  /// Enrollment status for special cases (e.g., "撤選" for withdrawal).
+  ///
+  /// Normally null for regular enrolled courses.
   final String? status;
 
   /// Language of instruction (e.g., "英語").
@@ -2767,7 +2769,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     map['course'] = Variable<int>(course);
     map['semester'] = Variable<int>(semester);
     map['number'] = Variable<String>(number);
-    map['phase'] = Variable<String>(phase);
+    map['phase'] = Variable<int>(phase);
     {
       map['course_type'] = Variable<String>(
         $CourseOfferingsTable.$convertercourseType.toSql(courseType),
@@ -2825,7 +2827,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       course: serializer.fromJson<int>(json['course']),
       semester: serializer.fromJson<int>(json['semester']),
       number: serializer.fromJson<String>(json['number']),
-      phase: serializer.fromJson<String>(json['phase']),
+      phase: serializer.fromJson<int>(json['phase']),
       courseType: $CourseOfferingsTable.$convertercourseType.fromJson(
         serializer.fromJson<String>(json['courseType']),
       ),
@@ -2844,7 +2846,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       'course': serializer.toJson<int>(course),
       'semester': serializer.toJson<int>(semester),
       'number': serializer.toJson<String>(number),
-      'phase': serializer.toJson<String>(phase),
+      'phase': serializer.toJson<int>(phase),
       'courseType': serializer.toJson<String>(
         $CourseOfferingsTable.$convertercourseType.toJson(courseType),
       ),
@@ -2861,7 +2863,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     int? course,
     int? semester,
     String? number,
-    String? phase,
+    int? phase,
     CourseType? courseType,
     Value<String?> status = const Value.absent(),
     Value<String?> language = const Value.absent(),
@@ -2955,7 +2957,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   final Value<int> course;
   final Value<int> semester;
   final Value<String> number;
-  final Value<String> phase;
+  final Value<int> phase;
   final Value<CourseType> courseType;
   final Value<String?> status;
   final Value<String?> language;
@@ -2980,7 +2982,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     required int course,
     required int semester,
     required String number,
-    required String phase,
+    required int phase,
     required CourseType courseType,
     this.status = const Value.absent(),
     this.language = const Value.absent(),
@@ -2997,7 +2999,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Expression<int>? course,
     Expression<int>? semester,
     Expression<String>? number,
-    Expression<String>? phase,
+    Expression<int>? phase,
     Expression<String>? courseType,
     Expression<String>? status,
     Expression<String>? language,
@@ -3025,7 +3027,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Value<int>? course,
     Value<int>? semester,
     Value<String>? number,
-    Value<String>? phase,
+    Value<int>? phase,
     Value<CourseType>? courseType,
     Value<String?>? status,
     Value<String?>? language,
@@ -3066,7 +3068,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       map['number'] = Variable<String>(number.value);
     }
     if (phase.present) {
-      map['phase'] = Variable<String>(phase.value);
+      map['phase'] = Variable<int>(phase.value);
     }
     if (courseType.present) {
       map['course_type'] = Variable<String>(
@@ -4541,7 +4543,11 @@ class Material extends DataClass implements Insertable<Material> {
   /// Title/name of the material or resource.
   final String? title;
 
-  /// URL/link to the material (may be a download link or external resource).
+  /// SCORM resource identifier for the material.
+  ///
+  /// This is an encoded identifier from the SCORM manifest, typically starting
+  /// with "@" followed by a hash (e.g., "@JMsMWnkmxfPFKNAvTmCuuQOeeDyjdh0hXA_...").
+  /// This value is used internally by I-School Plus to locate the resource.
   final String? href;
   const Material({
     required this.id,
@@ -6960,7 +6966,7 @@ typedef $$CourseOfferingsTableCreateCompanionBuilder =
       required int course,
       required int semester,
       required String number,
-      required String phase,
+      required int phase,
       required CourseType courseType,
       Value<String?> status,
       Value<String?> language,
@@ -6974,7 +6980,7 @@ typedef $$CourseOfferingsTableUpdateCompanionBuilder =
       Value<int> course,
       Value<int> semester,
       Value<String> number,
-      Value<String> phase,
+      Value<int> phase,
       Value<CourseType> courseType,
       Value<String?> status,
       Value<String?> language,
@@ -7207,7 +7213,7 @@ class $$CourseOfferingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get phase => $composableBuilder(
+  ColumnFilters<int> get phase => $composableBuilder(
     column: $table.phase,
     builder: (column) => ColumnFilters(column),
   );
@@ -7464,7 +7470,7 @@ class $$CourseOfferingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get phase => $composableBuilder(
+  ColumnOrderings<int> get phase => $composableBuilder(
     column: $table.phase,
     builder: (column) => ColumnOrderings(column),
   );
@@ -7559,7 +7565,7 @@ class $$CourseOfferingsTableAnnotationComposer
   GeneratedColumn<String> get number =>
       $composableBuilder(column: $table.number, builder: (column) => column);
 
-  GeneratedColumn<String> get phase =>
+  GeneratedColumn<int> get phase =>
       $composableBuilder(column: $table.phase, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<CourseType, String> get courseType =>
@@ -7828,7 +7834,7 @@ class $$CourseOfferingsTableTableManager
                 Value<int> course = const Value.absent(),
                 Value<int> semester = const Value.absent(),
                 Value<String> number = const Value.absent(),
-                Value<String> phase = const Value.absent(),
+                Value<int> phase = const Value.absent(),
                 Value<CourseType> courseType = const Value.absent(),
                 Value<String?> status = const Value.absent(),
                 Value<String?> language = const Value.absent(),
@@ -7854,7 +7860,7 @@ class $$CourseOfferingsTableTableManager
                 required int course,
                 required int semester,
                 required String number,
-                required String phase,
+                required int phase,
                 required CourseType courseType,
                 Value<String?> status = const Value.absent(),
                 Value<String?> language = const Value.absent(),

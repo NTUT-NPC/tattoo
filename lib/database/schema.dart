@@ -183,7 +183,7 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   ///
   /// For multi-part courses like 物理 with the same name. Some courses
   /// encode the sequence in the name instead (e.g., 英文溝通與應用(一)).
-  late final phase = text()();
+  late final phase = integer()();
 
   /// Type of course (required/elective/general).
   late final courseType = textEnum<CourseType>()();

@@ -31,6 +31,9 @@ typedef ScheduleDTO = ({
   /// Reference to the course.
   ReferenceDTO? course,
 
+  /// Course sequence phase/stage number (階段, e.g., "1", "2").
+  int? phase,
+
   /// Number of credits for this course.
   double? credits,
 
@@ -187,6 +190,7 @@ class CourseService {
       // Extract basic course information
       final number = _parseCellText(cells[0]);
       final course = _parseCellRef(cells[1]);
+      final phase = int.tryParse(cells[2].text.trim());
       final credits = double.tryParse(cells[3].text.trim());
       final hours = int.tryParse(cells[4].text.trim());
       final type = CourseType.values.firstWhereOrNull(
@@ -224,6 +228,7 @@ class CourseService {
       return (
         number: number,
         course: course,
+        phase: phase,
         credits: credits,
         hours: hours,
         type: type,
