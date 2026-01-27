@@ -54,7 +54,8 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
         final course = await _courseClient.getCourse(
           courseSchedule
               .firstWhere((schedule) => schedule.course?.id != null)
-              .course!,
+              .course!
+              .id!,
         );
         inspect(course);
         break;
