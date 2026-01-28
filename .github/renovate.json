@@ -12,8 +12,20 @@
       "rangeStrategy": "pin"
     },
     {
-      "matchPackageNames": ["dart"],
-      "rangeStrategy": "auto"
+      "matchPackageNames": ["flutter", "dart"],
+      "rangeStrategy": "auto",
+      "groupName": "Flutter and Dart",
+      "groupSlug": "flutter"
+    },
+    {
+      "matchFileNames": ["android/**"],
+      "groupName": "Android dependencies",
+      "groupSlug": "android"
+    },
+    {
+      "matchFileNames": ["ios/**"],
+      "groupName": "iOS dependencies",
+      "groupSlug": "ios"
     }
   ]
 }
