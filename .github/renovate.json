@@ -16,9 +16,9 @@
       "enabled": false
     },
     {
-      "matchManagers": ["fvm"],
-      "groupName": "Flutter",
-      "semanticCommitType": "fix"
+      "matchManagers": ["mise"],
+      "groupName": "Development tools",
+      "groupSlug": "sdk"
     },
     {
       "matchFileNames": ["android/**"],
