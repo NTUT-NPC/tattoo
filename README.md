@@ -12,13 +12,13 @@ Project Tattoo is a work-in-progress Flutter app that helps Taipei Tech (NTUT) s
 
 ## Getting Started
 
-This project uses [mise](https://mise.jdx.dev/) to manage development tools (Flutter, Java, Android SDK, Ruby).
+This project uses [mise](https://mise.jdx.dev/) to manage development tools (Flutter, Java, Ruby).
 
 ```bash
-# Install mise (if not already installed)
-# https://mise.jdx.dev/getting-started.html
+# Install and activate mise (if not already)
+# See: https://mise.jdx.dev/getting-started.html
 
-# Install all required tools
+# Install Flutter, Java, and Ruby
 mise install
 
 # Install Flutter dependencies
@@ -31,7 +31,7 @@ bundle install
 flutter run
 ```
 
-mise automatically activates the correct tool versions when you enter the project directory. No additional IDE configuration needed.
+**Android SDK:** Install [Android Studio](https://developer.android.com/studio) or let Flutter download SDK components automatically on first build.
 
 **VS Code users:** See [.vscode/README.md](.vscode/README.md) for project-specific setup instructions.
 
