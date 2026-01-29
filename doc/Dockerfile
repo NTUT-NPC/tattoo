@@ -13,16 +13,16 @@ COPY .fvmrc .
 RUN FLUTTER_VERSION=$(jq -r .flutter .fvmrc) && \
     mkdir -p /flutter && \
     curl -fsSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" | \
-    tar -xJC /flutter --strip-components=1
-
-RUN git config --global --add safe.directory /flutter
+    tar -xJC /flutter --strip-components=1 && \
+    git config --global --add safe.directory /flutter
 
 # Add Flutter to PATH
 ENV PATH="/flutter/bin:${PATH}"
 
 # Resolve app dependencies
 COPY ../pubspec.* ./
-RUN flutter pub get
+RUN flutter --disable-analytics && \
+    flutter pub get
 
 # Copy app source code
 COPY . .
