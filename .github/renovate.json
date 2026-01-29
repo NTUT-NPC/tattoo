@@ -17,7 +17,8 @@
     },
     {
       "matchManagers": ["fvm"],
-      "groupName": "Flutter"
+      "groupName": "Flutter",
+      "semanticCommitType": "fix"
     },
     {
       "matchFileNames": ["android/**"],
