@@ -48,7 +48,6 @@ platform :ios do
 
     flutter_build(
       build: "ipa",
-      build_args: ["--no-codesign"],
     )
 
     build_app(
