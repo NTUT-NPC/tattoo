@@ -41,6 +41,10 @@ platform :ios do
       readonly: is_ci,
     )
 
+    update_code_signing_settings(
+      path: "ios/Runner.xcodeproj",
+    )
+
     increment_build_number(
       build_number: build_number,
       xcodeproj: "ios/Runner.xcodeproj",
@@ -50,15 +54,12 @@ platform :ios do
       build: "ipa",
     )
 
-    build_app(
-      suppress_xcode_output: true,
-    )
-
     app_store_connect_api_key(
       is_key_content_base64: true,
     )
 
     upload_to_testflight(
+      ipa: "build/ios/ipa/tattoo.ipa",
       changelog: "PR ##{pr_number}: #{pr_title}\nBuild: #{build_number}",
       skip_waiting_for_build_processing: is_ci,
     )
