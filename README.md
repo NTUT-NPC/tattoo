@@ -12,23 +12,26 @@ Project Tattoo is a work-in-progress Flutter app that helps Taipei Tech (NTUT) s
 
 ## Getting Started
 
-This project uses [FVM](https://fvm.app/) to manage Flutter versions.
+This project uses [mise](https://mise.jdx.dev/) to manage development tools (Flutter, Java, Android SDK, Ruby).
 
 ```bash
-# Install FVM (if not already installed)
-# See https://fvm.app/documentation/getting-started/installation
+# Install mise (if not already installed)
+# https://mise.jdx.dev/getting-started.html
 
-# Use the project's Flutter version
-fvm use
+# Install all required tools
+mise install
 
-# Install dependencies
-fvm flutter pub get
+# Install Flutter dependencies
+flutter pub get
+
+# Install Ruby dependencies (fastlane)
+bundle install
 
 # Run the app
-fvm flutter run
+flutter run
 ```
 
-For IDE configuration (VS Code, Android Studio, IntelliJ), see [FVM IDE Configuration](https://fvm.app/documentation/guides/workflows#ide-configuration).
+mise automatically activates the correct tool versions when you enter the project directory. No additional IDE configuration needed.
 
 **VS Code users:** See [.vscode/README.md](.vscode/README.md) for project-specific setup instructions.
 

@@ -1,0 +1,5 @@
+[tools]
+flutter = "3.38.9"
+java = "zulu-17"   # Required by Android build
+android-sdk = "20" # Command Line Tools
+ruby = "3.4"       # For Fastlane and CocoaPods
