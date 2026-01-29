@@ -38,28 +38,27 @@ platform :ios do
 
     sync_code_signing(
       type: "appstore",
-      readonly: is_ci
+      readonly: is_ci,
     )
 
     increment_build_number(
       build_number: build_number,
-      xcodeproj: "ios/Runner.xcodeproj"
+      xcodeproj: "ios/Runner.xcodeproj",
     )
 
-    flutter_build
-    
-    build_app
+    flutter_build(
+      build: "ipa",
+    )
 
     app_store_connect_api_key(
-      is_key_content_base64: true
+      is_key_content_base64: true,
     )
 
     upload_to_testflight(
+      ipa: "build/ios/ipa/tattoo.ipa",
       changelog: "PR ##{pr_number}: #{pr_title}\nBuild: #{build_number}",
-      skip_waiting_for_build_processing: is_ci
+      skip_waiting_for_build_processing: is_ci,
     )
-
-    puts "Uploaded build #{build_number} for PR ##{pr_number} to TestFlight"
   end
 end
 
