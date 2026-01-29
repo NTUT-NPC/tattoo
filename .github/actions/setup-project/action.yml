@@ -15,7 +15,7 @@ runs:
     - name: Read tool versions
       id: mise-versions
       shell: bash
-      run: echo "flutter=$(mise current flutter | awk '{print $2}')" >> $GITHUB_OUTPUT
+      run: echo "flutter=$(mise current flutter)" >> $GITHUB_OUTPUT
 
     - name: Install Flutter dependencies
       shell: bash
