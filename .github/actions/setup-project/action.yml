@@ -20,7 +20,7 @@ runs:
       shell: bash
       run: |
         tools="${{ inputs.tools }}"
-        mise_tools=$(echo "$tools" | sed 's/\<ruby\>//g' | xargs) # Remove 'ruby' and trim whitespace
+        mise_tools=$(echo "$tools" | sed 's/[[:<:]]ruby[[:>:]]//g' | xargs)
         echo "mise_tools=$mise_tools" >> $GITHUB_OUTPUT
 
     - name: Install mise
