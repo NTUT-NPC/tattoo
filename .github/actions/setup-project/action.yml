@@ -28,6 +28,7 @@ runs:
       uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
       with:
         install_args: ${{ steps.parse-tools.outputs.mise_tools }}
+        add_shims_to_path: false # Use direct bin paths
 
     - name: Read tool versions
       id: mise-versions
