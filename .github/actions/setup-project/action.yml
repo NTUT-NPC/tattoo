@@ -20,7 +20,8 @@ runs:
       shell: bash
       run: |
         tools="${{ inputs.tools }}"
-        mise_tools=$(echo "$tools" | sed 's/[[:<:]]ruby[[:>:]]//g' | xargs)
+        # Filter out 'ruby' from tools list (handled separately by setup-ruby)
+        mise_tools=$(echo "$tools" | tr ' ' '\n' | grep -v '^ruby$' | xargs)
         echo "mise_tools=$mise_tools" >> $GITHUB_OUTPUT
 
     - name: Install mise
