@@ -43,9 +43,10 @@ platform :ios do
 
     update_code_signing_settings(
       path: "ios/Runner.xcodeproj",
+      sdk: "iphoneos*",
+      team_id: ENV["APPLE_TEAM_ID"],
       code_sign_identity: "iPhone Distribution",
       profile_name: "match AppStore club.ntut.tattoo",
-      sdk: "iphoneos*",
     )
 
     increment_build_number(
