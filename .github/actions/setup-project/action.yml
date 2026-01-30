@@ -31,12 +31,12 @@ runs:
 
     - name: Read tool versions
       id: mise-versions
-      if: ${{ contains(inputs.tools, 'flutter') }}
+      if: ${{ inputs.tools == '' || contains(inputs.tools, 'flutter') }}
       shell: bash
       run: echo "flutter=$(mise current flutter)" >> $GITHUB_OUTPUT
 
     - name: Setup Ruby
-      if: ${{ contains(inputs.tools, 'ruby') }}
+      if: ${{ inputs.tools == '' || contains(inputs.tools, 'ruby') }}
       uses: ruby/setup-ruby@8d27f39a5e7ad39aebbcbd1324f7af020229645c # v1.287.0
       with:
         bundler-cache: true
