@@ -47,7 +47,11 @@ app.*.map.json
 /android/app/release
 
 # FVM Version Cache
-.fvm/
+/.fvm/
 
 # Environment variables
 .env
+
+# Local Claude files
+/.claude/*.local.*
+/CLAUDE.local.md

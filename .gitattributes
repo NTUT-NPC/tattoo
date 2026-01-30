@@ -1,0 +1,3 @@
+# Skip generated files from diffs
+*.g.dart -diff
+*.lock -diff
