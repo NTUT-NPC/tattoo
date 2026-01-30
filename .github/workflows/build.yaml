@@ -16,6 +16,8 @@ jobs:
       - name: Setup project
         id: setup
         uses: ./.github/actions/setup-project
+        with:
+          tools: flutter java
 
       - name: Verify Flutter version
         if: ${{ steps.setup.outputs.flutter-version != '3.38.9' }}
@@ -72,6 +74,8 @@ jobs:
 
       - name: Setup project
         uses: ./.github/actions/setup-project
+        with:
+          tools: flutter ruby
 
       - name: Build iOS
         run: flutter build ios --no-pub --simulator
