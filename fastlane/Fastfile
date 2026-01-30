@@ -54,27 +54,27 @@ platform :ios do
       xcodeproj: "ios/Runner.xcodeproj",
     )
 
+    # Build and create xcarchive without code signing
     flutter_build(
       build: "ipa",
+      build_args: ["--no-codesign"],
     )
 
-    # Debug: Show what flutter_build returned
-    UI.important("Flutter output path: #{lane_context[SharedValues::FLUTTER_OUTPUT]}")
-    UI.important("IPA path: #{lane_context[SharedValues::IPA_OUTPUT_PATH]}")
+    # Export the IPA from the xcarchive using gym with proper code signing
+    archive_path = lane_context[SharedValues::FLUTTER_OUTPUT]
+    UI.important("Using archive at: #{archive_path}")
 
-    # Debug: List what IPA files actually exist
-    UI.important("Searching for IPA files in build/ios/ipa/...")
-    sh("ls -la build/ios/ipa/ || echo 'Directory does not exist'")
+    build_app(
+      skip_build_archive: true,
+      archive_path: archive_path,
+      suppress_xcode_output: true,
+    )
 
     app_store_connect_api_key(
       is_key_content_base64: true,
     )
 
-    ipa_path = "build/ios/ipa/tattoo.ipa"
-    UI.important("Attempting to upload IPA from: #{ipa_path}")
-
     upload_to_testflight(
-      ipa: ipa_path,
       changelog: "PR ##{pr_number}: #{pr_title}\nBuild: #{build_number}",
       skip_waiting_for_build_processing: is_ci,
     )
