@@ -37,8 +37,8 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
         with:
           key: ${{ runner.os }}-android-sdk-${{ steps.setup.outputs.flutter-version }}
+          # Update paths when updating Flutter version
           path: |
-            /usr/local/lib/android/sdk/ndk/28.2.13676358
             /usr/local/lib/android/sdk/cmake/3.22.1
           restore-keys: |
             ${{ runner.os }}-android-sdk-
