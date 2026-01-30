@@ -23,6 +23,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Build and sign release IPA
 
+### ios upload_pr_preview
+
+```sh
+[bundle exec] fastlane ios upload_pr_preview
+```
+
+Build and upload PR preview to TestFlight Internal Testing
+
 ----
 
 

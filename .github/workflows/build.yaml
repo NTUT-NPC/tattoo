@@ -65,23 +65,3 @@ jobs:
         with:
           name: apk-x64-${{ github.sha }}
           path: build/app/outputs/flutter-apk/app-x86_64-debug.apk
-
-  build-ios:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-
-      - name: Setup project
-        uses: ./.github/actions/setup-project
-        with:
-          tools: flutter ruby
-
-      - name: Build iOS
-        run: flutter build ios --no-pub --simulator
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: ios-${{ github.sha }}
-          path: build/ios/iphonesimulator

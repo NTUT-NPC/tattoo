@@ -10,8 +10,16 @@ GEM
   specs:
     CFPropertyList (3.0.8)
     abbrev (0.1.2)
+    activesupport (5.2.8.1)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 0.7, < 2)
+      minitest (~> 5.1)
+      tzinfo (~> 1.1)
     addressable (2.8.8)
       public_suffix (>= 2.0.2, < 8.0)
+    algoliasearch (1.27.5)
+      httpclient (~> 2.8, >= 2.8.3)
+      json (>= 1.5.1)
     artifactory (3.0.17)
     atomos (0.1.3)
     aws-eventstream (1.4.0)
@@ -38,11 +46,49 @@ GEM
     benchmark (0.5.0)
     bigdecimal (4.0.1)
     claide (1.1.0)
+    cocoapods (1.10.2)
+      addressable (~> 2.6)
+      claide (>= 1.0.2, < 2.0)
+      cocoapods-core (= 1.10.2)
+      cocoapods-deintegrate (>= 1.0.3, < 2.0)
+      cocoapods-downloader (>= 1.4.0, < 2.0)
+      cocoapods-plugins (>= 1.0.0, < 2.0)
+      cocoapods-search (>= 1.0.0, < 2.0)
+      cocoapods-trunk (>= 1.4.0, < 2.0)
+      cocoapods-try (>= 1.1.0, < 2.0)
+      colored2 (~> 3.1)
+      escape (~> 0.0.4)
+      fourflusher (>= 2.3.0, < 3.0)
+      gh_inspector (~> 1.0)
+      molinillo (~> 0.6.6)
+      nap (~> 1.0)
+      ruby-macho (~> 1.4)
+      xcodeproj (>= 1.19.0, < 2.0)
+    cocoapods-core (1.10.2)
+      activesupport (> 5.0, < 6)
+      addressable (~> 2.6)
+      algoliasearch (~> 1.0)
+      concurrent-ruby (~> 1.1)
+      fuzzy_match (~> 2.0.4)
+      nap (~> 1.0)
+      netrc (~> 0.11)
+      public_suffix
+      typhoeus (~> 1.0)
+    cocoapods-deintegrate (1.0.5)
+    cocoapods-downloader (1.6.3)
+    cocoapods-plugins (1.0.0)
+      nap
+    cocoapods-search (1.0.1)
+    cocoapods-trunk (1.6.0)
+      nap (>= 0.8, < 2.0)
+      netrc (~> 0.11)
+    cocoapods-try (1.2.0)
     coderay (1.1.3)
     colored (1.2)
     colored2 (3.1.2)
     commander (4.6.0)
       highline (~> 2.0.0)
+    concurrent-ruby (1.3.6)
     csv (3.3.5)
     declarative (0.0.20)
     digest-crc (0.7.0)
@@ -50,6 +96,9 @@ GEM
     domain_name (0.6.20240107)
     dotenv (2.8.1)
     emoji_regex (3.2.3)
+    escape (0.0.4)
+    ethon (0.15.0)
+      ffi (>= 1.15.0)
     excon (0.112.0)
     faraday (1.8.0)
       faraday-em_http (~> 1.0)
@@ -129,6 +178,10 @@ GEM
     fastlane-plugin-flutter (0.8.0)
     fastlane-sirp (1.0.0)
       sysrandom (~> 1.0)
+    ffi (1.17.3)
+    ffi (1.17.3-arm64-darwin)
+    fourflusher (2.3.1)
+    fuzzy_match (2.0.4)
     gh_inspector (1.1.3)
     google-apis-androidpublisher_v3 (0.54.0)
       google-apis-core (>= 0.11.0, < 2.a)
@@ -171,6 +224,8 @@ GEM
       domain_name (~> 0.5)
     httpclient (2.9.0)
       mutex_m
+    i18n (1.14.8)
+      concurrent-ruby (~> 1.0)
     io-console (0.8.2)
     jmespath (1.6.2)
     json (2.18.0)
@@ -180,11 +235,15 @@ GEM
     method_source (1.1.0)
     mini_magick (4.13.2)
     mini_mime (1.1.5)
+    minitest (5.27.0)
+    molinillo (0.6.6)
     multi_json (1.19.1)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
     nanaimo (0.4.0)
+    nap (1.1.0)
     naturally (2.3.0)
+    netrc (0.11.0)
     nkf (0.2.0)
     optparse (0.8.1)
     os (1.1.4)
@@ -205,6 +264,7 @@ GEM
     retriable (3.1.2)
     rexml (3.4.4)
     rouge (3.28.0)
+    ruby-macho (1.4.0)
     ruby2_keywords (0.0.5)
     rubyzip (2.4.1)
     security (0.1.5)
@@ -220,11 +280,16 @@ GEM
     terminal-notifier (2.0.0)
     terminal-table (3.0.2)
       unicode-display_width (>= 1.1.1, < 3)
+    thread_safe (0.3.6)
     trailblazer-option (0.1.2)
     tty-cursor (0.7.1)
     tty-screen (0.8.2)
     tty-spinner (0.9.3)
       tty-cursor (~> 0.7)
+    typhoeus (1.5.0)
+      ethon (>= 0.9.0, < 0.16.0)
+    tzinfo (1.2.11)
+      thread_safe (~> 0.1)
     uber (0.1.0)
     unicode-display_width (2.6.0)
     word_wrap (1.0.0)
@@ -245,6 +310,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  cocoapods
   fastlane
   fastlane-plugin-flutter
   fastlane-plugin-match_keystore!
@@ -253,7 +319,9 @@ DEPENDENCIES
 CHECKSUMS
   CFPropertyList (3.0.8) sha256=2c99d0d980536d3d7ab252f7bd59ac8be50fbdd1ff487c98c949bb66bb114261
   abbrev (0.1.2) sha256=ad1b4eaaaed4cb722d5684d63949e4bde1d34f2a95e20db93aecfe7cbac74242
+  activesupport (5.2.8.1) sha256=f0498c616e1b243c7b56d67920c389f959c186ad7031569e80335b42e1d22564
   addressable (2.8.8) sha256=7c13b8f9536cf6364c03b9d417c19986019e28f7c00ac8132da4eb0fe393b057
+  algoliasearch (1.27.5) sha256=26c1cddf3c2ec4bd60c148389e42702c98fdac862881dc6b07a4c0b89ffec853
   artifactory (3.0.17) sha256=3023d5c964c31674090d655a516f38ca75665c15084140c08b7f2841131af263
   atomos (0.1.3) sha256=7d43b22f2454a36bace5532d30785b06de3711399cb1c6bf932573eda536789f
   aws-eventstream (1.4.0) sha256=116bf85c436200d1060811e6f5d2d40c88f65448f2125bc77ffce5121e6e183b
@@ -267,16 +335,27 @@ CHECKSUMS
   benchmark (0.5.0) sha256=465df122341aedcb81a2a24b4d3bd19b6c67c1530713fd533f3ff034e419236c
   bigdecimal (4.0.1) sha256=8b07d3d065a9f921c80ceaea7c9d4ae596697295b584c296fe599dd0ad01c4a7
   claide (1.1.0) sha256=6d3c5c089dde904d96aa30e73306d0d4bd444b1accb9b3125ce14a3c0183f82e
+  cocoapods (1.10.2) sha256=6fd9d3be435b68b04fd848501ac9a17f1cdfa7b4eca5aa4c157ce21fe5a71b34
+  cocoapods-core (1.10.2) sha256=8536125a0d31d50ddfa268f7d3a9f5cdd5b5c25709445a512bac0f5af8553ac8
+  cocoapods-deintegrate (1.0.5) sha256=517c2a448ef563afe99b6e7668704c27f5de9e02715a88ee9de6974dc1b3f6a2
+  cocoapods-downloader (1.6.3) sha256=f0ebe76e6b4ecb5c660a833555da562d862ad6600a9baed2c2e60fa8e2bcf149
+  cocoapods-plugins (1.0.0) sha256=725d17ce90b52f862e73476623fd91441b4430b742d8a071000831efb440ca9a
+  cocoapods-search (1.0.1) sha256=1b133b0e6719ed439bd840e84a1828cca46425ab73a11eff5e096c3b2df05589
+  cocoapods-trunk (1.6.0) sha256=5f5bda8c172afead48fa2d43a718cf534b1313c367ba1194cebdeb9bfee9ed31
+  cocoapods-try (1.2.0) sha256=145b946c6e7747ed0301d975165157951153d27469e6b2763c83e25c84b9defe
   coderay (1.1.3) sha256=dc530018a4684512f8f38143cd2a096c9f02a1fc2459edcfe534787a7fc77d4b
   colored (1.2) sha256=9d82b47ac589ce7f6cab64b1f194a2009e9fd00c326a5357321f44afab2c1d2c
   colored2 (3.1.2) sha256=b13c2bd7eeae2cf7356a62501d398e72fde78780bd26aec6a979578293c28b4a
   commander (4.6.0) sha256=7d1ddc3fccae60cc906b4131b916107e2ef0108858f485fdda30610c0f2913d9
+  concurrent-ruby (1.3.6) sha256=6b56837e1e7e5292f9864f34b69c5a2cbc75c0cf5338f1ce9903d10fa762d5ab
   csv (3.3.5) sha256=6e5134ac3383ef728b7f02725d9872934f523cb40b961479f69cf3afa6c8e73f
   declarative (0.0.20) sha256=8021dd6cb17ab2b61233c56903d3f5a259c5cf43c80ff332d447d395b17d9ff9
   digest-crc (0.7.0) sha256=64adc23a26a241044cbe6732477ca1b3c281d79e2240bcff275a37a5a0d78c07
   domain_name (0.6.20240107) sha256=5f693b2215708476517479bf2b3802e49068ad82167bcd2286f899536a17d933
   dotenv (2.8.1) sha256=c5944793349ae03c432e1780a2ca929d60b88c7d14d52d630db0508c3a8a17d8
   emoji_regex (3.2.3) sha256=ecd8be856b7691406c6bf3bb3a5e55d6ed683ffab98b4aa531bb90e1ddcc564b
+  escape (0.0.4) sha256=e49f44ae2b4f47c6a3abd544ae77fe4157802794e32f19b8e773cbc4dcec4169
+  ethon (0.15.0) sha256=0809805a035bc10f54162ca99f15ded49e428e0488bcfe1c08c821e18261a74d
   excon (0.112.0) sha256=daf9ac3a4c2fc9aa48383a33da77ecb44fa395111e973084d5c52f6f214ae0f0
   faraday (1.8.0) sha256=d1fb776cf25973b7f52a82b625bb0a009fe30ad6021ef838fb9109bf1ea6d029
   faraday-cookie_jar (0.0.8) sha256=0140605823f8cc63c7028fccee486aaed8e54835c360cffc1f7c8c07c4299dbb
@@ -294,6 +373,10 @@ CHECKSUMS
   fastlane-plugin-flutter (0.8.0) sha256=84c6196da06431b089c1f97c4dd4838ce03d89869e15849c51e9a51b567ed39e
   fastlane-plugin-match_keystore (0.2.1)
   fastlane-sirp (1.0.0) sha256=66478f25bcd039ec02ccf65625373fca29646fa73d655eb533c915f106c5e641
+  ffi (1.17.3) sha256=0e9f39f7bb3934f77ad6feab49662be77e87eedcdeb2a3f5c0234c2938563d4c
+  ffi (1.17.3-arm64-darwin) sha256=0c690555d4cee17a7f07c04d59df39b2fba74ec440b19da1f685c6579bb0717f
+  fourflusher (2.3.1) sha256=1b3de61c7c791b6a4e64f31e3719eb25203d151746bb519a0292bff1065ccaa9
+  fuzzy_match (2.0.4) sha256=b5de4f95816589c5b5c3ad13770c0af539b75131c158135b3f3bbba75d0cfca5
   gh_inspector (1.1.3) sha256=04cca7171b87164e053aa43147971d3b7f500fcb58177698886b48a9fc4a1939
   google-apis-androidpublisher_v3 (0.54.0) sha256=8970a72839c8dfa87d290bdf935c641bf18cbd4323bf71d182adc04c0108d210
   google-apis-core (0.11.3) sha256=43217013b129d7d52c31ebf94146646c55f463ed25e68ad7523fb644d5a9cc97
@@ -308,6 +391,7 @@ CHECKSUMS
   highline (2.0.3) sha256=2ddd5c127d4692721486f91737307236fe005352d12a4202e26c48614f719479
   http-cookie (1.0.8) sha256=b14fe0445cf24bf9ae098633e9b8d42e4c07c3c1f700672b09fbfe32ffd41aa6
   httpclient (2.9.0) sha256=4b645958e494b2f86c2f8a2f304c959baa273a310e77a2931ddb986d83e498c8
+  i18n (1.14.8) sha256=285778639134865c5e0f6269e0b818256017e8cde89993fdfcbfb64d088824a5
   io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
   jmespath (1.6.2) sha256=238d774a58723d6c090494c8879b5e9918c19485f7e840f2c1c7532cf84ebcb1
   json (2.18.0) sha256=b10506aee4183f5cf49e0efc48073d7b75843ce3782c68dbeb763351c08fd505
@@ -316,11 +400,15 @@ CHECKSUMS
   method_source (1.1.0) sha256=181301c9c45b731b4769bc81e8860e72f9161ad7d66dd99103c9ab84f560f5c5
   mini_magick (4.13.2) sha256=71d6258e0e8a3d04a9a0a09784d5d857b403a198a51dd4f882510435eb95ddd9
   mini_mime (1.1.5) sha256=8681b7e2e4215f2a159f9400b5816d85e9d8c6c6b491e96a12797e798f8bccef
+  minitest (5.27.0) sha256=2d3b17f8a36fe7801c1adcffdbc38233b938eb0b4966e97a6739055a45fa77d5
+  molinillo (0.6.6) sha256=e6352901e77c85d4820f30328f5f452267d2977a1d12d94ce094d0a6c20704c2
   multi_json (1.19.1) sha256=7aefeff8f2c854bf739931a238e4aea64592845e0c0395c8a7d2eea7fdd631b7
   multipart-post (2.4.1) sha256=9872d03a8e552020ca096adadbf5e3cb1cd1cdd6acd3c161136b8a5737cdb4a8
   mutex_m (0.3.0) sha256=cfcb04ac16b69c4813777022fdceda24e9f798e48092a2b817eb4c0a782b0751
   nanaimo (0.4.0) sha256=faf069551bab17f15169c1f74a1c73c220657e71b6e900919897a10d991d0723
+  nap (1.1.0) sha256=949691660f9d041d75be611bb2a8d2fd559c467537deac241f4097d9b5eea576
   naturally (2.3.0) sha256=459923cf76c2e6613048301742363200c3c7e4904c324097d54a67401e179e01
+  netrc (0.11.0) sha256=de1ce33da8c99ab1d97871726cba75151113f117146becbe45aa85cb3dabee3f
   nkf (0.2.0) sha256=fbc151bda025451f627fafdfcb3f4f13d0b22ae11f58c6d3a2939c76c5f5f126
   optparse (0.8.1) sha256=42bea10d53907ccff4f080a69991441d611fbf8733b60ed1ce9ee365ce03bd1a
   os (1.1.4) sha256=57816d6a334e7bd6aed048f4b0308226c5fb027433b67d90a9ab435f35108d3f
@@ -334,6 +422,7 @@ CHECKSUMS
   retriable (3.1.2) sha256=0a5a5d0ca4ba61a76fb31a17ab8f7f80281beb040c329d34dfc137a1398688e0
   rexml (3.4.4) sha256=19e0a2c3425dfbf2d4fc1189747bdb2f849b6c5e74180401b15734bc97b5d142
   rouge (3.28.0) sha256=0d6de482c7624000d92697772ab14e48dca35629f8ddf3f4b21c99183fd70e20
+  ruby-macho (1.4.0) sha256=4b3695ee8406ba1878fda8d483665c17dd0b2a7b50e00f85d72e4e1992950d52
   ruby2_keywords (0.0.5) sha256=ffd13740c573b7301cf7a2e61fc857b2a8e3d3aff32545d6f8300d8bae10e3ef
   rubyzip (2.4.1) sha256=8577c88edc1fde8935eb91064c5cb1aef9ad5494b940cf19c775ee833e075615
   security (0.1.5) sha256=3a977a0eca7706e804c96db0dd9619e0a94969fe3aac9680fcfc2bf9b8a833b7
@@ -342,10 +431,13 @@ CHECKSUMS
   sysrandom (1.0.5) sha256=5ac1ac3c2ec64ef76ac91018059f541b7e8f437fbda1ccddb4f2c56a9ccf1e75
   terminal-notifier (2.0.0) sha256=7a0d2b2212ab9835c07f4b2e22a94cff64149dba1eed203c04835f7991078cea
   terminal-table (3.0.2) sha256=f951b6af5f3e00203fb290a669e0a85c5dd5b051b3b023392ccfd67ba5abae91
+  thread_safe (0.3.6) sha256=9ed7072821b51c57e8d6b7011a8e282e25aeea3a4065eab326e43f66f063b05a
   trailblazer-option (0.1.2) sha256=20e4f12ea4e1f718c8007e7944ca21a329eee4eed9e0fa5dde6e8ad8ac4344a3
   tty-cursor (0.7.1) sha256=79534185e6a777888d88628b14b6a1fdf5154a603f285f80b1753e1908e0bf48
   tty-screen (0.8.2) sha256=c090652115beae764336c28802d633f204fb84da93c6a968aa5d8e319e819b50
   tty-spinner (0.9.3) sha256=0e036f047b4ffb61f2aa45f5a770ec00b4d04130531558a94bfc5b192b570542
+  typhoeus (1.5.0) sha256=120b67ed1ef515e6c0e938176db880f15b0916f038e78ce2a66290f3f1de3e3b
+  tzinfo (1.2.11) sha256=6501f6a12175ca0243118b83f7c7c2b7978aaec7a0980550a124d007ad6361b6
   uber (0.1.0) sha256=5beeb407ff807b5db994f82fa9ee07cfceaa561dad8af20be880bc67eba935dc
   unicode-display_width (2.6.0) sha256=12279874bba6d5e4d2728cef814b19197dbb10d7a7837a869bab65da943b7f5a
   word_wrap (1.0.0) sha256=f556d4224c812e371000f12a6ee8102e0daa724a314c3f246afaad76d82accc7

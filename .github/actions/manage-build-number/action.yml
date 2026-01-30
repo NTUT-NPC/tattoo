@@ -1,0 +1,38 @@
+name: Manage Build Number
+description: Reads, increments, and outputs the build number using GitHub repository variables
+
+inputs:
+  github_token:
+    description: GitHub token with permissions to write repository variables
+    required: true
+  current_build_number:
+    description: Current build number from repository variables
+    required: true
+
+outputs:
+  build_number:
+    description: The incremented build number
+    value: ${{ steps.increment.outputs.build_number }}
+
+runs:
+  using: composite
+  steps:
+    - name: Increment and update build number
+      id: increment
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        BUILD_NUMBER: ${{ inputs.current_build_number }}
+      run: |
+        NEW_NUMBER=$((BUILD_NUMBER + 1))
+
+        curl -fsSL \
+          -X PATCH \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/variables/build_number" \
+          -d "{\"name\":\"build_number\",\"value\":\"$NEW_NUMBER\"}"
+
+        echo "build_number: $BUILD_NUMBER → $NEW_NUMBER"
+        echo "build_number=$NEW_NUMBER" >> $GITHUB_OUTPUT

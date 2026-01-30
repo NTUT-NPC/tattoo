@@ -1,0 +1,70 @@
+name: PR Preview
+
+on:
+  pull_request:
+
+permissions:
+  pull-requests: write
+
+jobs:
+  preview-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          tools: flutter ruby
+
+      - name: Manage Build Number
+        id: build-number
+        uses: ./.github/actions/manage-build-number
+        with:
+          github_token: ${{ secrets.BUILD_NUMBER_PAT }}
+          current_build_number: ${{ vars.build_number }}
+
+      - name: Build and Upload to TestFlight
+        env:
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+        run: |
+          bundle exec fastlane ios upload_pr_preview \
+            build_number:${{ steps.build-number.outputs.build_number }} \
+            pr_number:${{ github.event.pull_request.number }} \
+            pr_title:"${{ github.event.pull_request.title }}"
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: <!-- pr-preview-comment -->
+
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            <!-- pr-preview-comment -->
+            ## TestFlight Build Available[^1]
+            **Build Number:** ${{ steps.build-number.outputs.build_number }}
+            **Commit:** ${{ github.sha }}
+
+            ### For Internal Testers
+            1. Open the TestFlight app on your iOS device
+            2. Select "Project Tattoo"
+            3. Install build ${{ steps.build-number.outputs.build_number }}
+
+            [^1]: This build will appear in TestFlight within 5-10 minutes after upload completes.
+          edit-mode: replace
