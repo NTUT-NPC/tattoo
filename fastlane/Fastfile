@@ -58,12 +58,23 @@ platform :ios do
       build: "ipa",
     )
 
+    # Debug: Show what flutter_build returned
+    UI.important("Flutter output path: #{lane_context[SharedValues::FLUTTER_OUTPUT]}")
+    UI.important("IPA path: #{lane_context[SharedValues::IPA_OUTPUT_PATH]}")
+
+    # Debug: List what IPA files actually exist
+    UI.important("Searching for IPA files in build/ios/ipa/...")
+    sh("ls -la build/ios/ipa/ || echo 'Directory does not exist'")
+
     app_store_connect_api_key(
       is_key_content_base64: true,
     )
 
+    ipa_path = "build/ios/ipa/tattoo.ipa"
+    UI.important("Attempting to upload IPA from: #{ipa_path}")
+
     upload_to_testflight(
-      ipa: "build/ios/ipa/tattoo.ipa",
+      ipa: ipa_path,
       changelog: "PR ##{pr_number}: #{pr_title}\nBuild: #{build_number}",
       skip_waiting_for_build_processing: is_ci,
     )
