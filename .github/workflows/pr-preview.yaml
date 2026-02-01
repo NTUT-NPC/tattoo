@@ -28,8 +28,8 @@ jobs:
       - name: Get commit SHA and message
         id: commit
         run: |
-          echo "commit_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          echo "commit_message=$(git show -s --format=%s)" >> $GITHUB_OUTPUT
+          echo "commit_sha=$(git rev-parse --short ${{ github.event.pull_request.head.sha }})" >> $GITHUB_OUTPUT
+          echo "commit_message=$(git show -s --format=%s ${{ github.event.pull_request.head.sha }})" >> $GITHUB_OUTPUT
 
       - name: Build and Upload to TestFlight
         env:
