@@ -96,7 +96,6 @@ jobs:
         with:
           comment-id: ${{ needs.prepare.outputs.comment_id }}
           body: |
-
             ### Android APKs
             - [armeabi-v7a APK](${{ steps.upload-armeabi-v7a.outputs.artifact-url }})
             - [arm64-v8a APK](${{ steps.upload-arm64-v8a.outputs.artifact-url }})
@@ -141,7 +140,6 @@ jobs:
         with:
           comment-id: ${{ needs.prepare.outputs.comment_id }}
           body: |
-
             ### iOS (TestFlight)
             1. Open the TestFlight app on your iOS device
             2. Select "Project Tattoo"
