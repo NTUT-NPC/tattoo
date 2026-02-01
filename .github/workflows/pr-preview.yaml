@@ -25,6 +25,12 @@ jobs:
           github_token: ${{ secrets.BUILD_NUMBER_PAT }}
           current_build_number: ${{ vars.build_number }}
 
+      - name: Get commit SHA and message
+        id: commit
+        run: |
+          echo "commit_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "commit_message=$(git show -s --format=%s)" >> $GITHUB_OUTPUT
+
       - name: Build and Upload to TestFlight
         env:
           MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
@@ -40,7 +46,9 @@ jobs:
           bundle exec fastlane ios upload_pr_preview \
             build_number:${{ steps.build-number.outputs.build_number }} \
             pr_number:${{ github.event.pull_request.number }} \
-            pr_title:"${{ github.event.pull_request.title }}"
+            pr_title:"${{ github.event.pull_request.title }}" \
+            commit_sha:"${{ steps.commit.outputs.commit_sha }}" \
+            commit_message:"${{ steps.commit.outputs.commit_message }}"
 
       - name: Find Comment
         uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4

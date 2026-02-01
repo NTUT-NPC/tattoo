@@ -30,9 +30,11 @@ platform :ios do
 
   desc "Build and upload PR preview to TestFlight Internal Testing"
   lane :upload_pr_preview do |options|
-    build_number = options[:build_number] || "1"
+    build_number = options[:build_number] || 1
     pr_number = options[:pr_number] || "unknown"
     pr_title = options[:pr_title] || ""
+    commit_sha = options[:commit_sha] || ""
+    commit_message = options[:commit_message] || ""
 
     setup_ci if is_ci
 
@@ -69,6 +71,7 @@ platform :ios do
 
     upload_to_testflight(
       skip_waiting_for_build_processing: is_ci,
+      change_log: "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
     )
   end
 end
