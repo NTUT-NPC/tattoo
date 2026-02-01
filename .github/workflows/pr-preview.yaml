@@ -51,7 +51,7 @@ jobs:
             <!-- pr-preview-comment -->
             ## PR Preview Builds
             **Build Number:** ${{ steps.build-number.outputs.build_number }}
-            **Commit:** ${{ steps.commit.outputs.commit_sha }}
+            **Commit:** ${{ steps.commit.outputs.commit_sha }} ${{ steps.commit.outputs.commit_message }}
           edit-mode: replace
 
   android:
