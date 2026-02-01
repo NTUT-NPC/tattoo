@@ -1,145 +1,169 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class WelcomeIntroductionPage extends StatefulWidget {
+class WelcomeIntroductionPage extends StatelessWidget {
   const WelcomeIntroductionPage({super.key});
 
   @override
-  State<WelcomeIntroductionPage> createState() =>
-      _WelcomeIntroductionPageState();
+  Widget build(BuildContext context) {
+    return const WelcomeIntroductionLayout();
+  }
 }
 
-class _WelcomeIntroductionPageState extends State<WelcomeIntroductionPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
+class WelcomeIntroductionLayout extends StatelessWidget {
+  const WelcomeIntroductionLayout({
+    super.key,
+    this.contentPadding = const EdgeInsets.symmetric(horizontal: 8.0),
+  });
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 1),
-      vsync: this,
-    )..repeat(reverse: true);
-    _animation = Tween<double>(
-      begin: -5,
-      end: 5,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  final EdgeInsetsGeometry contentPadding;
 
   @override
   Widget build(BuildContext context) {
+    final sheetColor = Theme.of(context).colorScheme.surface;
+
     return SafeArea(
       child: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Spacer(flex: 1),
-
-                // Logo and Title
-                SvgPicture.asset(
-                  'assets/tat_icon.svg',
-                  height: MediaQuery.of(context).size.height * 0.1,
-                ),
-                Text(
-                  'Project Tattoo',
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                Spacer(flex: 1),
-
-                // Features List
-                _FeatureCard(
-                  title: '查課表',
-                  description: '快速查看課表和課程資訊，並可快速切換學期。',
-                  icon: Icons.calendar_month,
-                ),
-                _FeatureCard(
-                  title: '看成績',
-                  description: '即時查詢各科成績與學分，整合歷年成績紀錄。',
-                  icon: Icons.bar_chart,
-                ),
-                _FeatureCard(
-                  title: '北科生活',
-                  description: '彙整其他校園生活資訊，更多功能敬請期待。',
-                  icon: Icons.location_city,
-                ),
-
-                Spacer(flex: 2),
-
-                // Logo
-                SvgPicture.asset(
-                  'assets/npc_horizontal.svg',
-                  height: 24,
-                  colorFilter: ColorFilter.mode(
-                    Colors.grey[600]!,
-                    BlendMode.srcIn,
-                  ),
-                ),
-
-                SizedBox(height: 12),
-
-                // Disclaimer Text
-                Text(
-                  '由北科程式設計研究社開發\n所有資訊僅供參考，請以學校官方系統為準',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    height: 1.5,
-                    color: Colors.grey[600],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                SizedBox(height: 12),
-
-                // footer: Animated Scroll Indicator
-                AnimatedBuilder(
-                  animation: _animation,
-                  builder: (context, child) {
-                    return Transform.translate(
-                      offset: Offset(0, _animation.value),
-                      child: child,
-                    );
-                  },
-                  child: Column(
-                    spacing: 4.0,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.keyboard_double_arrow_up,
-                        color: Colors.grey[600],
-                      ),
-                      Text(
-                        '向上滑動以繼續',
-                        style:
-                            Theme.of(
-                              context,
-                            ).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[600],
-                            ),
-                      ),
+          SingleChildScrollView(
+            padding: contentPadding.add(
+              const EdgeInsets.only(top: 16, bottom: 96),
+            ),
+            child: const WelcomeIntroductionContent(),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SafeArea(
+              top: false,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.only(top: 16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      sheetColor,
+                      sheetColor,
+                      sheetColor.withAlpha(0),
                     ],
+                    stops: const [0.0, 0.6, 1.0],
                   ),
                 ),
-
-                SizedBox(height: 16),
-              ],
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: FilledButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: const Text('繼續'),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class WelcomeIntroductionContent extends StatelessWidget {
+  const WelcomeIntroductionContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      spacing: 24,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Logo and Title
+        Column(
+          spacing: 12,
+          children: [
+            SvgPicture.asset(
+              'assets/tat_icon.svg',
+              height: 64,
+            ),
+            Text(
+              'Project Tattoo',
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+
+        // Features List
+        Column(
+          spacing: 12,
+          children: [
+            _FeatureCard(
+              title: '查課表',
+              description: '快速查看課表和課程資訊，並可快速切換學期。',
+              icon: Icons.calendar_month,
+            ),
+            _FeatureCard(
+              title: '看成績',
+              description: '即時查詢各科成績與學分，整合歷年成績紀錄。',
+              icon: Icons.bar_chart,
+            ),
+            _FeatureCard(
+              title: '北科生活',
+              description: '彙整其他校園生活資訊，更多功能敬請期待。',
+              icon: Icons.location_city,
+            ),
+          ],
+        ),
+
+        // Logo and disclaimer Text
+        Column(
+          spacing: 12,
+          children: [
+            SvgPicture.asset(
+              'assets/npc_horizontal.svg',
+              height: 24,
+              colorFilter: ColorFilter.mode(
+                Colors.grey[600]!,
+                BlendMode.srcIn,
+              ),
+            ),
+
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[600],
+                ),
+                children: [
+                  const TextSpan(text: '由'),
+                  TextSpan(
+                    text: '北科程式設計研究社',
+                    style: const TextStyle(
+                      decoration: TextDecoration.underline,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        launchUrl(Uri.parse('https://ntut.club'));
+                      },
+                  ),
+                  const TextSpan(text: '開發'),
+                  const TextSpan(text: '\n'),
+                  const TextSpan(
+                    text: '所有資訊僅供參考，請以學校官方系統為準',
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -158,34 +182,41 @@ class _FeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          spacing: 24,
-          children: [
-            Icon(icon, size: 28),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 4,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(icon, size: 28),
+              const SizedBox(width: 24),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  Text(
-                    description,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
+                    const SizedBox(height: 6),
+                    Text(
+                      description,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

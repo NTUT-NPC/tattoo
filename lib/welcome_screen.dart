@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tattoo/welcome_introduction_page.dart';
 import 'package:tattoo/welcome_login_page.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -8,13 +7,7 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView(
-        scrollDirection: Axis.vertical,
-        children: [
-          WelcomeIntroductionPage(),
-          WelcomeLoginPage(),
-        ],
-      ),
+      body: WelcomeLoginPage(),
     );
   }
 }

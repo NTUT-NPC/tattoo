@@ -1,8 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:tattoo/test_screen.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:tattoo/services/portal_service.dart';
+import 'package:tattoo/welcome_introduction_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WelcomeLoginPage extends StatefulWidget {
   const WelcomeLoginPage({super.key});
@@ -16,10 +17,21 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final FocusNode _usernameFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
+  bool _didShowIntroSheet = false;
   String? _errorMessage;
   bool _usernameHasError = false;
   bool _passwordHasError = false;
   final _portalClient = PortalService();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _didShowIntroSheet) return;
+      _didShowIntroSheet = true;
+      _showIntroSheet();
+    });
+  }
 
   @override
   void dispose() {
@@ -92,6 +104,26 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
           user: loggedInUser,
         ),
       ),
+    );
+  }
+
+  Future<void> _showIntroSheet() async {
+    final sheetColor = Theme.of(context).colorScheme.surface;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: sheetColor,
+      builder: (context) {
+        return SafeArea(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: WelcomeIntroductionLayout(
+              contentPadding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -287,15 +319,21 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
                             ),
 
                           // login button
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primary,
-                              foregroundColor: Colors.white,
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primary,
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: _attemptLogin,
+                              child: Padding(
+                                padding: const EdgeInsets.all(6.0),
+                                child: const Text('登入'),
+                              ),
                             ),
-                            onPressed: _attemptLogin,
-                            child: const Text('登入'),
                           ),
 
                           // terms of privacy
@@ -316,6 +354,16 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
                                         color: Colors.grey[600],
                                       ),
                                   children: [
+                                    const TextSpan(text: '由 '),
+                                    TextSpan(
+                                      text: 'Project Tattoo',
+                                      style: TextStyle(
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = _showIntroSheet,
+                                    ),
+                                    const TextSpan(text: ' 驅動\n'),
                                     const TextSpan(
                                       text: '登入資訊將被安全地儲存在您的裝置中',
                                     ),
