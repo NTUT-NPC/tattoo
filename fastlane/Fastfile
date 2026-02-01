@@ -49,14 +49,10 @@ platform :ios do
       profile_name: "match AppStore club.ntut.tattoo",
     )
 
-    increment_build_number(
-      build_number: build_number,
-      xcodeproj: "ios/Runner.xcodeproj",
-    )
-
     # Build and create xcarchive without code signing
     archive_path = flutter_build(
       build: "ipa",
+      build_number: build_number,
       build_args: ["--no-codesign"],
     )
 
