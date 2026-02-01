@@ -18,7 +18,7 @@ jobs:
       - name: Setup project
         uses: ./.github/actions/setup-project
         with:
-          tools: flutter ruby
+          platform: ios
 
       - name: Manage Build Number
         id: build-number
