@@ -71,7 +71,7 @@ platform :ios do
 
     upload_to_testflight(
       skip_waiting_for_build_processing: is_ci,
-      change_log: "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
+      changelog: "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
     )
   end
 end
