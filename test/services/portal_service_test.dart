@@ -93,27 +93,28 @@ void main() {
     });
 
     group('getAvatar', () {
-      test('should handle avatar download correctly', () async {
+      test('should download avatar data', () async {
         final user = await portalService.login(
           TestCredentials.username,
           TestCredentials.password,
         );
 
-        // Test download if avatar exists
-        if (user.avatarFilename != null) {
-          expect(user.avatarFilename, isNotEmpty);
+        expect(
+          user.avatarFilename,
+          isNotNull,
+          reason: 'Test account must have an avatar set',
+        );
+        expect(user.avatarFilename, isNotEmpty);
 
-          final avatarData = await portalService.getAvatar(
-            user.avatarFilename!,
-          );
+        final avatarData = await portalService.getAvatar(
+          user.avatarFilename!,
+        );
 
-          expect(
-            avatarData,
-            isNotEmpty,
-            reason: 'Avatar data should not be empty',
-          );
-        }
-        // If no avatar, test passes (valid state)
+        expect(
+          avatarData,
+          isNotEmpty,
+          reason: 'Avatar data should not be empty',
+        );
       });
     });
 
