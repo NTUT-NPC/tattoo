@@ -2,40 +2,46 @@
 
 Flutter app for NTUT students: course schedules, scores, enrollment, announcements.
 
+Follow @CONTRIBUTING.md for git operation guidelines.
+
+**Last updated:** 2026-02-02. If stale (>30 days), verify Status section against codebase.
+
 ## Status
 
 **Done:**
 - PortalService (auth+SSO), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
 - HTTP utils, InvalidCookieFilter interceptor
 - Drift database schema with all tables
-- UserRepository, CourseRepository, ISchoolPlusRepository (repository pattern implementation)
 - Service DTOs migrated to Dart 3 records
+- Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json`)
 
-**Todo - Data Layer:**
+**Todo - Service Layer:**
 - ISchoolPlusService: getCourseAnnouncement, getCourseAnnouncementDetail, courseSubscribe, getCourseSubscribe, getSubscribeNotice
-- ScoreService: grade retrieval, GPA calc
-- ScoreRepository
+- CourseService: getDepartmentMap, getCourseCategory (syllabus)
+- StudentQueryService (sa_003_oauth - 學生查詢專區):
+  - getStudentStatus (學籍資料查詢)
+  - getAcademicPerformance (學業成績查詢)
+  - getGradeRanking (學業成績排名查詢)
+  - getGPA (學期及歷年GPA查詢)
+  - getMidtermWarnings (期中預警查詢)
+  - getStudentAffairs (獎懲、缺曠課、請假查詢)
+  - getGeneralEducationDimension (查詢已修讀博雅課程向度)
+  - getEnglishProficiency (查詢英語畢業門檻登錄資料)
+  - getClassAndMentor (註冊編班與導師查詢)
+  - getGraduationQualifications (查詢畢業資格審查)
+- StudentQueryRepository
+- PortalService: getCalendar, changePassword
 
 **Todo - App:**
-- Secure storage (flutter_secure_storage)
-- State management (Riverpod/Bloc/Provider)
-- go_router + auth guards
+- State management (Riverpod/Bloc)
+- Page routing
 - UI: login, course table, course detail, scores, profile
 - i18n (zh_TW, en_US)
-- Testing
-- File downloads
+- File downloads (progress tracking, notifications, cancellation)
 
 ## Architecture
 
-Following Flutter's official architecture guide (layered architecture):
-
-```
-UI Layer (Widgets)
-    ↓
-Repository Layer (Business Logic + Coordination)
-    ↓
-Service Layer (HTTP)    +    Database Layer (Drift/SQLite)
-```
+MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP) + Database (Drift)
 
 **Structure:**
 - `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType)
@@ -54,13 +60,17 @@ Service Layer (HTTP)    +    Database Layer (Drift/SQLite)
 - **DTOs**: Dart records defined in service files - lightweight data transfer objects
 - **Domain models**: Drift entities or custom query result classes - what UI consumes
 
-**Services:** PortalService, CourseService, ISchoolPlusService, ScoreService
+**Services:**
+- PortalService - Portal auth, SSO
+- CourseService - 課程系統 (`aa_0010-oauth`)
+- ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`)
+- StudentQueryService (TODO) - 學生查詢專區 (`sa_003_oauth`)
+- Design principle: Match NTUT's actual system boundaries. Each service corresponds to one NTUT SSO target.
 - All share single cookie jar (NTUT session state)
-- PortalService handles SSO for scoreService, courseService, iSchoolPlusService
 - Return DTOs as records (UserDTO, SemesterDTO, ScheduleDTO, etc.) - no database writes
 - DTOs are typedef'd records co-located with service implementation
 
-**Repositories:** UserRepository, CourseRepository, ISchoolPlusRepository, ScoreRepository (TODO)
+**Repositories:** (TODO)
 - Transform DTOs into relational DB tables
 - Return DTOs or domain models to UI
 - Handle data persistence and caching strategies
@@ -83,7 +93,7 @@ Service Layer (HTTP)    +    Database Layer (Drift/SQLite)
 
 **Shared Cookie Jar:** Single cookie jar across all clients for simpler implementation.
 
-**SSO Flow:** PortalClient centralizes auth for 3 separate NTUT services.
+**SSO Flow:** PortalService centralizes auth services.
 
 **User-Agent:** Emulate NTUT iOS app requests.
 
@@ -95,8 +105,8 @@ All available SSO service codes from nportal.ntut.edu.tw (50 total):
 
 #### 教務系統 (Academic Affairs - aa)
 - `aa_0010-oauth` - 課程系統 (Course System)
-- `aa_003_LB_oauth` - 學業成績查詢專區 (Grade Inquiry)
-- `aa_003_oauth` - 學業成績查詢專區[二機] (Grade Inquiry - Server 2)
+- `aa_003_LB_oauth` - 學業成績查詢專區 (Grade Inquiry) - redirects to `sa_003_oauth`
+- `aa_003_oauth` - 學業成績查詢專區[二機] (Grade Inquiry - Server 2) - redirects to `sa_003_oauth`
 - `aa_StuPhoto_oauth` - 新生電子大頭照上傳系統 (New Student Photo Upload)
 - `aa_016_oauth` - 新生網路選課系統 (Freshman Course Selection)
 - `aa_017_oauth` - 新生網路選課系統[二機] (Freshman Course Selection - Server 2)
