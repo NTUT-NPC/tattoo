@@ -226,6 +226,9 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
                                     '學號',
                                     hasError: _usernameHasError,
                                   ),
+                                  autofillHints: const [
+                                    AutofillHints.username,
+                                  ],
                                   textInputAction: TextInputAction.next,
                                   onSubmitted: (_) {
                                     _passwordFocusNode.requestFocus();
