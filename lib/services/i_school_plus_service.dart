@@ -35,8 +35,10 @@ typedef MaterialDTO = ({
   /// Can also be used for streaming media content.
   Uri downloadUrl,
 
-  /// Referer URL required for some downloads (e.g., PDF viewer pages).
-  /// Must be included as a header when downloading or streaming.
+  /// Optional Referer URL for some downloads (e.g., PDF viewer pages).
+  /// If non-null, must be included as the HTTP Referer header when
+  /// downloading or streaming. For other materials, this is `null`
+  /// and no Referer header is required.
   String? referer,
 
   /// Whether this material can be streamed (e.g., video/audio recordings).
@@ -216,7 +218,7 @@ class ISchoolPlusService {
   /// The download process varies by material type:
   /// - Standard files: Direct download URL
   /// - PDFs: Requires a referer URL for access
-  /// - Course recordings: Not yet implemented
+  /// - Course recordings: Returns iStream URL with `streamable: true`
   ///
   /// When the returned [MaterialDTO] has a non-null `referer` field, it must
   /// be included as the Referer header when downloading the file.
