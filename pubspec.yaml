@@ -27,6 +27,7 @@ dependencies:
   drift: 2.30.1
   drift_flutter: 0.2.8
   path_provider: 2.1.5
+  url_launcher: 6.3.2
 
 dev_dependencies:
   flutter_test:
