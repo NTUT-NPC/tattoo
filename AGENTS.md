@@ -13,6 +13,8 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - HTTP utils, InvalidCookieFilter interceptor
 - Drift database schema with all tables
 - Service DTOs migrated to Dart 3 records
+- Repository stubs (AuthRepository, CourseRepository)
+- Riverpod setup (providers for database, services, repositories)
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json`)
 
 **Todo - Service Layer:**
@@ -30,11 +32,16 @@ Follow @CONTRIBUTING.md for git operation guidelines.
   - getEnglishProficiency (查詢英語畢業門檻登錄資料)
   - getClassAndMentor (註冊編班與導師查詢)
   - getGraduationQualifications (查詢畢業資格審查)
-- StudentQueryRepository
+- StudentRepository
 - PortalService: getCalendar, changePassword
 
+**Todo - Repository Layer:**
+- Implement AuthRepository methods (login, logout, session persistence)
+- Implement CourseRepository methods (schedules, materials, rosters, caching)
+- StudentRepository stub and implementation (grades, GPA, rankings)
+- Add UI-specific providers as needed (AsyncNotifier for loading/error states)
+
 **Todo - App:**
-- State management (Riverpod/Bloc)
 - Page routing
 - UI: login, course table, course detail, scores, profile
 - i18n (zh_TW, en_US)
@@ -46,6 +53,7 @@ MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP)
 
 **Structure:**
 - `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType)
+- `lib/providers/` - Riverpod providers for database and services
 - `lib/repositories/` - Coordinate service + database, implement business logic
 - `lib/services/` - HTTP clients, parse responses, return DTOs (as records)
 - `lib/database/` - Drift schema and database class
@@ -71,7 +79,10 @@ MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP)
 - Return DTOs as records (UserDTO, SemesterDTO, ScheduleDTO, etc.) - no database writes
 - DTOs are typedef'd records co-located with service implementation
 
-**Repositories:** (TODO)
+**Repositories:**
+- AuthRepository - User identity, session, profile
+- CourseRepository - Course schedules, catalog, materials, rosters, announcements
+- StudentRepository (TODO) - Grades, GPA, rankings, warnings, graduation status
 - Transform DTOs into relational DB tables
 - Return DTOs or domain models to UI
 - Handle data persistence and caching strategies
