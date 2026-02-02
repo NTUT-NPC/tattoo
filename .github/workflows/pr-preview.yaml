@@ -11,16 +11,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  preview-ios:
-    runs-on: macos-latest
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      build_number: ${{ steps.build-number.outputs.build_number }}
+      commit_sha: ${{ steps.commit.outputs.commit_sha }}
+      commit_message: ${{ steps.commit.outputs.commit_message }}
+      comment_id: ${{ steps.create.outputs.comment-id }}
     steps:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-
-      - name: Setup project
-        uses: ./.github/actions/setup-project
         with:
-          tools: flutter ruby
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Manage Build Number
         id: build-number
@@ -28,6 +30,98 @@ jobs:
         with:
           github_token: ${{ secrets.BUILD_NUMBER_PAT }}
           current_build_number: ${{ vars.build_number }}
+
+      - name: Get commit SHA and message
+        id: commit
+        run: |
+          echo "commit_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "commit_message=$(git show -s --format=%s)" >> $GITHUB_OUTPUT
+
+      - name: Find existing comment
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: <!-- pr-preview-comment -->
+
+      - name: Create or update initial comment
+        id: create
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            <!-- pr-preview-comment -->
+            ## PR Preview Builds
+            **Build Number:** ${{ steps.build-number.outputs.build_number }}
+            **Commit:** ${{ steps.commit.outputs.commit_sha }} ${{ steps.commit.outputs.commit_message }}
+          edit-mode: replace
+
+  android:
+    runs-on: ubuntu-latest
+    needs: [prepare]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Setup project
+        id: setup
+        uses: ./.github/actions/setup-project
+        with:
+          platform: android
+
+      - name: Build APK
+        run: flutter build apk --no-pub --split-per-abi --build-number=${{ needs.prepare.outputs.build_number }}
+
+      - name: Upload APKs to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_ENDPOINT_URL_S3: ${{ secrets.R2_ENDPOINT_URL }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          COMMIT_SHA="${{ needs.prepare.outputs.commit_sha }}"
+          R2_PATH="pr-${PR_NUMBER}/${COMMIT_SHA}"
+
+          # Upload all APKs to R2 with public-read ACL
+          aws s3 cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk \
+            s3://${R2_BUCKET_NAME}/${R2_PATH}/app-armeabi-v7a-release.apk \
+            --acl public-read
+
+          aws s3 cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
+            s3://${R2_BUCKET_NAME}/${R2_PATH}/app-arm64-v8a-release.apk \
+            --acl public-read
+
+          aws s3 cp build/app/outputs/flutter-apk/app-x86_64-release.apk \
+            s3://${R2_BUCKET_NAME}/${R2_PATH}/app-x86_64-release.apk \
+            --acl public-read
+
+      - name: Update comment with Android build
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
+        with:
+          comment-id: ${{ needs.prepare.outputs.comment_id }}
+          body: |
+            ### Android APKs
+            - [armeabi-v7a APK](${{ secrets.R2_PUBLIC_URL }}/pr-${{ github.event.pull_request.number }}/${{ needs.prepare.outputs.commit_sha }}/app-armeabi-v7a-release.apk)
+            - [arm64-v8a APK](${{ secrets.R2_PUBLIC_URL }}/pr-${{ github.event.pull_request.number }}/${{ needs.prepare.outputs.commit_sha }}/app-arm64-v8a-release.apk)
+            - [x86_64 APK](${{ secrets.R2_PUBLIC_URL }}/pr-${{ github.event.pull_request.number }}/${{ needs.prepare.outputs.commit_sha }}/app-x86_64-release.apk)
+          edit-mode: append
+
+  ios:
+    runs-on: macos-latest
+    needs: [prepare]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          platform: ios
 
       - name: Build and Upload to TestFlight
         env:
@@ -42,33 +136,19 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
         run: |
           bundle exec fastlane ios upload_pr_preview \
-            build_number:${{ steps.build-number.outputs.build_number }} \
+            build_number:${{ needs.prepare.outputs.build_number }} \
             pr_number:${{ github.event.pull_request.number }} \
-            pr_title:"${{ github.event.pull_request.title }}"
+            pr_title:"${{ github.event.pull_request.title }}" \
+            commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
+            commit_message:"${{ needs.prepare.outputs.commit_message }}"
 
-      - name: Find Comment
-        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
-        id: find-comment
+      - name: Update comment with iOS build
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: github-actions[bot]
-          body-includes: <!-- pr-preview-comment -->
-
-      - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@v5
-        with:
-          comment-id: ${{ steps.find-comment.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ needs.prepare.outputs.comment_id }}
           body: |
-            <!-- pr-preview-comment -->
-            ## TestFlight Build Available[^1]
-            **Build Number:** ${{ steps.build-number.outputs.build_number }}
-            **Commit:** ${{ github.sha }}
-
-            ### For Internal Testers
+            ### iOS (TestFlight)
             1. Open the TestFlight app on your iOS device
             2. Select "Project Tattoo"
-            3. Install build ${{ steps.build-number.outputs.build_number }}
-
-            [^1]: This build will appear in TestFlight within 5-10 minutes after upload completes.
-          edit-mode: replace
+            3. Install build ${{ needs.prepare.outputs.build_number }}
+          edit-mode: append

@@ -2,47 +2,62 @@ name: Setup Project
 description: Install development tools with mise and get dependencies
 
 inputs:
-  tools:
-    description: 'Space-separated list of tools to install from mise.toml (e.g., "flutter java")'
-    required: false
-    default: ''
-
-outputs:
-  flutter-version:
-    description: 'The Flutter version read from mise.toml'
-    value: ${{ steps.mise-versions.outputs.flutter }}
+  platform:
+    description: The target platform (e.g., ios, android)
 
 runs:
   using: composite
   steps:
-    - name: Parse mise tools to install
-      id: parse-tools
-      shell: bash
-      run: |
-        tools="${{ inputs.tools }}"
-        # Filter out 'ruby' from tools list (handled separately by setup-ruby)
-        mise_tools=$(echo "$tools" | tr ' ' '\n' | grep -v '^ruby$' | xargs)
-        echo "mise_tools=$mise_tools" >> $GITHUB_OUTPUT
-
-    - name: Select Xcode version
-      if: runner.os == 'macOS'
-      shell: bash
-      run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
-
     - name: Install mise
       uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
       with:
-        install_args: ${{ steps.parse-tools.outputs.mise_tools }}
+        install_args: > 
+          ${{ case(
+            inputs.platform == 'android', 'flutter java',
+            inputs.platform == 'ios', 'flutter ruby',
+            'flutter'
+          ) }}
         add_shims_to_path: false # Use direct bin paths
 
-    - name: Read tool versions
-      id: mise-versions
-      if: ${{ inputs.tools == '' || contains(inputs.tools, 'flutter') }}
+    - name: Verify Flutter version
+      if: ${{ inputs.platform == 'android' }}
       shell: bash
-      run: echo "flutter=$(mise current flutter)" >> $GITHUB_OUTPUT
+      run: |
+        FLUTTER_VERSION=$(mise current flutter)
+        if [ "$FLUTTER_VERSION" != "3.38.9" ]; then
+          echo "::error::Flutter version has changed to $FLUTTER_VERSION. Please update cache paths accordingly."
+          exit 1
+        fi
+
+    - name: Setup Gradle cache
+      if: ${{ inputs.platform == 'android' }}
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
+      with:
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Setup Android SDK cache
+      if: ${{ inputs.platform == 'android' }}
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
+      with:
+        key: ${{ runner.os }}-android-sdk-${{ steps.setup.outputs.flutter-version }}
+        # Update paths when updating Flutter version
+        path: |
+          /usr/local/lib/android/sdk/cmake/3.22.1
+        restore-keys: |
+          ${{ runner.os }}-android-sdk-
+
+    - name: Select Xcode version
+      if: ${{ inputs.platform == 'ios' }}
+      shell: bash
+      run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
 
     - name: Setup Ruby
-      if: ${{ inputs.tools == '' || contains(inputs.tools, 'ruby') }}
+      if: ${{ inputs.platform == 'ios' }}
       uses: ruby/setup-ruby@8d27f39a5e7ad39aebbcbd1324f7af020229645c # v1.287.0
       with:
         bundler-cache: true
