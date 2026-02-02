@@ -16,6 +16,11 @@ jobs:
       - name: Setup project
         uses: ./.github/actions/setup-project
 
+      - name: Verify generated files are up-to-date
+        run: |
+          dart run build_runner build --delete-conflicting-outputs
+          git diff --exit-code
+
       - name: Verify formatting
         run: dart format --output none --set-exit-if-changed .
 
