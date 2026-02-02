@@ -247,6 +247,35 @@ void main() {
         }
         // If no materials, test passes (valid state)
       });
+
+      test('should correctly identify streamable materials', () async {
+        final materials = await iSchoolPlusService.getMaterials(
+          testCourseNumber,
+        );
+
+        // Test streamable field for all materials
+        for (final material in materials.take(5)) {
+          final materialInfo = await iSchoolPlusService.getMaterial(material);
+
+          // iStream videos should be marked as streamable
+          if (materialInfo.downloadUrl.host.contains('istream.ntut.edu.tw')) {
+            expect(
+              materialInfo.streamable,
+              isTrue,
+              reason: 'iStream videos should be streamable',
+            );
+          }
+
+          // Non-iStream materials should not be marked as streamable
+          if (!materialInfo.downloadUrl.host.contains('istream.ntut.edu.tw')) {
+            expect(
+              materialInfo.streamable,
+              isFalse,
+              reason: 'Non-video materials should not be streamable',
+            );
+          }
+        }
+      });
     });
 
     group('course selection caching', () {

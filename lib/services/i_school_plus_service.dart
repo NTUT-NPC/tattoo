@@ -32,10 +32,15 @@ typedef MaterialRefDTO = ({
 /// Downloadable course material with its access information.
 typedef MaterialDTO = ({
   /// Direct download URL for the material file.
+  /// Can also be used for streaming media content.
   Uri downloadUrl,
 
   /// Referer URL required for some downloads (e.g., PDF viewer pages).
+  /// Must be included as a header when downloading or streaming.
   String? referer,
+
+  /// Whether this material can be streamed (e.g., video/audio recordings).
+  bool streamable,
 });
 
 /// Service for accessing NTUT's I-School Plus learning management system.
@@ -217,7 +222,6 @@ class ISchoolPlusService {
   /// be included as the Referer header when downloading the file.
   ///
   /// Throws an [Exception] if the material cannot be accessed or parsed.
-  /// Throws [UnimplementedError] for course recording materials.
   Future<MaterialDTO> getMaterial(
     MaterialRefDTO material,
   ) async {
@@ -284,6 +288,7 @@ class ISchoolPlusService {
       return (
         downloadUrl: previewUri.replace(path: "download.php"),
         referer: null,
+        streamable: false,
       );
     }
 
@@ -303,7 +308,13 @@ class ISchoolPlusService {
 
     // Case 2: Material is a course recording
     if (downloadUri.host.contains("istream.ntut.edu.tw")) {
-      throw UnimplementedError();
+      // iStream videos can be streamed directly or downloaded
+      // Testing confirmed no referer required
+      return (
+        downloadUrl: downloadUri,
+        referer: null,
+        streamable: true,
+      );
     }
 
     // Case 3: Material is a PDF
@@ -321,10 +332,15 @@ class ISchoolPlusService {
       return (
         downloadUrl: Uri.parse(baseUrl).resolve(defaultUrl),
         referer: downloadUri.toString(),
+        streamable: false,
       );
     }
 
     // Case 4: Material is a standard downloadable file
-    return (downloadUrl: downloadUri, referer: null);
+    return (
+      downloadUrl: downloadUri,
+      referer: null,
+      streamable: false,
+    );
   }
 }
