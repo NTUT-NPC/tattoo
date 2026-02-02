@@ -18,12 +18,13 @@ void main() {
       portalService = PortalService();
       courseService = CourseService();
 
-      // Authenticate before each test
-      // This ensures we have valid session even if previous test cleared cookies
-      await portalService.login(
-        TestCredentials.username,
-        TestCredentials.password,
-      );
+      // Reuse existing session if available
+      if (!await portalService.isLoggedIn()) {
+        await portalService.login(
+          TestCredentials.username,
+          TestCredentials.password,
+        );
+      }
       await portalService.sso(PortalServiceCode.courseService);
 
       await respectfulDelay();
