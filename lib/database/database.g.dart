@@ -4547,8 +4547,7 @@ class Material extends DataClass implements Insertable<Material> {
 
   /// SCORM resource identifier for the material.
   ///
-  /// This is an encoded identifier from the SCORM manifest, typically starting
-  /// with "@" followed by a hash (e.g., "@JMsMWnkmxfPFKNAvTmCuuQOeeDyjdh0hXA_...").
+  /// This is an encoded identifier from the SCORM manifest.
   /// This value is used internally by I-School Plus to locate the resource.
   final String? href;
   const Material({
