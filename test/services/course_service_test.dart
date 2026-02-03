@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tattoo/models/course.dart';
 import 'package:tattoo/services/course_service.dart';
 import 'package:tattoo/services/portal_service.dart';
 
@@ -198,26 +197,30 @@ void main() {
           semester: semesters.pickRandom(),
         );
 
-        final coursesWithType = courseTable
+        // Find regular courses (not special rows like 班週會及導師時間)
+        final regularCourses = courseTable
             .where(
-              (schedule) => schedule.type != null,
+              (schedule) =>
+                  schedule.number != null && schedule.number!.isNotEmpty,
             )
             .toList();
 
         expect(
-          coursesWithType,
+          regularCourses,
           isNotEmpty,
-          reason: 'At least one course should have a type',
+          reason: 'Should have at least one regular course',
         );
 
-        for (final course in coursesWithType) {
+        for (final course in regularCourses) {
           expect(
             course.type,
-            isIn([
-              CourseType.required,
-              CourseType.elective,
-              CourseType.general,
-            ]),
+            isNotNull,
+            reason: 'Regular courses should have a type',
+          );
+          expect(
+            course.type,
+            isNotEmpty,
+            reason: 'Course type should not be empty',
           );
         }
       });
