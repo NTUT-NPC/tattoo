@@ -79,10 +79,14 @@ class PortalService {
 
     final String? passwordExpiredRemind = body['passwordExpiredRemind'];
 
+    // Normalize empty strings to null for consistency
+    String? normalizeEmpty(String? value) =>
+        value?.isNotEmpty == true ? value : null;
+
     return (
-      name: body['givenName'] as String?,
-      avatarFilename: body['userPhoto'] as String?,
-      email: body['userMail'] as String?,
+      name: normalizeEmpty(body['givenName']),
+      avatarFilename: normalizeEmpty(body['userPhoto']),
+      email: normalizeEmpty(body['userMail']),
       passwordExpiresInDays: passwordExpiredRemind != null
           ? int.tryParse(passwordExpiredRemind)
           : null,

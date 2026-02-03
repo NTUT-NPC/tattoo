@@ -53,6 +53,9 @@ app.*.map.json
 # Environment variables
 .env
 
+# Test credentials
+test/test_config.json
+
 # Local Claude files
 /.claude/*.local.*
 /CLAUDE.local.md

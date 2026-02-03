@@ -38,9 +38,9 @@ class $StudentsTable extends Students with TableInfo<$StudentsTable, Student> {
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
     'name',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   @override
   List<GeneratedColumn> get $columns => [id, studentId, name];
@@ -72,8 +72,6 @@ class $StudentsTable extends Students with TableInfo<$StudentsTable, Student> {
         _nameMeta,
         name.isAcceptableOrUnknown(data['name']!, _nameMeta),
       );
-    } else if (isInserting) {
-      context.missing(_nameMeta);
     }
     return context;
   }
@@ -95,7 +93,7 @@ class $StudentsTable extends Students with TableInfo<$StudentsTable, Student> {
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
-      )!,
+      ),
     );
   }
 
@@ -113,18 +111,19 @@ class Student extends DataClass implements Insertable<Student> {
   final String studentId;
 
   /// Student's name.
-  final String name;
-  const Student({
-    required this.id,
-    required this.studentId,
-    required this.name,
-  });
+  ///
+  /// Nullable because some students in I-School Plus rosters have no name
+  /// recorded (e.g., student 110440001 in course 292704).
+  final String? name;
+  const Student({required this.id, required this.studentId, this.name});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['student_id'] = Variable<String>(studentId);
-    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
     return map;
   }
 
@@ -132,7 +131,7 @@ class Student extends DataClass implements Insertable<Student> {
     return StudentsCompanion(
       id: Value(id),
       studentId: Value(studentId),
-      name: Value(name),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
     );
   }
 
@@ -144,7 +143,7 @@ class Student extends DataClass implements Insertable<Student> {
     return Student(
       id: serializer.fromJson<int>(json['id']),
       studentId: serializer.fromJson<String>(json['studentId']),
-      name: serializer.fromJson<String>(json['name']),
+      name: serializer.fromJson<String?>(json['name']),
     );
   }
   @override
@@ -153,14 +152,18 @@ class Student extends DataClass implements Insertable<Student> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'studentId': serializer.toJson<String>(studentId),
-      'name': serializer.toJson<String>(name),
+      'name': serializer.toJson<String?>(name),
     };
   }
 
-  Student copyWith({int? id, String? studentId, String? name}) => Student(
+  Student copyWith({
+    int? id,
+    String? studentId,
+    Value<String?> name = const Value.absent(),
+  }) => Student(
     id: id ?? this.id,
     studentId: studentId ?? this.studentId,
-    name: name ?? this.name,
+    name: name.present ? name.value : this.name,
   );
   Student copyWithCompanion(StudentsCompanion data) {
     return Student(
@@ -194,7 +197,7 @@ class Student extends DataClass implements Insertable<Student> {
 class StudentsCompanion extends UpdateCompanion<Student> {
   final Value<int> id;
   final Value<String> studentId;
-  final Value<String> name;
+  final Value<String?> name;
   const StudentsCompanion({
     this.id = const Value.absent(),
     this.studentId = const Value.absent(),
@@ -203,9 +206,8 @@ class StudentsCompanion extends UpdateCompanion<Student> {
   StudentsCompanion.insert({
     this.id = const Value.absent(),
     required String studentId,
-    required String name,
-  }) : studentId = Value(studentId),
-       name = Value(name);
+    this.name = const Value.absent(),
+  }) : studentId = Value(studentId);
   static Insertable<Student> custom({
     Expression<int>? id,
     Expression<String>? studentId,
@@ -221,7 +223,7 @@ class StudentsCompanion extends UpdateCompanion<Student> {
   StudentsCompanion copyWith({
     Value<int>? id,
     Value<String>? studentId,
-    Value<String>? name,
+    Value<String?>? name,
   }) {
     return StudentsCompanion(
       id: id ?? this.id,
@@ -369,7 +371,7 @@ class Semester extends DataClass implements Insertable<Semester> {
   /// Academic year in ROC calendar (e.g., 114 for 2025).
   final int year;
 
-  /// Semester number within the year (1=Fall, 2=Spring).
+  /// Semester number within the year (1=Fall, 2=Spring, 3=Summer).
   final int semester;
   const Semester({
     required this.id,
@@ -4797,13 +4799,13 @@ typedef $$StudentsTableCreateCompanionBuilder =
     StudentsCompanion Function({
       Value<int> id,
       required String studentId,
-      required String name,
+      Value<String?> name,
     });
 typedef $$StudentsTableUpdateCompanionBuilder =
     StudentsCompanion Function({
       Value<int> id,
       Value<String> studentId,
-      Value<String> name,
+      Value<String?> name,
     });
 
 final class $$StudentsTableReferences
@@ -5062,13 +5064,13 @@ class $$StudentsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> studentId = const Value.absent(),
-                Value<String> name = const Value.absent(),
+                Value<String?> name = const Value.absent(),
               }) => StudentsCompanion(id: id, studentId: studentId, name: name),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required String studentId,
-                required String name,
+                Value<String?> name = const Value.absent(),
               }) => StudentsCompanion.insert(
                 id: id,
                 studentId: studentId,

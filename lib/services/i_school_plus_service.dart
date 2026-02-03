@@ -85,12 +85,15 @@ class ISchoolPlusService {
     // Find the internal ID for the given course number
     // Example option: <option value="10099386">1141_智慧財產權_352902</option>
     // We match the course number (352902) for the option value (10099386).
-    final internalCourseId = courseSelect.children
-        .firstWhere(
-          (option) => option.text.contains(courseNumber),
-          orElse: () => throw Exception('Course $courseNumber not found.'),
-        )
-        .attributes['value'];
+    // Options may be inside <optgroup> elements, so use querySelectorAll.
+    final options = courseSelect.querySelectorAll('option');
+    final matchingOption = options.where(
+      (option) => option.text.contains(courseNumber),
+    );
+    if (matchingOption.isEmpty) {
+      throw Exception('Course $courseNumber not found.');
+    }
+    final internalCourseId = matchingOption.first.attributes['value'];
     if (internalCourseId == null) {
       throw Exception('Course $courseNumber not found.');
     }

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
-import 'package:tattoo/models/course.dart';
+import 'package:tattoo/models/course.dart' show DayOfWeek, Period;
 import 'package:tattoo/utils/http.dart';
 import 'package:collection/collection.dart';
 
@@ -19,7 +19,7 @@ typedef SemesterDTO = ({
   /// Academic year in ROC calendar (e.g., 114 for 2025).
   int? year,
 
-  /// Semester number (1 for fall, 2 for spring).
+  /// Semester number (1 for fall, 2 for spring, 3 for summer).
   int? semester,
 });
 
@@ -40,8 +40,8 @@ typedef ScheduleDTO = ({
   /// Number of hours per week.
   int? hours,
 
-  /// Type of course for graduation requirements.
-  CourseType? type,
+  /// Type of course (e.g., "必", "選", "通", "輔").
+  String? type,
 
   /// Reference to the instructor.
   ReferenceDTO? teacher,
@@ -193,7 +193,7 @@ class CourseService {
       final phase = int.tryParse(cells[2].text.trim());
       final credits = double.tryParse(cells[3].text.trim());
       final hours = int.tryParse(cells[4].text.trim());
-      final type = _parseCourseType(cells[5]);
+      final type = _parseCellText(cells[5]);
       final teacher = _parseCellRef(cells[6]);
       final classes = _parseCellRefs(cells[7]);
 
@@ -384,19 +384,5 @@ class CourseService {
 
     final refs = anchors.map(toReference).toList();
     return refs.isNotEmpty ? refs : null;
-  }
-
-  CourseType? _parseCourseType(Element cell) {
-    final text = _parseCellText(cell);
-    switch (text) {
-      case '必':
-        return CourseType.required;
-      case '選':
-        return CourseType.elective;
-      case '通':
-        return CourseType.general;
-      default:
-        return null;
-    }
   }
 }
