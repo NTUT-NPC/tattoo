@@ -369,7 +369,7 @@ class Semester extends DataClass implements Insertable<Semester> {
   /// Academic year in ROC calendar (e.g., 114 for 2025).
   final int year;
 
-  /// Semester number within the year (1=Fall, 2=Spring).
+  /// Semester number within the year (1=Fall, 2=Spring, 3=Summer).
   final int semester;
   const Semester({
     required this.id,

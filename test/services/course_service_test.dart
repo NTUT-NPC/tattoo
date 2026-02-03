@@ -52,8 +52,8 @@ void main() {
           );
           expect(
             semester.semester,
-            isIn([1, 2]),
-            reason: 'Semester should be 1 (fall) or 2 (spring)',
+            isIn([1, 2, 3]),
+            reason: 'Semester should be 1 (fall), 2 (spring), or 3 (summer)',
           );
         }
       });
