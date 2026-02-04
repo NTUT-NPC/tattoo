@@ -11,6 +11,7 @@ part 'database.g.dart';
     Students,
     Semesters,
     Courses,
+    Departments,
     Teachers,
     Classes,
     Classrooms,
@@ -24,6 +25,7 @@ part 'database.g.dart';
     CourseOfferingStudents,
     Schedules,
     Materials,
+    TeacherOfficeHours,
   ],
 )
 class AppDatabase extends _$AppDatabase {

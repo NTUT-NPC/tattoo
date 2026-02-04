@@ -107,20 +107,86 @@ class Courses extends Table with AutoIncrementId, Fetchable {
   late final descriptionZh = text().nullable()();
 }
 
-/// Teacher/instructor information in a particular semester.
-class Teachers extends Table with AutoIncrementId, Fetchable {
-  /// Unique teacher code/ID in the NTUT system.
+/// Academic department information.
+///
+/// Represents departments/institutes at NTUT (e.g., "製科所", "電子系").
+class Departments extends Table with AutoIncrementId, Fetchable {
+  /// Unique department code in the NTUT system.
   late final code = text().unique()();
+
+  /// Department name in Traditional Chinese.
+  late final nameZh = text()();
+}
+
+/// Teacher/instructor information for a particular semester.
+///
+/// Each row represents a teacher's profile snapshot for a specific semester.
+/// The same teacher will have multiple rows across different semesters.
+@TableIndex(name: 'teacher_semester', columns: {#semester})
+class Teachers extends Table with AutoIncrementId, Fetchable {
+  /// Teacher code/ID in the NTUT system.
+  late final code = text()();
+
+  /// Reference to the semester this profile is for.
+  late final semester = integer().references(Semesters, #id)();
 
   /// Teacher's name in Traditional Chinese.
   late final nameZh = text()();
+
+  /// Teacher's name in English.
+  late final nameEn = text().nullable()();
 
   /// Teacher's email address.
   ///
   /// Available from syllabus page (教學大綱與進度).
   late final email = text().nullable()();
 
-  // TODO: Add additional teacher details (office, phone, office hours)
+  /// Reference to the teacher's department.
+  late final department = integer().nullable().references(Departments, #id)();
+
+  /// Academic title (e.g., "專任副教授", "兼任講師").
+  late final title = text().nullable()();
+
+  /// Total teaching hours for this semester.
+  late final teachingHours = real().nullable()();
+
+  /// Additional notes about office hours (e.g., appointment requirements).
+  late final officeHoursNote = text().nullable()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {code, semester},
+  ];
+}
+
+/// Teacher office hours time slots.
+///
+/// Each row represents one office hour time slot for a teacher.
+/// A teacher may have multiple office hour slots per week.
+@TableIndex(name: 'teacher_office_hour_teacher', columns: {#teacher})
+class TeacherOfficeHours extends Table with AutoIncrementId {
+  /// Reference to the teacher (semester-specific).
+  late final teacher = integer().references(Teachers, #id)();
+
+  /// Day of the week for this office hour slot.
+  late final dayOfWeek = intEnum<DayOfWeek>()();
+
+  /// Start time hour (0-23).
+  late final startHour = integer()();
+
+  /// Start time minute (0-59).
+  late final startMinute = integer()();
+
+  /// End time hour (0-23).
+  late final endHour = integer()();
+
+  /// End time minute (0-59).
+  late final endMinute = integer()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {teacher, dayOfWeek, startHour, startMinute},
+  ];
 }
 
 /// Student class/major (系級) in a particular semester.
