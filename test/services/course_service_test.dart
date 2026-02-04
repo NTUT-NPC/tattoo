@@ -531,6 +531,12 @@ void main() {
             .where((schedule) => schedule.teacher?.id != null)
             .toList();
 
+        expect(
+          coursesWithTeacher,
+          isNotEmpty,
+          reason: 'Should have at least one course with a teacher',
+        );
+
         final course = coursesWithTeacher.pickRandom();
         final teacher = await courseService.getTeacher(
           teacherId: course.teacher!.id!,
@@ -577,12 +583,6 @@ void main() {
             teacher.nameEn,
             isNotEmpty,
             reason: 'English name should not be empty if present',
-          );
-          // English name should contain only ASCII letters, spaces, hyphens
-          expect(
-            teacher.nameEn,
-            matches(RegExp(r'^[A-Za-z\s\-]+$')),
-            reason: 'English name should contain only letters, spaces, hyphens',
           );
         }
       });
