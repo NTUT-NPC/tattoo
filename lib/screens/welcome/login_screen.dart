@@ -1,17 +1,17 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:tattoo/test_screen.dart';
+import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:tattoo/services/portal_service.dart';
 
-class WelcomeLoginPage extends StatefulWidget {
-  const WelcomeLoginPage({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<WelcomeLoginPage> createState() => _WelcomeLoginPageState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final FocusNode _usernameFocusNode = FocusNode();
@@ -87,7 +87,7 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
     final UserDTO loggedInUser = user;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => TestPage(
+        builder: (_) => HomeScreen(
           username: username,
           user: loggedInUser,
         ),

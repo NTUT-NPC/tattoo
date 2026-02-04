@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tattoo/welcome_login_page.dart';
+import 'package:tattoo/screens/welcome/login_screen.dart';
 
-class WelcomeIntroductionPage extends StatefulWidget {
-  const WelcomeIntroductionPage({super.key});
+class IntroScreen extends StatefulWidget {
+  const IntroScreen({super.key});
 
   @override
-  State<WelcomeIntroductionPage> createState() =>
-      _WelcomeIntroductionPageState();
+  State<IntroScreen> createState() => _IntroScreenState();
 }
 
-class _WelcomeIntroductionPageState extends State<WelcomeIntroductionPage>
+class _IntroScreenState extends State<IntroScreen>
     with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
@@ -140,7 +139,7 @@ class _WelcomeIntroductionPageState extends State<WelcomeIntroductionPage>
                     child: FilledButton(
                       onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => WelcomeLoginPage(),
+                          builder: (context) => LoginScreen(),
                         ),
                       ),
                       child: Padding(
