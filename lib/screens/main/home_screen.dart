@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -92,6 +94,7 @@ class _ProfileCard extends ConsumerWidget {
     }
 
     final profileAsync = ref.watch(userProfileProvider);
+    final avatarAsync = ref.watch(userAvatarProvider);
 
     return Card(
       child: Padding(
@@ -105,7 +108,10 @@ class _ProfileCard extends ConsumerWidget {
             if (profile == null) {
               return const Text('未登入');
             }
-            return _ProfileContent(profile: profile);
+            return _ProfileContent(
+              profile: profile,
+              avatarFile: avatarAsync.value,
+            );
           },
         ),
       ),
@@ -113,13 +119,14 @@ class _ProfileCard extends ConsumerWidget {
   }
 }
 
-class _ProfileContent extends StatelessWidget {
-  const _ProfileContent({required this.profile});
+class _ProfileContent extends ConsumerWidget {
+  const _ProfileContent({required this.profile, this.avatarFile});
 
   final UserWithStudent profile;
+  final File? avatarFile;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     return Row(
@@ -129,13 +136,16 @@ class _ProfileContent extends StatelessWidget {
           child: CircleAvatar(
             radius: 32,
             backgroundColor: theme.colorScheme.primaryContainer,
-            child: Text(
-              profile.student.name?.substring(0, 1) ?? '?',
-              style: TextStyle(
-                fontSize: 24,
-                color: theme.colorScheme.onPrimaryContainer,
-              ),
-            ),
+            backgroundImage: avatarFile != null ? FileImage(avatarFile!) : null,
+            child: avatarFile == null
+                ? Text(
+                    profile.student.name?.substring(0, 1) ?? '?',
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                  )
+                : null,
           ),
         ),
         Expanded(

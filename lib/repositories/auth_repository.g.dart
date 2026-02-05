@@ -103,3 +103,47 @@ final class UserProfileProvider
 }
 
 String _$userProfileHash() => r'2dad51deea19beb77f1a898f4a7e7618c6e3651e';
+
+/// Provides the current user's avatar file.
+///
+/// Returns `null` if user has no avatar or not logged in.
+
+@ProviderFor(userAvatar)
+final userAvatarProvider = UserAvatarProvider._();
+
+/// Provides the current user's avatar file.
+///
+/// Returns `null` if user has no avatar or not logged in.
+
+final class UserAvatarProvider
+    extends $FunctionalProvider<AsyncValue<File?>, File?, FutureOr<File?>>
+    with $FutureModifier<File?>, $FutureProvider<File?> {
+  /// Provides the current user's avatar file.
+  ///
+  /// Returns `null` if user has no avatar or not logged in.
+  UserAvatarProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'userAvatarProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$userAvatarHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<File?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<File?> create(Ref ref) {
+    return userAvatar(ref);
+  }
+}
+
+String _$userAvatarHash() => r'eb2c6d7819f63254fbbe9cf8cb8d8a61572ea925';

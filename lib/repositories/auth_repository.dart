@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/providers/database_provider.dart';
@@ -35,6 +38,14 @@ AuthRepository authRepository(Ref ref) {
 @riverpod
 Future<UserWithStudent?> userProfile(Ref ref) {
   return ref.watch(authRepositoryProvider).getUserProfile();
+}
+
+/// Provides the current user's avatar file.
+///
+/// Returns `null` if user has no avatar or not logged in.
+@riverpod
+Future<File?> userAvatar(Ref ref) {
+  return ref.watch(authRepositoryProvider).getAvatar();
 }
 
 /// Manages user authentication and profile data.
@@ -120,6 +131,7 @@ class AuthRepository {
     await _database.delete(_database.users).go();
     await cookieJar.deleteAll();
     await _secureStorage.deleteAll();
+    await _clearAvatarCache();
   }
 
   /// Attempts to login with stored credentials.
@@ -170,12 +182,39 @@ class AuthRepository {
     );
   }
 
-  /// Fetches the user's avatar image.
+  /// Gets the current user's avatar image, with local caching.
   ///
-  /// Returns raw image bytes (JPEG). Use with `Image.memory(bytes)`.
+  /// Returns a [File] pointing to the cached avatar. Use with `Image.file()`.
+  /// Returns `null` if not logged in or user has no avatar.
+  /// Fetches from network on first call, returns cached file on subsequent calls.
   ///
-  /// Throws [Exception] on network failure.
-  Future<Uint8List> getAvatar(String filename) async {
-    return _portalService.getAvatar(filename);
+  /// Throws [Exception] on network failure (if not cached).
+  Future<File?> getAvatar() async {
+    final user = await getCurrentUser();
+    if (user == null || user.avatarFilename.isEmpty) {
+      return null;
+    }
+
+    final filename = user.avatarFilename;
+    final cacheDir = await getApplicationCacheDirectory();
+    final file = File('${cacheDir.path}/avatars/$filename');
+
+    if (await file.exists()) {
+      return file;
+    }
+
+    final bytes = await _portalService.getAvatar(filename);
+    await file.parent.create(recursive: true);
+    await file.writeAsBytes(bytes);
+    return file;
+  }
+
+  /// Clears cached avatar files.
+  Future<void> _clearAvatarCache() async {
+    final cacheDir = await getApplicationCacheDirectory();
+    final avatarDir = Directory('${cacheDir.path}/avatars');
+    if (await avatarDir.exists()) {
+      await avatarDir.delete(recursive: true);
+    }
   }
 }
