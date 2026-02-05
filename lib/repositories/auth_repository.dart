@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
@@ -137,8 +138,10 @@ class AuthRepository {
   /// Attempts to login with stored credentials.
   ///
   /// Returns the [User] if auto-login succeeds, `null` if no credentials
-  /// are stored or if login fails (e.g., password changed).
-  /// On failure, stored credentials are cleared.
+  /// are stored or if login fails.
+  ///
+  /// On auth failure (invalid credentials), stored credentials are cleared.
+  /// On network failure, credentials are preserved for retry.
   Future<User?> tryAutoLogin() async {
     final username = await _secureStorage.read(key: _usernameKey);
     final password = await _secureStorage.read(key: _passwordKey);
@@ -149,7 +152,11 @@ class AuthRepository {
 
     try {
       return await login(username, password);
+    } on DioException {
+      // Network error - keep credentials for retry
+      return null;
     } catch (_) {
+      // Auth failure - clear invalid credentials
       await _secureStorage.deleteAll();
       return null;
     }
