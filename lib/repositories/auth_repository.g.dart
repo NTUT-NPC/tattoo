@@ -53,3 +53,53 @@ final class AuthRepositoryProvider
 }
 
 String _$authRepositoryHash() => r'a4dc16f5f2af4a8bd5204256cb04db09cbe95f07';
+
+/// Provides the current user's profile.
+///
+/// Returns `null` if not logged in.
+
+@ProviderFor(userProfile)
+final userProfileProvider = UserProfileProvider._();
+
+/// Provides the current user's profile.
+///
+/// Returns `null` if not logged in.
+
+final class UserProfileProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<UserWithStudent?>,
+          UserWithStudent?,
+          FutureOr<UserWithStudent?>
+        >
+    with $FutureModifier<UserWithStudent?>, $FutureProvider<UserWithStudent?> {
+  /// Provides the current user's profile.
+  ///
+  /// Returns `null` if not logged in.
+  UserProfileProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'userProfileProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$userProfileHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<UserWithStudent?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<UserWithStudent?> create(Ref ref) {
+    return userProfile(ref);
+  }
+}
+
+String _$userProfileHash() => r'2dad51deea19beb77f1a898f4a7e7618c6e3651e';

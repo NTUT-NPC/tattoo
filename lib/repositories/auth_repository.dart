@@ -9,6 +9,14 @@ import 'package:tattoo/utils/http.dart';
 
 part 'auth_repository.g.dart';
 
+/// User profile combining [User] and [Student] entities.
+class UserWithStudent {
+  UserWithStudent(this.user, this.student);
+
+  final User user;
+  final Student student;
+}
+
 const _secureStorage = FlutterSecureStorage();
 
 /// Provides the [AuthRepository] instance.
@@ -19,6 +27,14 @@ AuthRepository authRepository(Ref ref) {
     database: ref.watch(databaseProvider),
     secureStorage: _secureStorage,
   );
+}
+
+/// Provides the current user's profile.
+///
+/// Returns `null` if not logged in.
+@riverpod
+Future<UserWithStudent?> userProfile(Ref ref) {
+  return ref.watch(authRepositoryProvider).getUserProfile();
 }
 
 /// Manages user authentication and profile data.
@@ -132,6 +148,26 @@ class AuthRepository {
   /// Returns `null` if not logged in. Does not make network requests.
   Future<User?> getCurrentUser() async {
     return _database.select(_database.users).getSingleOrNull();
+  }
+
+  /// Gets the current user's profile with student data.
+  ///
+  /// Returns `null` if not logged in. Does not make network requests.
+  Future<UserWithStudent?> getUserProfile() async {
+    final query = _database.select(_database.users).join([
+      innerJoin(
+        _database.students,
+        _database.students.id.equalsExp(_database.users.student),
+      ),
+    ]);
+
+    final row = await query.getSingleOrNull();
+    if (row == null) return null;
+
+    return UserWithStudent(
+      row.readTable(_database.users),
+      row.readTable(_database.students),
+    );
   }
 
   /// Fetches the user's avatar image.

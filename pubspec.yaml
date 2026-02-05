@@ -32,6 +32,7 @@ dependencies:
   riverpod_annotation: 4.0.0
   go_router: 17.1.0
   flutter_secure_storage: 10.0.0
+  skeletonizer: 2.1.2
 
 dev_dependencies:
   flutter_test:
