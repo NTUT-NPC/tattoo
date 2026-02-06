@@ -13,7 +13,8 @@ typedef ScoreDTO = ({
 
   /// Course catalog code (joins with Courses.code).
   ///
-  /// Always present — serves as fallback identifier when [number] is null.
+  /// Usually present; may be null for rows without a course code.
+  /// When present, serves as fallback identifier when [number] is null.
   String? courseCode,
 
   /// Numeric grade (null when [status] is set).
