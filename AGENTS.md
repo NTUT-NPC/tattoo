@@ -4,7 +4,7 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-02-05. If stale (>30 days), verify Status section against codebase.
+**Last updated:** 2026-02-07. If stale (>30 days), verify Status section against codebase.
 
 ## Status
 
@@ -31,9 +31,12 @@ Follow @CONTRIBUTING.md for git operation guidelines.
   - getGPA (學期及歷年GPA查詢)
   - getMidtermWarnings (期中預警查詢)
   - getStudentAffairs (獎懲、缺曠課、請假查詢)
+  - getStudentLoan (就學貸款資料查詢)
   - getGeneralEducationDimension (查詢已修讀博雅課程向度)
   - getEnglishProficiency (查詢英語畢業門檻登錄資料)
+  - getExamScores (查詢會考電腦閱卷成績)
   - getClassAndMentor (註冊編班與導師查詢)
+  - updateContactInfo (維護個人聯絡資料)
   - getGraduationQualifications (查詢畢業資格審查)
 - PortalService: getCalendar, changePassword
 
