@@ -1,12 +1,10 @@
-// ignore_for_file: unused_field
-
-import 'dart:typed_data';
-
+import 'package:drift/drift.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/providers/database_provider.dart';
 import 'package:tattoo/providers/service_providers.dart';
 import 'package:tattoo/services/portal_service.dart';
+import 'package:tattoo/utils/http.dart';
 
 part 'auth_repository.g.dart';
 
@@ -46,26 +44,57 @@ class AuthRepository {
   ///
   /// Throws [Exception] if credentials are invalid or network fails.
   Future<User> login(String username, String password) async {
-    throw UnimplementedError();
+    final userDto = await _portalService.login(username, password);
+
+    return _database.transaction(() async {
+      // Upsert student record (studentId has UNIQUE constraint)
+      final student = await _database
+          .into(_database.students)
+          .insertReturning(
+            StudentsCompanion.insert(
+              studentId: username,
+              name: Value(userDto.name),
+            ),
+            onConflict: DoUpdate(
+              (old) => StudentsCompanion(name: Value(userDto.name)),
+              target: [_database.students.studentId],
+            ),
+          );
+
+      // Clear existing user (single-user app) and insert new user record
+      await _database.delete(_database.users).go();
+      return _database
+          .into(_database.users)
+          .insertReturning(
+            UsersCompanion.insert(
+              student: student.id,
+              avatarFilename: userDto.avatarFilename ?? '',
+              email: userDto.email ?? '',
+              passwordExpiresInDays: Value(userDto.passwordExpiresInDays),
+            ),
+          );
+    });
   }
 
   /// Checks if there's an active authenticated session.
   ///
   /// Does not throw.
   Future<bool> isLoggedIn() async {
-    throw UnimplementedError();
+    final user = await getCurrentUser();
+    return user != null;
   }
 
   /// Logs out and clears all local user data.
   Future<void> logout() async {
-    throw UnimplementedError();
+    await _database.delete(_database.users).go();
+    await cookieJar.deleteAll();
   }
 
   /// Gets the current user's profile from local storage.
   ///
   /// Returns `null` if not logged in. Does not make network requests.
   Future<User?> getCurrentUser() async {
-    throw UnimplementedError();
+    return _database.select(_database.users).getSingleOrNull();
   }
 
   /// Fetches the user's avatar image.
@@ -74,6 +103,6 @@ class AuthRepository {
   ///
   /// Throws [Exception] on network failure.
   Future<Uint8List> getAvatar(String filename) async {
-    throw UnimplementedError();
+    return _portalService.getAvatar(filename);
   }
 }

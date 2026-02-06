@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tattoo/welcome_login_page.dart';
+import 'package:go_router/go_router.dart';
+import 'package:tattoo/router/app_router.dart';
 
-class WelcomeIntroductionPage extends StatefulWidget {
-  const WelcomeIntroductionPage({super.key});
+class IntroScreen extends StatefulWidget {
+  const IntroScreen({super.key});
 
   @override
-  State<WelcomeIntroductionPage> createState() =>
-      _WelcomeIntroductionPageState();
+  State<IntroScreen> createState() => _IntroScreenState();
 }
 
-class _WelcomeIntroductionPageState extends State<WelcomeIntroductionPage>
+class _IntroScreenState extends State<IntroScreen>
     with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final screenHeight = MediaQuery.of(context).size.height;
+    final verticalPadding = screenHeight * 0.1;
+
     return Scaffold(
       body: SafeArea(
         child: Stack(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(8, 0, 8, 16), // Fixed bottom padding
+              padding: EdgeInsets.fromLTRB(8, 0, 8, 16),
               child: CustomScrollView(
                 slivers: [
                   SliverFillRemaining(
@@ -27,37 +31,37 @@ class _WelcomeIntroductionPageState extends State<WelcomeIntroductionPage>
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
                         0,
-                        MediaQuery.of(context).size.height * 0.1,
+                        verticalPadding,
                         0,
-                        MediaQuery.of(context).size.height * 0.1 +
-                            16, // Extra padding to avoid bottom bar overlap
+                        // Extra padding to avoid bottom bar overlap
+                        verticalPadding + 16,
                       ),
                       child: Column(
                         spacing: 24,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Spacer(flex: 1),
-                          // Logo and Title
+
+                          // Logo and title
                           Column(
                             children: [
                               SvgPicture.asset(
                                 'assets/tat_icon.svg',
-                                height:
-                                    MediaQuery.of(context).size.height * 0.1,
+                                height: verticalPadding,
                               ),
                               Text(
                                 'Project Tattoo',
-                                style: Theme.of(context).textTheme.headlineLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                style: theme.textTheme.headlineLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                                 textAlign: TextAlign.center,
                               ),
                             ],
                           ),
 
                           Spacer(flex: 1),
-                          // Features List
+
+                          // Features list
                           Column(
                             spacing: 8,
                             children: [
@@ -81,7 +85,7 @@ class _WelcomeIntroductionPageState extends State<WelcomeIntroductionPage>
 
                           Spacer(flex: 2),
 
-                          // Logo and Disclaimer
+                          // Logo and disclaimer
                           Column(
                             spacing: 8,
                             children: [
@@ -93,14 +97,12 @@ class _WelcomeIntroductionPageState extends State<WelcomeIntroductionPage>
                                   BlendMode.srcIn,
                                 ),
                               ),
-
                               Text(
                                 '由北科程式設計研究社開發\n所有資訊僅供參考，請以學校官方系統為準',
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(
-                                      height: 1.5,
-                                      color: Colors.grey[600],
-                                    ),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  height: 1.5,
+                                  color: Colors.grey[600],
+                                ),
                                 textAlign: TextAlign.center,
                               ),
                             ],
@@ -112,6 +114,8 @@ class _WelcomeIntroductionPageState extends State<WelcomeIntroductionPage>
                 ],
               ),
             ),
+
+            // Bottom button with gradient fade
             Positioned(
               left: 0,
               right: 0,
@@ -126,11 +130,9 @@ class _WelcomeIntroductionPageState extends State<WelcomeIntroductionPage>
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Theme.of(context).scaffoldBackgroundColor,
-                        Theme.of(context).scaffoldBackgroundColor,
-                        Theme.of(
-                          context,
-                        ).scaffoldBackgroundColor.withValues(alpha: 0),
+                        theme.scaffoldBackgroundColor,
+                        theme.scaffoldBackgroundColor,
+                        theme.scaffoldBackgroundColor.withValues(alpha: 0),
                       ],
                       stops: const [0.0, 0.6, 1.0],
                     ),
@@ -138,11 +140,7 @@ class _WelcomeIntroductionPageState extends State<WelcomeIntroductionPage>
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                     child: FilledButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => WelcomeLoginPage(),
-                        ),
-                      ),
+                      onPressed: () => context.push(AppRoutes.login),
                       child: Padding(
                         padding: const EdgeInsets.all(6.0),
                         child: const Text('繼續'),
