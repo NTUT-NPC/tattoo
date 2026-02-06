@@ -10,6 +10,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 **Done:**
 - PortalService (auth+SSO), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
+- StudentQueryService (getAcademicPerformance)
 - HTTP utils, InvalidCookieFilter interceptor
 - Drift database schema with all tables
 - Service DTOs migrated to Dart 3 records
@@ -26,7 +27,6 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - CourseService (English): Parse English Course System (`/course/en/`) for English names (courses, teachers, syllabus)
 - StudentQueryService (sa_003_oauth - 學生查詢專區):
   - getStudentStatus (學籍資料查詢)
-  - getAcademicPerformance (學業成績查詢)
   - getGradeRanking (學業成績排名查詢)
   - getGPA (學期及歷年GPA查詢)
   - getMidtermWarnings (期中預警查詢)
@@ -54,7 +54,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP) + Database (Drift)
 
 **Structure:**
-- `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType)
+- `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType, ScoreStatus)
 - `lib/providers/` - Riverpod providers for database and services
 - `lib/repositories/` - Coordinate service + database, implement business logic
 - `lib/services/` - HTTP clients, parse responses, return DTOs (as records)
@@ -77,7 +77,7 @@ MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP)
 - PortalService - Portal auth, SSO
 - CourseService - 課程系統 (`aa_0010-oauth`)
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`)
-- StudentQueryService (TODO) - 學生查詢專區 (`sa_003_oauth`)
+- StudentQueryService - 學生查詢專區 (`sa_003_oauth`)
 - Design principle: Match NTUT's actual system boundaries. Each service corresponds to one NTUT SSO target.
 - All share single cookie jar (NTUT session state)
 - Return DTOs as records (UserDTO, SemesterDTO, ScheduleDTO, etc.) - no database writes
