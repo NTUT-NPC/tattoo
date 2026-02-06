@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/providers/database_provider.dart';
