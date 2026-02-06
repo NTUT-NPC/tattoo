@@ -111,7 +111,7 @@ MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP)
 
 **SSO Flow:** PortalService centralizes auth services.
 
-**User-Agent:** Emulate NTUT iOS app requests.
+**User-Agent:** PortalService uses `app.ntut.edu.tw` endpoints designed for the official NTUT iOS app (`User-Agent: Direk ios App`). This bypasses login captcha that the web portal (`nportal.ntut.edu.tw`) requires. Without the correct User-Agent, the server will refuse requests. Browser-based testing of these endpoints won't work.
 
 **InvalidCookieFilter:** iSchool+ returns malformed cookies; custom interceptor filters them.
 
