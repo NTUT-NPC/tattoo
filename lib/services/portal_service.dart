@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
 import 'package:tattoo/utils/http.dart';
 
