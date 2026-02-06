@@ -1,7 +1,7 @@
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:tattoo/models/score.dart';
-import 'package:tattoo/services/course_service.dart';
+import 'package:tattoo/models/course.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// A single course score entry from the academic performance page.
