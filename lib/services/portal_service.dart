@@ -29,7 +29,7 @@ typedef UserDTO = ({
 /// These codes are passed to [PortalService.sso] to authenticate with
 /// different NTUT web services.
 enum PortalServiceCode {
-  scoreService('aa_003_LB_oauth'),
+  studentQueryService('sa_003_oauth'),
   courseService('aa_0010-oauth'),
   iSchoolPlusService('ischool_plus_oauth');
 
