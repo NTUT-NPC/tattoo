@@ -13,6 +13,7 @@ library;
 
 import 'package:drift/drift.dart';
 import 'package:tattoo/models/course.dart';
+import 'package:tattoo/models/score.dart';
 
 /// Mixin for tables that use an auto-incrementing integer primary key.
 mixin AutoIncrementId on Table {
@@ -384,6 +385,75 @@ class Schedules extends Table with AutoIncrementId {
   @override
   List<Set<Column>> get uniqueKeys => [
     {courseOffering, dayOfWeek, period},
+  ];
+}
+
+/// Per-course score entry from the student query system (學業成績查詢).
+///
+/// Each row represents one course's grade for a student in a semester.
+/// Data source: StudentQueryService.getAcademicPerformance()
+@TableIndex(name: 'score_student', columns: {#student})
+class Scores extends Table with AutoIncrementId {
+  /// Reference to the student who received this score.
+  late final student = integer().references(Students, #id)();
+
+  /// Reference to the semester this score belongs to.
+  late final semester = integer().references(Semesters, #id)();
+
+  /// Reference to the course definition (resolved from ScoreDTO.courseCode).
+  late final course = integer().references(Courses, #id)();
+
+  /// Reference to the specific course offering.
+  ///
+  /// Nullable because credit waivers (抵免) have no associated offering.
+  late final courseOffering = integer().nullable().references(
+    CourseOfferings,
+    #id,
+  )();
+
+  /// Numeric grade (null when [status] is set instead).
+  late final score = integer().nullable()();
+
+  /// Special score status (null when [score] is numeric).
+  late final status = textEnum<ScoreStatus>().nullable()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {student, course, semester},
+  ];
+}
+
+/// Per-student per-semester academic summary from the student query system.
+///
+/// Stores aggregate statistics like weighted average, conduct grade, and
+/// credits for each semester.
+/// Data source: StudentQueryService.getAcademicPerformance()
+@TableIndex(name: 'student_semester_summary_student', columns: {#student})
+class StudentSemesterSummaries extends Table with AutoIncrementId {
+  /// Reference to the student.
+  late final student = integer().references(Students, #id)();
+
+  /// Reference to the semester.
+  late final semester = integer().references(Semesters, #id)();
+
+  /// Weighted average for the semester.
+  late final average = real().nullable()();
+
+  /// Conduct grade.
+  late final conduct = real().nullable()();
+
+  /// Total credits attempted.
+  late final totalCredits = real().nullable()();
+
+  /// Credits passed/earned.
+  late final creditsPassed = real().nullable()();
+
+  /// Additional note.
+  late final note = text().nullable()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {student, semester},
   ];
 }
 
