@@ -48,6 +48,30 @@ typedef SemesterScoreDTO = ({
   String? note,
 });
 
+/// A semester registration record from the class and mentor page.
+typedef RegistrationRecordDTO = ({
+  /// Semester identifier.
+  SemesterDTO semester,
+
+  /// Student's assigned class name (e.g., "電子四甲").
+  String? className,
+
+  /// Enrollment status (e.g., "在學", "休學", "退學").
+  String? enrollmentStatus,
+
+  /// Whether the student is registered for this semester.
+  bool registered,
+
+  /// Whether the student graduated this semester.
+  bool graduated,
+
+  /// Tutors/mentors assigned to the student's class.
+  List<ReferenceDTO> tutors,
+
+  /// Class cadre roles held (e.g., ["學輔股長", "服務股長"]).
+  List<String> classCadres,
+});
+
 /// Service for accessing NTUT's student query system (學生查詢專區).
 ///
 /// This service provides access to:
@@ -144,6 +168,75 @@ class StudentQueryService {
         totalCredits: totalCredits,
         creditsPassed: creditsPassed,
         note: note,
+      ));
+    }
+
+    return results;
+  }
+
+  /// Fetches registration records (class assignment, mentors, cadre roles)
+  /// for all semesters.
+  ///
+  /// Returns a list of [RegistrationRecordDTO] ordered from most recent to
+  /// oldest.
+  Future<List<RegistrationRecordDTO>> getRegistrationRecords() async {
+    final response = await _studentQueryDio.get('QryRegist.jsp');
+
+    final document = parse(response.data);
+
+    // Single table with 7 columns: semester, class, enrollment status,
+    // registered, graduated, tutors, class cadres
+    final table = document.querySelector('table');
+    if (table == null) return [];
+
+    // Semester cell: <div>"114 - 2"<br>"2026 - Spring"</div> — use first text node
+    final semesterPattern = RegExp(r'(\d+)\s*-\s*(\d+)');
+
+    final results = <RegistrationRecordDTO>[];
+    for (final row in table.querySelectorAll('tr').skip(1)) {
+      final cells = row.querySelectorAll('th, td');
+      if (cells.length < 7) continue;
+
+      final semesterContainer = cells[0].querySelector('div') ?? cells[0];
+      final semesterText = semesterContainer.nodes
+          .where((node) => node.nodeType == Node.TEXT_NODE)
+          .firstOrNull
+          ?.text;
+      final semesterMatch = semesterPattern.firstMatch(semesterText ?? '');
+      if (semesterMatch == null) continue;
+
+      final semester = (
+        year: int.parse(semesterMatch.group(1)!),
+        semester: int.parse(semesterMatch.group(2)!),
+      );
+      final className = _parseCellText(cells[1]);
+      final enrollmentStatus = _parseCellText(cells[2]);
+      final registered = cells[3].text.contains('※');
+      final graduated = cells[4].text.contains('※');
+
+      // Tutor names are <a> links to CourseService's Teach.jsp with ?code=teacherId
+      final tutors = cells[5].querySelectorAll('a').map((a) {
+        final href = Uri.tryParse(a.attributes['href'] ?? '');
+        final id = href?.queryParameters['code'];
+        return (id: id, name: _parseCellText(a));
+      }).toList();
+
+      // Cadre roles are text nodes separated by <br> inside a <div>
+      final cadreContainer = cells[6].querySelector('div') ?? cells[6];
+      final classCadres = cadreContainer.nodes
+          .where((node) => node.nodeType == Node.TEXT_NODE)
+          .map((node) => node.text?.trim() ?? '')
+          .where((text) => text.isNotEmpty)
+          .toList();
+
+      results.add((
+        semester: semester,
+        className: className,
+        enrollmentStatus: enrollmentStatus,
+        registered: registered,
+        graduated: graduated,
+        tutors: tutors,
+        classCadres: classCadres,
       ));
     }
 
