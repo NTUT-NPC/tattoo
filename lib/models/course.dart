@@ -65,6 +65,15 @@ enum CourseType {
   const CourseType(this.symbol);
 }
 
+/// Reference to an entity (course, teacher, classroom, etc.) with an ID and name.
+typedef ReferenceDTO = ({
+  /// Entity's unique identifier code.
+  String? id,
+
+  /// Entity's display name.
+  String? name,
+});
+
 /// Academic semester identifier.
 typedef SemesterDTO = ({
   /// Academic year in ROC calendar (e.g., 114 for 2025).
