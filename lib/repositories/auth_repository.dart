@@ -67,7 +67,7 @@ AuthRepository authRepository(Ref ref) {
     portalService: ref.watch(portalServiceProvider),
     database: ref.watch(databaseProvider),
     secureStorage: _secureStorage,
-    authStatus: ref.read(authStatusProvider.notifier),
+    onAuthStatusChanged: ref.read(authStatusProvider.notifier).update,
   );
 }
 
@@ -104,7 +104,7 @@ class AuthRepository {
   final PortalService _portalService;
   final AppDatabase _database;
   final FlutterSecureStorage _secureStorage;
-  final AuthStatusNotifier _authStatus;
+  final void Function(AuthStatus) _onAuthStatusChanged;
 
   static const _usernameKey = 'username';
   static const _passwordKey = 'password';
@@ -113,11 +113,11 @@ class AuthRepository {
     required PortalService portalService,
     required AppDatabase database,
     required FlutterSecureStorage secureStorage,
-    required AuthStatusNotifier authStatus,
+    required void Function(AuthStatus) onAuthStatusChanged,
   }) : _portalService = portalService,
        _database = database,
        _secureStorage = secureStorage,
-       _authStatus = authStatus;
+       _onAuthStatusChanged = onAuthStatusChanged;
 
   /// Authenticates with NTUT Portal and saves the user profile.
   ///
@@ -129,7 +129,7 @@ class AuthRepository {
     // Save credentials for auto-login
     await _secureStorage.write(key: _usernameKey, value: username);
     await _secureStorage.write(key: _passwordKey, value: password);
-    _authStatus.update(AuthStatus.authenticated);
+    _onAuthStatusChanged(AuthStatus.authenticated);
 
     return _database.transaction(() async {
       // Upsert student record (studentId has UNIQUE constraint)
@@ -200,33 +200,33 @@ class AuthRepository {
   Future<T> withAuth<T>(Future<T> Function() call) async {
     try {
       final result = await call();
-      _authStatus.update(AuthStatus.authenticated);
+      _onAuthStatusChanged(AuthStatus.authenticated);
       return result;
     } catch (e) {
       if (e is DioException) {
-        _authStatus.update(AuthStatus.offline);
+        _onAuthStatusChanged(AuthStatus.offline);
         rethrow;
       }
 
       final username = await _secureStorage.read(key: _usernameKey);
       final password = await _secureStorage.read(key: _passwordKey);
       if (username == null || password == null) {
-        _authStatus.update(AuthStatus.credentialsExpired);
+        _onAuthStatusChanged(AuthStatus.credentialsExpired);
         throw NotLoggedInException();
       }
 
       try {
         await _portalService.login(username, password);
       } on DioException {
-        _authStatus.update(AuthStatus.offline);
+        _onAuthStatusChanged(AuthStatus.offline);
         rethrow;
       } catch (_) {
         await _clearCredentials();
-        _authStatus.update(AuthStatus.credentialsExpired);
+        _onAuthStatusChanged(AuthStatus.credentialsExpired);
         throw InvalidCredentialsException();
       }
 
-      _authStatus.update(AuthStatus.authenticated);
+      _onAuthStatusChanged(AuthStatus.authenticated);
       return await call();
     }
   }

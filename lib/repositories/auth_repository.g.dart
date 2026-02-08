@@ -119,7 +119,7 @@ final class AuthRepositoryProvider
   }
 }
 
-String _$authRepositoryHash() => r'aef022cf373c08dbb7930bf59028771c145d8c9e';
+String _$authRepositoryHash() => r'c526a18b1c69f37af52dcd6cbc657309bccddfdb';
 
 /// Provides the current user's profile.
 ///
