@@ -1,7 +1,8 @@
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
-import 'package:tattoo/models/score.dart';
 import 'package:tattoo/models/course.dart';
+import 'package:tattoo/models/ranking.dart';
+import 'package:tattoo/models/score.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// A single course score entry from the academic performance page.
@@ -70,6 +71,33 @@ typedef RegistrationRecordDTO = ({
 
   /// Class cadre roles held (e.g., ["學輔股長", "服務股長"]).
   List<String> classCadres,
+});
+
+/// A single ranking entry for one scope (class/group/department).
+typedef GradeRankingEntryDTO = ({
+  /// The scope of this ranking comparison.
+  RankingType type,
+
+  /// Position in the semester ranking (學期成績排名 — 名次).
+  int semesterRank,
+
+  /// Total students in the comparison group for semester ranking (總人數).
+  int semesterTotal,
+
+  /// Position in the cumulative ranking (歷年成績排名 — 名次).
+  int grandTotalRank,
+
+  /// Total students in the comparison group for cumulative ranking (總人數).
+  int grandTotalTotal,
+});
+
+/// Grade ranking data for a single semester.
+typedef GradeRankingDTO = ({
+  /// Semester identifier.
+  SemesterDTO semester,
+
+  /// Ranking entries (typically class, group, and department).
+  List<GradeRankingEntryDTO> entries,
 });
 
 /// Service for accessing NTUT's student query system (學生查詢專區).
@@ -174,6 +202,87 @@ class StudentQueryService {
     return results;
   }
 
+  /// Fetches grade ranking data for all semesters.
+  ///
+  /// Returns a list of [GradeRankingDTO] ordered from most recent to oldest,
+  /// each containing ranking positions at class, group, and department levels.
+  Future<List<GradeRankingDTO>> getGradeRanking() async {
+    final response = await _studentQueryDio.get('QryRank.jsp');
+    final document = parse(response.data);
+
+    final table = document.querySelector('table');
+    if (table == null) return [];
+
+    final semesterPattern = RegExp(r'(\d+)\s*-\s*(\d+)');
+    final results = <GradeRankingDTO>[];
+    SemesterDTO? currentSemester;
+    var currentEntries = <GradeRankingEntryDTO>[];
+
+    // Rows are either: 8 cells (semester start + data), 7 cells (continuation),
+    // or other (header/notice — skip).
+    // Semester cell uses rowspan="3" to span its 3 ranking type rows.
+    for (final row in table.querySelectorAll('tr')) {
+      final cells = row.querySelectorAll('td').toList();
+
+      int dataStart;
+      if (cells.length == 8) {
+        // New semester with ranking data
+        if (currentSemester != null && currentEntries.isNotEmpty) {
+          results.add((semester: currentSemester, entries: currentEntries));
+          currentEntries = [];
+        }
+        // Cell contains "113 - 2<br>2025 - Spring" — use first text node
+        final semesterText = cells[0].nodes
+            .where((node) => node.nodeType == Node.TEXT_NODE)
+            .firstOrNull
+            ?.text;
+        final match = semesterPattern.firstMatch(semesterText ?? '');
+        if (match == null) continue;
+        currentSemester = (
+          year: int.parse(match.group(1)!),
+          semester: int.parse(match.group(2)!),
+        );
+        dataStart = 1;
+      } else if (cells.length == 7) {
+        dataStart = 0;
+      } else {
+        continue;
+      }
+
+      // cells[dataStart]: ranking type, +1/+2: semester rank/total,
+      // +3: semester percentage (skip), +4/+5: grand total rank/total,
+      // +6: grand total percentage (skip)
+      final type = _parseRankingType(cells[dataStart].text);
+      if (type == null) continue;
+
+      final semesterRank = int.tryParse(cells[dataStart + 1].text.trim());
+      final semesterTotal = int.tryParse(cells[dataStart + 2].text.trim());
+      final grandTotalRank = int.tryParse(cells[dataStart + 4].text.trim());
+      final grandTotalTotal = int.tryParse(cells[dataStart + 5].text.trim());
+
+      if (semesterRank == null ||
+          semesterTotal == null ||
+          grandTotalRank == null ||
+          grandTotalTotal == null) {
+        continue;
+      }
+
+      currentEntries.add((
+        type: type,
+        semesterRank: semesterRank,
+        semesterTotal: semesterTotal,
+        grandTotalRank: grandTotalRank,
+        grandTotalTotal: grandTotalTotal,
+      ));
+    }
+
+    if (currentSemester != null && currentEntries.isNotEmpty) {
+      results.add((semester: currentSemester, entries: currentEntries));
+    }
+
+    return results;
+  }
+
   /// Fetches registration records (class assignment, mentors, cadre roles)
   /// for all semesters.
   ///
@@ -246,6 +355,14 @@ class StudentQueryService {
   String? _parseCellText(Element cell) {
     final text = cell.text.trim();
     return text.isNotEmpty ? text : null;
+  }
+
+  /// Maps ranking type cell text (e.g. "班 級 排 名Class Ranking") to enum.
+  RankingType? _parseRankingType(String text) {
+    if (text.contains('Class')) return RankingType.classLevel;
+    if (text.contains('Group')) return RankingType.groupLevel;
+    if (text.contains('Department')) return RankingType.departmentLevel;
+    return null;
   }
 
   /// Parses a score cell value into either a numeric grade or a [ScoreStatus].

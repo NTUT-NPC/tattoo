@@ -13,6 +13,7 @@ library;
 
 import 'package:drift/drift.dart';
 import 'package:tattoo/models/course.dart';
+import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
 
 /// Mixin for tables that use an auto-incrementing integer primary key.
@@ -431,6 +432,7 @@ class Scores extends Table with AutoIncrementId {
 /// Data sources:
 /// - StudentQueryService.getAcademicPerformance() — scores and averages
 /// - StudentQueryService.getRegistrationRecords() — registration status
+/// - StudentQueryService.getGradeRanking() — rankings (via [StudentSemesterRankings])
 @TableIndex(name: 'student_semester_summary_student', columns: {#student})
 class StudentSemesterSummaries extends Table with AutoIncrementId {
   /// Reference to the student.
@@ -504,6 +506,33 @@ class StudentSemesterSummaryCadreRoles extends Table with AutoIncrementId {
   List<Set<Column>> get uniqueKeys => [
     {summary, role},
   ];
+}
+
+/// Grade ranking data for a student in a semester at a given scope.
+///
+/// Each student-semester has up to 3 rows: class, group, and department.
+/// Data source: StudentQueryService.getGradeRanking()
+class StudentSemesterRankings extends Table {
+  /// Reference to the student semester summary.
+  late final summary = integer().references(StudentSemesterSummaries, #id)();
+
+  /// The scope of this ranking (class, group, or department).
+  late final rankingType = textEnum<RankingType>()();
+
+  /// Position in the semester ranking (學期成績排名).
+  late final semesterRank = integer()();
+
+  /// Total students in the comparison group for semester ranking.
+  late final semesterTotal = integer()();
+
+  /// Position in the cumulative ranking (歷年成績排名).
+  late final grandTotalRank = integer()();
+
+  /// Total students in the comparison group for cumulative ranking.
+  late final grandTotalTotal = integer()();
+
+  @override
+  Set<Column> get primaryKey => {summary, rankingType};
 }
 
 /// Course materials and resources.

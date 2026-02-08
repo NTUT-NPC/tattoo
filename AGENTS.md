@@ -10,7 +10,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 **Done:**
 - PortalService (auth+SSO), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
-- StudentQueryService (getAcademicPerformance, getRegistrationRecords)
+- StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking)
 - HTTP utils, InvalidCookieFilter interceptor
 - Drift database schema with all tables
 - Service DTOs migrated to Dart 3 records
@@ -27,7 +27,6 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - CourseService (English): Parse English Course System (`/course/en/`) for English names (courses, teachers, syllabus)
 - StudentQueryService (sa_003_oauth - 學生查詢專區):
   - getStudentStatus (學籍資料查詢)
-  - getGradeRanking (學業成績排名查詢)
   - getGPA (學期及歷年GPA查詢)
   - getMidtermWarnings (期中預警查詢)
   - getStudentAffairs (獎懲、缺曠課、請假查詢)
