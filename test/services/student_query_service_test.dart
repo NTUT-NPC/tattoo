@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
 import 'package:tattoo/services/portal_service.dart';
 import 'package:tattoo/services/student_query_service.dart';
@@ -102,6 +103,72 @@ void main() {
             currentValue,
             greaterThan(nextValue),
             reason: 'Records should be ordered most recent first',
+          );
+        }
+      });
+    });
+
+    group('getGradeRanking', () {
+      test('should return rankings with valid semesters', () async {
+        final rankings = await studentQueryService.getGradeRanking();
+
+        expect(
+          rankings,
+          isNotEmpty,
+          reason: 'Should have at least one semester of rankings',
+        );
+
+        for (final ranking in rankings) {
+          expect(ranking.semester.year, greaterThan(80));
+          expect(ranking.semester.semester, isIn([1, 2, 3]));
+        }
+      });
+
+      test('should have three ranking types per semester', () async {
+        final rankings = await studentQueryService.getGradeRanking();
+
+        for (final ranking in rankings) {
+          final types = ranking.entries.map((e) => e.type).toSet();
+          expect(
+            types,
+            containsAll(RankingType.values),
+            reason:
+                'Semester ${ranking.semester.year}-${ranking.semester.semester} '
+                'should have class, group, and department rankings',
+          );
+        }
+      });
+
+      test('should have valid rank and total values', () async {
+        final rankings = await studentQueryService.getGradeRanking();
+        final allEntries = rankings.expand((r) => r.entries);
+
+        for (final entry in allEntries) {
+          expect(entry.semesterRank, greaterThan(0));
+          expect(entry.semesterTotal, greaterThan(0));
+          expect(entry.semesterRank, lessThanOrEqualTo(entry.semesterTotal));
+
+          expect(entry.grandTotalRank, greaterThan(0));
+          expect(entry.grandTotalTotal, greaterThan(0));
+          expect(
+            entry.grandTotalRank,
+            lessThanOrEqualTo(entry.grandTotalTotal),
+          );
+        }
+      });
+
+      test('should return rankings in descending order', () async {
+        final rankings = await studentQueryService.getGradeRanking();
+
+        for (var i = 0; i < rankings.length - 1; i++) {
+          final current = rankings[i].semester;
+          final next = rankings[i + 1].semester;
+          final currentValue = current.year! * 10 + current.semester!;
+          final nextValue = next.year! * 10 + next.semester!;
+          expect(
+            currentValue,
+            greaterThan(nextValue),
+            reason: 'Rankings should be ordered most recent first',
           );
         }
       });
