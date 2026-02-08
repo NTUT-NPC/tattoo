@@ -4,13 +4,13 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-02-07. If stale (>30 days), verify Status section against codebase.
+**Last updated:** 2026-02-08. If stale (>30 days), verify Status section against codebase.
 
 ## Status
 
 **Done:**
 - PortalService (auth+SSO), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
-- StudentQueryService (getAcademicPerformance)
+- StudentQueryService (getAcademicPerformance, getRegistrationRecords)
 - HTTP utils, InvalidCookieFilter interceptor
 - Drift database schema with all tables
 - Service DTOs migrated to Dart 3 records
