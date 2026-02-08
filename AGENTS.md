@@ -54,10 +54,10 @@ MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP)
 
 **Structure:**
 - `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType, ScoreStatus)
-- `lib/providers/` - Riverpod providers for database and services
 - `lib/repositories/` - Coordinate service + database, implement business logic
 - `lib/services/` - HTTP clients, parse responses, return DTOs (as records)
 - `lib/database/` - Drift schema and database class
+- Riverpod providers are co-located with the classes they construct (services, database, repositories)
 - `lib/utils/` - HTTP utilities (cookie jar, interceptors)
 - `lib/components/` - Reusable UI widgets (AppSkeleton)
 - `lib/screens/` - Screen widgets organized by feature (welcome/, main/)

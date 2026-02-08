@@ -5,8 +5,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tattoo/database/database.dart';
-import 'package:tattoo/providers/database_provider.dart';
-import 'package:tattoo/providers/service_providers.dart';
 import 'package:tattoo/services/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
 

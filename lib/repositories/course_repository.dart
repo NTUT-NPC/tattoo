@@ -2,8 +2,6 @@
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tattoo/database/database.dart';
-import 'package:tattoo/providers/database_provider.dart';
-import 'package:tattoo/providers/service_providers.dart';
 import 'package:tattoo/services/course_service.dart';
 import 'package:tattoo/services/i_school_plus_service.dart';
 import 'package:tattoo/services/portal_service.dart';

@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tattoo/utils/http.dart';
+
+part 'i_school_plus_service.g.dart';
 
 /// Student enrolled in an i-School Plus course.
 typedef StudentDTO = ({
@@ -59,6 +62,10 @@ typedef MaterialDTO = ({
 /// by caching the last selected course.
 ///
 /// Data is parsed from HTML/XML pages as NTUT does not provide a REST API.
+/// Provides the singleton [ISchoolPlusService] instance.
+@Riverpod(keepAlive: true)
+ISchoolPlusService iSchoolPlusService(Ref ref) => ISchoolPlusService();
+
 class ISchoolPlusService {
   late final Dio _iSchoolPlusDio;
 
