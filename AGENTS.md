@@ -4,7 +4,7 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-02-04. If stale (>30 days), verify Status section against codebase.
+**Last updated:** 2026-02-05. If stale (>30 days), verify Status section against codebase.
 
 ## Status
 
@@ -16,6 +16,9 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - Repository stubs (AuthRepository, CourseRepository)
 - Riverpod setup (providers for database, services, repositories)
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json`)
+- AuthRepository implementation (login, logout, session persistence via flutter_secure_storage)
+- go_router navigation setup
+- UI: intro screen, login screen, home screen with profile display
 
 **Todo - Service Layer:**
 - ISchoolPlusService: getCourseAnnouncement, getCourseAnnouncementDetail, courseSubscribe, getCourseSubscribe, getSubscribeNotice
@@ -35,14 +38,11 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - PortalService: getCalendar, changePassword
 
 **Todo - Repository Layer:**
-- Implement AuthRepository methods (login, logout, session persistence)
 - Implement CourseRepository methods (schedules, materials, rosters, caching)
 - StudentRepository stub and implementation (grades, GPA, rankings)
-- Add UI-specific providers as needed (AsyncNotifier for loading/error states)
 
 **Todo - App:**
-- Page routing
-- UI: login, course table, course detail, scores, profile
+- UI: course table, course detail, scores
 - i18n (zh_TW, en_US)
 - File downloads (progress tracking, notifications, cancellation)
 
@@ -57,6 +57,8 @@ MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP)
 - `lib/services/` - HTTP clients, parse responses, return DTOs (as records)
 - `lib/database/` - Drift schema and database class
 - `lib/utils/` - HTTP utilities (cookie jar, interceptors)
+- `lib/components/` - Reusable UI widgets (AppSkeleton)
+- `lib/screens/` - Screen widgets organized by feature (welcome/, main/)
 
 **Data Flow Pattern (per Flutter's architecture guide):**
 - Services return DTOs as records (denormalized, as-parsed from HTML)

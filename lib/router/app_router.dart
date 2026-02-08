@@ -4,13 +4,13 @@ import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
 
 abstract class AppRoutes {
-  static const intro = '/';
+  static const home = '/';
+  static const intro = '/intro';
   static const login = '/login';
-  static const home = '/home';
 }
 
 final appRouter = GoRouter(
-  initialLocation: AppRoutes.intro,
+  initialLocation: AppRoutes.home,
   routes: [
     GoRoute(
       path: AppRoutes.intro,
