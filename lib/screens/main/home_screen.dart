@@ -31,11 +31,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _checkAuth() async {
     final authRepository = ref.read(authRepositoryProvider);
-    final user = await authRepository.tryAutoLogin();
+    final hasCredentials = await authRepository.hasCredentials();
 
     if (!mounted) return;
 
-    if (user == null) {
+    if (!hasCredentials) {
       context.go(AppRoutes.intro);
     } else {
       setState(() => _isCheckingAuth = false);

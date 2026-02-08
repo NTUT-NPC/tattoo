@@ -17,7 +17,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - Repository stubs (AuthRepository, CourseRepository)
 - Riverpod setup (providers for database, services, repositories)
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json`)
-- AuthRepository implementation (login, logout, session persistence via flutter_secure_storage)
+- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage)
 - go_router navigation setup
 - UI: intro screen, login screen, home screen with profile display
 

@@ -8,6 +8,73 @@ part of 'auth_repository.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Provides the current [AuthStatus].
+///
+/// Updated automatically by [AuthRepository.withAuth] on success or failure.
+
+@ProviderFor(AuthStatusNotifier)
+final authStatusProvider = AuthStatusNotifierProvider._();
+
+/// Provides the current [AuthStatus].
+///
+/// Updated automatically by [AuthRepository.withAuth] on success or failure.
+final class AuthStatusNotifierProvider
+    extends $NotifierProvider<AuthStatusNotifier, AuthStatus> {
+  /// Provides the current [AuthStatus].
+  ///
+  /// Updated automatically by [AuthRepository.withAuth] on success or failure.
+  AuthStatusNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'authStatusProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$authStatusNotifierHash();
+
+  @$internal
+  @override
+  AuthStatusNotifier create() => AuthStatusNotifier();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AuthStatus value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AuthStatus>(value),
+    );
+  }
+}
+
+String _$authStatusNotifierHash() =>
+    r'6b2cea7304669b1f0d46dadcabe650db2e4af8b7';
+
+/// Provides the current [AuthStatus].
+///
+/// Updated automatically by [AuthRepository.withAuth] on success or failure.
+
+abstract class _$AuthStatusNotifier extends $Notifier<AuthStatus> {
+  AuthStatus build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<AuthStatus, AuthStatus>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AuthStatus, AuthStatus>,
+              AuthStatus,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
 /// Provides the [AuthRepository] instance.
 
 @ProviderFor(authRepository)
@@ -52,7 +119,7 @@ final class AuthRepositoryProvider
   }
 }
 
-String _$authRepositoryHash() => r'a4dc16f5f2af4a8bd5204256cb04db09cbe95f07';
+String _$authRepositoryHash() => r'aef022cf373c08dbb7930bf59028771c145d8c9e';
 
 /// Provides the current user's profile.
 ///
