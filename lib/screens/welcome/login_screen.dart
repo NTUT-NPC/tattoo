@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -95,6 +96,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       await ref.read(authRepositoryProvider).login(username, password);
       if (mounted) context.go(AppRoutes.home);
+    } on DioException {
+      if (mounted) _setError('無法連線到伺服器，請檢查網路連線');
     } catch (_) {
       if (mounted) _setError('登入失敗，請確認帳號密碼', username: true, password: true);
     }

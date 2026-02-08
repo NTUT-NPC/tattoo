@@ -4,7 +4,7 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-02-05. If stale (>30 days), verify Status section against codebase.
+**Last updated:** 2026-02-08. If stale (>30 days), verify Status section against codebase.
 
 ## Status
 
@@ -16,7 +16,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - Repository stubs (AuthRepository, CourseRepository)
 - Riverpod setup (providers for database, services, repositories)
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json`)
-- AuthRepository implementation (login, logout, session persistence via flutter_secure_storage)
+- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage)
 - go_router navigation setup
 - UI: intro screen, login screen, home screen with profile display
 

@@ -13,6 +13,21 @@ import 'package:tattoo/utils/http.dart';
 
 part 'auth_repository.g.dart';
 
+/// Thrown when [AuthRepository.withAuth] is called but no stored credentials
+/// are available (user has never logged in, or has logged out).
+class NotLoggedInException implements Exception {
+  @override
+  String toString() => 'NotLoggedInException: No stored credentials available.';
+}
+
+/// Thrown when stored credentials are rejected by the server
+/// (e.g., password was changed). Stored credentials are cleared automatically.
+class InvalidCredentialsException implements Exception {
+  @override
+  String toString() =>
+      'InvalidCredentialsException: Stored credentials are no longer valid.';
+}
+
 /// User profile combining [User] and [Student] entities.
 class UserWithStudent {
   UserWithStudent(this.user, this.student);
@@ -131,34 +146,50 @@ class AuthRepository {
   Future<void> logout() async {
     await _database.delete(_database.users).go();
     await cookieJar.deleteAll();
-    await _secureStorage.deleteAll();
+    await _clearCredentials();
     await _clearAvatarCache();
   }
 
-  /// Attempts to login with stored credentials.
+  /// Whether the user has stored login credentials.
   ///
-  /// Returns the [User] if auto-login succeeds, `null` if no credentials
-  /// are stored or if login fails.
-  ///
-  /// On auth failure (invalid credentials), stored credentials are cleared.
-  /// On network failure, credentials are preserved for retry.
-  Future<User?> tryAutoLogin() async {
+  /// Returns `true` if both username and password exist in secure storage.
+  /// This does not validate the credentials or check session state.
+  Future<bool> hasCredentials() async {
     final username = await _secureStorage.read(key: _usernameKey);
     final password = await _secureStorage.read(key: _passwordKey);
+    return username != null && password != null;
+  }
 
-    if (username == null || password == null) {
-      return null;
-    }
-
+  /// Executes [call] with automatic re-authentication on session expiry.
+  ///
+  /// If [call] fails with a non-[DioException] error (indicating session
+  /// expiry or auth failure), this method re-authenticates using stored
+  /// credentials and retries [call] once.
+  ///
+  /// Throws [NotLoggedInException] if no stored credentials are available.
+  /// Throws [InvalidCredentialsException] if stored credentials are rejected
+  /// (credentials are automatically cleared from secure storage).
+  /// Rethrows [DioException] from [call] or re-auth (network errors).
+  Future<T> withAuth<T>(Future<T> Function() call) async {
     try {
-      return await login(username, password);
-    } on DioException {
-      // Network error - keep credentials for retry
-      return null;
-    } catch (_) {
-      // Auth failure - clear invalid credentials
-      await _secureStorage.deleteAll();
-      return null;
+      return await call();
+    } catch (e) {
+      if (e is DioException) rethrow;
+
+      final username = await _secureStorage.read(key: _usernameKey);
+      final password = await _secureStorage.read(key: _passwordKey);
+      if (username == null || password == null) throw NotLoggedInException();
+
+      try {
+        await _portalService.login(username, password);
+      } on DioException {
+        rethrow;
+      } catch (_) {
+        await _clearCredentials();
+        throw InvalidCredentialsException();
+      }
+
+      return await call();
     }
   }
 
@@ -192,10 +223,8 @@ class AuthRepository {
   /// Gets the current user's avatar image, with local caching.
   ///
   /// Returns a [File] pointing to the cached avatar. Use with `Image.file()`.
-  /// Returns `null` if not logged in or user has no avatar.
-  /// Fetches from network on first call, returns cached file on subsequent calls.
-  ///
-  /// Throws [Exception] on network failure (if not cached).
+  /// Returns `null` if not logged in, user has no avatar, or network is
+  /// unavailable and no cached file exists.
   Future<File?> getAvatar() async {
     final user = await getCurrentUser();
     if (user == null || user.avatarFilename.isEmpty) {
@@ -210,10 +239,20 @@ class AuthRepository {
       return file;
     }
 
-    final bytes = await _portalService.getAvatar(filename);
-    await file.parent.create(recursive: true);
-    await file.writeAsBytes(bytes);
-    return file;
+    try {
+      final bytes = await _portalService.getAvatar(filename);
+      await file.parent.create(recursive: true);
+      await file.writeAsBytes(bytes);
+      return file;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Clears stored login credentials from secure storage.
+  Future<void> _clearCredentials() async {
+    await _secureStorage.delete(key: _usernameKey);
+    await _secureStorage.delete(key: _passwordKey);
   }
 
   /// Clears cached avatar files.
