@@ -29,6 +29,84 @@ void main() {
       await respectfulDelay();
     });
 
+    group('getRegistrationRecords', () {
+      test('should return records with valid semesters', () async {
+        final records = await studentQueryService.getRegistrationRecords();
+
+        expect(
+          records,
+          isNotEmpty,
+          reason: 'Should have at least one registration record',
+        );
+
+        for (final record in records) {
+          expect(record.semester.year, greaterThan(80));
+          expect(record.semester.semester, isIn([1, 2, 3]));
+        }
+      });
+
+      test('should have class name and enrollment status', () async {
+        final records = await studentQueryService.getRegistrationRecords();
+
+        for (final record in records) {
+          expect(
+            record.className,
+            isNotNull,
+            reason:
+                'Semester ${record.semester.year}-${record.semester.semester} should have a class name',
+          );
+          expect(
+            record.enrollmentStatus,
+            isNotNull,
+            reason:
+                'Semester ${record.semester.year}-${record.semester.semester} should have an enrollment status',
+          );
+        }
+      });
+
+      test('should have at least one tutor per semester', () async {
+        final records = await studentQueryService.getRegistrationRecords();
+
+        for (final record in records) {
+          expect(
+            record.tutors,
+            isNotEmpty,
+            reason:
+                'Semester ${record.semester.year}-${record.semester.semester} should have at least one tutor',
+          );
+
+          for (final tutor in record.tutors) {
+            expect(
+              tutor.id,
+              isNotNull,
+              reason: 'Tutor ${tutor.name} should have an ID from the link',
+            );
+            expect(
+              tutor.name,
+              isNotNull,
+              reason: 'Tutor should have a name',
+            );
+          }
+        }
+      });
+
+      test('should return records in descending order', () async {
+        final records = await studentQueryService.getRegistrationRecords();
+
+        for (var i = 0; i < records.length - 1; i++) {
+          final current = records[i].semester;
+          final next = records[i + 1].semester;
+          final currentValue = current.year! * 10 + current.semester!;
+          final nextValue = next.year! * 10 + next.semester!;
+          expect(
+            currentValue,
+            greaterThan(nextValue),
+            reason: 'Records should be ordered most recent first',
+          );
+        }
+      });
+    });
+
     group('getAcademicPerformance', () {
       test('should return semesters with scores', () async {
         final semesters = await studentQueryService.getAcademicPerformance();

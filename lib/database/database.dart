@@ -29,6 +29,8 @@ part 'database.g.dart';
     TeacherOfficeHours,
     Scores,
     StudentSemesterSummaries,
+    StudentSemesterSummaryTutors,
+    StudentSemesterSummaryCadreRoles,
   ],
 )
 class AppDatabase extends _$AppDatabase {

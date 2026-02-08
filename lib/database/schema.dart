@@ -426,8 +426,11 @@ class Scores extends Table with AutoIncrementId {
 /// Per-student per-semester academic summary from the student query system.
 ///
 /// Stores aggregate statistics like weighted average, conduct grade, and
-/// credits for each semester.
-/// Data source: StudentQueryService.getAcademicPerformance()
+/// credits for each semester, as well as registration status information.
+///
+/// Data sources:
+/// - StudentQueryService.getAcademicPerformance() — scores and averages
+/// - StudentQueryService.getRegistrationRecords() — registration status
 @TableIndex(name: 'student_semester_summary_student', columns: {#student})
 class StudentSemesterSummaries extends Table with AutoIncrementId {
   /// Reference to the student.
@@ -451,9 +454,55 @@ class StudentSemesterSummaries extends Table with AutoIncrementId {
   /// Additional note.
   late final note = text().nullable()();
 
+  /// Student's assigned class name (e.g., "電子四甲").
+  /// Plain text — no class code available from this page.
+  late final className = text().nullable()();
+
+  /// Enrollment status (e.g., "在學", "休學", "退學").
+  late final enrollmentStatus = text().nullable()();
+
+  /// Whether the student is registered for this semester.
+  late final registered = boolean().nullable()();
+
+  /// Whether the student graduated this semester.
+  late final graduated = boolean().nullable()();
+
   @override
   List<Set<Column>> get uniqueKeys => [
     {student, semester},
+  ];
+}
+
+/// Junction table linking student semester summaries to their tutors.
+///
+/// A student may have multiple tutors (導師) in a semester.
+/// Data source: StudentQueryService.getRegistrationRecords()
+class StudentSemesterSummaryTutors extends Table {
+  /// Reference to the student semester summary.
+  late final summary = integer().references(StudentSemesterSummaries, #id)();
+
+  /// Reference to the teacher serving as tutor.
+  late final teacher = integer().references(Teachers, #id)();
+
+  @override
+  Set<Column> get primaryKey => {summary, teacher};
+}
+
+/// Class cadre roles held by a student in a semester.
+///
+/// Each row represents one cadre role (e.g., "班代", "副班代") for a
+/// student in a particular semester.
+/// Data source: StudentQueryService.getRegistrationRecords()
+class StudentSemesterSummaryCadreRoles extends Table with AutoIncrementId {
+  /// Reference to the student semester summary.
+  late final summary = integer().references(StudentSemesterSummaries, #id)();
+
+  /// Cadre role title (e.g., "班代", "副班代").
+  late final role = text()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {summary, role},
   ];
 }
 

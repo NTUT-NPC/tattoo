@@ -4,15 +4,6 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/utils/http.dart';
 import 'package:collection/collection.dart';
 
-/// Reference to an entity (course, teacher, classroom, etc.) with an ID and name.
-typedef ReferenceDTO = ({
-  /// Entity's unique identifier code.
-  String? id,
-
-  /// Entity's display name.
-  String? name,
-});
-
 /// Course schedule entry from the course selection system.
 typedef ScheduleDTO = ({
   /// Course offering number (e.g., "313146", "352902").
