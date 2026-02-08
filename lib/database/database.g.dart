@@ -8054,6 +8054,476 @@ class StudentSemesterSummaryCadreRolesCompanion
   }
 }
 
+class $StudentSemesterRankingsTable extends StudentSemesterRankings
+    with TableInfo<$StudentSemesterRankingsTable, StudentSemesterRanking> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StudentSemesterRankingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _summaryMeta = const VerificationMeta(
+    'summary',
+  );
+  @override
+  late final GeneratedColumn<int> summary = GeneratedColumn<int>(
+    'summary',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES student_semester_summaries (id)',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<RankingType, String> rankingType =
+      GeneratedColumn<String>(
+        'ranking_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<RankingType>(
+        $StudentSemesterRankingsTable.$converterrankingType,
+      );
+  static const VerificationMeta _semesterRankMeta = const VerificationMeta(
+    'semesterRank',
+  );
+  @override
+  late final GeneratedColumn<int> semesterRank = GeneratedColumn<int>(
+    'semester_rank',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _semesterTotalMeta = const VerificationMeta(
+    'semesterTotal',
+  );
+  @override
+  late final GeneratedColumn<int> semesterTotal = GeneratedColumn<int>(
+    'semester_total',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _grandTotalRankMeta = const VerificationMeta(
+    'grandTotalRank',
+  );
+  @override
+  late final GeneratedColumn<int> grandTotalRank = GeneratedColumn<int>(
+    'grand_total_rank',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _grandTotalTotalMeta = const VerificationMeta(
+    'grandTotalTotal',
+  );
+  @override
+  late final GeneratedColumn<int> grandTotalTotal = GeneratedColumn<int>(
+    'grand_total_total',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    summary,
+    rankingType,
+    semesterRank,
+    semesterTotal,
+    grandTotalRank,
+    grandTotalTotal,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'student_semester_rankings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StudentSemesterRanking> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('summary')) {
+      context.handle(
+        _summaryMeta,
+        summary.isAcceptableOrUnknown(data['summary']!, _summaryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_summaryMeta);
+    }
+    if (data.containsKey('semester_rank')) {
+      context.handle(
+        _semesterRankMeta,
+        semesterRank.isAcceptableOrUnknown(
+          data['semester_rank']!,
+          _semesterRankMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_semesterRankMeta);
+    }
+    if (data.containsKey('semester_total')) {
+      context.handle(
+        _semesterTotalMeta,
+        semesterTotal.isAcceptableOrUnknown(
+          data['semester_total']!,
+          _semesterTotalMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_semesterTotalMeta);
+    }
+    if (data.containsKey('grand_total_rank')) {
+      context.handle(
+        _grandTotalRankMeta,
+        grandTotalRank.isAcceptableOrUnknown(
+          data['grand_total_rank']!,
+          _grandTotalRankMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_grandTotalRankMeta);
+    }
+    if (data.containsKey('grand_total_total')) {
+      context.handle(
+        _grandTotalTotalMeta,
+        grandTotalTotal.isAcceptableOrUnknown(
+          data['grand_total_total']!,
+          _grandTotalTotalMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_grandTotalTotalMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {summary, rankingType};
+  @override
+  StudentSemesterRanking map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StudentSemesterRanking(
+      summary: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}summary'],
+      )!,
+      rankingType: $StudentSemesterRankingsTable.$converterrankingType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}ranking_type'],
+        )!,
+      ),
+      semesterRank: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}semester_rank'],
+      )!,
+      semesterTotal: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}semester_total'],
+      )!,
+      grandTotalRank: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}grand_total_rank'],
+      )!,
+      grandTotalTotal: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}grand_total_total'],
+      )!,
+    );
+  }
+
+  @override
+  $StudentSemesterRankingsTable createAlias(String alias) {
+    return $StudentSemesterRankingsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<RankingType, String, String> $converterrankingType =
+      const EnumNameConverter<RankingType>(RankingType.values);
+}
+
+class StudentSemesterRanking extends DataClass
+    implements Insertable<StudentSemesterRanking> {
+  /// Reference to the student semester summary.
+  final int summary;
+
+  /// The scope of this ranking (class, group, or department).
+  final RankingType rankingType;
+
+  /// Position in the semester ranking (學期成績排名).
+  final int semesterRank;
+
+  /// Total students in the comparison group for semester ranking.
+  final int semesterTotal;
+
+  /// Position in the cumulative ranking (歷年成績排名).
+  final int grandTotalRank;
+
+  /// Total students in the comparison group for cumulative ranking.
+  final int grandTotalTotal;
+  const StudentSemesterRanking({
+    required this.summary,
+    required this.rankingType,
+    required this.semesterRank,
+    required this.semesterTotal,
+    required this.grandTotalRank,
+    required this.grandTotalTotal,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['summary'] = Variable<int>(summary);
+    {
+      map['ranking_type'] = Variable<String>(
+        $StudentSemesterRankingsTable.$converterrankingType.toSql(rankingType),
+      );
+    }
+    map['semester_rank'] = Variable<int>(semesterRank);
+    map['semester_total'] = Variable<int>(semesterTotal);
+    map['grand_total_rank'] = Variable<int>(grandTotalRank);
+    map['grand_total_total'] = Variable<int>(grandTotalTotal);
+    return map;
+  }
+
+  StudentSemesterRankingsCompanion toCompanion(bool nullToAbsent) {
+    return StudentSemesterRankingsCompanion(
+      summary: Value(summary),
+      rankingType: Value(rankingType),
+      semesterRank: Value(semesterRank),
+      semesterTotal: Value(semesterTotal),
+      grandTotalRank: Value(grandTotalRank),
+      grandTotalTotal: Value(grandTotalTotal),
+    );
+  }
+
+  factory StudentSemesterRanking.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StudentSemesterRanking(
+      summary: serializer.fromJson<int>(json['summary']),
+      rankingType: $StudentSemesterRankingsTable.$converterrankingType.fromJson(
+        serializer.fromJson<String>(json['rankingType']),
+      ),
+      semesterRank: serializer.fromJson<int>(json['semesterRank']),
+      semesterTotal: serializer.fromJson<int>(json['semesterTotal']),
+      grandTotalRank: serializer.fromJson<int>(json['grandTotalRank']),
+      grandTotalTotal: serializer.fromJson<int>(json['grandTotalTotal']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'summary': serializer.toJson<int>(summary),
+      'rankingType': serializer.toJson<String>(
+        $StudentSemesterRankingsTable.$converterrankingType.toJson(rankingType),
+      ),
+      'semesterRank': serializer.toJson<int>(semesterRank),
+      'semesterTotal': serializer.toJson<int>(semesterTotal),
+      'grandTotalRank': serializer.toJson<int>(grandTotalRank),
+      'grandTotalTotal': serializer.toJson<int>(grandTotalTotal),
+    };
+  }
+
+  StudentSemesterRanking copyWith({
+    int? summary,
+    RankingType? rankingType,
+    int? semesterRank,
+    int? semesterTotal,
+    int? grandTotalRank,
+    int? grandTotalTotal,
+  }) => StudentSemesterRanking(
+    summary: summary ?? this.summary,
+    rankingType: rankingType ?? this.rankingType,
+    semesterRank: semesterRank ?? this.semesterRank,
+    semesterTotal: semesterTotal ?? this.semesterTotal,
+    grandTotalRank: grandTotalRank ?? this.grandTotalRank,
+    grandTotalTotal: grandTotalTotal ?? this.grandTotalTotal,
+  );
+  StudentSemesterRanking copyWithCompanion(
+    StudentSemesterRankingsCompanion data,
+  ) {
+    return StudentSemesterRanking(
+      summary: data.summary.present ? data.summary.value : this.summary,
+      rankingType: data.rankingType.present
+          ? data.rankingType.value
+          : this.rankingType,
+      semesterRank: data.semesterRank.present
+          ? data.semesterRank.value
+          : this.semesterRank,
+      semesterTotal: data.semesterTotal.present
+          ? data.semesterTotal.value
+          : this.semesterTotal,
+      grandTotalRank: data.grandTotalRank.present
+          ? data.grandTotalRank.value
+          : this.grandTotalRank,
+      grandTotalTotal: data.grandTotalTotal.present
+          ? data.grandTotalTotal.value
+          : this.grandTotalTotal,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StudentSemesterRanking(')
+          ..write('summary: $summary, ')
+          ..write('rankingType: $rankingType, ')
+          ..write('semesterRank: $semesterRank, ')
+          ..write('semesterTotal: $semesterTotal, ')
+          ..write('grandTotalRank: $grandTotalRank, ')
+          ..write('grandTotalTotal: $grandTotalTotal')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    summary,
+    rankingType,
+    semesterRank,
+    semesterTotal,
+    grandTotalRank,
+    grandTotalTotal,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StudentSemesterRanking &&
+          other.summary == this.summary &&
+          other.rankingType == this.rankingType &&
+          other.semesterRank == this.semesterRank &&
+          other.semesterTotal == this.semesterTotal &&
+          other.grandTotalRank == this.grandTotalRank &&
+          other.grandTotalTotal == this.grandTotalTotal);
+}
+
+class StudentSemesterRankingsCompanion
+    extends UpdateCompanion<StudentSemesterRanking> {
+  final Value<int> summary;
+  final Value<RankingType> rankingType;
+  final Value<int> semesterRank;
+  final Value<int> semesterTotal;
+  final Value<int> grandTotalRank;
+  final Value<int> grandTotalTotal;
+  final Value<int> rowid;
+  const StudentSemesterRankingsCompanion({
+    this.summary = const Value.absent(),
+    this.rankingType = const Value.absent(),
+    this.semesterRank = const Value.absent(),
+    this.semesterTotal = const Value.absent(),
+    this.grandTotalRank = const Value.absent(),
+    this.grandTotalTotal = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  StudentSemesterRankingsCompanion.insert({
+    required int summary,
+    required RankingType rankingType,
+    required int semesterRank,
+    required int semesterTotal,
+    required int grandTotalRank,
+    required int grandTotalTotal,
+    this.rowid = const Value.absent(),
+  }) : summary = Value(summary),
+       rankingType = Value(rankingType),
+       semesterRank = Value(semesterRank),
+       semesterTotal = Value(semesterTotal),
+       grandTotalRank = Value(grandTotalRank),
+       grandTotalTotal = Value(grandTotalTotal);
+  static Insertable<StudentSemesterRanking> custom({
+    Expression<int>? summary,
+    Expression<String>? rankingType,
+    Expression<int>? semesterRank,
+    Expression<int>? semesterTotal,
+    Expression<int>? grandTotalRank,
+    Expression<int>? grandTotalTotal,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (summary != null) 'summary': summary,
+      if (rankingType != null) 'ranking_type': rankingType,
+      if (semesterRank != null) 'semester_rank': semesterRank,
+      if (semesterTotal != null) 'semester_total': semesterTotal,
+      if (grandTotalRank != null) 'grand_total_rank': grandTotalRank,
+      if (grandTotalTotal != null) 'grand_total_total': grandTotalTotal,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  StudentSemesterRankingsCompanion copyWith({
+    Value<int>? summary,
+    Value<RankingType>? rankingType,
+    Value<int>? semesterRank,
+    Value<int>? semesterTotal,
+    Value<int>? grandTotalRank,
+    Value<int>? grandTotalTotal,
+    Value<int>? rowid,
+  }) {
+    return StudentSemesterRankingsCompanion(
+      summary: summary ?? this.summary,
+      rankingType: rankingType ?? this.rankingType,
+      semesterRank: semesterRank ?? this.semesterRank,
+      semesterTotal: semesterTotal ?? this.semesterTotal,
+      grandTotalRank: grandTotalRank ?? this.grandTotalRank,
+      grandTotalTotal: grandTotalTotal ?? this.grandTotalTotal,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (summary.present) {
+      map['summary'] = Variable<int>(summary.value);
+    }
+    if (rankingType.present) {
+      map['ranking_type'] = Variable<String>(
+        $StudentSemesterRankingsTable.$converterrankingType.toSql(
+          rankingType.value,
+        ),
+      );
+    }
+    if (semesterRank.present) {
+      map['semester_rank'] = Variable<int>(semesterRank.value);
+    }
+    if (semesterTotal.present) {
+      map['semester_total'] = Variable<int>(semesterTotal.value);
+    }
+    if (grandTotalRank.present) {
+      map['grand_total_rank'] = Variable<int>(grandTotalRank.value);
+    }
+    if (grandTotalTotal.present) {
+      map['grand_total_total'] = Variable<int>(grandTotalTotal.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StudentSemesterRankingsCompanion(')
+          ..write('summary: $summary, ')
+          ..write('rankingType: $rankingType, ')
+          ..write('semesterRank: $semesterRank, ')
+          ..write('semesterTotal: $semesterTotal, ')
+          ..write('grandTotalRank: $grandTotalRank, ')
+          ..write('grandTotalTotal: $grandTotalTotal, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -8089,6 +8559,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   studentSemesterSummaryCadreRoles = $StudentSemesterSummaryCadreRolesTable(
     this,
   );
+  late final $StudentSemesterRankingsTable studentSemesterRankings =
+      $StudentSemesterRankingsTable(this);
   late final Index teacherSemester = Index(
     'teacher_semester',
     'CREATE INDEX teacher_semester ON teachers (semester)',
@@ -8150,6 +8622,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     studentSemesterSummaries,
     studentSemesterSummaryTutors,
     studentSemesterSummaryCadreRoles,
+    studentSemesterRankings,
     teacherSemester,
     userStudent,
     courseOfferingCourse,
@@ -16429,6 +16902,34 @@ final class $$StudentSemesterSummariesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<
+    $StudentSemesterRankingsTable,
+    List<StudentSemesterRanking>
+  >
+  _studentSemesterRankingsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.studentSemesterRankings,
+        aliasName: $_aliasNameGenerator(
+          db.studentSemesterSummaries.id,
+          db.studentSemesterRankings.summary,
+        ),
+      );
+
+  $$StudentSemesterRankingsTableProcessedTableManager
+  get studentSemesterRankingsRefs {
+    final manager = $$StudentSemesterRankingsTableTableManager(
+      $_db,
+      $_db.studentSemesterRankings,
+    ).filter((f) => f.summary.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _studentSemesterRankingsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$StudentSemesterSummariesTableFilterComposer
@@ -16585,6 +17086,32 @@ class $$StudentSemesterSummariesTableFilterComposer
               }) => $$StudentSemesterSummaryCadreRolesTableFilterComposer(
                 $db: $db,
                 $table: $db.studentSemesterSummaryCadreRoles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> studentSemesterRankingsRefs(
+    Expression<bool> Function($$StudentSemesterRankingsTableFilterComposer f) f,
+  ) {
+    final $$StudentSemesterRankingsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.studentSemesterRankings,
+          getReferencedColumn: (t) => t.summary,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$StudentSemesterRankingsTableFilterComposer(
+                $db: $db,
+                $table: $db.studentSemesterRankings,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -16851,6 +17378,33 @@ class $$StudentSemesterSummariesTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> studentSemesterRankingsRefs<T extends Object>(
+    Expression<T> Function($$StudentSemesterRankingsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$StudentSemesterRankingsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.studentSemesterRankings,
+          getReferencedColumn: (t) => t.summary,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$StudentSemesterRankingsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.studentSemesterRankings,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$StudentSemesterSummariesTableTableManager
@@ -16871,6 +17425,7 @@ class $$StudentSemesterSummariesTableTableManager
             bool semester,
             bool studentSemesterSummaryTutorsRefs,
             bool studentSemesterSummaryCadreRolesRefs,
+            bool studentSemesterRankingsRefs,
           })
         > {
   $$StudentSemesterSummariesTableTableManager(
@@ -16965,6 +17520,7 @@ class $$StudentSemesterSummariesTableTableManager
                 semester = false,
                 studentSemesterSummaryTutorsRefs = false,
                 studentSemesterSummaryCadreRolesRefs = false,
+                studentSemesterRankingsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -16973,6 +17529,7 @@ class $$StudentSemesterSummariesTableTableManager
                       db.studentSemesterSummaryTutors,
                     if (studentSemesterSummaryCadreRolesRefs)
                       db.studentSemesterSummaryCadreRoles,
+                    if (studentSemesterRankingsRefs) db.studentSemesterRankings,
                   ],
                   addJoins:
                       <
@@ -17071,6 +17628,28 @@ class $$StudentSemesterSummariesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (studentSemesterRankingsRefs)
+                        await $_getPrefetchedData<
+                          StudentSemesterSummary,
+                          $StudentSemesterSummariesTable,
+                          StudentSemesterRanking
+                        >(
+                          currentTable: table,
+                          referencedTable:
+                              $$StudentSemesterSummariesTableReferences
+                                  ._studentSemesterRankingsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$StudentSemesterSummariesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).studentSemesterRankingsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.summary == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -17096,6 +17675,7 @@ typedef $$StudentSemesterSummariesTableProcessedTableManager =
         bool semester,
         bool studentSemesterSummaryTutorsRefs,
         bool studentSemesterSummaryCadreRolesRefs,
+        bool studentSemesterRankingsRefs,
       })
     >;
 typedef $$StudentSemesterSummaryTutorsTableCreateCompanionBuilder =
@@ -17800,6 +18380,384 @@ typedef $$StudentSemesterSummaryCadreRolesTableProcessedTableManager =
       StudentSemesterSummaryCadreRole,
       PrefetchHooks Function({bool summary})
     >;
+typedef $$StudentSemesterRankingsTableCreateCompanionBuilder =
+    StudentSemesterRankingsCompanion Function({
+      required int summary,
+      required RankingType rankingType,
+      required int semesterRank,
+      required int semesterTotal,
+      required int grandTotalRank,
+      required int grandTotalTotal,
+      Value<int> rowid,
+    });
+typedef $$StudentSemesterRankingsTableUpdateCompanionBuilder =
+    StudentSemesterRankingsCompanion Function({
+      Value<int> summary,
+      Value<RankingType> rankingType,
+      Value<int> semesterRank,
+      Value<int> semesterTotal,
+      Value<int> grandTotalRank,
+      Value<int> grandTotalTotal,
+      Value<int> rowid,
+    });
+
+final class $$StudentSemesterRankingsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $StudentSemesterRankingsTable,
+          StudentSemesterRanking
+        > {
+  $$StudentSemesterRankingsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $StudentSemesterSummariesTable _summaryTable(_$AppDatabase db) =>
+      db.studentSemesterSummaries.createAlias(
+        $_aliasNameGenerator(
+          db.studentSemesterRankings.summary,
+          db.studentSemesterSummaries.id,
+        ),
+      );
+
+  $$StudentSemesterSummariesTableProcessedTableManager get summary {
+    final $_column = $_itemColumn<int>('summary')!;
+
+    final manager = $$StudentSemesterSummariesTableTableManager(
+      $_db,
+      $_db.studentSemesterSummaries,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_summaryTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$StudentSemesterRankingsTableFilterComposer
+    extends Composer<_$AppDatabase, $StudentSemesterRankingsTable> {
+  $$StudentSemesterRankingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnWithTypeConverterFilters<RankingType, RankingType, String>
+  get rankingType => $composableBuilder(
+    column: $table.rankingType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get semesterRank => $composableBuilder(
+    column: $table.semesterRank,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get semesterTotal => $composableBuilder(
+    column: $table.semesterTotal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get grandTotalRank => $composableBuilder(
+    column: $table.grandTotalRank,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get grandTotalTotal => $composableBuilder(
+    column: $table.grandTotalTotal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$StudentSemesterSummariesTableFilterComposer get summary {
+    final $$StudentSemesterSummariesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.summary,
+          referencedTable: $db.studentSemesterSummaries,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$StudentSemesterSummariesTableFilterComposer(
+                $db: $db,
+                $table: $db.studentSemesterSummaries,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$StudentSemesterRankingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $StudentSemesterRankingsTable> {
+  $$StudentSemesterRankingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get rankingType => $composableBuilder(
+    column: $table.rankingType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get semesterRank => $composableBuilder(
+    column: $table.semesterRank,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get semesterTotal => $composableBuilder(
+    column: $table.semesterTotal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get grandTotalRank => $composableBuilder(
+    column: $table.grandTotalRank,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get grandTotalTotal => $composableBuilder(
+    column: $table.grandTotalTotal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$StudentSemesterSummariesTableOrderingComposer get summary {
+    final $$StudentSemesterSummariesTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.summary,
+          referencedTable: $db.studentSemesterSummaries,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$StudentSemesterSummariesTableOrderingComposer(
+                $db: $db,
+                $table: $db.studentSemesterSummaries,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$StudentSemesterRankingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StudentSemesterRankingsTable> {
+  $$StudentSemesterRankingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumnWithTypeConverter<RankingType, String> get rankingType =>
+      $composableBuilder(
+        column: $table.rankingType,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<int> get semesterRank => $composableBuilder(
+    column: $table.semesterRank,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get semesterTotal => $composableBuilder(
+    column: $table.semesterTotal,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get grandTotalRank => $composableBuilder(
+    column: $table.grandTotalRank,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get grandTotalTotal => $composableBuilder(
+    column: $table.grandTotalTotal,
+    builder: (column) => column,
+  );
+
+  $$StudentSemesterSummariesTableAnnotationComposer get summary {
+    final $$StudentSemesterSummariesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.summary,
+          referencedTable: $db.studentSemesterSummaries,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$StudentSemesterSummariesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.studentSemesterSummaries,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$StudentSemesterRankingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StudentSemesterRankingsTable,
+          StudentSemesterRanking,
+          $$StudentSemesterRankingsTableFilterComposer,
+          $$StudentSemesterRankingsTableOrderingComposer,
+          $$StudentSemesterRankingsTableAnnotationComposer,
+          $$StudentSemesterRankingsTableCreateCompanionBuilder,
+          $$StudentSemesterRankingsTableUpdateCompanionBuilder,
+          (StudentSemesterRanking, $$StudentSemesterRankingsTableReferences),
+          StudentSemesterRanking,
+          PrefetchHooks Function({bool summary})
+        > {
+  $$StudentSemesterRankingsTableTableManager(
+    _$AppDatabase db,
+    $StudentSemesterRankingsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StudentSemesterRankingsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$StudentSemesterRankingsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$StudentSemesterRankingsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> summary = const Value.absent(),
+                Value<RankingType> rankingType = const Value.absent(),
+                Value<int> semesterRank = const Value.absent(),
+                Value<int> semesterTotal = const Value.absent(),
+                Value<int> grandTotalRank = const Value.absent(),
+                Value<int> grandTotalTotal = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => StudentSemesterRankingsCompanion(
+                summary: summary,
+                rankingType: rankingType,
+                semesterRank: semesterRank,
+                semesterTotal: semesterTotal,
+                grandTotalRank: grandTotalRank,
+                grandTotalTotal: grandTotalTotal,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int summary,
+                required RankingType rankingType,
+                required int semesterRank,
+                required int semesterTotal,
+                required int grandTotalRank,
+                required int grandTotalTotal,
+                Value<int> rowid = const Value.absent(),
+              }) => StudentSemesterRankingsCompanion.insert(
+                summary: summary,
+                rankingType: rankingType,
+                semesterRank: semesterRank,
+                semesterTotal: semesterTotal,
+                grandTotalRank: grandTotalRank,
+                grandTotalTotal: grandTotalTotal,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$StudentSemesterRankingsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({summary = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (summary) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.summary,
+                                referencedTable:
+                                    $$StudentSemesterRankingsTableReferences
+                                        ._summaryTable(db),
+                                referencedColumn:
+                                    $$StudentSemesterRankingsTableReferences
+                                        ._summaryTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$StudentSemesterRankingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StudentSemesterRankingsTable,
+      StudentSemesterRanking,
+      $$StudentSemesterRankingsTableFilterComposer,
+      $$StudentSemesterRankingsTableOrderingComposer,
+      $$StudentSemesterRankingsTableAnnotationComposer,
+      $$StudentSemesterRankingsTableCreateCompanionBuilder,
+      $$StudentSemesterRankingsTableUpdateCompanionBuilder,
+      (StudentSemesterRanking, $$StudentSemesterRankingsTableReferences),
+      StudentSemesterRanking,
+      PrefetchHooks Function({bool summary})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -17863,5 +18821,10 @@ class $AppDatabaseManager {
       $$StudentSemesterSummaryCadreRolesTableTableManager(
         _db,
         _db.studentSemesterSummaryCadreRoles,
+      );
+  $$StudentSemesterRankingsTableTableManager get studentSemesterRankings =>
+      $$StudentSemesterRankingsTableTableManager(
+        _db,
+        _db.studentSemesterRankings,
       );
 }
