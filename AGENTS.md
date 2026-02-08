@@ -4,12 +4,13 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-02-05. If stale (>30 days), verify Status section against codebase.
+**Last updated:** 2026-02-07. If stale (>30 days), verify Status section against codebase.
 
 ## Status
 
 **Done:**
 - PortalService (auth+SSO), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
+- StudentQueryService (getAcademicPerformance)
 - HTTP utils, InvalidCookieFilter interceptor
 - Drift database schema with all tables
 - Service DTOs migrated to Dart 3 records
@@ -26,14 +27,16 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - CourseService (English): Parse English Course System (`/course/en/`) for English names (courses, teachers, syllabus)
 - StudentQueryService (sa_003_oauth - 學生查詢專區):
   - getStudentStatus (學籍資料查詢)
-  - getAcademicPerformance (學業成績查詢)
   - getGradeRanking (學業成績排名查詢)
   - getGPA (學期及歷年GPA查詢)
   - getMidtermWarnings (期中預警查詢)
   - getStudentAffairs (獎懲、缺曠課、請假查詢)
+  - getStudentLoan (就學貸款資料查詢)
   - getGeneralEducationDimension (查詢已修讀博雅課程向度)
   - getEnglishProficiency (查詢英語畢業門檻登錄資料)
+  - getExamScores (查詢會考電腦閱卷成績)
   - getClassAndMentor (註冊編班與導師查詢)
+  - updateContactInfo (維護個人聯絡資料)
   - getGraduationQualifications (查詢畢業資格審查)
 - PortalService: getCalendar, changePassword
 
@@ -51,7 +54,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP) + Database (Drift)
 
 **Structure:**
-- `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType)
+- `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType, ScoreStatus)
 - `lib/providers/` - Riverpod providers for database and services
 - `lib/repositories/` - Coordinate service + database, implement business logic
 - `lib/services/` - HTTP clients, parse responses, return DTOs (as records)
@@ -74,7 +77,7 @@ MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP)
 - PortalService - Portal auth, SSO
 - CourseService - 課程系統 (`aa_0010-oauth`)
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`)
-- StudentQueryService (TODO) - 學生查詢專區 (`sa_003_oauth`)
+- StudentQueryService - 學生查詢專區 (`sa_003_oauth`)
 - Design principle: Match NTUT's actual system boundaries. Each service corresponds to one NTUT SSO target.
 - All share single cookie jar (NTUT session state)
 - Return DTOs as records (UserDTO, SemesterDTO, ScheduleDTO, etc.) - no database writes
@@ -108,7 +111,7 @@ MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP)
 
 **SSO Flow:** PortalService centralizes auth services.
 
-**User-Agent:** Emulate NTUT iOS app requests.
+**User-Agent:** PortalService uses `app.ntut.edu.tw` endpoints designed for the official NTUT iOS app (`User-Agent: Direk ios App`). This bypasses login captcha that the web portal (`nportal.ntut.edu.tw`) requires. Without the correct User-Agent, the server will refuse requests. Browser-based testing of these endpoints won't work.
 
 **InvalidCookieFilter:** iSchool+ returns malformed cookies; custom interceptor filters them.
 

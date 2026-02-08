@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:tattoo/models/course.dart';
@@ -12,15 +11,6 @@ typedef ReferenceDTO = ({
 
   /// Entity's display name.
   String? name,
-});
-
-/// Academic semester identifier.
-typedef SemesterDTO = ({
-  /// Academic year in ROC calendar (e.g., 114 for 2025).
-  int? year,
-
-  /// Semester number (1 for fall, 2 for spring, 3 for summer).
-  int? semester,
 });
 
 /// Course schedule entry from the course selection system.

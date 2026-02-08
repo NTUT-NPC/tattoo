@@ -142,15 +142,18 @@ void main() {
         },
       );
 
-      test('should successfully authenticate with scoreService', () async {
-        await portalService.login(
-          TestCredentials.username,
-          TestCredentials.password,
-        );
+      test(
+        'should successfully authenticate with studentQueryService',
+        () async {
+          await portalService.login(
+            TestCredentials.username,
+            TestCredentials.password,
+          );
 
-        // Should not throw
-        await portalService.sso(PortalServiceCode.scoreService);
-      });
+          // Should not throw
+          await portalService.sso(PortalServiceCode.studentQueryService);
+        },
+      );
 
       test('should throw exception when cookies are cleared', () async {
         // Clear cookies to simulate not being logged in

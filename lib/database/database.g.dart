@@ -6283,6 +6283,1040 @@ class TeacherOfficeHoursCompanion extends UpdateCompanion<TeacherOfficeHour> {
   }
 }
 
+class $ScoresTable extends Scores with TableInfo<$ScoresTable, Score> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ScoresTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _studentMeta = const VerificationMeta(
+    'student',
+  );
+  @override
+  late final GeneratedColumn<int> student = GeneratedColumn<int>(
+    'student',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES students (id)',
+    ),
+  );
+  static const VerificationMeta _semesterMeta = const VerificationMeta(
+    'semester',
+  );
+  @override
+  late final GeneratedColumn<int> semester = GeneratedColumn<int>(
+    'semester',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES semesters (id)',
+    ),
+  );
+  static const VerificationMeta _courseMeta = const VerificationMeta('course');
+  @override
+  late final GeneratedColumn<int> course = GeneratedColumn<int>(
+    'course',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES courses (id)',
+    ),
+  );
+  static const VerificationMeta _courseOfferingMeta = const VerificationMeta(
+    'courseOffering',
+  );
+  @override
+  late final GeneratedColumn<int> courseOffering = GeneratedColumn<int>(
+    'course_offering',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES course_offerings (id)',
+    ),
+  );
+  static const VerificationMeta _scoreMeta = const VerificationMeta('score');
+  @override
+  late final GeneratedColumn<int> score = GeneratedColumn<int>(
+    'score',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<ScoreStatus?, String> status =
+      GeneratedColumn<String>(
+        'status',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<ScoreStatus?>($ScoresTable.$converterstatusn);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    student,
+    semester,
+    course,
+    courseOffering,
+    score,
+    status,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'scores';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Score> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('student')) {
+      context.handle(
+        _studentMeta,
+        student.isAcceptableOrUnknown(data['student']!, _studentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_studentMeta);
+    }
+    if (data.containsKey('semester')) {
+      context.handle(
+        _semesterMeta,
+        semester.isAcceptableOrUnknown(data['semester']!, _semesterMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_semesterMeta);
+    }
+    if (data.containsKey('course')) {
+      context.handle(
+        _courseMeta,
+        course.isAcceptableOrUnknown(data['course']!, _courseMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_courseMeta);
+    }
+    if (data.containsKey('course_offering')) {
+      context.handle(
+        _courseOfferingMeta,
+        courseOffering.isAcceptableOrUnknown(
+          data['course_offering']!,
+          _courseOfferingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('score')) {
+      context.handle(
+        _scoreMeta,
+        score.isAcceptableOrUnknown(data['score']!, _scoreMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {student, course, semester},
+  ];
+  @override
+  Score map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Score(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      student: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}student'],
+      )!,
+      semester: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}semester'],
+      )!,
+      course: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}course'],
+      )!,
+      courseOffering: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}course_offering'],
+      ),
+      score: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}score'],
+      ),
+      status: $ScoresTable.$converterstatusn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}status'],
+        ),
+      ),
+    );
+  }
+
+  @override
+  $ScoresTable createAlias(String alias) {
+    return $ScoresTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<ScoreStatus, String, String> $converterstatus =
+      const EnumNameConverter<ScoreStatus>(ScoreStatus.values);
+  static JsonTypeConverter2<ScoreStatus?, String?, String?> $converterstatusn =
+      JsonTypeConverter2.asNullable($converterstatus);
+}
+
+class Score extends DataClass implements Insertable<Score> {
+  /// Auto-incrementing primary key.
+  final int id;
+
+  /// Reference to the student who received this score.
+  final int student;
+
+  /// Reference to the semester this score belongs to.
+  final int semester;
+
+  /// Reference to the course definition (resolved from ScoreDTO.courseCode).
+  final int course;
+
+  /// Reference to the specific course offering.
+  ///
+  /// Nullable because credit waivers (抵免) have no associated offering.
+  final int? courseOffering;
+
+  /// Numeric grade (null when [status] is set instead).
+  final int? score;
+
+  /// Special score status (null when [score] is numeric).
+  final ScoreStatus? status;
+  const Score({
+    required this.id,
+    required this.student,
+    required this.semester,
+    required this.course,
+    this.courseOffering,
+    this.score,
+    this.status,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['student'] = Variable<int>(student);
+    map['semester'] = Variable<int>(semester);
+    map['course'] = Variable<int>(course);
+    if (!nullToAbsent || courseOffering != null) {
+      map['course_offering'] = Variable<int>(courseOffering);
+    }
+    if (!nullToAbsent || score != null) {
+      map['score'] = Variable<int>(score);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(
+        $ScoresTable.$converterstatusn.toSql(status),
+      );
+    }
+    return map;
+  }
+
+  ScoresCompanion toCompanion(bool nullToAbsent) {
+    return ScoresCompanion(
+      id: Value(id),
+      student: Value(student),
+      semester: Value(semester),
+      course: Value(course),
+      courseOffering: courseOffering == null && nullToAbsent
+          ? const Value.absent()
+          : Value(courseOffering),
+      score: score == null && nullToAbsent
+          ? const Value.absent()
+          : Value(score),
+      status: status == null && nullToAbsent
+          ? const Value.absent()
+          : Value(status),
+    );
+  }
+
+  factory Score.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Score(
+      id: serializer.fromJson<int>(json['id']),
+      student: serializer.fromJson<int>(json['student']),
+      semester: serializer.fromJson<int>(json['semester']),
+      course: serializer.fromJson<int>(json['course']),
+      courseOffering: serializer.fromJson<int?>(json['courseOffering']),
+      score: serializer.fromJson<int?>(json['score']),
+      status: $ScoresTable.$converterstatusn.fromJson(
+        serializer.fromJson<String?>(json['status']),
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'student': serializer.toJson<int>(student),
+      'semester': serializer.toJson<int>(semester),
+      'course': serializer.toJson<int>(course),
+      'courseOffering': serializer.toJson<int?>(courseOffering),
+      'score': serializer.toJson<int?>(score),
+      'status': serializer.toJson<String?>(
+        $ScoresTable.$converterstatusn.toJson(status),
+      ),
+    };
+  }
+
+  Score copyWith({
+    int? id,
+    int? student,
+    int? semester,
+    int? course,
+    Value<int?> courseOffering = const Value.absent(),
+    Value<int?> score = const Value.absent(),
+    Value<ScoreStatus?> status = const Value.absent(),
+  }) => Score(
+    id: id ?? this.id,
+    student: student ?? this.student,
+    semester: semester ?? this.semester,
+    course: course ?? this.course,
+    courseOffering: courseOffering.present
+        ? courseOffering.value
+        : this.courseOffering,
+    score: score.present ? score.value : this.score,
+    status: status.present ? status.value : this.status,
+  );
+  Score copyWithCompanion(ScoresCompanion data) {
+    return Score(
+      id: data.id.present ? data.id.value : this.id,
+      student: data.student.present ? data.student.value : this.student,
+      semester: data.semester.present ? data.semester.value : this.semester,
+      course: data.course.present ? data.course.value : this.course,
+      courseOffering: data.courseOffering.present
+          ? data.courseOffering.value
+          : this.courseOffering,
+      score: data.score.present ? data.score.value : this.score,
+      status: data.status.present ? data.status.value : this.status,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Score(')
+          ..write('id: $id, ')
+          ..write('student: $student, ')
+          ..write('semester: $semester, ')
+          ..write('course: $course, ')
+          ..write('courseOffering: $courseOffering, ')
+          ..write('score: $score, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, student, semester, course, courseOffering, score, status);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Score &&
+          other.id == this.id &&
+          other.student == this.student &&
+          other.semester == this.semester &&
+          other.course == this.course &&
+          other.courseOffering == this.courseOffering &&
+          other.score == this.score &&
+          other.status == this.status);
+}
+
+class ScoresCompanion extends UpdateCompanion<Score> {
+  final Value<int> id;
+  final Value<int> student;
+  final Value<int> semester;
+  final Value<int> course;
+  final Value<int?> courseOffering;
+  final Value<int?> score;
+  final Value<ScoreStatus?> status;
+  const ScoresCompanion({
+    this.id = const Value.absent(),
+    this.student = const Value.absent(),
+    this.semester = const Value.absent(),
+    this.course = const Value.absent(),
+    this.courseOffering = const Value.absent(),
+    this.score = const Value.absent(),
+    this.status = const Value.absent(),
+  });
+  ScoresCompanion.insert({
+    this.id = const Value.absent(),
+    required int student,
+    required int semester,
+    required int course,
+    this.courseOffering = const Value.absent(),
+    this.score = const Value.absent(),
+    this.status = const Value.absent(),
+  }) : student = Value(student),
+       semester = Value(semester),
+       course = Value(course);
+  static Insertable<Score> custom({
+    Expression<int>? id,
+    Expression<int>? student,
+    Expression<int>? semester,
+    Expression<int>? course,
+    Expression<int>? courseOffering,
+    Expression<int>? score,
+    Expression<String>? status,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (student != null) 'student': student,
+      if (semester != null) 'semester': semester,
+      if (course != null) 'course': course,
+      if (courseOffering != null) 'course_offering': courseOffering,
+      if (score != null) 'score': score,
+      if (status != null) 'status': status,
+    });
+  }
+
+  ScoresCompanion copyWith({
+    Value<int>? id,
+    Value<int>? student,
+    Value<int>? semester,
+    Value<int>? course,
+    Value<int?>? courseOffering,
+    Value<int?>? score,
+    Value<ScoreStatus?>? status,
+  }) {
+    return ScoresCompanion(
+      id: id ?? this.id,
+      student: student ?? this.student,
+      semester: semester ?? this.semester,
+      course: course ?? this.course,
+      courseOffering: courseOffering ?? this.courseOffering,
+      score: score ?? this.score,
+      status: status ?? this.status,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (student.present) {
+      map['student'] = Variable<int>(student.value);
+    }
+    if (semester.present) {
+      map['semester'] = Variable<int>(semester.value);
+    }
+    if (course.present) {
+      map['course'] = Variable<int>(course.value);
+    }
+    if (courseOffering.present) {
+      map['course_offering'] = Variable<int>(courseOffering.value);
+    }
+    if (score.present) {
+      map['score'] = Variable<int>(score.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(
+        $ScoresTable.$converterstatusn.toSql(status.value),
+      );
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ScoresCompanion(')
+          ..write('id: $id, ')
+          ..write('student: $student, ')
+          ..write('semester: $semester, ')
+          ..write('course: $course, ')
+          ..write('courseOffering: $courseOffering, ')
+          ..write('score: $score, ')
+          ..write('status: $status')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StudentSemesterSummariesTable extends StudentSemesterSummaries
+    with TableInfo<$StudentSemesterSummariesTable, StudentSemesterSummary> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StudentSemesterSummariesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _studentMeta = const VerificationMeta(
+    'student',
+  );
+  @override
+  late final GeneratedColumn<int> student = GeneratedColumn<int>(
+    'student',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES students (id)',
+    ),
+  );
+  static const VerificationMeta _semesterMeta = const VerificationMeta(
+    'semester',
+  );
+  @override
+  late final GeneratedColumn<int> semester = GeneratedColumn<int>(
+    'semester',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES semesters (id)',
+    ),
+  );
+  static const VerificationMeta _averageMeta = const VerificationMeta(
+    'average',
+  );
+  @override
+  late final GeneratedColumn<double> average = GeneratedColumn<double>(
+    'average',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _conductMeta = const VerificationMeta(
+    'conduct',
+  );
+  @override
+  late final GeneratedColumn<double> conduct = GeneratedColumn<double>(
+    'conduct',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _totalCreditsMeta = const VerificationMeta(
+    'totalCredits',
+  );
+  @override
+  late final GeneratedColumn<double> totalCredits = GeneratedColumn<double>(
+    'total_credits',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _creditsPassedMeta = const VerificationMeta(
+    'creditsPassed',
+  );
+  @override
+  late final GeneratedColumn<double> creditsPassed = GeneratedColumn<double>(
+    'credits_passed',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    student,
+    semester,
+    average,
+    conduct,
+    totalCredits,
+    creditsPassed,
+    note,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'student_semester_summaries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StudentSemesterSummary> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('student')) {
+      context.handle(
+        _studentMeta,
+        student.isAcceptableOrUnknown(data['student']!, _studentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_studentMeta);
+    }
+    if (data.containsKey('semester')) {
+      context.handle(
+        _semesterMeta,
+        semester.isAcceptableOrUnknown(data['semester']!, _semesterMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_semesterMeta);
+    }
+    if (data.containsKey('average')) {
+      context.handle(
+        _averageMeta,
+        average.isAcceptableOrUnknown(data['average']!, _averageMeta),
+      );
+    }
+    if (data.containsKey('conduct')) {
+      context.handle(
+        _conductMeta,
+        conduct.isAcceptableOrUnknown(data['conduct']!, _conductMeta),
+      );
+    }
+    if (data.containsKey('total_credits')) {
+      context.handle(
+        _totalCreditsMeta,
+        totalCredits.isAcceptableOrUnknown(
+          data['total_credits']!,
+          _totalCreditsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('credits_passed')) {
+      context.handle(
+        _creditsPassedMeta,
+        creditsPassed.isAcceptableOrUnknown(
+          data['credits_passed']!,
+          _creditsPassedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {student, semester},
+  ];
+  @override
+  StudentSemesterSummary map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StudentSemesterSummary(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      student: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}student'],
+      )!,
+      semester: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}semester'],
+      )!,
+      average: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average'],
+      ),
+      conduct: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}conduct'],
+      ),
+      totalCredits: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}total_credits'],
+      ),
+      creditsPassed: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}credits_passed'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+    );
+  }
+
+  @override
+  $StudentSemesterSummariesTable createAlias(String alias) {
+    return $StudentSemesterSummariesTable(attachedDatabase, alias);
+  }
+}
+
+class StudentSemesterSummary extends DataClass
+    implements Insertable<StudentSemesterSummary> {
+  /// Auto-incrementing primary key.
+  final int id;
+
+  /// Reference to the student.
+  final int student;
+
+  /// Reference to the semester.
+  final int semester;
+
+  /// Weighted average for the semester.
+  final double? average;
+
+  /// Conduct grade.
+  final double? conduct;
+
+  /// Total credits attempted.
+  final double? totalCredits;
+
+  /// Credits passed/earned.
+  final double? creditsPassed;
+
+  /// Additional note.
+  final String? note;
+  const StudentSemesterSummary({
+    required this.id,
+    required this.student,
+    required this.semester,
+    this.average,
+    this.conduct,
+    this.totalCredits,
+    this.creditsPassed,
+    this.note,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['student'] = Variable<int>(student);
+    map['semester'] = Variable<int>(semester);
+    if (!nullToAbsent || average != null) {
+      map['average'] = Variable<double>(average);
+    }
+    if (!nullToAbsent || conduct != null) {
+      map['conduct'] = Variable<double>(conduct);
+    }
+    if (!nullToAbsent || totalCredits != null) {
+      map['total_credits'] = Variable<double>(totalCredits);
+    }
+    if (!nullToAbsent || creditsPassed != null) {
+      map['credits_passed'] = Variable<double>(creditsPassed);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    return map;
+  }
+
+  StudentSemesterSummariesCompanion toCompanion(bool nullToAbsent) {
+    return StudentSemesterSummariesCompanion(
+      id: Value(id),
+      student: Value(student),
+      semester: Value(semester),
+      average: average == null && nullToAbsent
+          ? const Value.absent()
+          : Value(average),
+      conduct: conduct == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conduct),
+      totalCredits: totalCredits == null && nullToAbsent
+          ? const Value.absent()
+          : Value(totalCredits),
+      creditsPassed: creditsPassed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(creditsPassed),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+    );
+  }
+
+  factory StudentSemesterSummary.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StudentSemesterSummary(
+      id: serializer.fromJson<int>(json['id']),
+      student: serializer.fromJson<int>(json['student']),
+      semester: serializer.fromJson<int>(json['semester']),
+      average: serializer.fromJson<double?>(json['average']),
+      conduct: serializer.fromJson<double?>(json['conduct']),
+      totalCredits: serializer.fromJson<double?>(json['totalCredits']),
+      creditsPassed: serializer.fromJson<double?>(json['creditsPassed']),
+      note: serializer.fromJson<String?>(json['note']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'student': serializer.toJson<int>(student),
+      'semester': serializer.toJson<int>(semester),
+      'average': serializer.toJson<double?>(average),
+      'conduct': serializer.toJson<double?>(conduct),
+      'totalCredits': serializer.toJson<double?>(totalCredits),
+      'creditsPassed': serializer.toJson<double?>(creditsPassed),
+      'note': serializer.toJson<String?>(note),
+    };
+  }
+
+  StudentSemesterSummary copyWith({
+    int? id,
+    int? student,
+    int? semester,
+    Value<double?> average = const Value.absent(),
+    Value<double?> conduct = const Value.absent(),
+    Value<double?> totalCredits = const Value.absent(),
+    Value<double?> creditsPassed = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+  }) => StudentSemesterSummary(
+    id: id ?? this.id,
+    student: student ?? this.student,
+    semester: semester ?? this.semester,
+    average: average.present ? average.value : this.average,
+    conduct: conduct.present ? conduct.value : this.conduct,
+    totalCredits: totalCredits.present ? totalCredits.value : this.totalCredits,
+    creditsPassed: creditsPassed.present
+        ? creditsPassed.value
+        : this.creditsPassed,
+    note: note.present ? note.value : this.note,
+  );
+  StudentSemesterSummary copyWithCompanion(
+    StudentSemesterSummariesCompanion data,
+  ) {
+    return StudentSemesterSummary(
+      id: data.id.present ? data.id.value : this.id,
+      student: data.student.present ? data.student.value : this.student,
+      semester: data.semester.present ? data.semester.value : this.semester,
+      average: data.average.present ? data.average.value : this.average,
+      conduct: data.conduct.present ? data.conduct.value : this.conduct,
+      totalCredits: data.totalCredits.present
+          ? data.totalCredits.value
+          : this.totalCredits,
+      creditsPassed: data.creditsPassed.present
+          ? data.creditsPassed.value
+          : this.creditsPassed,
+      note: data.note.present ? data.note.value : this.note,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StudentSemesterSummary(')
+          ..write('id: $id, ')
+          ..write('student: $student, ')
+          ..write('semester: $semester, ')
+          ..write('average: $average, ')
+          ..write('conduct: $conduct, ')
+          ..write('totalCredits: $totalCredits, ')
+          ..write('creditsPassed: $creditsPassed, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    student,
+    semester,
+    average,
+    conduct,
+    totalCredits,
+    creditsPassed,
+    note,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StudentSemesterSummary &&
+          other.id == this.id &&
+          other.student == this.student &&
+          other.semester == this.semester &&
+          other.average == this.average &&
+          other.conduct == this.conduct &&
+          other.totalCredits == this.totalCredits &&
+          other.creditsPassed == this.creditsPassed &&
+          other.note == this.note);
+}
+
+class StudentSemesterSummariesCompanion
+    extends UpdateCompanion<StudentSemesterSummary> {
+  final Value<int> id;
+  final Value<int> student;
+  final Value<int> semester;
+  final Value<double?> average;
+  final Value<double?> conduct;
+  final Value<double?> totalCredits;
+  final Value<double?> creditsPassed;
+  final Value<String?> note;
+  const StudentSemesterSummariesCompanion({
+    this.id = const Value.absent(),
+    this.student = const Value.absent(),
+    this.semester = const Value.absent(),
+    this.average = const Value.absent(),
+    this.conduct = const Value.absent(),
+    this.totalCredits = const Value.absent(),
+    this.creditsPassed = const Value.absent(),
+    this.note = const Value.absent(),
+  });
+  StudentSemesterSummariesCompanion.insert({
+    this.id = const Value.absent(),
+    required int student,
+    required int semester,
+    this.average = const Value.absent(),
+    this.conduct = const Value.absent(),
+    this.totalCredits = const Value.absent(),
+    this.creditsPassed = const Value.absent(),
+    this.note = const Value.absent(),
+  }) : student = Value(student),
+       semester = Value(semester);
+  static Insertable<StudentSemesterSummary> custom({
+    Expression<int>? id,
+    Expression<int>? student,
+    Expression<int>? semester,
+    Expression<double>? average,
+    Expression<double>? conduct,
+    Expression<double>? totalCredits,
+    Expression<double>? creditsPassed,
+    Expression<String>? note,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (student != null) 'student': student,
+      if (semester != null) 'semester': semester,
+      if (average != null) 'average': average,
+      if (conduct != null) 'conduct': conduct,
+      if (totalCredits != null) 'total_credits': totalCredits,
+      if (creditsPassed != null) 'credits_passed': creditsPassed,
+      if (note != null) 'note': note,
+    });
+  }
+
+  StudentSemesterSummariesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? student,
+    Value<int>? semester,
+    Value<double?>? average,
+    Value<double?>? conduct,
+    Value<double?>? totalCredits,
+    Value<double?>? creditsPassed,
+    Value<String?>? note,
+  }) {
+    return StudentSemesterSummariesCompanion(
+      id: id ?? this.id,
+      student: student ?? this.student,
+      semester: semester ?? this.semester,
+      average: average ?? this.average,
+      conduct: conduct ?? this.conduct,
+      totalCredits: totalCredits ?? this.totalCredits,
+      creditsPassed: creditsPassed ?? this.creditsPassed,
+      note: note ?? this.note,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (student.present) {
+      map['student'] = Variable<int>(student.value);
+    }
+    if (semester.present) {
+      map['semester'] = Variable<int>(semester.value);
+    }
+    if (average.present) {
+      map['average'] = Variable<double>(average.value);
+    }
+    if (conduct.present) {
+      map['conduct'] = Variable<double>(conduct.value);
+    }
+    if (totalCredits.present) {
+      map['total_credits'] = Variable<double>(totalCredits.value);
+    }
+    if (creditsPassed.present) {
+      map['credits_passed'] = Variable<double>(creditsPassed.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StudentSemesterSummariesCompanion(')
+          ..write('id: $id, ')
+          ..write('student: $student, ')
+          ..write('semester: $semester, ')
+          ..write('average: $average, ')
+          ..write('conduct: $conduct, ')
+          ..write('totalCredits: $totalCredits, ')
+          ..write('creditsPassed: $creditsPassed, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -6309,6 +7343,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MaterialsTable materials = $MaterialsTable(this);
   late final $TeacherOfficeHoursTable teacherOfficeHours =
       $TeacherOfficeHoursTable(this);
+  late final $ScoresTable scores = $ScoresTable(this);
+  late final $StudentSemesterSummariesTable studentSemesterSummaries =
+      $StudentSemesterSummariesTable(this);
   late final Index teacherSemester = Index(
     'teacher_semester',
     'CREATE INDEX teacher_semester ON teachers (semester)',
@@ -6337,6 +7374,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'teacher_office_hour_teacher',
     'CREATE INDEX teacher_office_hour_teacher ON teacher_office_hours (teacher)',
   );
+  late final Index scoreStudent = Index(
+    'score_student',
+    'CREATE INDEX score_student ON scores (student)',
+  );
+  late final Index studentSemesterSummaryStudent = Index(
+    'student_semester_summary_student',
+    'CREATE INDEX student_semester_summary_student ON student_semester_summaries (student)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6358,6 +7403,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     schedules,
     materials,
     teacherOfficeHours,
+    scores,
+    studentSemesterSummaries,
     teacherSemester,
     userStudent,
     courseOfferingCourse,
@@ -6365,6 +7412,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     scheduleCourseOffering,
     materialCourseOffering,
     teacherOfficeHourTeacher,
+    scoreStudent,
+    studentSemesterSummaryStudent,
   ];
 }
 
@@ -6426,6 +7475,53 @@ final class $$StudentsTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _courseOfferingStudentsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ScoresTable, List<Score>> _scoresRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.scores,
+    aliasName: $_aliasNameGenerator(db.students.id, db.scores.student),
+  );
+
+  $$ScoresTableProcessedTableManager get scoresRefs {
+    final manager = $$ScoresTableTableManager(
+      $_db,
+      $_db.scores,
+    ).filter((f) => f.student.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_scoresRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $StudentSemesterSummariesTable,
+    List<StudentSemesterSummary>
+  >
+  _studentSemesterSummariesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.studentSemesterSummaries,
+        aliasName: $_aliasNameGenerator(
+          db.students.id,
+          db.studentSemesterSummaries.student,
+        ),
+      );
+
+  $$StudentSemesterSummariesTableProcessedTableManager
+  get studentSemesterSummariesRefs {
+    final manager = $$StudentSemesterSummariesTableTableManager(
+      $_db,
+      $_db.studentSemesterSummaries,
+    ).filter((f) => f.student.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _studentSemesterSummariesRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -6499,6 +7595,58 @@ class $$StudentsTableFilterComposer
               }) => $$CourseOfferingStudentsTableFilterComposer(
                 $db: $db,
                 $table: $db.courseOfferingStudents,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> scoresRefs(
+    Expression<bool> Function($$ScoresTableFilterComposer f) f,
+  ) {
+    final $$ScoresTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.scores,
+      getReferencedColumn: (t) => t.student,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ScoresTableFilterComposer(
+            $db: $db,
+            $table: $db.scores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> studentSemesterSummariesRefs(
+    Expression<bool> Function($$StudentSemesterSummariesTableFilterComposer f)
+    f,
+  ) {
+    final $$StudentSemesterSummariesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.studentSemesterSummaries,
+          getReferencedColumn: (t) => t.student,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$StudentSemesterSummariesTableFilterComposer(
+                $db: $db,
+                $table: $db.studentSemesterSummaries,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -6602,6 +7750,58 @@ class $$StudentsTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> scoresRefs<T extends Object>(
+    Expression<T> Function($$ScoresTableAnnotationComposer a) f,
+  ) {
+    final $$ScoresTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.scores,
+      getReferencedColumn: (t) => t.student,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ScoresTableAnnotationComposer(
+            $db: $db,
+            $table: $db.scores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> studentSemesterSummariesRefs<T extends Object>(
+    Expression<T> Function($$StudentSemesterSummariesTableAnnotationComposer a)
+    f,
+  ) {
+    final $$StudentSemesterSummariesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.studentSemesterSummaries,
+          getReferencedColumn: (t) => t.student,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$StudentSemesterSummariesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.studentSemesterSummaries,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$StudentsTableTableManager
@@ -6620,6 +7820,8 @@ class $$StudentsTableTableManager
           PrefetchHooks Function({
             bool usersRefs,
             bool courseOfferingStudentsRefs,
+            bool scoresRefs,
+            bool studentSemesterSummariesRefs,
           })
         > {
   $$StudentsTableTableManager(_$AppDatabase db, $StudentsTable table)
@@ -6658,12 +7860,20 @@ class $$StudentsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({usersRefs = false, courseOfferingStudentsRefs = false}) {
+              ({
+                usersRefs = false,
+                courseOfferingStudentsRefs = false,
+                scoresRefs = false,
+                studentSemesterSummariesRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (usersRefs) db.users,
                     if (courseOfferingStudentsRefs) db.courseOfferingStudents,
+                    if (scoresRefs) db.scores,
+                    if (studentSemesterSummariesRefs)
+                      db.studentSemesterSummaries,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -6710,6 +7920,48 @@ class $$StudentsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (scoresRefs)
+                        await $_getPrefetchedData<
+                          Student,
+                          $StudentsTable,
+                          Score
+                        >(
+                          currentTable: table,
+                          referencedTable: $$StudentsTableReferences
+                              ._scoresRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$StudentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).scoresRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.student == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (studentSemesterSummariesRefs)
+                        await $_getPrefetchedData<
+                          Student,
+                          $StudentsTable,
+                          StudentSemesterSummary
+                        >(
+                          currentTable: table,
+                          referencedTable: $$StudentsTableReferences
+                              ._studentSemesterSummariesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$StudentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).studentSemesterSummariesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.student == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -6730,7 +7982,12 @@ typedef $$StudentsTableProcessedTableManager =
       $$StudentsTableUpdateCompanionBuilder,
       (Student, $$StudentsTableReferences),
       Student,
-      PrefetchHooks Function({bool usersRefs, bool courseOfferingStudentsRefs})
+      PrefetchHooks Function({
+        bool usersRefs,
+        bool courseOfferingStudentsRefs,
+        bool scoresRefs,
+        bool studentSemesterSummariesRefs,
+      })
     >;
 typedef $$SemestersTableCreateCompanionBuilder =
     SemestersCompanion Function({
@@ -6785,6 +8042,53 @@ final class $$SemestersTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _courseOfferingsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ScoresTable, List<Score>> _scoresRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.scores,
+    aliasName: $_aliasNameGenerator(db.semesters.id, db.scores.semester),
+  );
+
+  $$ScoresTableProcessedTableManager get scoresRefs {
+    final manager = $$ScoresTableTableManager(
+      $_db,
+      $_db.scores,
+    ).filter((f) => f.semester.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_scoresRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $StudentSemesterSummariesTable,
+    List<StudentSemesterSummary>
+  >
+  _studentSemesterSummariesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.studentSemesterSummaries,
+        aliasName: $_aliasNameGenerator(
+          db.semesters.id,
+          db.studentSemesterSummaries.semester,
+        ),
+      );
+
+  $$StudentSemesterSummariesTableProcessedTableManager
+  get studentSemesterSummariesRefs {
+    final manager = $$StudentSemesterSummariesTableTableManager(
+      $_db,
+      $_db.studentSemesterSummaries,
+    ).filter((f) => f.semester.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _studentSemesterSummariesRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -6863,6 +8167,58 @@ class $$SemestersTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> scoresRefs(
+    Expression<bool> Function($$ScoresTableFilterComposer f) f,
+  ) {
+    final $$ScoresTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.scores,
+      getReferencedColumn: (t) => t.semester,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ScoresTableFilterComposer(
+            $db: $db,
+            $table: $db.scores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> studentSemesterSummariesRefs(
+    Expression<bool> Function($$StudentSemesterSummariesTableFilterComposer f)
+    f,
+  ) {
+    final $$StudentSemesterSummariesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.studentSemesterSummaries,
+          getReferencedColumn: (t) => t.semester,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$StudentSemesterSummariesTableFilterComposer(
+                $db: $db,
+                $table: $db.studentSemesterSummaries,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -6959,6 +8315,58 @@ class $$SemestersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> scoresRefs<T extends Object>(
+    Expression<T> Function($$ScoresTableAnnotationComposer a) f,
+  ) {
+    final $$ScoresTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.scores,
+      getReferencedColumn: (t) => t.semester,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ScoresTableAnnotationComposer(
+            $db: $db,
+            $table: $db.scores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> studentSemesterSummariesRefs<T extends Object>(
+    Expression<T> Function($$StudentSemesterSummariesTableAnnotationComposer a)
+    f,
+  ) {
+    final $$StudentSemesterSummariesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.studentSemesterSummaries,
+          getReferencedColumn: (t) => t.semester,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$StudentSemesterSummariesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.studentSemesterSummaries,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$SemestersTableTableManager
@@ -6974,7 +8382,12 @@ class $$SemestersTableTableManager
           $$SemestersTableUpdateCompanionBuilder,
           (Semester, $$SemestersTableReferences),
           Semester,
-          PrefetchHooks Function({bool teachersRefs, bool courseOfferingsRefs})
+          PrefetchHooks Function({
+            bool teachersRefs,
+            bool courseOfferingsRefs,
+            bool scoresRefs,
+            bool studentSemesterSummariesRefs,
+          })
         > {
   $$SemestersTableTableManager(_$AppDatabase db, $SemestersTable table)
     : super(
@@ -7012,12 +8425,20 @@ class $$SemestersTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({teachersRefs = false, courseOfferingsRefs = false}) {
+              ({
+                teachersRefs = false,
+                courseOfferingsRefs = false,
+                scoresRefs = false,
+                studentSemesterSummariesRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (teachersRefs) db.teachers,
                     if (courseOfferingsRefs) db.courseOfferings,
+                    if (scoresRefs) db.scores,
+                    if (studentSemesterSummariesRefs)
+                      db.studentSemesterSummaries,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -7064,6 +8485,48 @@ class $$SemestersTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (scoresRefs)
+                        await $_getPrefetchedData<
+                          Semester,
+                          $SemestersTable,
+                          Score
+                        >(
+                          currentTable: table,
+                          referencedTable: $$SemestersTableReferences
+                              ._scoresRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$SemestersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).scoresRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.semester == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (studentSemesterSummariesRefs)
+                        await $_getPrefetchedData<
+                          Semester,
+                          $SemestersTable,
+                          StudentSemesterSummary
+                        >(
+                          currentTable: table,
+                          referencedTable: $$SemestersTableReferences
+                              ._studentSemesterSummariesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$SemestersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).studentSemesterSummariesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.semester == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -7084,7 +8547,12 @@ typedef $$SemestersTableProcessedTableManager =
       $$SemestersTableUpdateCompanionBuilder,
       (Semester, $$SemestersTableReferences),
       Semester,
-      PrefetchHooks Function({bool teachersRefs, bool courseOfferingsRefs})
+      PrefetchHooks Function({
+        bool teachersRefs,
+        bool courseOfferingsRefs,
+        bool scoresRefs,
+        bool studentSemesterSummariesRefs,
+      })
     >;
 typedef $$CoursesTableCreateCompanionBuilder =
     CoursesCompanion Function({
@@ -7130,6 +8598,25 @@ final class $$CoursesTableReferences
     final cache = $_typedResult.readTableOrNull(
       _courseOfferingsRefsTable($_db),
     );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ScoresTable, List<Score>> _scoresRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.scores,
+    aliasName: $_aliasNameGenerator(db.courses.id, db.scores.course),
+  );
+
+  $$ScoresTableProcessedTableManager get scoresRefs {
+    final manager = $$ScoresTableTableManager(
+      $_db,
+      $_db.scores,
+    ).filter((f) => f.course.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_scoresRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -7206,6 +8693,31 @@ class $$CoursesTableFilterComposer
           }) => $$CourseOfferingsTableFilterComposer(
             $db: $db,
             $table: $db.courseOfferings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> scoresRefs(
+    Expression<bool> Function($$ScoresTableFilterComposer f) f,
+  ) {
+    final $$ScoresTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.scores,
+      getReferencedColumn: (t) => t.course,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ScoresTableFilterComposer(
+            $db: $db,
+            $table: $db.scores,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7335,6 +8847,31 @@ class $$CoursesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> scoresRefs<T extends Object>(
+    Expression<T> Function($$ScoresTableAnnotationComposer a) f,
+  ) {
+    final $$ScoresTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.scores,
+      getReferencedColumn: (t) => t.course,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ScoresTableAnnotationComposer(
+            $db: $db,
+            $table: $db.scores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$CoursesTableTableManager
@@ -7350,7 +8887,7 @@ class $$CoursesTableTableManager
           $$CoursesTableUpdateCompanionBuilder,
           (Course, $$CoursesTableReferences),
           Course,
-          PrefetchHooks Function({bool courseOfferingsRefs})
+          PrefetchHooks Function({bool courseOfferingsRefs, bool scoresRefs})
         > {
   $$CoursesTableTableManager(_$AppDatabase db, $CoursesTable table)
     : super(
@@ -7415,37 +8952,59 @@ class $$CoursesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({courseOfferingsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (courseOfferingsRefs) db.courseOfferings,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (courseOfferingsRefs)
-                    await $_getPrefetchedData<
-                      Course,
-                      $CoursesTable,
-                      CourseOffering
-                    >(
-                      currentTable: table,
-                      referencedTable: $$CoursesTableReferences
-                          ._courseOfferingsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$CoursesTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).courseOfferingsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.course == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({courseOfferingsRefs = false, scoresRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (courseOfferingsRefs) db.courseOfferings,
+                    if (scoresRefs) db.scores,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (courseOfferingsRefs)
+                        await $_getPrefetchedData<
+                          Course,
+                          $CoursesTable,
+                          CourseOffering
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CoursesTableReferences
+                              ._courseOfferingsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CoursesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).courseOfferingsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.course == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (scoresRefs)
+                        await $_getPrefetchedData<Course, $CoursesTable, Score>(
+                          currentTable: table,
+                          referencedTable: $$CoursesTableReferences
+                              ._scoresRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CoursesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).scoresRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.course == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -7462,7 +9021,7 @@ typedef $$CoursesTableProcessedTableManager =
       $$CoursesTableUpdateCompanionBuilder,
       (Course, $$CoursesTableReferences),
       Course,
-      PrefetchHooks Function({bool courseOfferingsRefs})
+      PrefetchHooks Function({bool courseOfferingsRefs, bool scoresRefs})
     >;
 typedef $$DepartmentsTableCreateCompanionBuilder =
     DepartmentsCompanion Function({
@@ -9612,6 +11171,28 @@ final class $$CourseOfferingsTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$ScoresTable, List<Score>> _scoresRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.scores,
+    aliasName: $_aliasNameGenerator(
+      db.courseOfferings.id,
+      db.scores.courseOffering,
+    ),
+  );
+
+  $$ScoresTableProcessedTableManager get scoresRefs {
+    final manager = $$ScoresTableTableManager(
+      $_db,
+      $_db.scores,
+    ).filter((f) => f.courseOffering.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_scoresRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$CourseOfferingsTableFilterComposer
@@ -9896,6 +11477,31 @@ class $$CourseOfferingsTableFilterComposer
           }) => $$MaterialsTableFilterComposer(
             $db: $db,
             $table: $db.materials,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> scoresRefs(
+    Expression<bool> Function($$ScoresTableFilterComposer f) f,
+  ) {
+    final $$ScoresTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.scores,
+      getReferencedColumn: (t) => t.courseOffering,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ScoresTableFilterComposer(
+            $db: $db,
+            $table: $db.scores,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -10310,6 +11916,31 @@ class $$CourseOfferingsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> scoresRefs<T extends Object>(
+    Expression<T> Function($$ScoresTableAnnotationComposer a) f,
+  ) {
+    final $$ScoresTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.scores,
+      getReferencedColumn: (t) => t.courseOffering,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ScoresTableAnnotationComposer(
+            $db: $db,
+            $table: $db.scores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$CourseOfferingsTableTableManager
@@ -10334,6 +11965,7 @@ class $$CourseOfferingsTableTableManager
             bool courseOfferingStudentsRefs,
             bool schedulesRefs,
             bool materialsRefs,
+            bool scoresRefs,
           })
         > {
   $$CourseOfferingsTableTableManager(
@@ -10447,6 +12079,7 @@ class $$CourseOfferingsTableTableManager
                 courseOfferingStudentsRefs = false,
                 schedulesRefs = false,
                 materialsRefs = false,
+                scoresRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -10458,6 +12091,7 @@ class $$CourseOfferingsTableTableManager
                     if (courseOfferingStudentsRefs) db.courseOfferingStudents,
                     if (schedulesRefs) db.schedules,
                     if (materialsRefs) db.materials,
+                    if (scoresRefs) db.scores,
                   ],
                   addJoins:
                       <
@@ -10636,6 +12270,27 @@ class $$CourseOfferingsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (scoresRefs)
+                        await $_getPrefetchedData<
+                          CourseOffering,
+                          $CourseOfferingsTable,
+                          Score
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CourseOfferingsTableReferences
+                              ._scoresRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CourseOfferingsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).scoresRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.courseOffering == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -10665,6 +12320,7 @@ typedef $$CourseOfferingsTableProcessedTableManager =
         bool courseOfferingStudentsRefs,
         bool schedulesRefs,
         bool materialsRefs,
+        bool scoresRefs,
       })
     >;
 typedef $$CourseOfferingTeachersTableCreateCompanionBuilder =
@@ -13148,6 +14804,1123 @@ typedef $$TeacherOfficeHoursTableProcessedTableManager =
       TeacherOfficeHour,
       PrefetchHooks Function({bool teacher})
     >;
+typedef $$ScoresTableCreateCompanionBuilder =
+    ScoresCompanion Function({
+      Value<int> id,
+      required int student,
+      required int semester,
+      required int course,
+      Value<int?> courseOffering,
+      Value<int?> score,
+      Value<ScoreStatus?> status,
+    });
+typedef $$ScoresTableUpdateCompanionBuilder =
+    ScoresCompanion Function({
+      Value<int> id,
+      Value<int> student,
+      Value<int> semester,
+      Value<int> course,
+      Value<int?> courseOffering,
+      Value<int?> score,
+      Value<ScoreStatus?> status,
+    });
+
+final class $$ScoresTableReferences
+    extends BaseReferences<_$AppDatabase, $ScoresTable, Score> {
+  $$ScoresTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $StudentsTable _studentTable(_$AppDatabase db) => db.students
+      .createAlias($_aliasNameGenerator(db.scores.student, db.students.id));
+
+  $$StudentsTableProcessedTableManager get student {
+    final $_column = $_itemColumn<int>('student')!;
+
+    final manager = $$StudentsTableTableManager(
+      $_db,
+      $_db.students,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_studentTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $SemestersTable _semesterTable(_$AppDatabase db) => db.semesters
+      .createAlias($_aliasNameGenerator(db.scores.semester, db.semesters.id));
+
+  $$SemestersTableProcessedTableManager get semester {
+    final $_column = $_itemColumn<int>('semester')!;
+
+    final manager = $$SemestersTableTableManager(
+      $_db,
+      $_db.semesters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_semesterTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $CoursesTable _courseTable(_$AppDatabase db) => db.courses.createAlias(
+    $_aliasNameGenerator(db.scores.course, db.courses.id),
+  );
+
+  $$CoursesTableProcessedTableManager get course {
+    final $_column = $_itemColumn<int>('course')!;
+
+    final manager = $$CoursesTableTableManager(
+      $_db,
+      $_db.courses,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_courseTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
+      db.courseOfferings.createAlias(
+        $_aliasNameGenerator(db.scores.courseOffering, db.courseOfferings.id),
+      );
+
+  $$CourseOfferingsTableProcessedTableManager? get courseOffering {
+    final $_column = $_itemColumn<int>('course_offering');
+    if ($_column == null) return null;
+    final manager = $$CourseOfferingsTableTableManager(
+      $_db,
+      $_db.courseOfferings,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_courseOfferingTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ScoresTableFilterComposer
+    extends Composer<_$AppDatabase, $ScoresTable> {
+  $$ScoresTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get score => $composableBuilder(
+    column: $table.score,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ScoreStatus?, ScoreStatus, String>
+  get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  $$StudentsTableFilterComposer get student {
+    final $$StudentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.student,
+      referencedTable: $db.students,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StudentsTableFilterComposer(
+            $db: $db,
+            $table: $db.students,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SemestersTableFilterComposer get semester {
+    final $$SemestersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.semester,
+      referencedTable: $db.semesters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SemestersTableFilterComposer(
+            $db: $db,
+            $table: $db.semesters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CoursesTableFilterComposer get course {
+    final $$CoursesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.course,
+      referencedTable: $db.courses,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CoursesTableFilterComposer(
+            $db: $db,
+            $table: $db.courses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CourseOfferingsTableFilterComposer get courseOffering {
+    final $$CourseOfferingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.courseOffering,
+      referencedTable: $db.courseOfferings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CourseOfferingsTableFilterComposer(
+            $db: $db,
+            $table: $db.courseOfferings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ScoresTableOrderingComposer
+    extends Composer<_$AppDatabase, $ScoresTable> {
+  $$ScoresTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get score => $composableBuilder(
+    column: $table.score,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$StudentsTableOrderingComposer get student {
+    final $$StudentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.student,
+      referencedTable: $db.students,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StudentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.students,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SemestersTableOrderingComposer get semester {
+    final $$SemestersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.semester,
+      referencedTable: $db.semesters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SemestersTableOrderingComposer(
+            $db: $db,
+            $table: $db.semesters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CoursesTableOrderingComposer get course {
+    final $$CoursesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.course,
+      referencedTable: $db.courses,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CoursesTableOrderingComposer(
+            $db: $db,
+            $table: $db.courses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CourseOfferingsTableOrderingComposer get courseOffering {
+    final $$CourseOfferingsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.courseOffering,
+      referencedTable: $db.courseOfferings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CourseOfferingsTableOrderingComposer(
+            $db: $db,
+            $table: $db.courseOfferings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ScoresTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ScoresTable> {
+  $$ScoresTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get score =>
+      $composableBuilder(column: $table.score, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ScoreStatus?, String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  $$StudentsTableAnnotationComposer get student {
+    final $$StudentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.student,
+      referencedTable: $db.students,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StudentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.students,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SemestersTableAnnotationComposer get semester {
+    final $$SemestersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.semester,
+      referencedTable: $db.semesters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SemestersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.semesters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CoursesTableAnnotationComposer get course {
+    final $$CoursesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.course,
+      referencedTable: $db.courses,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CoursesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.courses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CourseOfferingsTableAnnotationComposer get courseOffering {
+    final $$CourseOfferingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.courseOffering,
+      referencedTable: $db.courseOfferings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CourseOfferingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.courseOfferings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ScoresTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ScoresTable,
+          Score,
+          $$ScoresTableFilterComposer,
+          $$ScoresTableOrderingComposer,
+          $$ScoresTableAnnotationComposer,
+          $$ScoresTableCreateCompanionBuilder,
+          $$ScoresTableUpdateCompanionBuilder,
+          (Score, $$ScoresTableReferences),
+          Score,
+          PrefetchHooks Function({
+            bool student,
+            bool semester,
+            bool course,
+            bool courseOffering,
+          })
+        > {
+  $$ScoresTableTableManager(_$AppDatabase db, $ScoresTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ScoresTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ScoresTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ScoresTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> student = const Value.absent(),
+                Value<int> semester = const Value.absent(),
+                Value<int> course = const Value.absent(),
+                Value<int?> courseOffering = const Value.absent(),
+                Value<int?> score = const Value.absent(),
+                Value<ScoreStatus?> status = const Value.absent(),
+              }) => ScoresCompanion(
+                id: id,
+                student: student,
+                semester: semester,
+                course: course,
+                courseOffering: courseOffering,
+                score: score,
+                status: status,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int student,
+                required int semester,
+                required int course,
+                Value<int?> courseOffering = const Value.absent(),
+                Value<int?> score = const Value.absent(),
+                Value<ScoreStatus?> status = const Value.absent(),
+              }) => ScoresCompanion.insert(
+                id: id,
+                student: student,
+                semester: semester,
+                course: course,
+                courseOffering: courseOffering,
+                score: score,
+                status: status,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) =>
+                    (e.readTable(table), $$ScoresTableReferences(db, table, e)),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                student = false,
+                semester = false,
+                course = false,
+                courseOffering = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (student) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.student,
+                                    referencedTable: $$ScoresTableReferences
+                                        ._studentTable(db),
+                                    referencedColumn: $$ScoresTableReferences
+                                        ._studentTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+                        if (semester) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.semester,
+                                    referencedTable: $$ScoresTableReferences
+                                        ._semesterTable(db),
+                                    referencedColumn: $$ScoresTableReferences
+                                        ._semesterTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+                        if (course) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.course,
+                                    referencedTable: $$ScoresTableReferences
+                                        ._courseTable(db),
+                                    referencedColumn: $$ScoresTableReferences
+                                        ._courseTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+                        if (courseOffering) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.courseOffering,
+                                    referencedTable: $$ScoresTableReferences
+                                        ._courseOfferingTable(db),
+                                    referencedColumn: $$ScoresTableReferences
+                                        ._courseOfferingTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$ScoresTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ScoresTable,
+      Score,
+      $$ScoresTableFilterComposer,
+      $$ScoresTableOrderingComposer,
+      $$ScoresTableAnnotationComposer,
+      $$ScoresTableCreateCompanionBuilder,
+      $$ScoresTableUpdateCompanionBuilder,
+      (Score, $$ScoresTableReferences),
+      Score,
+      PrefetchHooks Function({
+        bool student,
+        bool semester,
+        bool course,
+        bool courseOffering,
+      })
+    >;
+typedef $$StudentSemesterSummariesTableCreateCompanionBuilder =
+    StudentSemesterSummariesCompanion Function({
+      Value<int> id,
+      required int student,
+      required int semester,
+      Value<double?> average,
+      Value<double?> conduct,
+      Value<double?> totalCredits,
+      Value<double?> creditsPassed,
+      Value<String?> note,
+    });
+typedef $$StudentSemesterSummariesTableUpdateCompanionBuilder =
+    StudentSemesterSummariesCompanion Function({
+      Value<int> id,
+      Value<int> student,
+      Value<int> semester,
+      Value<double?> average,
+      Value<double?> conduct,
+      Value<double?> totalCredits,
+      Value<double?> creditsPassed,
+      Value<String?> note,
+    });
+
+final class $$StudentSemesterSummariesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $StudentSemesterSummariesTable,
+          StudentSemesterSummary
+        > {
+  $$StudentSemesterSummariesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $StudentsTable _studentTable(_$AppDatabase db) =>
+      db.students.createAlias(
+        $_aliasNameGenerator(
+          db.studentSemesterSummaries.student,
+          db.students.id,
+        ),
+      );
+
+  $$StudentsTableProcessedTableManager get student {
+    final $_column = $_itemColumn<int>('student')!;
+
+    final manager = $$StudentsTableTableManager(
+      $_db,
+      $_db.students,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_studentTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $SemestersTable _semesterTable(_$AppDatabase db) =>
+      db.semesters.createAlias(
+        $_aliasNameGenerator(
+          db.studentSemesterSummaries.semester,
+          db.semesters.id,
+        ),
+      );
+
+  $$SemestersTableProcessedTableManager get semester {
+    final $_column = $_itemColumn<int>('semester')!;
+
+    final manager = $$SemestersTableTableManager(
+      $_db,
+      $_db.semesters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_semesterTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$StudentSemesterSummariesTableFilterComposer
+    extends Composer<_$AppDatabase, $StudentSemesterSummariesTable> {
+  $$StudentSemesterSummariesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get average => $composableBuilder(
+    column: $table.average,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get conduct => $composableBuilder(
+    column: $table.conduct,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get totalCredits => $composableBuilder(
+    column: $table.totalCredits,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get creditsPassed => $composableBuilder(
+    column: $table.creditsPassed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$StudentsTableFilterComposer get student {
+    final $$StudentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.student,
+      referencedTable: $db.students,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StudentsTableFilterComposer(
+            $db: $db,
+            $table: $db.students,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SemestersTableFilterComposer get semester {
+    final $$SemestersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.semester,
+      referencedTable: $db.semesters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SemestersTableFilterComposer(
+            $db: $db,
+            $table: $db.semesters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StudentSemesterSummariesTableOrderingComposer
+    extends Composer<_$AppDatabase, $StudentSemesterSummariesTable> {
+  $$StudentSemesterSummariesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get average => $composableBuilder(
+    column: $table.average,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get conduct => $composableBuilder(
+    column: $table.conduct,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get totalCredits => $composableBuilder(
+    column: $table.totalCredits,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get creditsPassed => $composableBuilder(
+    column: $table.creditsPassed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$StudentsTableOrderingComposer get student {
+    final $$StudentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.student,
+      referencedTable: $db.students,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StudentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.students,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SemestersTableOrderingComposer get semester {
+    final $$SemestersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.semester,
+      referencedTable: $db.semesters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SemestersTableOrderingComposer(
+            $db: $db,
+            $table: $db.semesters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StudentSemesterSummariesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StudentSemesterSummariesTable> {
+  $$StudentSemesterSummariesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get average =>
+      $composableBuilder(column: $table.average, builder: (column) => column);
+
+  GeneratedColumn<double> get conduct =>
+      $composableBuilder(column: $table.conduct, builder: (column) => column);
+
+  GeneratedColumn<double> get totalCredits => $composableBuilder(
+    column: $table.totalCredits,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get creditsPassed => $composableBuilder(
+    column: $table.creditsPassed,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  $$StudentsTableAnnotationComposer get student {
+    final $$StudentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.student,
+      referencedTable: $db.students,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StudentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.students,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SemestersTableAnnotationComposer get semester {
+    final $$SemestersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.semester,
+      referencedTable: $db.semesters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SemestersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.semesters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StudentSemesterSummariesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StudentSemesterSummariesTable,
+          StudentSemesterSummary,
+          $$StudentSemesterSummariesTableFilterComposer,
+          $$StudentSemesterSummariesTableOrderingComposer,
+          $$StudentSemesterSummariesTableAnnotationComposer,
+          $$StudentSemesterSummariesTableCreateCompanionBuilder,
+          $$StudentSemesterSummariesTableUpdateCompanionBuilder,
+          (StudentSemesterSummary, $$StudentSemesterSummariesTableReferences),
+          StudentSemesterSummary,
+          PrefetchHooks Function({bool student, bool semester})
+        > {
+  $$StudentSemesterSummariesTableTableManager(
+    _$AppDatabase db,
+    $StudentSemesterSummariesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StudentSemesterSummariesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$StudentSemesterSummariesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$StudentSemesterSummariesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> student = const Value.absent(),
+                Value<int> semester = const Value.absent(),
+                Value<double?> average = const Value.absent(),
+                Value<double?> conduct = const Value.absent(),
+                Value<double?> totalCredits = const Value.absent(),
+                Value<double?> creditsPassed = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+              }) => StudentSemesterSummariesCompanion(
+                id: id,
+                student: student,
+                semester: semester,
+                average: average,
+                conduct: conduct,
+                totalCredits: totalCredits,
+                creditsPassed: creditsPassed,
+                note: note,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int student,
+                required int semester,
+                Value<double?> average = const Value.absent(),
+                Value<double?> conduct = const Value.absent(),
+                Value<double?> totalCredits = const Value.absent(),
+                Value<double?> creditsPassed = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+              }) => StudentSemesterSummariesCompanion.insert(
+                id: id,
+                student: student,
+                semester: semester,
+                average: average,
+                conduct: conduct,
+                totalCredits: totalCredits,
+                creditsPassed: creditsPassed,
+                note: note,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$StudentSemesterSummariesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({student = false, semester = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (student) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.student,
+                                referencedTable:
+                                    $$StudentSemesterSummariesTableReferences
+                                        ._studentTable(db),
+                                referencedColumn:
+                                    $$StudentSemesterSummariesTableReferences
+                                        ._studentTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+                    if (semester) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.semester,
+                                referencedTable:
+                                    $$StudentSemesterSummariesTableReferences
+                                        ._semesterTable(db),
+                                referencedColumn:
+                                    $$StudentSemesterSummariesTableReferences
+                                        ._semesterTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$StudentSemesterSummariesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StudentSemesterSummariesTable,
+      StudentSemesterSummary,
+      $$StudentSemesterSummariesTableFilterComposer,
+      $$StudentSemesterSummariesTableOrderingComposer,
+      $$StudentSemesterSummariesTableAnnotationComposer,
+      $$StudentSemesterSummariesTableCreateCompanionBuilder,
+      $$StudentSemesterSummariesTableUpdateCompanionBuilder,
+      (StudentSemesterSummary, $$StudentSemesterSummariesTableReferences),
+      StudentSemesterSummary,
+      PrefetchHooks Function({bool student, bool semester})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -13193,4 +15966,11 @@ class $AppDatabaseManager {
       $$MaterialsTableTableManager(_db, _db.materials);
   $$TeacherOfficeHoursTableTableManager get teacherOfficeHours =>
       $$TeacherOfficeHoursTableTableManager(_db, _db.teacherOfficeHours);
+  $$ScoresTableTableManager get scores =>
+      $$ScoresTableTableManager(_db, _db.scores);
+  $$StudentSemesterSummariesTableTableManager get studentSemesterSummaries =>
+      $$StudentSemesterSummariesTableTableManager(
+        _db,
+        _db.studentSemesterSummaries,
+      );
 }

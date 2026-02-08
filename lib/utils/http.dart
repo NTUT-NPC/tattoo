@@ -11,6 +11,8 @@ import 'package:intl/intl.dart';
 // ignore: implementation_imports
 import 'package:dio/src/transformers/util/consolidate_bytes.dart';
 
+export 'package:dio/dio.dart';
+
 /// [Interceptor] to convert HTTP requests to HTTPS.
 class HttpsInterceptor extends Interceptor {
   HttpsInterceptor();

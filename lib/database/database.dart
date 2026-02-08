@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:tattoo/database/schema.dart';
 import 'package:tattoo/models/course.dart';
+import 'package:tattoo/models/score.dart';
 
 part 'database.g.dart';
 
@@ -26,6 +27,8 @@ part 'database.g.dart';
     Schedules,
     Materials,
     TeacherOfficeHours,
+    Scores,
+    StudentSemesterSummaries,
   ],
 )
 class AppDatabase extends _$AppDatabase {
