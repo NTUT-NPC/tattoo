@@ -28,6 +28,18 @@ class InvalidCredentialsException implements Exception {
       'InvalidCredentialsException: Stored credentials are no longer valid.';
 }
 
+/// Auth session status, updated by [AuthRepository.withAuth].
+enum AuthStatus {
+  /// Session is valid or has not been tested yet.
+  authenticated,
+
+  /// Network is unreachable.
+  offline,
+
+  /// Stored credentials were rejected or are missing.
+  credentialsExpired,
+}
+
 /// User profile combining [User] and [Student] entities.
 class UserWithStudent {
   UserWithStudent(this.user, this.student);
@@ -38,6 +50,17 @@ class UserWithStudent {
 
 const _secureStorage = FlutterSecureStorage();
 
+/// Provides the current [AuthStatus].
+///
+/// Updated automatically by [AuthRepository.withAuth] on success or failure.
+@Riverpod(keepAlive: true)
+class AuthStatusNotifier extends _$AuthStatusNotifier {
+  @override
+  AuthStatus build() => AuthStatus.authenticated;
+
+  void update(AuthStatus status) => state = status;
+}
+
 /// Provides the [AuthRepository] instance.
 @Riverpod(keepAlive: true)
 AuthRepository authRepository(Ref ref) {
@@ -45,6 +68,7 @@ AuthRepository authRepository(Ref ref) {
     portalService: ref.watch(portalServiceProvider),
     database: ref.watch(databaseProvider),
     secureStorage: _secureStorage,
+    authStatus: ref.read(authStatusProvider.notifier),
   );
 }
 
@@ -81,6 +105,7 @@ class AuthRepository {
   final PortalService _portalService;
   final AppDatabase _database;
   final FlutterSecureStorage _secureStorage;
+  final AuthStatusNotifier _authStatus;
 
   static const _usernameKey = 'username';
   static const _passwordKey = 'password';
@@ -89,9 +114,11 @@ class AuthRepository {
     required PortalService portalService,
     required AppDatabase database,
     required FlutterSecureStorage secureStorage,
+    required AuthStatusNotifier authStatus,
   }) : _portalService = portalService,
        _database = database,
-       _secureStorage = secureStorage;
+       _secureStorage = secureStorage,
+       _authStatus = authStatus;
 
   /// Authenticates with NTUT Portal and saves the user profile.
   ///
@@ -103,6 +130,7 @@ class AuthRepository {
     // Save credentials for auto-login
     await _secureStorage.write(key: _usernameKey, value: username);
     await _secureStorage.write(key: _passwordKey, value: password);
+    _authStatus.update(AuthStatus.authenticated);
 
     return _database.transaction(() async {
       // Upsert student record (studentId has UNIQUE constraint)
@@ -172,23 +200,34 @@ class AuthRepository {
   /// Rethrows [DioException] from [call] or re-auth (network errors).
   Future<T> withAuth<T>(Future<T> Function() call) async {
     try {
-      return await call();
+      final result = await call();
+      _authStatus.update(AuthStatus.authenticated);
+      return result;
     } catch (e) {
-      if (e is DioException) rethrow;
+      if (e is DioException) {
+        _authStatus.update(AuthStatus.offline);
+        rethrow;
+      }
 
       final username = await _secureStorage.read(key: _usernameKey);
       final password = await _secureStorage.read(key: _passwordKey);
-      if (username == null || password == null) throw NotLoggedInException();
+      if (username == null || password == null) {
+        _authStatus.update(AuthStatus.credentialsExpired);
+        throw NotLoggedInException();
+      }
 
       try {
         await _portalService.login(username, password);
       } on DioException {
+        _authStatus.update(AuthStatus.offline);
         rethrow;
       } catch (_) {
         await _clearCredentials();
+        _authStatus.update(AuthStatus.credentialsExpired);
         throw InvalidCredentialsException();
       }
 
+      _authStatus.update(AuthStatus.authenticated);
       return await call();
     }
   }
@@ -240,11 +279,11 @@ class AuthRepository {
     }
 
     try {
-      final bytes = await _portalService.getAvatar(filename);
+      final bytes = await withAuth(() => _portalService.getAvatar(filename));
       await file.parent.create(recursive: true);
       await file.writeAsBytes(bytes);
       return file;
-    } catch (_) {
+    } on DioException {
       return null;
     }
   }
