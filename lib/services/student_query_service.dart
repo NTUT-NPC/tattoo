@@ -6,8 +6,8 @@ import 'package:tattoo/models/score.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// A single course score entry from the academic performance page.
-typedef ScoreDTO = ({
-  /// Course offering number (joins with ScheduleDTO.number).
+typedef ScoreDto = ({
+  /// Course offering number (joins with ScheduleDto.number).
   ///
   /// Null for credit transfers/waivers from other institutions.
   String? number,
@@ -26,12 +26,12 @@ typedef ScoreDTO = ({
 });
 
 /// Semester academic performance summary with course scores.
-typedef SemesterScoreDTO = ({
+typedef SemesterScoreDto = ({
   /// Semester identifier.
-  SemesterDTO semester,
+  SemesterDto semester,
 
   /// Individual course scores for this semester.
-  List<ScoreDTO> scores,
+  List<ScoreDto> scores,
 
   /// Weighted average for the semester.
   double? average,
@@ -50,9 +50,9 @@ typedef SemesterScoreDTO = ({
 });
 
 /// A semester registration record from the class and mentor page.
-typedef RegistrationRecordDTO = ({
+typedef RegistrationRecordDto = ({
   /// Semester identifier.
-  SemesterDTO semester,
+  SemesterDto semester,
 
   /// Student's assigned class name (e.g., "電子四甲").
   String? className,
@@ -67,14 +67,14 @@ typedef RegistrationRecordDTO = ({
   bool graduated,
 
   /// Tutors/mentors assigned to the student's class.
-  List<ReferenceDTO> tutors,
+  List<ReferenceDto> tutors,
 
   /// Class cadre roles held (e.g., ["學輔股長", "服務股長"]).
   List<String> classCadres,
 });
 
 /// A single ranking entry for one scope (class/group/department).
-typedef GradeRankingEntryDTO = ({
+typedef GradeRankingEntryDto = ({
   /// The scope of this ranking comparison.
   RankingType type,
 
@@ -92,12 +92,12 @@ typedef GradeRankingEntryDTO = ({
 });
 
 /// Grade ranking data for a single semester.
-typedef GradeRankingDTO = ({
+typedef GradeRankingDto = ({
   /// Semester identifier.
-  SemesterDTO semester,
+  SemesterDto semester,
 
   /// Ranking entries (typically class, group, and department).
-  List<GradeRankingEntryDTO> entries,
+  List<GradeRankingEntryDto> entries,
 });
 
 /// Service for accessing NTUT's student query system (學生查詢專區).
@@ -121,9 +121,9 @@ class StudentQueryService {
 
   /// Fetches academic performance (scores) for all semesters.
   ///
-  /// Returns a list of [SemesterScoreDTO] ordered from most recent to oldest,
+  /// Returns a list of [SemesterScoreDto] ordered from most recent to oldest,
   /// each containing individual course scores and semester summary statistics.
-  Future<List<SemesterScoreDTO>> getAcademicPerformance() async {
+  Future<List<SemesterScoreDto>> getAcademicPerformance() async {
     final response = await _studentQueryDio.get(
       'QryScore.jsp',
       queryParameters: {'format': '-2'},
@@ -141,7 +141,7 @@ class StudentQueryService {
 
     final tables = document.querySelectorAll('table');
 
-    final results = <SemesterScoreDTO>[];
+    final results = <SemesterScoreDto>[];
     for (var i = 0; i < tables.length && i < semesterMatches.length; i++) {
       final match = semesterMatches[i];
       final semester = (
@@ -150,7 +150,7 @@ class StudentQueryService {
       );
 
       final rows = tables[i].querySelectorAll('tr');
-      final scores = <ScoreDTO>[];
+      final scores = <ScoreDto>[];
       double? average;
       double? conduct;
       double? totalCredits;
@@ -204,9 +204,9 @@ class StudentQueryService {
 
   /// Fetches grade ranking data for all semesters.
   ///
-  /// Returns a list of [GradeRankingDTO] ordered from most recent to oldest,
+  /// Returns a list of [GradeRankingDto] ordered from most recent to oldest,
   /// each containing ranking positions at class, group, and department levels.
-  Future<List<GradeRankingDTO>> getGradeRanking() async {
+  Future<List<GradeRankingDto>> getGradeRanking() async {
     final response = await _studentQueryDio.get('QryRank.jsp');
     final document = parse(response.data);
 
@@ -214,9 +214,9 @@ class StudentQueryService {
     if (table == null) return [];
 
     final semesterPattern = RegExp(r'(\d+)\s*-\s*(\d+)');
-    final results = <GradeRankingDTO>[];
-    SemesterDTO? currentSemester;
-    var currentEntries = <GradeRankingEntryDTO>[];
+    final results = <GradeRankingDto>[];
+    SemesterDto? currentSemester;
+    var currentEntries = <GradeRankingEntryDto>[];
 
     // Rows are either: 8 cells (semester start + data), 7 cells (continuation),
     // or other (header/notice — skip).
@@ -286,9 +286,9 @@ class StudentQueryService {
   /// Fetches registration records (class assignment, mentors, cadre roles)
   /// for all semesters.
   ///
-  /// Returns a list of [RegistrationRecordDTO] ordered from most recent to
+  /// Returns a list of [RegistrationRecordDto] ordered from most recent to
   /// oldest.
-  Future<List<RegistrationRecordDTO>> getRegistrationRecords() async {
+  Future<List<RegistrationRecordDto>> getRegistrationRecords() async {
     final response = await _studentQueryDio.get('QryRegist.jsp');
 
     final document = parse(response.data);
@@ -301,7 +301,7 @@ class StudentQueryService {
     // Semester cell: <div>"114 - 2"<br>"2026 - Spring"</div> — use first text node
     final semesterPattern = RegExp(r'(\d+)\s*-\s*(\d+)');
 
-    final results = <RegistrationRecordDTO>[];
+    final results = <RegistrationRecordDto>[];
     for (final row in table.querySelectorAll('tr').skip(1)) {
       final cells = row.querySelectorAll('th, td');
       if (cells.length < 7) continue;

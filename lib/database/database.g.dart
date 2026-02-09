@@ -6504,7 +6504,7 @@ class Score extends DataClass implements Insertable<Score> {
   /// Reference to the semester this score belongs to.
   final int semester;
 
-  /// Reference to the course definition (resolved from ScoreDTO.courseCode).
+  /// Reference to the course definition (resolved from ScoreDto.courseCode).
   final int course;
 
   /// Reference to the specific course offering.

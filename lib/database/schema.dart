@@ -401,7 +401,7 @@ class Scores extends Table with AutoIncrementId {
   /// Reference to the semester this score belongs to.
   late final semester = integer().references(Semesters, #id)();
 
-  /// Reference to the course definition (resolved from ScoreDTO.courseCode).
+  /// Reference to the course definition (resolved from ScoreDto.courseCode).
   late final course = integer().references(Courses, #id)();
 
   /// Reference to the specific course offering.
