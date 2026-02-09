@@ -6,12 +6,12 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// Course schedule entry from the course selection system.
-typedef ScheduleDTO = ({
+typedef ScheduleDto = ({
   /// Course offering number (e.g., "313146", "352902").
   String? number,
 
   /// Reference to the course.
-  ReferenceDTO? course,
+  ReferenceDto? course,
 
   /// Course sequence phase/stage number (階段, e.g., "1", "2").
   int? phase,
@@ -26,16 +26,16 @@ typedef ScheduleDTO = ({
   String? type,
 
   /// Reference to the instructor.
-  ReferenceDTO? teacher,
+  ReferenceDto? teacher,
 
   /// List of class/program references this course belongs to.
-  List<ReferenceDTO>? classes,
+  List<ReferenceDto>? classes,
 
   /// Weekly schedule as list of (day, period) tuples.
   List<(DayOfWeek, Period)>? schedule,
 
   /// Reference to the classroom location.
-  ReferenceDTO? classroom,
+  ReferenceDto? classroom,
 
   /// Enrollment status for special cases (e.g., "撤選" for withdrawal).
   ///
@@ -53,7 +53,7 @@ typedef ScheduleDTO = ({
 });
 
 /// Course information from the course catalog.
-typedef CourseDTO = ({
+typedef CourseDto = ({
   /// Course's unique identifier code.
   String? id,
 
@@ -77,7 +77,7 @@ typedef CourseDTO = ({
 });
 
 /// Office hours time slot for a teacher.
-typedef OfficeHourDTO = ({
+typedef OfficeHourDto = ({
   /// Day of week.
   DayOfWeek day,
 
@@ -89,9 +89,9 @@ typedef OfficeHourDTO = ({
 });
 
 /// Teacher profile information from the teacher schedule page.
-typedef TeacherDTO = ({
+typedef TeacherDto = ({
   /// Reference to the teacher's department.
-  ReferenceDTO? department,
+  ReferenceDto? department,
 
   /// Academic title (e.g., "專任副教授", "兼任講師").
   String? title,
@@ -106,14 +106,14 @@ typedef TeacherDTO = ({
   double? teachingHours,
 
   /// Office hours time slots.
-  List<OfficeHourDTO>? officeHours,
+  List<OfficeHourDto>? officeHours,
 
   /// Additional notes about office hours (e.g., appointment requirements).
   String? officeHoursNote,
 });
 
 /// Syllabus details from the course syllabus page (教學大綱與進度).
-typedef SyllabusDTO = ({
+typedef SyllabusDto = ({
   // Header table (課程基本資料)
 
   /// Course type for graduation requirements (修).
@@ -186,7 +186,7 @@ class CourseService {
   ///
   /// This method should be called before [getCourseTable] to determine which
   /// semesters have course data available.
-  Future<List<SemesterDTO>> getCourseSemesterList(
+  Future<List<SemesterDto>> getCourseSemesterList(
     String username,
   ) async {
     final response = await _courseDio.post(
@@ -206,7 +206,7 @@ class CourseService {
       final queryParams = Uri.parse(link!).queryParameters;
       return (
         year: int.parse(queryParams['year']!),
-        semester: int.parse(queryParams['sem']!),
+        term: int.parse(queryParams['sem']!),
       );
     }).toList();
   }
@@ -223,9 +223,9 @@ class CourseService {
   /// from [getCourseSemesterList].
   ///
   /// Throws an [Exception] if no courses are found for the given semester.
-  Future<List<ScheduleDTO>> getCourseTable({
+  Future<List<ScheduleDto>> getCourseTable({
     required String username,
-    required SemesterDTO semester,
+    required SemesterDto semester,
   }) async {
     final response = await _courseDio.get(
       'Select.jsp',
@@ -233,7 +233,7 @@ class CourseService {
         'format': '-2',
         'code': username,
         'year': semester.year,
-        'sem': semester.semester,
+        'sem': semester.term,
       },
     );
 
@@ -314,10 +314,10 @@ class CourseService {
   /// and hours per week.
   ///
   /// The [courseId] should be a course code obtained from the `course.id` field
-  /// of a [ScheduleDTO].
+  /// of a [ScheduleDto].
   ///
   /// Throws an [Exception] if the course details table is not found.
-  Future<CourseDTO> getCourse(String courseId) async {
+  Future<CourseDto> getCourse(String courseId) async {
     final response = await _courseDio.get(
       'Curr.jsp',
       queryParameters: {'format': '-2', 'code': courseId},
@@ -360,14 +360,14 @@ class CourseService {
   /// office hours for the given [teacherId] in a specific [semester].
   ///
   /// The [teacherId] should be a teacher code obtained from the `teacher.id`
-  /// field of a [ScheduleDTO].
-  Future<TeacherDTO> getTeacher({
+  /// field of a [ScheduleDto].
+  Future<TeacherDto> getTeacher({
     required String teacherId,
-    required SemesterDTO semester,
+    required SemesterDto semester,
   }) async {
     final queryParams = {
       'year': semester.year,
-      'sem': semester.semester,
+      'sem': semester.term,
       'code': teacherId,
     };
 
@@ -387,7 +387,7 @@ class CourseService {
     final profileDoc = parse(profileResponse.data);
     final headerTh = profileDoc.querySelector('table tr:first-child th');
 
-    ReferenceDTO? department;
+    ReferenceDto? department;
     String? title;
     String? nameZh;
     double? teachingHours;
@@ -427,7 +427,7 @@ class CourseService {
     final lines = bodyText.split(RegExp(r'\n')).map((l) => l.trim()).toList();
 
     String? nameEn;
-    final officeHours = <OfficeHourDTO>[];
+    final officeHours = <OfficeHourDto>[];
     String? officeHoursNote;
 
     for (final line in lines) {
@@ -499,14 +499,14 @@ class CourseService {
   /// This method is not yet implemented.
   Future getClassroom({
     required String classroomId,
-    required SemesterDTO semester,
+    required SemesterDto semester,
   }) async {
     await _courseDio.get(
       'Croom.jsp',
       queryParameters: {
         'format': '-3',
         'year': semester.year,
-        'sem': semester.semester,
+        'sem': semester.term,
         'code': classroomId,
       },
     );
@@ -521,10 +521,10 @@ class CourseService {
   ///
   /// The [courseNumber] should be a course offering number (e.g., "346774"),
   /// and [syllabusId] should be obtained from the `syllabusId` field of a
-  /// [ScheduleDTO].
+  /// [ScheduleDto].
   ///
   /// Throws an [Exception] if the syllabus tables are not found.
-  Future<SyllabusDTO> getSyllabus({
+  Future<SyllabusDto> getSyllabus({
     required String courseNumber,
     required String syllabusId,
   }) async {
@@ -598,7 +598,7 @@ class CourseService {
     return text.isNotEmpty ? text : null;
   }
 
-  ReferenceDTO _parseCellRef(Element cell) {
+  ReferenceDto _parseCellRef(Element cell) {
     final name = _parseCellText(cell);
     if (name == null) return (id: null, name: null);
     final href = cell.querySelector('a')?.attributes['href'];
@@ -607,11 +607,11 @@ class CourseService {
     return (id: code, name: name);
   }
 
-  List<ReferenceDTO>? _parseCellRefs(Element cell) {
+  List<ReferenceDto>? _parseCellRefs(Element cell) {
     final anchors = cell.querySelectorAll('a');
     if (anchors.isEmpty) return null;
 
-    ReferenceDTO toReference(Element anchor) {
+    ReferenceDto toReference(Element anchor) {
       final name = anchor.text.trim();
       final href = anchor.attributes['href'];
       if (href == null) return (id: null, name: name);

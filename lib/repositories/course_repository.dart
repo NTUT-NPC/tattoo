@@ -91,12 +91,12 @@ class CourseRepository {
 
   /// Gets the download URL for a material.
   ///
-  /// The returned [MaterialDTO.referer] must be included as a Referer header
+  /// The returned [MaterialDto.referer] must be included as a Referer header
   /// when downloading, if non-null.
   ///
   /// Throws [Exception] on network failure.
   /// Throws [UnimplementedError] for course recordings (not yet supported).
-  Future<MaterialDTO> getMaterialDownload(Material material) async {
+  Future<MaterialDto> getMaterialDownload(Material material) async {
     throw UnimplementedError();
   }
 

@@ -42,7 +42,7 @@ void main() {
 
         for (final record in records) {
           expect(record.semester.year, greaterThan(80));
-          expect(record.semester.semester, isIn([1, 2, 3]));
+          expect(record.semester.term, isIn([0, 1, 2, 3]));
         }
       });
 
@@ -54,13 +54,13 @@ void main() {
             record.className,
             isNotNull,
             reason:
-                'Semester ${record.semester.year}-${record.semester.semester} should have a class name',
+                'Semester ${record.semester.year}-${record.semester.term} should have a class name',
           );
           expect(
             record.enrollmentStatus,
             isNotNull,
             reason:
-                'Semester ${record.semester.year}-${record.semester.semester} should have an enrollment status',
+                'Semester ${record.semester.year}-${record.semester.term} should have an enrollment status',
           );
         }
       });
@@ -73,7 +73,7 @@ void main() {
             record.tutors,
             isNotEmpty,
             reason:
-                'Semester ${record.semester.year}-${record.semester.semester} should have at least one tutor',
+                'Semester ${record.semester.year}-${record.semester.term} should have at least one tutor',
           );
 
           for (final tutor in record.tutors) {
@@ -97,8 +97,8 @@ void main() {
         for (var i = 0; i < records.length - 1; i++) {
           final current = records[i].semester;
           final next = records[i + 1].semester;
-          final currentValue = current.year! * 10 + current.semester!;
-          final nextValue = next.year! * 10 + next.semester!;
+          final currentValue = current.year! * 10 + current.term!;
+          final nextValue = next.year! * 10 + next.term!;
           expect(
             currentValue,
             greaterThan(nextValue),
@@ -120,7 +120,7 @@ void main() {
 
         for (final ranking in rankings) {
           expect(ranking.semester.year, greaterThan(80));
-          expect(ranking.semester.semester, isIn([1, 2, 3]));
+          expect(ranking.semester.term, isIn([0, 1, 2, 3]));
         }
       });
 
@@ -133,7 +133,7 @@ void main() {
             types,
             containsAll(RankingType.values),
             reason:
-                'Semester ${ranking.semester.year}-${ranking.semester.semester} '
+                'Semester ${ranking.semester.year}-${ranking.semester.term} '
                 'should have class, group, and department rankings',
           );
         }
@@ -163,8 +163,8 @@ void main() {
         for (var i = 0; i < rankings.length - 1; i++) {
           final current = rankings[i].semester;
           final next = rankings[i + 1].semester;
-          final currentValue = current.year! * 10 + current.semester!;
-          final nextValue = next.year! * 10 + next.semester!;
+          final currentValue = current.year! * 10 + current.term!;
+          final nextValue = next.year! * 10 + next.term!;
           expect(
             currentValue,
             greaterThan(nextValue),
@@ -186,12 +186,12 @@ void main() {
 
         for (final semester in semesters) {
           expect(semester.semester.year, greaterThan(80));
-          expect(semester.semester.semester, isIn([1, 2, 3]));
+          expect(semester.semester.term, isIn([0, 1, 2, 3]));
           expect(
             semester.scores,
             isNotEmpty,
             reason:
-                'Semester ${semester.semester.year}-${semester.semester.semester} should have courses',
+                'Semester ${semester.semester.year}-${semester.semester.term} should have courses',
           );
         }
       });
@@ -267,19 +267,19 @@ void main() {
             semester.average,
             isNotNull,
             reason:
-                'Semester ${semester.semester.year}-${semester.semester.semester} should have an average',
+                'Semester ${semester.semester.year}-${semester.semester.term} should have an average',
           );
           expect(
             semester.totalCredits,
             isNotNull,
             reason:
-                'Semester ${semester.semester.year}-${semester.semester.semester} should have total credits',
+                'Semester ${semester.semester.year}-${semester.semester.term} should have total credits',
           );
           expect(
             semester.creditsPassed,
             isNotNull,
             reason:
-                'Semester ${semester.semester.year}-${semester.semester.semester} should have credits passed',
+                'Semester ${semester.semester.year}-${semester.semester.term} should have credits passed',
           );
           // creditsPassed can exceed totalCredits when credit transfers are included
         }
@@ -291,8 +291,8 @@ void main() {
         for (var i = 0; i < semesters.length - 1; i++) {
           final current = semesters[i].semester;
           final next = semesters[i + 1].semester;
-          final currentValue = current.year! * 10 + current.semester!;
-          final nextValue = next.year! * 10 + next.semester!;
+          final currentValue = current.year! * 10 + current.term!;
+          final nextValue = next.year! * 10 + next.term!;
           expect(
             currentValue,
             greaterThan(nextValue),

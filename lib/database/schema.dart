@@ -73,12 +73,12 @@ class Semesters extends Table with AutoIncrementId {
   /// Academic year in ROC calendar (e.g., 114 for 2025).
   late final year = integer()();
 
-  /// Semester number within the year (1=Fall, 2=Spring, 3=Summer).
-  late final semester = integer()();
+  /// Term number within the year (0=Pre-study, 1=Fall, 2=Spring, 3=Summer).
+  late final term = integer()();
 
   @override
   List<Set<Column>> get uniqueKeys => [
-    {year, semester},
+    {year, term},
   ];
 }
 
@@ -401,7 +401,7 @@ class Scores extends Table with AutoIncrementId {
   /// Reference to the semester this score belongs to.
   late final semester = integer().references(Semesters, #id)();
 
-  /// Reference to the course definition (resolved from ScoreDTO.courseCode).
+  /// Reference to the course definition (resolved from ScoreDto.courseCode).
   late final course = integer().references(Courses, #id)();
 
   /// Reference to the specific course offering.

@@ -6,7 +6,7 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// Represents a logged-in NTUT Portal user.
-typedef UserDTO = ({
+typedef UserDto = ({
   /// User's display name from NTUT Portal (givenName).
   String? name,
 
@@ -69,7 +69,7 @@ class PortalService {
   /// Returns user profile information including name, email, and avatar filename.
   ///
   /// Throws an [Exception] if login fails due to invalid credentials.
-  Future<UserDTO> login(String username, String password) async {
+  Future<UserDto> login(String username, String password) async {
     final response = await _portalDio.post(
       'login.do',
       queryParameters: {'muid': username, 'mpassword': password},
@@ -109,7 +109,7 @@ class PortalService {
   /// Fetches a user's profile photo from NTUT Portal.
   ///
   /// The [filename] should be obtained from the `avatarFilename` field of
-  /// [UserDTO] returned by [login].
+  /// [UserDto] returned by [login].
   ///
   /// Returns the avatar image as raw bytes.
   Future<Uint8List> getAvatar(String filename) async {

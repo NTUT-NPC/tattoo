@@ -87,7 +87,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 - StudentQueryService - 學生查詢專區 (`sa_003_oauth`)
 - Design principle: Match NTUT's actual system boundaries. Each service corresponds to one NTUT SSO target.
 - All share single cookie jar (NTUT session state)
-- Return DTOs as records (UserDTO, SemesterDTO, ScheduleDTO, etc.) - no database writes
+- Return DTOs as records (UserDto, SemesterDto, ScheduleDto, etc.) - no database writes
 - DTOs are typedef'd records co-located with service implementation
 
 **Repositories:**

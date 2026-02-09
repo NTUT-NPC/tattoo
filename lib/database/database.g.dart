@@ -286,19 +286,17 @@ class $SemestersTable extends Semesters
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _semesterMeta = const VerificationMeta(
-    'semester',
-  );
+  static const VerificationMeta _termMeta = const VerificationMeta('term');
   @override
-  late final GeneratedColumn<int> semester = GeneratedColumn<int>(
-    'semester',
+  late final GeneratedColumn<int> term = GeneratedColumn<int>(
+    'term',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [id, year, semester];
+  List<GeneratedColumn> get $columns => [id, year, term];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -322,13 +320,13 @@ class $SemestersTable extends Semesters
     } else if (isInserting) {
       context.missing(_yearMeta);
     }
-    if (data.containsKey('semester')) {
+    if (data.containsKey('term')) {
       context.handle(
-        _semesterMeta,
-        semester.isAcceptableOrUnknown(data['semester']!, _semesterMeta),
+        _termMeta,
+        term.isAcceptableOrUnknown(data['term']!, _termMeta),
       );
     } else if (isInserting) {
-      context.missing(_semesterMeta);
+      context.missing(_termMeta);
     }
     return context;
   }
@@ -337,7 +335,7 @@ class $SemestersTable extends Semesters
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   List<Set<GeneratedColumn>> get uniqueKeys => [
-    {year, semester},
+    {year, term},
   ];
   @override
   Semester map(Map<String, dynamic> data, {String? tablePrefix}) {
@@ -351,9 +349,9 @@ class $SemestersTable extends Semesters
         DriftSqlType.int,
         data['${effectivePrefix}year'],
       )!,
-      semester: attachedDatabase.typeMapping.read(
+      term: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}semester'],
+        data['${effectivePrefix}term'],
       )!,
     );
   }
@@ -371,19 +369,15 @@ class Semester extends DataClass implements Insertable<Semester> {
   /// Academic year in ROC calendar (e.g., 114 for 2025).
   final int year;
 
-  /// Semester number within the year (1=Fall, 2=Spring, 3=Summer).
-  final int semester;
-  const Semester({
-    required this.id,
-    required this.year,
-    required this.semester,
-  });
+  /// Term number within the year (0=Pre-study, 1=Fall, 2=Spring, 3=Summer).
+  final int term;
+  const Semester({required this.id, required this.year, required this.term});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['year'] = Variable<int>(year);
-    map['semester'] = Variable<int>(semester);
+    map['term'] = Variable<int>(term);
     return map;
   }
 
@@ -391,7 +385,7 @@ class Semester extends DataClass implements Insertable<Semester> {
     return SemestersCompanion(
       id: Value(id),
       year: Value(year),
-      semester: Value(semester),
+      term: Value(term),
     );
   }
 
@@ -403,7 +397,7 @@ class Semester extends DataClass implements Insertable<Semester> {
     return Semester(
       id: serializer.fromJson<int>(json['id']),
       year: serializer.fromJson<int>(json['year']),
-      semester: serializer.fromJson<int>(json['semester']),
+      term: serializer.fromJson<int>(json['term']),
     );
   }
   @override
@@ -412,20 +406,20 @@ class Semester extends DataClass implements Insertable<Semester> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'year': serializer.toJson<int>(year),
-      'semester': serializer.toJson<int>(semester),
+      'term': serializer.toJson<int>(term),
     };
   }
 
-  Semester copyWith({int? id, int? year, int? semester}) => Semester(
+  Semester copyWith({int? id, int? year, int? term}) => Semester(
     id: id ?? this.id,
     year: year ?? this.year,
-    semester: semester ?? this.semester,
+    term: term ?? this.term,
   );
   Semester copyWithCompanion(SemestersCompanion data) {
     return Semester(
       id: data.id.present ? data.id.value : this.id,
       year: data.year.present ? data.year.value : this.year,
-      semester: data.semester.present ? data.semester.value : this.semester,
+      term: data.term.present ? data.term.value : this.term,
     );
   }
 
@@ -434,58 +428,58 @@ class Semester extends DataClass implements Insertable<Semester> {
     return (StringBuffer('Semester(')
           ..write('id: $id, ')
           ..write('year: $year, ')
-          ..write('semester: $semester')
+          ..write('term: $term')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, year, semester);
+  int get hashCode => Object.hash(id, year, term);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Semester &&
           other.id == this.id &&
           other.year == this.year &&
-          other.semester == this.semester);
+          other.term == this.term);
 }
 
 class SemestersCompanion extends UpdateCompanion<Semester> {
   final Value<int> id;
   final Value<int> year;
-  final Value<int> semester;
+  final Value<int> term;
   const SemestersCompanion({
     this.id = const Value.absent(),
     this.year = const Value.absent(),
-    this.semester = const Value.absent(),
+    this.term = const Value.absent(),
   });
   SemestersCompanion.insert({
     this.id = const Value.absent(),
     required int year,
-    required int semester,
+    required int term,
   }) : year = Value(year),
-       semester = Value(semester);
+       term = Value(term);
   static Insertable<Semester> custom({
     Expression<int>? id,
     Expression<int>? year,
-    Expression<int>? semester,
+    Expression<int>? term,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (year != null) 'year': year,
-      if (semester != null) 'semester': semester,
+      if (term != null) 'term': term,
     });
   }
 
   SemestersCompanion copyWith({
     Value<int>? id,
     Value<int>? year,
-    Value<int>? semester,
+    Value<int>? term,
   }) {
     return SemestersCompanion(
       id: id ?? this.id,
       year: year ?? this.year,
-      semester: semester ?? this.semester,
+      term: term ?? this.term,
     );
   }
 
@@ -498,8 +492,8 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
     if (year.present) {
       map['year'] = Variable<int>(year.value);
     }
-    if (semester.present) {
-      map['semester'] = Variable<int>(semester.value);
+    if (term.present) {
+      map['term'] = Variable<int>(term.value);
     }
     return map;
   }
@@ -509,7 +503,7 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
     return (StringBuffer('SemestersCompanion(')
           ..write('id: $id, ')
           ..write('year: $year, ')
-          ..write('semester: $semester')
+          ..write('term: $term')
           ..write(')'))
         .toString();
   }
@@ -6504,7 +6498,7 @@ class Score extends DataClass implements Insertable<Score> {
   /// Reference to the semester this score belongs to.
   final int semester;
 
-  /// Reference to the course definition (resolved from ScoreDTO.courseCode).
+  /// Reference to the course definition (resolved from ScoreDto.courseCode).
   final int course;
 
   /// Reference to the specific course offering.
@@ -9418,13 +9412,13 @@ typedef $$SemestersTableCreateCompanionBuilder =
     SemestersCompanion Function({
       Value<int> id,
       required int year,
-      required int semester,
+      required int term,
     });
 typedef $$SemestersTableUpdateCompanionBuilder =
     SemestersCompanion Function({
       Value<int> id,
       Value<int> year,
-      Value<int> semester,
+      Value<int> term,
     });
 
 final class $$SemestersTableReferences
@@ -9540,8 +9534,8 @@ class $$SemestersTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get semester => $composableBuilder(
-    column: $table.semester,
+  ColumnFilters<int> get term => $composableBuilder(
+    column: $table.term,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9667,8 +9661,8 @@ class $$SemestersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get semester => $composableBuilder(
-    column: $table.semester,
+  ColumnOrderings<int> get term => $composableBuilder(
+    column: $table.term,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -9688,8 +9682,8 @@ class $$SemestersTableAnnotationComposer
   GeneratedColumn<int> get year =>
       $composableBuilder(column: $table.year, builder: (column) => column);
 
-  GeneratedColumn<int> get semester =>
-      $composableBuilder(column: $table.semester, builder: (column) => column);
+  GeneratedColumn<int> get term =>
+      $composableBuilder(column: $table.term, builder: (column) => column);
 
   Expression<T> teachersRefs<T extends Object>(
     Expression<T> Function($$TeachersTableAnnotationComposer a) f,
@@ -9829,18 +9823,14 @@ class $$SemestersTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<int> year = const Value.absent(),
-                Value<int> semester = const Value.absent(),
-              }) => SemestersCompanion(id: id, year: year, semester: semester),
+                Value<int> term = const Value.absent(),
+              }) => SemestersCompanion(id: id, year: year, term: term),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required int year,
-                required int semester,
-              }) => SemestersCompanion.insert(
-                id: id,
-                year: year,
-                semester: semester,
-              ),
+                required int term,
+              }) => SemestersCompanion.insert(id: id, year: year, term: term),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
