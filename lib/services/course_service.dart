@@ -1,11 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/utils/http.dart';
-
-part 'course_service.g.dart';
 
 /// Course schedule entry from the course selection system.
 typedef ScheduleDTO = ({
@@ -171,8 +169,7 @@ typedef SyllabusDTO = ({
 ///
 /// Data is parsed from HTML pages as NTUT does not provide a REST API.
 /// Provides the singleton [CourseService] instance.
-@Riverpod(keepAlive: true)
-CourseService courseService(Ref ref) => CourseService();
+final courseServiceProvider = Provider<CourseService>((ref) => CourseService());
 
 class CourseService {
   late final Dio _courseDio;

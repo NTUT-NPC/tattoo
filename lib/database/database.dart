@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/schema.dart';
 import 'package:tattoo/database/views.dart';
 import 'package:tattoo/models/course.dart';
@@ -10,12 +10,11 @@ import 'package:tattoo/models/score.dart';
 part 'database.g.dart';
 
 /// Provides the singleton [AppDatabase] instance.
-@Riverpod(keepAlive: true)
-AppDatabase database(Ref ref) {
+final databaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
   ref.onDispose(db.close);
   return db;
-}
+});
 
 @DriftDatabase(
   views: [UserProfiles],

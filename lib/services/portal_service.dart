@@ -2,10 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:html/parser.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/utils/http.dart';
-
-part 'portal_service.g.dart';
 
 /// Represents a logged-in NTUT Portal user.
 typedef UserDTO = ({
@@ -51,8 +49,7 @@ enum PortalServiceCode {
 /// through this service provides authentication for all other services after
 /// calling [sso] for each required service.
 /// Provides the singleton [PortalService] instance.
-@Riverpod(keepAlive: true)
-PortalService portalService(Ref ref) => PortalService();
+final portalServiceProvider = Provider<PortalService>((ref) => PortalService());
 
 class PortalService {
   late final Dio _portalDio;

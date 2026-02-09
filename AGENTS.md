@@ -4,7 +4,7 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-02-08. If stale (>30 days), verify Status section against codebase.
+**Last updated:** 2026-02-09. If stale (>30 days), verify Status section against codebase.
 
 ## Status
 
@@ -15,7 +15,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - Drift database schema with all tables
 - Service DTOs migrated to Dart 3 records
 - Repository stubs (AuthRepository, CourseRepository)
-- Riverpod setup (providers for database, services, repositories)
+- Riverpod setup (manual providers, no codegen — riverpod_generator incompatible with Drift-generated types)
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json`)
 - AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage)
 - go_router navigation setup
@@ -75,7 +75,7 @@ MVVM pattern: UI (Widgets) → Providers (reactive state) → Repositories (busi
 
 **Terminology:**
 - **DTOs**: Dart records defined in service files - lightweight data transfer objects
-- **Domain models**: Drift entities or custom query result classes - what UI consumes
+- **Domain models**: Drift entities, Drift view data classes, or custom query result classes - what UI consumes
 
 **Services:**
 - PortalService - Portal auth, SSO
