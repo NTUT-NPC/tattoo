@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tattoo/components/animated_top_bar_layout.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 
@@ -58,12 +59,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final currentTabConfig = _currentTabScaffoldConfig;
+    final currentIndex = widget.navigationShell.currentIndex;
 
     return Scaffold(
-      appBar: currentTabConfig.showDefaultAppBar
-          ? AppBar(title: Text(currentTabConfig.title))
-          : null,
-      body: widget.navigationShell,
+      body: AnimatedTopBarLayout(
+        topBarIdentity: currentIndex,
+        topBar: currentTabConfig.showDefaultAppBar
+            ? AnimatedDefaultTopBar(title: currentTabConfig.title)
+            : null,
+        body: widget.navigationShell,
+      ),
       bottomNavigationBar: NavigationBar(
         destinations: const <NavigationDestination>[
           NavigationDestination(icon: Icon(Icons.dashboard), label: '課表'),
