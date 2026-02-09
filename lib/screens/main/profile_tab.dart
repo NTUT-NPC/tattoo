@@ -14,12 +14,7 @@ final _placeholderProfile = UserWithStudent(
 );
 
 class ProfileTab extends ConsumerWidget {
-  const ProfileTab({
-    super.key,
-    required this.isLoading,
-  });
-
-  final bool isLoading;
+  const ProfileTab({super.key});
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
     final authRepository = ref.read(authRepositoryProvider);
@@ -37,11 +32,11 @@ class ProfileTab extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 16,
             children: [
-              _ProfileCard(isLoading: isLoading),
+              _ProfileCard(),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: isLoading ? null : () => _logout(context, ref),
+                  onPressed: () => _logout(context, ref),
                   icon: const Icon(Icons.logout),
                   label: const Text('登出'),
                 ),
@@ -55,23 +50,10 @@ class ProfileTab extends ConsumerWidget {
 }
 
 class _ProfileCard extends ConsumerWidget {
-  const _ProfileCard({this.isLoading = false});
-
-  final bool isLoading;
+  const _ProfileCard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (isLoading) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: AppSkeleton(
-            child: _ProfileContent(profile: _placeholderProfile),
-          ),
-        ),
-      );
-    }
-
     final profileAsync = ref.watch(userProfileProvider);
     final avatarAsync = ref.watch(userAvatarProvider);
 

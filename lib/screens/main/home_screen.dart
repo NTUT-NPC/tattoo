@@ -1,24 +1,22 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/screens/main/table_tab.dart';
-import 'package:tattoo/screens/main/profile_tab.dart';
-import 'package:tattoo/screens/main/score_tab.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+    required this.navigationShell,
+  });
+
+  final StatefulNavigationShell navigationShell;
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool _isCheckingAuth = true;
-  var _currentTabIndex = 0;
-
   @override
   void initState() {
     super.initState();
@@ -33,43 +31,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     if (!hasCredentials) {
       context.go(AppRoutes.intro);
-    } else {
-      setState(() => _isCheckingAuth = false);
     }
+  }
+
+  void _onDestinationSelected(int index) {
+    widget.navigationShell.goBranch(
+      index,
+      initialLocation: index == widget.navigationShell.currentIndex,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageTransitionSwitcher(
-        duration: const Duration(milliseconds: 200),
-        transitionBuilder: (child, primaryAnimation, secondaryAnimation) =>
-            FadeThroughTransition(
-              animation: primaryAnimation,
-              secondaryAnimation: secondaryAnimation,
-              child: child,
-            ),
-        child: KeyedSubtree(
-          key: ValueKey(_currentTabIndex),
-          child: [
-            TableTab(),
-            ScoreTab(),
-            ProfileTab(isLoading: _isCheckingAuth),
-          ][_currentTabIndex],
-        ),
-      ),
+      // Handle keyboeard and Appbar in tab scaffold
+      resizeToAvoidBottomInset: false,
+      body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(
         destinations: const <NavigationDestination>[
           NavigationDestination(icon: Icon(Icons.dashboard), label: '課表'),
           NavigationDestination(icon: Icon(Icons.school), label: '成績'),
           NavigationDestination(icon: Icon(Icons.account_circle), label: '我'),
         ],
-        selectedIndex: _currentTabIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _currentTabIndex = index;
-          });
-        },
+        selectedIndex: widget.navigationShell.currentIndex,
+        onDestinationSelected: _onDestinationSelected,
       ),
     );
   }
