@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 
 part 'home_providers.g.dart';
@@ -9,7 +10,7 @@ part 'home_providers.g.dart';
 ///
 /// Returns `null` if not logged in.
 @riverpod
-Future<UserWithStudent?> userProfile(Ref ref) {
+Future<UserProfile?> userProfile(Ref ref) {
   return ref.watch(authRepositoryProvider).getUserProfile();
 }
 

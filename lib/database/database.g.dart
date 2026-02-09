@@ -8524,6 +8524,211 @@ class StudentSemesterRankingsCompanion
   }
 }
 
+class UserProfile extends DataClass {
+  final int id;
+  final String avatarFilename;
+  final String email;
+  final int? passwordExpiresInDays;
+  final String studentId;
+  final String? name;
+  const UserProfile({
+    required this.id,
+    required this.avatarFilename,
+    required this.email,
+    this.passwordExpiresInDays,
+    required this.studentId,
+    this.name,
+  });
+  factory UserProfile.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserProfile(
+      id: serializer.fromJson<int>(json['id']),
+      avatarFilename: serializer.fromJson<String>(json['avatarFilename']),
+      email: serializer.fromJson<String>(json['email']),
+      passwordExpiresInDays: serializer.fromJson<int?>(
+        json['passwordExpiresInDays'],
+      ),
+      studentId: serializer.fromJson<String>(json['studentId']),
+      name: serializer.fromJson<String?>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'avatarFilename': serializer.toJson<String>(avatarFilename),
+      'email': serializer.toJson<String>(email),
+      'passwordExpiresInDays': serializer.toJson<int?>(passwordExpiresInDays),
+      'studentId': serializer.toJson<String>(studentId),
+      'name': serializer.toJson<String?>(name),
+    };
+  }
+
+  UserProfile copyWith({
+    int? id,
+    String? avatarFilename,
+    String? email,
+    Value<int?> passwordExpiresInDays = const Value.absent(),
+    String? studentId,
+    Value<String?> name = const Value.absent(),
+  }) => UserProfile(
+    id: id ?? this.id,
+    avatarFilename: avatarFilename ?? this.avatarFilename,
+    email: email ?? this.email,
+    passwordExpiresInDays: passwordExpiresInDays.present
+        ? passwordExpiresInDays.value
+        : this.passwordExpiresInDays,
+    studentId: studentId ?? this.studentId,
+    name: name.present ? name.value : this.name,
+  );
+  @override
+  String toString() {
+    return (StringBuffer('UserProfile(')
+          ..write('id: $id, ')
+          ..write('avatarFilename: $avatarFilename, ')
+          ..write('email: $email, ')
+          ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
+          ..write('studentId: $studentId, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    avatarFilename,
+    email,
+    passwordExpiresInDays,
+    studentId,
+    name,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserProfile &&
+          other.id == this.id &&
+          other.avatarFilename == this.avatarFilename &&
+          other.email == this.email &&
+          other.passwordExpiresInDays == this.passwordExpiresInDays &&
+          other.studentId == this.studentId &&
+          other.name == this.name);
+}
+
+class $UserProfilesView extends ViewInfo<$UserProfilesView, UserProfile>
+    implements HasResultSet {
+  final String? _alias;
+  @override
+  final _$AppDatabase attachedDatabase;
+  $UserProfilesView(this.attachedDatabase, [this._alias]);
+  $UsersTable get users => attachedDatabase.users.createAlias('t0');
+  $StudentsTable get students => attachedDatabase.students.createAlias('t1');
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    avatarFilename,
+    email,
+    passwordExpiresInDays,
+    studentId,
+    name,
+  ];
+  @override
+  String get aliasedName => _alias ?? entityName;
+  @override
+  String get entityName => 'user_profiles';
+  @override
+  Map<SqlDialect, String>? get createViewStatements => null;
+  @override
+  $UserProfilesView get asDslTable => this;
+  @override
+  UserProfile map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserProfile(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      avatarFilename: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}avatar_filename'],
+      )!,
+      email: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}email'],
+      )!,
+      passwordExpiresInDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}password_expires_in_days'],
+      ),
+      studentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}student_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      ),
+    );
+  }
+
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(users.id, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<String> avatarFilename = GeneratedColumn<String>(
+    'avatar_filename',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(users.avatarFilename, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+    'email',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(users.email, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<int> passwordExpiresInDays = GeneratedColumn<int>(
+    'password_expires_in_days',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(users.passwordExpiresInDays, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<String> studentId = GeneratedColumn<String>(
+    'student_id',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(students.studentId, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(students.name, false),
+    type: DriftSqlType.string,
+  );
+  @override
+  $UserProfilesView createAlias(String alias) {
+    return $UserProfilesView(attachedDatabase, alias);
+  }
+
+  @override
+  Query? get query => (attachedDatabase.selectOnly(users)..addColumns($columns))
+      .join([innerJoin(students, students.id.equalsExp(users.student))]);
+  @override
+  Set<String> get readTables => const {'users', 'students'};
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -8561,6 +8766,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $StudentSemesterRankingsTable studentSemesterRankings =
       $StudentSemesterRankingsTable(this);
+  late final $UserProfilesView userProfiles = $UserProfilesView(this);
   late final Index teacherSemester = Index(
     'teacher_semester',
     'CREATE INDEX teacher_semester ON teachers (semester)',
@@ -8623,6 +8829,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     studentSemesterSummaryTutors,
     studentSemesterSummaryCadreRoles,
     studentSemesterRankings,
+    userProfiles,
     teacherSemester,
     userStudent,
     courseOfferingCourse,
@@ -18828,55 +19035,3 @@ class $AppDatabaseManager {
         _db.studentSemesterRankings,
       );
 }
-
-// **************************************************************************
-// RiverpodGenerator
-// **************************************************************************
-
-// GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: type=lint, type=warning
-/// Provides the singleton [AppDatabase] instance.
-
-@ProviderFor(database)
-final databaseProvider = DatabaseProvider._();
-
-/// Provides the singleton [AppDatabase] instance.
-
-final class DatabaseProvider
-    extends $FunctionalProvider<AppDatabase, AppDatabase, AppDatabase>
-    with $Provider<AppDatabase> {
-  /// Provides the singleton [AppDatabase] instance.
-  DatabaseProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'databaseProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$databaseHash();
-
-  @$internal
-  @override
-  $ProviderElement<AppDatabase> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  AppDatabase create(Ref ref) {
-    return database(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(AppDatabase value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<AppDatabase>(value),
-    );
-  }
-}
-
-String _$databaseHash() => r'0fe56aaf5bde72ce9021e425b918c495557124c1';

@@ -37,14 +37,6 @@ enum AuthStatus {
   credentialsExpired,
 }
 
-/// User profile combining [User] and [Student] entities.
-class UserWithStudent {
-  UserWithStudent(this.user, this.student);
-
-  final User user;
-  final Student student;
-}
-
 const _secureStorage = FlutterSecureStorage();
 
 /// Provides the current [AuthStatus].
@@ -223,21 +215,8 @@ class AuthRepository {
   /// Gets the current user's profile with student data.
   ///
   /// Returns `null` if not logged in. Does not make network requests.
-  Future<UserWithStudent?> getUserProfile() async {
-    final query = _database.select(_database.users).join([
-      innerJoin(
-        _database.students,
-        _database.students.id.equalsExp(_database.users.student),
-      ),
-    ]);
-
-    final row = await query.getSingleOrNull();
-    if (row == null) return null;
-
-    return UserWithStudent(
-      row.readTable(_database.users),
-      row.readTable(_database.students),
-    );
+  Future<UserProfile?> getUserProfile() async {
+    return _database.select(_database.userProfiles).getSingleOrNull();
   }
 
   /// Gets the current user's avatar image, with local caching.
