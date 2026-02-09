@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:tattoo/router/widgets/animated_shell_container.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/profile_tab.dart';
 import 'package:tattoo/screens/main/score_tab.dart';
@@ -25,9 +26,15 @@ final appRouter = GoRouter(
       path: AppRoutes.login,
       builder: (context, state) => const LoginScreen(),
     ),
-    StatefulShellRoute.indexedStack(
+    StatefulShellRoute(
       builder: (context, state, navigationShell) =>
           HomeScreen(navigationShell: navigationShell),
+      navigatorContainerBuilder: (context, navigationShell, children) {
+        return AnimatedShellContainer(
+          currentIndex: navigationShell.currentIndex,
+          children: children,
+        );
+      },
       branches: [
         StatefulShellBranch(
           routes: [
