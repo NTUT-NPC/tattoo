@@ -78,14 +78,14 @@ class _ProfileCard extends ConsumerWidget {
   }
 }
 
-class _ProfileContent extends ConsumerWidget {
+class _ProfileContent extends StatelessWidget {
   const _ProfileContent({required this.profile, this.avatarFile});
 
   final UserWithStudent profile;
   final File? avatarFile;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Row(
@@ -98,7 +98,10 @@ class _ProfileContent extends ConsumerWidget {
             backgroundImage: avatarFile != null ? FileImage(avatarFile!) : null,
             child: avatarFile == null
                 ? Text(
-                    profile.student.name?.substring(0, 1) ?? '?',
+                    switch (profile.student.name) {
+                      final n? when n.isNotEmpty => n.substring(0, 1),
+                      _ => '?',
+                    },
                     style: TextStyle(
                       fontSize: 24,
                       color: theme.colorScheme.onPrimaryContainer,
