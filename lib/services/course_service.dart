@@ -157,6 +157,9 @@ typedef SyllabusDTO = ({
   String? remarks,
 });
 
+/// Provides the singleton [CourseService] instance.
+final courseServiceProvider = Provider<CourseService>((ref) => CourseService());
+
 /// Service for accessing NTUT's course selection and catalog system.
 ///
 /// This service provides access to:
@@ -168,9 +171,6 @@ typedef SyllabusDTO = ({
 /// [PortalServiceCode.courseService] before using this service.
 ///
 /// Data is parsed from HTML pages as NTUT does not provide a REST API.
-/// Provides the singleton [CourseService] instance.
-final courseServiceProvider = Provider<CourseService>((ref) => CourseService());
-
 class CourseService {
   late final Dio _courseDio;
 

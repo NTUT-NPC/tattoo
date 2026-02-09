@@ -45,6 +45,11 @@ typedef MaterialDTO = ({
   bool streamable,
 });
 
+/// Provides the singleton [ISchoolPlusService] instance.
+final iSchoolPlusServiceProvider = Provider<ISchoolPlusService>(
+  (ref) => ISchoolPlusService(),
+);
+
 /// Service for accessing NTUT's I-School Plus learning management system.
 ///
 /// This service provides access to:
@@ -60,11 +65,6 @@ typedef MaterialDTO = ({
 /// by caching the last selected course.
 ///
 /// Data is parsed from HTML/XML pages as NTUT does not provide a REST API.
-/// Provides the singleton [ISchoolPlusService] instance.
-final iSchoolPlusServiceProvider = Provider<ISchoolPlusService>(
-  (ref) => ISchoolPlusService(),
-);
-
 class ISchoolPlusService {
   late final Dio _iSchoolPlusDio;
 

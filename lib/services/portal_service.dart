@@ -37,6 +37,9 @@ enum PortalServiceCode {
   const PortalServiceCode(this.code);
 }
 
+/// Provides the singleton [PortalService] instance.
+final portalServiceProvider = Provider<PortalService>((ref) => PortalService());
+
 /// Service for authenticating with NTUT Portal and performing SSO.
 ///
 /// This service handles:
@@ -48,9 +51,6 @@ enum PortalServiceCode {
 /// All HTTP clients in the application share a single cookie jar, so logging in
 /// through this service provides authentication for all other services after
 /// calling [sso] for each required service.
-/// Provides the singleton [PortalService] instance.
-final portalServiceProvider = Provider<PortalService>((ref) => PortalService());
-
 class PortalService {
   late final Dio _portalDio;
 
