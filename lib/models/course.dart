@@ -79,6 +79,6 @@ typedef SemesterDto = ({
   /// Academic year in ROC calendar (e.g., 114 for 2025).
   int? year,
 
-  /// Term number (1 for fall, 2 for spring, 3 for summer).
+  /// Term number (0 for pre-study, 1 for fall, 2 for spring, 3 for summer).
   int? term,
 });

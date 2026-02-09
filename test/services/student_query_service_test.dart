@@ -42,7 +42,7 @@ void main() {
 
         for (final record in records) {
           expect(record.semester.year, greaterThan(80));
-          expect(record.semester.term, isIn([1, 2, 3]));
+          expect(record.semester.term, isIn([0, 1, 2, 3]));
         }
       });
 
@@ -120,7 +120,7 @@ void main() {
 
         for (final ranking in rankings) {
           expect(ranking.semester.year, greaterThan(80));
-          expect(ranking.semester.term, isIn([1, 2, 3]));
+          expect(ranking.semester.term, isIn([0, 1, 2, 3]));
         }
       });
 
@@ -186,7 +186,7 @@ void main() {
 
         for (final semester in semesters) {
           expect(semester.semester.year, greaterThan(80));
-          expect(semester.semester.term, isIn([1, 2, 3]));
+          expect(semester.semester.term, isIn([0, 1, 2, 3]));
           expect(
             semester.scores,
             isNotEmpty,
