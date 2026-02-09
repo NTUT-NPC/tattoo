@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:html/parser.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// Represents a logged-in NTUT Portal user.
-typedef UserDTO = ({
+typedef UserDto = ({
   /// User's display name from NTUT Portal (givenName).
   String? name,
 
@@ -36,6 +37,9 @@ enum PortalServiceCode {
   const PortalServiceCode(this.code);
 }
 
+/// Provides the singleton [PortalService] instance.
+final portalServiceProvider = Provider<PortalService>((ref) => PortalService());
+
 /// Service for authenticating with NTUT Portal and performing SSO.
 ///
 /// This service handles:
@@ -65,7 +69,7 @@ class PortalService {
   /// Returns user profile information including name, email, and avatar filename.
   ///
   /// Throws an [Exception] if login fails due to invalid credentials.
-  Future<UserDTO> login(String username, String password) async {
+  Future<UserDto> login(String username, String password) async {
     final response = await _portalDio.post(
       'login.do',
       queryParameters: {'muid': username, 'mpassword': password},
@@ -105,7 +109,7 @@ class PortalService {
   /// Fetches a user's profile photo from NTUT Portal.
   ///
   /// The [filename] should be obtained from the `avatarFilename` field of
-  /// [UserDTO] returned by [login].
+  /// [UserDto] returned by [login].
   ///
   /// Returns the avatar image as raw bytes.
   Future<Uint8List> getAvatar(String filename) async {

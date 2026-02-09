@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/home_providers.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({

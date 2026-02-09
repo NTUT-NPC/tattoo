@@ -44,16 +44,17 @@ void main() {
 
         for (final semester in semesters) {
           expect(semester.year, isNotNull);
-          expect(semester.semester, isNotNull);
+          expect(semester.term, isNotNull);
           expect(
             semester.year,
             greaterThan(80),
             reason: 'ROC year should be from modern era (>80 means after 1991)',
           );
           expect(
-            semester.semester,
-            isIn([1, 2, 3]),
-            reason: 'Semester should be 1 (fall), 2 (spring), or 3 (summer)',
+            semester.term,
+            isIn([0, 1, 2, 3]),
+            reason:
+                'Term should be 0 (pre-study), 1 (fall), 2 (spring), or 3 (summer)',
           );
         }
       });

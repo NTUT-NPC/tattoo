@@ -16,7 +16,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - Drift database schema with all tables
 - Service DTOs migrated to Dart 3 records
 - Repository stubs (AuthRepository, CourseRepository)
-- Riverpod setup (providers for database, services, repositories)
+- Riverpod setup (manual providers, no codegen — riverpod_generator incompatible with Drift-generated types)
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json`)
 - AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage)
 - go_router navigation setup
@@ -54,19 +54,27 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 ## Architecture
 
-MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP) + Database (Drift)
+MVVM pattern with Riverpod for DI and reactive state:
+- UI calls repository actions directly via constructor providers (`ref.read`)
+- UI observes data through screen-level FutureProviders (`ref.watch`)
+- Repositories encapsulate business logic, coordinate Services (HTTP) and Database (Drift)
 
 **Structure:**
 
 - `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType, ScoreStatus)
-- `lib/providers/` - Riverpod providers for database and services
-- `lib/repositories/` - Coordinate service + database, implement business logic
+- `lib/repositories/` - Repository class + constructor provider (DI wiring)
 - `lib/services/` - HTTP clients, parse responses, return DTOs (as records)
 - `lib/database/` - Drift schema and database class
 - `lib/utils/` - HTTP utilities (cookie jar, interceptors)
 - `lib/components/` - Reusable UI widgets (AppSkeleton)
 - `lib/router/` - go_router config and AnimatedShellContainer for tab transitions
 - `lib/screens/` - Screen widgets organized by feature (welcome/, main/)
+
+**Provider placement:**
+- Constructor providers (DI wiring) are co-located with the classes they construct (services, database, repositories)
+- Screen-specific providers live alongside the screen that consumes them (e.g., `screens/main/course_table/course_table_providers.dart`)
+- Shared providers used by multiple screens in a feature live one level up (e.g., `screens/main/course_providers.dart`)
+- Repository classes take framework-agnostic dependencies (callbacks, not Riverpod notifiers)
 
 **Data Flow Pattern (per Flutter's architecture guide):**
 
@@ -78,7 +86,7 @@ MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP)
 **Terminology:**
 
 - **DTOs**: Dart records defined in service files - lightweight data transfer objects
-- **Domain models**: Drift entities or custom query result classes - what UI consumes
+- **Domain models**: Drift entities, Drift view data classes, or custom query result classes - what UI consumes
 
 **Services:**
 
@@ -88,7 +96,7 @@ MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP)
 - StudentQueryService - 學生查詢專區 (`sa_003_oauth`)
 - Design principle: Match NTUT's actual system boundaries. Each service corresponds to one NTUT SSO target.
 - All share single cookie jar (NTUT session state)
-- Return DTOs as records (UserDTO, SemesterDTO, ScheduleDTO, etc.) - no database writes
+- Return DTOs as records (UserDto, SemesterDto, ScheduleDto, etc.) - no database writes
 - DTOs are typedef'd records co-located with service implementation
 
 **Repositories:**

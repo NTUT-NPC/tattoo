@@ -20,6 +20,7 @@ runs:
         add_shims_to_path: false # Use direct bin paths
 
     - name: Verify Flutter version
+      id: flutter-version
       if: ${{ inputs.platform == 'android' }}
       shell: bash
       run: |
@@ -28,6 +29,7 @@ runs:
           echo "::error::Flutter version has changed to $FLUTTER_VERSION. Please update cache paths accordingly."
           exit 1
         fi
+        echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_ENV
 
     - name: Setup Gradle cache
       if: ${{ inputs.platform == 'android' }}
@@ -44,7 +46,7 @@ runs:
       if: ${{ inputs.platform == 'android' }}
       uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
       with:
-        key: ${{ runner.os }}-android-sdk-${{ steps.setup.outputs.flutter-version }}
+        key: ${{ runner.os }}-android-sdk-${{ steps.flutter-version.outputs.flutter_version }}
         # Update paths when updating Flutter version
         path: |
           /usr/local/lib/android/sdk/cmake/3.22.1

@@ -66,7 +66,7 @@ enum CourseType {
 }
 
 /// Reference to an entity (course, teacher, classroom, etc.) with an ID and name.
-typedef ReferenceDTO = ({
+typedef ReferenceDto = ({
   /// Entity's unique identifier code.
   String? id,
 
@@ -75,10 +75,10 @@ typedef ReferenceDTO = ({
 });
 
 /// Academic semester identifier.
-typedef SemesterDTO = ({
+typedef SemesterDto = ({
   /// Academic year in ROC calendar (e.g., 114 for 2025).
   int? year,
 
-  /// Semester number (1 for fall, 2 for spring, 3 for summer).
-  int? semester,
+  /// Term number (0 for pre-study, 1 for fall, 2 for spring, 3 for summer).
+  int? term,
 });

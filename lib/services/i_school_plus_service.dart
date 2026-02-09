@@ -2,10 +2,11 @@ import 'dart:io';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// Student enrolled in an i-School Plus course.
-typedef StudentDTO = ({
+typedef StudentDto = ({
   /// Student's NTUT ID (e.g., "111360109").
   String? id,
 
@@ -14,7 +15,7 @@ typedef StudentDTO = ({
 });
 
 /// Reference to a course material file in i-School Plus.
-typedef MaterialRefDTO = ({
+typedef MaterialRefDto = ({
   /// Course selection number this material belongs to.
   String courseNumber,
 
@@ -29,7 +30,7 @@ typedef MaterialRefDTO = ({
 });
 
 /// Downloadable course material with its access information.
-typedef MaterialDTO = ({
+typedef MaterialDto = ({
   /// Direct download URL for the material file.
   /// Can also be used for streaming media content.
   Uri downloadUrl,
@@ -43,6 +44,11 @@ typedef MaterialDTO = ({
   /// Whether this material can be streamed (e.g., video/audio recordings).
   bool streamable,
 });
+
+/// Provides the singleton [ISchoolPlusService] instance.
+final iSchoolPlusServiceProvider = Provider<ISchoolPlusService>(
+  (ref) => ISchoolPlusService(),
+);
 
 /// Service for accessing NTUT's I-School Plus learning management system.
 ///
@@ -120,12 +126,12 @@ class ISchoolPlusService {
   /// the course identified by [courseNumber].
   ///
   /// The [courseNumber] should be a course offering number (e.g., "313146")
-  /// from the `number` field of a [ScheduleDTO].
+  /// from the `number` field of a [ScheduleDto].
   ///
   /// System accounts (e.g., "istudyoaa") are automatically filtered out.
   ///
   /// Throws an [Exception] if the course is not found or no student data exists.
-  Future<List<StudentDTO>> getStudents(String courseNumber) async {
+  Future<List<StudentDto>> getStudents(String courseNumber) async {
     await _selectCourse(courseNumber);
 
     final response = await _iSchoolPlusDio.get('learn_ranking.php');
@@ -169,14 +175,14 @@ class ISchoolPlusService {
   /// for the course identified by [courseNumber].
   ///
   /// The [courseNumber] should be a course offering number (e.g., "313146")
-  /// from the `number` field of a [ScheduleDTO].
+  /// from the `number` field of a [ScheduleDto].
   ///
   /// Each material reference includes a title and SCORM resource identifier
   /// (href) that can be passed to [getMaterial] to obtain download information.
   ///
   /// Materials are extracted from the course's SCORM manifest XML.
   /// Folder/directory items without actual files are automatically excluded.
-  Future<List<MaterialRefDTO>> getMaterials(String courseNumber) async {
+  Future<List<MaterialRefDto>> getMaterials(String courseNumber) async {
     await _selectCourse(courseNumber);
 
     // Fetch and parse the SCORM manifest XML for file listings
@@ -219,12 +225,12 @@ class ISchoolPlusService {
   /// - PDFs: Requires a referer URL for access
   /// - Course recordings: Returns iStream URL with `streamable: true`
   ///
-  /// When the returned [MaterialDTO] has a non-null `referer` field, it must
+  /// When the returned [MaterialDto] has a non-null `referer` field, it must
   /// be included as the Referer header when downloading the file.
   ///
   /// Throws an [Exception] if the material cannot be accessed or parsed.
-  Future<MaterialDTO> getMaterial(
-    MaterialRefDTO material,
+  Future<MaterialDto> getMaterial(
+    MaterialRefDto material,
   ) async {
     await _selectCourse(material.courseNumber);
 

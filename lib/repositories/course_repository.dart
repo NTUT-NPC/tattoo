@@ -1,25 +1,20 @@
 // ignore_for_file: unused_field
 
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
-import 'package:tattoo/providers/database_provider.dart';
-import 'package:tattoo/providers/service_providers.dart';
 import 'package:tattoo/services/course_service.dart';
 import 'package:tattoo/services/i_school_plus_service.dart';
 import 'package:tattoo/services/portal_service.dart';
 
-part 'course_repository.g.dart';
-
 /// Provides the [CourseRepository] instance.
-@Riverpod(keepAlive: true)
-CourseRepository courseRepository(Ref ref) {
+final courseRepositoryProvider = Provider<CourseRepository>((ref) {
   return CourseRepository(
     portalService: ref.watch(portalServiceProvider),
     courseService: ref.watch(courseServiceProvider),
     iSchoolPlusService: ref.watch(iSchoolPlusServiceProvider),
     database: ref.watch(databaseProvider),
   );
-}
+});
 
 /// Provides course schedules, catalog, materials, and student rosters.
 ///
@@ -96,12 +91,12 @@ class CourseRepository {
 
   /// Gets the download URL for a material.
   ///
-  /// The returned [MaterialDTO.referer] must be included as a Referer header
+  /// The returned [MaterialDto.referer] must be included as a Referer header
   /// when downloading, if non-null.
   ///
   /// Throws [Exception] on network failure.
   /// Throws [UnimplementedError] for course recordings (not yet supported).
-  Future<MaterialDTO> getMaterialDownload(Material material) async {
+  Future<MaterialDto> getMaterialDownload(Material material) async {
     throw UnimplementedError();
   }
 
