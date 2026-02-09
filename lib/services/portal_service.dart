@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:html/parser.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// Represents a logged-in NTUT Portal user.
@@ -35,6 +36,9 @@ enum PortalServiceCode {
   final String code;
   const PortalServiceCode(this.code);
 }
+
+/// Provides the singleton [PortalService] instance.
+final portalServiceProvider = Provider<PortalService>((ref) => PortalService());
 
 /// Service for authenticating with NTUT Portal and performing SSO.
 ///

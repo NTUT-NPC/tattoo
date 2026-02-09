@@ -1,8 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/utils/http.dart';
-import 'package:collection/collection.dart';
 
 /// Course schedule entry from the course selection system.
 typedef ScheduleDTO = ({
@@ -155,6 +156,9 @@ typedef SyllabusDTO = ({
   /// Additional remarks (備註).
   String? remarks,
 });
+
+/// Provides the singleton [CourseService] instance.
+final courseServiceProvider = Provider<CourseService>((ref) => CourseService());
 
 /// Service for accessing NTUT's course selection and catalog system.
 ///

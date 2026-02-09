@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// Student enrolled in an i-School Plus course.
@@ -43,6 +44,11 @@ typedef MaterialDTO = ({
   /// Whether this material can be streamed (e.g., video/audio recordings).
   bool streamable,
 });
+
+/// Provides the singleton [ISchoolPlusService] instance.
+final iSchoolPlusServiceProvider = Provider<ISchoolPlusService>(
+  (ref) => ISchoolPlusService(),
+);
 
 /// Service for accessing NTUT's I-School Plus learning management system.
 ///
