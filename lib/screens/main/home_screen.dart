@@ -7,6 +7,7 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/home_providers.dart';
 
 final _placeholderProfile = UserWithStudent(
   User(id: 0, student: 0, avatarFilename: '', email: 't000000000@ntut.edu.tw'),

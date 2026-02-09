@@ -69,22 +69,6 @@ AuthRepository authRepository(Ref ref) {
   );
 }
 
-/// Provides the current user's profile.
-///
-/// Returns `null` if not logged in.
-@riverpod
-Future<UserWithStudent?> userProfile(Ref ref) {
-  return ref.watch(authRepositoryProvider).getUserProfile();
-}
-
-/// Provides the current user's avatar file.
-///
-/// Returns `null` if user has no avatar or not logged in.
-@riverpod
-Future<File?> userAvatar(Ref ref) {
-  return ref.watch(authRepositoryProvider).getAvatar();
-}
-
 /// Manages user authentication and profile data.
 ///
 /// ```dart

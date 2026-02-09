@@ -50,17 +50,22 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 ## Architecture
 
-MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP) + Database (Drift)
+MVVM pattern: UI (Widgets) → Providers (reactive state) → Repositories (business logic) → Services (HTTP) + Database (Drift)
 
 **Structure:**
 - `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType, ScoreStatus)
-- `lib/repositories/` - Coordinate service + database, implement business logic
+- `lib/repositories/` - Repository class + constructor provider (DI wiring)
 - `lib/services/` - HTTP clients, parse responses, return DTOs (as records)
 - `lib/database/` - Drift schema and database class
-- Riverpod providers are co-located with the classes they construct (services, database, repositories)
 - `lib/utils/` - HTTP utilities (cookie jar, interceptors)
 - `lib/components/` - Reusable UI widgets (AppSkeleton)
 - `lib/screens/` - Screen widgets organized by feature (welcome/, main/)
+
+**Provider placement:**
+- Constructor providers (DI wiring) are co-located with the classes they construct (services, database, repositories)
+- Screen-specific providers live alongside the screen that consumes them (e.g., `screens/main/course_table/course_table_providers.dart`)
+- Shared providers used by multiple screens in a feature live one level up (e.g., `screens/main/course_providers.dart`)
+- Repository classes take framework-agnostic dependencies (callbacks, not Riverpod notifiers)
 
 **Data Flow Pattern (per Flutter's architecture guide):**
 - Services return DTOs as records (denormalized, as-parsed from HTML)
