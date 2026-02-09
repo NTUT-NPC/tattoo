@@ -1,5 +1,5 @@
 import 'package:go_router/go_router.dart';
-import 'package:tattoo/router/widgets/animated_shell_container.dart';
+import 'package:tattoo/router/animated_shell_container.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/profile_tab.dart';
 import 'package:tattoo/screens/main/score_tab.dart';
