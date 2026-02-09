@@ -206,7 +206,7 @@ class CourseService {
       final queryParams = Uri.parse(link!).queryParameters;
       return (
         year: int.parse(queryParams['year']!),
-        semester: int.parse(queryParams['sem']!),
+        term: int.parse(queryParams['sem']!),
       );
     }).toList();
   }
@@ -233,7 +233,7 @@ class CourseService {
         'format': '-2',
         'code': username,
         'year': semester.year,
-        'sem': semester.semester,
+        'sem': semester.term,
       },
     );
 
@@ -367,7 +367,7 @@ class CourseService {
   }) async {
     final queryParams = {
       'year': semester.year,
-      'sem': semester.semester,
+      'sem': semester.term,
       'code': teacherId,
     };
 
@@ -506,7 +506,7 @@ class CourseService {
       queryParameters: {
         'format': '-3',
         'year': semester.year,
-        'sem': semester.semester,
+        'sem': semester.term,
         'code': classroomId,
       },
     );

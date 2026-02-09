@@ -146,7 +146,7 @@ class StudentQueryService {
       final match = semesterMatches[i];
       final semester = (
         year: int.parse(match.group(1)!),
-        semester: int.parse(match.group(2)!),
+        term: int.parse(match.group(2)!),
       );
 
       final rows = tables[i].querySelectorAll('tr');
@@ -240,7 +240,7 @@ class StudentQueryService {
         if (match == null) continue;
         currentSemester = (
           year: int.parse(match.group(1)!),
-          semester: int.parse(match.group(2)!),
+          term: int.parse(match.group(2)!),
         );
         dataStart = 1;
       } else if (cells.length == 7) {
@@ -316,7 +316,7 @@ class StudentQueryService {
 
       final semester = (
         year: int.parse(semesterMatch.group(1)!),
-        semester: int.parse(semesterMatch.group(2)!),
+        term: int.parse(semesterMatch.group(2)!),
       );
       final className = _parseCellText(cells[1]);
       final enrollmentStatus = _parseCellText(cells[2]);
