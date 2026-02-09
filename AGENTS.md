@@ -20,8 +20,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json`)
 - AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage)
 - go_router navigation setup
-- UI: intro screen, login screen, home screen with a buttom navigation bar in `screens/main/home_screen.dart`, which has three tabs in the same directory
-- and in profile tab there is a profile card and logout button demo
+- UI: intro screen, login screen, and home screen with a bottom navigation bar in `screens/main/home_screen.dart` whith three tabs(table, score, profile with a demo card)
 
 **Todo - Service Layer:**
 
