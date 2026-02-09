@@ -50,7 +50,10 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 ## Architecture
 
-MVVM pattern: UI (Widgets) → Providers (reactive state) → Repositories (business logic) → Services (HTTP) + Database (Drift)
+MVVM pattern with Riverpod for DI and reactive state:
+- UI calls repository actions directly via constructor providers (`ref.read`)
+- UI observes data through screen-level FutureProviders (`ref.watch`)
+- Repositories encapsulate business logic, coordinate Services (HTTP) and Database (Drift)
 
 **Structure:**
 - `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType, ScoreStatus)
