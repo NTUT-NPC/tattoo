@@ -4,7 +4,7 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-02-08. If stale (>30 days), verify Status section against codebase.
+**Last updated:** 2026-02-10. If stale (>30 days), verify Status section against codebase.
 
 ## Status
 
@@ -20,7 +20,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json`)
 - AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage)
 - go_router navigation setup
-- UI: intro screen, login screen, and home screen with a bottom navigation bar in `screens/main/home_screen.dart` with three tabs(table, score, profile with a demo card)
+- UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile). Uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
 
 **Todo - Service Layer:**
 
@@ -65,6 +65,7 @@ MVVM pattern: UI (Widgets) → Repositories (business logic) → Services (HTTP)
 - `lib/database/` - Drift schema and database class
 - `lib/utils/` - HTTP utilities (cookie jar, interceptors)
 - `lib/components/` - Reusable UI widgets (AppSkeleton)
+- `lib/router/` - go_router config and AnimatedShellContainer for tab transitions
 - `lib/screens/` - Screen widgets organized by feature (welcome/, main/)
 
 **Data Flow Pattern (per Flutter's architecture guide):**

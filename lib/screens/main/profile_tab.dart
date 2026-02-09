@@ -24,23 +24,25 @@ class ProfileTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 16,
-          children: [
-            _ProfileCard(),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _logout(context, ref),
-                icon: const Icon(Icons.logout),
-                label: const Text('登出'),
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 16,
+            children: [
+              _ProfileCard(),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _logout(context, ref),
+                  icon: const Icon(Icons.logout),
+                  label: const Text('登出'),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

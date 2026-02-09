@@ -5,6 +5,9 @@ class ScoreTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('成績'));
+    return Scaffold(
+      appBar: AppBar(title: const Text('成績')),
+      body: const Center(child: Text('成績')),
+    );
   }
 }
