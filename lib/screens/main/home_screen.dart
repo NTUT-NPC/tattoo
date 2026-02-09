@@ -17,6 +17,20 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  static const _tabScaffoldConfigs = <({String title, bool showDefaultAppBar})>[
+    (title: '課表', showDefaultAppBar: false),
+    (title: '成績', showDefaultAppBar: true),
+    (title: '我', showDefaultAppBar: false),
+  ];
+
+  ({String title, bool showDefaultAppBar}) get _currentTabScaffoldConfig {
+    final index = widget.navigationShell.currentIndex;
+    if (index >= 0 && index < _tabScaffoldConfigs.length) {
+      return _tabScaffoldConfigs[index];
+    }
+    return (title: '', showDefaultAppBar: false);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +57,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final currentTabConfig = _currentTabScaffoldConfig;
+
     return Scaffold(
+      appBar: currentTabConfig.showDefaultAppBar
+          ? AppBar(title: Text(currentTabConfig.title))
+          : null,
       body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(
         destinations: const <NavigationDestination>[
