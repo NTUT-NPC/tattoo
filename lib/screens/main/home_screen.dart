@@ -44,8 +44,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Handle keyboeard and Appbar in tab scaffold
-      resizeToAvoidBottomInset: false,
       body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(
         destinations: const <NavigationDestination>[

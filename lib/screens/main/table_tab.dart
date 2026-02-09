@@ -5,8 +5,6 @@ class TableTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SafeArea(child: Center(child: Text('課表'))),
-    );
+    return SafeArea(child: Center(child: Text('課表')));
   }
 }
