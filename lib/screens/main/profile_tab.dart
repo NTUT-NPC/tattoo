@@ -7,10 +7,14 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/home_providers.dart';
 
-final _placeholderProfile = UserWithStudent(
-  User(id: 0, student: 0, avatarFilename: '', email: 't000000000@ntut.edu.tw'),
-  Student(id: 0, studentId: '000000000', name: 'John Doe'),
+const _placeholderProfile = UserProfile(
+  id: 0,
+  avatarFilename: '',
+  email: 't000000000@ntut.edu.tw',
+  studentId: '000000000',
+  name: 'John Doe',
 );
 
 class ProfileTab extends ConsumerWidget {
@@ -83,7 +87,7 @@ class _ProfileCard extends ConsumerWidget {
 class _ProfileContent extends StatelessWidget {
   const _ProfileContent({required this.profile, this.avatarFile});
 
-  final UserWithStudent profile;
+  final UserProfile profile;
   final File? avatarFile;
 
   @override
@@ -100,7 +104,7 @@ class _ProfileContent extends StatelessWidget {
             backgroundImage: avatarFile != null ? FileImage(avatarFile!) : null,
             child: avatarFile == null
                 ? Text(
-                    switch (profile.student.name) {
+                    switch (profile.name) {
                       final n? when n.isNotEmpty => n.substring(0, 1),
                       _ => '?',
                     },
@@ -118,17 +122,17 @@ class _ProfileContent extends StatelessWidget {
             spacing: 4,
             children: [
               Text(
-                profile.student.name ?? '未知',
+                profile.name ?? '未知',
                 style: theme.textTheme.titleLarge,
               ),
               Text(
-                profile.student.studentId,
+                profile.studentId,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
               Text(
-                profile.user.email,
+                profile.email,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
