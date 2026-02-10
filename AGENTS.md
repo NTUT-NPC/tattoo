@@ -4,11 +4,12 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-02-09. If stale (>30 days), verify Status section against codebase.
+**Last updated:** 2026-02-10. If stale (>30 days), verify Status section against codebase.
 
 ## Status
 
 **Done:**
+
 - PortalService (auth+SSO), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
 - StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking)
 - HTTP utils, InvalidCookieFilter interceptor
@@ -19,9 +20,10 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json`)
 - AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage)
 - go_router navigation setup
-- UI: intro screen, login screen, home screen with profile display
+- UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile). Uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
 
 **Todo - Service Layer:**
+
 - ISchoolPlusService: getCourseAnnouncement, getCourseAnnouncementDetail, courseSubscribe, getCourseSubscribe, getSubscribeNotice
 - CourseService: getDepartmentMap, getCourseCategory
 - CourseService (English): Parse English Course System (`/course/en/`) for English names (courses, teachers, syllabus)
@@ -40,10 +42,12 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - PortalService: getCalendar, changePassword
 
 **Todo - Repository Layer:**
+
 - Implement CourseRepository methods (schedules, materials, rosters, caching)
 - StudentRepository stub and implementation (grades, GPA, rankings)
 
 **Todo - App:**
+
 - UI: course table, course detail, scores
 - i18n (zh_TW, en_US)
 - File downloads (progress tracking, notifications, cancellation)
@@ -56,12 +60,14 @@ MVVM pattern with Riverpod for DI and reactive state:
 - Repositories encapsulate business logic, coordinate Services (HTTP) and Database (Drift)
 
 **Structure:**
+
 - `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType, ScoreStatus)
 - `lib/repositories/` - Repository class + constructor provider (DI wiring)
 - `lib/services/` - HTTP clients, parse responses, return DTOs (as records)
 - `lib/database/` - Drift schema and database class
 - `lib/utils/` - HTTP utilities (cookie jar, interceptors)
 - `lib/components/` - Reusable UI widgets (AppSkeleton)
+- `lib/router/` - go_router config and AnimatedShellContainer for tab transitions
 - `lib/screens/` - Screen widgets organized by feature (welcome/, main/)
 
 **Provider placement:**
@@ -71,16 +77,19 @@ MVVM pattern with Riverpod for DI and reactive state:
 - Repository classes take framework-agnostic dependencies (callbacks, not Riverpod notifiers)
 
 **Data Flow Pattern (per Flutter's architecture guide):**
+
 - Services return DTOs as records (denormalized, as-parsed from HTML)
 - Repositories transform DTOs → normalized DB → return DTOs or domain models
 - UI consumes domain models (Drift entities or custom query result classes)
 - Repositories handle impedance mismatch between service data and DB structure
 
 **Terminology:**
+
 - **DTOs**: Dart records defined in service files - lightweight data transfer objects
 - **Domain models**: Drift entities, Drift view data classes, or custom query result classes - what UI consumes
 
 **Services:**
+
 - PortalService - Portal auth, SSO
 - CourseService - 課程系統 (`aa_0010-oauth`)
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`)
@@ -91,6 +100,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 - DTOs are typedef'd records co-located with service implementation
 
 **Repositories:**
+
 - AuthRepository - User identity, session, profile
 - CourseRepository - Course schedules, catalog, materials, rosters, announcements
 - StudentRepository (TODO) - Grades, GPA, rankings, warnings, graduation status
@@ -101,6 +111,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 ## Database Performance
 
 **Indexing Strategy:**
+
 - Avoid premature optimization - this is a personal data app with small datasets (~60-70 courses per student)
 - Current indexes are minimal and focused on existing query patterns
 - **When to add new indexes:** When implementing a new feature that introduces SQL queries filtering/joining on non-indexed columns
@@ -127,6 +138,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 All available SSO service codes from nportal.ntut.edu.tw (50 total):
 
 #### 教務系統 (Academic Affairs - aa)
+
 - `aa_0010-oauth` - 課程系統 (Course System)
 - `aa_003_LB_oauth` - 學業成績查詢專區 (Grade Inquiry) - redirects to `sa_003_oauth`
 - `aa_003_oauth` - 學業成績查詢專區[二機] (Grade Inquiry - Server 2) - redirects to `sa_003_oauth`
@@ -154,6 +166,7 @@ All available SSO service codes from nportal.ntut.edu.tw (50 total):
 - `ezcard_oauth` - 學生證掛失及補發系統 (Student ID Loss Report)
 
 #### 學務系統 (Student Affairs - sa)
+
 - `sa_003_oauth` - 學生查詢專區 (Student Inquiry)
 - `sa_005` - 學生停車證申請系統 (Parking Permit)
 - `sa_007_oauth` - 學生宿舍登錄（抽籤）系統 (Dormitory Registration)
@@ -167,27 +180,33 @@ All available SSO service codes from nportal.ntut.edu.tw (50 total):
 - `Counselors_Activity_System_oauth` - 入班輔導活動系統 (Class Counseling Activity)
 
 #### 總務系統 (General Affairs - ga)
+
 - `ga_008_oauth` - 建物與設備維修通報單錄案系統 (Facility Maintenance Report)
 - `ga_ghs_oauth` - 化學物質GHS管理系統 (Chemical GHS Management)
 - `OnlinePayment_oauth` - 線上繳費系統 (Online Payment)
 
 #### 研發系統 (Research & Development - rd)
+
 - `rd_001_oauth` - 教師評鑑及基本資料庫 (Faculty Evaluation)
 - `rd_003` - 產學合作資訊系統 (Industry-University Cooperation)
 - `rnd-rs-oauth` - 研究獎助生申請系統 (Research Assistant)
 - `rd_aes_oauth` - 學術倫理管理系統 (Academic Ethics)
 
 #### 人事系統 (Personnel - per)
+
 - `per_001_oauth` - 網路投票系統 (Online Voting)
 
 #### 資訊服務 (Information Services - inf)
+
 - `ipmac_oauth` - 網路與資訊安全管理系統 (Network & Info Security)
 - `inf_vcp_oauth` - 北科 VCP-AI 運算平台 (VCP-AI Computing Platform)
 - `inf001_oauth` - 校園授權軟體 (Campus Licensed Software)
 
 #### 圖書館系統 (Library - lib)
+
 - `lib_002_oauth2` - 圖書館入口網站 (Library Portal)
 
 #### 其他 (Other)
+
 - `zimbrasso_oauth` - 電子郵件 / 網路郵局WebMail (Email)
 - `test_postman` - 臺北科大小郵差 (NTUT Postman)
