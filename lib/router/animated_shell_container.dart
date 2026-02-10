@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:animations/animations.dart';
 
 /// Handles tab switch animation and preserves state of each branch.
 class AnimatedShellContainer extends StatefulWidget {
@@ -17,6 +18,9 @@ class AnimatedShellContainer extends StatefulWidget {
 
 class _AnimatedShellContainerState extends State<AnimatedShellContainer>
     with SingleTickerProviderStateMixin {
+  static const _alwaysCompleteAnimation = AlwaysStoppedAnimation<double>(1);
+  static const _alwaysDismissedAnimation = AlwaysStoppedAnimation<double>(0);
+
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 200),
@@ -65,10 +69,15 @@ class _AnimatedShellContainerState extends State<AnimatedShellContainer>
 
     if (isAnimating) {
       if (isCurrent) {
-        child = FadeTransition(opacity: _controller, child: child);
+        child = FadeThroughTransition(
+          animation: _controller,
+          secondaryAnimation: _alwaysDismissedAnimation,
+          child: child,
+        );
       } else if (isPrevious) {
-        child = FadeTransition(
-          opacity: ReverseAnimation(_controller),
+        child = FadeThroughTransition(
+          animation: _alwaysCompleteAnimation,
+          secondaryAnimation: _controller,
           child: child,
         );
       }
