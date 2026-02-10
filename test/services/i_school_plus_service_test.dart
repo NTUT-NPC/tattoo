@@ -60,13 +60,10 @@ void main() {
       portalService = PortalService();
       iSchoolPlusService = ISchoolPlusService();
 
-      // Reuse existing session if available
-      if (!await portalService.isLoggedIn()) {
-        await portalService.login(
-          TestCredentials.username,
-          TestCredentials.password,
-        );
-      }
+      await portalService.login(
+        TestCredentials.username,
+        TestCredentials.password,
+      );
       await portalService.sso(PortalServiceCode.iSchoolPlusService);
 
       await respectfulDelay();

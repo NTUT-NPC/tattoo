@@ -18,13 +18,10 @@ void main() {
       portalService = PortalService();
       courseService = CourseService();
 
-      // Reuse existing session if available
-      if (!await portalService.isLoggedIn()) {
-        await portalService.login(
-          TestCredentials.username,
-          TestCredentials.password,
-        );
-      }
+      await portalService.login(
+        TestCredentials.username,
+        TestCredentials.password,
+      );
       await portalService.sso(PortalServiceCode.courseService);
 
       await respectfulDelay();

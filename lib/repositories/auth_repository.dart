@@ -70,10 +70,8 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 /// // Login
 /// final user = await auth.login('111360109', 'password');
 ///
-/// // Check session
-/// if (await auth.isLoggedIn()) {
-///   final user = await auth.getCurrentUser();
-/// }
+/// // Check local session
+/// final user = await auth.getCurrentUser();
 /// ```
 class AuthRepository {
   final PortalService _portalService;
