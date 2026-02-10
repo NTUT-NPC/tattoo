@@ -29,7 +29,7 @@ runs:
           echo "::error::Flutter version has changed to $FLUTTER_VERSION. Please update cache paths accordingly."
           exit 1
         fi
-        echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_ENV
+        echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_OUTPUT
 
     - name: Setup Gradle cache
       if: ${{ inputs.platform == 'android' }}
