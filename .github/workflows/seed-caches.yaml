@@ -32,4 +32,4 @@ jobs:
           platform: ios
 
       - name: Warm CocoaPods cache
-        run: cd ios && pod install
+        run: cd ios && bundle exec pod install
