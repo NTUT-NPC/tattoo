@@ -106,6 +106,35 @@ class PortalService {
     return body["success"] == true;
   }
 
+  /// Changes the user's NTUT Portal password.
+  ///
+  /// Requires an active session (call [login] first).
+  ///
+  /// Throws an [Exception] if the password change fails (e.g., incorrect
+  /// current password or the new password doesn't meet requirements).
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final response = await _portalDio.post(
+      'passwordMdy.do',
+      queryParameters: {
+        "oldPassword": currentPassword,
+        "userPassword": newPassword,
+        "pwdForceMdy": "profile",
+      },
+    );
+
+    final body = jsonDecode(response.data);
+
+    // API returns "success": "false" on failure (note the string "false")
+    if (body['success'] != true) {
+      throw Exception(
+        body['returnMsg'] ?? 'Password change failed. Please try again.',
+      );
+    }
+  }
+
   /// Fetches a user's profile photo from NTUT Portal.
   ///
   /// The [filename] should be obtained from the `avatarFilename` field of

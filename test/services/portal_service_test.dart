@@ -118,6 +118,29 @@ void main() {
       });
     });
 
+    group('changePassword', () {
+      test('should throw exception with wrong current password', () async {
+        await portalService.login(
+          TestCredentials.username,
+          TestCredentials.password,
+        );
+
+        expect(
+          () => portalService.changePassword('wrong_password', 'new_password'),
+          throwsException,
+        );
+      });
+
+      test('should throw exception when not logged in', () async {
+        await cookieJar.deleteAll();
+
+        expect(
+          () => portalService.changePassword('any', 'any'),
+          throwsException,
+        );
+      });
+    });
+
     group('sso', () {
       test('should successfully authenticate with courseService', () async {
         await portalService.login(

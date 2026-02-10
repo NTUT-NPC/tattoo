@@ -10,7 +10,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 **Done:**
 
-- PortalService (auth+SSO), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
+- PortalService (auth+SSO, changePassword), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
 - StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking)
 - HTTP utils, InvalidCookieFilter interceptor
 - Drift database schema with all tables
@@ -39,7 +39,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
   - getClassAndMentor (註冊編班與導師查詢)
   - updateContactInfo (維護個人聯絡資料)
   - getGraduationQualifications (查詢畢業資格審查)
-- PortalService: getCalendar, changePassword
+- PortalService: getCalendar
 
 **Todo - Repository Layer:**
 
