@@ -96,16 +96,6 @@ class PortalService {
     );
   }
 
-  /// Checks if the current session is authenticated with NTUT Portal.
-  ///
-  /// Returns `true` if a valid JSESSIONID cookie exists and the session is active,
-  /// `false` otherwise.
-  Future<bool> isLoggedIn() async {
-    final response = await _portalDio.get('sessionCheckApp.do');
-    final body = jsonDecode(response.data);
-    return body["success"] == true;
-  }
-
   /// Changes the user's NTUT Portal password.
   ///
   /// Requires an active session (call [login] first).

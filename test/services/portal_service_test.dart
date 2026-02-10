@@ -72,26 +72,6 @@ void main() {
       });
     });
 
-    group('isLoggedIn', () {
-      test('should return true after successful login', () async {
-        await portalService.login(
-          TestCredentials.username,
-          TestCredentials.password,
-        );
-
-        final isLoggedIn = await portalService.isLoggedIn();
-        expect(isLoggedIn, isTrue);
-      });
-
-      test('should return false when cookies are cleared', () async {
-        // Clear the global cookie jar to simulate logged out state
-        await cookieJar.deleteAll();
-
-        final isLoggedIn = await portalService.isLoggedIn();
-        expect(isLoggedIn, isFalse);
-      });
-    });
-
     group('getAvatar', () {
       test('should download avatar data', () async {
         final user = await portalService.login(

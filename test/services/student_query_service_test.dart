@@ -19,12 +19,10 @@ void main() {
       portalService = PortalService();
       studentQueryService = StudentQueryService();
 
-      if (!await portalService.isLoggedIn()) {
-        await portalService.login(
-          TestCredentials.username,
-          TestCredentials.password,
-        );
-      }
+      await portalService.login(
+        TestCredentials.username,
+        TestCredentials.password,
+      );
       await portalService.sso(PortalServiceCode.studentQueryService);
 
       await respectfulDelay();
