@@ -102,7 +102,7 @@ typedef GradeRankingDto = ({
 
 /// Student status (學籍基本資料) from the basis data page.
 typedef StudentProfileDto = ({
-  String chineseName,
+  String? chineseName,
   String? englishName,
   DateTime? dateOfBirth,
   String? programZh,
@@ -188,7 +188,7 @@ class StudentQueryService {
     );
 
     return (
-      chineseName: fields['Chinese Name'] ?? '',
+      chineseName: fields['Chinese Name'],
       englishName: fields['English Name'],
       dateOfBirth: dateOfBirth,
       programZh: programZh,
