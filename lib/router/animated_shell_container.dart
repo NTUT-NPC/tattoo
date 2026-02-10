@@ -18,9 +18,6 @@ class AnimatedShellContainer extends StatefulWidget {
 
 class _AnimatedShellContainerState extends State<AnimatedShellContainer>
     with SingleTickerProviderStateMixin {
-  static const _alwaysCompleteAnimation = AlwaysStoppedAnimation<double>(1);
-  static const _alwaysDismissedAnimation = AlwaysStoppedAnimation<double>(0);
-
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 200),
@@ -71,12 +68,12 @@ class _AnimatedShellContainerState extends State<AnimatedShellContainer>
       if (isCurrent) {
         child = FadeThroughTransition(
           animation: _controller,
-          secondaryAnimation: _alwaysDismissedAnimation,
+          secondaryAnimation: kAlwaysDismissedAnimation,
           child: child,
         );
       } else if (isPrevious) {
         child = FadeThroughTransition(
-          animation: _alwaysCompleteAnimation,
+          animation: kAlwaysCompleteAnimation,
           secondaryAnimation: _controller,
           child: child,
         );
