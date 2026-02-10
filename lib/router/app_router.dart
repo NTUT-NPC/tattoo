@@ -1,9 +1,9 @@
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/router/animated_shell_container.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
-import 'package:tattoo/screens/main/profile_tab.dart';
-import 'package:tattoo/screens/main/score_tab.dart';
-import 'package:tattoo/screens/main/table_tab.dart';
+import 'package:tattoo/screens/main/profile/profile_screen.dart';
+import 'package:tattoo/screens/main/score/score_screen.dart';
+import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
 

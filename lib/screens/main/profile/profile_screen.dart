@@ -7,7 +7,7 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/screens/main/home_providers.dart';
+import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 const _placeholderProfile = UserProfile(
   id: 0,
