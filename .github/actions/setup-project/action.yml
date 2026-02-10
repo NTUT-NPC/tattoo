@@ -29,7 +29,7 @@ runs:
           echo "::error::Flutter version has changed to $FLUTTER_VERSION. Please update cache paths accordingly."
           exit 1
         fi
-        echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_ENV
+        echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_OUTPUT
 
     - name: Setup Gradle cache
       if: ${{ inputs.platform == 'android' }}
@@ -63,6 +63,15 @@ runs:
       uses: ruby/setup-ruby@8d27f39a5e7ad39aebbcbd1324f7af020229645c # v1.287.0
       with:
         bundler-cache: true
+
+    - name: Setup CocoaPods cache
+      if: ${{ inputs.platform == 'ios' }}
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
+      with:
+        key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+        path: ios/Pods
+        restore-keys: |
+          ${{ runner.os }}-pods-
 
     - name: Setup Flutter pub cache
       uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
