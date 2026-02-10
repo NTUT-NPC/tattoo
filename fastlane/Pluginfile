@@ -7,6 +7,7 @@
 # - Add missing directory creation before keystore generation
 gem 'fastlane-plugin-match_keystore',
   git: 'https://github.com/rileychh/fastlane-plugin-match_keystore', 
-  branch: 'fix-keystore-directory'
+  # branch: 'fix-windows-support'
+  ref: '1fda95ce417ad5b7cd2fe4cb483640d37f03476d'
 
 gem 'fastlane-plugin-flutter'
