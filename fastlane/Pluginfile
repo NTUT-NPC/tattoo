@@ -7,3 +7,4 @@ gem 'fastlane-plugin-match_keystore',
   git: 'https://github.com/NTUT-NPC/fastlane-plugin-match_keystore'
 
 gem 'fastlane-plugin-flutter'
+gem 'fastlane-plugin-firebase_app_distribution'
