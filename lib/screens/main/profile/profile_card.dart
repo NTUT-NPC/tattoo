@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tattoo/components/app_skeleton.dart';
@@ -29,8 +30,35 @@ class ProfileCard extends ConsumerWidget {
       ),
       error: (error, _) => Center(child: Text('Error: $error')),
       data: (profile) {
+        // profile = null;
         if (profile == null) {
-          return const Text('未登入');
+          return AspectRatio(
+            aspectRatio: 1016 / 638,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // final width = constraints.maxWidth;
+                final height = constraints.maxHeight;
+                final borderRadius = BorderRadius.circular(height * 0.07);
+
+                return DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: borderRadius,
+                    color: Color(0xFFF2F2F2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        blurRadius: 16.0,
+                        offset: Offset(0.0, 4.0),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text('未登入'),
+                  ),
+                );
+              },
+            ),
+          );
         }
         return ProfileContent(
           profile: profile,
@@ -66,6 +94,7 @@ class ProfileContent extends StatelessWidget {
 
           return DecoratedBox(
             decoration: BoxDecoration(
+              color: Color(0xFFF2F2F2),
               borderRadius: borderRadius,
               boxShadow: [
                 BoxShadow(
