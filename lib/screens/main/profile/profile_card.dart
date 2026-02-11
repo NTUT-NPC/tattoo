@@ -40,7 +40,7 @@ class ProfileCard extends ConsumerWidget {
           child: ProfileContent(profile: _placeholderProfile),
         ),
         error: (error, _) => _ProfileCardFrame(
-          childBuilder: (context, _, __) => Center(
+          childBuilder: (context, _, _) => Center(
             child: Text('Error: $error'),
           ),
         ),
