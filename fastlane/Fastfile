@@ -79,22 +79,20 @@ end
 platform :android do
   desc "Build and sign release APK"
   lane :build_apk do
-    output_files = flutter_build(
+    match_keystore(skip_signing: true)
+
+    flutter_build(
       build: "apk",
       build_args: "--split-per-abi"
     )
-
-    output_files.each do |output_file|
-      match_keystore(apk_path: output_file)
-    end
   end
 
   desc "Build and sign release AAB"
   lane :build_aab do
-    output_file = flutter_build(
+    match_keystore(skip_signing: true)
+
+    flutter_build(
       build: "appbundle",
     )
-
-    match_keystore(aab_path: output_file)
   end
 end

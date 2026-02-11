@@ -27,10 +27,22 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file(System.getenv("MATCH_KEYSTORE_PATH") ?: "")
+            storePassword = System.getenv("MATCH_KEYSTORE_PASSWORD") ?: ""
+            keyAlias = System.getenv("MATCH_KEYSTORE_ALIAS_NAME") ?: ""
+            keyPassword = System.getenv("MATCH_KEYSTORE_ALIAS_PASSWORD") ?: ""
+        }
+    }
+
     buildTypes {
         release {
-            // Built unsigned - fastlane match_keystore signs the final APK
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (System.getenv("MATCH_KEYSTORE_PATH").isNullOrEmpty()) {
+                signingConfigs.getByName("debug")
+            } else {
+                signingConfigs.getByName("release")
+            }
         }
     }
 }
