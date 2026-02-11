@@ -78,6 +78,7 @@ jobs:
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           FIREBASE_APP_ID_ANDROID: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.SUPPLY_JSON_KEY_DATA }}
         run: |
           bundle exec fastlane android upload_pr_preview \
             build_number:${{ needs.prepare.outputs.build_number }} \
