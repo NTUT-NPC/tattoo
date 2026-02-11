@@ -14,34 +14,11 @@
 # update_fastlane
 
 platform :ios do
-  desc "Build and sign release IPA"
-  lane :build_ipa do
-    setup_ci if is_ci
-
-    match(
-      type: "development",
-      readonly: is_ci
-    )
-
-    flutter_build(
-      build: "ipa",
-    )
-  end
-
-  desc "Build and upload PR preview to TestFlight Internal Testing"
+  desc "Build and upload PR preview to TestFlight"
   lane :upload_pr_preview do |options|
-    build_number = options[:build_number] || 1
-    pr_number = options[:pr_number] || "unknown"
-    pr_title = options[:pr_title] || ""
-    commit_sha = options[:commit_sha] || ""
-    commit_message = options[:commit_message] || ""
-
     setup_ci if is_ci
 
-    sync_code_signing(
-      type: "appstore",
-      readonly: is_ci,
-    )
+    sync_code_signing(type: "appstore", readonly: is_ci)
 
     update_code_signing_settings(
       path: "ios/Runner.xcodeproj",
@@ -50,10 +27,9 @@ platform :ios do
       profile_name: "match AppStore club.ntut.tattoo",
     )
 
-    # Build and create xcarchive without code signing
     archive_path = flutter_build(
       build: "ipa",
-      build_number: build_number,
+      build_number: options[:build_number],
       build_args: ["--no-codesign"],
     )
 
@@ -61,37 +37,75 @@ platform :ios do
       skip_build_archive: true,
       archive_path: archive_path,
       export_team_id: ENV["FASTLANE_TEAM_ID"],
-      suppress_xcode_output: true,
-    )
-
-    app_store_connect_api_key(
-      is_key_content_base64: true,
     )
 
     upload_to_testflight(
-      skip_waiting_for_build_processing: is_ci,
-      changelog: "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
+      skip_waiting_for_build_processing: true,
+      changelog: "PR ##{options[:pr_number]}: #{options[:pr_title]}",
+    )
+  end
+
+  desc "Build and upload official release to TestFlight/App Store"
+  lane :upload_main do |options|
+    setup_ci if is_ci
+    sync_code_signing(type: "appstore", readonly: is_ci)
+    
+    flutter_build(
+      build: "ipa",
+      build_number: options[:build_number],
+      build_version: options[:build_version]
+    )
+
+    upload_to_testflight(
+      submit_for_review: true,
+      automatic_release: true
     )
   end
 end
 
 platform :android do
-  desc "Build and sign release APK"
-  lane :build_apk do
-    match_keystore(skip_signing: true)
+  # Shared keystore configuration
+  def keystore_config
+    {
+      git_url: ENV["MATCH_GIT_URL"],
+      package_name: "club.ntut.tattoo",
+      match_secret: ENV["MATCH_PASSWORD"]
+    }
+  end
 
-    flutter_build(
+  desc "Build and upload PR preview to Firebase App Distribution"
+  lane :upload_pr_preview do |options|
+    # Sign APK for PR previews so they can be installed as updates
+    match_keystore(**keystore_config)
+
+    output_files = flutter_build(
       build: "apk",
-      build_args: "--split-per-abi"
+      build_number: options[:build_number],
+      build_args: "--release"
+    )
+
+    firebase_app_distribution(
+      app: ENV["FIREBASE_APP_ID_ANDROID"],
+      groups: "testers",
+      release_notes: "PR ##{options[:pr_number]}: #{options[:pr_title]}",
+      apk_path: output_files.first
     )
   end
 
-  desc "Build and sign release AAB"
-  lane :build_aab do
-    match_keystore(skip_signing: true)
+  desc "Build and upload official release to Google Play Internal Track"
+  lane :upload_main do |options|
+    match_keystore(**keystore_config)
 
-    flutter_build(
+    output_file = flutter_build(
       build: "appbundle",
+      build_number: options[:build_number],
+      build_version: options[:build_version],
+      build_args: "--release"
+    )
+
+    upload_to_play_store(
+      track: "internal",
+      aab: output_file
     )
   end
 end
