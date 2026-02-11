@@ -50,11 +50,49 @@ mixin Fetchable on Table {
 // Base Tables
 // -----------
 
-/// Student information.
+/// Authenticated user's account and profile from the NTUT portal.
 ///
-/// Represents students enrolled at NTUT. Data can be fetched from:
-/// - Portal profiles
-/// - I-School Plus student leaderboards
+/// Data sources:
+/// - PortalService.login() — studentId, name, avatar, email, password expiry
+/// - StudentQueryService.getStudentProfile() — full profile (fetchedAt)
+class Users extends Table with AutoIncrementId, Fetchable {
+  /// Unique student ID (學號).
+  late final studentId = text().unique()();
+
+  /// Student's name in Chinese.
+  late final nameZh = text()();
+
+  /// Student's name in English.
+  late final nameEn = text().nullable()();
+
+  /// Student's date of birth.
+  late final dateOfBirth = dateTime().nullable()();
+
+  /// Program name in Chinese (e.g., "四技日間").
+  late final programZh = text().nullable()();
+
+  /// Program name in English (e.g., "4-Year Undergraduate Program").
+  late final programEn = text().nullable()();
+
+  /// Department name in Chinese (e.g., "電子工程系").
+  late final departmentZh = text().nullable()();
+
+  /// Department name in English (e.g., "Electronic Engineering").
+  late final departmentEn = text().nullable()();
+
+  /// Filename of the user's avatar image stored locally.
+  late final avatarFilename = text()();
+
+  /// User's email address.
+  late final email = text()();
+
+  /// Number of days until the user's password expires.
+  ///
+  /// Null if password expiration is not enforced or unknown.
+  late final passwordExpiresInDays = integer().nullable()();
+}
+
+/// Student seen in an I-School Plus course roster.
 class Students extends Table with AutoIncrementId {
   /// Unique student ID (學號).
   late final studentId = text().unique()();
@@ -218,26 +256,6 @@ class Classrooms extends Table with AutoIncrementId, Fetchable {
 // Tables with foreign keys to base tables
 // ---------------------------------------
 
-/// User account information from the NTUT portal.
-///
-/// Represents the authenticated user's account details and profile.
-@TableIndex(name: 'user_student', columns: {#student})
-class Users extends Table with AutoIncrementId {
-  /// Reference to the student record associated with this user account.
-  late final student = integer().references(Students, #id)();
-
-  /// Filename of the user's avatar image stored locally.
-  late final avatarFilename = text()();
-
-  /// User's email address.
-  late final email = text()();
-
-  /// Number of days until the user's password expires.
-  ///
-  /// Null if password expiration is not enforced or unknown.
-  late final passwordExpiresInDays = integer().nullable()();
-}
-
 /// Specific offering of a course in a particular semester.
 ///
 /// Represents a course section (班級) in a specific semester with its
@@ -393,10 +411,10 @@ class Schedules extends Table with AutoIncrementId {
 ///
 /// Each row represents one course's grade for a student in a semester.
 /// Data source: StudentQueryService.getAcademicPerformance()
-@TableIndex(name: 'score_student', columns: {#student})
+@TableIndex(name: 'score_user', columns: {#user})
 class Scores extends Table with AutoIncrementId {
-  /// Reference to the student who received this score.
-  late final student = integer().references(Students, #id)();
+  /// Reference to the authenticated user who received this score.
+  late final user = integer().references(Users, #id)();
 
   /// Reference to the semester this score belongs to.
   late final semester = integer().references(Semesters, #id)();
@@ -420,11 +438,11 @@ class Scores extends Table with AutoIncrementId {
 
   @override
   List<Set<Column>> get uniqueKeys => [
-    {student, course, semester},
+    {user, course, semester},
   ];
 }
 
-/// Per-student per-semester academic summary from the student query system.
+/// Per-user per-semester academic summary from the student query system.
 ///
 /// Stores aggregate statistics like weighted average, conduct grade, and
 /// credits for each semester, as well as registration status information.
@@ -432,11 +450,11 @@ class Scores extends Table with AutoIncrementId {
 /// Data sources:
 /// - StudentQueryService.getAcademicPerformance() — scores and averages
 /// - StudentQueryService.getRegistrationRecords() — registration status
-/// - StudentQueryService.getGradeRanking() — rankings (via [StudentSemesterRankings])
-@TableIndex(name: 'student_semester_summary_student', columns: {#student})
-class StudentSemesterSummaries extends Table with AutoIncrementId {
-  /// Reference to the student.
-  late final student = integer().references(Students, #id)();
+/// - StudentQueryService.getGradeRanking() — rankings (via [UserSemesterRankings])
+@TableIndex(name: 'user_semester_summary_user', columns: {#user})
+class UserSemesterSummaries extends Table with AutoIncrementId {
+  /// Reference to the authenticated user.
+  late final user = integer().references(Users, #id)();
 
   /// Reference to the semester.
   late final semester = integer().references(Semesters, #id)();
@@ -471,17 +489,17 @@ class StudentSemesterSummaries extends Table with AutoIncrementId {
 
   @override
   List<Set<Column>> get uniqueKeys => [
-    {student, semester},
+    {user, semester},
   ];
 }
 
-/// Junction table linking student semester summaries to their tutors.
+/// Junction table linking user semester summaries to their tutors.
 ///
-/// A student may have multiple tutors (導師) in a semester.
+/// A user may have multiple tutors (導師) in a semester.
 /// Data source: StudentQueryService.getRegistrationRecords()
-class StudentSemesterSummaryTutors extends Table {
-  /// Reference to the student semester summary.
-  late final summary = integer().references(StudentSemesterSummaries, #id)();
+class UserSemesterSummaryTutors extends Table {
+  /// Reference to the user semester summary.
+  late final summary = integer().references(UserSemesterSummaries, #id)();
 
   /// Reference to the teacher serving as tutor.
   late final teacher = integer().references(Teachers, #id)();
@@ -490,14 +508,14 @@ class StudentSemesterSummaryTutors extends Table {
   Set<Column> get primaryKey => {summary, teacher};
 }
 
-/// Class cadre roles held by a student in a semester.
+/// Class cadre roles held by the user in a semester.
 ///
-/// Each row represents one cadre role (e.g., "班代", "副班代") for a
-/// student in a particular semester.
+/// Each row represents one cadre role (e.g., "班代", "副班代") for the
+/// user in a particular semester.
 /// Data source: StudentQueryService.getRegistrationRecords()
-class StudentSemesterSummaryCadreRoles extends Table with AutoIncrementId {
-  /// Reference to the student semester summary.
-  late final summary = integer().references(StudentSemesterSummaries, #id)();
+class UserSemesterSummaryCadreRoles extends Table with AutoIncrementId {
+  /// Reference to the user semester summary.
+  late final summary = integer().references(UserSemesterSummaries, #id)();
 
   /// Cadre role title (e.g., "班代", "副班代").
   late final role = text()();
@@ -508,13 +526,13 @@ class StudentSemesterSummaryCadreRoles extends Table with AutoIncrementId {
   ];
 }
 
-/// Grade ranking data for a student in a semester at a given scope.
+/// Grade ranking data for the user in a semester at a given scope.
 ///
-/// Each student-semester has up to 3 rows: class, group, and department.
+/// Each user-semester has up to 3 rows: class, group, and department.
 /// Data source: StudentQueryService.getGradeRanking()
-class StudentSemesterRankings extends Table {
-  /// Reference to the student semester summary.
-  late final summary = integer().references(StudentSemesterSummaries, #id)();
+class UserSemesterRankings extends Table {
+  /// Reference to the user semester summary.
+  late final summary = integer().references(UserSemesterSummaries, #id)();
 
   /// The scope of this ranking (class, group, or department).
   late final rankingType = textEnum<RankingType>()();

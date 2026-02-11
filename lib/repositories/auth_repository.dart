@@ -105,27 +105,13 @@ class AuthRepository {
     _onAuthStatusChanged(AuthStatus.authenticated);
 
     return _database.transaction(() async {
-      // Upsert student record (studentId has UNIQUE constraint)
-      final student = await _database
-          .into(_database.students)
-          .insertReturning(
-            StudentsCompanion.insert(
-              studentId: username,
-              name: Value(userDto.name),
-            ),
-            onConflict: DoUpdate(
-              (old) => StudentsCompanion(name: Value(userDto.name)),
-              target: [_database.students.studentId],
-            ),
-          );
-
-      // Clear existing user (single-user app) and insert new user record
       await _database.delete(_database.users).go();
       return _database
           .into(_database.users)
           .insertReturning(
             UsersCompanion.insert(
-              student: student.id,
+              studentId: username,
+              nameZh: userDto.name ?? '',
               avatarFilename: userDto.avatarFilename ?? '',
               email: userDto.email ?? '',
               passwordExpiresInDays: Value(userDto.passwordExpiresInDays),
@@ -209,13 +195,6 @@ class AuthRepository {
   /// Returns `null` if not logged in. Does not make network requests.
   Future<User?> getCurrentUser() async {
     return _database.select(_database.users).getSingleOrNull();
-  }
-
-  /// Gets the current user's profile with student data.
-  ///
-  /// Returns `null` if not logged in. Does not make network requests.
-  Future<UserProfile?> getUserProfile() async {
-    return _database.select(_database.userProfiles).getSingleOrNull();
   }
 
   /// Gets the current user's avatar image, with local caching.

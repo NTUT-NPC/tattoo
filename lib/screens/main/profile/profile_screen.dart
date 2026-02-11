@@ -9,12 +9,12 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
-const _placeholderProfile = UserProfile(
+const _placeholderProfile = User(
   id: 0,
+  studentId: '000000000',
+  nameZh: 'John Doe',
   avatarFilename: '',
   email: 't000000000@ntut.edu.tw',
-  studentId: '000000000',
-  name: 'John Doe',
 );
 
 class ProfileTab extends ConsumerWidget {
@@ -87,7 +87,7 @@ class _ProfileCard extends ConsumerWidget {
 class _ProfileContent extends StatelessWidget {
   const _ProfileContent({required this.profile, this.avatarFile});
 
-  final UserProfile profile;
+  final User profile;
   final File? avatarFile;
 
   @override
@@ -104,10 +104,9 @@ class _ProfileContent extends StatelessWidget {
             backgroundImage: avatarFile != null ? FileImage(avatarFile!) : null,
             child: avatarFile == null
                 ? Text(
-                    switch (profile.name) {
-                      final n? when n.isNotEmpty => n.substring(0, 1),
-                      _ => '?',
-                    },
+                    profile.nameZh.isNotEmpty
+                        ? profile.nameZh.substring(0, 1)
+                        : '?',
                     style: TextStyle(
                       fontSize: 24,
                       color: theme.colorScheme.onPrimaryContainer,
@@ -122,7 +121,7 @@ class _ProfileContent extends StatelessWidget {
             spacing: 4,
             children: [
               Text(
-                profile.name ?? '未知',
+                profile.nameZh,
                 style: theme.textTheme.titleLarge,
               ),
               Text(
