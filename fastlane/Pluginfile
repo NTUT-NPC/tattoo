@@ -2,12 +2,8 @@
 #
 # Ensure this file is checked in to source control!
 
-# Use forked version with bug fixes:
-# - Fix OpenSSL version check (reversed comparison)
-# - Add missing directory creation before keystore generation
+# Use forked version with cross-platform fixes and Ruby OpenSSL migration
 gem 'fastlane-plugin-match_keystore',
-  git: 'https://github.com/rileychh/fastlane-plugin-match_keystore', 
-  # branch: 'fix-windows-support'
-  ref: '1fda95ce417ad5b7cd2fe4cb483640d37f03476d'
+  git: 'https://github.com/NTUT-NPC/fastlane-plugin-match_keystore'
 
 gem 'fastlane-plugin-flutter'
