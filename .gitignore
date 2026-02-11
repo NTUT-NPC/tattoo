@@ -59,3 +59,4 @@ test/test_config.json
 # Local Claude files
 /.claude/*.local.*
 /CLAUDE.local.md
+/android/app/google-services.json
