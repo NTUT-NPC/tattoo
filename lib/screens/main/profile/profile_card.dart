@@ -41,7 +41,6 @@ class ProfileCard extends ConsumerWidget {
         ),
         error: (error, _) => Center(child: Text('Error: $error')),
         data: (profile) {
-          // profile = null;
           if (profile == null) {
             return _ProfileCardFrame(
               childBuilder: (context, _, _) => Center(child: Text('未登入')),
