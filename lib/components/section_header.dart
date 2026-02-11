@@ -7,13 +7,14 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        style: theme.textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.primary,
+          color: theme.colorScheme.primary,
         ),
       ),
     );
