@@ -97,20 +97,19 @@ platform :android do
 
   desc "Distribute development build to Firebase App Distribution (Android)"
   lane :upload_dev_firebase do |options|
-    # Ensure APK is signed for Firebase distribution
-    match_keystore(skip_signing: true)
+    match_keystore(**keystore_config)
 
-    output_files = flutter_build(
-      build: "apk",
+    output_file = flutter_build(
+      build: "appbundle",
       build_number: options[:build_number],
-      build_args: "--release --split-per-abi"
+      build_args: "--release"
     )
 
     firebase_app_distribution(
       app: ENV["FIREBASE_APP_ID_ANDROID"],
       groups: "dev-testers", # Ensure this group exists in Firebase Console
       release_notes: "PR ##{options[:pr_number]}: #{options[:pr_title]}",
-      apk_path: output_files.first
+      aab_path: output_file
     )
   end
 end
