@@ -97,7 +97,7 @@ platform :android do
 
   desc "Distribute development build to Firebase App Distribution (Android)"
   lane :upload_dev_firebase do |options|
-    match_keystore(**keystore_config)
+    match_keystore(skip_signing: true)
 
     output_file = flutter_build(
       build: "appbundle",
