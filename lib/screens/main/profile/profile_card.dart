@@ -31,24 +31,28 @@ class ProfileCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(userProfileProvider);
     final avatarAsync = ref.watch(userAvatarProvider);
+    final mediaQuery = MediaQuery.of(context);
 
-    return profileAsync.when(
-      loading: () => const AppSkeleton(
-        child: ProfileContent(profile: _placeholderProfile),
-      ),
-      error: (error, _) => Center(child: Text('Error: $error')),
-      data: (profile) {
-        // profile = null;
-        if (profile == null) {
-          return _ProfileCardFrame(
-            childBuilder: (context, _, _) => Center(child: Text('未登入')),
+    return MediaQuery(
+      data: mediaQuery.copyWith(textScaler: TextScaler.noScaling),
+      child: profileAsync.when(
+        loading: () => const AppSkeleton(
+          child: ProfileContent(profile: _placeholderProfile),
+        ),
+        error: (error, _) => Center(child: Text('Error: $error')),
+        data: (profile) {
+          // profile = null;
+          if (profile == null) {
+            return _ProfileCardFrame(
+              childBuilder: (context, _, _) => Center(child: Text('未登入')),
+            );
+          }
+          return ProfileContent(
+            profile: profile,
+            avatarFile: avatarAsync.value,
           );
-        }
-        return ProfileContent(
-          profile: profile,
-          avatarFile: avatarAsync.value,
-        );
-      },
+        },
+      ),
     );
   }
 }
