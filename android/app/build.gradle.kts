@@ -29,7 +29,7 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(System.getenv("MATCH_KEYSTORE_PATH") ?: "")
+            storeFile = System.getenv("MATCH_KEYSTORE_PATH")?.let { file(it) }
             storePassword = System.getenv("MATCH_KEYSTORE_PASSWORD") ?: ""
             keyAlias = System.getenv("MATCH_KEYSTORE_ALIAS_NAME") ?: ""
             keyPassword = System.getenv("MATCH_KEYSTORE_ALIAS_PASSWORD") ?: ""
