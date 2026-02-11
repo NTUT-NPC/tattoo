@@ -6732,7 +6732,7 @@ class $ScoresTable extends Scores with TableInfo<$ScoresTable, Score> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES users (id)',
+      'REFERENCES users (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _semesterMeta = const VerificationMeta(
@@ -7221,7 +7221,7 @@ class $UserSemesterSummariesTable extends UserSemesterSummaries
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES users (id)',
+      'REFERENCES users (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _semesterMeta = const VerificationMeta(
@@ -7987,7 +7987,7 @@ class $UserSemesterSummaryTutorsTable extends UserSemesterSummaryTutors
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES user_semester_summaries (id)',
+      'REFERENCES user_semester_summaries (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _teacherMeta = const VerificationMeta(
@@ -8241,7 +8241,7 @@ class $UserSemesterSummaryCadreRolesTable extends UserSemesterSummaryCadreRoles
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES user_semester_summaries (id)',
+      'REFERENCES user_semester_summaries (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _roleMeta = const VerificationMeta('role');
@@ -8499,7 +8499,7 @@ class $UserSemesterRankingsTable extends UserSemesterRankings
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES user_semester_summaries (id)',
+      'REFERENCES user_semester_summaries (id) ON DELETE CASCADE',
     ),
   );
   @override
@@ -9233,6 +9233,51 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     scoreUser,
     userSemesterSummaryUser,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'users',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('scores', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'users',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('user_semester_summaries', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'user_semester_summaries',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('user_semester_summary_tutors', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'user_semester_summaries',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate(
+          'user_semester_summary_cadre_roles',
+          kind: UpdateKind.delete,
+        ),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'user_semester_summaries',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('user_semester_rankings', kind: UpdateKind.delete)],
+    ),
+  ]);
 }
 
 typedef $$UsersTableCreateCompanionBuilder =

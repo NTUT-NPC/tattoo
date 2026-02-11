@@ -415,7 +415,11 @@ class Schedules extends Table with AutoIncrementId {
 @TableIndex(name: 'score_user', columns: {#user})
 class Scores extends Table with AutoIncrementId {
   /// Reference to the authenticated user who received this score.
-  late final user = integer().references(Users, #id)();
+  late final user = integer().references(
+    Users,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Reference to the semester this score belongs to.
   late final semester = integer().references(Semesters, #id)();
@@ -455,7 +459,11 @@ class Scores extends Table with AutoIncrementId {
 @TableIndex(name: 'user_semester_summary_user', columns: {#user})
 class UserSemesterSummaries extends Table with AutoIncrementId {
   /// Reference to the authenticated user.
-  late final user = integer().references(Users, #id)();
+  late final user = integer().references(
+    Users,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Reference to the semester.
   late final semester = integer().references(Semesters, #id)();
@@ -500,7 +508,11 @@ class UserSemesterSummaries extends Table with AutoIncrementId {
 /// Data source: StudentQueryService.getRegistrationRecords()
 class UserSemesterSummaryTutors extends Table {
   /// Reference to the user semester summary.
-  late final summary = integer().references(UserSemesterSummaries, #id)();
+  late final summary = integer().references(
+    UserSemesterSummaries,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Reference to the teacher serving as tutor.
   late final teacher = integer().references(Teachers, #id)();
@@ -516,7 +528,11 @@ class UserSemesterSummaryTutors extends Table {
 /// Data source: StudentQueryService.getRegistrationRecords()
 class UserSemesterSummaryCadreRoles extends Table with AutoIncrementId {
   /// Reference to the user semester summary.
-  late final summary = integer().references(UserSemesterSummaries, #id)();
+  late final summary = integer().references(
+    UserSemesterSummaries,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Cadre role title (e.g., "班代", "副班代").
   late final role = text()();
@@ -533,7 +549,11 @@ class UserSemesterSummaryCadreRoles extends Table with AutoIncrementId {
 /// Data source: StudentQueryService.getGradeRanking()
 class UserSemesterRankings extends Table {
   /// Reference to the user semester summary.
-  late final summary = integer().references(UserSemesterSummaries, #id)();
+  late final summary = integer().references(
+    UserSemesterSummaries,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// The scope of this ranking (class, group, or department).
   late final rankingType = textEnum<RankingType>()();
