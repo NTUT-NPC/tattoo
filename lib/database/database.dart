@@ -5,6 +5,7 @@ import 'package:tattoo/database/schema.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
+import 'package:tattoo/models/user.dart';
 
 part 'database.g.dart';
 

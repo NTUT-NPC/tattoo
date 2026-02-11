@@ -3,6 +3,7 @@ import 'package:html/parser.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
+import 'package:tattoo/models/user.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// A single course score entry from the academic performance page.
@@ -57,8 +58,8 @@ typedef RegistrationRecordDto = ({
   /// Student's assigned class name (e.g., "電子四甲").
   String? className,
 
-  /// Enrollment status (e.g., "在學", "休學", "退學").
-  String? enrollmentStatus,
+  /// Enrollment status (在學, 休學, or 退學).
+  EnrollmentStatus? enrollmentStatus,
 
   /// Whether the student is registered for this semester.
   bool registered,
@@ -398,7 +399,7 @@ class StudentQueryService {
         term: int.parse(semesterMatch.group(2)!),
       );
       final className = _parseCellText(cells[1]);
-      final enrollmentStatus = _parseCellText(cells[2]);
+      final enrollmentStatus = _parseEnrollmentStatus(_parseCellText(cells[2]));
       final registered = cells[3].text.contains('※');
       final graduated = cells[4].text.contains('※');
 
@@ -442,6 +443,16 @@ class StudentQueryService {
     if (text.contains('Group')) return RankingType.groupLevel;
     if (text.contains('Department')) return RankingType.departmentLevel;
     return null;
+  }
+
+  /// Maps enrollment status text to [EnrollmentStatus].
+  EnrollmentStatus? _parseEnrollmentStatus(String? text) {
+    return switch (text) {
+      '在學' => EnrollmentStatus.learning,
+      '休學' => EnrollmentStatus.leaveOfAbsence,
+      '退學' => EnrollmentStatus.droppedOut,
+      _ => null,
+    };
   }
 
   /// Parses a score cell value into either a numeric grade or a [ScoreStatus].

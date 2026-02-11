@@ -15,6 +15,7 @@ import 'package:drift/drift.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
+import 'package:tattoo/models/user.dart';
 
 /// Mixin for tables that use an auto-incrementing integer primary key.
 mixin AutoIncrementId on Table {
@@ -478,8 +479,8 @@ class UserSemesterSummaries extends Table with AutoIncrementId {
   /// Plain text — no class code available from this page.
   late final className = text().nullable()();
 
-  /// Enrollment status (e.g., "在學", "休學", "退學").
-  late final enrollmentStatus = text().nullable()();
+  /// Enrollment status (在學, 休學, or 退學).
+  late final enrollmentStatus = textEnum<EnrollmentStatus>().nullable()();
 
   /// Whether the student is registered for this semester.
   late final registered = boolean().nullable()();

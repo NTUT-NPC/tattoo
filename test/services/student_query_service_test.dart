@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
+import 'package:tattoo/models/user.dart';
 import 'package:tattoo/services/portal_service.dart';
 import 'package:tattoo/services/student_query_service.dart';
 
@@ -119,9 +120,9 @@ void main() {
           );
           expect(
             record.enrollmentStatus,
-            isNotNull,
+            isIn(EnrollmentStatus.values),
             reason:
-                'Semester ${record.semester.year}-${record.semester.term} should have an enrollment status',
+                'Semester ${record.semester.year}-${record.semester.term} should have a valid enrollment status',
           );
         }
       });
