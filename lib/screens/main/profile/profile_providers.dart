@@ -7,8 +7,8 @@ import 'package:tattoo/repositories/auth_repository.dart';
 /// Provides the current user's profile.
 ///
 /// Returns `null` if not logged in.
-final userProfileProvider = FutureProvider.autoDispose<UserProfile?>((ref) {
-  return ref.watch(authRepositoryProvider).getUserProfile();
+final userProfileProvider = FutureProvider.autoDispose<User?>((ref) {
+  return ref.watch(authRepositoryProvider).getCurrentUser();
 });
 
 /// Provides the current user's avatar file.
