@@ -77,15 +77,6 @@ platform :ios do
 end
 
 platform :android do
-  # Shared keystore configuration
-  def keystore_config
-    {
-      git_url: ENV["MATCH_GIT_URL"],
-      package_name: "club.ntut.tattoo",
-      match_secret: ENV["MATCH_PASSWORD"]
-    }
-  end
-
   desc "Build and sign release APK"
   lane :build_apk do
     output_files = flutter_build(
@@ -94,10 +85,7 @@ platform :android do
     )
 
     output_files.each do |output_file|
-      match_keystore(
-        **keystore_config,
-        apk_path: output_file
-      )
+      match_keystore(apk_path: output_file)
     end
   end
 
@@ -107,9 +95,6 @@ platform :android do
       build: "appbundle",
     )
 
-    match_keystore(
-      **keystore_config,
-      aab_path: output_file
-    )
+    match_keystore(aab_path: output_file)
   end
 end
