@@ -442,7 +442,7 @@ class Scores extends Table with AutoIncrementId {
   ];
 }
 
-/// Per-student per-semester academic summary from the student query system.
+/// Per-user per-semester academic summary from the student query system.
 ///
 /// Stores aggregate statistics like weighted average, conduct grade, and
 /// credits for each semester, as well as registration status information.
@@ -450,9 +450,9 @@ class Scores extends Table with AutoIncrementId {
 /// Data sources:
 /// - StudentQueryService.getAcademicPerformance() — scores and averages
 /// - StudentQueryService.getRegistrationRecords() — registration status
-/// - StudentQueryService.getGradeRanking() — rankings (via [StudentSemesterRankings])
-@TableIndex(name: 'student_semester_summary_user', columns: {#user})
-class StudentSemesterSummaries extends Table with AutoIncrementId {
+/// - StudentQueryService.getGradeRanking() — rankings (via [UserSemesterRankings])
+@TableIndex(name: 'user_semester_summary_user', columns: {#user})
+class UserSemesterSummaries extends Table with AutoIncrementId {
   /// Reference to the authenticated user.
   late final user = integer().references(Users, #id)();
 
@@ -493,13 +493,13 @@ class StudentSemesterSummaries extends Table with AutoIncrementId {
   ];
 }
 
-/// Junction table linking student semester summaries to their tutors.
+/// Junction table linking user semester summaries to their tutors.
 ///
-/// A student may have multiple tutors (導師) in a semester.
+/// A user may have multiple tutors (導師) in a semester.
 /// Data source: StudentQueryService.getRegistrationRecords()
-class StudentSemesterSummaryTutors extends Table {
-  /// Reference to the student semester summary.
-  late final summary = integer().references(StudentSemesterSummaries, #id)();
+class UserSemesterSummaryTutors extends Table {
+  /// Reference to the user semester summary.
+  late final summary = integer().references(UserSemesterSummaries, #id)();
 
   /// Reference to the teacher serving as tutor.
   late final teacher = integer().references(Teachers, #id)();
@@ -508,14 +508,14 @@ class StudentSemesterSummaryTutors extends Table {
   Set<Column> get primaryKey => {summary, teacher};
 }
 
-/// Class cadre roles held by a student in a semester.
+/// Class cadre roles held by the user in a semester.
 ///
-/// Each row represents one cadre role (e.g., "班代", "副班代") for a
-/// student in a particular semester.
+/// Each row represents one cadre role (e.g., "班代", "副班代") for the
+/// user in a particular semester.
 /// Data source: StudentQueryService.getRegistrationRecords()
-class StudentSemesterSummaryCadreRoles extends Table with AutoIncrementId {
-  /// Reference to the student semester summary.
-  late final summary = integer().references(StudentSemesterSummaries, #id)();
+class UserSemesterSummaryCadreRoles extends Table with AutoIncrementId {
+  /// Reference to the user semester summary.
+  late final summary = integer().references(UserSemesterSummaries, #id)();
 
   /// Cadre role title (e.g., "班代", "副班代").
   late final role = text()();
@@ -526,13 +526,13 @@ class StudentSemesterSummaryCadreRoles extends Table with AutoIncrementId {
   ];
 }
 
-/// Grade ranking data for a student in a semester at a given scope.
+/// Grade ranking data for the user in a semester at a given scope.
 ///
-/// Each student-semester has up to 3 rows: class, group, and department.
+/// Each user-semester has up to 3 rows: class, group, and department.
 /// Data source: StudentQueryService.getGradeRanking()
-class StudentSemesterRankings extends Table {
-  /// Reference to the student semester summary.
-  late final summary = integer().references(StudentSemesterSummaries, #id)();
+class UserSemesterRankings extends Table {
+  /// Reference to the user semester summary.
+  late final summary = integer().references(UserSemesterSummaries, #id)();
 
   /// The scope of this ranking (class, group, or department).
   late final rankingType = textEnum<RankingType>()();

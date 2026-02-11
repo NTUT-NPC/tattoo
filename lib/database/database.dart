@@ -37,10 +37,10 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     Materials,
     TeacherOfficeHours,
     Scores,
-    StudentSemesterSummaries,
-    StudentSemesterSummaryTutors,
-    StudentSemesterSummaryCadreRoles,
-    StudentSemesterRankings,
+    UserSemesterSummaries,
+    UserSemesterSummaryTutors,
+    UserSemesterSummaryCadreRoles,
+    UserSemesterRankings,
   ],
 )
 class AppDatabase extends _$AppDatabase {
