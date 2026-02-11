@@ -39,7 +39,11 @@ class ProfileCard extends ConsumerWidget {
         loading: () => const AppSkeleton(
           child: ProfileContent(profile: _placeholderProfile),
         ),
-        error: (error, _) => Center(child: Text('Error: $error')),
+        error: (error, _) => _ProfileCardFrame(
+          childBuilder: (context, _, __) => Center(
+            child: Text('Error: $error'),
+          ),
+        ),
         data: (profile) {
           if (profile == null) {
             return _ProfileCardFrame(
