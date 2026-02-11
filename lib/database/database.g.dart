@@ -8950,6 +8950,183 @@ class UserSemesterRankingsCompanion
   }
 }
 
+class UserRegistration extends DataClass {
+  final int year;
+  final int term;
+  final String? className;
+  final EnrollmentStatus? enrollmentStatus;
+  const UserRegistration({
+    required this.year,
+    required this.term,
+    this.className,
+    this.enrollmentStatus,
+  });
+  factory UserRegistration.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserRegistration(
+      year: serializer.fromJson<int>(json['year']),
+      term: serializer.fromJson<int>(json['term']),
+      className: serializer.fromJson<String?>(json['className']),
+      enrollmentStatus: $UserSemesterSummariesTable.$converterenrollmentStatusn
+          .fromJson(serializer.fromJson<String?>(json['enrollmentStatus'])),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'year': serializer.toJson<int>(year),
+      'term': serializer.toJson<int>(term),
+      'className': serializer.toJson<String?>(className),
+      'enrollmentStatus': serializer.toJson<String?>(
+        $UserSemesterSummariesTable.$converterenrollmentStatusn.toJson(
+          enrollmentStatus,
+        ),
+      ),
+    };
+  }
+
+  UserRegistration copyWith({
+    int? year,
+    int? term,
+    Value<String?> className = const Value.absent(),
+    Value<EnrollmentStatus?> enrollmentStatus = const Value.absent(),
+  }) => UserRegistration(
+    year: year ?? this.year,
+    term: term ?? this.term,
+    className: className.present ? className.value : this.className,
+    enrollmentStatus: enrollmentStatus.present
+        ? enrollmentStatus.value
+        : this.enrollmentStatus,
+  );
+  @override
+  String toString() {
+    return (StringBuffer('UserRegistration(')
+          ..write('year: $year, ')
+          ..write('term: $term, ')
+          ..write('className: $className, ')
+          ..write('enrollmentStatus: $enrollmentStatus')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(year, term, className, enrollmentStatus);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserRegistration &&
+          other.year == this.year &&
+          other.term == this.term &&
+          other.className == this.className &&
+          other.enrollmentStatus == this.enrollmentStatus);
+}
+
+class $UserRegistrationsView
+    extends ViewInfo<$UserRegistrationsView, UserRegistration>
+    implements HasResultSet {
+  final String? _alias;
+  @override
+  final _$AppDatabase attachedDatabase;
+  $UserRegistrationsView(this.attachedDatabase, [this._alias]);
+  $UserSemesterSummariesTable get userSemesterSummaries =>
+      attachedDatabase.userSemesterSummaries.createAlias('t0');
+  $SemestersTable get semesters => attachedDatabase.semesters.createAlias('t1');
+  @override
+  List<GeneratedColumn> get $columns => [
+    year,
+    term,
+    className,
+    enrollmentStatus,
+  ];
+  @override
+  String get aliasedName => _alias ?? entityName;
+  @override
+  String get entityName => 'user_registrations';
+  @override
+  Map<SqlDialect, String>? get createViewStatements => null;
+  @override
+  $UserRegistrationsView get asDslTable => this;
+  @override
+  UserRegistration map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserRegistration(
+      year: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}year'],
+      )!,
+      term: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}term'],
+      )!,
+      className: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}class_name'],
+      ),
+      enrollmentStatus: $UserSemesterSummariesTable.$converterenrollmentStatusn
+          .fromSql(
+            attachedDatabase.typeMapping.read(
+              DriftSqlType.string,
+              data['${effectivePrefix}enrollment_status'],
+            ),
+          ),
+    );
+  }
+
+  late final GeneratedColumn<int> year = GeneratedColumn<int>(
+    'year',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(semesters.year, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> term = GeneratedColumn<int>(
+    'term',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(semesters.term, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<String> className = GeneratedColumn<String>(
+    'class_name',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(userSemesterSummaries.className, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumnWithTypeConverter<EnrollmentStatus?, String>
+  enrollmentStatus =
+      GeneratedColumn<String>(
+        'enrollment_status',
+        aliasedName,
+        true,
+        generatedAs: GeneratedAs(userSemesterSummaries.enrollmentStatus, false),
+        type: DriftSqlType.string,
+      ).withConverter<EnrollmentStatus?>(
+        $UserSemesterSummariesTable.$converterenrollmentStatusn,
+      );
+  @override
+  $UserRegistrationsView createAlias(String alias) {
+    return $UserRegistrationsView(attachedDatabase, alias);
+  }
+
+  @override
+  Query? get query =>
+      (attachedDatabase.selectOnly(
+        userSemesterSummaries,
+      )..addColumns($columns)).join([
+        innerJoin(
+          semesters,
+          semesters.id.equalsExp(userSemesterSummaries.semester),
+        ),
+      ]);
+  @override
+  Set<String> get readTables => const {'user_semester_summaries', 'semesters'};
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -8985,6 +9162,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $UserSemesterSummaryCadreRolesTable(this);
   late final $UserSemesterRankingsTable userSemesterRankings =
       $UserSemesterRankingsTable(this);
+  late final $UserRegistrationsView userRegistrations = $UserRegistrationsView(
+    this,
+  );
   late final Index teacherSemester = Index(
     'teacher_semester',
     'CREATE INDEX teacher_semester ON teachers (semester)',
@@ -9043,6 +9223,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userSemesterSummaryTutors,
     userSemesterSummaryCadreRoles,
     userSemesterRankings,
+    userRegistrations,
     teacherSemester,
     courseOfferingCourse,
     courseOfferingSemester,

@@ -5,7 +5,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/models/user.dart';
 import 'package:tattoo/services/portal_service.dart';
+import 'package:tattoo/services/student_query_service.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// Thrown when [AuthRepository.withAuth] is called but no stored credentials
@@ -56,6 +58,7 @@ final authStatusProvider = NotifierProvider<AuthStatusNotifier, AuthStatus>(
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(
     portalService: ref.watch(portalServiceProvider),
+    studentQueryService: ref.watch(studentQueryServiceProvider),
     database: ref.watch(databaseProvider),
     secureStorage: _secureStorage,
     onAuthStatusChanged: ref.read(authStatusProvider.notifier).update,
@@ -71,10 +74,11 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 /// final user = await auth.login('111360109', 'password');
 ///
 /// // Check local session
-/// final user = await auth.getCurrentUser();
+/// final user = await auth.getUser();
 /// ```
 class AuthRepository {
   final PortalService _portalService;
+  final StudentQueryService _studentQueryService;
   final AppDatabase _database;
   final FlutterSecureStorage _secureStorage;
   final void Function(AuthStatus) _onAuthStatusChanged;
@@ -84,10 +88,12 @@ class AuthRepository {
 
   AuthRepository({
     required PortalService portalService,
+    required StudentQueryService studentQueryService,
     required AppDatabase database,
     required FlutterSecureStorage secureStorage,
     required void Function(AuthStatus) onAuthStatusChanged,
   }) : _portalService = portalService,
+       _studentQueryService = studentQueryService,
        _database = database,
        _secureStorage = secureStorage,
        _onAuthStatusChanged = onAuthStatusChanged;
@@ -118,14 +124,6 @@ class AuthRepository {
             ),
           );
     });
-  }
-
-  /// Checks if there's an active authenticated session.
-  ///
-  /// Does not throw.
-  Future<bool> isLoggedIn() async {
-    final user = await getCurrentUser();
-    return user != null;
   }
 
   /// Logs out and clears all local user data and stored credentials.
@@ -190,11 +188,80 @@ class AuthRepository {
     }
   }
 
-  /// Gets the current user's profile from local storage.
+  /// Gets the current user from the local database.
   ///
   /// Returns `null` if not logged in. Does not make network requests.
-  Future<User?> getCurrentUser() async {
+  /// The returned user may have partial data (check [User.fetchedAt]).
+  Future<User?> getUser() async {
     return _database.select(_database.users).getSingleOrNull();
+  }
+
+  /// Fetches the full user profile and registration records from the server.
+  ///
+  /// Returns `null` if not logged in. Skips the fetch if data is already
+  /// populated ([User.fetchedAt] is non-null).
+  Future<User?> fetchUser() async {
+    final user = await getUser();
+    if (user == null || user.fetchedAt != null) return user;
+
+    final (profile, records) = await withAuth(() async {
+      await _portalService.sso(PortalServiceCode.studentQueryService);
+      final profileFuture = _studentQueryService.getStudentProfile();
+      final recordsFuture = _studentQueryService.getRegistrationRecords();
+      return (await profileFuture, await recordsFuture);
+    });
+
+    return _database.transaction(() async {
+      await (_database.update(
+        _database.users,
+      )..where((t) => t.id.equals(user.id))).write(
+        UsersCompanion(
+          nameEn: Value(profile.englishName),
+          dateOfBirth: Value(profile.dateOfBirth),
+          programZh: Value(profile.programZh),
+          programEn: Value(profile.programEn),
+          departmentZh: Value(profile.departmentZh),
+          departmentEn: Value(profile.departmentEn),
+          fetchedAt: Value(DateTime.now()),
+        ),
+      );
+
+      for (final record in records) {
+        if (record.semester.year == null || record.semester.term == null) {
+          continue;
+        }
+        final semesterId = await _database.getOrCreateSemester(
+          record.semester.year!,
+          record.semester.term!,
+        );
+        await _database
+            .into(_database.userSemesterSummaries)
+            .insert(
+              UserSemesterSummariesCompanion.insert(
+                user: user.id,
+                semester: semesterId,
+                className: Value(record.className),
+                enrollmentStatus: Value(record.enrollmentStatus),
+                registered: Value(record.registered),
+                graduated: Value(record.graduated),
+              ),
+              onConflict: DoUpdate(
+                (old) => UserSemesterSummariesCompanion(
+                  className: Value(record.className),
+                  enrollmentStatus: Value(record.enrollmentStatus),
+                  registered: Value(record.registered),
+                  graduated: Value(record.graduated),
+                ),
+                target: [
+                  _database.userSemesterSummaries.user,
+                  _database.userSemesterSummaries.semester,
+                ],
+              ),
+            );
+      }
+
+      return _database.select(_database.users).getSingle();
+    });
   }
 
   /// Gets the current user's avatar image, with local caching.
@@ -203,7 +270,7 @@ class AuthRepository {
   /// Returns `null` if not logged in, user has no avatar, or network is
   /// unavailable and no cached file exists.
   Future<File?> getAvatar() async {
-    final user = await getCurrentUser();
+    final user = await getUser();
     if (user == null || user.avatarFilename.isEmpty) {
       return null;
     }
@@ -224,6 +291,24 @@ class AuthRepository {
     } on DioException {
       return null;
     }
+  }
+
+  /// Gets the user's active registration (where enrollment status is "在學").
+  ///
+  /// Returns the most recent semester where the user is actively enrolled,
+  /// or `null` if no active registration exists.
+  /// Pure DB read — call [fetchUser] first to populate registration data.
+  Future<UserRegistration?> getActiveRegistration() async {
+    return (_database.select(_database.userRegistrations)
+          ..where(
+            (r) => r.enrollmentStatus.equalsValue(EnrollmentStatus.learning),
+          )
+          ..orderBy([
+            (r) => OrderingTerm.desc(r.year),
+            (r) => OrderingTerm.desc(r.term),
+          ])
+          ..limit(1))
+        .getSingleOrNull();
   }
 
   /// Clears stored login credentials from secure storage.

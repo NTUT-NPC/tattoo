@@ -1,5 +1,6 @@
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
@@ -111,6 +112,11 @@ typedef StudentProfileDto = ({
   String? departmentZh,
   String? departmentEn,
 });
+
+/// Provides the singleton [StudentQueryService] instance.
+final studentQueryServiceProvider = Provider<StudentQueryService>(
+  (ref) => StudentQueryService(),
+);
 
 /// Service for accessing NTUT's student query system (學生查詢專區).
 ///

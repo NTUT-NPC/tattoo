@@ -106,6 +106,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 - Transform DTOs into relational DB tables
 - Return DTOs or domain models to UI
 - Handle data persistence and caching strategies
+- **Method naming (get/fetch):** `getX()` is a pure DB read (no network). `fetchX()` hits the network, writes to DB, and returns full data (skips if already fetched via `Fetchable.fetchedAt`). Mirrors the `Fetchable` mixin on Drift tables.
 
 ## Database Performance
 
@@ -119,6 +120,7 @@ MVVM pattern with Riverpod for DI and reactive state:
   - Add `course_offering_student_student` index when implementing student transcript/history queries
 - **Naming convention:** `table_column` (following Drift examples)
 - Monitor storage/performance before adding more indexes
+- **Single-user assumption:** `UserRegistrations` view omits the `user` column — add it and update `getActiveRegistration` filter if multi-user support is introduced
 
 ## NTUT-Specific Patterns
 

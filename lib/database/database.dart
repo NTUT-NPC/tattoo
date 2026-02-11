@@ -2,10 +2,13 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/schema.dart';
+import 'package:tattoo/database/views.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
 import 'package:tattoo/models/user.dart';
+
+export 'package:tattoo/database/actions.dart';
 
 part 'database.g.dart';
 
@@ -17,6 +20,7 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 });
 
 @DriftDatabase(
+  views: [UserRegistrations],
   tables: [
     // Base tables
     Users,
