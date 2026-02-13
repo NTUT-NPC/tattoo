@@ -13,6 +13,10 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+def is_ci
+  ENV["CI"] == "true" || ENV["GITHUB_ACTIONS"] == "true"
+end
+
 platform :ios do
   desc "Build and sign release IPA"
   lane :build_ipa do
@@ -82,7 +86,7 @@ platform :android do
 
     flutter_build(
       build: "apk",
-      build_args: "--split-per-abi"
+      build_args: ["--split-per-abi"]
     )
   end
 
@@ -97,19 +101,32 @@ platform :android do
 
   desc "Distribute development build to Firebase App Distribution (Android)"
   lane :upload_dev_firebase do |options|
+    build_number = options[:build_number] || 1
+    pr_number = options[:pr_number] || "unknown"
+    pr_title = options[:pr_title] || ""
+    commit_sha = options[:commit_sha] || ""
+    commit_message = options[:commit_message] || ""
+
     match_keystore(skip_signing: true)
+
 
     output_file = flutter_build(
       build: "appbundle",
-      build_number: options[:build_number],
-      build_args: "--release"
+      build_number: build_number,
+      build_args: ["--release"]
     )
 
     firebase_app_distribution(
       app: ENV["FIREBASE_APP_ID_ANDROID"],
       groups: "dev-testers", # Ensure this group exists in Firebase Console
-      release_notes: "PR ##{options[:pr_number]}: #{options[:pr_title]}",
-      aab_path: output_file
+      release_notes: "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
+      android_artifact_type: "AAB",
+      android_artifact_path: output_file,
+      service_credentials_file: ENV["FIREBASE_SERVICE_ACCOUNT_JSON_PATH"],
     )
   end
+
+  
+      
+
 end
