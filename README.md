@@ -45,3 +45,11 @@ This project exists alongside two other implementations:
 - [NTUT-NPC/tat2_flutter](https://github.com/NTUT-NPC/tat2_flutter) (QAQ) — A feature-rich alternative with offline mode, smart session management, and advanced UI
 
 Project Tattoo aims to take lessons learned from both and create a clean, maintainable foundation for future development.
+
+## License
+
+Copyright (C) 2026 NTUT Programming Club (NTUT-NPC)
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+See [LICENSE](LICENSE) for details.
