@@ -60,3 +60,4 @@ test/test_config.json
 /.claude/*.local.*
 /CLAUDE.local.md
 /android/app/google-services.json
+/fastlane/metadata/android/zh-TW/changelogs/*

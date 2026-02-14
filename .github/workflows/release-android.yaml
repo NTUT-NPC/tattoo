@@ -1,0 +1,45 @@
+name: Release Android (GPC)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          platform: android
+
+      - name: Manage Build Number
+        id: build-number
+        uses: ./.github/actions/manage-build-number
+        with:
+          github_token: ${{ secrets.BUILD_NUMBER_PAT }}
+          current_build_number: ${{ vars.build_number }}
+
+      - name: Upload to Google Play Console
+        env:
+          FASTLANE_APP_IDENTIFIER: club.ntut.tattoo
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          SUPPLY_JSON_KEY_DATA: ${{ secrets.SUPPLY_JSON_KEY_DATA }}
+          # Fallback if the lane uses this instead
+          FIREBASE_SERVICE_ACCOUNT_JSON_PATH: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON_PATH }}
+        run: |
+          commit_sha=$(git rev-parse --short HEAD)
+          commit_message=$(git show -s --format=%s)
+          bundle exec fastlane android upload_release_playstore 
+            build_number:${{ steps.build-number.outputs.build_number }} 
+            pr_title:"Release build" 
+            commit_sha:"$commit_sha" 
+            commit_message:"$commit_message"

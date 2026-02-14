@@ -126,7 +126,50 @@ platform :android do
     )
   end
 
-  
-      
+  desc "Distribute release build to Google Play Console"
+  lane :upload_release_playstore do |options|
+    build_number = options[:build_number] ||  1
+    
+    # Automatically extract info if running in GitHub Actions
+    if is_ci && ENV["GITHUB_EVENT_PATH"]
+      require 'json'
+      event = JSON.parse(File.read(ENV["GITHUB_EVENT_PATH"]))
+      pr_number = event.dig("pull_request", "number") || options[:pr_number] || "unknown"
+      pr_title = event.dig("pull_request", "title") || options[:pr_title] || "Release"
+      commit_sha = ENV["GITHUB_SHA"] ? ENV["GITHUB_SHA"][0..6] : (options[:commit_sha] || "unknown")
+      commit_message = event.dig("commits", 0, "message") || options[:commit_message] || "Manual build"
+    else
+      pr_number = options[:pr_number] || "unknown"
+      pr_title = options[:pr_title] || "Manual"
+      commit_sha = options[:commit_sha] || "unknown"
+      commit_message = options[:commit_message] || "Manual build"
+    end
 
+    match_keystore(skip_signing: true)
+    output_file = flutter_build(
+      build: "appbundle",
+      build_number: build_number
+    )
+
+    # Create dynamic changelog files in the standard fastlane/metadata directory
+    # Fastlane runs from the 'fastlane' directory, so 'metadata' is relative to it.
+    changelog_text = pr_number != "unknown" ? "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}" : "#{pr_title}\n#{commit_sha} #{commit_message}"
+    ["zh-TW"].each do |locale|
+      path = "metadata/android/#{locale}/changelogs"
+      FileUtils.mkdir_p(path)
+      File.write("#{path}/default.txt", changelog_text)
+      File.write("#{path}/#{build_number}.txt", changelog_text)
+    end
+
+    upload_to_play_store(
+      package_name: ENV["FASTLANE_APP_IDENTIFIER"],
+      track: "internal",
+      aab: output_file,
+      json_key:ENV["FIREBASE_SERVICE_ACCOUNT_JSON_PATH"],
+      skip_upload_metadata: false,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_changelogs: false
+    )
+  end  
 end

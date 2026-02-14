@@ -60,6 +60,14 @@ Build and sign release AAB
 
 Distribute development build to Firebase App Distribution (Android)
 
+### android upload_release_playstore
+
+```sh
+[bundle exec] fastlane android upload_release_playstore
+```
+
+Distribute release build to Google Play Console
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
