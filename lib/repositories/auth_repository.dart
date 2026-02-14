@@ -195,7 +195,8 @@ class AuthRepository {
   /// Gets the current user with automatic cache refresh.
   ///
   /// Returns `null` if not logged in. Returns cached data if fresh (within TTL),
-  /// fetches full profile from network if stale or missing.
+  /// fetches full profile from network if stale or missing. Falls back to stale
+  /// cached data when offline (network errors are absorbed).
   ///
   /// The returned user may have partial data ([User.fetchedAt] is null) if only
   /// login has been performed. Full profile data is fetched automatically when
@@ -206,12 +207,16 @@ class AuthRepository {
     final user = await _database.select(_database.users).getSingleOrNull();
     if (user == null) return null; // Not logged in, can't fetch
 
-    return fetchWithTtl<User>(
-      cached: user,
-      getFetchedAt: (u) => u.fetchedAt,
-      fetchFromNetwork: _fetchUserFromNetwork,
-      refresh: refresh,
-    );
+    try {
+      return await fetchWithTtl<User>(
+        cached: user,
+        getFetchedAt: (u) => u.fetchedAt,
+        fetchFromNetwork: _fetchUserFromNetwork,
+        refresh: refresh,
+      );
+    } on DioException {
+      return user;
+    }
   }
 
   /// Fetches user profile and registration records from network.
