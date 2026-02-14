@@ -319,7 +319,7 @@ class AuthRepository {
   ///
   /// Returns the most recent semester where the user is actively enrolled,
   /// or `null` if no active registration exists.
-  /// Pure DB read — call [fetchUser] first to populate registration data.
+  /// Pure DB read — call [getUser] first to populate registration data.
   Future<UserRegistration?> getActiveRegistration() async {
     return (_database.select(_database.userRegistrations)
           ..where(
