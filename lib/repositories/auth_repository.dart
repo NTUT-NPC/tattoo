@@ -8,6 +8,7 @@ import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/user.dart';
 import 'package:tattoo/services/portal_service.dart';
 import 'package:tattoo/services/student_query_service.dart';
+import 'package:tattoo/utils/fetch_with_ttl.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// Thrown when [AuthRepository.withAuth] is called but no stored credentials
@@ -73,8 +74,11 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 /// // Login
 /// final user = await auth.login('111360109', 'password');
 ///
-/// // Check local session
+/// // Get user profile (with automatic cache refresh)
 /// final user = await auth.getUser();
+///
+/// // Force refresh (for pull-to-refresh)
+/// final user = await auth.getUser(refresh: true);
 /// ```
 class AuthRepository {
   final PortalService _portalService;
@@ -188,21 +192,34 @@ class AuthRepository {
     }
   }
 
-  /// Gets the current user from the local database.
+  /// Gets the current user with automatic cache refresh.
   ///
-  /// Returns `null` if not logged in. Does not make network requests.
-  /// The returned user may have partial data (check [User.fetchedAt]).
-  Future<User?> getUser() async {
-    return _database.select(_database.users).getSingleOrNull();
+  /// Returns `null` if not logged in. Returns cached data if fresh (within TTL),
+  /// fetches full profile from network if stale or missing.
+  ///
+  /// The returned user may have partial data ([User.fetchedAt] is null) if only
+  /// login has been performed. Full profile data is fetched automatically when
+  /// [User.fetchedAt] is null or stale.
+  ///
+  /// Set [refresh] to `true` to bypass TTL and always refetch (for pull-to-refresh).
+  Future<User?> getUser({bool refresh = false}) async {
+    final user = await _database.select(_database.users).getSingleOrNull();
+    if (user == null) return null; // Not logged in, can't fetch
+
+    return fetchWithTtl<User>(
+      cached: user,
+      getFetchedAt: (u) => u.fetchedAt,
+      fetchFromNetwork: _fetchUserFromNetwork,
+      refresh: refresh,
+    );
   }
 
-  /// Fetches the full user profile and registration records from the server.
-  ///
-  /// Returns `null` if not logged in. Skips the fetch if data is already
-  /// populated ([User.fetchedAt] is non-null).
-  Future<User?> fetchUser() async {
-    final user = await getUser();
-    if (user == null || user.fetchedAt != null) return user;
+  /// Fetches user profile and registration records from network.
+  Future<User> _fetchUserFromNetwork() async {
+    final user = await _database.select(_database.users).getSingleOrNull();
+    if (user == null) {
+      throw StateError('Cannot fetch user profile when not logged in');
+    }
 
     final (profile, records) = await withAuth(() async {
       await _portalService.sso(PortalServiceCode.studentQueryService);
@@ -270,7 +287,7 @@ class AuthRepository {
   /// Returns `null` if not logged in, user has no avatar, or network is
   /// unavailable and no cached file exists.
   Future<File?> getAvatar() async {
-    final user = await getUser();
+    final user = await _database.select(_database.users).getSingleOrNull();
     if (user == null || user.avatarFilename.isEmpty) {
       return null;
     }

@@ -106,7 +106,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 - Transform DTOs into relational DB tables
 - Return DTOs or domain models to UI
 - Handle data persistence and caching strategies
-- **Method naming (get/fetch):** `getX()` is a pure DB read (no network). `fetchX()` hits the network, writes to DB, and returns full data (skips if already fetched via `Fetchable.fetchedAt`). Mirrors the `Fetchable` mixin on Drift tables.
+- **Method pattern:** `getX({refresh})` methods use `fetchWithTtl` helper for smart caching - returns cached data if fresh (within TTL), fetches from network if stale. Set `refresh: true` to bypass TTL (pull-to-refresh). Internal `_fetchXFromNetwork()` methods handle network fetch logic. Special cases that only need partial data (e.g., `getAvatar()` only needs `avatarFilename`) query DB directly.
 
 ## Database Performance
 
