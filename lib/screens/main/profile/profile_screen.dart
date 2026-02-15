@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
-import 'package:tattoo/components/clear_notice.dart';
+import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
@@ -69,6 +69,26 @@ class ProfileTab extends ConsumerWidget {
       ),
     ];
 
+    var notices = [
+      // TODO: make notices dynamic and animated.
+      SectionHeader(title: "訊息範例"),
+
+      BackgorundedNotice(
+        text: "目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。",
+        noticeType: NoticeType.info,
+      ),
+
+      BackgorundedNotice(
+        text: "您的密碼將於 7 天後到期，請盡快更新以免無法登入。",
+        noticeType: NoticeType.warning,
+      ),
+
+      BackgorundedNotice(
+        text: "無法連接到伺服器，資料可能不正確。",
+        noticeType: NoticeType.error,
+      ),
+    ];
+
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
@@ -83,7 +103,11 @@ class ProfileTab extends ConsumerWidget {
 
                     ClearNotice(
                       text: "本資料僅供參考，不做其他證明用途",
-                      color: Colors.grey[600],
+                    ),
+
+                    Column(
+                      spacing: 8,
+                      children: notices,
                     ),
 
                     Column(
@@ -93,7 +117,6 @@ class ProfileTab extends ConsumerWidget {
 
                     ClearNotice(
                       text: "TAT 1.0.0",
-                      color: Colors.grey[600],
                     ),
                   ],
                 ),
