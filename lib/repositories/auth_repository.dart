@@ -219,12 +219,40 @@ class AuthRepository {
     }
   }
 
-  /// Fetches user profile and registration records from network.
+  /// Fetches all user data from network.
+  ///
+  /// Refreshes login-level fields (avatar, name, email) via Portal login,
+  /// and academic data (profile, registrations) via the student query service.
+  /// The login call also establishes a fresh session for the subsequent SSO
+  /// calls.
   Future<User> _fetchUserFromNetwork() async {
     final user = await _database.select(_database.users).getSingleOrNull();
     if (user == null) {
       throw StateError('Cannot fetch user profile when not logged in');
     }
+
+    final username = await _secureStorage.read(key: _usernameKey);
+    final password = await _secureStorage.read(key: _passwordKey);
+    if (username == null || password == null) {
+      _onAuthStatusChanged(AuthStatus.credentialsExpired);
+      throw NotLoggedInException();
+    }
+
+    // Re-login to refresh login-level fields and establish a fresh session.
+    // This makes the subsequent withAuth call's inner SSO unlikely to need
+    // re-authentication, since the session was just established.
+    final UserDto userDto;
+    try {
+      userDto = await _portalService.login(username, password);
+    } on DioException {
+      _onAuthStatusChanged(AuthStatus.offline);
+      rethrow;
+    } catch (_) {
+      await _clearCredentials();
+      _onAuthStatusChanged(AuthStatus.credentialsExpired);
+      throw InvalidCredentialsException();
+    }
+    _onAuthStatusChanged(AuthStatus.authenticated);
 
     final (profile, records) = await withAuth(() async {
       await _portalService.sso(PortalServiceCode.studentQueryService);
@@ -238,6 +266,9 @@ class AuthRepository {
         _database.users,
       )..where((t) => t.id.equals(user.id))).write(
         UsersCompanion(
+          avatarFilename: Value(userDto.avatarFilename ?? ''),
+          nameZh: Value(userDto.name ?? ''),
+          email: Value(userDto.email ?? ''),
           nameEn: Value(profile.englishName),
           dateOfBirth: Value(profile.dateOfBirth),
           programZh: Value(profile.programZh),
