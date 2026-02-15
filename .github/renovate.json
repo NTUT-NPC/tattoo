@@ -7,7 +7,7 @@
   },
   "packageRules": [
     {
-      "matchPackageNames": ["dart"],
+      "matchPackageNames": ["dart", "dev.flutter.flutter-plugin-loader"],
       "enabled": false
     },
     {
