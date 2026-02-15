@@ -1,8 +1,29 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
+/// Preset styles used by [BackgorundedNotice].
 enum NoticeType { warning, error, info }
 
+/// A lightweight inline notice with optional icon and custom text style.
+///
+/// This widget is intended for subtle informational messages that do not
+/// require a bordered background.
+///
+/// Usage:
+/// ```dart
+/// Column(
+///   children: const [
+///     OptionEntryTile(
+///       icon: Icons.password,
+///       title: 'Change Password',
+///     ),
+///     ClearNotice(text: '本資料僅供參考'),
+///   ],
+/// )
+/// ```
+///
+/// See also: `OptionEntryTile` in `tattoo/lib/components/option_entry_tile.dart`.
 class ClearNotice extends StatelessWidget {
+  /// Creates a plain text notice row.
   const ClearNotice({
     super.key,
     this.text = '本資料僅供參考',
@@ -11,9 +32,18 @@ class ClearNotice extends StatelessWidget {
     this.textStyle,
   });
 
+  /// Message text shown in the notice.
   final String text;
+
+  /// Leading icon displayed before [text].
   final Widget icon;
+
+  /// Foreground color for both icon and text.
+  ///
+  /// Defaults to `Colors.grey[600]` when omitted.
   final Color? color;
+
+  /// Optional text style override for [text].
   final TextStyle? textStyle;
 
   @override
@@ -49,7 +79,27 @@ class ClearNotice extends StatelessWidget {
   }
 }
 
+/// A bordered notice chip with a tinted background and semantic presets.
+///
+/// Usage:
+/// ```dart
+/// Column(
+///   children: const [
+///     OptionEntryTile(
+///       icon: Icons.info_outline,
+///       title: 'About',
+///     ),
+///     BackgorundedNotice(
+///       text: 'Important notice',
+///       noticeType: NoticeType.warning,
+///     ),
+///   ],
+/// )
+/// ```
+///
+/// See also: `OptionEntryTile` in `tattoo/lib/components/option_entry_tile.dart`.
 class BackgorundedNotice extends StatelessWidget {
+  /// Creates a bordered notice with background tint.
   const BackgorundedNotice({
     super.key,
     required this.text,
@@ -59,10 +109,19 @@ class BackgorundedNotice extends StatelessWidget {
     this.noticeType = NoticeType.info,
   });
 
+  /// Message text shown in the notice.
   final String text;
+
+  /// Optional leading icon. Falls back to a preset icon by [noticeType].
   final Widget? icon;
+
+  /// Optional accent color. Falls back to a preset color by [noticeType].
   final Color? color;
+
+  /// Optional text style override for [text].
   final TextStyle? textStyle;
+
+  /// Preset palette/icon style when [color] or [icon] is not provided.
   final NoticeType noticeType;
 
   @override
