@@ -7,12 +7,12 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
-const _placeholderProfile = UserProfile(
+const _placeholderProfile = User(
   id: 0,
+  studentId: '000000000',
+  nameZh: '王襲浮',
   avatarFilename: '',
   email: 't000000000@ntut.edu.tw',
-  studentId: '000000000',
-  name: 'John Doe',
 );
 
 // Configs for profile card styling
@@ -63,7 +63,7 @@ class ProfileCard extends ConsumerWidget {
 class ProfileContent extends StatelessWidget {
   const ProfileContent({super.key, required this.profile, this.avatarFile});
 
-  final UserProfile profile;
+  final User profile;
   final File? avatarFile;
 
   @override
@@ -75,8 +75,8 @@ class ProfileContent extends StatelessWidget {
         final width = constraints.maxWidth;
         final height = constraints.maxHeight;
         final avatarSize = height * 0.59;
-        final avatarInitial = switch (profile.name) {
-          final n? when n.isNotEmpty => n.substring(0, 1),
+        final avatarInitial = switch (profile.nameZh) {
+          final n when n.isNotEmpty => n.substring(0, 1),
           _ => '?',
         };
 
@@ -129,7 +129,7 @@ class ProfileContent extends StatelessWidget {
                         // fix horizontal alignment with other text
                         offset: Offset(-height * 0.01, 0),
                         child: Text(
-                          profile.name ?? '未知',
+                          profile.nameZh.isNotEmpty ? profile.nameZh : '未知',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.titleMedium?.copyWith(
