@@ -1,24 +1,24 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:best-practices",
-    "group:allNonMajor",
-    "schedule:monthly"
-  ],
+  "extends": ["config:best-practices", "schedule:monthly"],
   "timezone": "Asia/Taipei",
+  "lockFileMaintenance": {
+    "enabled": false
+  },
   "packageRules": [
-    {
-      "matchPackageNames": ["*"],
-      "rangeStrategy": "pin"
-    },
     {
       "matchPackageNames": ["dart"],
       "enabled": false
     },
     {
+      "matchManagers": ["pub"],
+      "groupName": "Flutter dependencies",
+      "groupSlug": "flutter"
+    },
+    {
       "matchManagers": ["mise"],
       "groupName": "Development tools",
-      "groupSlug": "sdk"
+      "groupSlug": "dev-tools"
     },
     {
       "matchFileNames": ["android/**"],
@@ -29,6 +29,11 @@
       "matchFileNames": ["ios/**"],
       "groupName": "iOS dependencies",
       "groupSlug": "ios"
+    },
+    {
+      "matchFileNames": [".github/**", "Gemfile", "doc/Dockerfile"],
+      "groupName": "CI dependencies",
+      "groupSlug": "ci"
     }
   ]
 }
