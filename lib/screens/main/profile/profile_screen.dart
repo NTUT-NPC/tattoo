@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
+import 'package:tattoo/components/clear_notice.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
@@ -76,14 +77,23 @@ class ProfileTab extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               sliver: SliverToBoxAdapter(
                 child: Column(
+                  spacing: 16,
                   children: [
                     ProfileCard(),
 
-                    SizedBox(height: 32),
+                    ClearNotice(
+                      text: "本資料僅供參考，不做其他證明用途",
+                      color: Colors.grey[600],
+                    ),
 
                     Column(
                       spacing: 8,
                       children: options,
+                    ),
+
+                    ClearNotice(
+                      text: "TAT 1.0.0",
+                      color: Colors.grey[600],
                     ),
                   ],
                 ),
