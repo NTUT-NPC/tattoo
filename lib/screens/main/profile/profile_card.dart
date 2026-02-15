@@ -143,20 +143,20 @@ class ProfileContent extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        // todo: replace with real department
-                        '電子工程系',
+                        // TODO: replace with real department
+                        '字串尚待更換學系',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        // todo: resolve vertical alignment issue when having no chinese character
+                        // TODO: resolve vertical alignment issue when having no chinese character
                         profile.studentId,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        // todo: replace with real class
-                        '114-2 電子三甲',
+                        // TODO: replace with real class
+                        '999-9 叉叉一甲',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
