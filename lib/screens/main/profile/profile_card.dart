@@ -252,12 +252,13 @@ class _ProfileCardFrame extends StatelessWidget {
       aspectRatio: 1016 / 638,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final width = constraints.maxWidth;
+          // final width = constraints.maxWidth;
           final height = constraints.maxHeight;
           final borderRadius = BorderRadius.circular(height * 0.07);
 
           return DecoratedBox(
             decoration: BoxDecoration(
+              color: const Color(0xFFDBDBE6),
               borderRadius: borderRadius,
               boxShadow: [
                 BoxShadow(
