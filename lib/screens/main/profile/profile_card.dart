@@ -254,19 +254,15 @@ class _ProfileCardFrame extends StatelessWidget {
         builder: (context, constraints) {
           // final width = constraints.maxWidth;
           final height = constraints.maxHeight;
-          final borderRadius = BorderRadius.circular(height * 0.07);
+          final borderRadius = BorderRadius.circular(
+            height * _profileCardRadiusFactor,
+          );
 
           return DecoratedBox(
             decoration: BoxDecoration(
-              color: const Color(0xFFDBDBE6),
+              color: _profileCardBackgroundColor,
               borderRadius: borderRadius,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.4),
-                  blurRadius: 16.0,
-                  offset: Offset(0.0, 4.0),
-                ),
-              ],
+              boxShadow: const [_profileCardShadow],
             ),
             child: childBuilder(context, constraints, borderRadius),
           );
