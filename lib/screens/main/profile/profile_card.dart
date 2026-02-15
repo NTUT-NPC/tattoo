@@ -179,21 +179,19 @@ class ProfileContent extends StatelessWidget {
                       color: Color(0xFFB3B3B5),
                     ),
                     child: ClipOval(
-                      child: avatarFile != null
-                          ? Image.file(
-                              avatarFile!,
-                              fit: BoxFit.cover,
-                            )
-                          : Center(
-                              child: Text(
-                                avatarInitial,
-                                style: TextStyle(
-                                  color: const Color(0xFF808080),
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: avatarSize * 0.36,
-                                ),
-                              ),
+                      child: switch (avatarFile) {
+                        final file? => Image.file(file, fit: BoxFit.cover),
+                        null => Center(
+                          child: Text(
+                            avatarInitial,
+                            style: TextStyle(
+                              color: const Color(0xFF808080),
+                              fontWeight: FontWeight.w700,
+                              fontSize: avatarSize * 0.36,
                             ),
+                          ),
+                        ),
+                      },
                     ),
                   ),
                 ),
