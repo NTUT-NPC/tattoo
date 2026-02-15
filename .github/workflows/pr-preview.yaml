@@ -123,6 +123,11 @@ jobs:
         with:
           platform: ios
 
+      - name: Verify Podfile.lock is up-to-date
+        run: |
+          cd ios && bundle exec pod install
+          git diff --exit-code Podfile.lock
+
       - name: Build and Upload to TestFlight
         env:
           FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
