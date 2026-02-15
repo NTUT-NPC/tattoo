@@ -34,6 +34,7 @@ class ProfileCard extends ConsumerWidget {
     final mediaQuery = MediaQuery.of(context);
 
     return MediaQuery(
+      // no text scaling to prevent card style from breaking
       data: mediaQuery.copyWith(textScaler: TextScaler.noScaling),
       child: profileAsync.when(
         loading: () => const AppSkeleton(
