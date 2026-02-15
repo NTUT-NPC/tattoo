@@ -106,6 +106,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 - Transform DTOs into relational DB tables
 - Return DTOs or domain models to UI
 - Handle data persistence and caching strategies
+- **Method pattern:** `getX({refresh})` methods use `fetchWithTtl` helper for smart caching - returns cached data if fresh (within TTL), fetches from network if stale. Set `refresh: true` to bypass TTL (pull-to-refresh). Internal `_fetchXFromNetwork()` methods handle network fetch logic. Special cases that only need partial data (e.g., `getAvatar()` only needs `avatarFilename`) query DB directly.
 
 ## Database Performance
 
@@ -119,6 +120,7 @@ MVVM pattern with Riverpod for DI and reactive state:
   - Add `course_offering_student_student` index when implementing student transcript/history queries
 - **Naming convention:** `table_column` (following Drift examples)
 - Monitor storage/performance before adding more indexes
+- **Single-user assumption:** `UserRegistrations` view omits the `user` column — add it and update `getActiveRegistration` filter if multi-user support is introduced
 
 ## NTUT-Specific Patterns
 

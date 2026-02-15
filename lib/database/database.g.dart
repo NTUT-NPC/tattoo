@@ -6732,7 +6732,7 @@ class $ScoresTable extends Scores with TableInfo<$ScoresTable, Score> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES users (id)',
+      'REFERENCES users (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _semesterMeta = const VerificationMeta(
@@ -7221,7 +7221,7 @@ class $UserSemesterSummariesTable extends UserSemesterSummaries
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES users (id)',
+      'REFERENCES users (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _semesterMeta = const VerificationMeta(
@@ -7302,17 +7302,18 @@ class $UserSemesterSummariesTable extends UserSemesterSummaries
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _enrollmentStatusMeta = const VerificationMeta(
-    'enrollmentStatus',
-  );
   @override
-  late final GeneratedColumn<String> enrollmentStatus = GeneratedColumn<String>(
-    'enrollment_status',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
+  late final GeneratedColumnWithTypeConverter<EnrollmentStatus?, String>
+  enrollmentStatus =
+      GeneratedColumn<String>(
+        'enrollment_status',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<EnrollmentStatus?>(
+        $UserSemesterSummariesTable.$converterenrollmentStatusn,
+      );
   static const VerificationMeta _registeredMeta = const VerificationMeta(
     'registered',
   );
@@ -7429,15 +7430,6 @@ class $UserSemesterSummariesTable extends UserSemesterSummaries
         className.isAcceptableOrUnknown(data['class_name']!, _classNameMeta),
       );
     }
-    if (data.containsKey('enrollment_status')) {
-      context.handle(
-        _enrollmentStatusMeta,
-        enrollmentStatus.isAcceptableOrUnknown(
-          data['enrollment_status']!,
-          _enrollmentStatusMeta,
-        ),
-      );
-    }
     if (data.containsKey('registered')) {
       context.handle(
         _registeredMeta,
@@ -7499,10 +7491,13 @@ class $UserSemesterSummariesTable extends UserSemesterSummaries
         DriftSqlType.string,
         data['${effectivePrefix}class_name'],
       ),
-      enrollmentStatus: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}enrollment_status'],
-      ),
+      enrollmentStatus: $UserSemesterSummariesTable.$converterenrollmentStatusn
+          .fromSql(
+            attachedDatabase.typeMapping.read(
+              DriftSqlType.string,
+              data['${effectivePrefix}enrollment_status'],
+            ),
+          ),
       registered: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}registered'],
@@ -7518,6 +7513,15 @@ class $UserSemesterSummariesTable extends UserSemesterSummaries
   $UserSemesterSummariesTable createAlias(String alias) {
     return $UserSemesterSummariesTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<EnrollmentStatus, String, String>
+  $converterenrollmentStatus = const EnumNameConverter<EnrollmentStatus>(
+    EnrollmentStatus.values,
+  );
+  static JsonTypeConverter2<EnrollmentStatus?, String?, String?>
+  $converterenrollmentStatusn = JsonTypeConverter2.asNullable(
+    $converterenrollmentStatus,
+  );
 }
 
 class UserSemesterSummary extends DataClass
@@ -7550,8 +7554,8 @@ class UserSemesterSummary extends DataClass
   /// Plain text — no class code available from this page.
   final String? className;
 
-  /// Enrollment status (e.g., "在學", "休學", "退學").
-  final String? enrollmentStatus;
+  /// Enrollment status (在學, 休學, or 退學).
+  final EnrollmentStatus? enrollmentStatus;
 
   /// Whether the student is registered for this semester.
   final bool? registered;
@@ -7597,7 +7601,11 @@ class UserSemesterSummary extends DataClass
       map['class_name'] = Variable<String>(className);
     }
     if (!nullToAbsent || enrollmentStatus != null) {
-      map['enrollment_status'] = Variable<String>(enrollmentStatus);
+      map['enrollment_status'] = Variable<String>(
+        $UserSemesterSummariesTable.$converterenrollmentStatusn.toSql(
+          enrollmentStatus,
+        ),
+      );
     }
     if (!nullToAbsent || registered != null) {
       map['registered'] = Variable<bool>(registered);
@@ -7656,7 +7664,8 @@ class UserSemesterSummary extends DataClass
       creditsPassed: serializer.fromJson<double?>(json['creditsPassed']),
       note: serializer.fromJson<String?>(json['note']),
       className: serializer.fromJson<String?>(json['className']),
-      enrollmentStatus: serializer.fromJson<String?>(json['enrollmentStatus']),
+      enrollmentStatus: $UserSemesterSummariesTable.$converterenrollmentStatusn
+          .fromJson(serializer.fromJson<String?>(json['enrollmentStatus'])),
       registered: serializer.fromJson<bool?>(json['registered']),
       graduated: serializer.fromJson<bool?>(json['graduated']),
     );
@@ -7674,7 +7683,11 @@ class UserSemesterSummary extends DataClass
       'creditsPassed': serializer.toJson<double?>(creditsPassed),
       'note': serializer.toJson<String?>(note),
       'className': serializer.toJson<String?>(className),
-      'enrollmentStatus': serializer.toJson<String?>(enrollmentStatus),
+      'enrollmentStatus': serializer.toJson<String?>(
+        $UserSemesterSummariesTable.$converterenrollmentStatusn.toJson(
+          enrollmentStatus,
+        ),
+      ),
       'registered': serializer.toJson<bool?>(registered),
       'graduated': serializer.toJson<bool?>(graduated),
     };
@@ -7690,7 +7703,7 @@ class UserSemesterSummary extends DataClass
     Value<double?> creditsPassed = const Value.absent(),
     Value<String?> note = const Value.absent(),
     Value<String?> className = const Value.absent(),
-    Value<String?> enrollmentStatus = const Value.absent(),
+    Value<EnrollmentStatus?> enrollmentStatus = const Value.absent(),
     Value<bool?> registered = const Value.absent(),
     Value<bool?> graduated = const Value.absent(),
   }) => UserSemesterSummary(
@@ -7799,7 +7812,7 @@ class UserSemesterSummariesCompanion
   final Value<double?> creditsPassed;
   final Value<String?> note;
   final Value<String?> className;
-  final Value<String?> enrollmentStatus;
+  final Value<EnrollmentStatus?> enrollmentStatus;
   final Value<bool?> registered;
   final Value<bool?> graduated;
   const UserSemesterSummariesCompanion({
@@ -7871,7 +7884,7 @@ class UserSemesterSummariesCompanion
     Value<double?>? creditsPassed,
     Value<String?>? note,
     Value<String?>? className,
-    Value<String?>? enrollmentStatus,
+    Value<EnrollmentStatus?>? enrollmentStatus,
     Value<bool?>? registered,
     Value<bool?>? graduated,
   }) {
@@ -7922,7 +7935,11 @@ class UserSemesterSummariesCompanion
       map['class_name'] = Variable<String>(className.value);
     }
     if (enrollmentStatus.present) {
-      map['enrollment_status'] = Variable<String>(enrollmentStatus.value);
+      map['enrollment_status'] = Variable<String>(
+        $UserSemesterSummariesTable.$converterenrollmentStatusn.toSql(
+          enrollmentStatus.value,
+        ),
+      );
     }
     if (registered.present) {
       map['registered'] = Variable<bool>(registered.value);
@@ -7970,7 +7987,7 @@ class $UserSemesterSummaryTutorsTable extends UserSemesterSummaryTutors
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES user_semester_summaries (id)',
+      'REFERENCES user_semester_summaries (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _teacherMeta = const VerificationMeta(
@@ -8224,7 +8241,7 @@ class $UserSemesterSummaryCadreRolesTable extends UserSemesterSummaryCadreRoles
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES user_semester_summaries (id)',
+      'REFERENCES user_semester_summaries (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _roleMeta = const VerificationMeta('role');
@@ -8482,7 +8499,7 @@ class $UserSemesterRankingsTable extends UserSemesterRankings
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES user_semester_summaries (id)',
+      'REFERENCES user_semester_summaries (id) ON DELETE CASCADE',
     ),
   );
   @override
@@ -8933,6 +8950,183 @@ class UserSemesterRankingsCompanion
   }
 }
 
+class UserRegistration extends DataClass {
+  final int year;
+  final int term;
+  final String? className;
+  final EnrollmentStatus? enrollmentStatus;
+  const UserRegistration({
+    required this.year,
+    required this.term,
+    this.className,
+    this.enrollmentStatus,
+  });
+  factory UserRegistration.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserRegistration(
+      year: serializer.fromJson<int>(json['year']),
+      term: serializer.fromJson<int>(json['term']),
+      className: serializer.fromJson<String?>(json['className']),
+      enrollmentStatus: $UserSemesterSummariesTable.$converterenrollmentStatusn
+          .fromJson(serializer.fromJson<String?>(json['enrollmentStatus'])),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'year': serializer.toJson<int>(year),
+      'term': serializer.toJson<int>(term),
+      'className': serializer.toJson<String?>(className),
+      'enrollmentStatus': serializer.toJson<String?>(
+        $UserSemesterSummariesTable.$converterenrollmentStatusn.toJson(
+          enrollmentStatus,
+        ),
+      ),
+    };
+  }
+
+  UserRegistration copyWith({
+    int? year,
+    int? term,
+    Value<String?> className = const Value.absent(),
+    Value<EnrollmentStatus?> enrollmentStatus = const Value.absent(),
+  }) => UserRegistration(
+    year: year ?? this.year,
+    term: term ?? this.term,
+    className: className.present ? className.value : this.className,
+    enrollmentStatus: enrollmentStatus.present
+        ? enrollmentStatus.value
+        : this.enrollmentStatus,
+  );
+  @override
+  String toString() {
+    return (StringBuffer('UserRegistration(')
+          ..write('year: $year, ')
+          ..write('term: $term, ')
+          ..write('className: $className, ')
+          ..write('enrollmentStatus: $enrollmentStatus')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(year, term, className, enrollmentStatus);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserRegistration &&
+          other.year == this.year &&
+          other.term == this.term &&
+          other.className == this.className &&
+          other.enrollmentStatus == this.enrollmentStatus);
+}
+
+class $UserRegistrationsView
+    extends ViewInfo<$UserRegistrationsView, UserRegistration>
+    implements HasResultSet {
+  final String? _alias;
+  @override
+  final _$AppDatabase attachedDatabase;
+  $UserRegistrationsView(this.attachedDatabase, [this._alias]);
+  $UserSemesterSummariesTable get userSemesterSummaries =>
+      attachedDatabase.userSemesterSummaries.createAlias('t0');
+  $SemestersTable get semesters => attachedDatabase.semesters.createAlias('t1');
+  @override
+  List<GeneratedColumn> get $columns => [
+    year,
+    term,
+    className,
+    enrollmentStatus,
+  ];
+  @override
+  String get aliasedName => _alias ?? entityName;
+  @override
+  String get entityName => 'user_registrations';
+  @override
+  Map<SqlDialect, String>? get createViewStatements => null;
+  @override
+  $UserRegistrationsView get asDslTable => this;
+  @override
+  UserRegistration map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserRegistration(
+      year: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}year'],
+      )!,
+      term: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}term'],
+      )!,
+      className: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}class_name'],
+      ),
+      enrollmentStatus: $UserSemesterSummariesTable.$converterenrollmentStatusn
+          .fromSql(
+            attachedDatabase.typeMapping.read(
+              DriftSqlType.string,
+              data['${effectivePrefix}enrollment_status'],
+            ),
+          ),
+    );
+  }
+
+  late final GeneratedColumn<int> year = GeneratedColumn<int>(
+    'year',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(semesters.year, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> term = GeneratedColumn<int>(
+    'term',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(semesters.term, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<String> className = GeneratedColumn<String>(
+    'class_name',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(userSemesterSummaries.className, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumnWithTypeConverter<EnrollmentStatus?, String>
+  enrollmentStatus =
+      GeneratedColumn<String>(
+        'enrollment_status',
+        aliasedName,
+        true,
+        generatedAs: GeneratedAs(userSemesterSummaries.enrollmentStatus, false),
+        type: DriftSqlType.string,
+      ).withConverter<EnrollmentStatus?>(
+        $UserSemesterSummariesTable.$converterenrollmentStatusn,
+      );
+  @override
+  $UserRegistrationsView createAlias(String alias) {
+    return $UserRegistrationsView(attachedDatabase, alias);
+  }
+
+  @override
+  Query? get query =>
+      (attachedDatabase.selectOnly(
+        userSemesterSummaries,
+      )..addColumns($columns)).join([
+        innerJoin(
+          semesters,
+          semesters.id.equalsExp(userSemesterSummaries.semester),
+        ),
+      ]);
+  @override
+  Set<String> get readTables => const {'user_semester_summaries', 'semesters'};
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -8968,6 +9162,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $UserSemesterSummaryCadreRolesTable(this);
   late final $UserSemesterRankingsTable userSemesterRankings =
       $UserSemesterRankingsTable(this);
+  late final $UserRegistrationsView userRegistrations = $UserRegistrationsView(
+    this,
+  );
   late final Index teacherSemester = Index(
     'teacher_semester',
     'CREATE INDEX teacher_semester ON teachers (semester)',
@@ -9026,6 +9223,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userSemesterSummaryTutors,
     userSemesterSummaryCadreRoles,
     userSemesterRankings,
+    userRegistrations,
     teacherSemester,
     courseOfferingCourse,
     courseOfferingSemester,
@@ -9035,6 +9233,51 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     scoreUser,
     userSemesterSummaryUser,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'users',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('scores', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'users',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('user_semester_summaries', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'user_semester_summaries',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('user_semester_summary_tutors', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'user_semester_summaries',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate(
+          'user_semester_summary_cadre_roles',
+          kind: UpdateKind.delete,
+        ),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'user_semester_summaries',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('user_semester_rankings', kind: UpdateKind.delete)],
+    ),
+  ]);
 }
 
 typedef $$UsersTableCreateCompanionBuilder =
@@ -17100,7 +17343,7 @@ typedef $$UserSemesterSummariesTableCreateCompanionBuilder =
       Value<double?> creditsPassed,
       Value<String?> note,
       Value<String?> className,
-      Value<String?> enrollmentStatus,
+      Value<EnrollmentStatus?> enrollmentStatus,
       Value<bool?> registered,
       Value<bool?> graduated,
     });
@@ -17115,7 +17358,7 @@ typedef $$UserSemesterSummariesTableUpdateCompanionBuilder =
       Value<double?> creditsPassed,
       Value<String?> note,
       Value<String?> className,
-      Value<String?> enrollmentStatus,
+      Value<EnrollmentStatus?> enrollmentStatus,
       Value<bool?> registered,
       Value<bool?> graduated,
     });
@@ -17302,9 +17545,10 @@ class $$UserSemesterSummariesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get enrollmentStatus => $composableBuilder(
+  ColumnWithTypeConverterFilters<EnrollmentStatus?, EnrollmentStatus, String>
+  get enrollmentStatus => $composableBuilder(
     column: $table.enrollmentStatus,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<bool> get registered => $composableBuilder(
@@ -17585,7 +17829,8 @@ class $$UserSemesterSummariesTableAnnotationComposer
   GeneratedColumn<String> get className =>
       $composableBuilder(column: $table.className, builder: (column) => column);
 
-  GeneratedColumn<String> get enrollmentStatus => $composableBuilder(
+  GeneratedColumnWithTypeConverter<EnrollmentStatus?, String>
+  get enrollmentStatus => $composableBuilder(
     column: $table.enrollmentStatus,
     builder: (column) => column,
   );
@@ -17781,7 +18026,8 @@ class $$UserSemesterSummariesTableTableManager
                 Value<double?> creditsPassed = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<String?> className = const Value.absent(),
-                Value<String?> enrollmentStatus = const Value.absent(),
+                Value<EnrollmentStatus?> enrollmentStatus =
+                    const Value.absent(),
                 Value<bool?> registered = const Value.absent(),
                 Value<bool?> graduated = const Value.absent(),
               }) => UserSemesterSummariesCompanion(
@@ -17809,7 +18055,8 @@ class $$UserSemesterSummariesTableTableManager
                 Value<double?> creditsPassed = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<String?> className = const Value.absent(),
-                Value<String?> enrollmentStatus = const Value.absent(),
+                Value<EnrollmentStatus?> enrollmentStatus =
+                    const Value.absent(),
                 Value<bool?> registered = const Value.absent(),
                 Value<bool?> graduated = const Value.absent(),
               }) => UserSemesterSummariesCompanion.insert(
