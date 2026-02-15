@@ -76,6 +76,7 @@ class ProfileContent extends StatelessWidget {
         final width = constraints.maxWidth;
         final height = constraints.maxHeight;
         final avatarSize = height * 0.59;
+        // TODO: handle non-Chinese names better and a better readablity meanwhile i18n implementing
         final avatarInitial = switch (profile.nameZh) {
           final n when n.isNotEmpty => n.substring(0, 1),
           _ => '?',
