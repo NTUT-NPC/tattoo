@@ -125,7 +125,7 @@ jobs:
 
       - name: Verify Podfile.lock is up-to-date
         run: |
-          cd ios && pod install
+          cd ios && bundle exec pod install
           git diff --exit-code Podfile.lock
 
       - name: Build and Upload to TestFlight
