@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 
-/// Preset styles used by [BackgorundedNotice].
+/// Preset styles used by [BackgorundNotice].
 enum NoticeType { warning, error, info }
 
 /// A lightweight inline notice with optional icon and custom text style.
@@ -98,9 +98,9 @@ class ClearNotice extends StatelessWidget {
 /// ```
 ///
 /// See also: `OptionEntryTile` in `tattoo/lib/components/option_entry_tile.dart`.
-class BackgorundedNotice extends StatelessWidget {
+class BackgorundNotice extends StatelessWidget {
   /// Creates a bordered notice with background tint.
-  const BackgorundedNotice({
+  const BackgorundNotice({
     super.key,
     required this.text,
     this.icon,
