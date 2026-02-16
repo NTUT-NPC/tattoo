@@ -182,7 +182,6 @@ class ProfileContent extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        // TODO: resolve vertical alignment issue when having no chinese character
                         profile.studentId,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
