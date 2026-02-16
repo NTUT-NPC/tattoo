@@ -1,4 +1,4 @@
-FROM debian:trixie-slim@sha256:77ba0164de17b88dd0bf6cdc8f65569e6e5fa6cd256562998b62553134a00ef0 AS builder
+FROM debian:trixie-slim@sha256:f6e2cfac5cf956ea044b4bd75e6397b4372ad88fe00908045e9a0d21712ae3ba AS builder
 
 # Install dependencies
 RUN apt-get update && \
@@ -36,7 +36,7 @@ COPY . .
 RUN --mount=type=cache,target=/root/.pub-cache \
     dart doc
 
-FROM caddy:2-alpine@sha256:d266901f6e0c9d74528463654b7e872e6af8f6bbe23ca13576a1fb601202f8da
+FROM caddy:2-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d
 
 # Copy generated documentation
 COPY --from=builder /app/doc/api /usr/share/caddy
