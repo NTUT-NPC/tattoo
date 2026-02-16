@@ -7,10 +7,8 @@ enum EnrollmentStatus {
   leaveOfAbsence,
 
   /// 退學 — withdrawn/dropped out.
-  droppedOut,
-}
+  droppedOut;
 
-extension EnrollmentStatusLabel on EnrollmentStatus {
   String toLabel() => switch (this) {
     EnrollmentStatus.learning => '在學',
     EnrollmentStatus.leaveOfAbsence => '休學',
