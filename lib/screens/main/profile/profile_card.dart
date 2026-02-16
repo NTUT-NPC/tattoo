@@ -20,7 +20,7 @@ const _placeholderProfile = User(
   email: 't000000000@ntut.edu.tw',
 );
 
-const _palcehoderSemester = UserRegistration(
+const _placeholderSemester = UserRegistration(
   year: 199,
   term: 6,
   className: '載入一申',
@@ -79,7 +79,7 @@ class ProfileCard extends ConsumerWidget {
         _ => const AppSkeleton(
           child: ProfileContent(
             profile: _placeholderProfile,
-            registration: _palcehoderSemester,
+            registration: _placeholderSemester,
           ),
         ),
       },
