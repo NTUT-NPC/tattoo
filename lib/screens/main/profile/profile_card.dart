@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/user.dart';
@@ -101,6 +102,7 @@ class ProfileContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final textTheme = GoogleFonts.notoSansTcTextTheme(theme.textTheme);
 
     return _ProfileCardFrame(
       childBuilder: (context, constraints, borderRadius) {
@@ -131,10 +133,10 @@ class ProfileContent extends StatelessWidget {
                 child: Text(
                   registration?.enrollmentStatus?.toLabel() ?? '學生',
                   textAlign: TextAlign.left,
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: textTheme.bodyMedium?.copyWith(
                     color: Color(0xFF3B3B3B),
                     fontSize: height * 0.07,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -146,7 +148,7 @@ class ProfileContent extends StatelessWidget {
                 width: width * 0.48,
                 child: DefaultTextStyle(
                   style:
-                      theme.textTheme.titleMedium?.copyWith(
+                      textTheme.titleMedium?.copyWith(
                         color: Colors.white,
                         fontSize: height * 0.065,
                         fontWeight: FontWeight.w400,
@@ -165,7 +167,7 @@ class ProfileContent extends StatelessWidget {
                           profile.nameZh.isNotEmpty ? profile.nameZh : '未知',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleMedium?.copyWith(
+                          style: textTheme.titleMedium?.copyWith(
                             color: Colors.white,
                             fontSize: height * 0.11,
                             fontWeight: FontWeight.w700,
