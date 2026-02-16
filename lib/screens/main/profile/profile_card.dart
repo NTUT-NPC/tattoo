@@ -5,14 +5,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/models/user.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 const _placeholderProfile = User(
   id: 0,
   studentId: '000000000',
   nameZh: '王襲浮',
+  nameEn: 'XI-FU, WANG',
+  departmentZh: '正在載入中系',
+  departmentEn: 'Data Loooooding Engineering',
   avatarFilename: '',
   email: 't000000000@ntut.edu.tw',
+);
+
+const _palcehoderSemester = UserRegistration(
+  year: 199,
+  term: 6,
+  className: '載入一申',
+  enrollmentStatus: EnrollmentStatus.learning,
 );
 
 // Configs for profile card styling
@@ -31,40 +42,60 @@ class ProfileCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(userProfileProvider);
     final avatarAsync = ref.watch(userAvatarProvider);
+    final registrationAsync = ref.watch(activeRegistrationProvider);
     final mediaQuery = MediaQuery.of(context);
 
     return MediaQuery(
       // no text scaling to prevent card style from breaking
       data: mediaQuery.copyWith(textScaler: TextScaler.noScaling),
-      child: profileAsync.when(
-        loading: () => const AppSkeleton(
-          child: ProfileContent(profile: _placeholderProfile),
+
+      child: switch ((profileAsync, registrationAsync)) {
+        // NOT_LOGIN state: not logged in
+        (AsyncData(value: null), _) => _ProfileCardFrame(
+          childBuilder: (context, _, _) => Center(child: Text('未登入')),
         ),
-        error: (error, _) => _ProfileCardFrame(
+
+        // ERROR state: show error message on card
+        (AsyncError(:final error), _) ||
+        (_, AsyncError(:final error)) => _ProfileCardFrame(
           childBuilder: (context, _, _) => Center(
             child: Text('Error: $error'),
           ),
         ),
-        data: (profile) {
-          if (profile == null) {
-            return _ProfileCardFrame(
-              childBuilder: (context, _, _) => Center(child: Text('未登入')),
-            );
-          }
-          return ProfileContent(
+
+        // DATA state: show profile content
+        (
+          AsyncData(value: final profile?),
+          AsyncData(value: final registration),
+        ) =>
+          ProfileContent(
             profile: profile,
+            registration: registration,
             avatarFile: avatarAsync.value,
-          );
-        },
-      ),
+          ),
+
+        // LOADING state: show skeleton
+        _ => const AppSkeleton(
+          child: ProfileContent(
+            profile: _placeholderProfile,
+            registration: _palcehoderSemester,
+          ),
+        ),
+      },
     );
   }
 }
 
 class ProfileContent extends StatelessWidget {
-  const ProfileContent({super.key, required this.profile, this.avatarFile});
+  const ProfileContent({
+    super.key,
+    required this.profile,
+    this.registration,
+    this.avatarFile,
+  });
 
   final User profile;
+  final UserRegistration? registration;
   final File? avatarFile;
 
   @override
@@ -98,7 +129,7 @@ class ProfileContent extends StatelessWidget {
                 right: width * 0.095,
                 top: height * 0.018,
                 child: Text(
-                  '學生',
+                  registration?.enrollmentStatus?.toLabel() ?? '學生',
                   textAlign: TextAlign.left,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: Color(0xFF3B3B3B),
@@ -144,8 +175,7 @@ class ProfileContent extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        // TODO: replace with real department
-                        '字串尚待更換學系',
+                        profile.departmentZh ?? '',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -156,8 +186,9 @@ class ProfileContent extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        // TODO: replace with real class
-                        '999-9 叉叉一甲',
+                        registration != null
+                            ? '${registration!.year}-${registration!.term} ${registration!.className ?? ''}'
+                            : '',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
