@@ -14,7 +14,8 @@
     {
       "matchManagers": ["pub"],
       "groupName": "Flutter dependencies",
-      "groupSlug": "flutter"
+      "groupSlug": "flutter",
+      "rangeStrategy": "replace"
     },
     {
       "matchManagers": ["mise"],
