@@ -1,21 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tattoo/components/app_skeleton.dart';
-import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/screens/main/profile/profile_providers.dart';
-
-const _placeholderProfile = User(
-  id: 0,
-  studentId: '000000000',
-  nameZh: 'John Doe',
-  avatarFilename: '',
-  email: 't000000000@ntut.edu.tw',
-);
+import 'package:tattoo/screens/main/profile/profile_card.dart';
 
 class ProfileTab extends ConsumerWidget {
   const ProfileTab({super.key});
@@ -36,7 +24,7 @@ class ProfileTab extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 16,
             children: [
-              _ProfileCard(),
+              ProfileCard(),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
@@ -49,97 +37,6 @@ class ProfileTab extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _ProfileCard extends ConsumerWidget {
-  const _ProfileCard();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final profileAsync = ref.watch(userProfileProvider);
-    final avatarAsync = ref.watch(userAvatarProvider);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: profileAsync.when(
-          loading: () => AppSkeleton(
-            child: _ProfileContent(profile: _placeholderProfile),
-          ),
-          error: (error, _) => Text('Error: $error'),
-          data: (profile) {
-            if (profile == null) {
-              return const Text('未登入');
-            }
-            return _ProfileContent(
-              profile: profile,
-              avatarFile: avatarAsync.value,
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileContent extends StatelessWidget {
-  const _ProfileContent({required this.profile, this.avatarFile});
-
-  final User profile;
-  final File? avatarFile;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Row(
-      spacing: 16,
-      children: [
-        Skeleton.leaf(
-          child: CircleAvatar(
-            radius: 32,
-            backgroundColor: theme.colorScheme.primaryContainer,
-            backgroundImage: avatarFile != null ? FileImage(avatarFile!) : null,
-            child: avatarFile == null
-                ? Text(
-                    profile.nameZh.isNotEmpty
-                        ? profile.nameZh.substring(0, 1)
-                        : '?',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: theme.colorScheme.onPrimaryContainer,
-                    ),
-                  )
-                : null,
-          ),
-        ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 4,
-            children: [
-              Text(
-                profile.nameZh,
-                style: theme.textTheme.titleLarge,
-              ),
-              Text(
-                profile.studentId,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              Text(
-                profile.email,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
