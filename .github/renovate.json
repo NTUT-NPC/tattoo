@@ -6,6 +6,9 @@
     "schedule:monthly"
   ],
   "timezone": "Asia/Taipei",
+  "constraints": {
+    "flutter": "3.38.9"
+  },
   "packageRules": [
     {
       "matchPackageNames": ["dart", "dev.flutter.flutter-plugin-loader"],
@@ -15,7 +18,8 @@
       "matchManagers": ["pub"],
       "groupName": "Flutter dependencies",
       "groupSlug": "flutter",
-      "rangeStrategy": "replace"
+      "rangeStrategy": "bump",
+      "versioning": "npm"
     },
     {
       "matchManagers": ["mise"],
