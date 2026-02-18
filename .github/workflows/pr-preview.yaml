@@ -85,9 +85,9 @@ jobs:
             bundle exec fastlane android upload_dev_firebase \
               build_number:${{ needs.prepare.outputs.build_number }} \
               pr_number:${{ github.event.pull_request.number }} \
-              pr_title:"${{ github.event.pull_request.title }}"\
-              commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \                                                                                                                                                 │
-              commit_message:"${{ needs.prepare.outputs.commit_message }}"   
+              pr_title:"${{ github.event.pull_request.title }}" \
+              commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
+              commit_message:"${{ needs.prepare.outputs.commit_message }}"
 
       - name: Update comment with Android build
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
