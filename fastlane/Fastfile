@@ -77,9 +77,8 @@ platform :ios do
       changelog: "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
     )
   end
-end
-
-desc "Build and upload release build to TestFlight"
+  
+  desc "Build and upload release build to TestFlight"
   lane :upload_prod do |options|
     build_number = options[:build_number] || 1
     pr_number = options[:pr_number] || ""
