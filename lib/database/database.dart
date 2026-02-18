@@ -6,6 +6,9 @@ import 'package:tattoo/database/views.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
+import 'package:tattoo/models/user.dart';
+
+export 'package:tattoo/database/actions.dart';
 
 part 'database.g.dart';
 
@@ -17,9 +20,10 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 });
 
 @DriftDatabase(
-  views: [UserProfiles],
+  views: [UserRegistrations],
   tables: [
     // Base tables
+    Users,
     Students,
     Semesters,
     Courses,
@@ -28,7 +32,6 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     Classes,
     Classrooms,
     // Tables with foreign keys to base tables
-    Users,
     CourseOfferings,
     // Junction tables and dependent tables
     CourseOfferingTeachers,
@@ -39,10 +42,10 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     Materials,
     TeacherOfficeHours,
     Scores,
-    StudentSemesterSummaries,
-    StudentSemesterSummaryTutors,
-    StudentSemesterSummaryCadreRoles,
-    StudentSemesterRankings,
+    UserSemesterSummaries,
+    UserSemesterSummaryTutors,
+    UserSemesterSummaryCadreRoles,
+    UserSemesterRankings,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -53,6 +56,13 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    beforeOpen: (details) async {
+      await customStatement('PRAGMA foreign_keys = ON');
+    },
+  );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'tattoo');

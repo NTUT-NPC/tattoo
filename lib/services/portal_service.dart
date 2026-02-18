@@ -96,14 +96,33 @@ class PortalService {
     );
   }
 
-  /// Checks if the current session is authenticated with NTUT Portal.
+  /// Changes the user's NTUT Portal password.
   ///
-  /// Returns `true` if a valid JSESSIONID cookie exists and the session is active,
-  /// `false` otherwise.
-  Future<bool> isLoggedIn() async {
-    final response = await _portalDio.get('sessionCheckApp.do');
+  /// Requires an active session (call [login] first).
+  ///
+  /// Throws an [Exception] if the password change fails (e.g., incorrect
+  /// current password or the new password doesn't meet requirements).
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final response = await _portalDio.post(
+      'passwordMdy.do',
+      queryParameters: {
+        "oldPassword": currentPassword,
+        "userPassword": newPassword,
+        "pwdForceMdy": "profile",
+      },
+    );
+
     final body = jsonDecode(response.data);
-    return body["success"] == true;
+
+    // API returns "success": "false" on failure (note the string "false")
+    if (body['success'] != true) {
+      throw Exception(
+        body['returnMsg'] ?? 'Password change failed. Please try again.',
+      );
+    }
   }
 
   /// Fetches a user's profile photo from NTUT Portal.

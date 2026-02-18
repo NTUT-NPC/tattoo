@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
+import 'package:tattoo/models/user.dart';
 import 'package:tattoo/services/portal_service.dart';
 import 'package:tattoo/services/student_query_service.dart';
 
@@ -19,15 +20,76 @@ void main() {
       portalService = PortalService();
       studentQueryService = StudentQueryService();
 
-      if (!await portalService.isLoggedIn()) {
-        await portalService.login(
-          TestCredentials.username,
-          TestCredentials.password,
-        );
-      }
+      await portalService.login(
+        TestCredentials.username,
+        TestCredentials.password,
+      );
       await portalService.sso(PortalServiceCode.studentQueryService);
 
       await respectfulDelay();
+    });
+
+    group('getStudentProfile', () {
+      test('should return non-empty Chinese name', () async {
+        final status = await studentQueryService.getStudentProfile();
+
+        expect(status.chineseName, isNotEmpty);
+      });
+
+      test('should parse date of birth as DateTime', () async {
+        final status = await studentQueryService.getStudentProfile();
+
+        expect(status.dateOfBirth, isNotNull);
+        expect(status.dateOfBirth!.year, greaterThanOrEqualTo(1900));
+        expect(status.dateOfBirth!.month, inInclusiveRange(1, 12));
+        expect(status.dateOfBirth!.day, inInclusiveRange(1, 31));
+      });
+
+      test('should split program into Chinese and English', () async {
+        final status = await studentQueryService.getStudentProfile();
+
+        expect(status.programZh, isNotNull);
+        expect(status.programEn, isNotNull);
+        expect(
+          status.programZh,
+          isNot(contains(RegExp(r'[A-Za-z]'))),
+          reason: 'Chinese part should not contain Latin characters',
+        );
+        expect(
+          status.programEn,
+          matches(RegExp(r'^[A-Za-z]')),
+          reason: 'English part should start with a Latin character',
+        );
+      });
+
+      test('should split department into Chinese and English', () async {
+        final status = await studentQueryService.getStudentProfile();
+
+        expect(status.departmentZh, isNotNull);
+        expect(status.departmentEn, isNotNull);
+        expect(
+          status.departmentZh,
+          isNot(contains(RegExp(r'[A-Za-z]'))),
+          reason: 'Chinese part should not contain Latin characters',
+        );
+        expect(
+          status.departmentEn,
+          matches(RegExp(r'^[A-Za-z]')),
+          reason: 'English part should start with a Latin character',
+        );
+      });
+
+      test('should parse English name without inline notes', () async {
+        final status = await studentQueryService.getStudentProfile();
+
+        if (status.englishName != null) {
+          expect(
+            status.englishName,
+            isNot(contains('申請')),
+            reason: 'English name should not contain the inline note text',
+          );
+        }
+      });
     });
 
     group('getRegistrationRecords', () {
@@ -58,9 +120,9 @@ void main() {
           );
           expect(
             record.enrollmentStatus,
-            isNotNull,
+            isIn(EnrollmentStatus.values),
             reason:
-                'Semester ${record.semester.year}-${record.semester.term} should have an enrollment status',
+                'Semester ${record.semester.year}-${record.semester.term} should have a valid enrollment status',
           );
         }
       });

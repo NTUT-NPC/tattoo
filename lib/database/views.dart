@@ -1,21 +1,23 @@
 import 'package:drift/drift.dart';
 import 'package:tattoo/database/schema.dart';
 
-/// User profile view joining [Users] and [Students].
-abstract class UserProfiles extends View {
-  Users get users;
-  Students get students;
+/// Joins [UserSemesterSummaries] with [Semesters] to provide registration
+/// details (class name, enrollment status) alongside semester year/term.
+abstract class UserRegistrations extends View {
+  UserSemesterSummaries get userSemesterSummaries;
+  Semesters get semesters;
 
   @override
   Query as() =>
       select([
-        users.id,
-        users.avatarFilename,
-        users.email,
-        users.passwordExpiresInDays,
-        students.studentId,
-        students.name,
-      ]).from(users).join([
-        innerJoin(students, students.id.equalsExp(users.student)),
+        semesters.year,
+        semesters.term,
+        userSemesterSummaries.className,
+        userSemesterSummaries.enrollmentStatus,
+      ]).from(userSemesterSummaries).join([
+        innerJoin(
+          semesters,
+          semesters.id.equalsExp(userSemesterSummaries.semester),
+        ),
       ]);
 }

@@ -6,9 +6,9 @@ import 'package:tattoo/repositories/auth_repository.dart';
 
 /// Provides the current user's profile.
 ///
-/// Returns `null` if not logged in.
-final userProfileProvider = FutureProvider.autoDispose<UserProfile?>((ref) {
-  return ref.watch(authRepositoryProvider).getUserProfile();
+/// Returns `null` if not logged in. Automatically fetches full profile if stale.
+final userProfileProvider = FutureProvider.autoDispose<User?>((ref) {
+  return ref.watch(authRepositoryProvider).getUser();
 });
 
 /// Provides the current user's avatar file.
@@ -17,3 +17,12 @@ final userProfileProvider = FutureProvider.autoDispose<UserProfile?>((ref) {
 final userAvatarProvider = FutureProvider.autoDispose<File?>((ref) {
   return ref.watch(authRepositoryProvider).getAvatar();
 });
+
+/// Provides the user's active registration (current class and semester).
+///
+/// Depends on [userProfileProvider] to ensure registration data is populated.
+final activeRegistrationProvider =
+    FutureProvider.autoDispose<UserRegistration?>((ref) async {
+      await ref.watch(userProfileProvider.future);
+      return ref.watch(authRepositoryProvider).getActiveRegistration();
+    });

@@ -11,10 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup project
         uses: ./.github/actions/setup-project
+
+      - name: Verify Flutter version in Renovate config
+        run: |
+          EXPECTED=$(mise current flutter)
+          ACTUAL=$(jq -r '.constraints.flutter' .github/renovate.json)
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "::error::.github/renovate.json has flutter constraint '$ACTUAL', expected '$EXPECTED' from mise.toml"
+            exit 1
+          fi
 
       - name: Verify generated files are up-to-date
         run: |

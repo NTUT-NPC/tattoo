@@ -1,8 +1,10 @@
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
+import 'package:tattoo/models/user.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// A single course score entry from the academic performance page.
@@ -57,8 +59,8 @@ typedef RegistrationRecordDto = ({
   /// Student's assigned class name (e.g., "電子四甲").
   String? className,
 
-  /// Enrollment status (e.g., "在學", "休學", "退學").
-  String? enrollmentStatus,
+  /// Enrollment status (在學, 休學, or 退學).
+  EnrollmentStatus? enrollmentStatus,
 
   /// Whether the student is registered for this semester.
   bool registered,
@@ -100,6 +102,22 @@ typedef GradeRankingDto = ({
   List<GradeRankingEntryDto> entries,
 });
 
+/// Student status (學籍基本資料) from the basis data page.
+typedef StudentProfileDto = ({
+  String? chineseName,
+  String? englishName,
+  DateTime? dateOfBirth,
+  String? programZh,
+  String? programEn,
+  String? departmentZh,
+  String? departmentEn,
+});
+
+/// Provides the singleton [StudentQueryService] instance.
+final studentQueryServiceProvider = Provider<StudentQueryService>(
+  (ref) => StudentQueryService(),
+);
+
 /// Service for accessing NTUT's student query system (學生查詢專區).
 ///
 /// This service provides access to:
@@ -117,6 +135,74 @@ class StudentQueryService {
   StudentQueryService() {
     _studentQueryDio = createDio()
       ..options.baseUrl = 'https://aps-stu.ntut.edu.tw/StuQuery/';
+  }
+
+  /// Fetches student status (學籍基本資料).
+  Future<StudentProfileDto> getStudentProfile() async {
+    final response = await _studentQueryDio.get('QryBasisData.jsp');
+    final document = parse(response.data);
+
+    final table = document.querySelector('table');
+    if (table == null) {
+      throw FormatException('No table found in QryBasisData.jsp');
+    }
+
+    // Build a map from English header text to the cell value.
+    // Data rows have 2 TH (Chinese label, English label) + 1 TD (value).
+    final fields = <String, String?>{};
+    for (final row in table.querySelectorAll('tr')) {
+      final ths = row.querySelectorAll('th');
+      final tds = row.querySelectorAll('td');
+      if (ths.length != 2 || tds.length != 1) continue;
+
+      final key = ths[1].text.trim();
+      // English Name has an inline <div> note; extract the first text node.
+      if (key == 'English Name') {
+        fields[key] = tds[0].nodes
+            .where((node) => node.nodeType == Node.TEXT_NODE)
+            .firstOrNull
+            ?.text
+            ?.trim();
+      } else {
+        fields[key] = _parseCellText(tds[0]);
+      }
+    }
+
+    // Date of Birth: "92年05月12日　2003/5/12" — extract Western date.
+    final dobMatch = RegExp(
+      r'(\d{4})/(\d{1,2})/(\d{1,2})',
+    ).firstMatch(fields['Date of Birth'] ?? '');
+    final dateOfBirth = dobMatch != null
+        ? DateTime(
+            int.parse(dobMatch.group(1)!),
+            int.parse(dobMatch.group(2)!),
+            int.parse(dobMatch.group(3)!),
+          )
+        : null;
+
+    // Split mixed Chinese+English text at the first Latin character.
+    // e.g. "四年制大學部Four-Year Program" → ("四年制大學部", "Four-Year Program")
+    (String?, String?) splitZhEn(String? text) {
+      if (text == null) return (null, null);
+      final i = text.indexOf(RegExp(r'[A-Za-z]'));
+      if (i <= 0) return (text, null);
+      return (text.substring(0, i).trim(), text.substring(i).trim());
+    }
+
+    final (programZh, programEn) = splitZhEn(fields['Program']);
+    final (departmentZh, departmentEn) = splitZhEn(
+      fields['Department/Graduate Institute'],
+    );
+
+    return (
+      chineseName: fields['Chinese Name'],
+      englishName: fields['English Name'],
+      dateOfBirth: dateOfBirth,
+      programZh: programZh,
+      programEn: programEn,
+      departmentZh: departmentZh,
+      departmentEn: departmentEn,
+    );
   }
 
   /// Fetches academic performance (scores) for all semesters.
@@ -319,7 +405,7 @@ class StudentQueryService {
         term: int.parse(semesterMatch.group(2)!),
       );
       final className = _parseCellText(cells[1]);
-      final enrollmentStatus = _parseCellText(cells[2]);
+      final enrollmentStatus = _parseEnrollmentStatus(_parseCellText(cells[2]));
       final registered = cells[3].text.contains('※');
       final graduated = cells[4].text.contains('※');
 
@@ -363,6 +449,16 @@ class StudentQueryService {
     if (text.contains('Group')) return RankingType.groupLevel;
     if (text.contains('Department')) return RankingType.departmentLevel;
     return null;
+  }
+
+  /// Maps enrollment status text to [EnrollmentStatus].
+  EnrollmentStatus? _parseEnrollmentStatus(String? text) {
+    return switch (text) {
+      '在學' => EnrollmentStatus.learning,
+      '休學' => EnrollmentStatus.leaveOfAbsence,
+      '退學' => EnrollmentStatus.droppedOut,
+      _ => null,
+    };
   }
 
   /// Parses a score cell value into either a numeric grade or a [ScoreStatus].
