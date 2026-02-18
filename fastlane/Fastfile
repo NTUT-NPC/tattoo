@@ -35,7 +35,7 @@ platform :ios do
   desc "Build and upload PR preview to TestFlight Internal Testing"
   lane :upload_pr_preview do |options|
     build_number = options[:build_number] || 1
-    pr_number = options[:pr_number] || "Manual"
+    pr_number = options[:pr_number] || ""
     pr_title = options[:pr_title] || "manual build"
     commit_sha = options[:commit_sha] || "manual build"
     commit_message = options[:commit_message] || "This is a manual build without PR information"
@@ -79,6 +79,53 @@ platform :ios do
   end
 end
 
+desc "Build and upload release build to TestFlight"
+  lane :upload_prod do |options|
+    build_number = options[:build_number] || 1
+    pr_number = options[:pr_number] || ""
+    pr_title = options[:pr_title] || "manual build"
+    commit_sha = options[:commit_sha] || "manual build"
+    commit_message = options[:commit_message] || "This is a manual build without PR information"
+
+    setup_ci if is_ci
+
+    sync_code_signing(
+      type: "appstore",
+      readonly: is_ci,
+    )
+
+    update_code_signing_settings(
+      path: "ios/Runner.xcodeproj",
+      sdk: "iphoneos*",
+      code_sign_identity: "iPhone Distribution",
+      profile_name: "match AppStore #{ENV["FASTLANE_APP_IDENTIFIER"]}",
+    )
+
+    # Build and create xcarchive without code signing
+    archive_path = flutter_build(
+      build: "ipa",
+      build_number: build_number,
+      build_args: ["--no-codesign"],
+    )
+
+    build_app(
+      skip_build_archive: true,
+      archive_path: archive_path,
+      export_team_id: ENV["FASTLANE_TEAM_ID"],
+      suppress_xcode_output: true,
+    )
+
+    app_store_connect_api_key(
+      is_key_content_base64: true,
+    )
+
+    upload_to_testflight(
+      skip_waiting_for_build_processing: is_ci,
+      changelog: "#{pr_title}\n#{commit_sha} #{commit_message}",
+    )
+  end
+end
+
 platform :android do
   desc "Build and sign release APK"
   lane :build_apk do
@@ -99,7 +146,7 @@ platform :android do
     )
   end
 
-  desc "setup credential for environment"
+  desc "Setup credential for environment"
   lane :setup_keystore do |options|
     skip_signing = options.fetch(:skip_signing, true)
 
@@ -126,7 +173,7 @@ platform :android do
   desc "Distribute development build to Firebase App Distribution (Android)"
   lane :upload_dev_firebase do |options|
     build_number = options[:build_number] || 1
-    pr_number = options[:pr_number] || "Manual"
+    pr_number = options[:pr_number] || ""
     pr_title = options[:pr_title] || "manual build"
     commit_sha = options[:commit_sha] || "manual build"
     commit_message = options[:commit_message] || "This is a manual build without PR information"
@@ -153,7 +200,7 @@ platform :android do
   desc "Distribute release build to Google Play Console"
   lane :upload_release_playstore do |options|
     build_number = options[:build_number] ||  1
-    pr_number = options[:pr_number] || "Manual"
+    pr_number = options[:pr_number] || "unknown"
     pr_title = options[:pr_title] || "manual build"
     commit_sha = options[:commit_sha] || "manual build"
     commit_message = options[:commit_message] || "This is a manual build without PR information"
