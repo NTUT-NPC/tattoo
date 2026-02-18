@@ -52,6 +52,14 @@ Build and sign release APK
 
 Build and sign release AAB
 
+### android setup_keystore
+
+```sh
+[bundle exec] fastlane android setup_keystore
+```
+
+setup credential for environment
+
 ### android upload_dev_firebase
 
 ```sh

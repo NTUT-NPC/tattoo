@@ -89,44 +89,16 @@ jobs:
               commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \                                                                                                                                                 │
               commit_message:"${{ needs.prepare.outputs.commit_message }}"   
 
-      # - name: Build APK
-      #   run: flutter build apk --no-pub --split-per-abi --build-number=${{ needs.prepare.outputs.build_number }}
-        
-
-      # - name: Upload APKs to R2
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-      #     AWS_ENDPOINT_URL_S3: ${{ secrets.R2_ENDPOINT_URL }}
-      #     R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
-      #   run: |
-      #     PR_NUMBER="${{ github.event.pull_request.number }}"
-      #     COMMIT_SHA="${{ needs.prepare.outputs.commit_sha }}"
-      #     R2_PATH="pr-${PR_NUMBER}/${COMMIT_SHA}"
-
-      #     # Upload all APKs to R2 with public-read ACL
-      #     aws s3 cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk \
-      #       s3://${R2_BUCKET_NAME}/${R2_PATH}/app-armeabi-v7a-release.apk \
-      #       --acl public-read
-
-      #     aws s3 cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
-      #       s3://${R2_BUCKET_NAME}/${R2_PATH}/app-arm64-v8a-release.apk \
-      #       --acl public-read
-
-      #     aws s3 cp build/app/outputs/flutter-apk/app-x86_64-release.apk \
-      #       s3://${R2_BUCKET_NAME}/${R2_PATH}/app-x86_64-release.apk \
-      #       --acl public-read
-
-      # - name: Update comment with Android build
-      #   uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
-      #   with:
-      #     comment-id: ${{ needs.prepare.outputs.comment_id }}
-      #     body: |
-      #       ### Android APKs
-      #       - [armeabi-v7a APK](${{ secrets.R2_PUBLIC_URL }}/pr-${{ github.event.pull_request.number }}/${{ needs.prepare.outputs.commit_sha }}/app-armeabi-v7a-release.apk)
-      #       - [arm64-v8a APK](${{ secrets.R2_PUBLIC_URL }}/pr-${{ github.event.pull_request.number }}/${{ needs.prepare.outputs.commit_sha }}/app-arm64-v8a-release.apk)
-      #       - [x86_64 APK](${{ secrets.R2_PUBLIC_URL }}/pr-${{ github.event.pull_request.number }}/${{ needs.prepare.outputs.commit_sha }}/app-x86_64-release.apk)
-      #     edit-mode: append
+      - name: Update comment with Android build
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
+        with:
+          comment-id: ${{ needs.prepare.outputs.comment_id }}
+          body: |
+            ### Android (Firebase App Distribution)
+            1. Open the Firebase App Distribution app on your Android device
+            2. Select "Project Tattoo"
+            3. Install build ${{ needs.prepare.outputs.build_number }}
+          edit-mode: append
 
 
 
