@@ -72,29 +72,52 @@ void main() {
       });
     });
 
-    group('getAvatar', () {
-      test('should download avatar data', () async {
-        final user = await portalService.login(
+    group('avatar', () {
+      test('should get placeholder when filename is empty', () async {
+        await portalService.login(
           TestCredentials.username,
           TestCredentials.password,
         );
 
-        expect(
-          user.avatarFilename,
-          isNotNull,
-          reason: 'Test account must have an avatar set',
-        );
-        expect(user.avatarFilename, isNotEmpty);
+        final placeholder = await portalService.getAvatar();
+        expect(placeholder, isNotEmpty);
+      });
 
-        final avatarData = await portalService.getAvatar(
-          user.avatarFilename!,
+      test('should upload, download, and replace avatar', () async {
+        final user = await portalService.login(
+          TestCredentials.username,
+          TestCredentials.password,
         );
+        final originalFilename = user.avatarFilename;
 
-        expect(
-          avatarData,
-          isNotEmpty,
-          reason: 'Avatar data should not be empty',
+        // Save original for restoration
+        final originalAvatar = await portalService.getAvatar(originalFilename);
+        expect(originalAvatar, isNotEmpty);
+
+        // Upload placeholder as test data
+        await respectfulDelay();
+        final placeholder = await portalService.getAvatar();
+        final newFilename = await portalService.uploadAvatar(
+          placeholder,
+          originalFilename,
         );
+        expect(newFilename, isNotEmpty);
+
+        // Download and verify
+        final downloadedData = await portalService.getAvatar(newFilename);
+        expect(downloadedData, isNotEmpty);
+
+        // Replace with original (no delete — matches official app behavior)
+        await respectfulDelay();
+        final restoredFilename = await portalService.uploadAvatar(
+          originalAvatar,
+          newFilename,
+        );
+        expect(restoredFilename, isNotEmpty);
+
+        // Verify restored avatar is downloadable
+        final restoredData = await portalService.getAvatar(restoredFilename);
+        expect(restoredData, equals(originalAvatar));
       });
     });
 

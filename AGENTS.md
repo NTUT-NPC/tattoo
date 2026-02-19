@@ -4,20 +4,20 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-02-10. If stale (>30 days), verify Status section against codebase.
+**Last updated:** 2026-02-19. If stale (>30 days), verify Status section against codebase.
 
 ## Status
 
 **Done:**
 
-- PortalService (auth+SSO, changePassword), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
+- PortalService (auth+SSO, changePassword, getAvatar, uploadAvatar), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
 - StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile)
 - HTTP utils, InvalidCookieFilter interceptor
 - Drift database schema with all tables
 - Service DTOs migrated to Dart 3 records
 - Repository stubs (AuthRepository, CourseRepository)
 - Riverpod setup (manual providers, no codegen — riverpod_generator incompatible with Drift-generated types)
-- Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json`)
+- Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`)
 - AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage)
 - go_router navigation setup
 - UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile). Uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
@@ -54,6 +54,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 ## Architecture
 
 MVVM pattern with Riverpod for DI and reactive state:
+
 - UI calls repository actions directly via constructor providers (`ref.read`)
 - UI observes data through screen-level FutureProviders (`ref.watch`)
 - Repositories encapsulate business logic, coordinate Services (HTTP) and Database (Drift)
@@ -70,6 +71,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 - `lib/screens/` - Screen widgets organized by feature (welcome/, main/)
 
 **Provider placement:**
+
 - Constructor providers (DI wiring) are co-located with the classes they construct (services, database, repositories)
 - Screen-specific providers live alongside the screen that consumes them (e.g., `screens/main/course_table/course_table_providers.dart`)
 - Shared providers used by multiple screens in a feature live one level up (e.g., `screens/main/course_providers.dart`)
@@ -133,6 +135,8 @@ MVVM pattern with Riverpod for DI and reactive state:
 **User-Agent:** PortalService uses `app.ntut.edu.tw` endpoints designed for the official NTUT iOS app (`User-Agent: Direk ios App`). This bypasses login captcha that the web portal (`nportal.ntut.edu.tw`) requires. Without the correct User-Agent, the server will refuse requests. Browser-based testing of these endpoints won't work.
 
 **InvalidCookieFilter:** iSchool+ returns malformed cookies; custom interceptor filters them.
+
+**Connection: close:** PortalService uses `Connection: close` header. NTUT portal servers close keep-alive connections after multipart uploads, causing stale socket errors if Dart's HTTP client tries to reuse them.
 
 ### NTUT Portal apOu Codes
 
