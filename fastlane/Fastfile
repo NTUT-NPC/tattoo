@@ -145,7 +145,7 @@ platform :android do
     )
   end
 
-  desc "Setup credential for environment"
+  desc "Setup credentials for environment"
   lane :setup_keystore do |options|
     skip_signing = options.fetch(:skip_signing, true)
 
@@ -178,7 +178,18 @@ platform :android do
     commit_message = options[:commit_message] || "This is a manual build without PR information"
 
     basepath = setup_keystore(skip_signing: true)
-    firebase_service_account_path = File.join(basepath, ENV["FIREBASE_SERVICE_ACCOUNT_JSON_PATH"])
+
+    service_account_rel = ENV["FIREBASE_SERVICE_ACCOUNT_JSON_PATH"]
+    if service_account_rel.nil? || service_account_rel.empty?
+      UI.user_error!("FIREBASE_SERVICE_ACCOUNT_JSON_PATH is not set or empty")
+    end
+
+    basepath_expanded = File.expand_path(basepath)
+    firebase_service_account_path = File.expand_path(service_account_rel, basepath_expanded)
+
+    unless firebase_service_account_path.start_with?(basepath_expanded + File::SEPARATOR) || firebase_service_account_path == basepath_expanded
+      UI.user_error!("Invalid FIREBASE_SERVICE_ACCOUNT_JSON_PATH; must point inside #{basepath_expanded}")
+    end
 
     output_file = flutter_build(
       build: "appbundle",
@@ -198,14 +209,26 @@ platform :android do
 
   desc "Distribute release build to Google Play Console"
   lane :upload_release_playstore do |options|
-    build_number = options[:build_number] ||  1
-    pr_number = options[:pr_number] || "unknown"
+    build_number = options[:build_number] || 1
+    pr_number = options[:pr_number] || ""
     pr_title = options[:pr_title] || "manual build"
     commit_sha = options[:commit_sha] || "manual build"
     commit_message = options[:commit_message] || "This is a manual build without PR information"
 
-    basepath = setup_keystore(skip_signing: true)    
-    supply_json_key_path = File.join(basepath, ENV["SUPPLY_JSON_KEY_PATH"])
+    basepath = setup_keystore(skip_signing: true) 
+
+    supply_json_key_rel = ENV["SUPPLY_JSON_KEY_PATH"]
+    if supply_json_key_rel.nil? || supply_json_key_rel.empty?
+      UI.user_error!("SUPPLY_JSON_KEY_PATH is not set or empty")
+    end
+
+    basepath_expanded = File.expand_path(basepath)
+    supply_json_key_path = File.expand_path(supply_json_key_rel, basepath_expanded)
+
+    unless supply_json_key_path.start_with?(basepath_expanded + File::SEPARATOR) || supply_json_key_path == basepath_expanded
+      UI.user_error!("Invalid SUPPLY_JSON_KEY_PATH; must point inside #{basepath_expanded}")
+    end
+
     
     output_file = flutter_build(
       build: "appbundle",
@@ -214,7 +237,7 @@ platform :android do
     )
 
     # Create dynamic changelog files in the standard fastlane/metadata directory
-    changelog_text = pr_number != "unknown" ? "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}" : "#{pr_title}\n#{commit_sha} #{commit_message}"
+    changelog_text = pr_number != "" ? "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}" : "#{pr_title}\n#{commit_sha} #{commit_message}"
     ["zh-TW"].each do |locale|
       path = "metadata/android/#{locale}/changelogs"
       FileUtils.mkdir_p(path)

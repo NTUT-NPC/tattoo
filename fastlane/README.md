@@ -58,7 +58,7 @@ Build and sign release AAB
 [bundle exec] fastlane android setup_keystore
 ```
 
-setup credential for environment
+Setup credentials for environment
 
 ### android upload_dev_firebase
 

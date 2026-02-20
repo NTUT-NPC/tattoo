@@ -74,20 +74,20 @@ jobs:
 
       - name: Upload to Firebase App Distribution (Android)
         env:
-            FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
-            MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
-            MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
-            MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-            MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-            FIREBASE_APP_ID_ANDROID: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
-            FIREBASE_SERVICE_ACCOUNT_JSON_PATH: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON_PATH }}
+          FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          FIREBASE_APP_ID_ANDROID: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
+          FIREBASE_SERVICE_ACCOUNT_JSON_PATH: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON_PATH }}
         run: |
-            bundle exec fastlane android upload_dev_firebase \
-              build_number:${{ needs.prepare.outputs.build_number }} \
-              pr_number:${{ github.event.pull_request.number }} \
-              pr_title:"${{ github.event.pull_request.title }}" \
-              commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
-              commit_message:"${{ needs.prepare.outputs.commit_message }}"
+          bundle exec fastlane android upload_dev_firebase \
+            build_number:${{ needs.prepare.outputs.build_number }} \
+            pr_number:${{ github.event.pull_request.number }} \
+            pr_title:"${{ github.event.pull_request.title }}" \
+            commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
+            commit_message:"${{ needs.prepare.outputs.commit_message }}"
 
       - name: Update comment with Android build
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
