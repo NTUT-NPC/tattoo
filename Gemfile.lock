@@ -1,6 +1,7 @@
 GIT
   remote: https://github.com/NTUT-NPC/fastlane-plugin-match_keystore
   revision: 253eca7742a58d4db363efa0ac03fa14c477a149
+  ref: 253eca7742a58d4db363efa0ac03fa14c477a149
   specs:
     fastlane-plugin-match_keystore (0.2.1)
 
