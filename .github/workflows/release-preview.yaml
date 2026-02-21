@@ -7,7 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       branch_name:
-        description: 'Branch to build'
+        description: >
+          [Caution] The CI logic is pulled from the "Use workflow from" dropdown. 
+          Use this field to specify a DIFFERENT branch to checkout and build from HEAD (latest commit).
         required: false
         type: string
       commit_sha:
