@@ -59,8 +59,11 @@ MVVM pattern with Riverpod for DI and reactive state:
 - UI observes data through screen-level FutureProviders (`ref.watch`)
 - Repositories encapsulate business logic, coordinate Services (HTTP) and Database (Drift)
 
+**Credentials:** `tool/credentials.dart` manages encrypted credentials from the `tattoo-credentials` Git repo. Run `dart run tool/credentials.dart fetch` to decrypt and place Firebase configs, Android keystore, and service account. Compatible with match_keystore encryption format (AES-256-CBC, PBKDF2). Config from env vars or `.env` file.
+
 **Structure:**
 
+- `tool/` - Dart CLI tools (credentials management)
 - `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType, ScoreStatus)
 - `lib/repositories/` - Repository class + constructor provider (DI wiring)
 - `lib/services/` - HTTP clients, parse responses, return DTOs (as records)

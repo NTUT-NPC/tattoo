@@ -2,8 +2,5 @@
 #
 # Ensure this file is checked in to source control!
 
-# Use forked version with cross-platform fixes and Ruby OpenSSL migration
-gem 'fastlane-plugin-match_keystore',
-  git: 'https://github.com/NTUT-NPC/fastlane-plugin-match_keystore'
-
 gem 'fastlane-plugin-flutter'
+gem 'fastlane-plugin-firebase_app_distribution'

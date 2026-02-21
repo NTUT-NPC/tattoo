@@ -15,42 +15,34 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios build_ipa
+### ios upload_testflight
 
 ```sh
-[bundle exec] fastlane ios build_ipa
+[bundle exec] fastlane ios upload_testflight
 ```
 
-Build and sign release IPA
-
-### ios upload_pr_preview
-
-```sh
-[bundle exec] fastlane ios upload_pr_preview
-```
-
-Build and upload PR preview to TestFlight Internal Testing
+Build and upload build to TestFlight
 
 ----
 
 
 ## Android
 
-### android build_apk
+### android upload_dev_firebase
 
 ```sh
-[bundle exec] fastlane android build_apk
+[bundle exec] fastlane android upload_dev_firebase
 ```
 
-Build and sign release APK
+Build and upload development build to Firebase App Distribution
 
-### android build_aab
+### android upload_release_playstore
 
 ```sh
-[bundle exec] fastlane android build_aab
+[bundle exec] fastlane android upload_release_playstore
 ```
 
-Build and sign release AAB
+Build and upload release build to Google Play Console
 
 ----
 

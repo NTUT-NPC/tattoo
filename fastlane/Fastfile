@@ -14,27 +14,13 @@
 # update_fastlane
 
 platform :ios do
-  desc "Build and sign release IPA"
-  lane :build_ipa do
-    setup_ci if is_ci
-
-    match(
-      type: "development",
-      readonly: is_ci
-    )
-
-    flutter_build(
-      build: "ipa",
-    )
-  end
-
-  desc "Build and upload PR preview to TestFlight Internal Testing"
-  lane :upload_pr_preview do |options|
+  desc "Build and upload build to TestFlight"
+  lane :upload_testflight do |options|
     build_number = options[:build_number] || 1
-    pr_number = options[:pr_number] || "unknown"
-    pr_title = options[:pr_title] || ""
-    commit_sha = options[:commit_sha] || ""
-    commit_message = options[:commit_message] || ""
+    pr_number = options[:pr_number] || ""
+    pr_title = options[:pr_title] || "manual build"
+    commit_sha = options[:commit_sha] || "manual build"
+    commit_message = options[:commit_message] || "This is a manual build without PR information"
 
     setup_ci if is_ci
 
@@ -47,7 +33,7 @@ platform :ios do
       path: "ios/Runner.xcodeproj",
       sdk: "iphoneos*",
       code_sign_identity: "iPhone Distribution",
-      profile_name: "match AppStore club.ntut.tattoo",
+      profile_name: "match AppStore #{ENV["FASTLANE_APP_IDENTIFIER"]}",
     )
 
     # Build and create xcarchive without code signing
@@ -68,30 +54,80 @@ platform :ios do
       is_key_content_base64: true,
     )
 
+    changelog = pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}"
+
     upload_to_testflight(
       skip_waiting_for_build_processing: is_ci,
-      changelog: "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
+      changelog: changelog,
     )
   end
 end
 
 platform :android do
-  desc "Build and sign release APK"
-  lane :build_apk do
-    match_keystore(skip_signing: true)
+  desc "Build and upload development build to Firebase App Distribution"
+  lane :upload_dev_firebase do |options|
+    build_number = options[:build_number] || 1
+    pr_number = options[:pr_number] || ""
+    pr_title = options[:pr_title] || "manual build"
+    commit_sha = options[:commit_sha] || "manual build"
+    commit_message = options[:commit_message] || "This is a manual build without PR information"
 
-    flutter_build(
-      build: "apk",
-      build_args: "--split-per-abi"
+    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
+
+    output_file = flutter_build(
+      build: "appbundle",
+      build_number: build_number,
     )
+
+    changelog = pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}"
+
+    release = firebase_app_distribution(
+      groups: "dev-tester",
+      release_notes: changelog,
+      android_artifact_type: "AAB",
+      android_artifact_path: output_file,
+      service_credentials_file: File.expand_path("../service-account.json", __dir__),
+    )
+
+    if ENV["GITHUB_OUTPUT"]
+      File.open(ENV["GITHUB_OUTPUT"], "a") do |f|
+        f.puts "testing_uri=#{release[:testingUri]}"
+      end
+    end
   end
 
-  desc "Build and sign release AAB"
-  lane :build_aab do
-    match_keystore(skip_signing: true)
+  desc "Build and upload release build to Google Play Console"
+  lane :upload_release_playstore do |options|
+    build_number = options[:build_number] || 1
+    pr_number = options[:pr_number] || ""
+    pr_title = options[:pr_title] || "manual build"
+    commit_sha = options[:commit_sha] || "manual build"
+    commit_message = options[:commit_message] || "This is a manual build without PR information"
 
-    flutter_build(
+    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
+
+    output_file = flutter_build(
       build: "appbundle",
+      build_number: build_number,
+    )
+
+    # Create dynamic changelog files in the standard fastlane/metadata directory
+    changelog_text = pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}"
+    ["zh-TW"].each do |locale|
+      path = "metadata/android/#{locale}/changelogs"
+      FileUtils.mkdir_p(path)
+      File.write("#{path}/#{build_number}.txt", changelog_text)
+    end
+
+    upload_to_play_store(
+      package_name: ENV["FASTLANE_APP_IDENTIFIER"],
+      track: "internal",
+      aab: output_file,
+      json_key: File.expand_path("../service-account.json", __dir__),
+      skip_upload_metadata: false,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_changelogs: false
     )
   end
 end
