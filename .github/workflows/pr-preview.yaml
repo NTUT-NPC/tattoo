@@ -95,7 +95,7 @@ jobs:
           comment-id: ${{ needs.prepare.outputs.comment_id }}
           body: |
             ### Android (Firebase App Distribution)
-            1. Open the Firebase App Distribution app on your Android device
+            1. Open the App Tester app on your Android device
             2. Select "Project Tattoo"
             3. Install build ${{ needs.prepare.outputs.build_number }}
           edit-mode: append
