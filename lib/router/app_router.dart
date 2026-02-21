@@ -41,7 +41,7 @@ final appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.home,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: TableTab()),
+                  const NoTransitionPage(child: CourseTableScreen()),
             ),
           ],
         ),
@@ -50,7 +50,7 @@ final appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.score,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ScoreTab()),
+                  const NoTransitionPage(child: ScoreScreen()),
             ),
           ],
         ),
@@ -59,7 +59,7 @@ final appRouter = GoRouter(
             GoRoute(
               path: AppRoutes.profile,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ProfileTab()),
+                  const NoTransitionPage(child: ProfileScreen()),
             ),
           ],
         ),

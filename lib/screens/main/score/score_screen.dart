@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ScoreTab extends StatelessWidget {
-  const ScoreTab({super.key});
+class ScoreScreen extends StatelessWidget {
+  const ScoreScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

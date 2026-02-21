@@ -9,8 +9,8 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 
-class ProfileTab extends ConsumerWidget {
-  const ProfileTab({super.key});
+class ProfileScreen extends ConsumerWidget {
+  const ProfileScreen({super.key});
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
     final authRepository = ref.read(authRepositoryProvider);
