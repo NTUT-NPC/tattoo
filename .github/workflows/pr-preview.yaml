@@ -40,9 +40,10 @@ jobs:
         # 2. Manual Branch input
         # 3. PR Head commit
         # 4. Default branch/commit from UI dropdown or trigger context
+        env:
+          TARGET_REF: ${{ inputs.commit_sha || inputs.branch_name || github.event.pull_request.head.sha || github.sha }}
         run: |
-          TARGET="${{ inputs.commit_sha || inputs.branch_name || github.event.pull_request.head.sha || github.sha }}"
-          echo "ref=$TARGET" >> $GITHUB_OUTPUT
+          echo "ref=$TARGET_REF" >> "$GITHUB_OUTPUT"
 
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -65,10 +66,11 @@ jobs:
       - name: Write Job Summary
         env:
           COMMIT_MESSAGE: ${{ steps.commit.outputs.commit_message }}
+          COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
         run: |
           echo "## Preview Builds" >> "$GITHUB_STEP_SUMMARY"
           echo "**Build Number:** ${{ steps.build-number.outputs.build_number }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Commit:** [${{ steps.commit.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.commit.outputs.commit_sha }})" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Commit:** [$COMMIT_SHA](${{ github.server_url }}/${{ github.repository }}/commit/$COMMIT_SHA)" >> "$GITHUB_STEP_SUMMARY"
           printf '**Message:** %s\n' "$COMMIT_MESSAGE" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Find existing comment
@@ -118,19 +120,24 @@ jobs:
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
+          PR_NUMBER: ${{ github.event.pull_request.number || 'Manual' }}
+          PR_TITLE: ${{ github.event.pull_request.title || 'Manual Build' }}
+          COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+          COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
         run: |
           bundle exec fastlane android upload_dev_firebase \
             build_number:${{ needs.prepare.outputs.build_number }} \
-            pr_number:${{ github.event.pull_request.number || 'Manual' }} \
-            pr_title:"${{ github.event.pull_request.title || 'Manual Build' }}" \
-            commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
-            commit_message:"${{ needs.prepare.outputs.commit_message }}"
+            pr_number:"$PR_NUMBER" \
+            pr_title:"$PR_TITLE" \
+            commit_sha:"$COMMIT_SHA" \
+            commit_message:"$COMMIT_MESSAGE"
 
       - name: Write Android Job Summary
         run: |
           echo "### Android (Firebase App Distribution)" >> $GITHUB_STEP_SUMMARY
           echo "Build **${{ needs.prepare.outputs.build_number }}** successfully uploaded to Firebase App Distribution." >> $GITHUB_STEP_SUMMARY
           echo "[Install build ${{ needs.prepare.outputs.build_number }}](${{ steps.upload.outputs.testing_uri }})" >> $GITHUB_STEP_SUMMARY
+          echo "It may take a few minutes for the build to appear in the Firebase App after upload." >> $GITHUB_STEP_SUMMARY
 
       - name: Update comment with Android build
         if: github.event_name == 'pull_request'
@@ -173,21 +180,28 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+          PR_NUMBER: ${{ github.event.pull_request.number || 'Manual' }}
+          PR_TITLE: ${{ github.event.pull_request.title || 'Manual Build' }}
+          COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+          COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
         run: |
           bundle exec fastlane ios upload_testflight \
             build_number:${{ needs.prepare.outputs.build_number }} \
-            pr_number:${{ github.event.pull_request.number || 'Manual' }} \
-            pr_title:"${{ github.event.pull_request.title || 'Manual Build' }}" \
-            commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
-            commit_message:"${{ needs.prepare.outputs.commit_message }}"
+            pr_number:"$PR_NUMBER" \
+            pr_title:"$PR_TITLE" \
+            commit_sha:"$COMMIT_SHA" \
+            commit_message:"$COMMIT_MESSAGE"
 
       - name: Write iOS Job Summary
         run: |
           echo "### iOS (TestFlight)" >> $GITHUB_STEP_SUMMARY
           echo "Build **${{ needs.prepare.outputs.build_number }}** successfully uploaded to App Store Connect." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "1. Open the TestFlight app on your iOS device" >> $GITHUB_STEP_SUMMARY
           echo "2. Select \"Project Tattoo\"" >> $GITHUB_STEP_SUMMARY
           echo "3. Install build ${{ needs.prepare.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> **Note:** It may take ~15 minutes for the build to appear in TestFlight after upload." >> $GITHUB_STEP_SUMMARY
 
       - name: Update comment with iOS build
         if: github.event_name == 'pull_request'
