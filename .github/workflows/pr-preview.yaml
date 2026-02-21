@@ -73,6 +73,7 @@ jobs:
 
 
       - name: Upload to Firebase App Distribution (Android)
+        id: upload
         env:
           FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
           MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
@@ -95,12 +96,8 @@ jobs:
           comment-id: ${{ needs.prepare.outputs.comment_id }}
           body: |
             ### Android (Firebase App Distribution)
-            1. Open the App Tester app on your Android device
-            2. Select "Project Tattoo"
-            3. Install build ${{ needs.prepare.outputs.build_number }}
+            [Install build ${{ needs.prepare.outputs.build_number }}](${{ steps.upload.outputs.testing_uri }})
           edit-mode: append
-
-
 
   ios:
     runs-on: macos-latest

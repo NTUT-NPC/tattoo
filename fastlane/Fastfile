@@ -160,13 +160,19 @@ platform :android do
       build_args: ["--release"]
     )
 
-    firebase_app_distribution(
+    release = firebase_app_distribution(
       groups: "dev-tester", # Ensure this group exists in Firebase Console
       release_notes: "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
       android_artifact_type: "AAB",
       android_artifact_path: output_file,
       service_credentials_file: firebase_service_account_path,
     )
+
+    if ENV["GITHUB_OUTPUT"]
+      File.open(ENV["GITHUB_OUTPUT"], "a") do |f|
+        f.puts "testing_uri=#{release[:testingUri]}"
+      end
+    end
   end
 
   desc "Distribute release build to Google Play Console"
