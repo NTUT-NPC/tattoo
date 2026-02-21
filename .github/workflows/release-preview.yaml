@@ -5,6 +5,19 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Branch to build'
+        required: false
+        type: string
+      commit_sha:
+        description: 'Specific commit SHA to build (overrides branch)'
+        required: false
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   prepare:
@@ -13,9 +26,22 @@ jobs:
       build_number: ${{ steps.build-number.outputs.build_number }}
       commit_sha: ${{ steps.commit.outputs.commit_sha }}
       commit_message: ${{ steps.commit.outputs.commit_message }}
+      target_ref: ${{ steps.set-ref.outputs.ref }}
     steps:
+      - name: Determine Target Ref
+        id: set-ref
+        # Priority logic: 
+        # 1. Manual SHA input
+        # 2. Manual Branch input
+        # 3. Default branch/commit from UI dropdown or push event
+        run: |
+          TARGET="${{ inputs.commit_sha || inputs.branch_name || github.sha }}"
+          echo "ref=$TARGET" >> $GITHUB_OUTPUT
+
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          ref: ${{ steps.set-ref.outputs.ref }}
 
       - name: Manage Build Number
         id: build-number
@@ -30,12 +56,20 @@ jobs:
           echo "commit_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "commit_message=$(git show -s --format=%s)" >> $GITHUB_OUTPUT
 
+      - name: Write Job Summary
+        run: |
+          echo "## Release Builds" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Number:** ${{ steps.build-number.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ steps.commit.outputs.commit_sha }} ${{ steps.commit.outputs.commit_message }}" >> $GITHUB_STEP_SUMMARY
+
   android:
     runs-on: ubuntu-latest
     needs: [prepare]
     steps:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup project
         uses: ./.github/actions/setup-project
@@ -56,12 +90,19 @@ jobs:
             commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
             commit_message:"${{ needs.prepare.outputs.commit_message }}"
 
+      - name: Write Android Job Summary
+        run: |
+          echo "### Android (Google Play Console)" >> $GITHUB_STEP_SUMMARY
+          echo "Build ${{ needs.prepare.outputs.build_number }} successfully uploaded to Google Play Console." >> $GITHUB_STEP_SUMMARY
+
   ios:
     runs-on: macos-latest
     needs: [prepare]
     steps:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup project
         uses: ./.github/actions/setup-project
@@ -86,3 +127,11 @@ jobs:
             pr_title:"Release build" \
             commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
             commit_message:"${{ needs.prepare.outputs.commit_message }}"
+
+      - name: Write iOS Job Summary
+        run: |
+          echo "### iOS (TestFlight / App Store Connect)" >> $GITHUB_STEP_SUMMARY
+          echo "Build ${{ needs.prepare.outputs.build_number }} uploaded to App Store Connect." >> $GITHUB_STEP_SUMMARY
+          echo "1. Open the TestFlight app on your iOS device" >> $GITHUB_STEP_SUMMARY
+          echo "2. Select \"Project Tattoo\"" >> $GITHUB_STEP_SUMMARY
+          echo "3. Install build ${{ needs.prepare.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
