@@ -63,7 +63,8 @@ jobs:
         run: |
           echo "## Preview Builds" >> $GITHUB_STEP_SUMMARY
           echo "**Build Number:** ${{ steps.build-number.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** ${{ steps.commit.outputs.commit_sha }} ${{ steps.commit.outputs.commit_message }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** [${{ steps.commit.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.commit.outputs.commit_sha }})" >> $GITHUB_STEP_SUMMARY
+          echo "**Message:** ${{ steps.commit.outputs.commit_message }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Find existing comment
         if: github.event_name == 'pull_request'
@@ -85,7 +86,8 @@ jobs:
             <!-- pr-preview-comment -->
             ## PR Preview Builds
             **Build Number:** ${{ steps.build-number.outputs.build_number }}
-            **Commit:** ${{ steps.commit.outputs.commit_sha }} ${{ steps.commit.outputs.commit_message }}
+            **Commit:** ${{ steps.commit.outputs.commit_sha }}
+            **Message:** ${{ steps.commit.outputs.commit_message }}
           edit-mode: replace
 
   android:
@@ -122,6 +124,7 @@ jobs:
       - name: Write Android Job Summary
         run: |
           echo "### Android (Firebase App Distribution)" >> $GITHUB_STEP_SUMMARY
+          echo "Build **${{ needs.prepare.outputs.build_number }}** successfully uploaded to Firebase App Distribution." >> $GITHUB_STEP_SUMMARY
           echo "[Install build ${{ needs.prepare.outputs.build_number }}](${{ steps.upload.outputs.testing_uri }})" >> $GITHUB_STEP_SUMMARY
 
       - name: Update comment with Android build
@@ -176,6 +179,7 @@ jobs:
       - name: Write iOS Job Summary
         run: |
           echo "### iOS (TestFlight)" >> $GITHUB_STEP_SUMMARY
+          echo "Build ${{ needs.prepare.outputs.build_number }} uploaded to App Store Connect." >> $GITHUB_STEP_SUMMARY
           echo "1. Open the TestFlight app on your iOS device" >> $GITHUB_STEP_SUMMARY
           echo "2. Select \"Project Tattoo\"" >> $GITHUB_STEP_SUMMARY
           echo "3. Install build ${{ needs.prepare.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY

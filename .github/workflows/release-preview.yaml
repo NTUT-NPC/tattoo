@@ -60,7 +60,8 @@ jobs:
         run: |
           echo "## Release Builds" >> $GITHUB_STEP_SUMMARY
           echo "**Build Number:** ${{ steps.build-number.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** ${{ steps.commit.outputs.commit_sha }} ${{ steps.commit.outputs.commit_message }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** [${{ steps.commit.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.commit.outputs.commit_sha }})" >> $GITHUB_STEP_SUMMARY
+          echo "**Message:** ${{ steps.commit.outputs.commit_message }}" >> $GITHUB_STEP_SUMMARY
 
   android:
     runs-on: ubuntu-latest
@@ -92,8 +93,12 @@ jobs:
 
       - name: Write Android Job Summary
         run: |
-          echo "### Android (Google Play Console)" >> $GITHUB_STEP_SUMMARY
-          echo "Build ${{ needs.prepare.outputs.build_number }} successfully uploaded to Google Play Console." >> $GITHUB_STEP_SUMMARY
+          echo "### Android (Google Play)" >> $GITHUB_STEP_SUMMARY
+          echo "Build **${{ needs.prepare.outputs.build_number }}** successfully uploaded to Google Play." >> $GITHUB_STEP_SUMMARY
+          echo "1. Open the Google Play Store on your Android device" >> $GITHUB_STEP_SUMMARY
+          echo "2. Select \"Project Tattoo\"" >> $GITHUB_STEP_SUMMARY
+          echo "3. Install or update to the latest build" >> $GITHUB_STEP_SUMMARY
+          echo "> **Note:** Manual build selection is not available in Google Play, so the latest approved build will be installed." >> $GITHUB_STEP_SUMMARY
 
   ios:
     runs-on: macos-latest
@@ -130,7 +135,7 @@ jobs:
 
       - name: Write iOS Job Summary
         run: |
-          echo "### iOS (TestFlight / App Store Connect)" >> $GITHUB_STEP_SUMMARY
+          echo "### iOS (TestFlight)" >> $GITHUB_STEP_SUMMARY
           echo "Build ${{ needs.prepare.outputs.build_number }} uploaded to App Store Connect." >> $GITHUB_STEP_SUMMARY
           echo "1. Open the TestFlight app on your iOS device" >> $GITHUB_STEP_SUMMARY
           echo "2. Select \"Project Tattoo\"" >> $GITHUB_STEP_SUMMARY
