@@ -115,12 +115,22 @@ Uint8List _pbkdf2(Uint8List password, Uint8List salt, int outputLength) {
 }
 
 Uint8List decryptBytes(Uint8List encrypted, String matchPassword) {
+  if (encrypted.length < 16) {
+    throw FormatException(
+      'File too short (${encrypted.length} bytes) — is it encrypted?',
+    );
+  }
   final header = utf8.decode(encrypted.sublist(0, 8));
   if (header != _saltHeader) {
     throw FormatException('Missing salt header — is the file encrypted?');
   }
   final salt = encrypted.sublist(8, 16);
   final ciphertext = encrypted.sublist(16);
+  if (ciphertext.isEmpty || ciphertext.length % 16 != 0) {
+    throw FormatException(
+      'Invalid ciphertext length (${ciphertext.length}) — corrupted file',
+    );
+  }
 
   final password = _deriveKeyPassword(matchPassword);
   final keyIv = _pbkdf2(password, salt, _keyLength + _ivLength);
