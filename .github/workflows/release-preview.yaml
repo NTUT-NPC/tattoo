@@ -82,7 +82,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
         run: |
-          bundle exec fastlane ios upload_prod \
+          bundle exec fastlane ios upload_testflight \
             build_number:${{ needs.prepare.outputs.build_number }} \
             pr_title:"Release build" \
             commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \

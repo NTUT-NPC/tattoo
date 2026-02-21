@@ -14,8 +14,8 @@
 # update_fastlane
 
 platform :ios do
-  desc "Build and upload PR preview to TestFlight Internal Testing"
-  lane :upload_pr_preview do |options|
+  desc "Build and upload build to TestFlight"
+  lane :upload_testflight do |options|
     build_number = options[:build_number] || 1
     pr_number = options[:pr_number] || ""
     pr_title = options[:pr_title] || "manual build"
@@ -54,85 +54,23 @@ platform :ios do
       is_key_content_base64: true,
     )
 
-    upload_to_testflight(
-      skip_waiting_for_build_processing: is_ci,
-      changelog: "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
-    )
-  end
-  
-  desc "Build and upload release build to TestFlight"
-  lane :upload_prod do |options|
-    build_number = options[:build_number] || 1
-    pr_number = options[:pr_number] || ""
-    pr_title = options[:pr_title] || "manual build"
-    commit_sha = options[:commit_sha] || "manual build"
-    commit_message = options[:commit_message] || "This is a manual build without PR information"
-
-    setup_ci if is_ci
-
-    sync_code_signing(
-      type: "appstore",
-      readonly: is_ci,
-    )
-
-    update_code_signing_settings(
-      path: "ios/Runner.xcodeproj",
-      sdk: "iphoneos*",
-      code_sign_identity: "iPhone Distribution",
-      profile_name: "match AppStore #{ENV["FASTLANE_APP_IDENTIFIER"]}",
-    )
-
-    # Build and create xcarchive without code signing
-    archive_path = flutter_build(
-      build: "ipa",
-      build_number: build_number,
-      build_args: ["--no-codesign"],
-    )
-
-    build_app(
-      skip_build_archive: true,
-      archive_path: archive_path,
-      export_team_id: ENV["FASTLANE_TEAM_ID"],
-      suppress_xcode_output: true,
-    )
-
-    app_store_connect_api_key(
-      is_key_content_base64: true,
-    )
+    changelog = pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}"
 
     upload_to_testflight(
       skip_waiting_for_build_processing: is_ci,
-      changelog: "#{pr_title}\n#{commit_sha} #{commit_message}",
+      changelog: changelog,
     )
   end
 end
 
 platform :android do
   desc "Setup credentials for environment"
-  lane :setup_keystore do |options|
-    skip_signing = options.fetch(:skip_signing, true)
-
-    dirpath = match_keystore(skip_signing: skip_signing)
-    keystore_base_path = File.dirname(File.dirname(dirpath))
-
-    # Setup firebase configuration for android build
-    firebase_conf_path = File.join(keystore_base_path, "firebase/google-services.json")
-    
-    if File.exist?(firebase_conf_path)
-      dest_dir = File.expand_path("../android/app", __dir__)
-      
-      FileUtils.mkdir_p(dest_dir)
-      FileUtils.cp(firebase_conf_path, File.join(dest_dir, "google-services.json"))
-      
-      UI.success("Successfully copied google-services.json to #{dest_dir}")
-    else
-      UI.error("Firebase config not found at #{firebase_conf_path}")
-    end
-
-    keystore_base_path
+  lane :setup_keystore do
+    dirpath = match_keystore(skip_signing: true)
+    File.dirname(File.dirname(dirpath))
   end
 
-  desc "Distribute development build to Firebase App Distribution (Android)"
+  desc "Build and upload development build to Firebase App Distribution (Android)"
   lane :upload_dev_firebase do |options|
     build_number = options[:build_number] || 1
     pr_number = options[:pr_number] || ""
@@ -140,7 +78,7 @@ platform :android do
     commit_sha = options[:commit_sha] || "manual build"
     commit_message = options[:commit_message] || "This is a manual build without PR information"
 
-    basepath = setup_keystore(skip_signing: true)
+    basepath = setup_keystore
 
     service_account_rel = ENV["FIREBASE_SERVICE_ACCOUNT_JSON_PATH"]
     if service_account_rel.nil? || service_account_rel.empty?
@@ -157,12 +95,11 @@ platform :android do
     output_file = flutter_build(
       build: "appbundle",
       build_number: build_number,
-      build_args: ["--release"]
     )
 
     release = firebase_app_distribution(
       groups: "dev-tester", # Ensure this group exists in Firebase Console
-      release_notes: "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
+      release_notes: pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
       android_artifact_type: "AAB",
       android_artifact_path: output_file,
       service_credentials_file: firebase_service_account_path,
@@ -175,7 +112,7 @@ platform :android do
     end
   end
 
-  desc "Distribute release build to Google Play Console"
+  desc "Build and upload release build to Google Play Console"
   lane :upload_release_playstore do |options|
     build_number = options[:build_number] || 1
     pr_number = options[:pr_number] || ""
@@ -183,7 +120,7 @@ platform :android do
     commit_sha = options[:commit_sha] || "manual build"
     commit_message = options[:commit_message] || "This is a manual build without PR information"
 
-    basepath = setup_keystore(skip_signing: true) 
+    basepath = setup_keystore
 
     supply_json_key_rel = ENV["SUPPLY_JSON_KEY_PATH"]
     if supply_json_key_rel.nil? || supply_json_key_rel.empty?
@@ -197,19 +134,16 @@ platform :android do
       UI.user_error!("Invalid SUPPLY_JSON_KEY_PATH; must point inside #{basepath_expanded}")
     end
 
-    
     output_file = flutter_build(
       build: "appbundle",
       build_number: build_number,
-      build_args: ["--release"]
     )
 
     # Create dynamic changelog files in the standard fastlane/metadata directory
-    changelog_text = pr_number != "" ? "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}" : "#{pr_title}\n#{commit_sha} #{commit_message}"
+    changelog_text = pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}"
     ["zh-TW"].each do |locale|
       path = "metadata/android/#{locale}/changelogs"
       FileUtils.mkdir_p(path)
-      File.write("#{path}/default.txt", changelog_text)
       File.write("#{path}/#{build_number}.txt", changelog_text)
     end
 
@@ -223,5 +157,5 @@ platform :android do
       skip_upload_screenshots: true,
       skip_upload_changelogs: false
     )
-  end  
+  end
 end

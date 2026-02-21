@@ -71,7 +71,6 @@ jobs:
         with:
           platform: android
 
-
       - name: Upload to Firebase App Distribution (Android)
         id: upload
         env:
@@ -131,7 +130,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
         run: |
-          bundle exec fastlane ios upload_pr_preview \
+          bundle exec fastlane ios upload_testflight \
             build_number:${{ needs.prepare.outputs.build_number }} \
             pr_number:${{ github.event.pull_request.number }} \
             pr_title:"${{ github.event.pull_request.title }}" \

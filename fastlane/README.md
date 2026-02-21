@@ -15,21 +15,13 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios upload_pr_preview
+### ios upload_testflight
 
 ```sh
-[bundle exec] fastlane ios upload_pr_preview
+[bundle exec] fastlane ios upload_testflight
 ```
 
-Build and upload PR preview to TestFlight Internal Testing
-
-### ios upload_prod
-
-```sh
-[bundle exec] fastlane ios upload_prod
-```
-
-Build and upload release build to TestFlight
+Build and upload build to TestFlight
 
 ----
 
@@ -50,7 +42,7 @@ Setup credentials for environment
 [bundle exec] fastlane android upload_dev_firebase
 ```
 
-Distribute development build to Firebase App Distribution (Android)
+Build and upload development build to Firebase App Distribution (Android)
 
 ### android upload_release_playstore
 
@@ -58,7 +50,7 @@ Distribute development build to Firebase App Distribution (Android)
 [bundle exec] fastlane android upload_release_playstore
 ```
 
-Distribute release build to Google Play Console
+Build and upload release build to Google Play Console
 
 ----
 
