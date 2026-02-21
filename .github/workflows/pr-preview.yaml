@@ -182,7 +182,7 @@ jobs:
       - name: Write iOS Job Summary
         run: |
           echo "### iOS (TestFlight)" >> $GITHUB_STEP_SUMMARY
-          echo "Build ${{ needs.prepare.outputs.build_number }} uploaded to App Store Connect." >> $GITHUB_STEP_SUMMARY
+          echo "Build **${{ needs.prepare.outputs.build_number }}** successfully uploaded to App Store Connect." >> $GITHUB_STEP_SUMMARY
           echo "1. Open the TestFlight app on your iOS device" >> $GITHUB_STEP_SUMMARY
           echo "2. Select \"Project Tattoo\"" >> $GITHUB_STEP_SUMMARY
           echo "3. Install build ${{ needs.prepare.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
