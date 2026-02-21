@@ -14,20 +14,6 @@
 # update_fastlane
 
 platform :ios do
-  desc "Build and sign release IPA"
-  lane :build_ipa do
-    setup_ci if is_ci
-
-    match(
-      type: "development",
-      readonly: is_ci
-    )
-
-    flutter_build(
-      build: "ipa",
-    )
-  end
-
   desc "Build and upload PR preview to TestFlight Internal Testing"
   lane :upload_pr_preview do |options|
     build_number = options[:build_number] || 1
@@ -122,25 +108,6 @@ platform :ios do
 end
 
 platform :android do
-  desc "Build and sign release APK"
-  lane :build_apk do
-    setup_keystore(skip_signing: true)
-
-    flutter_build(
-      build: "apk",
-      build_args: ["--split-per-abi"]
-    )
-  end
-
-  desc "Build and sign release AAB"
-  lane :build_aab do
-    setup_keystore(skip_signing: true)
-
-    flutter_build(
-      build: "appbundle",
-    )
-  end
-
   desc "Setup credentials for environment"
   lane :setup_keystore do |options|
     skip_signing = options.fetch(:skip_signing, true)
