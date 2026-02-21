@@ -56,15 +56,17 @@ jobs:
         run: |
           echo "commit_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "commit_message=$(git show -s --format=%s)" >> $GITHUB_OUTPUT
+          echo "commit_sha_long=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Write Job Summary
         env:
           COMMIT_MESSAGE: ${{ steps.commit.outputs.commit_message }}
           COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
+          COMMIT_SHA_LONG: ${{ steps.commit.outputs.commit_sha_long }}
         run: |
           echo "## Release Builds" >> "$GITHUB_STEP_SUMMARY"
           echo "**Build Number:** ${{ steps.build-number.outputs.build_number }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Commit:** [$COMMIT_SHA](${{ github.server_url }}/${{ github.repository }}/commit/$COMMIT_SHA)" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Commit:** [$COMMIT_SHA](${{ github.server_url }}/${{ github.repository }}/commit/$COMMIT_SHA_LONG)" >> "$GITHUB_STEP_SUMMARY"
           printf '**Message:** %s\n' "$COMMIT_MESSAGE" >> "$GITHUB_STEP_SUMMARY"
 
   android:
