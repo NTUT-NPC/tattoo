@@ -59,7 +59,6 @@ runs:
       run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
 
     - name: Setup Ruby
-      # Ruby is required for both iOS (Fastlane/CocoaPods) and Android (Fastlane) deployment
       if: ${{ inputs.platform == 'android' || inputs.platform == 'ios' }}
       uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
       with:

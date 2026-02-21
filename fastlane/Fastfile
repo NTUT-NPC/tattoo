@@ -98,7 +98,7 @@ platform :android do
     )
 
     release = firebase_app_distribution(
-      groups: "dev-tester", # Ensure this group exists in Firebase Console
+      groups: "dev-tester",
       release_notes: pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
       android_artifact_type: "AAB",
       android_artifact_path: output_file,
