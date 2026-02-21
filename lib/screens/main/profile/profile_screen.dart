@@ -122,7 +122,7 @@ class ProfileTab extends ConsumerWidget {
                       text: appVersionAsync.when(
                         data: (version) => "TAT $version",
                         loading: () => "TAT 1.0.0 build 999",
-                        error: (_, __) => "TAT",
+                        error: (_, _) => "TAT",
                       ),
                     ),
                   ],
