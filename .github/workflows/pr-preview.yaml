@@ -63,11 +63,13 @@ jobs:
           echo "commit_message=$(git show -s --format=%s)" >> $GITHUB_OUTPUT
 
       - name: Write Job Summary
+        env:
+          COMMIT_MESSAGE: ${{ steps.commit.outputs.commit_message }}
         run: |
-          echo "## Preview Builds" >> $GITHUB_STEP_SUMMARY
-          echo "**Build Number:** ${{ steps.build-number.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** [${{ steps.commit.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.commit.outputs.commit_sha }})" >> $GITHUB_STEP_SUMMARY
-          echo "**Message:** ${{ steps.commit.outputs.commit_message }}" >> $GITHUB_STEP_SUMMARY
+          echo "## Preview Builds" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Build Number:** ${{ steps.build-number.outputs.build_number }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Commit:** [${{ steps.commit.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.commit.outputs.commit_sha }})" >> "$GITHUB_STEP_SUMMARY"
+          printf '**Message:** %s\n' "$COMMIT_MESSAGE" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Find existing comment
         if: github.event_name == 'pull_request'
