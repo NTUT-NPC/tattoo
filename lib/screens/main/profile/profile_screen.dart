@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
-import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 class ProfileTab extends ConsumerWidget {
   const ProfileTab({super.key});
@@ -26,8 +26,6 @@ class ProfileTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appVersionAsync = ref.watch(appVersionProvider);
-
     // settings options for the profile tab
     var options = [
       SectionHeader(title: '帳號設定'),
@@ -118,11 +116,12 @@ class ProfileTab extends ConsumerWidget {
                       children: options,
                     ),
 
-                    ClearNotice(
-                      text: appVersionAsync.when(
-                        data: (version) => "TAT $version",
-                        loading: () => "TAT 1.0.0 build 999",
-                        error: (_, _) => "TAT",
+                    FutureBuilder<PackageInfo>(
+                      future: PackageInfo.fromPlatform(),
+                      builder: (context, snapshot) => ClearNotice(
+                        text: snapshot.hasData
+                            ? "TAT ${snapshot.data!.version} (${snapshot.data!.buildNumber})"
+                            : "TAT",
                       ),
                     ),
                   ],
