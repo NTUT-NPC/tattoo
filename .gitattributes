@@ -1,3 +1,6 @@
 # Skip generated files from diffs
 *.g.dart -diff
 *.lock -diff
+
+# Forece text files to use LF line endings
+* text=auto eol=lf
