@@ -64,13 +64,7 @@ platform :ios do
 end
 
 platform :android do
-  desc "Setup credentials for environment"
-  lane :setup_keystore do
-    dirpath = match_keystore(skip_signing: true)
-    File.dirname(File.dirname(dirpath))
-  end
-
-  desc "Build and upload development build to Firebase App Distribution (Android)"
+  desc "Build and upload development build to Firebase App Distribution"
   lane :upload_dev_firebase do |options|
     build_number = options[:build_number] || 1
     pr_number = options[:pr_number] || ""
@@ -78,31 +72,21 @@ platform :android do
     commit_sha = options[:commit_sha] || "manual build"
     commit_message = options[:commit_message] || "This is a manual build without PR information"
 
-    basepath = setup_keystore
-
-    service_account_rel = ENV["FIREBASE_SERVICE_ACCOUNT_JSON_PATH"]
-    if service_account_rel.nil? || service_account_rel.empty?
-      UI.user_error!("FIREBASE_SERVICE_ACCOUNT_JSON_PATH is not set or empty")
-    end
-
-    basepath_expanded = File.expand_path(basepath)
-    firebase_service_account_path = File.expand_path(service_account_rel, basepath_expanded)
-
-    unless firebase_service_account_path.start_with?(basepath_expanded + File::SEPARATOR) || firebase_service_account_path == basepath_expanded
-      UI.user_error!("Invalid FIREBASE_SERVICE_ACCOUNT_JSON_PATH; must point inside #{basepath_expanded}")
-    end
+    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
     output_file = flutter_build(
       build: "appbundle",
       build_number: build_number,
     )
 
+    changelog = pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}"
+
     release = firebase_app_distribution(
       groups: "dev-tester",
-      release_notes: pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
+      release_notes: changelog,
       android_artifact_type: "AAB",
       android_artifact_path: output_file,
-      service_credentials_file: firebase_service_account_path,
+      service_credentials_file: File.expand_path("../service-account.json", __dir__),
     )
 
     if ENV["GITHUB_OUTPUT"]
@@ -120,19 +104,7 @@ platform :android do
     commit_sha = options[:commit_sha] || "manual build"
     commit_message = options[:commit_message] || "This is a manual build without PR information"
 
-    basepath = setup_keystore
-
-    supply_json_key_rel = ENV["SUPPLY_JSON_KEY_PATH"]
-    if supply_json_key_rel.nil? || supply_json_key_rel.empty?
-      UI.user_error!("SUPPLY_JSON_KEY_PATH is not set or empty")
-    end
-
-    basepath_expanded = File.expand_path(basepath)
-    supply_json_key_path = File.expand_path(supply_json_key_rel, basepath_expanded)
-
-    unless supply_json_key_path.start_with?(basepath_expanded + File::SEPARATOR) || supply_json_key_path == basepath_expanded
-      UI.user_error!("Invalid SUPPLY_JSON_KEY_PATH; must point inside #{basepath_expanded}")
-    end
+    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
     output_file = flutter_build(
       build: "appbundle",
@@ -151,7 +123,7 @@ platform :android do
       package_name: ENV["FASTLANE_APP_IDENTIFIER"],
       track: "internal",
       aab: output_file,
-      json_key: supply_json_key_path,
+      json_key: File.expand_path("../service-account.json", __dir__),
       skip_upload_metadata: false,
       skip_upload_images: true,
       skip_upload_screenshots: true,

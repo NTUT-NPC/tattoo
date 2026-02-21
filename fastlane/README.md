@@ -28,21 +28,13 @@ Build and upload build to TestFlight
 
 ## Android
 
-### android setup_keystore
-
-```sh
-[bundle exec] fastlane android setup_keystore
-```
-
-Setup credentials for environment
-
 ### android upload_dev_firebase
 
 ```sh
 [bundle exec] fastlane android upload_dev_firebase
 ```
 
-Build and upload development build to Firebase App Distribution (Android)
+Build and upload development build to Firebase App Distribution
 
 ### android upload_release_playstore
 
