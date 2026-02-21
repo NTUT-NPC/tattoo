@@ -54,12 +54,16 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 ## Architecture
 
 MVVM pattern with Riverpod for DI and reactive state:
+
 - UI calls repository actions directly via constructor providers (`ref.read`)
 - UI observes data through screen-level FutureProviders (`ref.watch`)
 - Repositories encapsulate business logic, coordinate Services (HTTP) and Database (Drift)
 
+**Credentials:** `tool/credentials.dart` manages encrypted credentials from the `tattoo-credentials` Git repo. Run `dart run tool/credentials.dart fetch` to decrypt and place Firebase configs, Android keystore, and service account. Compatible with match_keystore encryption format (AES-256-CBC, PBKDF2). Config from env vars or `.env` file.
+
 **Structure:**
 
+- `tool/` - Dart CLI tools (credentials management)
 - `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType, ScoreStatus)
 - `lib/repositories/` - Repository class + constructor provider (DI wiring)
 - `lib/services/` - HTTP clients, parse responses, return DTOs (as records)
@@ -70,6 +74,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 - `lib/screens/` - Screen widgets organized by feature (welcome/, main/)
 
 **Provider placement:**
+
 - Constructor providers (DI wiring) are co-located with the classes they construct (services, database, repositories)
 - Screen-specific providers live alongside the screen that consumes them (e.g., `screens/main/course_table/course_table_providers.dart`)
 - Shared providers used by multiple screens in a feature live one level up (e.g., `screens/main/course_providers.dart`)

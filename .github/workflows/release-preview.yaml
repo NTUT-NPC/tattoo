@@ -49,7 +49,6 @@ jobs:
           MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          SUPPLY_JSON_KEY_PATH: ${{ secrets.SUPPLY_JSON_KEY_PATH }}
         run: |
           bundle exec fastlane android upload_release_playstore \
             build_number:${{ needs.prepare.outputs.build_number }} \
