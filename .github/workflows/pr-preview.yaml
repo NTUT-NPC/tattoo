@@ -27,6 +27,9 @@ jobs:
       build_number: ${{ steps.build-number.outputs.build_number }}
       commit_sha: ${{ steps.commit.outputs.commit_sha }}
       commit_message: ${{ steps.commit.outputs.commit_message }}
+      # Note: For workflow_dispatch runs, the "create" step is skipped (it only runs on pull_request),
+      # so this output may be an empty string. This is intentional; all downstream uses of
+      # needs.prepare.outputs.comment_id are guarded by the same pull_request-only condition.
       comment_id: ${{ steps.create.outputs.comment-id }}
       target_ref: ${{ steps.set-ref.outputs.ref }}
     steps:
