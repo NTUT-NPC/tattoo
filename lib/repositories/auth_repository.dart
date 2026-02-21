@@ -346,6 +346,29 @@ class AuthRepository {
     }
   }
 
+  /// Uploads a new avatar image, replacing the current one.
+  ///
+  /// Updates the stored avatar filename in the database and clears the
+  /// local avatar cache so the next [getAvatar] call fetches the new image.
+  ///
+  /// Throws [NotLoggedInException] if not logged in.
+  Future<void> uploadAvatar(Uint8List imageBytes) async {
+    final user = await _database.select(_database.users).getSingleOrNull();
+    if (user == null) {
+      throw NotLoggedInException();
+    }
+
+    final newFilename = await withAuth(
+      () => _portalService.uploadAvatar(imageBytes, user.avatarFilename),
+    );
+
+    await (_database.update(_database.users)
+          ..where((u) => u.id.equals(user.id)))
+        .write(UsersCompanion(avatarFilename: Value(newFilename)));
+
+    await _clearAvatarCache();
+  }
+
   /// Gets the user's active registration (where enrollment status is "在學").
   ///
   /// Returns the most recent semester where the user is actively enrolled,
