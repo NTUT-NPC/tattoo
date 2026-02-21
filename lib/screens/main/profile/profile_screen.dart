@@ -7,6 +7,7 @@ import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
+import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 class ProfileTab extends ConsumerWidget {
   const ProfileTab({super.key});
@@ -25,6 +26,8 @@ class ProfileTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final appVersionAsync = ref.watch(appVersionProvider);
+
     // settings options for the profile tab
     var options = [
       SectionHeader(title: '帳號設定'),
@@ -116,7 +119,11 @@ class ProfileTab extends ConsumerWidget {
                     ),
 
                     ClearNotice(
-                      text: "TAT 1.0.0",
+                      text: appVersionAsync.when(
+                        data: (version) => "TAT $version",
+                        loading: () => "TAT 1.0.0 build 999",
+                        error: (_, __) => "TAT",
+                      ),
                     ),
                   ],
                 ),

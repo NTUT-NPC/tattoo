@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
@@ -26,3 +27,9 @@ final activeRegistrationProvider =
       await ref.watch(userProfileProvider.future);
       return ref.watch(authRepositoryProvider).getActiveRegistration();
     });
+
+/// Provides app version text in "x.y.z build n" format.
+final appVersionProvider = FutureProvider.autoDispose<String>((ref) async {
+  final info = await PackageInfo.fromPlatform();
+  return '${info.version} build ${info.buildNumber}';
+});
