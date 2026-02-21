@@ -161,7 +161,6 @@ platform :android do
     )
 
     firebase_app_distribution(
-      app: ENV["FIREBASE_APP_ID_ANDROID"],
       groups: "dev-tester", # Ensure this group exists in Firebase Console
       release_notes: "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}",
       android_artifact_type: "AAB",

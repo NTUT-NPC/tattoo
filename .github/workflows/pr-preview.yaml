@@ -79,7 +79,7 @@ jobs:
           MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          FIREBASE_APP_ID_ANDROID: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
+          FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
           FIREBASE_SERVICE_ACCOUNT_JSON_PATH: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON_PATH }}
         run: |
           bundle exec fastlane android upload_dev_firebase \
