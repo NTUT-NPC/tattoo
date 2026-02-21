@@ -132,8 +132,8 @@ class PortalService {
 
   /// Downloads a user's avatar from NTUT Portal.
   ///
-  /// If [filename] is omitted or empty, returns a dynamically generated
-  /// placeholder avatar (a colored square with the user's name).
+  /// If [filename] is omitted or empty, the server returns a dynamically
+  /// generated placeholder avatar (a colored square with the user's name).
   ///
   /// Returns the avatar image as raw bytes.
   Future<Uint8List> getAvatar([String? filename]) async {
