@@ -74,17 +74,17 @@ class ProfileTab extends ConsumerWidget {
       // TODO: make notices dynamic and animated.
       SectionHeader(title: "訊息範例"),
 
-      BackgorundNotice(
+      BackgroundNotice(
         text: "目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。",
         noticeType: NoticeType.info,
       ),
 
-      BackgorundNotice(
+      BackgroundNotice(
         text: "您的密碼將於 7 天後到期，請盡快更新以免無法登入。",
         noticeType: NoticeType.warning,
       ),
 
-      BackgorundNotice(
+      BackgroundNotice(
         text: "無法連接到伺服器，資料可能不正確。",
         noticeType: NoticeType.error,
       ),
