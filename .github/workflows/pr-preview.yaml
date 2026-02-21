@@ -2,12 +2,22 @@ name: PR Preview
 
 on:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Branch to build'
+        required: false
+        type: string
+      commit_sha:
+        description: 'Specific commit SHA to build (overrides branch)'
+        required: false
+        type: string
 
 permissions:
   pull-requests: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -18,11 +28,23 @@ jobs:
       commit_sha: ${{ steps.commit.outputs.commit_sha }}
       commit_message: ${{ steps.commit.outputs.commit_message }}
       comment_id: ${{ steps.create.outputs.comment-id }}
+      target_ref: ${{ steps.set-ref.outputs.ref }}
     steps:
+      - name: Determine Target Ref
+        id: set-ref
+        # Priority logic: 
+        # 1. Manual SHA input
+        # 2. Manual Branch input
+        # 3. PR Head commit
+        # 4. Default branch/commit from UI dropdown or trigger context
+        run: |
+          TARGET="${{ inputs.commit_sha || inputs.branch_name || github.event.pull_request.head.sha || github.sha }}"
+          echo "ref=$TARGET" >> $GITHUB_OUTPUT
+
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ steps.set-ref.outputs.ref }}
 
       - name: Manage Build Number
         id: build-number
@@ -37,7 +59,14 @@ jobs:
           echo "commit_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "commit_message=$(git show -s --format=%s)" >> $GITHUB_OUTPUT
 
+      - name: Write Job Summary
+        run: |
+          echo "## Preview Builds" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Number:** ${{ steps.build-number.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ steps.commit.outputs.commit_sha }} ${{ steps.commit.outputs.commit_message }}" >> $GITHUB_STEP_SUMMARY
+
       - name: Find existing comment
+        if: github.event_name == 'pull_request'
         uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
         id: find-comment
         with:
@@ -47,6 +76,7 @@ jobs:
 
       - name: Create or update initial comment
         id: create
+        if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
@@ -64,6 +94,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup project
         id: setup
@@ -82,12 +114,18 @@ jobs:
         run: |
           bundle exec fastlane android upload_dev_firebase \
             build_number:${{ needs.prepare.outputs.build_number }} \
-            pr_number:${{ github.event.pull_request.number }} \
-            pr_title:"${{ github.event.pull_request.title }}" \
+            pr_number:${{ github.event.pull_request.number || 'Manual' }} \
+            pr_title:"${{ github.event.pull_request.title || 'Manual Build' }}" \
             commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
             commit_message:"${{ needs.prepare.outputs.commit_message }}"
 
+      - name: Write Android Job Summary
+        run: |
+          echo "### Android (Firebase App Distribution)" >> $GITHUB_STEP_SUMMARY
+          echo "[Install build ${{ needs.prepare.outputs.build_number }}](${{ steps.upload.outputs.testing_uri }})" >> $GITHUB_STEP_SUMMARY
+
       - name: Update comment with Android build
+        if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ needs.prepare.outputs.comment_id }}
@@ -103,7 +141,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup project
         uses: ./.github/actions/setup-project
@@ -130,12 +168,20 @@ jobs:
         run: |
           bundle exec fastlane ios upload_testflight \
             build_number:${{ needs.prepare.outputs.build_number }} \
-            pr_number:${{ github.event.pull_request.number }} \
-            pr_title:"${{ github.event.pull_request.title }}" \
+            pr_number:${{ github.event.pull_request.number || 'Manual' }} \
+            pr_title:"${{ github.event.pull_request.title || 'Manual Build' }}" \
             commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
             commit_message:"${{ needs.prepare.outputs.commit_message }}"
 
+      - name: Write iOS Job Summary
+        run: |
+          echo "### iOS (TestFlight)" >> $GITHUB_STEP_SUMMARY
+          echo "1. Open the TestFlight app on your iOS device" >> $GITHUB_STEP_SUMMARY
+          echo "2. Select \"Project Tattoo\"" >> $GITHUB_STEP_SUMMARY
+          echo "3. Install build ${{ needs.prepare.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
+
       - name: Update comment with iOS build
+        if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ needs.prepare.outputs.comment_id }}
