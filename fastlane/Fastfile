@@ -13,10 +13,6 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
-def is_ci
-  ENV["CI"] == "true" || ENV["GITHUB_ACTIONS"] == "true"
-end
-
 platform :ios do
   desc "Build and sign release IPA"
   lane :build_ipa do
