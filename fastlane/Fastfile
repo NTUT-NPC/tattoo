@@ -64,7 +64,7 @@ platform :ios do
 end
 
 platform :android do
-  desc "Distribute development build to Firebase App Distribution"
+  desc "Build and upload development build to Firebase App Distribution"
   lane :upload_dev_firebase do |options|
     build_number = options[:build_number] || 1
     pr_number = options[:pr_number] || ""
