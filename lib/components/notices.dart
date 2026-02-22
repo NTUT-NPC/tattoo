@@ -89,7 +89,7 @@ class ClearNotice extends StatelessWidget {
 ///       icon: Icons.info_outline,
 ///       title: 'About',
 ///     ),
-///     BackgorundedNotice(
+///     BackgroundNotice(
 ///       text: 'Important notice',
 ///       noticeType: NoticeType.warning,
 ///     ),
