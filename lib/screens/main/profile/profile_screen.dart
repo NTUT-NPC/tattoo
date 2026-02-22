@@ -8,9 +8,17 @@ import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
+import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
+
+  Future<void> _refresh(WidgetRef ref) async {
+    await ref.read(authRepositoryProvider).getUser(refresh: true);
+    ref.invalidate(userProfileProvider);
+    ref.invalidate(userAvatarProvider);
+    ref.invalidate(activeRegistrationProvider);
+  }
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
     final authRepository = ref.read(authRepositoryProvider);
@@ -92,43 +100,46 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverToBoxAdapter(
-                child: Column(
-                  spacing: 16,
-                  children: [
-                    ProfileCard(),
+        child: RefreshIndicator(
+          onRefresh: () => _refresh(ref),
+          child: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    spacing: 16,
+                    children: [
+                      ProfileCard(),
 
-                    ClearNotice(
-                      text: "本資料僅供參考，不做其他證明用途",
-                    ),
-
-                    Column(
-                      spacing: 8,
-                      children: notices,
-                    ),
-
-                    Column(
-                      spacing: 8,
-                      children: options,
-                    ),
-
-                    FutureBuilder<PackageInfo>(
-                      future: PackageInfo.fromPlatform(),
-                      builder: (context, snapshot) => ClearNotice(
-                        text: snapshot.hasData
-                            ? "TAT ${snapshot.data!.version} (${snapshot.data!.buildNumber})"
-                            : "TAT",
+                      ClearNotice(
+                        text: "本資料僅供參考，不做其他證明用途",
                       ),
-                    ),
-                  ],
+
+                      Column(
+                        spacing: 8,
+                        children: notices,
+                      ),
+
+                      Column(
+                        spacing: 8,
+                        children: options,
+                      ),
+
+                      FutureBuilder<PackageInfo>(
+                        future: PackageInfo.fromPlatform(),
+                        builder: (context, snapshot) => ClearNotice(
+                          text: snapshot.hasData
+                              ? "TAT ${snapshot.data!.version} (${snapshot.data!.buildNumber})"
+                              : "TAT",
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
