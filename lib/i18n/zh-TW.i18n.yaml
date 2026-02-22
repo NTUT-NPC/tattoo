@@ -1,0 +1,63 @@
+general:
+  appTitle: Project Tattoo
+  notImplemented: 尚未實作
+  dataDisclaimer: 本資料僅供參考
+  student: 學生
+  unknown: 未知
+  notLoggedIn: 未登入
+intro:
+  features:
+    courseTable:
+      title: 查課表
+      description: 快速查看課表和課程資訊，並可快速切換學期。
+    scores:
+      title: 看成績
+      description: 即時查詢各科成績與學分，整合歷年成績紀錄。
+    campusLife:
+      title: 北科生活
+      description: 彙整其他校園生活資訊，更多功能敬請期待。
+  developedBy: 由北科程式設計研究社開發\n所有資訊僅供參考，請以學校官方系統為準
+  continue: 繼續
+login:
+  welcomeLine1: 歡迎加入
+  welcomeLine2: 北科生活
+  instruction:
+    prefix: 請使用
+    portalLink: 北科校園入口網站
+    suffix: 的帳號密碼登入。
+  studentId: 學號
+  password: 密碼
+  loginButton: 登入
+  privacyNotice: 登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的
+  privacyTerms: 隱私條款
+  errors:
+    emptyFields: 請填寫學號與密碼
+    useStudentId: 請直接使用學號登入，不要使用電子郵件
+    connectionFailed: 無法連線到伺服器，請檢查網路連線
+    loginFailed: 登入失敗，請確認帳號密碼
+nav:
+  courseTable: 課表
+  scores: 成績
+  profile: 我
+profile:
+  sections:
+    accountSettings: 帳號設定
+    appSettings: 應用程式設定
+    notices: 訊息範例
+  options:
+    changePassword: 更改密碼
+    changeAvatar: 更改個人圖片
+    supportUs: 支持我們
+    about: 關於 TAT
+    npcClub: 北科程式設計研究社
+    preferences: 偏好設定
+    logout: 登出帳號
+  notices:
+    betaTesting: 目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。
+    passwordExpiring: 您的密碼將於 7 天後到期，請盡快更新以免無法登入。
+    connectionError: 無法連接到伺服器，資料可能不正確。
+  dataDisclaimer: 本資料僅供參考，不做其他證明用途
+enrollmentStatus:
+  learning: 在學
+  leaveOfAbsence: 休學
+  droppedOut: 退學
