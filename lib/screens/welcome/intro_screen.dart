@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
 
 class IntroScreen extends StatefulWidget {
@@ -50,7 +51,7 @@ class _IntroScreenState extends State<IntroScreen>
                                 height: verticalPadding,
                               ),
                               Text(
-                                'Project Tattoo',
+                                t.general.appTitle,
                                 style: theme.textTheme.headlineLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -66,18 +67,21 @@ class _IntroScreenState extends State<IntroScreen>
                             spacing: 8,
                             children: [
                               _FeatureCard(
-                                title: '查課表',
-                                description: '快速查看課表和課程資訊，並可快速切換學期。',
+                                title: t.intro.features.courseTable.title,
+                                description:
+                                    t.intro.features.courseTable.description,
                                 icon: Icons.calendar_month,
                               ),
                               _FeatureCard(
-                                title: '看成績',
-                                description: '即時查詢各科成績與學分，整合歷年成績紀錄。',
+                                title: t.intro.features.scores.title,
+                                description:
+                                    t.intro.features.scores.description,
                                 icon: Icons.bar_chart,
                               ),
                               _FeatureCard(
-                                title: '北科生活',
-                                description: '彙整其他校園生活資訊，更多功能敬請期待。',
+                                title: t.intro.features.campusLife.title,
+                                description:
+                                    t.intro.features.campusLife.description,
                                 icon: Icons.location_city,
                               ),
                             ],
@@ -98,7 +102,7 @@ class _IntroScreenState extends State<IntroScreen>
                                 ),
                               ),
                               Text(
-                                '由北科程式設計研究社開發\n所有資訊僅供參考，請以學校官方系統為準',
+                                t.intro.developedBy,
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   height: 1.5,
                                   color: Colors.grey[600],
@@ -143,7 +147,7 @@ class _IntroScreenState extends State<IntroScreen>
                       onPressed: () => context.push(AppRoutes.login),
                       child: Padding(
                         padding: const EdgeInsets.all(6.0),
-                        child: const Text('繼續'),
+                        child: Text(t.intro.kContinue),
                       ),
                     ),
                   ),

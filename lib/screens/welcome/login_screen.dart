@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 
@@ -79,14 +80,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     // Validate input
     if (username.isEmpty || password.trim().isEmpty) {
       _setError(
-        '請填寫學號與密碼',
+        t.login.errors.emptyFields,
         username: username.isEmpty,
         password: password.trim().isEmpty,
       );
       return;
     }
     if (username.contains('@') || username.startsWith('t')) {
-      _setError('請直接使用學號登入，不要使用電子郵件', username: true);
+      _setError(t.login.errors.useStudentId, username: true);
       return;
     }
 
@@ -97,9 +98,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref.read(authRepositoryProvider).login(username, password);
       if (mounted) context.go(AppRoutes.home);
     } on DioException {
-      if (mounted) _setError('無法連線到伺服器，請檢查網路連線');
+      if (mounted) _setError(t.login.errors.connectionFailed);
     } catch (_) {
-      if (mounted) _setError('登入失敗，請確認帳號密碼', username: true, password: true);
+      if (mounted)
+        _setError(t.login.errors.loginFailed, username: true, password: true);
     }
   }
 
@@ -160,10 +162,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           // Welcome title
                           Text.rich(
                             TextSpan(
-                              text: '歡迎加入\n',
+                              text: '${t.login.welcomeLine1}\n',
                               children: [
                                 TextSpan(
-                                  text: '北科生活',
+                                  text: t.login.welcomeLine2,
                                   style: TextStyle(
                                     color: theme.colorScheme.primary,
                                   ),
@@ -181,10 +183,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           // Login instruction
                           Text.rich(
                             TextSpan(
-                              text: '請使用',
+                              text: t.login.instruction.prefix,
                               children: [
                                 TextSpan(
-                                  text: '北科校園入口網站',
+                                  text: t.login.instruction.portalLink,
                                   style: const TextStyle(
                                     decoration: TextDecoration.underline,
                                   ),
@@ -193,7 +195,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       Uri.parse('https://nportal.ntut.edu.tw'),
                                     ),
                                 ),
-                                const TextSpan(text: '的帳號密碼登入。'),
+                                TextSpan(text: t.login.instruction.suffix),
                               ],
                             ),
                             style: theme.textTheme.bodySmall?.copyWith(
@@ -216,7 +218,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   maxLines: 1,
                                   enabled: !_isLoading,
                                   decoration: _inputDecoration(
-                                    '學號',
+                                    t.login.studentId,
                                     hasError: _usernameHasError,
                                   ),
                                   autofillHints: const [AutofillHints.username],
@@ -231,7 +233,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   maxLines: 1,
                                   enabled: !_isLoading,
                                   decoration: _inputDecoration(
-                                    '密碼',
+                                    t.login.password,
                                     hasError: _passwordHasError,
                                   ),
                                   autofillHints: const [AutofillHints.password],
@@ -275,7 +277,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                           color: Colors.white,
                                         ),
                                       )
-                                    : const Text('登入'),
+                                    : Text(t.login.loginButton),
                               ),
                             ),
                           ),
@@ -291,10 +293,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                               Text.rich(
                                 TextSpan(
-                                  text: '登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的',
+                                  text: t.login.privacyNotice,
                                   children: [
                                     TextSpan(
-                                      text: '隱私條款',
+                                      text: t.login.privacyTerms,
                                       style: const TextStyle(
                                         decoration: TextDecoration.underline,
                                       ),
