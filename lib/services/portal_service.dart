@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:html/parser.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/utils/http.dart';
 
@@ -144,7 +145,8 @@ class PortalService {
     );
 
     final contentType = response.headers.value('content-type') ?? '';
-    if (!contentType.startsWith('image/')) {
+    final mediaType = MediaType.parse(contentType);
+    if (mediaType.type != 'image') {
       throw FormatException(
         'Expected image response, got Content-Type: $contentType',
       );
