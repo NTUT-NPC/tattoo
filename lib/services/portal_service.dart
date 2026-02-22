@@ -142,6 +142,14 @@ class PortalService {
       queryParameters: {'realname': filename ?? ''},
       options: Options(responseType: ResponseType.bytes),
     );
+
+    final contentType = response.headers.value('content-type') ?? '';
+    if (!contentType.startsWith('image/')) {
+      throw FormatException(
+        'Expected image response, got Content-Type: $contentType',
+      );
+    }
+
     return response.data;
   }
 
