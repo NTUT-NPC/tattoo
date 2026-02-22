@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:drift/drift.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -340,6 +341,10 @@ class AuthRepository {
       final bytes = await withAuth(() => _portalService.getAvatar(filename));
       await file.parent.create(recursive: true);
       await file.writeAsBytes(bytes);
+      if (!await _isImageValid(bytes)) {
+        await file.delete();
+        return null;
+      }
       return file;
     } on DioException {
       return null;
@@ -385,6 +390,23 @@ class AuthRepository {
           ])
           ..limit(1))
         .getSingleOrNull();
+  }
+
+  // Source - https://stackoverflow.com/a/76074236
+  // License - CC BY-SA 4.0
+  static Future<bool> _isImageValid(Uint8List bytes) async {
+    Codec? codec;
+    FrameInfo? frameInfo;
+    try {
+      codec = await instantiateImageCodec(bytes, targetWidth: 32);
+      frameInfo = await codec.getNextFrame();
+      return frameInfo.image.width > 0;
+    } catch (_) {
+      return false;
+    } finally {
+      frameInfo?.image.dispose();
+      codec?.dispose();
+    }
   }
 
   /// Clears stored login credentials from secure storage.
