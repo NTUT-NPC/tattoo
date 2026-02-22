@@ -100,8 +100,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } on DioException {
       if (mounted) _setError(t.login.errors.connectionFailed);
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         _setError(t.login.errors.loginFailed, username: true, password: true);
+      }
     }
   }
 
