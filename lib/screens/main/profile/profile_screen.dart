@@ -27,7 +27,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // settings options for the profile tab
-    var options = [
+    final options = [
       SectionHeader(title: '帳號設定'),
       OptionEntryTile(
         icon: Icons.password,
@@ -70,7 +70,7 @@ class ProfileScreen extends ConsumerWidget {
       ),
     ];
 
-    var notices = [
+    final notices = [
       // TODO: make notices dynamic and animated.
       SectionHeader(title: "訊息範例"),
 
