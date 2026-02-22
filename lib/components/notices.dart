@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 /// Preset styles used by [BackgroundNotice].
 enum NoticeType { warning, error, info }
