@@ -53,7 +53,6 @@ class ClearNotice extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         spacing: 8,
@@ -65,7 +64,7 @@ class ClearNotice extends StatelessWidget {
           Flexible(
             child: Text(
               text,
-              textAlign: TextAlign.justify,
+              textAlign: TextAlign.center,
               style:
                   textStyle?.copyWith(color: resolvedColor) ??
                   TextStyle(color: resolvedColor),
