@@ -58,7 +58,12 @@ class PortalService {
     // Emulate the NTUT iOS app's HTTP client
     _portalDio = createDio()
       ..options.baseUrl = 'https://app.ntut.edu.tw/'
-      ..options.headers = {'User-Agent': 'Direk ios App'};
+      ..options.headers = {
+        'User-Agent': 'Direk ios App',
+        // Prevent keep-alive connection reuse — NTUT servers close their end
+        // after multipart uploads, causing stale connection errors.
+        'Connection': 'close',
+      };
   }
 
   /// Authenticates a user with NTUT Portal credentials.
@@ -125,19 +130,46 @@ class PortalService {
     }
   }
 
-  /// Fetches a user's profile photo from NTUT Portal.
+  /// Downloads a user's avatar from NTUT Portal.
   ///
-  /// The [filename] should be obtained from the `avatarFilename` field of
-  /// [UserDto] returned by [login].
+  /// If [filename] is omitted or empty, the server returns a dynamically
+  /// generated placeholder avatar (a colored square with the user's name).
   ///
   /// Returns the avatar image as raw bytes.
-  Future<Uint8List> getAvatar(String filename) async {
+  Future<Uint8List> getAvatar([String? filename]) async {
     final response = await _portalDio.get(
       'photoView.do',
-      queryParameters: {'realname': filename},
+      queryParameters: {'realname': filename ?? ''},
       options: Options(responseType: ResponseType.bytes),
     );
     return response.data;
+  }
+
+  /// Uploads a new profile photo to NTUT Portal, replacing the current one.
+  ///
+  /// [oldFilename] should be the current avatar filename
+  /// (from [UserDto.avatarFilename], or empty string if none).
+  ///
+  /// Returns the new avatar filename assigned by the server.
+  Future<String> uploadAvatar(Uint8List imageBytes, String? oldFilename) async {
+    final response = await _portalDio.post(
+      'photoUpload.do',
+      queryParameters: {
+        'uploadQuota': '20', // max file size in MB
+        // current avatar filename for server-side cleanup
+        'ldapPhoto': oldFilename ?? '',
+      },
+      data: FormData.fromMap({
+        'file[]': MultipartFile.fromBytes(
+          imageBytes,
+          filename: 'avatar.jpg', // required by server
+          contentType: DioMediaType('application', 'octet-stream'),
+        ),
+      }),
+    );
+
+    final body = jsonDecode(response.data);
+    return body['ldapPhoto'];
   }
 
   /// Performs single sign-on (SSO) to authenticate with a target NTUT service.
