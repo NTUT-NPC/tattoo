@@ -26,6 +26,7 @@ platform :ios do
     pr_title = options[:pr_title] || "manual build"
     commit_sha = options[:commit_sha] || "manual build"
     commit_message = options[:commit_message] || "This is a manual build without PR information"
+    skip_upload = options[:skip_upload].to_s == "true"
 
     setup_ci if is_ci
 
@@ -55,6 +56,8 @@ platform :ios do
       suppress_xcode_output: true,
     )
 
+    next if skip_upload
+
     app_store_connect_api_key(
       is_key_content_base64: true,
     )
@@ -76,6 +79,7 @@ platform :android do
     pr_title = options[:pr_title] || "manual build"
     commit_sha = options[:commit_sha] || "manual build"
     commit_message = options[:commit_message] || "This is a manual build without PR information"
+    skip_upload = options[:skip_upload].to_s == "true"
 
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
@@ -83,6 +87,8 @@ platform :android do
       build: "appbundle",
       build_number: build_number,
     )
+
+    next if skip_upload
 
     changelog = changelog(pr_number, pr_title, commit_sha, commit_message)
 
@@ -108,6 +114,7 @@ platform :android do
     pr_title = options[:pr_title] || "manual build"
     commit_sha = options[:commit_sha] || "manual build"
     commit_message = options[:commit_message] || "This is a manual build without PR information"
+    skip_upload = options[:skip_upload].to_s == "true"
 
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
@@ -115,6 +122,8 @@ platform :android do
       build: "appbundle",
       build_number: build_number,
     )
+
+    next if skip_upload
 
     # Create dynamic changelog files in the standard fastlane/metadata directory
     changelog_text = changelog(pr_number, pr_title, commit_sha, commit_message)

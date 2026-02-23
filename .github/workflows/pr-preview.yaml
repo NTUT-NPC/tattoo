@@ -14,22 +14,16 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      build_number: ${{ steps.build-number.outputs.build_number }}
+      build_number: ${{ steps.build-number.outputs.build_number || vars.build_number }}
       commit_sha: ${{ steps.commit.outputs.commit_sha }}
       commit_message: ${{ steps.commit.outputs.commit_message }}
       comment_id: ${{ steps.create.outputs.comment-id }}
+      skip_upload: ${{ steps.flags.outputs.skip_upload }}
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Manage Build Number
-        id: build-number
-        uses: ./.github/actions/manage-build-number
-        with:
-          github_token: ${{ secrets.BUILD_NUMBER_PAT }}
-          current_build_number: ${{ vars.build_number }}
 
       - name: Get commit SHA and message
         id: commit
@@ -37,7 +31,26 @@ jobs:
           echo "commit_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           echo "commit_message=$(git show -s --format=%s)" >> $GITHUB_OUTPUT
 
+      - name: Check for skip-upload flag
+        id: flags
+        run: |
+          COMMIT_MSG="$(git show -s --format=%B)"
+          if [[ "$COMMIT_MSG" == *"[skip upload]"* ]]; then
+            echo "skip_upload=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip_upload=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Manage Build Number
+        if: steps.flags.outputs.skip_upload != 'true'
+        id: build-number
+        uses: ./.github/actions/manage-build-number
+        with:
+          github_token: ${{ secrets.BUILD_NUMBER_PAT }}
+          current_build_number: ${{ vars.build_number }}
+
       - name: Find existing comment
+        if: steps.flags.outputs.skip_upload != 'true'
         uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
         id: find-comment
         with:
@@ -46,6 +59,7 @@ jobs:
           body-includes: <!-- pr-preview-comment -->
 
       - name: Create or update initial comment
+        if: steps.flags.outputs.skip_upload != 'true'
         id: create
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
@@ -85,9 +99,11 @@ jobs:
             pr_number:${{ github.event.pull_request.number }} \
             pr_title:"${{ github.event.pull_request.title }}" \
             commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
-            commit_message:"${{ needs.prepare.outputs.commit_message }}"
+            commit_message:"${{ needs.prepare.outputs.commit_message }}" \
+            skip_upload:${{ needs.prepare.outputs.skip_upload }}
 
       - name: Update comment with Android build
+        if: needs.prepare.outputs.skip_upload != 'true'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ needs.prepare.outputs.comment_id }}
@@ -133,9 +149,11 @@ jobs:
             pr_number:${{ github.event.pull_request.number }} \
             pr_title:"${{ github.event.pull_request.title }}" \
             commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
-            commit_message:"${{ needs.prepare.outputs.commit_message }}"
+            commit_message:"${{ needs.prepare.outputs.commit_message }}" \
+            skip_upload:${{ needs.prepare.outputs.skip_upload }}
 
       - name: Update comment with iOS build
+        if: needs.prepare.outputs.skip_upload != 'true'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ needs.prepare.outputs.comment_id }}
