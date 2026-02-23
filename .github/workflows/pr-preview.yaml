@@ -68,7 +68,6 @@ jobs:
           title: "Preview Builds"
           build_number: ${{ steps.build-number.outputs.build_number }}
           commit_sha: ${{ steps.commit.outputs.sha }}
-          commit_sha_long: ${{ steps.commit.outputs.sha_long }}
           commit_message: ${{ steps.commit.outputs.message }}
 
       - name: Find existing comment
