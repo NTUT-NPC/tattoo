@@ -57,8 +57,8 @@ jobs:
         id: commit
         uses: ./.github/actions/get-commit-info
 
-      - name: Write Job Summary
-        uses: ./.github/actions/write-job-summary
+      - name: Write Build Summary
+        uses: ./.github/actions/write-build-summary
         with:
           title: "Release Builds"
           build_number: ${{ steps.build-number.outputs.build_number }}

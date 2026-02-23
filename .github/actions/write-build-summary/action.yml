@@ -1,4 +1,4 @@
-name: Write Job Summary
+name: Write Build Summary
 description: Write build information to GitHub Job Summary
 
 inputs:
@@ -21,7 +21,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Write Job Summary
+    - name: Write Build Summary
       shell: bash
       env:
         COMMIT_MESSAGE: ${{ inputs.commit_message }}

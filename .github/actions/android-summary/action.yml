@@ -23,7 +23,7 @@ runs:
           echo "### Android (Firebase App Distribution)" >> $GITHUB_STEP_SUMMARY
           echo "Build **${{ inputs.build_number }}** successfully uploaded to Firebase App Distribution." >> $GITHUB_STEP_SUMMARY
           echo "[Install build ${{ inputs.build_number }}](${{ inputs.testing_uri }})" >> $GITHUB_STEP_SUMMARY
-          echo "It may take a few minutes for the build to appear in the Firebase App after upload." >> $GITHUB_STEP_SUMMARY
+          echo "> **Note:** It may take a few minutes for the build to appear in the Firebase App after upload." >> $GITHUB_STEP_SUMMARY
         else
           echo "### Android (Google Play)" >> $GITHUB_STEP_SUMMARY
           echo "Build **${{ inputs.build_number }}** successfully uploaded to Google Play." >> $GITHUB_STEP_SUMMARY
