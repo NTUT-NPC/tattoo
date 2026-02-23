@@ -1,0 +1,34 @@
+name: Write Job Summary
+description: Write build information to GitHub Job Summary
+
+inputs:
+  title:
+    description: 'Summary title'
+    required: true
+  build_number:
+    description: 'Build number'
+    required: true
+  commit_sha:
+    description: 'Short commit SHA'
+    required: true
+  commit_sha_long:
+    description: 'Long commit SHA'
+    required: true
+  commit_message:
+    description: 'Commit message'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Write Job Summary
+      shell: bash
+      env:
+        COMMIT_MESSAGE: ${{ inputs.commit_message }}
+        COMMIT_SHA: ${{ inputs.commit_sha }}
+        COMMIT_SHA_LONG: ${{ inputs.commit_sha_long }}
+      run: |
+        echo "## ${{ inputs.title }}" >> "$GITHUB_STEP_SUMMARY"
+        echo "**Build Number:** ${{ inputs.build_number }}" >> "$GITHUB_STEP_SUMMARY"
+        echo "**Commit:** [$COMMIT_SHA](${{ github.server_url }}/${{ github.repository }}/commit/$COMMIT_SHA_LONG)" >> "$GITHUB_STEP_SUMMARY"
+        printf '**Message:** %s' "$COMMIT_MESSAGE" >> "$GITHUB_STEP_SUMMARY"

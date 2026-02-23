@@ -24,23 +24,25 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number }}
-      commit_sha: ${{ steps.commit.outputs.commit_sha }}
-      commit_message: ${{ steps.commit.outputs.commit_message }}
+      commit_sha: ${{ steps.commit.outputs.sha }}
+      commit_message: ${{ steps.commit.outputs.message }}
       target_ref: ${{ steps.set-ref.outputs.ref }}
     steps:
-      - name: Determine Target Ref
+      - name: Checkout Actions
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+
+      - name: Resolve Target Ref
         id: set-ref
-        # Priority logic: 
-        # 1. Manual SHA input
-        # 2. Manual Branch input
-        # 3. Default branch/commit from UI dropdown or push event
-        env:
-          TARGET_REF: ${{ inputs.commit_sha || inputs.branch_name || github.sha }}
-        run: |
-          echo "ref=$TARGET_REF" >> "$GITHUB_OUTPUT"
+        uses: ./.github/actions/resolve-ref
+        with:
+          branch_name: ${{ inputs.branch_name }}
+          commit_sha: ${{ inputs.commit_sha }}
 
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: ${{ steps.set-ref.outputs.ref }}
 
@@ -51,30 +53,35 @@ jobs:
           github_token: ${{ secrets.BUILD_NUMBER_PAT }}
           current_build_number: ${{ vars.build_number }}
 
-      - name: Get commit SHA and message
+      - name: Get commit info
         id: commit
-        run: |
-          echo "commit_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          echo "commit_message=$(git show -s --format=%s)" >> $GITHUB_OUTPUT
-          echo "commit_sha_long=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+        uses: ./.github/actions/get-commit-info
 
       - name: Write Job Summary
-        env:
-          COMMIT_MESSAGE: ${{ steps.commit.outputs.commit_message }}
-          COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
-          COMMIT_SHA_LONG: ${{ steps.commit.outputs.commit_sha_long }}
-        run: |
-          echo "## Release Builds" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Build Number:** ${{ steps.build-number.outputs.build_number }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Commit:** [$COMMIT_SHA](${{ github.server_url }}/${{ github.repository }}/commit/$COMMIT_SHA_LONG)" >> "$GITHUB_STEP_SUMMARY"
-          printf '**Message:** %s\n' "$COMMIT_MESSAGE" >> "$GITHUB_STEP_SUMMARY"
+        uses: ./.github/actions/write-job-summary
+        with:
+          title: "Release Builds"
+          build_number: ${{ steps.build-number.outputs.build_number }}
+          commit_sha: ${{ steps.commit.outputs.sha }}
+          commit_sha_long: ${{ steps.commit.outputs.sha_long }}
+          commit_message: ${{ steps.commit.outputs.message }}
 
   android:
     runs-on: ubuntu-latest
     needs: [prepare]
+    env:
+      FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      PR_TITLE: "Release build"
+      COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+      COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: ${{ needs.prepare.outputs.target_ref }}
 
@@ -84,39 +91,35 @@ jobs:
           platform: android
 
       - name: Upload to Google Play Console
-        env:
-          FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
-          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
-          MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
-          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
-          COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-        run: |
-          bundle exec fastlane android upload_release_playstore \
-            build_number:${{ needs.prepare.outputs.build_number }} \
-            pr_title:"Release build" \
-            commit_sha:"$COMMIT_SHA" \
-            commit_message:"$COMMIT_MESSAGE"
+        run: bundle exec fastlane android upload_release_playstore
 
       - name: Write Android Job Summary
-        run: |
-          echo "### Android (Google Play)" >> $GITHUB_STEP_SUMMARY
-          echo "Build **${{ needs.prepare.outputs.build_number }}** successfully uploaded to Google Play." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "1. Open the Google Play Store on your Android device" >> $GITHUB_STEP_SUMMARY
-          echo "2. Select \"Project Tattoo\"" >> $GITHUB_STEP_SUMMARY
-          echo "3. Install or update to the latest build" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "> **Note:** Manual build selection is not available in Google Play, so the latest approved build will be installed." >> $GITHUB_STEP_SUMMARY
-          echo "> **Note:** It may take ~15 minutes for the build to appear in the Play Store after upload." >> $GITHUB_STEP_SUMMARY
+        uses: ./.github/actions/android-summary
+        with:
+          build_number: ${{ needs.prepare.outputs.build_number }}
+          type: 'playstore'
 
   ios:
     runs-on: macos-latest
     needs: [prepare]
+    env:
+      FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      FASTLANE_APPLE_ID: ${{ secrets.FASTLANE_APPLE_ID }}
+      FASTLANE_TEAM_ID: ${{ secrets.FASTLANE_TEAM_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+      APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+      BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      PR_TITLE: "Release build"
+      COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+      COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: ${{ needs.prepare.outputs.target_ref }}
 
@@ -126,35 +129,11 @@ jobs:
           platform: ios
 
       - name: Build and Upload to TestFlight (App Store Connect)
-        env:
-          FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
-          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
-          MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
-          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          FASTLANE_APPLE_ID: ${{ secrets.FASTLANE_APPLE_ID }}
-          FASTLANE_TEAM_ID: ${{ secrets.FASTLANE_TEAM_ID }}
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
-          COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
-          COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-        run: |
-          bundle exec fastlane ios upload_testflight \
-            build_number:${{ needs.prepare.outputs.build_number }} \
-            pr_title:"Release build" \
-            commit_sha:"$COMMIT_SHA" \
-            commit_message:"$COMMIT_MESSAGE"
+        run: bundle exec fastlane ios upload_testflight
 
       - name: Write iOS Job Summary
-        run: |
-          echo "### iOS (TestFlight)" >> $GITHUB_STEP_SUMMARY
-          echo "Build **${{ needs.prepare.outputs.build_number }}** successfully uploaded to App Store Connect." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "1. Open the TestFlight app on your iOS device" >> $GITHUB_STEP_SUMMARY
-          echo "2. Select \"Project Tattoo\"" >> $GITHUB_STEP_SUMMARY
-          echo "3. Install build ${{ needs.prepare.outputs.build_number }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "> **Note:** It may take ~15 minutes for the build to appear in TestFlight after upload." >> $GITHUB_STEP_SUMMARY
+        uses: ./.github/actions/ios-summary
+        with:
+          build_number: ${{ needs.prepare.outputs.build_number }}
 
 

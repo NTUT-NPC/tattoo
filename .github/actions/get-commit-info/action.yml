@@ -1,0 +1,24 @@
+name: Get Commit Info
+description: Retrieve short SHA, long SHA, and commit message
+
+outputs:
+  sha:
+    description: 'Short commit SHA'
+    value: ${{ steps.commit.outputs.sha }}
+  sha_long:
+    description: 'Long commit SHA'
+    value: ${{ steps.commit.outputs.sha_long }}
+  message:
+    description: 'Commit message'
+    value: ${{ steps.commit.outputs.message }}
+
+runs:
+  using: composite
+  steps:
+    - name: Get commit SHA and message
+      id: commit
+      shell: bash
+      run: |
+        echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        echo "sha_long=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+        echo "message=$(git show -s --format=%s)" >> $GITHUB_OUTPUT

@@ -1,0 +1,26 @@
+name: Resolve Target Ref
+description: Determine the target ref for checkout based on inputs and context
+
+inputs:
+  branch_name:
+    description: 'Specific branch to build from HEAD'
+    required: false
+  commit_sha:
+    description: 'Specific commit SHA to build'
+    required: false
+
+outputs:
+  ref:
+    description: 'The resolved ref'
+    value: ${{ steps.set-ref.outputs.ref }}
+
+runs:
+  using: composite
+  steps:
+    - name: Determine Target Ref
+      id: set-ref
+      shell: bash
+      env:
+        TARGET_REF: ${{ inputs.commit_sha || inputs.branch_name || github.event.pull_request.head.sha || github.sha }}
+      run: |
+        echo "ref=$TARGET_REF" >> "$GITHUB_OUTPUT"
