@@ -13,9 +13,14 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+def changelog(pr_number, pr_title, commit_sha, commit_message)
+  prefix = pr_number.to_s.empty? ? pr_title : "PR ##{pr_number}: #{pr_title}"
+  "#{prefix}\n#{commit_sha} #{commit_message}"
+end
+
 platform :ios do
-  desc "Build and upload build to TestFlight"
-  lane :upload_testflight do |options|
+  desc "Build and upload to TestFlight"
+  lane :beta do |options|
     build_number = options[:build_number] || 1
     pr_number = options[:pr_number] || ""
     pr_title = options[:pr_title] || "manual build"
@@ -54,7 +59,7 @@ platform :ios do
       is_key_content_base64: true,
     )
 
-    changelog = pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}"
+    changelog = changelog(pr_number, pr_title, commit_sha, commit_message)
 
     upload_to_testflight(
       skip_waiting_for_build_processing: is_ci,
@@ -64,8 +69,8 @@ platform :ios do
 end
 
 platform :android do
-  desc "Build and upload development build to Firebase App Distribution"
-  lane :upload_dev_firebase do |options|
+  desc "Build and upload PR preview to Firebase App Distribution"
+  lane :preview do |options|
     build_number = options[:build_number] || 1
     pr_number = options[:pr_number] || ""
     pr_title = options[:pr_title] || "manual build"
@@ -79,7 +84,7 @@ platform :android do
       build_number: build_number,
     )
 
-    changelog = pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}"
+    changelog = changelog(pr_number, pr_title, commit_sha, commit_message)
 
     release = firebase_app_distribution(
       groups: "dev-tester",
@@ -96,8 +101,8 @@ platform :android do
     end
   end
 
-  desc "Build and upload release build to Google Play Console"
-  lane :upload_release_playstore do |options|
+  desc "Build and upload to Google Play Console"
+  lane :release do |options|
     build_number = options[:build_number] || 1
     pr_number = options[:pr_number] || ""
     pr_title = options[:pr_title] || "manual build"
@@ -112,7 +117,7 @@ platform :android do
     )
 
     # Create dynamic changelog files in the standard fastlane/metadata directory
-    changelog_text = pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}"
+    changelog_text = changelog(pr_number, pr_title, commit_sha, commit_message)
     ["zh-TW"].each do |locale|
       path = "metadata/android/#{locale}/changelogs"
       FileUtils.mkdir_p(path)

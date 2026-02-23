@@ -80,7 +80,7 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
         run: |
-          bundle exec fastlane android upload_dev_firebase \
+          bundle exec fastlane android preview \
             build_number:${{ needs.prepare.outputs.build_number }} \
             pr_number:${{ github.event.pull_request.number }} \
             pr_title:"${{ github.event.pull_request.title }}" \
@@ -128,7 +128,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
         run: |
-          bundle exec fastlane ios upload_testflight \
+          bundle exec fastlane ios beta \
             build_number:${{ needs.prepare.outputs.build_number }} \
             pr_number:${{ github.event.pull_request.number }} \
             pr_title:"${{ github.event.pull_request.title }}" \

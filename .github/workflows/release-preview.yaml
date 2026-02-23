@@ -50,7 +50,7 @@ jobs:
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         run: |
-          bundle exec fastlane android upload_release_playstore \
+          bundle exec fastlane android release \
             build_number:${{ needs.prepare.outputs.build_number }} \
             pr_title:"Release build" \
             commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
@@ -81,7 +81,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
         run: |
-          bundle exec fastlane ios upload_testflight \
+          bundle exec fastlane ios beta \
             build_number:${{ needs.prepare.outputs.build_number }} \
             pr_title:"Release build" \
             commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
