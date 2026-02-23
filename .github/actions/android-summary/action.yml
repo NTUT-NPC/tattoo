@@ -20,18 +20,22 @@ runs:
       shell: bash
       run: |
         if [ "${{ inputs.type }}" == "firebase" ]; then
-          echo "### Android (Firebase App Distribution)" >> $GITHUB_STEP_SUMMARY
-          echo "Build **${{ inputs.build_number }}** successfully uploaded to Firebase App Distribution." >> $GITHUB_STEP_SUMMARY
-          echo "[Install build ${{ inputs.build_number }}](${{ inputs.testing_uri }})" >> $GITHUB_STEP_SUMMARY
-          echo "> **Note:** It may take a few minutes for the build to appear in the Firebase App after upload." >> $GITHUB_STEP_SUMMARY
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+        ### Android (Firebase App Distribution)
+        Build **${{ inputs.build_number }}** successfully uploaded to Firebase App Distribution.
+        [Install build ${{ inputs.build_number }}](${{ inputs.testing_uri }})
+        > **Note:** It may take a few minutes for the build to appear in the Firebase App after upload.
+        EOF
         else
-          echo "### Android (Google Play)" >> $GITHUB_STEP_SUMMARY
-          echo "Build **${{ inputs.build_number }}** successfully uploaded to Google Play." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "1. Open the Google Play Store on your Android device" >> $GITHUB_STEP_SUMMARY
-          echo "2. Select "Project Tattoo"" >> $GITHUB_STEP_SUMMARY
-          echo "3. Install or update to the latest build" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "> **Note:** Manual build selection is not available in Google Play, so the latest approved build will be installed." >> $GITHUB_STEP_SUMMARY
-          echo "> **Note:** It may take ~15 minutes for the build to appear in the Play Store after upload." >> $GITHUB_STEP_SUMMARY
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+        ### Android (Google Play)
+        Build **${{ inputs.build_number }}** successfully uploaded to Google Play.
+
+        1. Open the Google Play Store on your Android device
+        2. Select "Project Tattoo"
+        3. Install or update to the latest build
+
+        > **Note:** Manual build selection is not available in Google Play, so the latest approved build will be installed.
+        > **Note:** It may take ~15 minutes for the build to appear in the Play Store after upload.
+        EOF
         fi

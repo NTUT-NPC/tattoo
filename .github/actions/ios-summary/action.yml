@@ -12,11 +12,13 @@ runs:
     - name: Write iOS Job Summary
       shell: bash
       run: |
-        echo "### iOS (TestFlight)" >> $GITHUB_STEP_SUMMARY
-        echo "Build **${{ inputs.build_number }}** successfully uploaded to App Store Connect." >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "1. Open the TestFlight app on your iOS device" >> $GITHUB_STEP_SUMMARY
-        echo "2. Select "Project Tattoo"" >> $GITHUB_STEP_SUMMARY
-        echo "3. Install build ${{ inputs.build_number }}" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "> **Note:** It may take ~15 minutes for the build to appear in TestFlight after upload." >> $GITHUB_STEP_SUMMARY
+        cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+        ### iOS (TestFlight)
+        Build **${{ inputs.build_number }}** successfully uploaded to App Store Connect.
+
+        1. Open the TestFlight app on your iOS device
+        2. Select "Project Tattoo"
+        3. Install build ${{ inputs.build_number }}
+
+        > **Note:** It may take ~15 minutes for the build to appear in TestFlight after upload.
+        EOF

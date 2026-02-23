@@ -24,7 +24,9 @@ runs:
         COMMIT_MESSAGE: ${{ inputs.commit_message }}
         COMMIT_SHA: ${{ inputs.commit_sha }}
       run: |
-        echo "## ${{ inputs.title }}" >> "$GITHUB_STEP_SUMMARY"
-        echo "**Build Number:** ${{ inputs.build_number }}" >> "$GITHUB_STEP_SUMMARY"
-        echo "**Commit:** $COMMIT_SHA" >> "$GITHUB_STEP_SUMMARY"
-        printf '**Message:** %s' "$COMMIT_MESSAGE" >> "$GITHUB_STEP_SUMMARY"
+        cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+        ## ${{ inputs.title }}
+        **Build Number:** ${{ inputs.build_number }}
+        **Commit:** [$COMMIT_SHA](${{ github.server_url }}/${{ github.repository }}/commit/$COMMIT_SHA)
+        **Message:** $COMMIT_MESSAGE
+        EOF
