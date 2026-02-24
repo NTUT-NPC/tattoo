@@ -21,11 +21,11 @@ end
 platform :ios do
   desc "Build and upload to TestFlight"
   lane :beta do |options|
-    build_number = options[:build_number] || 1
-    pr_number = options[:pr_number] || ""
-    pr_title = options[:pr_title] || "manual build"
-    commit_sha = options[:commit_sha] || "manual build"
-    commit_message = options[:commit_message] || "This is a manual build without PR information"
+    build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
+    pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
+    pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
+    commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
+    commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
     skip_upload = options[:skip_upload].to_s == "true"
 
     setup_ci if is_ci
@@ -74,11 +74,11 @@ end
 platform :android do
   desc "Build and upload PR preview to Firebase App Distribution"
   lane :preview do |options|
-    build_number = options[:build_number] || 1
-    pr_number = options[:pr_number] || ""
-    pr_title = options[:pr_title] || "manual build"
-    commit_sha = options[:commit_sha] || "manual build"
-    commit_message = options[:commit_message] || "This is a manual build without PR information"
+    build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
+    pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
+    pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
+    commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
+    commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
     skip_upload = options[:skip_upload].to_s == "true"
 
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
@@ -109,11 +109,11 @@ platform :android do
 
   desc "Build and upload to Google Play Console"
   lane :release do |options|
-    build_number = options[:build_number] || 1
-    pr_number = options[:pr_number] || ""
-    pr_title = options[:pr_title] || "manual build"
-    commit_sha = options[:commit_sha] || "manual build"
-    commit_message = options[:commit_message] || "This is a manual build without PR information"
+    build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
+    pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
+    pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
+    commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
+    commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
     skip_upload = options[:skip_upload].to_s == "true"
 
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }

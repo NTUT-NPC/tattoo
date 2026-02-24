@@ -1,0 +1,37 @@
+name: Write Build Summary
+description: Get commit info and write build information to GitHub Job Summary
+
+inputs:
+  title:
+    description: 'Summary title'
+    required: true
+  build_number:
+    description: 'Build number'
+    required: true
+
+outputs:
+  sha:
+    description: 'Short commit SHA'
+    value: ${{ steps.commit.outputs.sha }}
+  message:
+    description: 'Commit message'
+    value: ${{ steps.commit.outputs.message }}
+
+runs:
+  using: composite
+  steps:
+    - name: Get commit info and write summary
+      id: commit
+      shell: bash
+      run: |
+        SHA=$(git rev-parse --short HEAD)
+        MESSAGE=$(git show -s --format=%s)
+        echo "sha=$SHA" >> $GITHUB_OUTPUT
+        echo "message=$MESSAGE" >> $GITHUB_OUTPUT
+
+        cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+        ## ${{ inputs.title }}
+        **Build Number:** ${{ inputs.build_number }}
+        **Commit:** [$SHA](${{ github.server_url }}/${{ github.repository }}/commit/$SHA)
+        **Message:** $MESSAGE
+        EOF

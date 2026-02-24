@@ -5,17 +5,46 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Specific branch to build from HEAD (Uses CI logic from dropdown)'
+        required: false
+        type: string
+      commit_sha:
+        description: 'Specific commit SHA to build (overrides branch)'
+        required: false
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number }}
-      commit_sha: ${{ steps.commit.outputs.commit_sha }}
-      commit_message: ${{ steps.commit.outputs.commit_message }}
+      commit_sha: ${{ steps.summary.outputs.sha }}
+      commit_message: ${{ steps.summary.outputs.message }}
+      target_ref: ${{ steps.set-ref.outputs.ref }}
     steps:
+      - name: Checkout Actions
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+
+      - name: Resolve Target Ref
+        id: set-ref
+        uses: ./.github/actions/resolve-ref
+        with:
+          branch_name: ${{ inputs.branch_name }}
+          commit_sha: ${{ inputs.commit_sha }}
+
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ steps.set-ref.outputs.ref }}
 
       - name: Manage Build Number
         id: build-number
@@ -24,18 +53,31 @@ jobs:
           github_token: ${{ secrets.BUILD_NUMBER_PAT }}
           current_build_number: ${{ vars.build_number }}
 
-      - name: Get commit SHA and message
-        id: commit
-        run: |
-          echo "commit_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          echo "commit_message=$(git show -s --format=%s)" >> $GITHUB_OUTPUT
+      - name: Write Build Summary
+        id: summary
+        uses: ./.github/actions/write-build-summary
+        with:
+          title: "Release Builds"
+          build_number: ${{ steps.build-number.outputs.build_number }}
 
   android:
     runs-on: ubuntu-latest
     needs: [prepare]
+    env:
+      FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      PR_TITLE: "Release build"
+      COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+      COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup project
         uses: ./.github/actions/setup-project
@@ -43,25 +85,37 @@ jobs:
           platform: android
 
       - name: Upload to Google Play Console
-        env:
-          FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
-          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
-          MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
-          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-        run: |
-          bundle exec fastlane android release \
-            build_number:${{ needs.prepare.outputs.build_number }} \
-            pr_title:"Release build" \
-            commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
-            commit_message:"${{ needs.prepare.outputs.commit_message }}"
+        run: bundle exec fastlane android release
+
+      - name: Write Android Job Summary
+        uses: ./.github/actions/android-summary
+        with:
+          build_number: ${{ needs.prepare.outputs.build_number }}
+          type: 'playstore'
 
   ios:
     runs-on: macos-latest
     needs: [prepare]
+    env:
+      FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      FASTLANE_APPLE_ID: ${{ secrets.FASTLANE_APPLE_ID }}
+      FASTLANE_TEAM_ID: ${{ secrets.FASTLANE_TEAM_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+      APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+      BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      PR_TITLE: "Release build"
+      COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+      COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup project
         uses: ./.github/actions/setup-project
@@ -69,20 +123,9 @@ jobs:
           platform: ios
 
       - name: Build and Upload to TestFlight (App Store Connect)
-        env:
-          FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
-          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
-          MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
-          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          FASTLANE_APPLE_ID: ${{ secrets.FASTLANE_APPLE_ID }}
-          FASTLANE_TEAM_ID: ${{ secrets.FASTLANE_TEAM_ID }}
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
-        run: |
-          bundle exec fastlane ios beta \
-            build_number:${{ needs.prepare.outputs.build_number }} \
-            pr_title:"Release build" \
-            commit_sha:"${{ needs.prepare.outputs.commit_sha }}" \
-            commit_message:"${{ needs.prepare.outputs.commit_message }}"
+        run: bundle exec fastlane ios beta
+
+      - name: Write iOS Job Summary
+        uses: ./.github/actions/ios-summary
+        with:
+          build_number: ${{ needs.prepare.outputs.build_number }}
