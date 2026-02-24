@@ -138,6 +138,7 @@ jobs:
         run: bundle exec fastlane android preview skip_upload:${{ needs.prepare.outputs.skip_upload }}
 
       - name: Write Android Job Summary
+        if: needs.prepare.outputs.skip_upload != 'true'
         uses: ./.github/actions/android-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
@@ -193,6 +194,7 @@ jobs:
         run: bundle exec fastlane ios beta skip_upload:${{ needs.prepare.outputs.skip_upload }}
 
       - name: Write iOS Job Summary
+        if: needs.prepare.outputs.skip_upload != 'true'
         uses: ./.github/actions/ios-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
