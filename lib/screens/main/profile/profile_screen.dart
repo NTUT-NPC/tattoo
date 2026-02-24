@@ -68,6 +68,12 @@ class ProfileScreen extends ConsumerWidget {
         ..hideCurrentSnackBar()
         ..showSnackBar(const SnackBar(content: Text('登入狀態已過期，請重新登入')));
       context.go(AppRoutes.intro);
+    } on InvalidCredentialsException {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('登入憑證已失效，請重新登入')));
+      context.go(AppRoutes.intro);
     } on PlatformException catch (e) {
       if (!context.mounted) return;
       final message = e.code.toLowerCase().contains('denied')
