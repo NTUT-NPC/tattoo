@@ -5,6 +5,21 @@ import 'package:html/parser.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/utils/http.dart';
 
+/// Course reference from the iSchool+ course selection sidebar.
+///
+/// Obtained from [ISchoolPlusService.getCourseList] and required by all
+/// other iSchool+ operations. Contains the internal ID needed to select
+/// the course server-side.
+typedef ISchoolCourseDto = ({
+  /// Course offering number from the course system (e.g., "352902").
+  String courseNumber,
+
+  /// Internal iSchool+ course identifier (e.g., "10099386").
+  ///
+  /// Used by [ISchoolPlusService] to select the course via `goto_course.php`.
+  String internalId,
+});
+
 /// Student enrolled in an i-School Plus course.
 typedef StudentDto = ({
   /// Student's NTUT ID (e.g., "111360109").
@@ -16,8 +31,8 @@ typedef StudentDto = ({
 
 /// Reference to a course material file in i-School Plus.
 typedef MaterialRefDto = ({
-  /// Course selection number this material belongs to.
-  String courseNumber,
+  /// The course this material belongs to.
+  ISchoolCourseDto course,
 
   /// Title/filename of the material.
   String? title,
@@ -61,17 +76,17 @@ final iSchoolPlusServiceProvider = Provider<ISchoolPlusService>(
 /// Authentication is required through [PortalService.sso] with
 /// [PortalServiceCode.iSchoolPlusService] before using this service.
 ///
-/// All operations require selecting a course first, which is handled internally
-/// by caching the last selected course.
+/// Call [getCourseList] first to obtain [ISchoolCourseDto] references,
+/// then pass them to other methods. Not all courses from the course system
+/// are available on I-School Plus (e.g., internships, early-semester courses).
 ///
 /// Data is parsed from HTML/XML pages as NTUT does not provide a REST API.
 class ISchoolPlusService {
   late final Dio _iSchoolPlusDio;
 
-  /// A [CourseSchedule.number] of the selected course.
-  ///
-  /// All operations in this client will pertain to this course.
-  String? _selectedCourseNumber;
+  /// The currently selected course, used to avoid redundant server-side
+  /// course switches.
+  String? _selectedInternalId;
 
   ISchoolPlusService() {
     _iSchoolPlusDio = createDio()
@@ -80,59 +95,68 @@ class ISchoolPlusService {
       ..transformer = PlainTextTransformer();
   }
 
-  Future<void> _selectCourse(String courseNumber) async {
-    if (courseNumber == _selectedCourseNumber) return;
-
-    // Fetch the sidebar page for a list of courses
+  /// Fetches the list of courses available on iSchool+ for the current user.
+  ///
+  /// Returns course references that can be passed to [getStudents],
+  /// [getMaterials], and [getMaterial]. Not all courses from the course
+  /// system will be present — internships and newly added courses may
+  /// not appear until they are set up on I-School Plus.
+  ///
+  /// The returned list preserves the order from the I-School Plus sidebar.
+  Future<List<ISchoolCourseDto>> getCourseList() async {
     final response = await _iSchoolPlusDio.get('mooc_sysbar.php');
 
-    // Parse the HTML to find the course selection dropdown
     final document = parse(response.data);
     final courseSelect = document.getElementById('selcourse');
-    if (courseSelect == null) {
-      throw Exception('No courses found for the user.');
-    }
+    if (courseSelect == null) return [];
 
-    // Find the internal ID for the given course number
-    // Example option: <option value="10099386">1141_智慧財產權_352902</option>
-    // We match the course number (352902) for the option value (10099386).
     // Options may be inside <optgroup> elements, so use querySelectorAll.
+    // Example option: <option value="10099386">1141_智慧財產權_352902</option>
     final options = courseSelect.querySelectorAll('option');
-    final matchingOption = options.where(
-      (option) => option.text.contains(courseNumber),
-    );
-    if (matchingOption.isEmpty) {
-      throw Exception('Course $courseNumber not found.');
-    }
-    final internalCourseId = matchingOption.first.attributes['value'];
-    if (internalCourseId == null) {
-      throw Exception('Course $courseNumber not found.');
+
+    final courses = <ISchoolCourseDto>[];
+    for (final option in options) {
+      final internalId = option.attributes['value'];
+      if (internalId == null || internalId.isEmpty) continue;
+
+      // Extract course number from the end of the option text
+      final text = option.text;
+      final underscoreIdx = text.lastIndexOf('_');
+      if (underscoreIdx == -1) continue;
+      final courseNumber = text.substring(underscoreIdx + 1).trim();
+      if (courseNumber.isEmpty) continue;
+
+      courses.add((courseNumber: courseNumber, internalId: internalId));
     }
 
-    // Send request to select the course
+    return courses;
+  }
+
+  Future<void> _selectCourse(ISchoolCourseDto course) async {
+    if (course.internalId == _selectedInternalId) return;
+
     await _iSchoolPlusDio.post(
       'goto_course.php',
       data:
-          '<manifest><ticket/><course_id>$internalCourseId</course_id><env/></manifest>',
+          '<manifest><ticket/><course_id>${course.internalId}</course_id><env/></manifest>',
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
 
-    _selectedCourseNumber = courseNumber;
+    _selectedInternalId = course.internalId;
   }
 
   /// Fetches the list of students enrolled in the specified course.
   ///
   /// Returns student information (ID and name) for all students enrolled in
-  /// the course identified by [courseNumber].
+  /// the given [course].
   ///
-  /// The [courseNumber] should be a course offering number (e.g., "313146")
-  /// from the `number` field of a [ScheduleDto].
+  /// The [course] should be obtained from [getCourseList].
   ///
   /// System accounts (e.g., "istudyoaa") are automatically filtered out.
   ///
-  /// Throws an [Exception] if the course is not found or no student data exists.
-  Future<List<StudentDto>> getStudents(String courseNumber) async {
-    await _selectCourse(courseNumber);
+  /// Throws an [Exception] if no student data exists.
+  Future<List<StudentDto>> getStudents(ISchoolCourseDto course) async {
+    await _selectCourse(course);
 
     final response = await _iSchoolPlusDio.get('learn_ranking.php');
 
@@ -140,7 +164,9 @@ class ISchoolPlusService {
     final document = parse(response.data);
     final studyRankingsTable = document.querySelector('.content>.data2 tbody');
     if (studyRankingsTable == null) {
-      throw Exception('No student data found for course $courseNumber.');
+      throw Exception(
+        'No student data found for course ${course.courseNumber}.',
+      );
     }
 
     // Extract second column from each row for student ID and name
@@ -149,7 +175,7 @@ class ISchoolPlusService {
         .map((row) => row.children[1].children.first.text)
         .toList();
     if (students.isEmpty) {
-      throw Exception('No students found for course $courseNumber.');
+      throw Exception('No students found for course ${course.courseNumber}.');
     }
 
     return students
@@ -172,18 +198,17 @@ class ISchoolPlusService {
   /// Fetches the list of course materials for the specified course.
   ///
   /// Returns references to all files and materials posted to I-School Plus
-  /// for the course identified by [courseNumber].
+  /// for the given [course].
   ///
-  /// The [courseNumber] should be a course offering number (e.g., "313146")
-  /// from the `number` field of a [ScheduleDto].
+  /// The [course] should be obtained from [getCourseList].
   ///
   /// Each material reference includes a title and SCORM resource identifier
   /// (href) that can be passed to [getMaterial] to obtain download information.
   ///
   /// Materials are extracted from the course's SCORM manifest XML.
   /// Folder/directory items without actual files are automatically excluded.
-  Future<List<MaterialRefDto>> getMaterials(String courseNumber) async {
-    await _selectCourse(courseNumber);
+  Future<List<MaterialRefDto>> getMaterials(ISchoolCourseDto course) async {
+    await _selectCourse(course);
 
     // Fetch and parse the SCORM manifest XML for file listings
     final manifestResponse = await _iSchoolPlusDio.get('path/SCORM_loadCA.php');
@@ -206,7 +231,7 @@ class ISchoolPlusService {
       final href = resource?.attributes['href'];
 
       return (
-        courseNumber: courseNumber,
+        course: course,
         title: title,
         href: href,
       );
@@ -232,7 +257,7 @@ class ISchoolPlusService {
   Future<MaterialDto> getMaterial(
     MaterialRefDto material,
   ) async {
-    await _selectCourse(material.courseNumber);
+    await _selectCourse(material.course);
 
     // Step 1: Get launch.php to extract the course ID (cid)
     final launchResponse = await _iSchoolPlusDio.get('path/launch.php');

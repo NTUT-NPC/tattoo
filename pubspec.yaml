@@ -38,6 +38,7 @@ dependencies:
   google_fonts: ^8.0.1
   slang: ^4.12.1
   slang_flutter: ^4.12.1
+  http_parser: ^4.1.2
 
 dev_dependencies:
   flutter_test:

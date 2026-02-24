@@ -13,14 +13,20 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+def changelog(pr_number, pr_title, commit_sha, commit_message)
+  prefix = pr_number.to_s.empty? ? pr_title : "PR ##{pr_number}: #{pr_title}"
+  "#{prefix}\n#{commit_sha} #{commit_message}"
+end
+
 platform :ios do
-  desc "Build and upload build to TestFlight"
-  lane :upload_testflight do |options|
-    build_number = options[:build_number] || 1
-    pr_number = options[:pr_number] || ""
-    pr_title = options[:pr_title] || "manual build"
-    commit_sha = options[:commit_sha] || "manual build"
-    commit_message = options[:commit_message] || "This is a manual build without PR information"
+  desc "Build and upload to TestFlight"
+  lane :beta do |options|
+    build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
+    pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
+    pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
+    commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
+    commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
+    skip_upload = options[:skip_upload].to_s == "true"
 
     setup_ci if is_ci
 
@@ -50,11 +56,13 @@ platform :ios do
       suppress_xcode_output: true,
     )
 
+    next if skip_upload
+
     app_store_connect_api_key(
       is_key_content_base64: true,
     )
 
-    changelog = pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}"
+    changelog = changelog(pr_number, pr_title, commit_sha, commit_message)
 
     upload_to_testflight(
       skip_waiting_for_build_processing: is_ci,
@@ -64,13 +72,14 @@ platform :ios do
 end
 
 platform :android do
-  desc "Build and upload development build to Firebase App Distribution"
-  lane :upload_dev_firebase do |options|
-    build_number = options[:build_number] || 1
-    pr_number = options[:pr_number] || ""
-    pr_title = options[:pr_title] || "manual build"
-    commit_sha = options[:commit_sha] || "manual build"
-    commit_message = options[:commit_message] || "This is a manual build without PR information"
+  desc "Build and upload PR preview to Firebase App Distribution"
+  lane :preview do |options|
+    build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
+    pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
+    pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
+    commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
+    commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
+    skip_upload = options[:skip_upload].to_s == "true"
 
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
@@ -79,7 +88,9 @@ platform :android do
       build_number: build_number,
     )
 
-    changelog = pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}"
+    next if skip_upload
+
+    changelog = changelog(pr_number, pr_title, commit_sha, commit_message)
 
     release = firebase_app_distribution(
       groups: "dev-tester",
@@ -96,13 +107,14 @@ platform :android do
     end
   end
 
-  desc "Build and upload release build to Google Play Console"
-  lane :upload_release_playstore do |options|
-    build_number = options[:build_number] || 1
-    pr_number = options[:pr_number] || ""
-    pr_title = options[:pr_title] || "manual build"
-    commit_sha = options[:commit_sha] || "manual build"
-    commit_message = options[:commit_message] || "This is a manual build without PR information"
+  desc "Build and upload to Google Play Console"
+  lane :release do |options|
+    build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
+    pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
+    pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
+    commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
+    commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
+    skip_upload = options[:skip_upload].to_s == "true"
 
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
@@ -111,8 +123,10 @@ platform :android do
       build_number: build_number,
     )
 
+    next if skip_upload
+
     # Create dynamic changelog files in the standard fastlane/metadata directory
-    changelog_text = pr_number.to_s.empty? ? "#{pr_title}\n#{commit_sha} #{commit_message}" : "PR ##{pr_number}: #{pr_title}\n#{commit_sha} #{commit_message}"
+    changelog_text = changelog(pr_number, pr_title, commit_sha, commit_message)
     ["zh-TW"].each do |locale|
       path = "metadata/android/#{locale}/changelogs"
       FileUtils.mkdir_p(path)
