@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/notices.dart';
@@ -8,14 +9,71 @@ import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
+import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
+  static final _imagePicker = ImagePicker();
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
     final authRepository = ref.read(authRepositoryProvider);
     await authRepository.logout();
     if (context.mounted) context.go(AppRoutes.intro);
+  }
+
+  Future<XFile?> _pickAvatarImage() {
+    // Use OS picker to select a single image without broad media access.
+    return _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      requestFullMetadata: false,
+    );
+  }
+
+  Future<void> _changeAvatar(BuildContext context, WidgetRef ref) async {
+    final imageFile = await _pickAvatarImage();
+    if (!context.mounted || imageFile == null) return;
+
+    final messenger = ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('正在更新個人圖片...')));
+
+    try {
+      final imageBytes = await imageFile.readAsBytes();
+      if (imageBytes.isEmpty) {
+        throw const FormatException('Selected image is empty');
+      }
+
+      await ref.read(authRepositoryProvider).uploadAvatar(imageBytes);
+      ref.invalidate(userAvatarProvider);
+
+      if (!context.mounted) return;
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('個人圖片已更新')));
+      await _scrollToTop(context);
+    } on NotLoggedInException {
+      if (!context.mounted) return;
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('登入狀態已過期，請重新登入')));
+      context.go(AppRoutes.intro);
+    } catch (_) {
+      if (!context.mounted) return;
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('更改個人圖片失敗，請稍後再試')));
+    }
+  }
+
+  Future<void> _scrollToTop(BuildContext context) async {
+    final scrollController = PrimaryScrollController.maybeOf(context);
+    if (scrollController == null || !scrollController.hasClients) return;
+
+    await scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.fastOutSlowIn,
+    );
   }
 
   void _showDemoTap(BuildContext context) {
@@ -37,7 +95,7 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile(
         icon: Icons.image,
         title: '更改個人圖片',
-        onTap: () => _showDemoTap(context),
+        onTap: () => _changeAvatar(context, ref),
       ),
 
       SectionHeader(title: 'TAT'),
