@@ -105,7 +105,12 @@ class TranslationsLoginZhTw {
 	/// zh-TW: '北科生活'
 	String get welcomeLine2 => '北科生活';
 
-	late final TranslationsLoginInstructionZhTw instruction = TranslationsLoginInstructionZhTw.internal(_root);
+	/// zh-TW: '請使用${portalLink(北科校園入口網站)}的帳號密碼登入。'
+	TextSpan instruction({required InlineSpanBuilder portalLink}) => TextSpan(children: [
+		const TextSpan(text: '請使用'),
+		portalLink('北科校園入口網站'),
+		const TextSpan(text: '的帳號密碼登入。'),
+	]);
 
 	/// zh-TW: '學號'
 	String get studentId => '學號';
@@ -116,11 +121,11 @@ class TranslationsLoginZhTw {
 	/// zh-TW: '登入'
 	String get loginButton => '登入';
 
-	/// zh-TW: '登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的'
-	String get privacyNotice => '登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的';
-
-	/// zh-TW: '隱私條款'
-	String get privacyTerms => '隱私條款';
+	/// zh-TW: '登入資訊將被安全地儲存在您的裝置中 登入即表示您同意我們的${privacyPolicy(隱私條款)}'
+	TextSpan privacyNotice({required InlineSpanBuilder privacyPolicy}) => TextSpan(children: [
+		const TextSpan(text: '登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的'),
+		privacyPolicy('隱私條款'),
+	]);
 
 	late final TranslationsLoginErrorsZhTw errors = TranslationsLoginErrorsZhTw.internal(_root);
 }
@@ -186,24 +191,6 @@ class TranslationsIntroFeaturesZhTw {
 	late final TranslationsIntroFeaturesCourseTableZhTw courseTable = TranslationsIntroFeaturesCourseTableZhTw.internal(_root);
 	late final TranslationsIntroFeaturesScoresZhTw scores = TranslationsIntroFeaturesScoresZhTw.internal(_root);
 	late final TranslationsIntroFeaturesCampusLifeZhTw campusLife = TranslationsIntroFeaturesCampusLifeZhTw.internal(_root);
-}
-
-// Path: login.instruction
-class TranslationsLoginInstructionZhTw {
-	TranslationsLoginInstructionZhTw.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '請使用'
-	String get prefix => '請使用';
-
-	/// zh-TW: '北科校園入口網站'
-	String get portalLink => '北科校園入口網站';
-
-	/// zh-TW: '的帳號密碼登入。'
-	String get suffix => '的帳號密碼登入。';
 }
 
 // Path: login.errors
@@ -362,14 +349,11 @@ extension on Translations {
 			'intro.kContinue' => '繼續',
 			'login.welcomeLine1' => '歡迎加入',
 			'login.welcomeLine2' => '北科生活',
-			'login.instruction.prefix' => '請使用',
-			'login.instruction.portalLink' => '北科校園入口網站',
-			'login.instruction.suffix' => '的帳號密碼登入。',
+			'login.instruction' => ({required InlineSpanBuilder portalLink}) => TextSpan(children: [ const TextSpan(text: '請使用'), portalLink('北科校園入口網站'), const TextSpan(text: '的帳號密碼登入。'), ]), 
 			'login.studentId' => '學號',
 			'login.password' => '密碼',
 			'login.loginButton' => '登入',
-			'login.privacyNotice' => '登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的',
-			'login.privacyTerms' => '隱私條款',
+			'login.privacyNotice' => ({required InlineSpanBuilder privacyPolicy}) => TextSpan(children: [ const TextSpan(text: '登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的'), privacyPolicy('隱私條款'), ]), 
 			'login.errors.emptyFields' => '請填寫學號與密碼',
 			'login.errors.useStudentId' => '請直接使用學號登入，不要使用電子郵件',
 			'login.errors.connectionFailed' => '無法連線到伺服器，請檢查網路連線',

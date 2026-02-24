@@ -21,15 +21,11 @@ intro:
 login:
   welcomeLine1: Welcome to
   welcomeLine2: Campus Life
-  instruction:
-    prefix: "Sign in with your "
-    portalLink: NTUT Portal
-    suffix: " account credentials."
+  instruction(rich): "Sign in with your ${portalLink(NTUT Portal)} account credentials."
   studentId: Student ID
   password: Password
   loginButton: Sign In
-  privacyNotice: Your credentials are stored securely on your device\nBy signing in, you agree to our
-  privacyTerms: Privacy Policy
+  privacyNotice(rich): "Your credentials are stored securely on your device\nBy signing in, you agree to our ${privacyPolicy(Privacy Policy)}."
   errors:
     emptyFields: Please enter your student ID and password
     useStudentId: Please use your student ID to sign in, not an email address

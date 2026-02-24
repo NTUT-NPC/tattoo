@@ -183,21 +183,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                           // Login instruction
                           Text.rich(
-                            TextSpan(
-                              text: t.login.instruction.prefix,
-                              children: [
-                                TextSpan(
-                                  text: t.login.instruction.portalLink,
-                                  style: const TextStyle(
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () => launchUrl(
-                                      Uri.parse('https://nportal.ntut.edu.tw'),
-                                    ),
+                            t.login.instruction(
+                              portalLink: (text) => TextSpan(
+                                text: text,
+                                style: const TextStyle(
+                                  decoration: TextDecoration.underline,
                                 ),
-                                TextSpan(text: t.login.instruction.suffix),
-                              ],
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () => launchUrl(
+                                    Uri.parse('https://nportal.ntut.edu.tw'),
+                                  ),
+                              ),
                             ),
                             style: theme.textTheme.bodySmall?.copyWith(
                               fontSize: 16,
@@ -293,22 +289,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 color: Colors.grey[600],
                               ),
                               Text.rich(
-                                TextSpan(
-                                  text: t.login.privacyNotice,
-                                  children: [
-                                    TextSpan(
-                                      text: t.login.privacyTerms,
-                                      style: const TextStyle(
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () => launchUrl(
-                                          Uri.parse(
-                                            'https://example.com/terms-of-service',
-                                          ),
-                                        ),
+                                t.login.privacyNotice(
+                                  privacyPolicy: (text) => TextSpan(
+                                    text: text,
+                                    style: const TextStyle(
+                                      decoration: TextDecoration.underline,
                                     ),
-                                  ],
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () => launchUrl(
+                                        Uri.parse(
+                                          'https://example.com/terms-of-service',
+                                        ),
+                                      ),
+                                  ),
                                 ),
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   height: 1.6,

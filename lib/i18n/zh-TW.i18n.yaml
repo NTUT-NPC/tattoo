@@ -21,15 +21,11 @@ intro:
 login:
   welcomeLine1: 歡迎加入
   welcomeLine2: 北科生活
-  instruction:
-    prefix: 請使用
-    portalLink: 北科校園入口網站
-    suffix: 的帳號密碼登入。
+  instruction(rich): "請使用${portalLink(北科校園入口網站)}的帳號密碼登入。"
   studentId: 學號
   password: 密碼
   loginButton: 登入
-  privacyNotice: 登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的
-  privacyTerms: 隱私條款
+  privacyNotice(rich): "登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的${privacyPolicy(隱私條款)}"
   errors:
     emptyFields: 請填寫學號與密碼
     useStudentId: 請直接使用學號登入，不要使用電子郵件

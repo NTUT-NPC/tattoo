@@ -83,12 +83,19 @@ class _TranslationsLoginEn extends TranslationsLoginZhTw {
 	// Translations
 	@override String get welcomeLine1 => 'Welcome to';
 	@override String get welcomeLine2 => 'Campus Life';
-	@override late final _TranslationsLoginInstructionEn instruction = _TranslationsLoginInstructionEn._(_root);
+	@override TextSpan instruction({required InlineSpanBuilder portalLink}) => TextSpan(children: [
+		const TextSpan(text: 'Sign in with your '),
+		portalLink('NTUT Portal'),
+		const TextSpan(text: ' account credentials.'),
+	]);
 	@override String get studentId => 'Student ID';
 	@override String get password => 'Password';
 	@override String get loginButton => 'Sign In';
-	@override String get privacyNotice => 'Your credentials are stored securely on your device\nBy signing in, you agree to our';
-	@override String get privacyTerms => 'Privacy Policy';
+	@override TextSpan privacyNotice({required InlineSpanBuilder privacyPolicy}) => TextSpan(children: [
+		const TextSpan(text: 'Your credentials are stored securely on your device\nBy signing in, you agree to our '),
+		privacyPolicy('Privacy Policy'),
+		const TextSpan(text: '.'),
+	]);
 	@override late final _TranslationsLoginErrorsEn errors = _TranslationsLoginErrorsEn._(_root);
 }
 
@@ -139,18 +146,6 @@ class _TranslationsIntroFeaturesEn extends TranslationsIntroFeaturesZhTw {
 	@override late final _TranslationsIntroFeaturesCourseTableEn courseTable = _TranslationsIntroFeaturesCourseTableEn._(_root);
 	@override late final _TranslationsIntroFeaturesScoresEn scores = _TranslationsIntroFeaturesScoresEn._(_root);
 	@override late final _TranslationsIntroFeaturesCampusLifeEn campusLife = _TranslationsIntroFeaturesCampusLifeEn._(_root);
-}
-
-// Path: login.instruction
-class _TranslationsLoginInstructionEn extends TranslationsLoginInstructionZhTw {
-	_TranslationsLoginInstructionEn._(TranslationsEn root) : this._root = root, super.internal(root);
-
-	final TranslationsEn _root; // ignore: unused_field
-
-	// Translations
-	@override String get prefix => 'Sign in with your ';
-	@override String get portalLink => 'NTUT Portal';
-	@override String get suffix => ' account credentials.';
 }
 
 // Path: login.errors
@@ -263,14 +258,11 @@ extension on TranslationsEn {
 			'intro.kContinue' => 'Continue',
 			'login.welcomeLine1' => 'Welcome to',
 			'login.welcomeLine2' => 'Campus Life',
-			'login.instruction.prefix' => 'Sign in with your ',
-			'login.instruction.portalLink' => 'NTUT Portal',
-			'login.instruction.suffix' => ' account credentials.',
+			'login.instruction' => ({required InlineSpanBuilder portalLink}) => TextSpan(children: [ const TextSpan(text: 'Sign in with your '), portalLink('NTUT Portal'), const TextSpan(text: ' account credentials.'), ]), 
 			'login.studentId' => 'Student ID',
 			'login.password' => 'Password',
 			'login.loginButton' => 'Sign In',
-			'login.privacyNotice' => 'Your credentials are stored securely on your device\nBy signing in, you agree to our',
-			'login.privacyTerms' => 'Privacy Policy',
+			'login.privacyNotice' => ({required InlineSpanBuilder privacyPolicy}) => TextSpan(children: [ const TextSpan(text: 'Your credentials are stored securely on your device\nBy signing in, you agree to our '), privacyPolicy('Privacy Policy'), const TextSpan(text: '.'), ]), 
 			'login.errors.emptyFields' => 'Please enter your student ID and password',
 			'login.errors.useStudentId' => 'Please use your student ID to sign in, not an email address',
 			'login.errors.connectionFailed' => 'Cannot connect to the server. Please check your network connection.',
