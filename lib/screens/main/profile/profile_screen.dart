@@ -15,9 +15,11 @@ class ProfileScreen extends ConsumerWidget {
 
   Future<void> _refresh(WidgetRef ref) async {
     await ref.read(authRepositoryProvider).getUser(refresh: true);
-    ref.invalidate(userProfileProvider);
-    ref.invalidate(userAvatarProvider);
-    ref.invalidate(activeRegistrationProvider);
+    await Future.wait([
+      ref.refresh(userProfileProvider.future),
+      ref.refresh(userAvatarProvider.future),
+      ref.refresh(activeRegistrationProvider.future),
+    ]);
   }
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
