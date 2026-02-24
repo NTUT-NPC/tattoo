@@ -40,6 +40,7 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
 
 	// Translations
 	@override late final _TranslationsGeneralEn general = _TranslationsGeneralEn._(_root);
+	@override late final _TranslationsErrorsEn errors = _TranslationsErrorsEn._(_root);
 	@override late final _TranslationsIntroEn intro = _TranslationsIntroEn._(_root);
 	@override late final _TranslationsLoginEn login = _TranslationsLoginEn._(_root);
 	@override late final _TranslationsNavEn nav = _TranslationsNavEn._(_root);
@@ -60,6 +61,18 @@ class _TranslationsGeneralEn extends TranslationsGeneralZhTw {
 	@override String get student => 'Student';
 	@override String get unknown => 'Unknown';
 	@override String get notLoggedIn => 'Not logged in';
+}
+
+// Path: errors
+class _TranslationsErrorsEn extends TranslationsErrorsZhTw {
+	_TranslationsErrorsEn._(TranslationsEn root) : this._root = root, super.internal(root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get sessionExpired => 'Session expired. Please sign in again.';
+	@override String get credentialsInvalid => 'Credentials are no longer valid. Please sign in again.';
+	@override String get connectionFailed => 'Cannot connect to the server. Please check your network connection.';
 }
 
 // Path: intro
@@ -121,6 +134,7 @@ class _TranslationsProfileEn extends TranslationsProfileZhTw {
 	@override late final _TranslationsProfileSectionsEn sections = _TranslationsProfileSectionsEn._(_root);
 	@override late final _TranslationsProfileOptionsEn options = _TranslationsProfileOptionsEn._(_root);
 	@override late final _TranslationsProfileNoticesEn notices = _TranslationsProfileNoticesEn._(_root);
+	@override late final _TranslationsProfileAvatarEn avatar = _TranslationsProfileAvatarEn._(_root);
 	@override String get dataDisclaimer => 'For reference only. Not valid as official documentation.';
 }
 
@@ -157,7 +171,6 @@ class _TranslationsLoginErrorsEn extends TranslationsLoginErrorsZhTw {
 	// Translations
 	@override String get emptyFields => 'Please enter your student ID and password';
 	@override String get useStudentId => 'Please use your student ID to sign in, not an email address';
-	@override String get connectionFailed => 'Cannot connect to the server. Please check your network connection.';
 	@override String get loginFailed => 'Login failed. Please verify your credentials.';
 }
 
@@ -199,6 +212,22 @@ class _TranslationsProfileNoticesEn extends TranslationsProfileNoticesZhTw {
 	@override String get betaTesting => 'The new version of TAT is still in beta. Please report any issues you encounter.';
 	@override String get passwordExpiring => 'Your password will expire in 7 days. Please update it to avoid being locked out.';
 	@override String get connectionError => 'Cannot connect to the server. Data may be inaccurate.';
+}
+
+// Path: profile.avatar
+class _TranslationsProfileAvatarEn extends TranslationsProfileAvatarZhTw {
+	_TranslationsProfileAvatarEn._(TranslationsEn root) : this._root = root, super.internal(root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get uploading => 'Updating avatar...';
+	@override String get uploadSuccess => 'Avatar updated';
+	@override String get tooLarge => 'Image exceeds the 20 MB size limit';
+	@override String get invalidFormat => 'Unrecognized image format';
+	@override String get photoAccessDenied => 'Cannot access photo library. Please enable access in Settings.';
+	@override String get photoAccessFailed => 'Cannot open photo library. Please try again later.';
+	@override String get uploadFailed => 'Failed to change avatar. Please try again later.';
 }
 
 // Path: intro.features.courseTable
@@ -248,6 +277,9 @@ extension on TranslationsEn {
 			'general.student' => 'Student',
 			'general.unknown' => 'Unknown',
 			'general.notLoggedIn' => 'Not logged in',
+			'errors.sessionExpired' => 'Session expired. Please sign in again.',
+			'errors.credentialsInvalid' => 'Credentials are no longer valid. Please sign in again.',
+			'errors.connectionFailed' => 'Cannot connect to the server. Please check your network connection.',
 			'intro.features.courseTable.title' => 'Courses',
 			'intro.features.courseTable.description' => 'Quickly view your course schedule and switch between semesters.',
 			'intro.features.scores.title' => 'Scores',
@@ -265,7 +297,6 @@ extension on TranslationsEn {
 			'login.privacyNotice' => ({required InlineSpanBuilder privacyPolicy}) => TextSpan(children: [ const TextSpan(text: 'Your credentials are stored securely on your device\nBy signing in, you agree to our '), privacyPolicy('Privacy Policy'), const TextSpan(text: '.'), ]), 
 			'login.errors.emptyFields' => 'Please enter your student ID and password',
 			'login.errors.useStudentId' => 'Please use your student ID to sign in, not an email address',
-			'login.errors.connectionFailed' => 'Cannot connect to the server. Please check your network connection.',
 			'login.errors.loginFailed' => 'Login failed. Please verify your credentials.',
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
@@ -283,6 +314,13 @@ extension on TranslationsEn {
 			'profile.notices.betaTesting' => 'The new version of TAT is still in beta. Please report any issues you encounter.',
 			'profile.notices.passwordExpiring' => 'Your password will expire in 7 days. Please update it to avoid being locked out.',
 			'profile.notices.connectionError' => 'Cannot connect to the server. Data may be inaccurate.',
+			'profile.avatar.uploading' => 'Updating avatar...',
+			'profile.avatar.uploadSuccess' => 'Avatar updated',
+			'profile.avatar.tooLarge' => 'Image exceeds the 20 MB size limit',
+			'profile.avatar.invalidFormat' => 'Unrecognized image format',
+			'profile.avatar.photoAccessDenied' => 'Cannot access photo library. Please enable access in Settings.',
+			'profile.avatar.photoAccessFailed' => 'Cannot open photo library. Please try again later.',
+			'profile.avatar.uploadFailed' => 'Failed to change avatar. Please try again later.',
 			'profile.dataDisclaimer' => 'For reference only. Not valid as official documentation.',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',

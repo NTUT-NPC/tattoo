@@ -41,6 +41,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 
 	// Translations
 	late final TranslationsGeneralZhTw general = TranslationsGeneralZhTw.internal(_root);
+	late final TranslationsErrorsZhTw errors = TranslationsErrorsZhTw.internal(_root);
 	late final TranslationsIntroZhTw intro = TranslationsIntroZhTw.internal(_root);
 	late final TranslationsLoginZhTw login = TranslationsLoginZhTw.internal(_root);
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
@@ -73,6 +74,24 @@ class TranslationsGeneralZhTw {
 
 	/// zh-TW: '未登入'
 	String get notLoggedIn => '未登入';
+}
+
+// Path: errors
+class TranslationsErrorsZhTw {
+	TranslationsErrorsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '登入狀態已過期，請重新登入'
+	String get sessionExpired => '登入狀態已過期，請重新登入';
+
+	/// zh-TW: '登入憑證已失效，請重新登入'
+	String get credentialsInvalid => '登入憑證已失效，請重新登入';
+
+	/// zh-TW: '無法連線到伺服器，請檢查網路連線'
+	String get connectionFailed => '無法連線到伺服器，請檢查網路連線';
 }
 
 // Path: intro
@@ -158,6 +177,7 @@ class TranslationsProfileZhTw {
 	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
 	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
 	late final TranslationsProfileNoticesZhTw notices = TranslationsProfileNoticesZhTw.internal(_root);
+	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
 
 	/// zh-TW: '本資料僅供參考，不做其他證明用途'
 	String get dataDisclaimer => '本資料僅供參考，不做其他證明用途';
@@ -206,9 +226,6 @@ class TranslationsLoginErrorsZhTw {
 
 	/// zh-TW: '請直接使用學號登入，不要使用電子郵件'
 	String get useStudentId => '請直接使用學號登入，不要使用電子郵件';
-
-	/// zh-TW: '無法連線到伺服器，請檢查網路連線'
-	String get connectionFailed => '無法連線到伺服器，請檢查網路連線';
 
 	/// zh-TW: '登入失敗，請確認帳號密碼'
 	String get loginFailed => '登入失敗，請確認帳號密碼';
@@ -280,6 +297,36 @@ class TranslationsProfileNoticesZhTw {
 	String get connectionError => '無法連接到伺服器，資料可能不正確。';
 }
 
+// Path: profile.avatar
+class TranslationsProfileAvatarZhTw {
+	TranslationsProfileAvatarZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '正在更新個人圖片...'
+	String get uploading => '正在更新個人圖片...';
+
+	/// zh-TW: '個人圖片已更新'
+	String get uploadSuccess => '個人圖片已更新';
+
+	/// zh-TW: '圖片大小超過 20 MB 限制'
+	String get tooLarge => '圖片大小超過 20 MB 限制';
+
+	/// zh-TW: '無法辨識的圖片格式'
+	String get invalidFormat => '無法辨識的圖片格式';
+
+	/// zh-TW: '無法存取相簿，請在系統設定中開啟權限'
+	String get photoAccessDenied => '無法存取相簿，請在系統設定中開啟權限';
+
+	/// zh-TW: '無法開啟相簿，請稍後再試'
+	String get photoAccessFailed => '無法開啟相簿，請稍後再試';
+
+	/// zh-TW: '更改個人圖片失敗，請稍後再試'
+	String get uploadFailed => '更改個人圖片失敗，請稍後再試';
+}
+
 // Path: intro.features.courseTable
 class TranslationsIntroFeaturesCourseTableZhTw {
 	TranslationsIntroFeaturesCourseTableZhTw.internal(this._root);
@@ -339,6 +386,9 @@ extension on Translations {
 			'general.student' => '學生',
 			'general.unknown' => '未知',
 			'general.notLoggedIn' => '未登入',
+			'errors.sessionExpired' => '登入狀態已過期，請重新登入',
+			'errors.credentialsInvalid' => '登入憑證已失效，請重新登入',
+			'errors.connectionFailed' => '無法連線到伺服器，請檢查網路連線',
 			'intro.features.courseTable.title' => '查課表',
 			'intro.features.courseTable.description' => '快速查看課表和課程資訊，並可快速切換學期。',
 			'intro.features.scores.title' => '看成績',
@@ -356,7 +406,6 @@ extension on Translations {
 			'login.privacyNotice' => ({required InlineSpanBuilder privacyPolicy}) => TextSpan(children: [ const TextSpan(text: '登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的'), privacyPolicy('隱私條款'), ]), 
 			'login.errors.emptyFields' => '請填寫學號與密碼',
 			'login.errors.useStudentId' => '請直接使用學號登入，不要使用電子郵件',
-			'login.errors.connectionFailed' => '無法連線到伺服器，請檢查網路連線',
 			'login.errors.loginFailed' => '登入失敗，請確認帳號密碼',
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
@@ -374,6 +423,13 @@ extension on Translations {
 			'profile.notices.betaTesting' => '目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。',
 			'profile.notices.passwordExpiring' => '您的密碼將於 7 天後到期，請盡快更新以免無法登入。',
 			'profile.notices.connectionError' => '無法連接到伺服器，資料可能不正確。',
+			'profile.avatar.uploading' => '正在更新個人圖片...',
+			'profile.avatar.uploadSuccess' => '個人圖片已更新',
+			'profile.avatar.tooLarge' => '圖片大小超過 20 MB 限制',
+			'profile.avatar.invalidFormat' => '無法辨識的圖片格式',
+			'profile.avatar.photoAccessDenied' => '無法存取相簿，請在系統設定中開啟權限',
+			'profile.avatar.photoAccessFailed' => '無法開啟相簿，請稍後再試',
+			'profile.avatar.uploadFailed' => '更改個人圖片失敗，請稍後再試',
 			'profile.dataDisclaimer' => '本資料僅供參考，不做其他證明用途',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',

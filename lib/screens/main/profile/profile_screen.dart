@@ -50,14 +50,14 @@ class ProfileScreen extends ConsumerWidget {
       final imageFile = await _pickAvatarImage();
       if (!context.mounted || imageFile == null) return;
 
-      _showMessage(context, '正在更新個人圖片...');
+      _showMessage(context, t.profile.avatar.uploading);
 
       final imageBytes = await imageFile.readAsBytes();
       await ref.read(authRepositoryProvider).uploadAvatar(imageBytes);
       ref.invalidate(userAvatarProvider);
 
       if (!context.mounted) return;
-      _showMessage(context, '個人圖片已更新');
+      _showMessage(context, t.profile.avatar.uploadSuccess);
       await _scrollToTop(context);
     } catch (error) {
       if (!context.mounted) return;
@@ -68,16 +68,16 @@ class ProfileScreen extends ConsumerWidget {
 
   String _mapChangeAvatarError(Object error) {
     return switch (error) {
-      AvatarTooLargeException() => '圖片大小超過 20 MB 限制',
-      FormatException() => '無法辨識的圖片格式',
-      NotLoggedInException() => '登入狀態已過期，請重新登入',
-      InvalidCredentialsException() => '登入憑證已失效，請重新登入',
+      AvatarTooLargeException() => t.profile.avatar.tooLarge,
+      FormatException() => t.profile.avatar.invalidFormat,
+      NotLoggedInException() => t.errors.sessionExpired,
+      InvalidCredentialsException() => t.errors.credentialsInvalid,
       PlatformException(code: final code)
           when _photoAccessDeniedCodes.contains(code.toLowerCase()) =>
-        '無法存取相簿，請在系統設定中開啟權限',
-      PlatformException() => '無法開啟相簿，請稍後再試',
-      DioException() => '無法連線到伺服器，請檢查網路連線',
-      _ => '更改個人圖片失敗，請稍後再試',
+        t.profile.avatar.photoAccessDenied,
+      PlatformException() => t.profile.avatar.photoAccessFailed,
+      DioException() => t.errors.connectionFailed,
+      _ => t.profile.avatar.uploadFailed,
     };
   }
 

@@ -98,7 +98,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref.read(authRepositoryProvider).login(username, password);
       if (mounted) context.go(AppRoutes.home);
     } on DioException {
-      if (mounted) _setError(t.login.errors.connectionFailed);
+      if (mounted) _setError(t.errors.connectionFailed);
     } catch (_) {
       if (mounted) {
         _setError(t.login.errors.loginFailed, username: true, password: true);

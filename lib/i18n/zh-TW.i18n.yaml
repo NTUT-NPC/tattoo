@@ -5,6 +5,10 @@ general:
   student: 學生
   unknown: 未知
   notLoggedIn: 未登入
+errors:
+  sessionExpired: 登入狀態已過期，請重新登入
+  credentialsInvalid: 登入憑證已失效，請重新登入
+  connectionFailed: 無法連線到伺服器，請檢查網路連線
 intro:
   features:
     courseTable:
@@ -29,7 +33,6 @@ login:
   errors:
     emptyFields: 請填寫學號與密碼
     useStudentId: 請直接使用學號登入，不要使用電子郵件
-    connectionFailed: 無法連線到伺服器，請檢查網路連線
     loginFailed: 登入失敗，請確認帳號密碼
 nav:
   courseTable: 課表
@@ -52,6 +55,14 @@ profile:
     betaTesting: 目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。
     passwordExpiring: 您的密碼將於 7 天後到期，請盡快更新以免無法登入。
     connectionError: 無法連接到伺服器，資料可能不正確。
+  avatar:
+    uploading: 正在更新個人圖片...
+    uploadSuccess: 個人圖片已更新
+    tooLarge: 圖片大小超過 20 MB 限制
+    invalidFormat: 無法辨識的圖片格式
+    photoAccessDenied: 無法存取相簿，請在系統設定中開啟權限
+    photoAccessFailed: 無法開啟相簿，請稍後再試
+    uploadFailed: 更改個人圖片失敗，請稍後再試
   dataDisclaimer: 本資料僅供參考，不做其他證明用途
 enrollmentStatus:
   learning: 在學
