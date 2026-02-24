@@ -117,13 +117,14 @@ class ISchoolPlusService {
     final courses = <ISchoolCourseDto>[];
     for (final option in options) {
       final internalId = option.attributes['value'];
-      if (internalId == null) continue;
+      if (internalId == null || internalId.isEmpty) continue;
 
       // Extract course number from the end of the option text
       final text = option.text;
       final underscoreIdx = text.lastIndexOf('_');
       if (underscoreIdx == -1) continue;
-      final courseNumber = text.substring(underscoreIdx + 1);
+      final courseNumber = text.substring(underscoreIdx + 1).trim();
+      if (courseNumber.isEmpty) continue;
 
       courses.add((courseNumber: courseNumber, internalId: internalId));
     }
