@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -57,6 +58,11 @@ class ProfileScreen extends ConsumerWidget {
         ..hideCurrentSnackBar()
         ..showSnackBar(const SnackBar(content: Text('登入狀態已過期，請重新登入')));
       context.go(AppRoutes.intro);
+    } on DioException {
+      if (!context.mounted) return;
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('無法連線到伺服器，請檢查網路連線')));
     } catch (_) {
       if (!context.mounted) return;
       messenger
