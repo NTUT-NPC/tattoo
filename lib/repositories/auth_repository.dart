@@ -27,6 +27,20 @@ class InvalidCredentialsException implements Exception {
       'InvalidCredentialsException: Stored credentials are no longer valid.';
 }
 
+/// Thrown when the avatar image exceeds [AuthRepository.maxAvatarSize].
+class AvatarTooLargeException implements Exception {
+  final int size;
+  final int limit;
+
+  AvatarTooLargeException({required this.size, required this.limit});
+
+  @override
+  String toString() =>
+      'AvatarTooLargeException: '
+      'Image size ${size ~/ 1024 ~/ 1024} MB exceeds '
+      'limit of ${limit ~/ 1024 ~/ 1024} MB.';
+}
+
 /// Auth session status, updated by [AuthRepository.withAuth].
 enum AuthStatus {
   /// Session is valid or has not been tested yet.
@@ -351,13 +365,32 @@ class AuthRepository {
     }
   }
 
+  /// Maximum avatar file size (20 MB), matching NTUT's client-defined limit.
+  static const maxAvatarSize = 20 * 1024 * 1024;
+
   /// Uploads a new avatar image, replacing the current one.
   ///
   /// Updates the stored avatar filename in the database and clears the
   /// local avatar cache so the next [getAvatar] call fetches the new image.
   ///
   /// Throws [NotLoggedInException] if not logged in.
+  /// Throws [AvatarTooLargeException] if [imageBytes] exceeds [maxAvatarSize].
   Future<void> uploadAvatar(Uint8List imageBytes) async {
+    if (imageBytes.isEmpty) {
+      throw const FormatException('Invalid image data');
+    }
+
+    if (imageBytes.length > maxAvatarSize) {
+      throw AvatarTooLargeException(
+        size: imageBytes.length,
+        limit: maxAvatarSize,
+      );
+    }
+
+    if (!await _isImageValid(imageBytes)) {
+      throw const FormatException('Invalid image data');
+    }
+
     final user = await _database.select(_database.users).getSingleOrNull();
     if (user == null) {
       throw NotLoggedInException();
