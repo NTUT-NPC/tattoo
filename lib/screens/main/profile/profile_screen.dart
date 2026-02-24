@@ -52,10 +52,6 @@ class ProfileScreen extends ConsumerWidget {
       _showMessage(context, '正在更新個人圖片...');
 
       final imageBytes = await imageFile.readAsBytes();
-      if (imageBytes.isEmpty) {
-        throw const FormatException('Selected image is empty');
-      }
-
       await ref.read(authRepositoryProvider).uploadAvatar(imageBytes);
       ref.invalidate(userAvatarProvider);
 
@@ -71,6 +67,8 @@ class ProfileScreen extends ConsumerWidget {
 
   String _mapChangeAvatarError(Object error) {
     return switch (error) {
+      AvatarTooLargeException() => '圖片大小超過 20 MB 限制',
+      FormatException() => '無法辨識的圖片格式',
       NotLoggedInException() => '登入狀態已過期，請重新登入',
       InvalidCredentialsException() => '登入憑證已失效，請重新登入',
       PlatformException(code: final code)
