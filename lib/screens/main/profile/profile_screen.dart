@@ -16,6 +16,10 @@ import 'package:tattoo/screens/main/profile/profile_providers.dart';
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
   static final _imagePicker = ImagePicker();
+  static const _photoAccessDeniedCodes = {
+    'photo_access_denied',
+    'photo_access_restricted',
+  };
 
   Future<void> _refresh(WidgetRef ref) async {
     await ref.read(authRepositoryProvider).getUser(refresh: true);
@@ -45,9 +49,7 @@ class ProfileScreen extends ConsumerWidget {
       final imageFile = await _pickAvatarImage();
       if (!context.mounted || imageFile == null) return;
 
-      final messenger = ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('正在更新個人圖片...')));
+      _showMessage(context, '正在更新個人圖片...');
 
       final imageBytes = await imageFile.readAsBytes();
       if (imageBytes.isEmpty) {
@@ -58,41 +60,32 @@ class ProfileScreen extends ConsumerWidget {
       ref.invalidate(userAvatarProvider);
 
       if (!context.mounted) return;
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('個人圖片已更新')));
+      _showMessage(context, '個人圖片已更新');
       await _scrollToTop(context);
-    } on NotLoggedInException {
+    } catch (error) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('登入狀態已過期，請重新登入')));
-      context.go(AppRoutes.intro);
-    } on InvalidCredentialsException {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('登入憑證已失效，請重新登入')));
-      context.go(AppRoutes.intro);
-    } on PlatformException catch (e) {
-      if (!context.mounted) return;
-      final message = e.code.toLowerCase().contains('denied')
-          ? '無法存取相簿，請在系統設定中開啟權限'
-          : '無法開啟相簿，請稍後再試';
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(message)));
-    } on DioException {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('無法連線到伺服器，請檢查網路連線')));
-    } catch (_) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('更改個人圖片失敗，請稍後再試')));
+      final message = _mapChangeAvatarError(error);
+      _showMessage(context, message);
     }
+  }
+
+  String _mapChangeAvatarError(Object error) {
+    return switch (error) {
+      NotLoggedInException() => '登入狀態已過期，請重新登入',
+      InvalidCredentialsException() => '登入憑證已失效，請重新登入',
+      PlatformException(code: final code)
+          when _photoAccessDeniedCodes.contains(code.toLowerCase()) =>
+        '無法存取相簿，請在系統設定中開啟權限',
+      PlatformException() => '無法開啟相簿，請稍後再試',
+      DioException() => '無法連線到伺服器，請檢查網路連線',
+      _ => '更改個人圖片失敗，請稍後再試',
+    };
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _scrollToTop(BuildContext context) async {
