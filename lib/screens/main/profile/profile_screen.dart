@@ -1,6 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/notices.dart';
@@ -13,6 +16,11 @@ import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
+  static final _imagePicker = ImagePicker();
+  static const _photoAccessDeniedCodes = {
+    'photo_access_denied',
+    'photo_access_restricted',
+  };
 
   Future<void> _refresh(WidgetRef ref) async {
     await ref.read(authRepositoryProvider).getUser(refresh: true);
@@ -27,6 +35,67 @@ class ProfileScreen extends ConsumerWidget {
     final authRepository = ref.read(authRepositoryProvider);
     await authRepository.logout();
     if (context.mounted) context.go(AppRoutes.intro);
+  }
+
+  Future<XFile?> _pickAvatarImage() {
+    // Use OS picker to select a single image without broad media access.
+    return _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      requestFullMetadata: false,
+    );
+  }
+
+  Future<void> _changeAvatar(BuildContext context, WidgetRef ref) async {
+    try {
+      final imageFile = await _pickAvatarImage();
+      if (!context.mounted || imageFile == null) return;
+
+      _showMessage(context, '正在更新個人圖片...');
+
+      final imageBytes = await imageFile.readAsBytes();
+      await ref.read(authRepositoryProvider).uploadAvatar(imageBytes);
+      ref.invalidate(userAvatarProvider);
+
+      if (!context.mounted) return;
+      _showMessage(context, '個人圖片已更新');
+      await _scrollToTop(context);
+    } catch (error) {
+      if (!context.mounted) return;
+      final message = _mapChangeAvatarError(error);
+      _showMessage(context, message);
+    }
+  }
+
+  String _mapChangeAvatarError(Object error) {
+    return switch (error) {
+      AvatarTooLargeException() => '圖片大小超過 20 MB 限制',
+      FormatException() => '無法辨識的圖片格式',
+      NotLoggedInException() => '登入狀態已過期，請重新登入',
+      InvalidCredentialsException() => '登入憑證已失效，請重新登入',
+      PlatformException(code: final code)
+          when _photoAccessDeniedCodes.contains(code.toLowerCase()) =>
+        '無法存取相簿，請在系統設定中開啟權限',
+      PlatformException() => '無法開啟相簿，請稍後再試',
+      DioException() => '無法連線到伺服器，請檢查網路連線',
+      _ => '更改個人圖片失敗，請稍後再試',
+    };
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _scrollToTop(BuildContext context) async {
+    final scrollController = PrimaryScrollController.maybeOf(context);
+    if (scrollController == null || !scrollController.hasClients) return;
+
+    await scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.fastOutSlowIn,
+    );
   }
 
   void _showDemoTap(BuildContext context) {
@@ -48,7 +117,7 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile(
         icon: Icons.image,
         title: t.profile.options.changeAvatar,
-        onTap: () => _showDemoTap(context),
+        onTap: () => _changeAvatar(context, ref),
       ),
 
       SectionHeader(title: 'TAT'),
