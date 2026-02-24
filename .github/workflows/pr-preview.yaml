@@ -12,6 +12,11 @@ on:
         description: 'Specific commit SHA to build (overrides branch)'
         required: false
         type: string
+      skip_upload:
+        description: 'Build without uploading or bumping build number'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   pull-requests: write
@@ -56,7 +61,7 @@ jobs:
         id: flags
         run: |
           COMMIT_MSG="$(git show -s --format=%B)"
-          if [[ "$COMMIT_MSG" == *"[skip upload]"* ]]; then
+          if [[ "$COMMIT_MSG" == *"[skip upload]"* ]] || [[ "${{ inputs.skip_upload }}" == "true" ]]; then
             echo "skip_upload=true" >> $GITHUB_OUTPUT
           else
             echo "skip_upload=false" >> $GITHUB_OUTPUT
