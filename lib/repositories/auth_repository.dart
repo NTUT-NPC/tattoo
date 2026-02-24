@@ -376,7 +376,7 @@ class AuthRepository {
   /// Throws [NotLoggedInException] if not logged in.
   /// Throws [AvatarTooLargeException] if [imageBytes] exceeds [maxAvatarSize].
   Future<void> uploadAvatar(Uint8List imageBytes) async {
-    if (imageBytes.isEmpty || !await _isImageValid(imageBytes)) {
+    if (imageBytes.isEmpty) {
       throw const FormatException('Invalid image data');
     }
 
@@ -385,6 +385,10 @@ class AuthRepository {
         size: imageBytes.length,
         limit: maxAvatarSize,
       );
+    }
+
+    if (!await _isImageValid(imageBytes)) {
+      throw const FormatException('Invalid image data');
     }
 
     final user = await _database.select(_database.users).getSingleOrNull();
