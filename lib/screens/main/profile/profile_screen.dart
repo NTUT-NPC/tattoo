@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -40,14 +41,14 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Future<void> _changeAvatar(BuildContext context, WidgetRef ref) async {
-    final imageFile = await _pickAvatarImage();
-    if (!context.mounted || imageFile == null) return;
-
-    final messenger = ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('正在更新個人圖片...')));
-
     try {
+      final imageFile = await _pickAvatarImage();
+      if (!context.mounted || imageFile == null) return;
+
+      final messenger = ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('正在更新個人圖片...')));
+
       final imageBytes = await imageFile.readAsBytes();
       if (imageBytes.isEmpty) {
         throw const FormatException('Selected image is empty');
@@ -63,18 +64,26 @@ class ProfileScreen extends ConsumerWidget {
       await _scrollToTop(context);
     } on NotLoggedInException {
       if (!context.mounted) return;
-      messenger
+      ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(const SnackBar(content: Text('登入狀態已過期，請重新登入')));
       context.go(AppRoutes.intro);
+    } on PlatformException catch (e) {
+      if (!context.mounted) return;
+      final message = e.code.toLowerCase().contains('denied')
+          ? '無法存取相簿，請在系統設定中開啟權限'
+          : '無法開啟相簿，請稍後再試';
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message)));
     } on DioException {
       if (!context.mounted) return;
-      messenger
+      ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(const SnackBar(content: Text('無法連線到伺服器，請檢查網路連線')));
     } catch (_) {
       if (!context.mounted) return;
-      messenger
+      ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(const SnackBar(content: Text('更改個人圖片失敗，請稍後再試')));
     }
