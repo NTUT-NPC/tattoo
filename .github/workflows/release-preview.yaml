@@ -85,7 +85,7 @@ jobs:
           platform: android
 
       - name: Upload to Google Play Console
-        run: bundle exec fastlane android upload_release_playstore
+        run: bundle exec fastlane android release
 
       - name: Write Android Job Summary
         uses: ./.github/actions/android-summary
@@ -123,11 +123,9 @@ jobs:
           platform: ios
 
       - name: Build and Upload to TestFlight (App Store Connect)
-        run: bundle exec fastlane ios upload_testflight
+        run: bundle exec fastlane ios beta
 
       - name: Write iOS Job Summary
         uses: ./.github/actions/ios-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
-
-

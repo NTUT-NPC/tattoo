@@ -12,6 +12,11 @@ on:
         description: 'Specific commit SHA to build (overrides branch)'
         required: false
         type: string
+      skip_upload:
+        description: 'Build without uploading or bumping build number'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   pull-requests: write
@@ -24,13 +29,14 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      build_number: ${{ steps.build-number.outputs.build_number }}
+      build_number: ${{ steps.build-number.outputs.build_number || vars.build_number }}
       commit_sha: ${{ steps.summary.outputs.sha }}
       commit_message: ${{ steps.summary.outputs.message }}
       # Note: For workflow_dispatch runs, the "create" step is skipped (it only runs on pull_request),
       # so this output may be an empty string. This is intentional; all downstream uses of
       # needs.prepare.outputs.comment_id are guarded by the same pull_request-only condition.
       comment_id: ${{ steps.create.outputs.comment-id }}
+      skip_upload: ${{ steps.flags.outputs.skip_upload }}
       target_ref: ${{ steps.set-ref.outputs.ref }}
     steps:
       - name: Checkout Actions
@@ -51,7 +57,18 @@ jobs:
         with:
           ref: ${{ steps.set-ref.outputs.ref }}
 
+      - name: Check for skip-upload flag
+        id: flags
+        run: |
+          COMMIT_MSG="$(git show -s --format=%B)"
+          if [[ "$COMMIT_MSG" == *"[skip upload]"* ]] || [[ "${{ inputs.skip_upload }}" == "true" ]]; then
+            echo "skip_upload=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip_upload=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Manage Build Number
+        if: steps.flags.outputs.skip_upload != 'true'
         id: build-number
         uses: ./.github/actions/manage-build-number
         with:
@@ -63,10 +80,10 @@ jobs:
         uses: ./.github/actions/write-build-summary
         with:
           title: "Preview Builds"
-          build_number: ${{ steps.build-number.outputs.build_number }}
+          build_number: ${{ steps.build-number.outputs.build_number || vars.build_number }}
 
       - name: Find existing comment
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.flags.outputs.skip_upload != 'true'
         uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
         id: find-comment
         with:
@@ -76,7 +93,7 @@ jobs:
 
       - name: Create or update initial comment
         id: create
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.flags.outputs.skip_upload != 'true'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
@@ -118,9 +135,10 @@ jobs:
         id: upload
         env:
           FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
-        run: bundle exec fastlane android upload_dev_firebase
+        run: bundle exec fastlane android preview skip_upload:${{ needs.prepare.outputs.skip_upload }}
 
       - name: Write Android Job Summary
+        if: needs.prepare.outputs.skip_upload != 'true'
         uses: ./.github/actions/android-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
@@ -128,7 +146,7 @@ jobs:
           testing_uri: ${{ steps.upload.outputs.testing_uri }}
 
       - name: Update comment with Android build
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && needs.prepare.outputs.skip_upload != 'true'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ needs.prepare.outputs.comment_id }}
@@ -173,15 +191,16 @@ jobs:
           git diff --exit-code Podfile.lock
 
       - name: Build and Upload to TestFlight
-        run: bundle exec fastlane ios upload_testflight
+        run: bundle exec fastlane ios beta skip_upload:${{ needs.prepare.outputs.skip_upload }}
 
       - name: Write iOS Job Summary
+        if: needs.prepare.outputs.skip_upload != 'true'
         uses: ./.github/actions/ios-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
 
       - name: Update comment with iOS build
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && needs.prepare.outputs.skip_upload != 'true'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ needs.prepare.outputs.comment_id }}
