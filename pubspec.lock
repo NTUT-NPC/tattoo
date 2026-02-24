@@ -209,6 +209,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  csv:
+    dependency: transitive
+    description:
+      name: csv
+      sha256: c6aa2679b2a18cb57652920f674488d89712efaf4d3fdf2e537215b35fc19d6c
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.0"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -669,6 +677,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.11.1"
+  mcp_dart:
+    dependency: transitive
+    description:
+      name: mcp_dart
+      sha256: "9b4f808d739c563bd6c68b5829d6a7a7a5b0a15928927b8e548e30b66a61eb9b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.2"
   meta:
     dependency: transitive
     description:
@@ -898,6 +914,30 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  slang:
+    dependency: "direct main"
+    description:
+      name: slang
+      sha256: "81e277dc5e2305f53412b92afeb803620453259afe147d5cd6417700f998a7a6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.12.1"
+  slang_flutter:
+    dependency: "direct main"
+    description:
+      name: slang_flutter
+      sha256: "0f0276c400660c8b67150005aa4df57643b86ce6ae9c824abee8e25f345d9abc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.12.1"
+  slang_mcp:
+    dependency: "direct dev"
+    description:
+      name: slang_mcp
+      sha256: c9733a1aa2d7238d9d21eec66bf98f23b29446e733d7be8b8b36f86e52a6e906
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   source_gen:
     dependency: transitive
     description:

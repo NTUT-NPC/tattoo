@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 
@@ -46,10 +47,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(
-        destinations: const <NavigationDestination>[
-          NavigationDestination(icon: Icon(Icons.dashboard), label: '課表'),
-          NavigationDestination(icon: Icon(Icons.school), label: '成績'),
-          NavigationDestination(icon: Icon(Icons.account_circle), label: '我'),
+        destinations: <NavigationDestination>[
+          NavigationDestination(
+            icon: Icon(Icons.dashboard),
+            label: t.nav.courseTable,
+          ),
+          NavigationDestination(icon: Icon(Icons.school), label: t.nav.scores),
+          NavigationDestination(
+            icon: Icon(Icons.account_circle),
+            label: t.nav.profile,
+          ),
         ],
         selectedIndex: widget.navigationShell.currentIndex,
         onDestinationSelected: _onDestinationSelected,

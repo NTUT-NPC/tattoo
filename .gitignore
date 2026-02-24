@@ -64,6 +64,10 @@ test/test_config.json
 /ios/Runner/GoogleService-Info.plist
 /service-account.json
 
+# Slang analysis output
+lib/i18n/_missing_translations.yaml
+lib/i18n/_unused_translations.yaml
+
 # Local Claude files
 /.claude/*.local.*
 /CLAUDE.local.md

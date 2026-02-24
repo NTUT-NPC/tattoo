@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "slang": {
+      "command": "dart",
+      "args": ["run", "slang_mcp"]
+    }
+  }
+}

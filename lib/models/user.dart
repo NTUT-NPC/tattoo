@@ -1,3 +1,5 @@
+import 'package:tattoo/i18n/strings.g.dart';
+
 /// Student enrollment status from the registration records (註冊編班).
 enum EnrollmentStatus {
   /// 在學 — currently enrolled.
@@ -10,8 +12,8 @@ enum EnrollmentStatus {
   droppedOut;
 
   String toLabel() => switch (this) {
-    EnrollmentStatus.learning => '在學',
-    EnrollmentStatus.leaveOfAbsence => '休學',
-    EnrollmentStatus.droppedOut => '退學',
+    EnrollmentStatus.learning => t.enrollmentStatus.learning,
+    EnrollmentStatus.leaveOfAbsence => t.enrollmentStatus.leaveOfAbsence,
+    EnrollmentStatus.droppedOut => t.enrollmentStatus.droppedOut,
   };
 }

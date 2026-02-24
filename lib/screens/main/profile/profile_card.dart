@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/user.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
@@ -53,7 +54,8 @@ class ProfileCard extends ConsumerWidget {
       child: switch ((profileAsync, registrationAsync)) {
         // NOT_LOGIN state: not logged in
         (AsyncData(value: null), _) => _ProfileCardFrame(
-          childBuilder: (context, _, _) => Center(child: Text('未登入')),
+          childBuilder: (context, _, _) =>
+              Center(child: Text(t.general.notLoggedIn)),
         ),
 
         // ERROR state: show error message on card
@@ -131,7 +133,8 @@ class ProfileContent extends StatelessWidget {
                 right: width * 0.095,
                 top: height * 0.018,
                 child: Text(
-                  registration?.enrollmentStatus?.toLabel() ?? '學生',
+                  registration?.enrollmentStatus?.toLabel() ??
+                      t.general.student,
                   textAlign: TextAlign.left,
                   style: textTheme.bodyMedium?.copyWith(
                     color: Color(0xFF3B3B3B),
@@ -164,7 +167,9 @@ class ProfileContent extends StatelessWidget {
                         // fix horizontal alignment with other text
                         offset: Offset(-height * 0.01, 0),
                         child: Text(
-                          profile.nameZh.isNotEmpty ? profile.nameZh : '未知',
+                          profile.nameZh.isNotEmpty
+                              ? profile.nameZh
+                              : t.general.unknown,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: textTheme.titleMedium?.copyWith(

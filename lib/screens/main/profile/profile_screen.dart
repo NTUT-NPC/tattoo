@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,6 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
@@ -16,11 +16,6 @@ import 'package:tattoo/screens/main/profile/profile_providers.dart';
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
   static final _imagePicker = ImagePicker();
-  static const _photoAccessDeniedCodes = {
-    'photo_access_denied',
-    'photo_access_restricted',
-  };
-
   Future<void> _refresh(WidgetRef ref) async {
     await ref.read(authRepositoryProvider).getUser(refresh: true);
     await Future.wait([
@@ -49,14 +44,14 @@ class ProfileScreen extends ConsumerWidget {
       final imageFile = await _pickAvatarImage();
       if (!context.mounted || imageFile == null) return;
 
-      _showMessage(context, '正在更新個人圖片...');
+      _showMessage(context, t.profile.avatar.uploading);
 
       final imageBytes = await imageFile.readAsBytes();
       await ref.read(authRepositoryProvider).uploadAvatar(imageBytes);
       ref.invalidate(userAvatarProvider);
 
       if (!context.mounted) return;
-      _showMessage(context, '個人圖片已更新');
+      _showMessage(context, t.profile.avatar.uploadSuccess);
       await _scrollToTop(context);
     } catch (error) {
       if (!context.mounted) return;
@@ -67,16 +62,12 @@ class ProfileScreen extends ConsumerWidget {
 
   String _mapChangeAvatarError(Object error) {
     return switch (error) {
-      AvatarTooLargeException() => '圖片大小超過 20 MB 限制',
-      FormatException() => '無法辨識的圖片格式',
-      NotLoggedInException() => '登入狀態已過期，請重新登入',
-      InvalidCredentialsException() => '登入憑證已失效，請重新登入',
-      PlatformException(code: final code)
-          when _photoAccessDeniedCodes.contains(code.toLowerCase()) =>
-        '無法存取相簿，請在系統設定中開啟權限',
-      PlatformException() => '無法開啟相簿，請稍後再試',
-      DioException() => '無法連線到伺服器，請檢查網路連線',
-      _ => '更改個人圖片失敗，請稍後再試',
+      AvatarTooLargeException() => t.profile.avatar.tooLarge,
+      FormatException() => t.profile.avatar.invalidFormat,
+      NotLoggedInException() => t.errors.sessionExpired,
+      InvalidCredentialsException() => t.errors.credentialsInvalid,
+      DioException() => t.errors.connectionFailed,
+      _ => t.profile.avatar.uploadFailed,
     };
   }
 
@@ -99,7 +90,7 @@ class ProfileScreen extends ConsumerWidget {
 
   void _showDemoTap(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('尚未實作')),
+      SnackBar(content: Text(t.general.notImplemented)),
     );
   }
 
@@ -107,64 +98,64 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // settings options for the profile tab
     final options = [
-      SectionHeader(title: '帳號設定'),
+      SectionHeader(title: t.profile.sections.accountSettings),
       OptionEntryTile(
         icon: Icons.password,
-        title: '更改密碼',
+        title: t.profile.options.changePassword,
         onTap: () => _showDemoTap(context),
       ),
       OptionEntryTile(
         icon: Icons.image,
-        title: '更改個人圖片',
+        title: t.profile.options.changeAvatar,
         onTap: () => _changeAvatar(context, ref),
       ),
 
       SectionHeader(title: 'TAT'),
       OptionEntryTile(
         icon: Icons.favorite_border_outlined,
-        title: '支持我們',
+        title: t.profile.options.supportUs,
         onTap: () => _showDemoTap(context),
       ),
       OptionEntryTile(
         icon: Icons.info_outline,
-        title: '關於 TAT',
+        title: t.profile.options.about,
         onTap: () => _showDemoTap(context),
       ),
       OptionEntryTile(
         svgIconAsset: "assets/npc_logo.svg",
-        title: '北科程式設計研究社',
+        title: t.profile.options.npcClub,
         onTap: () => _showDemoTap(context),
       ),
 
-      SectionHeader(title: '應用程式設定'),
+      SectionHeader(title: t.profile.sections.appSettings),
       OptionEntryTile(
         icon: Icons.settings_outlined,
-        title: '偏好設定',
+        title: t.profile.options.preferences,
         onTap: () => _showDemoTap(context),
       ),
       OptionEntryTile(
         icon: Icons.logout,
-        title: '登出帳號',
+        title: t.profile.options.logout,
         onTap: () => _logout(context, ref),
       ),
     ];
 
     final notices = [
       // TODO: make notices dynamic and animated.
-      SectionHeader(title: "訊息範例"),
+      SectionHeader(title: t.profile.sections.notices),
 
       BackgroundNotice(
-        text: "目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。",
+        text: t.profile.notices.betaTesting,
         noticeType: NoticeType.info,
       ),
 
       BackgroundNotice(
-        text: "您的密碼將於 7 天後到期，請盡快更新以免無法登入。",
+        text: t.profile.notices.passwordExpiring,
         noticeType: NoticeType.warning,
       ),
 
       BackgroundNotice(
-        text: "無法連接到伺服器，資料可能不正確。",
+        text: t.profile.notices.connectionError,
         noticeType: NoticeType.error,
       ),
     ];
@@ -184,7 +175,7 @@ class ProfileScreen extends ConsumerWidget {
                       ProfileCard(),
 
                       ClearNotice(
-                        text: "本資料僅供參考，不做其他證明用途",
+                        text: t.profile.dataDisclaimer,
                       ),
 
                       Column(

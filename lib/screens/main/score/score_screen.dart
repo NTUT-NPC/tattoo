@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 
 class ScoreScreen extends StatelessWidget {
   const ScoreScreen({super.key});
@@ -6,8 +7,8 @@ class ScoreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('成績')),
-      body: const Center(child: Text('成績')),
+      appBar: AppBar(title: Text(t.nav.scores)),
+      body: Center(child: Text(t.nav.scores)),
     );
   }
 }

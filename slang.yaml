@@ -1,0 +1,5 @@
+base_locale: zh-TW
+fallback_strategy: base_locale
+input_directory: lib/i18n
+input_file_pattern: .i18n.yaml
+timestamp: false

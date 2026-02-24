@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 
 /// Preset styles used by [BackgroundNotice].
 enum NoticeType { warning, error, info }
@@ -8,29 +9,16 @@ enum NoticeType { warning, error, info }
 /// This widget is intended for subtle informational messages that do not
 /// require a bordered background.
 ///
-/// Usage:
-/// ```dart
-/// Column(
-///   children: const [
-///     OptionEntryTile(
-///       icon: Icons.password,
-///       title: 'Change Password',
-///     ),
-///     ClearNotice(text: '本資料僅供參考'),
-///   ],
-/// )
-/// ```
-///
 /// See also: `OptionEntryTile` in `tattoo/lib/components/option_entry_tile.dart`.
 class ClearNotice extends StatelessWidget {
   /// Creates a plain text notice row.
-  const ClearNotice({
+  ClearNotice({
     super.key,
-    this.text = '本資料僅供參考',
+    String? text,
     this.icon = const Icon(Icons.info_outline, size: 16),
     this.color,
     this.textStyle,
-  });
+  }) : text = text ?? t.general.dataDisclaimer;
 
   /// Message text shown in the notice.
   final String text;

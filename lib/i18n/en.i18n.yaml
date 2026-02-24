@@ -1,0 +1,68 @@
+general:
+  appTitle: Project Tattoo
+  notImplemented: Not implemented
+  dataDisclaimer: For reference only
+  student: Student
+  unknown: Unknown
+  notLoggedIn: Not logged in
+errors:
+  sessionExpired: Session expired. Please sign in again.
+  credentialsInvalid: Credentials are no longer valid. Please sign in again.
+  connectionFailed: Cannot connect to the server. Please check your network connection.
+intro:
+  features:
+    courseTable:
+      title: Courses
+      description: Quickly view your course schedule and switch between semesters.
+    scores:
+      title: Scores
+      description: Check your grades and credits with integrated historical records.
+    campusLife:
+      title: Campus Life
+      description: Access campus life information, with more features coming soon.
+  developedBy: Developed by NTUT NPC Club\nAll information is for reference only. Please refer to the official university system.
+  continue: Continue
+login:
+  welcomeLine1: Welcome to
+  welcomeLine2: Campus Life
+  instruction(rich): "Sign in with your ${portalLink(NTUT Portal)} account credentials."
+  studentId: Student ID
+  password: Password
+  loginButton: Sign In
+  privacyNotice(rich): "Your credentials are stored securely on your device\nBy signing in, you agree to our ${privacyPolicy(Privacy Policy)}."
+  errors:
+    emptyFields: Please enter your student ID and password
+    useStudentId: Please use your student ID to sign in, not an email address
+    loginFailed: Login failed. Please verify your credentials.
+nav:
+  courseTable: Courses
+  scores: Scores
+  profile: Me
+profile:
+  sections:
+    accountSettings: Account Settings
+    appSettings: App Settings
+    notices: Notices
+  options:
+    changePassword: Change Password
+    changeAvatar: Change Avatar
+    supportUs: Support Us
+    about: About TAT
+    npcClub: NTUT NPC Club
+    preferences: Preferences
+    logout: Sign Out
+  notices:
+    betaTesting: The new version of TAT is still in beta. Please report any issues you encounter.
+    passwordExpiring: Your password will expire in 7 days. Please update it to avoid being locked out.
+    connectionError: Cannot connect to the server. Data may be inaccurate.
+  avatar:
+    uploading: Updating avatar...
+    uploadSuccess: Avatar updated
+    tooLarge: Image exceeds the 20 MB size limit
+    invalidFormat: Unrecognized image format
+    uploadFailed: Failed to change avatar. Please try again later.
+  dataDisclaimer: For reference only. Not valid as official documentation.
+enrollmentStatus:
+  learning: Enrolled
+  leaveOfAbsence: Leave of Absence
+  droppedOut: Withdrawn
