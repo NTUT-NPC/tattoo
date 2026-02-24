@@ -317,12 +317,6 @@ class TranslationsProfileAvatarZhTw {
 	/// zh-TW: '無法辨識的圖片格式'
 	String get invalidFormat => '無法辨識的圖片格式';
 
-	/// zh-TW: '無法存取相簿，請在系統設定中開啟權限'
-	String get photoAccessDenied => '無法存取相簿，請在系統設定中開啟權限';
-
-	/// zh-TW: '無法開啟相簿，請稍後再試'
-	String get photoAccessFailed => '無法開啟相簿，請稍後再試';
-
 	/// zh-TW: '更改個人圖片失敗，請稍後再試'
 	String get uploadFailed => '更改個人圖片失敗，請稍後再試';
 }
@@ -427,8 +421,6 @@ extension on Translations {
 			'profile.avatar.uploadSuccess' => '個人圖片已更新',
 			'profile.avatar.tooLarge' => '圖片大小超過 20 MB 限制',
 			'profile.avatar.invalidFormat' => '無法辨識的圖片格式',
-			'profile.avatar.photoAccessDenied' => '無法存取相簿，請在系統設定中開啟權限',
-			'profile.avatar.photoAccessFailed' => '無法開啟相簿，請稍後再試',
 			'profile.avatar.uploadFailed' => '更改個人圖片失敗，請稍後再試',
 			'profile.dataDisclaimer' => '本資料僅供參考，不做其他證明用途',
 			'enrollmentStatus.learning' => '在學',

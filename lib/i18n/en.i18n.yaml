@@ -60,8 +60,6 @@ profile:
     uploadSuccess: Avatar updated
     tooLarge: Image exceeds the 20 MB size limit
     invalidFormat: Unrecognized image format
-    photoAccessDenied: Cannot access photo library. Please enable access in Settings.
-    photoAccessFailed: Cannot open photo library. Please try again later.
     uploadFailed: Failed to change avatar. Please try again later.
   dataDisclaimer: For reference only. Not valid as official documentation.
 enrollmentStatus:

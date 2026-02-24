@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -17,11 +16,6 @@ import 'package:tattoo/screens/main/profile/profile_providers.dart';
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
   static final _imagePicker = ImagePicker();
-  static const _photoAccessDeniedCodes = {
-    'photo_access_denied',
-    'photo_access_restricted',
-  };
-
   Future<void> _refresh(WidgetRef ref) async {
     await ref.read(authRepositoryProvider).getUser(refresh: true);
     await Future.wait([
@@ -72,10 +66,6 @@ class ProfileScreen extends ConsumerWidget {
       FormatException() => t.profile.avatar.invalidFormat,
       NotLoggedInException() => t.errors.sessionExpired,
       InvalidCredentialsException() => t.errors.credentialsInvalid,
-      PlatformException(code: final code)
-          when _photoAccessDeniedCodes.contains(code.toLowerCase()) =>
-        t.profile.avatar.photoAccessDenied,
-      PlatformException() => t.profile.avatar.photoAccessFailed,
       DioException() => t.errors.connectionFailed,
       _ => t.profile.avatar.uploadFailed,
     };

@@ -225,8 +225,6 @@ class _TranslationsProfileAvatarEn extends TranslationsProfileAvatarZhTw {
 	@override String get uploadSuccess => 'Avatar updated';
 	@override String get tooLarge => 'Image exceeds the 20 MB size limit';
 	@override String get invalidFormat => 'Unrecognized image format';
-	@override String get photoAccessDenied => 'Cannot access photo library. Please enable access in Settings.';
-	@override String get photoAccessFailed => 'Cannot open photo library. Please try again later.';
 	@override String get uploadFailed => 'Failed to change avatar. Please try again later.';
 }
 
@@ -318,8 +316,6 @@ extension on TranslationsEn {
 			'profile.avatar.uploadSuccess' => 'Avatar updated',
 			'profile.avatar.tooLarge' => 'Image exceeds the 20 MB size limit',
 			'profile.avatar.invalidFormat' => 'Unrecognized image format',
-			'profile.avatar.photoAccessDenied' => 'Cannot access photo library. Please enable access in Settings.',
-			'profile.avatar.photoAccessFailed' => 'Cannot open photo library. Please try again later.',
 			'profile.avatar.uploadFailed' => 'Failed to change avatar. Please try again later.',
 			'profile.dataDisclaimer' => 'For reference only. Not valid as official documentation.',
 			'enrollmentStatus.learning' => 'Enrolled',
