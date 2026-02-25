@@ -25,13 +25,11 @@ enum PrefKey<T> {
 
 /// Provides the [PreferencesRepository] instance.
 final preferencesRepositoryProvider = Provider<PreferencesRepository>((ref) {
-  final authRepo = ref.watch(authRepositoryProvider);
-
   return PreferencesRepository(
     prefs: ref.watch(sharedPreferencesProvider),
     portalService: ref.watch(portalServiceProvider),
     database: ref.watch(databaseProvider),
-    withAuth: authRepo.withAuth,
+    authRepository: ref.watch(authRepositoryProvider),
   );
 });
 
@@ -43,7 +41,7 @@ class PreferencesRepository {
   final SharedPreferencesAsync _prefs;
   final PortalService _portalService;
   final AppDatabase _database;
-  final Future<T> Function<T>(Future<T> Function()) _withAuth;
+  final AuthRepository _authRepository;
   bool _syncing = false;
 
   /// Internal key for persisting the dirty flag across app restarts.
@@ -53,11 +51,11 @@ class PreferencesRepository {
     required SharedPreferencesAsync prefs,
     required PortalService portalService,
     required AppDatabase database,
-    required Future<T> Function<T>(Future<T> Function()) withAuth,
+    required AuthRepository authRepository,
   }) : _prefs = prefs,
        _portalService = portalService,
        _database = database,
-       _withAuth = withAuth;
+       _authRepository = authRepository;
 
   /// Gets a preference value, returning the key's default if not set.
   Future<T> get<T>(PrefKey<T> key) async {
@@ -98,14 +96,17 @@ class PreferencesRepository {
   /// If the user has no avatar, the server's generated placeholder is
   /// used as the base image, which becomes the user's new avatar.
   ///
-  /// Clears the dirty flag on success.
+  /// Clears the dirty flag on success. No-op if not logged in.
   Future<void> syncUp() async {
-    final user = await _database.select(_database.users).getSingleOrNull();
-    if (user == null) return;
+    final UserDto userDto;
+    try {
+      userDto = await _authRepository.refreshLogin();
+    } on NotLoggedInException {
+      return;
+    }
+    final filename = userDto.avatarFilename ?? '';
 
-    final avatarBytes = await _withAuth(
-      () => _portalService.getAvatar(user.avatarFilename),
-    );
+    final avatarBytes = await _portalService.getAvatar(filename);
 
     // Strip any existing payload to avoid nesting
     final (:jpeg, version: _, data: _) = decodeAvatarPayload(avatarBytes);
@@ -113,10 +114,9 @@ class PreferencesRepository {
     final prefs = await _toMap();
     final combined = encodeAvatarPayload(jpeg, prefs);
 
-    final newFilename = await _withAuth(
-      () => _portalService.uploadAvatar(combined, user.avatarFilename),
-    );
+    final newFilename = await _portalService.uploadAvatar(combined, filename);
 
+    final user = await _database.select(_database.users).getSingle();
     await (_database.update(_database.users)
           ..where((u) => u.id.equals(user.id)))
         .write(UsersCompanion(avatarFilename: Value(newFilename)));
@@ -134,13 +134,18 @@ class PreferencesRepository {
   }
 
   /// Downloads the avatar and restores embedded preferences if present.
+  /// No-op if not logged in.
   Future<void> syncDown() async {
-    final user = await _database.select(_database.users).getSingleOrNull();
-    if (user == null || user.avatarFilename.isEmpty) return;
+    final UserDto userDto;
+    try {
+      userDto = await _authRepository.refreshLogin();
+    } on NotLoggedInException {
+      return;
+    }
+    final filename = userDto.avatarFilename;
+    if (filename == null || filename.isEmpty) return;
 
-    final avatarBytes = await _withAuth(
-      () => _portalService.getAvatar(user.avatarFilename),
-    );
+    final avatarBytes = await _portalService.getAvatar(filename);
 
     final (:jpeg, :version, :data) = decodeAvatarPayload(avatarBytes);
     if (data == null || version != 0x00) return;
