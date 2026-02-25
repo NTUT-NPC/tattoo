@@ -25,7 +25,7 @@ runs:
       shell: bash
       run: |
         FLUTTER_VERSION=$(mise current flutter)
-        if [ "$FLUTTER_VERSION" != "3.38.9" ]; then
+        if [ "$FLUTTER_VERSION" != "3.41.2" ]; then
           echo "::error::Flutter version has changed to $FLUTTER_VERSION. Please update cache paths accordingly."
           exit 1
         fi
