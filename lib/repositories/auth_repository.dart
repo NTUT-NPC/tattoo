@@ -469,6 +469,8 @@ class AuthRepository {
         bytes,
         format: CompressFormat.jpeg,
         quality: 85,
+        minWidth: 1200,
+        minHeight: 1200,
       );
       return result;
     } catch (_) {
