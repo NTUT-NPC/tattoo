@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -186,8 +187,8 @@ class PreferencesRepository {
       while (await _dirty) {
         await syncUp();
       }
-    } on Exception catch (_) {
-      // Network failures are fine - dirty flag persists for next attempt
+    } on DioException catch (_) {
+      // Network failures are fine — dirty flag persists for next attempt
     } finally {
       _syncing = false;
     }
