@@ -1,4 +1,4 @@
 [tools]
-flutter = "3.38.9"
-java = "zulu-17"   # Required by Android build
+flutter = "3.41.2"
+java = "zulu-17.0.18+8"   # Required by Android build
 ruby = "3.4"       # For Fastlane and CocoaPods
