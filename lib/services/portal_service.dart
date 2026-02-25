@@ -25,6 +25,7 @@ typedef UserDto = ({
   int? passwordExpiresInDays,
 });
 
+// dart format off
 /// Identification codes for NTUT services used in SSO authentication.
 ///
 /// These codes are passed to [PortalService.sso] to authenticate with
@@ -37,6 +38,7 @@ enum PortalServiceCode {
   final String code;
   const PortalServiceCode(this.code);
 }
+// dart format on
 
 /// Provides the singleton [PortalService] instance.
 final portalServiceProvider = Provider<PortalService>((ref) => PortalService());

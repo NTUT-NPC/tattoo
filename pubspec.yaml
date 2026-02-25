@@ -5,9 +5,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  # TODO: Bump the SDK constraint once the formatting issues are resolved
-  # See: https://github.com/dart-lang/dart_style/issues/1785
-  sdk: ^3.9.0
+  sdk: ^3.11.0
 
 dependencies:
   flutter:
