@@ -160,22 +160,26 @@ class PreferencesRepository {
   /// Writes directly to SharedPreferences to avoid triggering [set]'s
   /// dirty flag and sync logic.
   Future<void> _fromMap(Map<String, dynamic> map) async {
-    for (final key in PrefKey.values) {
-      if (!map.containsKey(key.name)) continue;
-      final value = map[key.name];
-      switch (key.type) {
-        case PrefType.boolean:
-          await _prefs.setBool(key.name, value as bool);
-        case PrefType.integer:
-          await _prefs.setInt(key.name, value as int);
-        case PrefType.double:
-          await _prefs.setDouble(key.name, value as double);
-        case PrefType.string:
-          await _prefs.setString(key.name, value as String);
-        case PrefType.stringList:
-          await _prefs.setStringList(key.name, value as List<String>);
-      }
-    }
+    await Future.wait([
+      for (final key in PrefKey.values)
+        if (map.containsKey(key.name))
+          switch (key.type) {
+            PrefType.boolean => _prefs.setBool(key.name, map[key.name] as bool),
+            PrefType.integer => _prefs.setInt(key.name, map[key.name] as int),
+            PrefType.double => _prefs.setDouble(
+              key.name,
+              map[key.name] as double,
+            ),
+            PrefType.string => _prefs.setString(
+              key.name,
+              map[key.name] as String,
+            ),
+            PrefType.stringList => _prefs.setStringList(
+              key.name,
+              map[key.name] as List<String>,
+            ),
+          },
+    ]);
   }
 
   /// Fire-and-forget sync with coalescing: if already syncing, the dirty
