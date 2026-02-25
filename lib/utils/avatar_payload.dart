@@ -47,7 +47,7 @@ decodeAvatarPayload(Uint8List bytes) {
 }
 
 /// Searches for the magic bytes in [bytes], scanning forward from the
-/// first JPEG EOI marker (`FF D9`) to avoid false positives inside
+/// last JPEG EOI marker (`FF D9`) to avoid false positives inside
 /// JPEG entropy data.
 ///
 /// Returns the index of the magic sequence, or -1 if not found.
