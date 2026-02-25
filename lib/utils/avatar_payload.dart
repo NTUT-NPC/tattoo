@@ -38,12 +38,16 @@ decodeAvatarPayload(Uint8List bytes) {
   final jpeg = Uint8List.sublistView(bytes, 0, index);
   final version = bytes[index + _magic.length];
   final payload = Uint8List.sublistView(bytes, index + _headerSize);
-  final data = deserialize(payload);
-  return (
-    jpeg: jpeg,
-    version: version,
-    data: Map<String, dynamic>.from(data as Map),
-  );
+  try {
+    final data = deserialize(payload);
+    return (
+      jpeg: jpeg,
+      version: version,
+      data: Map<String, dynamic>.from(data as Map),
+    );
+  } catch (_) {
+    return (jpeg: jpeg, version: null, data: null);
+  }
 }
 
 /// Searches for the magic bytes in [bytes], scanning forward from the
