@@ -9,6 +9,7 @@ enum DayOfWeek {
   saturday,
 }
 
+// dart format off
 /// Class period within a day, following NTUT's schedule structure.
 ///
 /// NTUT uses periods 1-4, N (noon), 5-9, and A-D:
@@ -64,6 +65,7 @@ enum CourseType {
   final String symbol;
   const CourseType(this.symbol);
 }
+// dart format on
 
 /// Reference to an entity (course, teacher, classroom, etc.) with an ID and name.
 typedef ReferenceDto = ({
