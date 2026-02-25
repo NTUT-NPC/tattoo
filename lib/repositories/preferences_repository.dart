@@ -96,14 +96,9 @@ class PreferencesRepository {
   /// If the user has no avatar, the server's generated placeholder is
   /// used as the base image, which becomes the user's new avatar.
   ///
-  /// Clears the dirty flag on success. No-op if not logged in.
+  /// Clears the dirty flag on success.
   Future<void> syncUp() async {
-    final UserDto userDto;
-    try {
-      userDto = await _authRepository.refreshLogin();
-    } on NotLoggedInException {
-      return;
-    }
+    final userDto = await _authRepository.refreshLogin();
     final filename = userDto.avatarFilename ?? '';
 
     final avatarBytes = await _portalService.getAvatar(filename);
@@ -128,20 +123,19 @@ class PreferencesRepository {
   ///
   /// If local changes were not uploaded (dirty flag set), syncs up first
   /// to avoid overwriting them. Then syncs down to pull any cloud changes.
-  Future<void> syncOnLaunch() async {
-    if (await _dirty) await syncUp();
-    await syncDown();
-  }
-
-  /// Downloads the avatar and restores embedded preferences if present.
   /// No-op if not logged in.
-  Future<void> syncDown() async {
-    final UserDto userDto;
+  Future<void> syncOnLaunch() async {
     try {
-      userDto = await _authRepository.refreshLogin();
+      if (await _dirty) await syncUp();
+      await syncDown();
     } on NotLoggedInException {
       return;
     }
+  }
+
+  /// Downloads the avatar and restores embedded preferences if present.
+  Future<void> syncDown() async {
+    final userDto = await _authRepository.refreshLogin();
     final filename = userDto.avatarFilename;
     if (filename == null || filename.isEmpty) return;
 
@@ -198,6 +192,8 @@ class PreferencesRepository {
       }
     } on DioException catch (_) {
       // Network failures are fine — dirty flag persists for next attempt
+    } on NotLoggedInException {
+      // Not logged in — dirty flag persists until after login
     } finally {
       _syncing = false;
     }
