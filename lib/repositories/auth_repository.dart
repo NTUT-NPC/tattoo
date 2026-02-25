@@ -407,6 +407,38 @@ class AuthRepository {
     await _clearAvatarCache();
   }
 
+  /// Changes the user's NTUT Portal password.
+  ///
+  /// Requires an active session. Updates stored credentials so auto-login
+  /// continues to work, then re-logins to refresh the session and clear
+  /// the password expiry warning.
+  ///
+  /// Throws [NotLoggedInException] if no stored credentials are available.
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final user = await _database.select(_database.users).getSingleOrNull();
+    if (user == null) throw NotLoggedInException();
+
+    await withAuth(
+      () => _portalService.changePassword(currentPassword, newPassword),
+    );
+
+    // Update stored credentials so auto-login uses the new password
+    await _secureStorage.write(key: _passwordKey, value: newPassword);
+
+    // Re-login to refresh session and passwordExpiresInDays
+    final userDto = await _portalService.login(user.studentId, newPassword);
+    await (_database.update(
+      _database.users,
+    )..where((u) => u.id.equals(user.id))).write(
+      UsersCompanion(
+        passwordExpiresInDays: Value(userDto.passwordExpiresInDays),
+      ),
+    );
+  }
+
   /// Gets the user's active registration (where enrollment status is "在學").
   ///
   /// Returns the most recent semester where the user is actively enrolled,
