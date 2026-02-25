@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:drift/drift.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod/riverpod.dart';
@@ -355,7 +356,7 @@ class AuthRepository {
       final bytes = await withAuth(() => _portalService.getAvatar(filename));
       await file.parent.create(recursive: true);
       await file.writeAsBytes(bytes);
-      if (!await _isImageValid(bytes)) {
+      if (!await _isDecodableImage(bytes)) {
         await file.delete();
         return null;
       }
@@ -370,30 +371,28 @@ class AuthRepository {
 
   /// Uploads a new avatar image, replacing the current one.
   ///
+  /// Preprocesses the image before upload: converts to JPEG, normalizes
+  /// EXIF orientation, and compresses. See [_preprocessAvatar].
+  ///
   /// Updates the stored avatar filename in the database and clears the
   /// local avatar cache so the next [getAvatar] call fetches the new image.
   ///
   /// Throws [NotLoggedInException] if not logged in.
-  /// Throws [AvatarTooLargeException] if [imageBytes] exceeds [maxAvatarSize].
+  /// Throws [AvatarTooLargeException] if processed image exceeds [maxAvatarSize].
+  /// Throws [FormatException] if the image cannot be decoded.
   Future<void> uploadAvatar(Uint8List imageBytes) async {
-    if (imageBytes.isEmpty) {
-      throw const FormatException('Invalid image data');
+    final user = await _database.select(_database.users).getSingleOrNull();
+    if (user == null) {
+      throw NotLoggedInException();
     }
+
+    imageBytes = await _preprocessAvatar(imageBytes);
 
     if (imageBytes.length > maxAvatarSize) {
       throw AvatarTooLargeException(
         size: imageBytes.length,
         limit: maxAvatarSize,
       );
-    }
-
-    if (!await _isImageValid(imageBytes)) {
-      throw const FormatException('Invalid image data');
-    }
-
-    final user = await _database.select(_database.users).getSingleOrNull();
-    if (user == null) {
-      throw NotLoggedInException();
     }
 
     final newFilename = await withAuth(
@@ -461,9 +460,27 @@ class AuthRepository {
         .getSingleOrNull();
   }
 
+  /// Converts the image to JPEG, normalizes EXIF orientation, and compresses.
+  ///
+  /// Throws [FormatException] if the image cannot be decoded.
+  static Future<Uint8List> _preprocessAvatar(Uint8List bytes) async {
+    try {
+      final result = await FlutterImageCompress.compressWithList(
+        bytes,
+        format: CompressFormat.jpeg,
+        quality: 85,
+        minWidth: 1200,
+        minHeight: 1200,
+      );
+      return result;
+    } catch (_) {
+      throw const FormatException('Invalid image data');
+    }
+  }
+
   // Source - https://stackoverflow.com/a/76074236
   // License - CC BY-SA 4.0
-  static Future<bool> _isImageValid(Uint8List bytes) async {
+  static Future<bool> _isDecodableImage(Uint8List bytes) async {
     Codec? codec;
     FrameInfo? frameInfo;
     try {

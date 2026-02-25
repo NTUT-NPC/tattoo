@@ -39,6 +39,7 @@ dependencies:
   slang_flutter: ^4.12.1
   http_parser: ^4.1.2
   shared_preferences: ^2.5.4
+  flutter_image_compress: ^2.4.0
 
 dev_dependencies:
   flutter_test:
