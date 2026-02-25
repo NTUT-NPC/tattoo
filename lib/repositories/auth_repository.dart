@@ -428,15 +428,19 @@ class AuthRepository {
     // Update stored credentials so auto-login uses the new password
     await _secureStorage.write(key: _passwordKey, value: newPassword);
 
-    // Re-login to refresh session and passwordExpiresInDays
-    final userDto = await _portalService.login(user.studentId, newPassword);
-    await (_database.update(
-      _database.users,
-    )..where((u) => u.id.equals(user.id))).write(
-      UsersCompanion(
-        passwordExpiresInDays: Value(userDto.passwordExpiresInDays),
-      ),
-    );
+    // Best-effort re-login to refresh session and passwordExpiresInDays.
+    // The password is already changed at this point, so don't fail if
+    // the re-login hits a transient error.
+    try {
+      final userDto = await _portalService.login(user.studentId, newPassword);
+      await (_database.update(
+        _database.users,
+      )..where((u) => u.id.equals(user.id))).write(
+        UsersCompanion(
+          passwordExpiresInDays: Value(userDto.passwordExpiresInDays),
+        ),
+      );
+    } catch (_) {}
   }
 
   /// Gets the user's active registration (where enrollment status is "在學").
