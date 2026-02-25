@@ -381,6 +381,11 @@ class AuthRepository {
   /// Throws [AvatarTooLargeException] if processed image exceeds [maxAvatarSize].
   /// Throws [FormatException] if the image cannot be decoded.
   Future<void> uploadAvatar(Uint8List imageBytes) async {
+    final user = await _database.select(_database.users).getSingleOrNull();
+    if (user == null) {
+      throw NotLoggedInException();
+    }
+
     imageBytes = await _preprocessAvatar(imageBytes);
 
     if (imageBytes.length > maxAvatarSize) {
@@ -388,11 +393,6 @@ class AuthRepository {
         size: imageBytes.length,
         limit: maxAvatarSize,
       );
-    }
-
-    final user = await _database.select(_database.users).getSingleOrNull();
-    if (user == null) {
-      throw NotLoggedInException();
     }
 
     final newFilename = await withAuth(
