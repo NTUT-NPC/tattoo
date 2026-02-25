@@ -4,7 +4,7 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-02-19. If stale (>30 days), verify Status section against codebase.
+**Last updated:** 2026-02-25. If stale (>30 days), verify Status section against codebase.
 
 ## Status
 
@@ -21,6 +21,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage)
 - go_router navigation setup
 - UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile). Uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
+- i18n (zh_TW, en_US) via slang
 
 **Todo - Service Layer:**
 
@@ -48,7 +49,6 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 **Todo - App:**
 
 - UI: course table, course detail, scores
-- i18n (zh_TW, en_US)
 - File downloads (progress tracking, notifications, cancellation)
 
 ## Architecture
@@ -69,15 +69,16 @@ MVVM pattern with Riverpod for DI and reactive state:
 - `lib/services/` - HTTP clients, parse responses, return DTOs (as records)
 - `lib/database/` - Drift schema and database class
 - `lib/utils/` - HTTP utilities (cookie jar, interceptors)
-- `lib/components/` - Reusable UI widgets (AppSkeleton)
+- `lib/i18n/` - slang i18n YAML sources and generated strings
+- `lib/components/` - Reusable UI widgets (AppSkeleton, notices, OptionEntryTile, SectionHeader)
 - `lib/router/` - go_router config and AnimatedShellContainer for tab transitions
 - `lib/screens/` - Screen widgets organized by feature (welcome/, main/)
 
 **Provider placement:**
 
 - Constructor providers (DI wiring) are co-located with the classes they construct (services, database, repositories)
-- Screen-specific providers live alongside the screen that consumes them (e.g., `screens/main/course_table/course_table_providers.dart`)
-- Shared providers used by multiple screens in a feature live one level up (e.g., `screens/main/course_providers.dart`)
+- Screen-specific providers live alongside the screen that consumes them (e.g., `screens/main/profile/profile_providers.dart`)
+- Shared providers used by multiple screens in a feature live one level up
 - Repository classes take framework-agnostic dependencies (callbacks, not Riverpod notifiers)
 
 **Data Flow Pattern (per Flutter's architecture guide):**
@@ -111,7 +112,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 - Transform DTOs into relational DB tables
 - Return DTOs or domain models to UI
 - Handle data persistence and caching strategies
-- **Method pattern:** `getX({refresh})` methods use `fetchWithTtl` helper for smart caching - returns cached data if fresh (within TTL), fetches from network if stale. Set `refresh: true` to bypass TTL (pull-to-refresh). Internal `_fetchXFromNetwork()` methods handle network fetch logic. Special cases that only need partial data (e.g., `getAvatar()` only needs `avatarFilename`) query DB directly.
+- **Method pattern (AuthRepository):** `getX({refresh})` methods use `fetchWithTtl` helper for smart caching - returns cached data if fresh (within TTL), fetches from network if stale. Set `refresh: true` to bypass TTL (pull-to-refresh). Internal `_fetchXFromNetwork()` methods handle network fetch logic. Special cases that only need partial data (e.g., `getAvatar()` only needs `avatarFilename`) query DB directly. Follow this pattern when implementing other repositories.
 
 ## Database Performance
 
@@ -143,6 +144,6 @@ MVVM pattern with Riverpod for DI and reactive state:
 
 ### NTUT Portal apOu Codes
 
-All available SSO service codes were moved to `doc/ntut_sso_codes.md`.
+All available SSO service codes are in to `doc/ntut_sso_codes.md`.
 
 These apOu codes are the SSO target identifiers used by PortalService to obtain service-specific entry URLs/tickets for each NTUT subsystem.
