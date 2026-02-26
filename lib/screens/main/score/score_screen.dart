@@ -269,47 +269,19 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                         ),
                       ),
                     ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 8)),
-                    SliverPadding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final score = currentData.scores[index];
-                            final name =
-                                data.names[score.courseCode] ??
-                                score.courseCode ??
-                                '未知課程';
-                            return Column(
-                              children: [
-                                _ScoreTile(score: score, courseName: name),
-                                if (index != currentData.scores.length - 1)
-                                  const Divider(height: 1, indent: 16),
-                              ],
-                            );
-                          },
-                          childCount: currentData.scores.length,
-                        ),
+                    SliverFillRemaining(
+                      child: TabBarView(
+                        controller: _semesterTabController,
+                        children: [
+                          for (final semester in semesters)
+                            _SemesterScoreList(
+                              data: semester,
+                              names: data.names,
+                              lastUpdatedAt: _lastUpdatedAt,
+                            ),
+                        ],
                       ),
                     ),
-                    if (_lastUpdatedAt != null)
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              '最後更新：${formatLastUpdated(_lastUpdatedAt!)}',
-                              style: Theme.of(context).textTheme.labelSmall
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                            ),
-                          ),
-                        ),
-                      ),
                   ],
                 ],
               ),
@@ -317,6 +289,78 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
           );
         },
       ),
+    );
+  }
+}
+
+class _SemesterScoreList extends StatelessWidget {
+  final SemesterScoreDto data;
+  final Map<String, String> names;
+  final DateTime? lastUpdatedAt;
+
+  const _SemesterScoreList({
+    required this.data,
+    required this.names,
+    required this.lastUpdatedAt,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (data.scores.isEmpty) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          const SizedBox(height: 24),
+          const Center(child: Text('本學期尚無成績')),
+          if (lastUpdatedAt != null) ...[
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '最後更新：${formatLastUpdated(lastUpdatedAt!)}',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      );
+    }
+
+    return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.only(top: 8, bottom: 12),
+      itemCount: data.scores.length + (lastUpdatedAt == null ? 0 : 1),
+      separatorBuilder: (context, index) {
+        if (index == data.scores.length - 1) {
+          return const SizedBox.shrink();
+        }
+        return const Divider(height: 1, indent: 16);
+      },
+      itemBuilder: (context, index) {
+        if (index == data.scores.length) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                '最後更新：${formatLastUpdated(lastUpdatedAt!)}',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          );
+        }
+
+        final score = data.scores[index];
+        final name = names[score.courseCode] ?? score.courseCode ?? '未知課程';
+        return _ScoreTile(score: score, courseName: name);
+      },
     );
   }
 }
