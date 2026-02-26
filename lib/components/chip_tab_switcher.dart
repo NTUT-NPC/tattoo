@@ -100,6 +100,8 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
   static const _scrollAnimationDuration = Duration(milliseconds: 220);
   static const _motionCurve = Curves.easeInOutCubic;
 
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _scrollViewportKey = GlobalKey();
   TabController? _tabController;
   Animation<double>? _tabAnimation;
   int _activeIndex = 0;
@@ -131,6 +133,7 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
   @override
   void dispose() {
     _detachControllerListeners();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -163,7 +166,12 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
     if (controller != null) {
       _activeIndex = _resolveActiveIndex(controller);
       _attachControllerListeners();
-      _scrollTabIntoView(_activeIndex, animate: false);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_scrollController.hasClients) {
+          return;
+        }
+        _scrollController.jumpTo(_scrollController.position.minScrollExtent);
+      });
     }
   }
 
@@ -210,18 +218,54 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
       if (!mounted || index < 0 || index >= _tabKeys.length) {
         return;
       }
-
-      final tabContext = _tabKeys[index].currentContext;
-      if (tabContext == null) {
+      if (!_scrollController.hasClients) {
         return;
       }
 
-      Scrollable.ensureVisible(
-        tabContext,
-        duration: animate ? _scrollAnimationDuration : Duration.zero,
-        curve: _motionCurve,
-        alignment: 0.5,
+      final tabContext = _tabKeys[index].currentContext;
+      final viewportContext = _scrollViewportKey.currentContext;
+      if (tabContext == null || viewportContext == null) {
+        return;
+      }
+
+      final tabBox = tabContext.findRenderObject() as RenderBox?;
+      final viewportBox = viewportContext.findRenderObject() as RenderBox?;
+      if (tabBox == null || viewportBox == null) {
+        return;
+      }
+
+      final tabLeftInViewport = tabBox
+          .localToGlobal(
+            Offset.zero,
+            ancestor: viewportBox,
+          )
+          .dx;
+      final tabWidth = tabBox.size.width;
+      final viewportWidth = viewportBox.size.width;
+
+      final targetOffset =
+          _scrollController.offset +
+          tabLeftInViewport -
+          (viewportWidth - tabWidth) / 2;
+      final clampedOffset = targetOffset.clamp(
+        _scrollController.position.minScrollExtent,
+        _scrollController.position.maxScrollExtent,
       );
+      final resolvedOffset = clampedOffset.toDouble();
+
+      if ((resolvedOffset - _scrollController.offset).abs() < 0.5) {
+        return;
+      }
+
+      if (animate) {
+        _scrollController.animateTo(
+          resolvedOffset,
+          duration: _scrollAnimationDuration,
+          curve: _motionCurve,
+        );
+      } else {
+        _scrollController.jumpTo(resolvedOffset);
+      }
     });
   }
 
@@ -249,6 +293,8 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
         );
 
         return SingleChildScrollView(
+          key: _scrollViewportKey,
+          controller: _scrollController,
           padding: widget.padding,
           scrollDirection: Axis.horizontal,
           child: Row(
