@@ -220,7 +220,7 @@ class PortalService {
   /// Returns a URL that authenticates the user with a target NTUT service
   /// via OAuth2 authorization code.
   ///
-  /// The returned URL contains a one-time-use authorization code. Opening it
+  /// The returned URL contains an authorization code. Opening it
   /// in any HTTP client (including a system browser) will establish a session
   /// for that service — no cookies from this app are needed.
   ///
