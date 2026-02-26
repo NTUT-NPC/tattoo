@@ -12,6 +12,10 @@ Project Tattoo is a work-in-progress Flutter app that helps Taipei Tech (NTUT) s
 
 ## Getting Started
 
+1.  Review the [README.md](README.md) for development environment setup.
+2.  Check the **Status** section in [AGENTS.md](AGENTS.md#status) to see current progress and pending tasks.
+3.  Follow the guidelines below for commit messages, coding standards, and workflows.
+
 This project uses [mise](https://mise.jdx.dev/) to manage development tools (Flutter, Java, Ruby).
 
 ```bash
@@ -27,9 +31,31 @@ flutter pub get
 # Install Ruby dependencies (fastlane)
 bundle install
 
+# Fetch credentials (Firebase configs, keystores)
+# Requires a properly configured .env file
+dart run tool/credentials.dart fetch
+
 # Run the app
 flutter run
 ```
+
+## Firebase & Credentials
+
+This project uses a private Git repository to manage sensitive credentials (signing keys, service accounts, and Firebase configuration files).
+
+1.  **Request Access:** Contact the maintainers for access to the `tattoo-credentials` repository.
+2.  **Configure `.env`:** Copy `.env.example` to `.env` and fill in the `MATCH_GIT_URL` and `MATCH_PASSWORD`.
+3.  **Fetch Configs:** Run `dart run tool/credentials.dart fetch`. This will decrypt and place files like `google-services.json` and `keystore.jks` in their respective directories.
+
+### Firebase Setup (Maintainers only)
+
+If you need to reconfigure Firebase:
+1.  Install the [Firebase CLI](https://firebase.google.com/docs/cli).
+2.  Install the [FlutterFire CLI](https://firebase.google.com/docs/flutter/setup).
+3.  Run `flutterfire configure` to update `lib/firebase_options.dart`.
+4.  Encrypt and push new config files using `dart run tool/credentials.dart encrypt <file> <path_in_repo>`.
+
+## Local Development
 
 **Android SDK:** Install [Android Studio](https://developer.android.com/studio) or let Flutter download SDK components automatically on first build.
 

@@ -99,6 +99,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 - CourseService - 課程系統 (`aa_0010-oauth`)
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`)
 - StudentQueryService - 學生查詢專區 (`sa_003_oauth`)
+- AnalyticsService - Firebase Analytics wrapper with global toggle logic
 - Design principle: Match NTUT's actual system boundaries. Each service corresponds to one NTUT SSO target.
 - All share single cookie jar (NTUT session state)
 - Return DTOs as records (UserDto, SemesterDto, ScheduleDto, etc.) - no database writes
@@ -147,3 +148,13 @@ MVVM pattern with Riverpod for DI and reactive state:
 All available SSO service codes are in to `doc/ntut_sso_codes.md`.
 
 These apOu codes are the SSO target identifiers used by PortalService to obtain service-specific entry URLs/tickets for each NTUT subsystem.
+
+## Firebase Strategy
+
+To prevent package name mismatches (`club.ntut.tattoo.debug`) and simplify local development:
+
+- **Global Toggle**: `lib/services/analytics_service.dart` defines `useFirebase`.
+- **Default Behavior**: Firebase is **disabled** in Debug and **enabled** in Release.
+- **Manual Override**: Run with `--dart-define=USE_FIREBASE=true` to enable Firebase features in debug mode (requires adding the debug package name to the Firebase console).
+- **Architecture**: Always use `AnalyticsService` instead of calling `FirebaseAnalytics` directly. The service acts as a no-op when Firebase is disabled.
+- **Build Configuration**: The `google-services` Gradle plugin and `Firebase.initializeApp()` are only applied when `useFirebase` (or release mode) is active.

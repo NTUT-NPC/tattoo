@@ -27,6 +27,7 @@ platform :ios do
     commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
     commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
     skip_upload = options[:skip_upload].to_s == "true"
+    release_mode = options[:release_mode].to_s == "true"
 
     setup_ci if is_ci
 
@@ -46,7 +47,7 @@ platform :ios do
     archive_path = flutter_build(
       build: "ipa",
       build_number: build_number,
-      build_args: ["--no-codesign"],
+      build_args: ["--no-codesign", "--dart-define=USE_FIREBASE=#{release_mode ? 'true' : 'false'}"],
     )
 
     build_app(
@@ -86,6 +87,7 @@ platform :android do
     output_file = flutter_build(
       build: "appbundle",
       build_number: build_number,
+      build_args: ["--dart-define=USE_FIREBASE=true"],
     )
 
     next if skip_upload
@@ -121,6 +123,7 @@ platform :android do
     output_file = flutter_build(
       build: "appbundle",
       build_number: build_number,
+      build_args: ["--dart-define=USE_FIREBASE=true"],
     )
 
     next if skip_upload

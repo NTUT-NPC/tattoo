@@ -75,5 +75,9 @@
 		<string>en</string>
 		<string>zh-TW</string>
 	</array>
+	<key>GOOGLE_ANALYTICS_ADID_COLLECTION_ENABLED</key>
+	<false/>
+	<key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key>
+	<false/>
 </dict>
 </plist>

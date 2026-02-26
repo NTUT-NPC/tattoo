@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"npc-tattoo","appId":"1:838220085712:android:a85cf2541699925c3be1d5","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"npc-tattoo","configurations":{"android":"1:838220085712:android:a85cf2541699925c3be1d5","ios":"1:838220085712:ios:d5b7636cdc72fd603be1d5"}}}}}}

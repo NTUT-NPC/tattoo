@@ -40,6 +40,8 @@ dependencies:
   http_parser: ^4.1.2
   shared_preferences: ^2.5.4
   flutter_image_compress: ^2.4.0
+  firebase_core: ^3.11.0
+  firebase_analytics: ^11.6.0
 
 dev_dependencies:
   flutter_test:

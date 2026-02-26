@@ -111,6 +111,7 @@ jobs:
       PR_TITLE: "Release build"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+      RELEASE_MODE: true
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6

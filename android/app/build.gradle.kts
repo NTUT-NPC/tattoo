@@ -4,6 +4,11 @@ import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
+    // START: FlutterFire Configuration
+    // The plugin is commented out here and applied conditionally at the bottom of 
+    // this file to avoid "package name mismatch" errors in debug builds.
+    // id("com.google.gms.google-services")
+    // END: FlutterFire Configuration
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
@@ -53,7 +58,19 @@ android {
                 signingConfigs.getByName("debug")
             }
         }
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
     }
+}
+
+// Conditionally apply google-services plugin to avoid mismatch errors in debug build
+val isRelease = project.gradle.startParameter.taskNames.any {
+    it.contains("release", ignoreCase = true) || it.contains("bundle", ignoreCase = true)
+}
+if (isRelease) {
+    apply(plugin = "com.google.gms.google-services")
 }
 
 kotlin {
