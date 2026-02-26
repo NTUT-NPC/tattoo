@@ -62,6 +62,19 @@ profile:
     invalidFormat: Unrecognized image format
     uploadFailed: Failed to change avatar. Please try again later.
   dataDisclaimer: For reference only. Not valid as official documentation.
+preferences:
+  sections:
+    dataManagement: Data Management
+  options:
+    clearDb: Clear local database
+  dialogs:
+    clearDbTitle: Clear local database?
+    clearDbMessage: This will remove all local data, then automatically sign in with your saved account.
+    clearDbConfirm: Clear
+    clearDbCancel: Cancel
+  messages:
+    clearDbSuccess: Local data cleared and signed in again
+    clearDbFailed: Failed to clear local data or sign in again
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence

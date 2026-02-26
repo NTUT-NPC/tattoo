@@ -62,6 +62,19 @@ profile:
     invalidFormat: 無法辨識的圖片格式
     uploadFailed: 更改個人圖片失敗，請稍後再試
   dataDisclaimer: 本資料僅供參考，不做其他證明用途
+preferences:
+  sections:
+    dataManagement: 資料管理
+  options:
+    clearDb: 清除本機資料庫
+  dialogs:
+    clearDbTitle: 要清除本機資料庫嗎？
+    clearDbMessage: 這會清除所有本機資料，接著使用已儲存帳號自動重新登入。
+    clearDbConfirm: 清除
+    clearDbCancel: 取消
+  messages:
+    clearDbSuccess: 本機資料已清除並重新登入
+    clearDbFailed: 清除本機資料或重新登入失敗
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學

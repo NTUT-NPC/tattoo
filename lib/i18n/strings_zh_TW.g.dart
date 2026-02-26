@@ -46,6 +46,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsLoginZhTw login = TranslationsLoginZhTw.internal(_root);
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
+	late final TranslationsPreferencesZhTw preferences = TranslationsPreferencesZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 }
 
@@ -181,6 +182,19 @@ class TranslationsProfileZhTw {
 
 	/// zh-TW: '本資料僅供參考，不做其他證明用途'
 	String get dataDisclaimer => '本資料僅供參考，不做其他證明用途';
+}
+
+// Path: preferences
+class TranslationsPreferencesZhTw {
+	TranslationsPreferencesZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsPreferencesSectionsZhTw sections = TranslationsPreferencesSectionsZhTw.internal(_root);
+	late final TranslationsPreferencesOptionsZhTw options = TranslationsPreferencesOptionsZhTw.internal(_root);
+	late final TranslationsPreferencesDialogsZhTw dialogs = TranslationsPreferencesDialogsZhTw.internal(_root);
+	late final TranslationsPreferencesMessagesZhTw messages = TranslationsPreferencesMessagesZhTw.internal(_root);
 }
 
 // Path: enrollmentStatus
@@ -321,6 +335,66 @@ class TranslationsProfileAvatarZhTw {
 	String get uploadFailed => '更改個人圖片失敗，請稍後再試';
 }
 
+// Path: preferences.sections
+class TranslationsPreferencesSectionsZhTw {
+	TranslationsPreferencesSectionsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '資料管理'
+	String get dataManagement => '資料管理';
+}
+
+// Path: preferences.options
+class TranslationsPreferencesOptionsZhTw {
+	TranslationsPreferencesOptionsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '清除本機資料庫'
+	String get clearDb => '清除本機資料庫';
+}
+
+// Path: preferences.dialogs
+class TranslationsPreferencesDialogsZhTw {
+	TranslationsPreferencesDialogsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '要清除本機資料庫嗎？'
+	String get clearDbTitle => '要清除本機資料庫嗎？';
+
+	/// zh-TW: '這會清除所有本機資料，接著使用已儲存帳號自動重新登入。'
+	String get clearDbMessage => '這會清除所有本機資料，接著使用已儲存帳號自動重新登入。';
+
+	/// zh-TW: '清除'
+	String get clearDbConfirm => '清除';
+
+	/// zh-TW: '取消'
+	String get clearDbCancel => '取消';
+}
+
+// Path: preferences.messages
+class TranslationsPreferencesMessagesZhTw {
+	TranslationsPreferencesMessagesZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '本機資料已清除並重新登入'
+	String get clearDbSuccess => '本機資料已清除並重新登入';
+
+	/// zh-TW: '清除本機資料或重新登入失敗'
+	String get clearDbFailed => '清除本機資料或重新登入失敗';
+}
+
 // Path: intro.features.courseTable
 class TranslationsIntroFeaturesCourseTableZhTw {
 	TranslationsIntroFeaturesCourseTableZhTw.internal(this._root);
@@ -423,6 +497,14 @@ extension on Translations {
 			'profile.avatar.invalidFormat' => '無法辨識的圖片格式',
 			'profile.avatar.uploadFailed' => '更改個人圖片失敗，請稍後再試',
 			'profile.dataDisclaimer' => '本資料僅供參考，不做其他證明用途',
+			'preferences.sections.dataManagement' => '資料管理',
+			'preferences.options.clearDb' => '清除本機資料庫',
+			'preferences.dialogs.clearDbTitle' => '要清除本機資料庫嗎？',
+			'preferences.dialogs.clearDbMessage' => '這會清除所有本機資料，接著使用已儲存帳號自動重新登入。',
+			'preferences.dialogs.clearDbConfirm' => '清除',
+			'preferences.dialogs.clearDbCancel' => '取消',
+			'preferences.messages.clearDbSuccess' => '本機資料已清除並重新登入',
+			'preferences.messages.clearDbFailed' => '清除本機資料或重新登入失敗',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',

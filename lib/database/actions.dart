@@ -13,4 +13,18 @@ extension DatabaseActions on AppDatabase {
       ),
     )).id;
   }
+
+  /// Clears all app data in local database tables.
+  Future<void> clearAllData({bool preserveAccount = true}) async {
+    await transaction(() async {
+      await customStatement('PRAGMA foreign_keys = OFF');
+      for (final table in allTables) {
+        if (preserveAccount && table.actualTableName == users.actualTableName) {
+          continue;
+        }
+        await delete(table).go();
+      }
+      await customStatement('PRAGMA foreign_keys = ON');
+    });
+  }
 }

@@ -164,6 +164,36 @@ class AuthRepository {
     return username != null && password != null;
   }
 
+  /// Re-authenticates using stored credentials and runs post-login sync.
+  ///
+  /// Throws [NotLoggedInException] if no stored credentials are available.
+  /// Throws [InvalidCredentialsException] if stored credentials are rejected.
+  Future<User> reloginWithStoredCredentials() async {
+    final username = await _secureStorage.read(key: _usernameKey);
+    final password = await _secureStorage.read(key: _passwordKey);
+    if (username == null || password == null) {
+      _onAuthStatusChanged(AuthStatus.credentialsExpired);
+      throw NotLoggedInException();
+    }
+
+    try {
+      await login(username, password);
+
+      final initializedUser = await getUser(refresh: true);
+      if (initializedUser == null) {
+        throw StateError('Re-login initialization failed: user is null');
+      }
+      return initializedUser;
+    } on DioException {
+      _onAuthStatusChanged(AuthStatus.offline);
+      rethrow;
+    } catch (_) {
+      await _clearCredentials();
+      _onAuthStatusChanged(AuthStatus.credentialsExpired);
+      throw InvalidCredentialsException();
+    }
+  }
+
   /// Executes [call] with automatic re-authentication on session expiry.
   ///
   /// If [call] fails with a non-[DioException] error (indicating session

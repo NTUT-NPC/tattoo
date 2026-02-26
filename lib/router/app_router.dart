@@ -4,6 +4,7 @@ import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
+import 'package:tattoo/screens/preferences/preferences_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
 
@@ -11,6 +12,7 @@ abstract class AppRoutes {
   static const home = '/';
   static const score = '/score';
   static const profile = '/profile';
+  static const preferences = '/profile/preferences';
   static const intro = '/intro';
   static const login = '/login';
 }
@@ -60,6 +62,12 @@ final appRouter = GoRouter(
               path: AppRoutes.profile,
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: ProfileScreen()),
+              routes: [
+                GoRoute(
+                  path: 'preferences',
+                  builder: (context, state) => const PreferencesScreen(),
+                ),
+              ],
             ),
           ],
         ),

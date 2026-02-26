@@ -45,6 +45,7 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsLoginEn login = _TranslationsLoginEn._(_root);
 	@override late final _TranslationsNavEn nav = _TranslationsNavEn._(_root);
 	@override late final _TranslationsProfileEn profile = _TranslationsProfileEn._(_root);
+	@override late final _TranslationsPreferencesEn preferences = _TranslationsPreferencesEn._(_root);
 	@override late final _TranslationsEnrollmentStatusEn enrollmentStatus = _TranslationsEnrollmentStatusEn._(_root);
 }
 
@@ -138,6 +139,19 @@ class _TranslationsProfileEn extends TranslationsProfileZhTw {
 	@override String get dataDisclaimer => 'For reference only. Not valid as official documentation.';
 }
 
+// Path: preferences
+class _TranslationsPreferencesEn extends TranslationsPreferencesZhTw {
+	_TranslationsPreferencesEn._(TranslationsEn root) : this._root = root, super.internal(root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsPreferencesSectionsEn sections = _TranslationsPreferencesSectionsEn._(_root);
+	@override late final _TranslationsPreferencesOptionsEn options = _TranslationsPreferencesOptionsEn._(_root);
+	@override late final _TranslationsPreferencesDialogsEn dialogs = _TranslationsPreferencesDialogsEn._(_root);
+	@override late final _TranslationsPreferencesMessagesEn messages = _TranslationsPreferencesMessagesEn._(_root);
+}
+
 // Path: enrollmentStatus
 class _TranslationsEnrollmentStatusEn extends TranslationsEnrollmentStatusZhTw {
 	_TranslationsEnrollmentStatusEn._(TranslationsEn root) : this._root = root, super.internal(root);
@@ -226,6 +240,50 @@ class _TranslationsProfileAvatarEn extends TranslationsProfileAvatarZhTw {
 	@override String get tooLarge => 'Image exceeds the 20 MB size limit';
 	@override String get invalidFormat => 'Unrecognized image format';
 	@override String get uploadFailed => 'Failed to change avatar. Please try again later.';
+}
+
+// Path: preferences.sections
+class _TranslationsPreferencesSectionsEn extends TranslationsPreferencesSectionsZhTw {
+	_TranslationsPreferencesSectionsEn._(TranslationsEn root) : this._root = root, super.internal(root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get dataManagement => 'Data Management';
+}
+
+// Path: preferences.options
+class _TranslationsPreferencesOptionsEn extends TranslationsPreferencesOptionsZhTw {
+	_TranslationsPreferencesOptionsEn._(TranslationsEn root) : this._root = root, super.internal(root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get clearDb => 'Clear local database';
+}
+
+// Path: preferences.dialogs
+class _TranslationsPreferencesDialogsEn extends TranslationsPreferencesDialogsZhTw {
+	_TranslationsPreferencesDialogsEn._(TranslationsEn root) : this._root = root, super.internal(root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get clearDbTitle => 'Clear local database?';
+	@override String get clearDbMessage => 'This will remove all local data, then automatically sign in with your saved account.';
+	@override String get clearDbConfirm => 'Clear';
+	@override String get clearDbCancel => 'Cancel';
+}
+
+// Path: preferences.messages
+class _TranslationsPreferencesMessagesEn extends TranslationsPreferencesMessagesZhTw {
+	_TranslationsPreferencesMessagesEn._(TranslationsEn root) : this._root = root, super.internal(root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get clearDbSuccess => 'Local data cleared and signed in again';
+	@override String get clearDbFailed => 'Failed to clear local data or sign in again';
 }
 
 // Path: intro.features.courseTable
@@ -318,6 +376,14 @@ extension on TranslationsEn {
 			'profile.avatar.invalidFormat' => 'Unrecognized image format',
 			'profile.avatar.uploadFailed' => 'Failed to change avatar. Please try again later.',
 			'profile.dataDisclaimer' => 'For reference only. Not valid as official documentation.',
+			'preferences.sections.dataManagement' => 'Data Management',
+			'preferences.options.clearDb' => 'Clear local database',
+			'preferences.dialogs.clearDbTitle' => 'Clear local database?',
+			'preferences.dialogs.clearDbMessage' => 'This will remove all local data, then automatically sign in with your saved account.',
+			'preferences.dialogs.clearDbConfirm' => 'Clear',
+			'preferences.dialogs.clearDbCancel' => 'Cancel',
+			'preferences.messages.clearDbSuccess' => 'Local data cleared and signed in again',
+			'preferences.messages.clearDbFailed' => 'Failed to clear local data or sign in again',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',

@@ -131,7 +131,7 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile(
         icon: Icons.settings_outlined,
         title: t.profile.options.preferences,
-        onTap: () => _showDemoTap(context),
+        onTap: () => context.push(AppRoutes.preferences),
       ),
       OptionEntryTile(
         icon: Icons.logout,

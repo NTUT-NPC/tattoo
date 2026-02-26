@@ -1,21 +1,22 @@
-// ignore_for_file: unused_field
-
+import 'package:tattoo/database/database.dart';
 import 'package:riverpod/riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tattoo/utils/shared_preferences.dart';
 
 /// Provides the [PreferencesRepository] instance.
 final preferencesRepositoryProvider = Provider<PreferencesRepository>((ref) {
   return PreferencesRepository(
-    prefs: ref.watch(sharedPreferencesProvider),
+    db: ref.watch(databaseProvider),
   );
 });
 
 /// Manages app preferences: demo mode, color customizations, onboarding status.
 class PreferencesRepository {
-  final SharedPreferencesAsync _prefs;
+  final AppDatabase _db;
 
   PreferencesRepository({
-    required SharedPreferencesAsync prefs,
-  }) : _prefs = prefs;
+    required AppDatabase db,
+  }) : _db = db;
+
+  Future<void> clearDatabase() async {
+    await _db.clearAllData(preserveAccount: false);
+  }
 }
