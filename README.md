@@ -12,10 +12,6 @@ Project Tattoo is a work-in-progress Flutter app that helps Taipei Tech (NTUT) s
 
 ## Getting Started
 
-1.  Review the [README.md](README.md) for development environment setup.
-2.  Check the **Status** section in [AGENTS.md](AGENTS.md#status) to see current progress and pending tasks.
-3.  Follow the guidelines below for commit messages, coding standards, and workflows.
-
 This project uses [mise](https://mise.jdx.dev/) to manage development tools (Flutter, Java, Ruby).
 
 ```bash
@@ -64,6 +60,8 @@ If you need to reconfigure Firebase:
 **Contributors:** See [CONTRIBUTING.md](CONTRIBUTING.md) for commit and branch guidelines.
 
 ## Project Context
+
+Check [AGENTS.md](AGENTS.md) to see detailed architecture notes, implementation status, and future plans.
 
 This project exists alongside two other implementations:
 

@@ -149,12 +149,3 @@ All available SSO service codes are in to `doc/ntut_sso_codes.md`.
 
 These apOu codes are the SSO target identifiers used by PortalService to obtain service-specific entry URLs/tickets for each NTUT subsystem.
 
-## Firebase Strategy
-
-To prevent package name mismatches (`club.ntut.tattoo.debug`) and simplify local development:
-
-- **Global Toggle**: `lib/services/analytics_service.dart` defines `useFirebase`.
-- **Default Behavior**: Firebase is **disabled** in Debug and **enabled** in Release.
-- **Manual Override**: Run with `--dart-define=USE_FIREBASE=true` to enable Firebase features in debug mode (requires adding the debug package name to the Firebase console).
-- **Architecture**: Always use `AnalyticsService` instead of calling `FirebaseAnalytics` directly. The service acts as a no-op when Firebase is disabled.
-- **Build Configuration**: The `google-services` Gradle plugin and `Firebase.initializeApp()` are only applied when `useFirebase` (or release mode) is active.
