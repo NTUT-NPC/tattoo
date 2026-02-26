@@ -96,7 +96,10 @@ class CourseTableScreen extends StatelessWidget {
         onTap: () {},
         child: Ink(
           padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),
-          decoration: ShapeDecoration(shape: shape, color: Colors.grey[300]),
+          decoration: ShapeDecoration(
+            shape: shape,
+            color: Colors.white.withValues(alpha: 0.7),
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -192,7 +195,7 @@ class _CircularIconButton extends StatelessWidget {
       aspectRatio: 1,
       child: SizedBox.expand(
         child: Material(
-          color: Colors.grey[300],
+          color: Colors.white.withValues(alpha: 0.7),
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),
