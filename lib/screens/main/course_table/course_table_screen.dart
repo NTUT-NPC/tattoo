@@ -17,6 +17,7 @@ class CourseTableScreen extends StatelessWidget {
         slivers: [
           SliverAppBar(
             floating: true,
+            snap: true,
             toolbarHeight: 56,
             backgroundColor: Theme.of(context).colorScheme.primary,
             flexibleSpace: SafeArea(
