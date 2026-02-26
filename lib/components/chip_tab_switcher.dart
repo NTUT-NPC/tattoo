@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 /// A horizontally scrollable chip-style tab switcher.
@@ -95,6 +96,10 @@ class ChipTabSwitcher extends StatefulWidget {
 }
 
 class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
+  static const _chipTapAnimationDuration = Duration(milliseconds: 240);
+  static const _scrollAnimationDuration = Duration(milliseconds: 220);
+  static const _motionCurve = Curves.easeInOutCubic;
+
   TabController? _tabController;
   Animation<double>? _tabAnimation;
   int _activeIndex = 0;
@@ -103,10 +108,7 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
   @override
   void initState() {
     super.initState();
-    _tabKeys = List<GlobalKey>.generate(
-      widget.tabs.length,
-      (_) => GlobalKey(),
-    );
+    _tabKeys = _buildTabKeys();
   }
 
   @override
@@ -122,18 +124,28 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
       _syncController();
     }
     if (oldWidget.tabs.length != widget.tabs.length) {
-      _tabKeys = List<GlobalKey>.generate(
-        widget.tabs.length,
-        (_) => GlobalKey(),
-      );
+      _tabKeys = _buildTabKeys();
     }
   }
 
   @override
   void dispose() {
+    _detachControllerListeners();
+    super.dispose();
+  }
+
+  List<GlobalKey> _buildTabKeys() {
+    return List<GlobalKey>.generate(widget.tabs.length, (_) => GlobalKey());
+  }
+
+  void _detachControllerListeners() {
     _tabController?.removeListener(_handleTabChange);
     _tabAnimation?.removeListener(_handleTabChange);
-    super.dispose();
+  }
+
+  void _attachControllerListeners() {
+    _tabController?.addListener(_handleTabChange);
+    _tabAnimation?.addListener(_handleTabChange);
   }
 
   void _syncController() {
@@ -144,15 +156,13 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
       return;
     }
 
-    _tabController?.removeListener(_handleTabChange);
-    _tabAnimation?.removeListener(_handleTabChange);
+    _detachControllerListeners();
     _tabController = controller;
     _tabAnimation = controller?.animation;
 
     if (controller != null) {
       _activeIndex = _resolveActiveIndex(controller);
-      controller.addListener(_handleTabChange);
-      _tabAnimation?.addListener(_handleTabChange);
+      _attachControllerListeners();
       _scrollTabIntoView(_activeIndex, animate: false);
     }
   }
@@ -190,8 +200,8 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
 
     controller.animateTo(
       index,
-      duration: const Duration(milliseconds: 240),
-      curve: Curves.easeInOutCubic,
+      duration: _chipTapAnimationDuration,
+      curve: _motionCurve,
     );
   }
 
@@ -208,8 +218,8 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
 
       Scrollable.ensureVisible(
         tabContext,
-        duration: animate ? const Duration(milliseconds: 220) : Duration.zero,
-        curve: Curves.easeInOutCubic,
+        duration: animate ? _scrollAnimationDuration : Duration.zero,
+        curve: _motionCurve,
         alignment: 0.5,
       );
     });
@@ -232,9 +242,7 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxTabWidth = constraints.maxWidth / widget.visibleTabCount;
-        final effectiveMaxTabWidth = maxTabWidth < widget.minTabWidth
-            ? widget.minTabWidth
-            : maxTabWidth;
+        final effectiveMaxTabWidth = math.max(maxTabWidth, widget.minTabWidth);
         final tabConstraints = BoxConstraints(
           minWidth: widget.minTabWidth,
           maxWidth: effectiveMaxTabWidth,
@@ -274,6 +282,11 @@ class _TabSwitchChip extends StatelessWidget {
   static const _checkIconSize = 16.0;
   static const _checkSpacing = 4.0;
   static const _textUnselectedOffsetX = -(_checkIconSize + _checkSpacing) / 2;
+  static const _borderRadius = 10.0;
+  static const _containerAnimationDuration = Duration(milliseconds: 220);
+  static const _checkAnimationDuration = Duration(milliseconds: 180);
+  static const _motionCurve = Curves.easeInOutCubic;
+  static const _chipPadding = EdgeInsets.symmetric(horizontal: 10, vertical: 6);
 
   final String label;
   final bool isSelected;
@@ -286,24 +299,30 @@ class _TabSwitchChip extends StatelessWidget {
     final unselectedBorderColor = theme.colorScheme.outline.withValues(
       alpha: 0.45,
     );
+    final backgroundColor = isSelected
+        ? selectedColor.withValues(alpha: 0.1)
+        : Colors.transparent;
+    final borderColor = isSelected ? selectedColor : unselectedBorderColor;
+    final borderWidth = isSelected ? 1.5 : 1.0;
+    final labelColor = isSelected ? selectedColor : theme.colorScheme.onSurface;
+    final labelWeight = isSelected ? FontWeight.w600 : FontWeight.w500;
+    final textOffsetX = isSelected ? 0.0 : _textUnselectedOffsetX;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(_borderRadius),
         onTap: onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeInOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          duration: _containerAnimationDuration,
+          curve: _motionCurve,
+          padding: _chipPadding,
           decoration: BoxDecoration(
-            color: isSelected
-                ? selectedColor.withValues(alpha: 0.1)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(_borderRadius),
             border: Border.all(
-              color: isSelected ? selectedColor : unselectedBorderColor,
-              width: isSelected ? 1.5 : 1,
+              color: borderColor,
+              width: borderWidth,
             ),
           ),
           child: Row(
@@ -314,8 +333,8 @@ class _TabSwitchChip extends StatelessWidget {
                 width: _checkIconSize,
                 height: _checkIconSize,
                 child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 180),
-                  curve: Curves.easeInOutCubic,
+                  duration: _checkAnimationDuration,
+                  curve: _motionCurve,
                   opacity: isSelected ? 1 : 0,
                   child: Icon(
                     Icons.check,
@@ -326,10 +345,10 @@ class _TabSwitchChip extends StatelessWidget {
               ),
               const SizedBox(width: _checkSpacing),
               TweenAnimationBuilder<double>(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeInOutCubic,
+                duration: _containerAnimationDuration,
+                curve: _motionCurve,
                 tween: Tween<double>(
-                  end: isSelected ? 0 : _textUnselectedOffsetX,
+                  end: textOffsetX,
                 ),
                 builder: (context, offsetX, child) {
                   return Transform.translate(
@@ -340,10 +359,8 @@ class _TabSwitchChip extends StatelessWidget {
                 child: Text(
                   label,
                   style: theme.textTheme.labelLarge?.copyWith(
-                    color: isSelected
-                        ? selectedColor
-                        : theme.colorScheme.onSurface,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: labelColor,
+                    fontWeight: labelWeight,
                   ),
                 ),
               ),
