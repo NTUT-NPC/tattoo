@@ -191,5 +191,43 @@ void main() {
         );
       });
     });
+
+    group('getSsoUrl', () {
+      test('should return a valid URL with authorization code', () async {
+        await portalService.login(
+          TestCredentials.username,
+          TestCredentials.password,
+        );
+
+        final url = await portalService.getSsoUrl(
+          PortalServiceCode.courseService.code,
+        );
+
+        expect(url.scheme, 'https');
+        expect(url.queryParameters, contains('code'));
+      });
+
+      test('should return HTTPS URL even if server returns HTTP', () async {
+        await portalService.login(
+          TestCredentials.username,
+          TestCredentials.password,
+        );
+
+        final url = await portalService.getSsoUrl(
+          PortalServiceCode.studentQueryService.code,
+        );
+
+        expect(url.scheme, 'https');
+      });
+
+      test('should throw exception when not logged in', () async {
+        await cookieJar.deleteAll();
+
+        expect(
+          () => portalService.getSsoUrl(PortalServiceCode.courseService.code),
+          throwsException,
+        );
+      });
+    });
   });
 }
