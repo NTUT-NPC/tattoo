@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/screens/main/score/score_screen_actions.dart';
 import 'package:tattoo/screens/main/score/score_view_helpers.dart';
@@ -13,10 +14,13 @@ class ScoreScreen extends ConsumerStatefulWidget {
   ConsumerState<ScoreScreen> createState() => _ScoreScreenState();
 }
 
-class _ScoreScreenState extends ConsumerState<ScoreScreen> {
+class _ScoreScreenState extends ConsumerState<ScoreScreen>
+    with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   String? _selectedSemesterKey;
   DateTime? _lastUpdatedAt;
+  TabController? _semesterTabController;
+  int _semesterTabLength = 0;
 
   @override
   void initState() {
@@ -29,10 +33,16 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen> {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }
 
+  @override
+  void dispose() {
+    _semesterTabController?.removeListener(_handleSemesterTabChanged);
+    _semesterTabController?.dispose();
+    super.dispose();
+  }
+
   bool _handleScrollNotification(ScrollNotification notification) {
     if (notification is ScrollStartNotification ||
-        notification is UserScrollNotification ||
-        notification is ScrollUpdateNotification) {
+        notification is UserScrollNotification) {
       _dismissRefreshSnackBar();
     }
     return false;
@@ -45,6 +55,71 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen> {
     setState(() {
       _lastUpdatedAt = parsed;
     });
+  }
+
+  int _findPreferredSemesterIndex(List<SemesterScoreDto> semesters) {
+    if (_selectedSemesterKey == null) return -1;
+    return semesters.indexWhere(
+      (semester) => semesterKey(semester) == _selectedSemesterKey,
+    );
+  }
+
+  int _findDefaultSemesterIndex(List<SemesterScoreDto> semesters) {
+    final index = semesters.indexWhere(
+      (semester) => semester.scores.isNotEmpty,
+    );
+    return index >= 0 ? index : 0;
+  }
+
+  void _handleSemesterTabChanged() {
+    final controller = _semesterTabController;
+    if (controller == null || controller.indexIsChanging || !mounted) return;
+
+    if (_selectedIndex == controller.index) return;
+
+    setState(() {
+      _dismissRefreshSnackBar();
+      _selectedIndex = controller.index;
+    });
+  }
+
+  void _syncSemesterTabController(List<SemesterScoreDto> semesters) {
+    if (semesters.isEmpty) {
+      _semesterTabController?.removeListener(_handleSemesterTabChanged);
+      _semesterTabController?.dispose();
+      _semesterTabController = null;
+      _semesterTabLength = 0;
+      _selectedIndex = 0;
+      _selectedSemesterKey = null;
+      return;
+    }
+
+    final preferredIndex = _findPreferredSemesterIndex(semesters);
+    final initialIndex = preferredIndex >= 0
+        ? preferredIndex
+        : _findDefaultSemesterIndex(semesters);
+
+    if (_semesterTabController == null ||
+        _semesterTabLength != semesters.length) {
+      _semesterTabController?.removeListener(_handleSemesterTabChanged);
+      _semesterTabController?.dispose();
+      _semesterTabController = TabController(
+        length: semesters.length,
+        initialIndex: initialIndex,
+        vsync: this,
+      )..addListener(_handleSemesterTabChanged);
+      _semesterTabLength = semesters.length;
+      _selectedIndex = initialIndex;
+      return;
+    }
+
+    final targetIndex = _selectedIndex >= semesters.length
+        ? initialIndex
+        : _selectedIndex;
+    if (_semesterTabController!.index != targetIndex) {
+      _semesterTabController!.index = targetIndex;
+    }
+    _selectedIndex = targetIndex;
   }
 
   /// Executes pull-to-refresh and reports the actual refresh outcome to users.
@@ -84,145 +159,163 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen> {
   @override
   Widget build(BuildContext context) {
     final performanceAsync = ref.watch(academicPerformanceProvider);
-    final appBarSemesters =
-        performanceAsync.asData?.value.semesters ?? const <SemesterScoreDto>[];
-    final appBarSelectedIndex = appBarSemesters.isEmpty
-        ? 0
-        : (_selectedIndex >= appBarSemesters.length ? 0 : _selectedIndex);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(t.nav.scores),
-        centerTitle: true,
-        actions: [
-          if (appBarSemesters.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: _SemesterAppBarSelector(
-                semesters: appBarSemesters,
-                selectedIndex: appBarSelectedIndex,
-                onChanged: (idx) => setState(() {
-                  _dismissRefreshSnackBar();
-                  _selectedIndex = idx;
-                  _selectedSemesterKey = semesterKey(appBarSemesters[idx]);
-                }),
-              ),
-            ),
-        ],
-      ),
       body: performanceAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('成績載入失敗\n$err')),
+        loading: () => CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              title: Text(t.nav.scores),
+              centerTitle: true,
+            ),
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ],
+        ),
+        error: (err, stack) => CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              title: Text(t.nav.scores),
+              centerTitle: true,
+            ),
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: Text('成績載入失敗\n$err')),
+            ),
+          ],
+        ),
         data: (data) {
           final semesters = data.semesters;
+          _syncSemesterTabController(semesters);
 
-          if (semesters.isEmpty) {
-            return RefreshIndicator(
-              onRefresh: _reloadScores,
-              child: NotificationListener<ScrollNotification>(
-                onNotification: _handleScrollNotification,
-                child: ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: const [
-                    SizedBox(height: 240),
-                    Center(child: Text('目前沒有任何成績紀錄')),
-                  ],
-                ),
-              ),
-            );
-          }
+          final hasSemesters = semesters.isNotEmpty;
+          final SemesterScoreDto? currentData = hasSemesters
+              ? (() {
+                  final activeIndex =
+                      _semesterTabController?.index ?? _selectedIndex;
+                  if (activeIndex >= semesters.length) {
+                    _selectedIndex = 0;
+                  } else {
+                    _selectedIndex = activeIndex;
+                  }
+                  final selected = semesters[_selectedIndex];
+                  _selectedSemesterKey = semesterKey(selected);
+                  return selected;
+                })()
+              : null;
+          final GpaDto? currentGpa = currentData == null
+              ? null
+              : data.gpaBySemester[_selectedSemesterKey!];
+          final textScale = MediaQuery.textScalerOf(context).scale(16) / 16;
+          final summaryCardExtent = (84 * textScale).clamp(84, 120).toDouble();
 
-          if (_selectedIndex >= semesters.length) _selectedIndex = 0;
-
-          final preferredIndex = findPreferredSemesterIndex(
-            semesters,
-            _selectedSemesterKey,
-          );
-          if (preferredIndex >= 0) {
-            _selectedIndex = preferredIndex;
-          } else {
-            _selectedIndex = findDefaultSemesterIndex(semesters);
-          }
-          final currentData = semesters[_selectedIndex];
-          _selectedSemesterKey = semesterKey(currentData);
-          final currentGpa = data.gpaBySemester[_selectedSemesterKey!];
-
-          return Column(
-            children: [
-              if (_lastUpdatedAt != null)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      '最後更新：${formatLastUpdated(_lastUpdatedAt!)}',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+          return RefreshIndicator(
+            onRefresh: _reloadScores,
+            child: NotificationListener<ScrollNotification>(
+              onNotification: _handleScrollNotification,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverAppBar(
+                    pinned: true,
+                    title: Text(t.nav.scores),
+                    centerTitle: true,
+                    bottom:
+                        _semesterTabController != null && semesters.isNotEmpty
+                        ? PreferredSize(
+                            preferredSize: const Size.fromHeight(52),
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                              child: SizedBox(
+                                height: 40,
+                                child: ChipTabSwitcher(
+                                  tabs: [
+                                    for (final semester in semesters)
+                                      '${semester.semester.year}-${semester.semester.term}',
+                                  ],
+                                  controller: _semesterTabController,
+                                  padding: EdgeInsets.zero,
+                                  spacing: 6,
+                                ),
+                              ),
+                            ),
+                          )
+                        : null,
+                  ),
+                  if (!hasSemesters)
+                    const SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(child: Text('目前沒有任何成績紀錄')),
+                    )
+                  else ...[
+                    SliverAppBar(
+                      pinned: true,
+                      primary: false,
+                      automaticallyImplyLeading: false,
+                      toolbarHeight: summaryCardExtent,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      surfaceTintColor: Colors.transparent,
+                      titleSpacing: 0,
+                      title: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                        child: _SemesterSummaryCard(
+                          data: currentData!,
+                          gpa: currentGpa,
+                          margin: EdgeInsets.zero,
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              _SemesterSummaryCard(data: currentData, gpa: currentGpa),
-
-              const Divider(height: 1),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: _reloadScores,
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: _handleScrollNotification,
-                    child: ListView.separated(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: currentData.scores.length,
-                      separatorBuilder: (_, separatorIndex) =>
-                          const Divider(height: 1, indent: 16),
-                      itemBuilder: (context, index) {
-                        final score = currentData.scores[index];
-                        final name =
-                            data.names[score.courseCode] ??
-                            score.courseCode ??
-                            '未知課程';
-                        return _ScoreTile(score: score, courseName: name);
-                      },
+                    const SliverToBoxAdapter(child: SizedBox(height: 8)),
+                    SliverPadding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final score = currentData.scores[index];
+                            final name =
+                                data.names[score.courseCode] ??
+                                score.courseCode ??
+                                '未知課程';
+                            return Column(
+                              children: [
+                                _ScoreTile(score: score, courseName: name),
+                                if (index != currentData.scores.length - 1)
+                                  const Divider(height: 1, indent: 16),
+                              ],
+                            );
+                          },
+                          childCount: currentData.scores.length,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                    if (_lastUpdatedAt != null)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              '最後更新：${formatLastUpdated(_lastUpdatedAt!)}',
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ],
               ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _SemesterAppBarSelector extends StatelessWidget {
-  final List<SemesterScoreDto> semesters;
-  final int selectedIndex;
-  final ValueChanged<int> onChanged;
-
-  const _SemesterAppBarSelector({
-    required this.semesters,
-    required this.selectedIndex,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonHideUnderline(
-      child: DropdownButton<int>(
-        value: selectedIndex,
-        onChanged: (val) => val != null ? onChanged(val) : null,
-        borderRadius: BorderRadius.circular(12),
-        items: List.generate(semesters.length, (index) {
-          final sem = semesters[index].semester;
-          return DropdownMenuItem(
-            value: index,
-            child: Text(
-              '${sem.year}-${sem.term}',
-              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           );
-        }),
+        },
       ),
     );
   }
@@ -231,31 +324,42 @@ class _SemesterAppBarSelector extends StatelessWidget {
 class _SemesterSummaryCard extends StatelessWidget {
   final SemesterScoreDto data;
   final GpaDto? gpa;
+  final EdgeInsetsGeometry margin;
 
-  const _SemesterSummaryCard({required this.data, required this.gpa});
+  const _SemesterSummaryCard({
+    required this.data,
+    required this.gpa,
+    this.margin = const EdgeInsets.all(16),
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(16),
+      margin: margin,
       elevation: 0,
       shape: RoundedRectangleBorder(
         side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-        child: Wrap(
-          alignment: WrapAlignment.spaceEvenly,
-          spacing: 20,
-          runSpacing: 12,
-          children: [
-            _buildStat(context, '歷年 GPA', _formatDouble(gpa?.grandTotalGpa)),
-            _buildStat(context, '操行成績', data.conduct?.toString() ?? '-'),
-            _buildStat(context, '學期平均', data.average?.toString() ?? '-'),
-            _buildStat(context, '實得學分', data.creditsPassed?.toString() ?? '-'),
-            _buildStat(context, '修課總學分', data.totalCredits?.toString() ?? '-'),
-          ],
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          primary: false,
+          physics: const ClampingScrollPhysics(),
+          child: Row(
+            children: [
+              _buildStat(context, '歷年 GPA', _formatDouble(gpa?.grandTotalGpa)),
+              const SizedBox(width: 24),
+              _buildStat(context, '操行成績', data.conduct?.toString() ?? '-'),
+              const SizedBox(width: 24),
+              _buildStat(context, '學期平均', data.average?.toString() ?? '-'),
+              const SizedBox(width: 24),
+              _buildStat(context, '實得學分', data.creditsPassed?.toString() ?? '-'),
+              const SizedBox(width: 24),
+              _buildStat(context, '修課總學分', data.totalCredits?.toString() ?? '-'),
+            ],
+          ),
         ),
       ),
     );
@@ -268,6 +372,7 @@ class _SemesterSummaryCard extends StatelessWidget {
 
   Widget _buildStat(BuildContext context, String label, String value) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           value,
