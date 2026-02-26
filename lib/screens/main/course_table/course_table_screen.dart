@@ -6,7 +6,7 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/database/database.dart' show User;
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/screens/main/course_table/course_table_provider.dart';
+import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 
 const _placeholderOwnerName = '載入中';
 const _placeholderAvatarInitial = '載';
