@@ -32,7 +32,11 @@ class CourseTableScreen extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+<<<<<<< HEAD
                       _tableOwnerIndicator(context),
+=======
+                      tableOwnerIndicator(context),
+>>>>>>> refs/remotes/origin/score-screen-and-student-service
                       const Spacer(),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
@@ -86,14 +90,21 @@ class CourseTableScreen extends StatelessWidget {
     );
   }
 
+<<<<<<< HEAD
   Widget _tableOwnerIndicator(BuildContext context) {
+=======
+  Widget tableOwnerIndicator(BuildContext context) {
+>>>>>>> refs/remotes/origin/score-screen-and-student-service
     const shape = StadiumBorder();
 
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
         customBorder: shape,
+<<<<<<< HEAD
         // TODO: implement course table sharing feature and switch here
+=======
+>>>>>>> refs/remotes/origin/score-screen-and-student-service
         onTap: () {},
         child: Ink(
           padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),
