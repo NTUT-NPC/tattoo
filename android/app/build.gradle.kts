@@ -69,7 +69,7 @@ val isRelease = project.gradle.startParameter.taskNames.any {
 }
 if (isRelease) {
     apply(plugin = "com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
+    apply(plugin = "com.google.firebase.crashlytics")
 }
 
 kotlin {
