@@ -107,7 +107,8 @@ class CourseTableScreen extends ConsumerWidget {
     required AsyncValue<User?> profileAsync,
     required AsyncValue<File?> avatarAsync,
   }) {
-    final profile = profileAsync.value;
+    final profile = profileAsync.asData?.value;
+    final avatarFile = avatarAsync.asData?.value;
     final isLoading = profileAsync is AsyncLoading<User?> && profile == null;
     final ownerName = switch (profileAsync) {
       AsyncLoading() => _placeholderOwnerName,
@@ -154,9 +155,9 @@ class CourseTableScreen extends ConsumerWidget {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     child: ClipOval(
-                      child: switch (avatarAsync.value) {
-                        final avatarFile? => Image.file(
-                          avatarFile,
+                      child: switch (avatarFile) {
+                        final file? => Image.file(
+                          file,
                           fit: BoxFit.cover,
                         ),
                         null => Center(
