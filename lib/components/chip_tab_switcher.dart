@@ -99,6 +99,7 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
   static const _chipTapAnimationDuration = Duration(milliseconds: 240);
   static const _scrollAnimationDuration = Duration(milliseconds: 220);
   static const _motionCurve = Curves.easeInOutCubic;
+  static const _visibleEdgeInset = 16.0;
 
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _scrollViewportKey = GlobalKey();
@@ -127,6 +128,11 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
     }
     if (oldWidget.tabs.length != widget.tabs.length) {
       _tabKeys = _buildTabKeys();
+      final controller = _tabController;
+      if (controller != null) {
+        _activeIndex = _resolveActiveIndex(controller);
+        _scrollTabIntoView(_activeIndex, animate: false);
+      }
     }
   }
 
@@ -166,12 +172,7 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
     if (controller != null) {
       _activeIndex = _resolveActiveIndex(controller);
       _attachControllerListeners();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || !_scrollController.hasClients) {
-          return;
-        }
-        _scrollController.jumpTo(_scrollController.position.minScrollExtent);
-      });
+      _scrollTabIntoView(_activeIndex, animate: false);
     }
   }
 
@@ -244,13 +245,18 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
             ancestor: viewportBox,
           )
           .dx;
-      final tabWidth = tabBox.size.width;
+      final tabRightInViewport = tabLeftInViewport + tabBox.size.width;
       final viewportWidth = viewportBox.size.width;
+      final minVisibleX = _visibleEdgeInset;
+      final maxVisibleX = viewportWidth - _visibleEdgeInset;
 
-      final targetOffset =
-          _scrollController.offset +
-          tabLeftInViewport -
-          (viewportWidth - tabWidth) / 2;
+      final targetOffset = switch (true) {
+        _ when tabLeftInViewport < minVisibleX =>
+          _scrollController.offset + (tabLeftInViewport - minVisibleX),
+        _ when tabRightInViewport > maxVisibleX =>
+          _scrollController.offset + (tabRightInViewport - maxVisibleX),
+        _ => _scrollController.offset,
+      };
       final clampedOffset = targetOffset.clamp(
         _scrollController.position.minScrollExtent,
         _scrollController.position.maxScrollExtent,
