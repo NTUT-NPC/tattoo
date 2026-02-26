@@ -4,6 +4,12 @@ import 'package:tattoo/i18n/strings.g.dart';
 class CourseTableScreen extends StatelessWidget {
   const CourseTableScreen({super.key});
 
+  void _showDemoTap(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(t.general.notImplemented)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,8 +30,28 @@ class CourseTableScreen extends StatelessWidget {
                   children: [
                     tableOwnerIndicator(context),
                     const Spacer(),
-                    Row(
-                      children: [],
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 8,
+                        children: [
+                          _CircularIconButton(
+                            icon: Icons.refresh_outlined,
+                            onTap: () => _showDemoTap(context),
+                          ),
+                          _CircularIconButton(
+                            icon: Icons.share_outlined,
+                            onTap: () => _showDemoTap(context),
+                          ),
+
+                          _CircularIconButton(
+                            icon: Icons.more_vert_outlined,
+                            onTap: () => _showDemoTap(context),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -103,6 +129,42 @@ class CourseTableScreen extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CircularIconButton extends StatelessWidget {
+  const _CircularIconButton({
+    required this.icon,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 1,
+      child: SizedBox.expand(
+        child: Material(
+          color: Colors.grey[300],
+          shape: const CircleBorder(),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onTap,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final iconSize = constraints.biggest.shortestSide * 0.45;
+
+                return Center(
+                  child: Icon(icon, size: iconSize),
+                );
+              },
+            ),
           ),
         ),
       ),
