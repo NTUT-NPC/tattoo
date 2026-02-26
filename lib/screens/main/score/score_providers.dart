@@ -11,8 +11,13 @@ import 'package:tattoo/services/student_query_service.dart';
 typedef ScorePageState = ({
   List<SemesterScoreDto> semesters,
   Map<String, String> names,
+  Map<String, GpaDto> gpaBySemester,
   bool refreshedFromNetwork,
 });
+
+String _semesterMapKey(SemesterDto semester) {
+  return '${semester.year}-${semester.term}';
+}
 
 String _normalizeIdentifier(String? value) {
   final normalized = value?.trim();
@@ -75,6 +80,7 @@ class _CachedSemesterState {
   double? conduct;
   double? totalCredits;
   double? creditsPassed;
+  double? grandTotalGpa;
   String? note;
   final List<ScoreDto> scores;
 
@@ -87,6 +93,7 @@ Future<ScorePageState> _loadAcademicPerformanceFromDb({
 }) async {
   final semesterStates = <int, _CachedSemesterState>{};
   final names = <String, String>{};
+  final gpaBySemester = <String, GpaDto>{};
 
   final scoreRows =
       await (db.select(db.scores).join([
@@ -133,6 +140,7 @@ Future<ScorePageState> _loadAcademicPerformanceFromDb({
     return (
       semesters: <SemesterScoreDto>[],
       names: names,
+      gpaBySemester: <String, GpaDto>{},
       refreshedFromNetwork: false,
     );
   }
@@ -161,7 +169,15 @@ Future<ScorePageState> _loadAcademicPerformanceFromDb({
     state.conduct = summary.conduct;
     state.totalCredits = summary.totalCredits;
     state.creditsPassed = summary.creditsPassed;
+    state.grandTotalGpa = summary.grandTotalGpa;
     state.note = summary.note;
+
+    if (state.grandTotalGpa != null) {
+      gpaBySemester['${state.year}-${state.term}'] = (
+        semester: (year: state.year, term: state.term),
+        grandTotalGpa: state.grandTotalGpa!,
+      );
+    }
   }
 
   final semesters = semesterStates.values.toList()
@@ -188,6 +204,7 @@ Future<ScorePageState> _loadAcademicPerformanceFromDb({
   return (
     semesters: _sortScoresWithinSemesters(hydratedSemesters),
     names: names,
+    gpaBySemester: gpaBySemester,
     refreshedFromNetwork: false,
   );
 }
@@ -256,6 +273,7 @@ Future<void> _persistAcademicPerformance({
   required AppDatabase db,
   required int userId,
   required List<SemesterScoreDto> semesters,
+  required Map<String, GpaDto> gpaBySemester,
 }) async {
   await db.transaction(() async {
     final semesterIds = <String, int>{};
@@ -285,6 +303,8 @@ Future<void> _persistAcademicPerformance({
         emptySemesterIds.add(semesterId);
       }
 
+      final grandTotalGpa = gpaBySemester[semesterKey]?.grandTotalGpa;
+
       await db
           .into(db.userSemesterSummaries)
           .insert(
@@ -296,6 +316,7 @@ Future<void> _persistAcademicPerformance({
               totalCredits: Value(semesterData.totalCredits),
               creditsPassed: Value(semesterData.creditsPassed),
               note: Value(semesterData.note),
+              grandTotalGpa: Value(grandTotalGpa),
             ),
             onConflict: DoUpdate(
               (old) => UserSemesterSummariesCompanion(
@@ -304,6 +325,7 @@ Future<void> _persistAcademicPerformance({
                 totalCredits: Value(semesterData.totalCredits),
                 creditsPassed: Value(semesterData.creditsPassed),
                 note: Value(semesterData.note),
+                grandTotalGpa: Value(grandTotalGpa),
               ),
               target: [
                 db.userSemesterSummaries.user,
@@ -443,6 +465,12 @@ final academicPerformanceProvider = StreamProvider.autoDispose<ScorePageState>(
         final semesters = _sortScoresWithinSemesters(
           await queryService.getAcademicPerformance(),
         );
+        final gpaRows = await queryService.getGPA();
+        final gpaBySemester = <String, GpaDto>{
+          for (final row in gpaRows)
+            if (row.semester.year != null && row.semester.term != null)
+              _semesterMapKey(row.semester): row,
+        };
 
         final allCodes = semesters
             .expand((s) => s.scores)
@@ -499,11 +527,13 @@ final academicPerformanceProvider = StreamProvider.autoDispose<ScorePageState>(
           db: db,
           userId: user.id,
           semesters: semesters,
+          gpaBySemester: gpaBySemester,
         );
 
         return (
           semesters: semesters,
           names: courseNames,
+          gpaBySemester: gpaBySemester,
           refreshedFromNetwork: true,
         );
       });

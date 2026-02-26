@@ -483,6 +483,9 @@ class UserSemesterSummaries extends Table with AutoIncrementId {
   /// Additional note.
   late final note = text().nullable()();
 
+  /// Historical cumulative GPA (歷年 GPA) for the semester snapshot.
+  late final grandTotalGpa = real().nullable()();
+
   /// Student's assigned class name (e.g., "電子四甲").
   /// Plain text — no class code available from this page.
   late final className = text().nullable()();

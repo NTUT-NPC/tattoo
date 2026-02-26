@@ -103,6 +103,15 @@ typedef GradeRankingDto = ({
   List<GradeRankingEntryDto> entries,
 });
 
+/// GPA data for a single semester.
+typedef GpaDto = ({
+  /// Semester identifier.
+  SemesterDto semester,
+
+  /// Grand total (historical cumulative) GPA.
+  double grandTotalGpa,
+});
+
 /// Student status (學籍基本資料) from the basis data page.
 typedef StudentProfileDto = ({
   String? chineseName,
@@ -141,7 +150,7 @@ class StudentQueryService {
   /// Fetches student status (學籍基本資料) from the basis data page.
   ///
   /// Extracts personal information including bilingual names, DOB, program,
-  /// and department. Handles specific formatting for mixed Chinese/English 
+  /// and department. Handles specific formatting for mixed Chinese/English
   /// strings.
   Future<StudentProfileDto> getStudentProfile() async {
     final response = await _studentQueryDio.get('QryBasisData.jsp');
@@ -212,16 +221,16 @@ class StudentQueryService {
 
   /// Fetches academic performance (scores) for all semesters.
   ///
-  /// Scans the academic performance page for semester buttons and their 
+  /// Scans the academic performance page for semester buttons and their
   /// corresponding score tables.
   ///
   /// **Parsing Strategy:**
-  /// Uses a sequential scan of both `input` (semester labels) and `table` 
-  /// (score data) elements to maintain correct association. This prevents 
-  /// offsets in cases where a semester button exists but its score table is 
+  /// Uses a sequential scan of both `input` (semester labels) and `table`
+  /// (score data) elements to maintain correct association. This prevents
+  /// offsets in cases where a semester button exists but its score table is
   /// missing (e.g., early in a new term).
   ///
-  /// Throws an [Exception] if the response contains "應用系統已中斷連線", 
+  /// Throws an [Exception] if the response contains "應用系統已中斷連線",
   /// indicating session expiry.
   Future<List<SemesterScoreDto>> getAcademicPerformance() async {
     final response = await _studentQueryDio.get(
@@ -256,11 +265,12 @@ class StudentQueryService {
             year: int.parse(match.group(1)!),
             term: int.parse(match.group(2)!),
           );
-          hasAddedTableForCurrentSemester = false; 
+          hasAddedTableForCurrentSemester = false;
         }
       } else if (el.localName == 'table') {
         // Found a data table: verify context and prevent duplicate processing
-        if (currentSemester == null || hasAddedTableForCurrentSemester) continue;
+        if (currentSemester == null || hasAddedTableForCurrentSemester)
+          continue;
 
         final rows = el.querySelectorAll('tr');
         final scores = <ScoreDto>[];
@@ -270,7 +280,7 @@ class StudentQueryService {
         double? creditsPassed;
         String? note;
 
-        bool isDataParsed = false; 
+        bool isDataParsed = false;
 
         // Row 0 is the header; data rows have 9+ columns, summary rows have 2
         for (final row in rows.skip(1)) {
@@ -319,12 +329,23 @@ class StudentQueryService {
             creditsPassed: creditsPassed,
             note: note,
           ));
-          hasAddedTableForCurrentSemester = true; 
+          hasAddedTableForCurrentSemester = true;
         }
       }
     }
 
     return results;
+  }
+
+  /// Fetches grand total GPA records by semester.
+  Future<List<GpaDto>> getGPA() async {
+    final response = await _studentQueryDio.get('QryGPA.jsp');
+
+    if (response.data.toString().contains('應用系統已中斷連線')) {
+      throw Exception('SessionExpired');
+    }
+
+    return _parseGpaFromDocument(parse(response.data));
   }
 
   /// Fetches grade ranking data for all semesters.
@@ -403,7 +424,7 @@ class StudentQueryService {
 
   /// Fetches registration records including class, mentors, and cadre roles.
   ///
-  /// Parses the registration table containing historical enrollment status 
+  /// Parses the registration table containing historical enrollment status
   /// and assigned tutors for each semester.
   Future<List<RegistrationRecordDto>> getRegistrationRecords() async {
     final response = await _studentQueryDio.get('QryRegist.jsp');
@@ -504,5 +525,56 @@ class StudentQueryService {
     };
 
     return (null, status);
+  }
+
+  List<GpaDto> _parseGpaFromDocument(Document document) {
+    final semesterPattern = RegExp(r'(\d{2,4})\s*[-－–—]\s*([12])');
+    final gpaPattern = RegExp(r'\d+(?:\.\d+)?');
+
+    final results = <GpaDto>[];
+    final seen = <String>{};
+
+    for (final row in document.querySelectorAll('tr')) {
+      final cells = row.querySelectorAll('td');
+      if (cells.length < 2) continue;
+
+      final semesterContainer = cells[0].querySelector('div') ?? cells[0];
+      final semesterText = semesterContainer.nodes
+          .where((node) => node.nodeType == Node.TEXT_NODE)
+          .map((node) => node.text?.trim() ?? '')
+          .firstWhere((text) => text.isNotEmpty, orElse: () => '');
+      final semesterMatch = semesterPattern.firstMatch(semesterText);
+      if (semesterMatch == null) continue;
+
+      final year = int.tryParse(semesterMatch.group(1)!);
+      final term = int.tryParse(semesterMatch.group(2)!);
+      if (year == null || term == null) continue;
+
+      final gpaText = cells[1].text.trim();
+      final gpaMatch = gpaPattern.firstMatch(gpaText);
+      final grandTotalGpa = gpaMatch != null
+          ? double.tryParse(gpaMatch.group(0)!)
+          : null;
+      if (grandTotalGpa == null) continue;
+
+      final key = '$year-$term';
+      if (seen.contains(key)) continue;
+
+      seen.add(key);
+      results.add((
+        semester: (year: year, term: term),
+        grandTotalGpa: grandTotalGpa,
+      ));
+    }
+
+    results.sort((a, b) {
+      final yearCompare = (b.semester.year ?? -1).compareTo(
+        a.semester.year ?? -1,
+      );
+      if (yearCompare != 0) return yearCompare;
+      return (b.semester.term ?? -1).compareTo(a.semester.term ?? -1);
+    });
+
+    return results;
   }
 }
