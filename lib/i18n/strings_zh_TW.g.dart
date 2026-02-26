@@ -163,6 +163,9 @@ class TranslationsNavZhTw {
 	/// zh-TW: '成績'
 	String get scores => '成績';
 
+	/// zh-TW: '行事曆'
+	String get calendar => '行事曆';
+
 	/// zh-TW: '我'
 	String get profile => '我';
 }
@@ -403,6 +406,7 @@ extension on Translations {
 			'login.errors.loginFailed' => '登入失敗，請確認帳號密碼',
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
+			'nav.calendar' => '行事曆',
 			'nav.profile' => '我',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',

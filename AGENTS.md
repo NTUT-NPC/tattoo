@@ -20,7 +20,8 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`)
 - AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage)
 - go_router navigation setup
-- UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile). Uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
+- UI: intro screen, login screen, home screen with bottom navigation bar and four tabs (table, score, calendar, profile). Uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
+- UI: calendar screen in main bottom bar (Google Calendar ICS source, pull-to-refresh, offline cache fallback via shared_preferences)
 - i18n (zh_TW, en_US) via slang
 
 **Todo - Service Layer:**

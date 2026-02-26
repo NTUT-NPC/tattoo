@@ -37,6 +37,7 @@ login:
 nav:
   courseTable: 課表
   scores: 成績
+  calendar: 行事曆
   profile: 我
 profile:
   sections:

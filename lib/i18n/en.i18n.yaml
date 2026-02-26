@@ -37,6 +37,7 @@ login:
 nav:
   courseTable: Courses
   scores: Scores
+  calendar: Calendar
   profile: Me
 profile:
   sections:

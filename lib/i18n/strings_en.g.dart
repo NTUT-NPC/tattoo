@@ -121,6 +121,7 @@ class _TranslationsNavEn extends TranslationsNavZhTw {
 	// Translations
 	@override String get courseTable => 'Courses';
 	@override String get scores => 'Scores';
+	@override String get calendar => 'Calendar';
 	@override String get profile => 'Me';
 }
 
@@ -298,6 +299,7 @@ extension on TranslationsEn {
 			'login.errors.loginFailed' => 'Login failed. Please verify your credentials.',
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
+			'nav.calendar' => 'Calendar',
 			'nav.profile' => 'Me',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
