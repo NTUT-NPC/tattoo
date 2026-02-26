@@ -1,0 +1,4 @@
+files:
+  - source: /lib/i18n/zh-TW.i18n.yaml
+    translation: /%original_path%/%locale%.i18n.yaml
+    multilingual: 1
