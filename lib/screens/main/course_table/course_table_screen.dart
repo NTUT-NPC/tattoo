@@ -130,6 +130,9 @@ class CourseTableScreen extends ConsumerWidget {
         type: MaterialType.transparency,
         child: InkWell(
           customBorder: shape,
+          splashFactory: InkRipple.splashFactory,
+          splashColor: Colors.black12,
+          highlightColor: Colors.black12,
           // TODO: implement course table sharing feature and switch here
           onTap: () {},
           child: Ink(
@@ -245,6 +248,9 @@ class _CircularIconButton extends StatelessWidget {
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),
+            splashFactory: InkRipple.splashFactory,
+            splashColor: Colors.black12,
+            highlightColor: Colors.black12,
             onTap: onTap,
             child: LayoutBuilder(
               builder: (context, constraints) {
