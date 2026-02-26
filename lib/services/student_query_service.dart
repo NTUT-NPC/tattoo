@@ -269,8 +269,9 @@ class StudentQueryService {
         }
       } else if (el.localName == 'table') {
         // Found a data table: verify context and prevent duplicate processing
-        if (currentSemester == null || hasAddedTableForCurrentSemester)
+        if (currentSemester == null || hasAddedTableForCurrentSemester) {
           continue;
+        }
 
         final rows = el.querySelectorAll('tr');
         final scores = <ScoreDto>[];
