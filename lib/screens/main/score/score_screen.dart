@@ -145,6 +145,7 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen> {
           }
           final currentData = semesters[_selectedIndex];
           _selectedSemesterKey = semesterKey(currentData);
+          final currentGpa = data.gpaBySemester[_selectedSemesterKey!];
 
           return Column(
             children: [
@@ -161,7 +162,7 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen> {
                     ),
                   ),
                 ),
-              _SemesterSummaryCard(data: currentData),
+              _SemesterSummaryCard(data: currentData, gpa: currentGpa),
 
               const Divider(height: 1),
               Expanded(
@@ -229,7 +230,9 @@ class _SemesterAppBarSelector extends StatelessWidget {
 
 class _SemesterSummaryCard extends StatelessWidget {
   final SemesterScoreDto data;
-  const _SemesterSummaryCard({required this.data});
+  final GpaDto? gpa;
+
+  const _SemesterSummaryCard({required this.data, required this.gpa});
 
   @override
   Widget build(BuildContext context) {
@@ -242,15 +245,25 @@ class _SemesterSummaryCard extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: Wrap(
+          alignment: WrapAlignment.spaceEvenly,
+          spacing: 20,
+          runSpacing: 12,
           children: [
+            _buildStat(context, '歷年 GPA', _formatDouble(gpa?.grandTotalGpa)),
+            _buildStat(context, '操行成績', data.conduct?.toString() ?? '-'),
             _buildStat(context, '學期平均', data.average?.toString() ?? '-'),
             _buildStat(context, '實得學分', data.creditsPassed?.toString() ?? '-'),
+            _buildStat(context, '修課總學分', data.totalCredits?.toString() ?? '-'),
           ],
         ),
       ),
     );
+  }
+
+  String _formatDouble(double? value) {
+    if (value == null) return '-';
+    return value.toStringAsFixed(2);
   }
 
   Widget _buildStat(BuildContext context, String label, String value) {

@@ -7174,6 +7174,17 @@ class $UserSemesterSummariesTable extends UserSemesterSummaries
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _grandTotalGpaMeta = const VerificationMeta(
+    'grandTotalGpa',
+  );
+  @override
+  late final GeneratedColumn<double> grandTotalGpa = GeneratedColumn<double>(
+    'grand_total_gpa',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _classNameMeta = const VerificationMeta(
     'className',
   );
@@ -7235,6 +7246,7 @@ class $UserSemesterSummariesTable extends UserSemesterSummaries
     totalCredits,
     creditsPassed,
     note,
+    grandTotalGpa,
     className,
     enrollmentStatus,
     registered,
@@ -7307,6 +7319,15 @@ class $UserSemesterSummariesTable extends UserSemesterSummaries
         note.isAcceptableOrUnknown(data['note']!, _noteMeta),
       );
     }
+    if (data.containsKey('grand_total_gpa')) {
+      context.handle(
+        _grandTotalGpaMeta,
+        grandTotalGpa.isAcceptableOrUnknown(
+          data['grand_total_gpa']!,
+          _grandTotalGpaMeta,
+        ),
+      );
+    }
     if (data.containsKey('class_name')) {
       context.handle(
         _classNameMeta,
@@ -7369,6 +7390,10 @@ class $UserSemesterSummariesTable extends UserSemesterSummaries
       note: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}note'],
+      ),
+      grandTotalGpa: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}grand_total_gpa'],
       ),
       className: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -7433,6 +7458,9 @@ class UserSemesterSummary extends DataClass
   /// Additional note.
   final String? note;
 
+  /// Historical cumulative GPA (歷年 GPA) for the semester snapshot.
+  final double? grandTotalGpa;
+
   /// Student's assigned class name (e.g., "電子四甲").
   /// Plain text — no class code available from this page.
   final String? className;
@@ -7454,6 +7482,7 @@ class UserSemesterSummary extends DataClass
     this.totalCredits,
     this.creditsPassed,
     this.note,
+    this.grandTotalGpa,
     this.className,
     this.enrollmentStatus,
     this.registered,
@@ -7479,6 +7508,9 @@ class UserSemesterSummary extends DataClass
     }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || grandTotalGpa != null) {
+      map['grand_total_gpa'] = Variable<double>(grandTotalGpa);
     }
     if (!nullToAbsent || className != null) {
       map['class_name'] = Variable<String>(className);
@@ -7517,6 +7549,9 @@ class UserSemesterSummary extends DataClass
           ? const Value.absent()
           : Value(creditsPassed),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      grandTotalGpa: grandTotalGpa == null && nullToAbsent
+          ? const Value.absent()
+          : Value(grandTotalGpa),
       className: className == null && nullToAbsent
           ? const Value.absent()
           : Value(className),
@@ -7546,6 +7581,7 @@ class UserSemesterSummary extends DataClass
       totalCredits: serializer.fromJson<double?>(json['totalCredits']),
       creditsPassed: serializer.fromJson<double?>(json['creditsPassed']),
       note: serializer.fromJson<String?>(json['note']),
+      grandTotalGpa: serializer.fromJson<double?>(json['grandTotalGpa']),
       className: serializer.fromJson<String?>(json['className']),
       enrollmentStatus: $UserSemesterSummariesTable.$converterenrollmentStatusn
           .fromJson(serializer.fromJson<String?>(json['enrollmentStatus'])),
@@ -7565,6 +7601,7 @@ class UserSemesterSummary extends DataClass
       'totalCredits': serializer.toJson<double?>(totalCredits),
       'creditsPassed': serializer.toJson<double?>(creditsPassed),
       'note': serializer.toJson<String?>(note),
+      'grandTotalGpa': serializer.toJson<double?>(grandTotalGpa),
       'className': serializer.toJson<String?>(className),
       'enrollmentStatus': serializer.toJson<String?>(
         $UserSemesterSummariesTable.$converterenrollmentStatusn.toJson(
@@ -7585,6 +7622,7 @@ class UserSemesterSummary extends DataClass
     Value<double?> totalCredits = const Value.absent(),
     Value<double?> creditsPassed = const Value.absent(),
     Value<String?> note = const Value.absent(),
+    Value<double?> grandTotalGpa = const Value.absent(),
     Value<String?> className = const Value.absent(),
     Value<EnrollmentStatus?> enrollmentStatus = const Value.absent(),
     Value<bool?> registered = const Value.absent(),
@@ -7600,6 +7638,9 @@ class UserSemesterSummary extends DataClass
         ? creditsPassed.value
         : this.creditsPassed,
     note: note.present ? note.value : this.note,
+    grandTotalGpa: grandTotalGpa.present
+        ? grandTotalGpa.value
+        : this.grandTotalGpa,
     className: className.present ? className.value : this.className,
     enrollmentStatus: enrollmentStatus.present
         ? enrollmentStatus.value
@@ -7621,6 +7662,9 @@ class UserSemesterSummary extends DataClass
           ? data.creditsPassed.value
           : this.creditsPassed,
       note: data.note.present ? data.note.value : this.note,
+      grandTotalGpa: data.grandTotalGpa.present
+          ? data.grandTotalGpa.value
+          : this.grandTotalGpa,
       className: data.className.present ? data.className.value : this.className,
       enrollmentStatus: data.enrollmentStatus.present
           ? data.enrollmentStatus.value
@@ -7643,6 +7687,7 @@ class UserSemesterSummary extends DataClass
           ..write('totalCredits: $totalCredits, ')
           ..write('creditsPassed: $creditsPassed, ')
           ..write('note: $note, ')
+          ..write('grandTotalGpa: $grandTotalGpa, ')
           ..write('className: $className, ')
           ..write('enrollmentStatus: $enrollmentStatus, ')
           ..write('registered: $registered, ')
@@ -7661,6 +7706,7 @@ class UserSemesterSummary extends DataClass
     totalCredits,
     creditsPassed,
     note,
+    grandTotalGpa,
     className,
     enrollmentStatus,
     registered,
@@ -7678,6 +7724,7 @@ class UserSemesterSummary extends DataClass
           other.totalCredits == this.totalCredits &&
           other.creditsPassed == this.creditsPassed &&
           other.note == this.note &&
+          other.grandTotalGpa == this.grandTotalGpa &&
           other.className == this.className &&
           other.enrollmentStatus == this.enrollmentStatus &&
           other.registered == this.registered &&
@@ -7694,6 +7741,7 @@ class UserSemesterSummariesCompanion
   final Value<double?> totalCredits;
   final Value<double?> creditsPassed;
   final Value<String?> note;
+  final Value<double?> grandTotalGpa;
   final Value<String?> className;
   final Value<EnrollmentStatus?> enrollmentStatus;
   final Value<bool?> registered;
@@ -7707,6 +7755,7 @@ class UserSemesterSummariesCompanion
     this.totalCredits = const Value.absent(),
     this.creditsPassed = const Value.absent(),
     this.note = const Value.absent(),
+    this.grandTotalGpa = const Value.absent(),
     this.className = const Value.absent(),
     this.enrollmentStatus = const Value.absent(),
     this.registered = const Value.absent(),
@@ -7721,6 +7770,7 @@ class UserSemesterSummariesCompanion
     this.totalCredits = const Value.absent(),
     this.creditsPassed = const Value.absent(),
     this.note = const Value.absent(),
+    this.grandTotalGpa = const Value.absent(),
     this.className = const Value.absent(),
     this.enrollmentStatus = const Value.absent(),
     this.registered = const Value.absent(),
@@ -7736,6 +7786,7 @@ class UserSemesterSummariesCompanion
     Expression<double>? totalCredits,
     Expression<double>? creditsPassed,
     Expression<String>? note,
+    Expression<double>? grandTotalGpa,
     Expression<String>? className,
     Expression<String>? enrollmentStatus,
     Expression<bool>? registered,
@@ -7750,6 +7801,7 @@ class UserSemesterSummariesCompanion
       if (totalCredits != null) 'total_credits': totalCredits,
       if (creditsPassed != null) 'credits_passed': creditsPassed,
       if (note != null) 'note': note,
+      if (grandTotalGpa != null) 'grand_total_gpa': grandTotalGpa,
       if (className != null) 'class_name': className,
       if (enrollmentStatus != null) 'enrollment_status': enrollmentStatus,
       if (registered != null) 'registered': registered,
@@ -7766,6 +7818,7 @@ class UserSemesterSummariesCompanion
     Value<double?>? totalCredits,
     Value<double?>? creditsPassed,
     Value<String?>? note,
+    Value<double?>? grandTotalGpa,
     Value<String?>? className,
     Value<EnrollmentStatus?>? enrollmentStatus,
     Value<bool?>? registered,
@@ -7780,6 +7833,7 @@ class UserSemesterSummariesCompanion
       totalCredits: totalCredits ?? this.totalCredits,
       creditsPassed: creditsPassed ?? this.creditsPassed,
       note: note ?? this.note,
+      grandTotalGpa: grandTotalGpa ?? this.grandTotalGpa,
       className: className ?? this.className,
       enrollmentStatus: enrollmentStatus ?? this.enrollmentStatus,
       registered: registered ?? this.registered,
@@ -7814,6 +7868,9 @@ class UserSemesterSummariesCompanion
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
+    if (grandTotalGpa.present) {
+      map['grand_total_gpa'] = Variable<double>(grandTotalGpa.value);
+    }
     if (className.present) {
       map['class_name'] = Variable<String>(className.value);
     }
@@ -7844,6 +7901,7 @@ class UserSemesterSummariesCompanion
           ..write('totalCredits: $totalCredits, ')
           ..write('creditsPassed: $creditsPassed, ')
           ..write('note: $note, ')
+          ..write('grandTotalGpa: $grandTotalGpa, ')
           ..write('className: $className, ')
           ..write('enrollmentStatus: $enrollmentStatus, ')
           ..write('registered: $registered, ')
@@ -17145,6 +17203,7 @@ typedef $$UserSemesterSummariesTableCreateCompanionBuilder =
       Value<double?> totalCredits,
       Value<double?> creditsPassed,
       Value<String?> note,
+      Value<double?> grandTotalGpa,
       Value<String?> className,
       Value<EnrollmentStatus?> enrollmentStatus,
       Value<bool?> registered,
@@ -17160,6 +17219,7 @@ typedef $$UserSemesterSummariesTableUpdateCompanionBuilder =
       Value<double?> totalCredits,
       Value<double?> creditsPassed,
       Value<String?> note,
+      Value<double?> grandTotalGpa,
       Value<String?> className,
       Value<EnrollmentStatus?> enrollmentStatus,
       Value<bool?> registered,
@@ -17340,6 +17400,11 @@ class $$UserSemesterSummariesTableFilterComposer
 
   ColumnFilters<String> get note => $composableBuilder(
     column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get grandTotalGpa => $composableBuilder(
+    column: $table.grandTotalGpa,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17531,6 +17596,11 @@ class $$UserSemesterSummariesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get grandTotalGpa => $composableBuilder(
+    column: $table.grandTotalGpa,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get className => $composableBuilder(
     column: $table.className,
     builder: (column) => ColumnOrderings(column),
@@ -17628,6 +17698,11 @@ class $$UserSemesterSummariesTableAnnotationComposer
 
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<double> get grandTotalGpa => $composableBuilder(
+    column: $table.grandTotalGpa,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get className =>
       $composableBuilder(column: $table.className, builder: (column) => column);
@@ -17828,6 +17903,7 @@ class $$UserSemesterSummariesTableTableManager
                 Value<double?> totalCredits = const Value.absent(),
                 Value<double?> creditsPassed = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<double?> grandTotalGpa = const Value.absent(),
                 Value<String?> className = const Value.absent(),
                 Value<EnrollmentStatus?> enrollmentStatus =
                     const Value.absent(),
@@ -17842,6 +17918,7 @@ class $$UserSemesterSummariesTableTableManager
                 totalCredits: totalCredits,
                 creditsPassed: creditsPassed,
                 note: note,
+                grandTotalGpa: grandTotalGpa,
                 className: className,
                 enrollmentStatus: enrollmentStatus,
                 registered: registered,
@@ -17857,6 +17934,7 @@ class $$UserSemesterSummariesTableTableManager
                 Value<double?> totalCredits = const Value.absent(),
                 Value<double?> creditsPassed = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<double?> grandTotalGpa = const Value.absent(),
                 Value<String?> className = const Value.absent(),
                 Value<EnrollmentStatus?> enrollmentStatus =
                     const Value.absent(),
@@ -17871,6 +17949,7 @@ class $$UserSemesterSummariesTableTableManager
                 totalCredits: totalCredits,
                 creditsPassed: creditsPassed,
                 note: note,
+                grandTotalGpa: grandTotalGpa,
                 className: className,
                 enrollmentStatus: enrollmentStatus,
                 registered: registered,

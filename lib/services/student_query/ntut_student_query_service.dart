@@ -190,6 +190,17 @@ class NtutStudentQueryService implements StudentQueryService {
   }
 
   @override
+  Future<List<GpaDto>> getGPA() async {
+    final response = await _studentQueryDio.get('QryGPA.jsp');
+
+    if (response.data.toString().contains('應用系統已中斷連線')) {
+      throw Exception('SessionExpired');
+    }
+
+    return _parseGpaFromDocument(parse(response.data));
+  }
+
+  @override
   Future<List<GradeRankingDto>> getGradeRanking() async {
     final response = await _studentQueryDio.get('QryRank.jsp');
     final document = parse(response.data);
@@ -360,5 +371,54 @@ class NtutStudentQueryService implements StudentQueryService {
     };
 
     return (null, status);
+  }
+
+  List<GpaDto> _parseGpaFromDocument(Document document) {
+    final semesterPattern = RegExp(r'(\d{2,4})\s*[-－–—]\s*([12])');
+    final gpaPattern = RegExp(r'\d+(?:\.\d+)?');
+
+    final results = <GpaDto>[];
+    final seen = <String>{};
+
+    for (final row in document.querySelectorAll('tr')) {
+      final cells = row.querySelectorAll('td');
+      if (cells.length < 2) continue;
+
+      final semesterContainer = cells[0].querySelector('div') ?? cells[0];
+      final semesterText = semesterContainer.nodes
+          .where((node) => node.nodeType == Node.TEXT_NODE)
+          .map((node) => node.text?.trim() ?? '')
+          .firstWhere((text) => text.isNotEmpty, orElse: () => '');
+      final semesterMatch = semesterPattern.firstMatch(semesterText);
+      if (semesterMatch == null) continue;
+
+      final year = int.tryParse(semesterMatch.group(1)!);
+      final term = int.tryParse(semesterMatch.group(2)!);
+      if (year == null || term == null) continue;
+
+      final gpaText = cells[1].text.trim();
+      final gpaMatch = gpaPattern.firstMatch(gpaText);
+      final grandTotalGpa = gpaMatch != null
+          ? double.tryParse(gpaMatch.group(0)!)
+          : null;
+      if (grandTotalGpa == null) continue;
+
+      final key = '$year-$term';
+      if (seen.contains(key)) continue;
+
+      seen.add(key);
+      results.add((
+        semester: (year: year, term: term),
+        grandTotalGpa: grandTotalGpa,
+      ));
+    }
+
+    results.sort((a, b) {
+      final yearCompare = b.semester.year.compareTo(a.semester.year);
+      if (yearCompare != 0) return yearCompare;
+      return b.semester.term.compareTo(a.semester.term);
+    });
+
+    return results;
   }
 }
