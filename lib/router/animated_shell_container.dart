@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:animations/animations.dart';
 
 /// Handles tab switch animation and preserves state of each branch.
 class AnimatedShellContainer extends StatefulWidget {
@@ -20,7 +19,7 @@ class _AnimatedShellContainerState extends State<AnimatedShellContainer>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 200),
+    duration: const Duration(milliseconds: 260),
   );
 
   late int _previousIndex = widget.currentIndex;
@@ -65,17 +64,37 @@ class _AnimatedShellContainerState extends State<AnimatedShellContainer>
     Widget child = widget.children[index];
 
     if (isAnimating) {
+      final isForward = widget.currentIndex > _previousIndex;
+
       if (isCurrent) {
-        child = FadeThroughTransition(
-          animation: _controller,
-          secondaryAnimation: kAlwaysDismissedAnimation,
-          child: child,
+        final animation = CurvedAnimation(
+          parent: _controller,
+          curve: Curves.easeOutCubic,
+        );
+        child = FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: Offset(isForward ? 0.08 : -0.08, 0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
         );
       } else if (isPrevious) {
-        child = FadeThroughTransition(
-          animation: kAlwaysCompleteAnimation,
-          secondaryAnimation: _controller,
-          child: child,
+        final animation = CurvedAnimation(
+          parent: _controller,
+          curve: Curves.easeInCubic,
+        );
+        child = FadeTransition(
+          opacity: Tween<double>(begin: 1, end: 0).animate(animation),
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: Offset.zero,
+              end: Offset(isForward ? -0.04 : 0.04, 0),
+            ).animate(animation),
+            child: child,
+          ),
         );
       }
     }
