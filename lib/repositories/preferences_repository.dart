@@ -8,6 +8,7 @@ enum PrefType { boolean, integer, double, string, stringList }
 // dart format off
 /// Typed preference keys with defaults.
 enum PrefKey<T> {
+  /// Whether to use mock data instead of live NTUT services.
   demoMode<bool>(PrefType.boolean, false);
 
   const PrefKey(this.type, this.defaultValue);
