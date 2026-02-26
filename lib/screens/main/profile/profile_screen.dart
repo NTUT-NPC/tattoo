@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -101,7 +103,11 @@ class ProfileScreen extends ConsumerWidget {
           .withAuth(
             () => ref.read(portalServiceProvider).getSsoUrl(serviceCode),
           );
-      final launched = await launchUrl(url);
+      final launched = await launchUrl(
+        url,
+        // iOS doesn't preserve the in-app browser's session, so we have to open externally to maintain login state.
+        mode: Platform.isIOS ? .externalApplication : .platformDefault,
+      );
       if (!launched) throw Exception('Could not open browser');
     } catch (e) {
       if (context.mounted) _showMessage(context, 'Failed to open: $e');
