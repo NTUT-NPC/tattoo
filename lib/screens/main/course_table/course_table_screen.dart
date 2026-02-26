@@ -1,8 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:tattoo/components/chip_tab_switcher.dart';
-import 'package:tattoo/i18n/strings.g.dart';
+import 'dart:io';
 
-class CourseTableScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tattoo/components/app_skeleton.dart';
+import 'package:tattoo/components/chip_tab_switcher.dart';
+import 'package:tattoo/database/database.dart' show User;
+import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/screens/main/course_table/course_table_provider.dart';
+
+const _placeholderOwnerName = '載入中';
+const _placeholderAvatarInitial = '載';
+
+class CourseTableScreen extends ConsumerWidget {
   const CourseTableScreen({super.key});
 
   void _showDemoTap(BuildContext context) {
@@ -12,7 +21,10 @@ class CourseTableScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(courseTableUserProfileProvider);
+    final avatarAsync = ref.watch(courseTableUserAvatarProvider);
+
     return DefaultTabController(
       length: _courseTableTabs.length,
       child: Scaffold(
@@ -32,7 +44,11 @@ class CourseTableScreen extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      _tableOwnerIndicator(context),
+                      _tableOwnerIndicator(
+                        context,
+                        profileAsync: profileAsync,
+                        avatarAsync: avatarAsync,
+                      ),
                       const Spacer(),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
@@ -86,68 +102,97 @@ class CourseTableScreen extends StatelessWidget {
     );
   }
 
-  Widget _tableOwnerIndicator(BuildContext context) {
+  Widget _tableOwnerIndicator(
+    BuildContext context, {
+    required AsyncValue<User?> profileAsync,
+    required AsyncValue<File?> avatarAsync,
+  }) {
+    final profile = profileAsync.value;
+    final isLoading = profileAsync is AsyncLoading<User?> && profile == null;
+    final ownerName = switch (profileAsync) {
+      AsyncLoading() => _placeholderOwnerName,
+      AsyncData(value: null) => t.general.notLoggedIn,
+      AsyncError() => t.general.unknown,
+      _ when profile?.nameZh.isNotEmpty == true => profile!.nameZh,
+      _ => t.general.unknown,
+    };
+    final avatarInitial = switch (profile?.nameZh) {
+      final name? when name.isNotEmpty => name.substring(0, 1),
+      _ when isLoading => _placeholderAvatarInitial,
+      _ => '?',
+    };
+
     const shape = StadiumBorder();
 
-    return Material(
-      type: MaterialType.transparency,
-      child: InkWell(
-        customBorder: shape,
-        // TODO: implement course table sharing feature and switch here
-        onTap: () {},
-        child: Ink(
-          padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),
-          decoration: ShapeDecoration(
-            shape: shape,
-            color: Colors.white.withValues(alpha: 0.7),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 8,
-            children: [
-              AspectRatio(
-                aspectRatio: 1,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  child: Center(
-                    // TODO: replace with avatar photo
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        '孫',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+    return AppSkeleton(
+      enabled: isLoading,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          customBorder: shape,
+          // TODO: implement course table sharing feature and switch here
+          onTap: () {},
+          child: Ink(
+            padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),
+            decoration: ShapeDecoration(
+              shape: shape,
+              color: Colors.white.withValues(alpha: 0.7),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 8,
+              children: [
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    child: ClipOval(
+                      child: switch (avatarAsync.value) {
+                        final avatarFile? => Image.file(
+                          avatarFile,
+                          fit: BoxFit.cover,
                         ),
-                      ),
+                        null => Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              avatarInitial,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      },
                     ),
                   ),
                 ),
-              ),
-              RichText(
-                text: TextSpan(
-                  // TODO: Design text style here
-                  style: DefaultTextStyle.of(context).style,
-                  children: [
-                    TextSpan(text: "孫培鈞"),
-                    // TODO: Enable this dropdown indicator when course table sharing feature is implemented
-                    // WidgetSpan(
-                    //   alignment: PlaceholderAlignment.middle,
-                    //   child: Icon(
-                    //     Icons.arrow_drop_down_outlined,
-                    //     size:
-                    //         (DefaultTextStyle.of(context).style.fontSize ?? 14) *
-                    //         1.5,
-                    //   ),
-                    // ),
-                  ],
+                RichText(
+                  text: TextSpan(
+                    // TODO: Design text style here
+                    style: DefaultTextStyle.of(context).style,
+                    children: [
+                      TextSpan(text: ownerName),
+                      // TODO: Enable this dropdown indicator when course table sharing feature is implemented
+                      // WidgetSpan(
+                      //   alignment: PlaceholderAlignment.middle,
+                      //   child: Icon(
+                      //     Icons.arrow_drop_down_outlined,
+                      //     size:
+                      //         (DefaultTextStyle.of(context).style.fontSize ?? 14) *
+                      //         1.5,
+                      //   ),
+                      // ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
