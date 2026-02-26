@@ -16,6 +16,8 @@ Future<void> main() async {
     );
   }
 
+  AnalyticsService().instance?.logAppOpen();
+
   await LocaleSettings.useDeviceLocale();
   runApp(ProviderScope(child: TranslationProvider(child: MyApp())));
 }
