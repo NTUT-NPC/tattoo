@@ -1,8 +1,8 @@
 {
   "recommendations": [
-    "google.arb-editor",
-    "dart-code.flutter",
     "dart-code.dart-code",
-    "hverlin.mise-vscode"
+    "dart-code.flutter",
+    "hverlin.mise-vscode",
+    "redhat.vscode-yaml"
   ]
 }
