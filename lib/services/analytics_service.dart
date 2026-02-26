@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,6 +51,6 @@ class AnalyticsService {
   }
 
   void _logDebug(String message) {
-    debugPrint('[Analytics Service] $message');
+    log(message, name: 'Analytics Service');
   }
 }
