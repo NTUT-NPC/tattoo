@@ -65,5 +65,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'npc-tattoo.firebasestorage.app',
     iosBundleId: 'club.ntut.tattoo',
   );
-
 }
