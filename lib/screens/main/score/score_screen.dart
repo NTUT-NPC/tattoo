@@ -193,25 +193,11 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
           _syncSemesterTabController(semesters);
 
           final hasSemesters = semesters.isNotEmpty;
-          final SemesterScoreDto? currentData = hasSemesters
-              ? (() {
-                  final activeIndex =
-                      _semesterTabController?.index ?? _selectedIndex;
-                  if (activeIndex >= semesters.length) {
-                    _selectedIndex = 0;
-                  } else {
-                    _selectedIndex = activeIndex;
-                  }
-                  final selected = semesters[_selectedIndex];
-                  _selectedSemesterKey = semesterKey(selected);
-                  return selected;
-                })()
-              : null;
-          final GpaDto? currentGpa = currentData == null
-              ? null
-              : data.gpaBySemester[_selectedSemesterKey!];
-          final textScale = MediaQuery.textScalerOf(context).scale(16) / 16;
-          final summaryCardExtent = (84 * textScale).clamp(84, 120).toDouble();
+          if (hasSemesters) {
+            final activeIndex = _semesterTabController?.index ?? _selectedIndex;
+            _selectedIndex = activeIndex >= semesters.length ? 0 : activeIndex;
+            _selectedSemesterKey = semesterKey(semesters[_selectedIndex]);
+          }
 
           return RefreshIndicator(
             onRefresh: _reloadScores,
@@ -252,23 +238,6 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                       child: Center(child: Text('目前沒有任何成績紀錄')),
                     )
                   else ...[
-                    SliverAppBar(
-                      pinned: true,
-                      primary: false,
-                      automaticallyImplyLeading: false,
-                      toolbarHeight: summaryCardExtent,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      surfaceTintColor: Colors.transparent,
-                      titleSpacing: 0,
-                      title: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                        child: _SemesterSummaryCard(
-                          data: currentData!,
-                          gpa: currentGpa,
-                          margin: EdgeInsets.zero,
-                        ),
-                      ),
-                    ),
                     SliverFillRemaining(
                       child: TabBarView(
                         controller: _semesterTabController,
@@ -276,6 +245,7 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                           for (final semester in semesters)
                             _SemesterScoreList(
                               data: semester,
+                              gpa: data.gpaBySemester[semesterKey(semester)],
                               names: data.names,
                               lastUpdatedAt: _lastUpdatedAt,
                             ),
@@ -295,11 +265,13 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
 
 class _SemesterScoreList extends StatelessWidget {
   final SemesterScoreDto data;
+  final GpaDto? gpa;
   final Map<String, String> names;
   final DateTime? lastUpdatedAt;
 
   const _SemesterScoreList({
     required this.data,
+    required this.gpa,
     required this.names,
     required this.lastUpdatedAt,
   });
@@ -310,7 +282,8 @@ class _SemesterScoreList extends StatelessWidget {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          const SizedBox(height: 24),
+          _SemesterSummaryCard(data: data, gpa: gpa),
+          const SizedBox(height: 12),
           const Center(child: Text('本學期尚無成績')),
           if (lastUpdatedAt != null) ...[
             const SizedBox(height: 16),
@@ -334,15 +307,25 @@ class _SemesterScoreList extends StatelessWidget {
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.only(top: 8, bottom: 12),
-      itemCount: data.scores.length + (lastUpdatedAt == null ? 0 : 1),
+      itemCount: data.scores.length + 2,
       separatorBuilder: (context, index) {
-        if (index == data.scores.length - 1) {
+        if (index == 0 || index == data.scores.length) {
+          return const SizedBox.shrink();
+        }
+        if (index == data.scores.length - 1 && lastUpdatedAt == null) {
           return const SizedBox.shrink();
         }
         return const Divider(height: 1, indent: 16);
       },
       itemBuilder: (context, index) {
-        if (index == data.scores.length) {
+        if (index == 0) {
+          return _SemesterSummaryCard(data: data, gpa: gpa);
+        }
+        final scoreIndex = index - 1;
+        if (scoreIndex == data.scores.length) {
+          if (lastUpdatedAt == null) {
+            return const SizedBox.shrink();
+          }
           return Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: Align(
@@ -356,8 +339,7 @@ class _SemesterScoreList extends StatelessWidget {
             ),
           );
         }
-
-        final score = data.scores[index];
+        final score = data.scores[scoreIndex];
         final name = names[score.courseCode] ?? score.courseCode ?? '未知課程';
         return _ScoreTile(score: score, courseName: name);
       },
@@ -368,18 +350,16 @@ class _SemesterScoreList extends StatelessWidget {
 class _SemesterSummaryCard extends StatelessWidget {
   final SemesterScoreDto data;
   final GpaDto? gpa;
-  final EdgeInsetsGeometry margin;
 
   const _SemesterSummaryCard({
     required this.data,
     required this.gpa,
-    this.margin = const EdgeInsets.all(16),
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: margin,
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
       elevation: 0,
       shape: RoundedRectangleBorder(
         side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
