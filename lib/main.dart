@@ -6,14 +6,19 @@ import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/analytics_service.dart';
+import 'dart:developer';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (useFirebase) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    } catch (e) {
+      log(e.toString(), name: 'Firebase Initialization');
+    }
   }
 
   AnalyticsService().instance?.logAppOpen();

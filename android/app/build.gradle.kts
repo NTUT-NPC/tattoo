@@ -5,9 +5,7 @@ import java.io.FileInputStream
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
-    // The plugin is commented out here and applied conditionally at the bottom of 
-    // this file to avoid "package name mismatch" errors in debug builds.
-    // id("com.google.gms.google-services")
+    // firebase plugins should be managed by the conditional apply below.
     // END: FlutterFire Configuration
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -71,6 +69,7 @@ val isRelease = project.gradle.startParameter.taskNames.any {
 }
 if (isRelease) {
     apply(plugin = "com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 kotlin {
