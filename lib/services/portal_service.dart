@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:riverpod/riverpod.dart';
@@ -199,27 +200,7 @@ class PortalService {
   ///
   /// Throws an [Exception] if the SSO form is not found (user may not be logged in).
   Future<void> sso(PortalServiceCode serviceCode) async {
-    // Fetch a self-submitting SSO form
-    final response = await _portalDio.get(
-      'ssoIndex.do',
-      queryParameters: {'apOu': serviceCode.code},
-    );
-
-    // Parse the HTML to extract the form
-    final document = parse(response.data);
-    final form = document.querySelector('form[name="ssoForm"]');
-    if (form == null) {
-      throw Exception('SSO form not found. Are you logged in?');
-    }
-
-    // Extract form action and inputs
-    final actionUrl = form.attributes['action']!;
-    final inputs = form.querySelectorAll('input');
-    final formData = <String, dynamic>{
-      for (final input in inputs)
-        if (input.attributes['name'] != null)
-          input.attributes['name']!: input.attributes['value'] ?? '',
-    };
+    final (actionUrl, formData) = await _fetchSsoForm(serviceCode.code);
 
     // Prepend the invalid cookie filter interceptor for i-School Plus SSO
     if (serviceCode == PortalServiceCode.iSchoolPlusService) {
@@ -234,5 +215,78 @@ class PortalService {
       data: formData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
+  }
+
+  /// Returns a URL that authenticates the user with a target NTUT service
+  /// via OAuth2 authorization code.
+  ///
+  /// The returned URL contains an authorization code. Opening it
+  /// in any HTTP client (including a system browser) will establish a session
+  /// for that service — no cookies from this app are needed.
+  ///
+  /// This enables "open in browser" functionality: the app performs login and
+  /// SSO negotiation, then hands off the resulting URL to the system browser.
+  ///
+  /// Requires an active portal session (call [login] first).
+  ///
+  /// Throws an [Exception] if the SSO form is not found (user may not be logged in).
+  Future<Uri> getSsoUrl(PortalServiceCode serviceCode) async {
+    final apOu = serviceCode.code;
+    final (actionUrl, formData) = await _fetchSsoForm(apOu);
+
+    // Clone and strip RedirectInterceptor so we can capture the 302 Location
+    // instead of following it.
+    final dioWithoutRedirects = _portalDio.clone()
+      ..interceptors.removeWhere(
+        (interceptor) => interceptor is RedirectInterceptor,
+      );
+
+    final response = await dioWithoutRedirects.post(
+      actionUrl,
+      data: formData,
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        followRedirects: false,
+        validateStatus: (status) => status != null && status < 400,
+      ),
+    );
+
+    final location = response.headers.value('location');
+    if (location == null) {
+      throw Exception('SSO redirect not received. Are you logged in?');
+    }
+
+    // The portal may return http:// URLs; upgrade to https://
+    var uri = Uri.parse(location);
+    if (uri.scheme == 'http') {
+      uri = uri.replace(scheme: 'https');
+    }
+    return uri;
+  }
+
+  /// Fetches and parses the SSO form for a given apOu code.
+  ///
+  /// Returns (actionUrl, formData) for submitting the form.
+  Future<(String, Map<String, dynamic>)> _fetchSsoForm(String apOu) async {
+    final response = await _portalDio.get(
+      'ssoIndex.do',
+      queryParameters: {'apOu': apOu},
+    );
+
+    final document = parse(response.data);
+    final form = document.querySelector('form[name="ssoForm"]');
+    if (form == null) {
+      throw Exception('SSO form not found. Are you logged in?');
+    }
+
+    final actionUrl = form.attributes['action']!;
+    final inputs = form.querySelectorAll('input');
+    final formData = <String, dynamic>{
+      for (final input in inputs)
+        if (input.attributes['name'] != null)
+          input.attributes['name']!: input.attributes['value'] ?? '',
+    };
+
+    return (actionUrl, formData);
   }
 }
