@@ -256,7 +256,11 @@ class PortalService {
     }
 
     // The portal may return http:// URLs; upgrade to https://
-    return Uri.parse(location.replaceFirst('http://', 'https://'));
+    var uri = Uri.parse(location);
+    if (uri.scheme == 'http') {
+      uri = uri.replace(scheme: 'https');
+    }
+    return uri;
   }
 
   /// Fetches and parses the SSO form for a given apOu code.
