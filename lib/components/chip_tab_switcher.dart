@@ -106,6 +106,7 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
   TabController? _tabController;
   Animation<double>? _tabAnimation;
   int _activeIndex = 0;
+  int _scrollRequestEpoch = 0;
   late List<GlobalKey> _tabKeys;
 
   @override
@@ -198,10 +199,14 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
       return 0;
     }
 
+    final maxIndex = widget.tabs.length - 1;
+    if (controller.indexIsChanging) {
+      return controller.index.clamp(0, maxIndex);
+    }
+
     final animationValue =
         controller.animation?.value ?? controller.index.toDouble();
-    final roundedIndex = animationValue.round();
-    return roundedIndex.clamp(0, widget.tabs.length - 1);
+    return animationValue.round().clamp(0, maxIndex);
   }
 
   void _handleChipTap(int index) {
@@ -219,7 +224,11 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
   }
 
   void _scrollTabIntoView(int index, {bool animate = true}) {
+    final requestEpoch = ++_scrollRequestEpoch;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (requestEpoch != _scrollRequestEpoch) {
+        return;
+      }
       if (!mounted || index < 0 || index >= _tabKeys.length) {
         return;
       }
