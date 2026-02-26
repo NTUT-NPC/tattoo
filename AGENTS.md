@@ -99,7 +99,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 - CourseService - 課程系統 (`aa_0010-oauth`)
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`)
 - StudentQueryService - 學生查詢專區 (`sa_003_oauth`)
-- AnalyticsService - Firebase Analytics wrapper with global toggle logic
+- AnalyticsService - Exposes nullable `FirebaseAnalytics` instance based on global toggle
 - Design principle: Match NTUT's actual system boundaries. Each service corresponds to one NTUT SSO target.
 - All share single cookie jar (NTUT session state)
 - Return DTOs as records (UserDto, SemesterDto, ScheduleDto, etc.) - no database writes
