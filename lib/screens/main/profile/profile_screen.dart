@@ -10,6 +10,8 @@ import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/services/portal_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
@@ -88,6 +90,24 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
+  Future<void> _openInBrowser(
+    BuildContext context,
+    WidgetRef ref,
+    PortalServiceCode serviceCode,
+  ) async {
+    try {
+      final url = await ref
+          .read(authRepositoryProvider)
+          .withAuth(
+            () => ref.read(portalServiceProvider).getSsoUrl(serviceCode.code),
+          );
+      final launched = await launchUrl(url);
+      if (!launched) throw Exception('Could not open browser');
+    } catch (e) {
+      if (context.mounted) _showMessage(context, 'Failed to open: $e');
+    }
+  }
+
   void _showDemoTap(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(t.general.notImplemented)),
@@ -108,6 +128,14 @@ class ProfileScreen extends ConsumerWidget {
         icon: Icons.image,
         title: t.profile.options.changeAvatar,
         onTap: () => _changeAvatar(context, ref),
+      ),
+
+      SectionHeader(title: t.$wip('資訊系統')),
+      OptionEntryTile(
+        icon: Icons.open_in_browser,
+        title: t.$wip('學生查詢專區'),
+        onTap: () =>
+            _openInBrowser(context, ref, PortalServiceCode.studentQueryService),
       ),
 
       SectionHeader(title: 'TAT'),

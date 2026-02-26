@@ -4,13 +4,13 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-02-25. If stale (>30 days), verify Status section against codebase.
+**Last updated:** 2026-02-27. If stale (>30 days), verify Status section against codebase.
 
 ## Status
 
 **Done:**
 
-- PortalService (auth+SSO, changePassword, getAvatar, uploadAvatar), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
+- PortalService (auth+SSO, getSsoUrl for system browser auth, changePassword, getAvatar, uploadAvatar), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
 - StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile)
 - HTTP utils, InvalidCookieFilter interceptor
 - Drift database schema with all tables
@@ -134,7 +134,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 
 **Shared Cookie Jar:** Single cookie jar across all clients for simpler implementation.
 
-**SSO Flow:** PortalService centralizes auth services.
+**SSO Flow:** PortalService centralizes auth services. The SSO uses OAuth2 authorization code flow: `ssoIndex.do` returns an auto-submitting form that POSTs to `oauth2Server.do`, which 302-redirects to the target service's login endpoint with a `code` parameter (e.g., `LoginOAuthCourseCH.jsp?code=...`). This code URL is **reusable** and **cookie-independent** — any HTTP client (including a system browser) can open it to establish an authenticated session. `PortalService.getSsoUrl(apOu)` captures this URL by cloning the Dio instance without `RedirectInterceptor` to intercept the 302 Location header.
 
 **User-Agent:** PortalService uses `app.ntut.edu.tw` endpoints designed for the official NTUT iOS app (`User-Agent: Direk ios App`). This bypasses login captcha that the web portal (`nportal.ntut.edu.tw`) requires. Without the correct User-Agent, the server will refuse requests. Browser-based testing of these endpoints won't work.
 
