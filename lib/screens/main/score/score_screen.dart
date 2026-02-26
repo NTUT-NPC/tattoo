@@ -199,62 +199,59 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
             _selectedSemesterKey = semesterKey(semesters[_selectedIndex]);
           }
 
-          return RefreshIndicator(
-            onRefresh: _reloadScores,
-            child: NotificationListener<ScrollNotification>(
-              onNotification: _handleScrollNotification,
-              child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  SliverAppBar(
-                    pinned: true,
-                    title: Text(t.nav.scores),
-                    centerTitle: true,
-                    bottom:
-                        _semesterTabController != null && semesters.isNotEmpty
-                        ? PreferredSize(
-                            preferredSize: const Size.fromHeight(52),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                              child: SizedBox(
-                                height: 40,
-                                child: ChipTabSwitcher(
-                                  tabs: [
-                                    for (final semester in semesters)
-                                      '${semester.semester.year}-${semester.semester.term}',
-                                  ],
-                                  controller: _semesterTabController,
-                                  padding: EdgeInsets.zero,
-                                  spacing: 6,
-                                ),
+          return NotificationListener<ScrollNotification>(
+            onNotification: _handleScrollNotification,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverAppBar(
+                  pinned: true,
+                  title: Text(t.nav.scores),
+                  centerTitle: true,
+                  bottom: _semesterTabController != null && semesters.isNotEmpty
+                      ? PreferredSize(
+                          preferredSize: const Size.fromHeight(52),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                            child: SizedBox(
+                              height: 40,
+                              child: ChipTabSwitcher(
+                                tabs: [
+                                  for (final semester in semesters)
+                                    '${semester.semester.year}-${semester.semester.term}',
+                                ],
+                                controller: _semesterTabController,
+                                padding: EdgeInsets.zero,
+                                spacing: 6,
                               ),
                             ),
-                          )
-                        : null,
-                  ),
-                  if (!hasSemesters)
-                    const SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Center(child: Text('目前沒有任何成績紀錄')),
-                    )
-                  else ...[
-                    SliverFillRemaining(
-                      child: TabBarView(
-                        controller: _semesterTabController,
-                        children: [
-                          for (final semester in semesters)
-                            _SemesterScoreList(
-                              data: semester,
-                              gpa: data.gpaBySemester[semesterKey(semester)],
-                              names: data.names,
-                              lastUpdatedAt: _lastUpdatedAt,
-                            ),
-                        ],
-                      ),
+                          ),
+                        )
+                      : null,
+                ),
+                if (!hasSemesters)
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(child: Text('目前沒有任何成績紀錄')),
+                  )
+                else ...[
+                  SliverFillRemaining(
+                    child: TabBarView(
+                      controller: _semesterTabController,
+                      children: [
+                        for (final semester in semesters)
+                          _SemesterScoreList(
+                            data: semester,
+                            gpa: data.gpaBySemester[semesterKey(semester)],
+                            names: data.names,
+                            lastUpdatedAt: _lastUpdatedAt,
+                            onRefresh: _reloadScores,
+                          ),
+                      ],
                     ),
-                  ],
+                  ),
                 ],
-              ),
+              ],
             ),
           );
         },
@@ -268,27 +265,41 @@ class _SemesterScoreList extends StatelessWidget {
   final GpaDto? gpa;
   final Map<String, String> names;
   final DateTime? lastUpdatedAt;
+  final Future<void> Function() onRefresh;
 
   const _SemesterScoreList({
     required this.data,
     required this.gpa,
     required this.names,
     required this.lastUpdatedAt,
+    required this.onRefresh,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (data.scores.isEmpty) {
-      return ListView(
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
-        children: [
-          _SemesterSummaryCard(data: data, gpa: gpa),
-          const SizedBox(height: 12),
-          const Center(child: Text('本學期尚無成績')),
-          if (lastUpdatedAt != null) ...[
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        padding: const EdgeInsets.only(top: 8, bottom: 12),
+        itemCount: data.scores.length + 3,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return _SemesterSummaryCard(data: data, gpa: gpa);
+          }
+          if (index == 1) {
+            if (data.scores.isNotEmpty) return const SizedBox(height: 8);
+            return const Padding(
+              padding: EdgeInsets.only(top: 12),
+              child: Center(child: Text('本學期尚無成績')),
+            );
+          }
+          if (index == data.scores.length + 2) {
+            if (lastUpdatedAt == null) {
+              return const SizedBox.shrink();
+            }
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Text(
@@ -298,51 +309,21 @@ class _SemesterScoreList extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-          ],
-        ],
-      );
-    }
-
-    return ListView.separated(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(top: 8, bottom: 12),
-      itemCount: data.scores.length + 2,
-      separatorBuilder: (context, index) {
-        if (index == 0 || index == data.scores.length) {
-          return const SizedBox.shrink();
-        }
-        if (index == data.scores.length - 1 && lastUpdatedAt == null) {
-          return const SizedBox.shrink();
-        }
-        return const Divider(height: 1, indent: 16);
-      },
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return _SemesterSummaryCard(data: data, gpa: gpa);
-        }
-        final scoreIndex = index - 1;
-        if (scoreIndex == data.scores.length) {
-          if (lastUpdatedAt == null) {
-            return const SizedBox.shrink();
+            );
           }
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                '最後更新：${formatLastUpdated(lastUpdatedAt!)}',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
+
+          final scoreIndex = index - 2;
+          final score = data.scores[scoreIndex];
+          final name = names[score.courseCode] ?? score.courseCode ?? '未知課程';
+          return Column(
+            children: [
+              _ScoreTile(score: score, courseName: name),
+              if (scoreIndex != data.scores.length - 1)
+                const Divider(height: 1, indent: 16),
+            ],
           );
-        }
-        final score = data.scores[scoreIndex];
-        final name = names[score.courseCode] ?? score.courseCode ?? '未知課程';
-        return _ScoreTile(score: score, courseName: name);
-      },
+        },
+      ),
     );
   }
 }
@@ -358,39 +339,46 @@ class _SemesterSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          primary: false,
-          physics: const ClampingScrollPhysics(),
-          child: Row(
-            children: [
-              _buildStat(context, '歷年 GPA', _formatDouble(gpa?.grandTotalGpa)),
-              const SizedBox(width: 24),
-              _buildStat(context, '操行成績', data.conduct?.toString() ?? '-'),
-              const SizedBox(width: 24),
-              _buildStat(context, '學期平均', data.average?.toString() ?? '-'),
-              const SizedBox(width: 24),
-              _buildStat(
-                context,
-                '實得學分',
-                data.creditsPassed?.toString() ?? '-',
-              ),
-              const SizedBox(width: 24),
-              _buildStat(
-                context,
-                '修課總學分',
-                data.totalCredits?.toString() ?? '-',
-              ),
-            ],
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            primary: false,
+            physics: const ClampingScrollPhysics(),
+            child: Row(
+              children: [
+                _buildStat(
+                  context,
+                  '歷年 GPA',
+                  _formatDouble(gpa?.grandTotalGpa),
+                ),
+                const SizedBox(width: 24),
+                _buildStat(context, '操行成績', data.conduct?.toString() ?? '-'),
+                const SizedBox(width: 24),
+                _buildStat(context, '學期平均', data.average?.toString() ?? '-'),
+                const SizedBox(width: 24),
+                _buildStat(
+                  context,
+                  '實得學分',
+                  data.creditsPassed?.toString() ?? '-',
+                ),
+                const SizedBox(width: 24),
+                _buildStat(
+                  context,
+                  '修課總學分',
+                  data.totalCredits?.toString() ?? '-',
+                ),
+              ],
+            ),
           ),
         ),
       ),
