@@ -193,6 +193,10 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
   }
 
   int _resolveActiveIndex(TabController controller) {
+    if (widget.tabs.isEmpty) {
+      return 0;
+    }
+
     final animationValue =
         controller.animation?.value ?? controller.index.toDouble();
     final roundedIndex = animationValue.round();
