@@ -87,7 +87,6 @@ platform :android do
     output_file = flutter_build(
       build: "appbundle",
       build_number: build_number,
-      build_args: ["--dart-define=USE_FIREBASE=true"],
     )
 
     next if skip_upload
