@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 
 class CourseTableScreen extends StatelessWidget {
@@ -12,62 +13,75 @@ class CourseTableScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            floating: true,
-            snap: true,
-            toolbarHeight: 56,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            flexibleSpace: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    tableOwnerIndicator(context),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        spacing: 8,
-                        children: [
-                          _CircularIconButton(
-                            icon: Icons.refresh_outlined,
-                            onTap: () => _showDemoTap(context),
-                          ),
-                          _CircularIconButton(
-                            icon: Icons.share_outlined,
-                            onTap: () => _showDemoTap(context),
-                          ),
-
-                          _CircularIconButton(
-                            icon: Icons.more_vert_outlined,
-                            onTap: () => _showDemoTap(context),
-                          ),
-                        ],
+    return DefaultTabController(
+      length: _courseTableTabs.length,
+      child: Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              floating: false,
+              snap: false,
+              toolbarHeight: 56,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              flexibleSpace: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      tableOwnerIndicator(context),
+                      const Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          spacing: 8,
+                          children: [
+                            _CircularIconButton(
+                              icon: Icons.refresh_outlined,
+                              onTap: () => _showDemoTap(context),
+                            ),
+                            _CircularIconButton(
+                              icon: Icons.share_outlined,
+                              onTap: () => _showDemoTap(context),
+                            ),
+                            _CircularIconButton(
+                              icon: Icons.more_vert_outlined,
+                              onTap: () => _showDemoTap(context),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                t.nav.courseTable,
+            SliverAppBar(
+              primary: false,
+              floating: true,
+              snap: true,
+              pinned: false,
+              toolbarHeight: 48,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              titleSpacing: 0,
+              title: const ChipTabSwitcher(tabs: _courseTableTabs),
+            ),
+            SliverFillRemaining(
+              child: TabBarView(
+                children: _courseTableTabs
+                    .map((tab) => _CourseTableTabPlaceholder(semester: tab))
+                    .toList(),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -133,6 +147,32 @@ class CourseTableScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+const _courseTableTabs = <String>[
+  '114-2',
+  '114-1',
+  '113-2',
+  '113-1',
+  '112-2',
+  '112-1',
+  '111-2',
+  '111-1',
+  '110-2',
+];
+
+class _CourseTableTabPlaceholder extends StatelessWidget {
+  const _CourseTableTabPlaceholder({required this.semester});
+
+  final String semester;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Text('Course table placeholder: $semester'),
     );
   }
 }
