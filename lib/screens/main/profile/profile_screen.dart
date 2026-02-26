@@ -99,7 +99,7 @@ class ProfileScreen extends ConsumerWidget {
       final url = await ref
           .read(authRepositoryProvider)
           .withAuth(
-            () => ref.read(portalServiceProvider).getSsoUrl(serviceCode.code),
+            () => ref.read(portalServiceProvider).getSsoUrl(serviceCode),
           );
       final launched = await launchUrl(url);
       if (!launched) throw Exception('Could not open browser');

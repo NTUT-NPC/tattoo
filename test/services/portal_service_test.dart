@@ -200,7 +200,7 @@ void main() {
         );
 
         final url = await portalService.getSsoUrl(
-          PortalServiceCode.courseService.code,
+          PortalServiceCode.courseService,
         );
 
         expect(url.scheme, 'https');
@@ -214,7 +214,7 @@ void main() {
         );
 
         final url = await portalService.getSsoUrl(
-          PortalServiceCode.studentQueryService.code,
+          PortalServiceCode.studentQueryService,
         );
 
         expect(url.scheme, 'https');
@@ -224,7 +224,7 @@ void main() {
         await cookieJar.deleteAll();
 
         expect(
-          () => portalService.getSsoUrl(PortalServiceCode.courseService.code),
+          () => portalService.getSsoUrl(PortalServiceCode.courseService),
           throwsException,
         );
       });

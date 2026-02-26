@@ -230,7 +230,8 @@ class PortalService {
   /// Requires an active portal session (call [login] first).
   ///
   /// Throws an [Exception] if the SSO form is not found (user may not be logged in).
-  Future<Uri> getSsoUrl(String apOu) async {
+  Future<Uri> getSsoUrl(PortalServiceCode serviceCode) async {
+    final apOu = serviceCode.code;
     final (actionUrl, formData) = await _fetchSsoForm(apOu);
 
     // Clone and strip RedirectInterceptor so we can capture the 302 Location
