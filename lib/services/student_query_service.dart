@@ -6,6 +6,7 @@ import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
 import 'package:tattoo/models/user.dart';
 import 'package:tattoo/utils/http.dart';
+import 'package:tattoo/services/portal_service.dart';
 
 /// A single course score entry from the academic performance page.
 typedef ScoreDto = ({
@@ -137,7 +138,11 @@ class StudentQueryService {
       ..options.baseUrl = 'https://aps-stu.ntut.edu.tw/StuQuery/';
   }
 
-  /// Fetches student status (學籍基本資料).
+  /// Fetches student status (學籍基本資料) from the basis data page.
+  ///
+  /// Extracts personal information including bilingual names, DOB, program,
+  /// and department. Handles specific formatting for mixed Chinese/English 
+  /// strings.
   Future<StudentProfileDto> getStudentProfile() async {
     final response = await _studentQueryDio.get('QryBasisData.jsp');
     final document = parse(response.data);
@@ -207,82 +212,116 @@ class StudentQueryService {
 
   /// Fetches academic performance (scores) for all semesters.
   ///
-  /// Returns a list of [SemesterScoreDto] ordered from most recent to oldest,
-  /// each containing individual course scores and semester summary statistics.
+  /// Scans the academic performance page for semester buttons and their 
+  /// corresponding score tables.
+  ///
+  /// **Parsing Strategy:**
+  /// Uses a sequential scan of both `input` (semester labels) and `table` 
+  /// (score data) elements to maintain correct association. This prevents 
+  /// offsets in cases where a semester button exists but its score table is 
+  /// missing (e.g., early in a new term).
+  ///
+  /// Throws an [Exception] if the response contains "應用系統已中斷連線", 
+  /// indicating session expiry.
   Future<List<SemesterScoreDto>> getAcademicPerformance() async {
     final response = await _studentQueryDio.get(
       'QryScore.jsp',
       queryParameters: {'format': '-2'},
     );
 
+    // Safeguard: Detect session termination to trigger auto-reauthentication
+    if (response.data.toString().contains('應用系統已中斷連線')) {
+      throw Exception('SessionExpired');
+    }
+
     final document = parse(response.data);
 
-    // Semester labels are in submit button values: "114 學年度 第 1 學期 (2025 - Fall)"
+    // Matches semester labels e.g., "114 學年度 第 1 學期"
     final semesterPattern = RegExp(r'(\d+)\s*學年度\s*第\s*(\d+)\s*學期');
-    final semesterButtons = document.querySelectorAll("input[type='submit']");
-    final semesterMatches = semesterButtons
-        .map((btn) => semesterPattern.firstMatch(btn.attributes['value'] ?? ''))
-        .whereType<RegExpMatch>()
-        .toList();
 
-    final tables = document.querySelectorAll('table');
+    // Query both inputs and tables to preserve document order
+    final elements = document.querySelectorAll("input[type='submit'], table");
 
     final results = <SemesterScoreDto>[];
-    for (var i = 0; i < tables.length && i < semesterMatches.length; i++) {
-      final match = semesterMatches[i];
-      final semester = (
-        year: int.parse(match.group(1)!),
-        term: int.parse(match.group(2)!),
-      );
+    SemesterDto? currentSemester;
+    bool hasAddedTableForCurrentSemester = false;
 
-      final rows = tables[i].querySelectorAll('tr');
-      final scores = <ScoreDto>[];
-      double? average;
-      double? conduct;
-      double? totalCredits;
-      double? creditsPassed;
-      String? note;
+    for (final el in elements) {
+      if (el.localName == 'input') {
+        // Found a semester switcher: update current context
+        final value = el.attributes['value'] ?? '';
+        final match = semesterPattern.firstMatch(value);
+        if (match != null) {
+          currentSemester = (
+            year: int.parse(match.group(1)!),
+            term: int.parse(match.group(2)!),
+          );
+          hasAddedTableForCurrentSemester = false; 
+        }
+      } else if (el.localName == 'table') {
+        // Found a data table: verify context and prevent duplicate processing
+        if (currentSemester == null || hasAddedTableForCurrentSemester) continue;
 
-      // Skip header row; data rows have 9+ cells, summary rows have 1-2
-      for (final row in rows.skip(1)) {
-        final cells = row.querySelectorAll('th, td');
+        final rows = el.querySelectorAll('tr');
+        final scores = <ScoreDto>[];
+        double? average;
+        double? conduct;
+        double? totalCredits;
+        double? creditsPassed;
+        String? note;
 
-        if (cells.length >= 9) {
-          final scoreText = _parseCellText(cells[7]);
-          final (scoreValue, status) = _parseScore(scoreText);
-          scores.add((
-            number: _parseCellText(cells[0]),
-            courseCode: _parseCellText(cells[4]),
-            score: scoreValue,
-            status: status,
-          ));
-        } else if (cells.length == 2) {
-          final label = cells[0].text;
-          final value = _parseCellText(cells[1]);
+        bool isDataParsed = false; 
 
-          if (label.contains('Average')) {
-            average = double.tryParse(value ?? '');
-          } else if (label.contains('Conduct')) {
-            conduct = double.tryParse(value ?? '');
-          } else if (label.contains('Total Credits')) {
-            totalCredits = double.tryParse(value ?? '');
-          } else if (label.contains('Credits Passed')) {
-            creditsPassed = double.tryParse(value ?? '');
-          } else if (label.contains('Note')) {
-            note = value;
+        // Row 0 is the header; data rows have 9+ columns, summary rows have 2
+        for (final row in rows.skip(1)) {
+          final cells = row.querySelectorAll('th, td');
+
+          if (cells.length >= 9) {
+            isDataParsed = true;
+            final scoreText = _parseCellText(cells[7]);
+            final (scoreValue, status) = _parseScore(scoreText);
+            scores.add((
+              number: _parseCellText(cells[0]),
+              courseCode: _parseCellText(cells[4]),
+              score: scoreValue,
+              status: status,
+            ));
+          } else if (cells.length == 2) {
+            final label = cells[0].text;
+            final value = _parseCellText(cells[1]);
+
+            if (label.contains('Average')) {
+              isDataParsed = true;
+              average = double.tryParse(value ?? '');
+            } else if (label.contains('Conduct')) {
+              isDataParsed = true;
+              conduct = double.tryParse(value ?? '');
+            } else if (label.contains('Total Credits')) {
+              isDataParsed = true;
+              totalCredits = double.tryParse(value ?? '');
+            } else if (label.contains('Credits Passed')) {
+              isDataParsed = true;
+              creditsPassed = double.tryParse(value ?? '');
+            } else if (label.contains('Note')) {
+              isDataParsed = true;
+              note = value;
+            }
           }
         }
-      }
 
-      results.add((
-        semester: semester,
-        scores: scores,
-        average: average,
-        conduct: conduct,
-        totalCredits: totalCredits,
-        creditsPassed: creditsPassed,
-        note: note,
-      ));
+        if (isDataParsed) {
+          results.add((
+            semester: currentSemester,
+            scores: scores,
+            average: average,
+            conduct: conduct,
+            totalCredits: totalCredits,
+            creditsPassed: creditsPassed,
+            note: note,
+          ));
+          hasAddedTableForCurrentSemester = true; 
+        }
+      }
     }
 
     return results;
@@ -290,8 +329,8 @@ class StudentQueryService {
 
   /// Fetches grade ranking data for all semesters.
   ///
-  /// Returns a list of [GradeRankingDto] ordered from most recent to oldest,
-  /// each containing ranking positions at class, group, and department levels.
+  /// Returns ranking entries including class, group, and department levels.
+  /// Semester information is spans multiple ranking type rows using `rowspan`.
   Future<List<GradeRankingDto>> getGradeRanking() async {
     final response = await _studentQueryDio.get('QryRank.jsp');
     final document = parse(response.data);
@@ -304,20 +343,16 @@ class StudentQueryService {
     SemesterDto? currentSemester;
     var currentEntries = <GradeRankingEntryDto>[];
 
-    // Rows are either: 8 cells (semester start + data), 7 cells (continuation),
-    // or other (header/notice — skip).
-    // Semester cell uses rowspan="3" to span its 3 ranking type rows.
     for (final row in table.querySelectorAll('tr')) {
       final cells = row.querySelectorAll('td').toList();
 
       int dataStart;
       if (cells.length == 8) {
-        // New semester with ranking data
+        // Starting new semester block
         if (currentSemester != null && currentEntries.isNotEmpty) {
           results.add((semester: currentSemester, entries: currentEntries));
           currentEntries = [];
         }
-        // Cell contains "113 - 2<br>2025 - Spring" — use first text node
         final semesterText = cells[0].nodes
             .where((node) => node.nodeType == Node.TEXT_NODE)
             .firstOrNull
@@ -335,9 +370,6 @@ class StudentQueryService {
         continue;
       }
 
-      // cells[dataStart]: ranking type, +1/+2: semester rank/total,
-      // +3: semester percentage (skip), +4/+5: grand total rank/total,
-      // +6: grand total percentage (skip)
       final type = _parseRankingType(cells[dataStart].text);
       if (type == null) continue;
 
@@ -369,22 +401,17 @@ class StudentQueryService {
     return results;
   }
 
-  /// Fetches registration records (class assignment, mentors, cadre roles)
-  /// for all semesters.
+  /// Fetches registration records including class, mentors, and cadre roles.
   ///
-  /// Returns a list of [RegistrationRecordDto] ordered from most recent to
-  /// oldest.
+  /// Parses the registration table containing historical enrollment status 
+  /// and assigned tutors for each semester.
   Future<List<RegistrationRecordDto>> getRegistrationRecords() async {
     final response = await _studentQueryDio.get('QryRegist.jsp');
-
     final document = parse(response.data);
 
-    // Single table with 7 columns: semester, class, enrollment status,
-    // registered, graduated, tutors, class cadres
     final table = document.querySelector('table');
     if (table == null) return [];
 
-    // Semester cell: <div>"114 - 2"<br>"2026 - Spring"</div> — use first text node
     final semesterPattern = RegExp(r'(\d+)\s*-\s*(\d+)');
 
     final results = <RegistrationRecordDto>[];
@@ -409,14 +436,12 @@ class StudentQueryService {
       final registered = cells[3].text.contains('※');
       final graduated = cells[4].text.contains('※');
 
-      // Tutor names are <a> links to CourseService's Teach.jsp with ?code=teacherId
       final tutors = cells[5].querySelectorAll('a').map((a) {
         final href = Uri.tryParse(a.attributes['href'] ?? '');
         final id = href?.queryParameters['code'];
         return (id: id, name: _parseCellText(a));
       }).toList();
 
-      // Cadre roles are text nodes separated by <br> inside a <div>
       final cadreContainer = cells[6].querySelector('div') ?? cells[6];
       final classCadres = cadreContainer.nodes
           .where((node) => node.nodeType == Node.TEXT_NODE)
@@ -443,7 +468,7 @@ class StudentQueryService {
     return text.isNotEmpty ? text : null;
   }
 
-  /// Maps ranking type cell text (e.g. "班 級 排 名Class Ranking") to enum.
+  /// Maps ranking type labels to [RankingType] enum.
   RankingType? _parseRankingType(String text) {
     if (text.contains('Class')) return RankingType.classLevel;
     if (text.contains('Group')) return RankingType.groupLevel;
@@ -451,7 +476,7 @@ class StudentQueryService {
     return null;
   }
 
-  /// Maps enrollment status text to [EnrollmentStatus].
+  /// Maps enrollment status strings to [EnrollmentStatus] enum.
   EnrollmentStatus? _parseEnrollmentStatus(String? text) {
     return switch (text) {
       '在學' => EnrollmentStatus.learning,
@@ -461,7 +486,7 @@ class StudentQueryService {
     };
   }
 
-  /// Parses a score cell value into either a numeric grade or a [ScoreStatus].
+  /// Parses score cell content into numeric values or [ScoreStatus] enums.
   (int?, ScoreStatus?) _parseScore(String? text) {
     if (text == null) return (null, null);
 
