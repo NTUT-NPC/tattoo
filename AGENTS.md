@@ -148,4 +148,3 @@ MVVM pattern with Riverpod for DI and reactive state:
 All available SSO service codes are in to `doc/ntut_sso_codes.md`.
 
 These apOu codes are the SSO target identifiers used by PortalService to obtain service-specific entry URLs/tickets for each NTUT subsystem.
-
