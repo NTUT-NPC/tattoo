@@ -145,6 +145,7 @@ class ProfileScreen extends ConsumerWidget {
       ),
 
       SectionHeader(title: 'TAT'),
+      // TODO: remove before release
       OptionEntryTile(
         icon: Icons.rice_bowl_outlined,
         title: '點一碗炒飯',
