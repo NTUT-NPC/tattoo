@@ -80,6 +80,9 @@ kotlin {
 
 dependencies {
     implementation("androidx.core:core-splashscreen:1.2.0")
+    implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-analytics")
 }
 
 flutter {
