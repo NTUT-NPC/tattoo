@@ -24,7 +24,6 @@ RUN --mount=type=cache,target=/mise/cache \
     mise install flutter
 
 # Resolve app dependencies and generate documentation
-COPY pubspec.* ./
 COPY . .
 RUN --mount=type=cache,target=/root/.pub-cache \
     flutter --disable-analytics && \
