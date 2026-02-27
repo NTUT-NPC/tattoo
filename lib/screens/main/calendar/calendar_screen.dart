@@ -72,9 +72,13 @@ class CalendarScreen extends ConsumerWidget {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                      child: Text(
-                        t.calendar.offlineMode,
-                        style: Theme.of(context).textTheme.bodySmall,
+                      child: ListTile(
+                        dense: true,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                        title: Text(
+                          t.calendar.offlineMode,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                       ),
                     ),
                   ),
@@ -82,13 +86,17 @@ class CalendarScreen extends ConsumerWidget {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                      child: Text(
-                        t.calendar.updatedAt(
-                          date: DateFormat(
-                            'yyyy/MM/dd HH:mm',
-                          ).format(snapshot.cachedAt!.toLocal()),
+                      child: ListTile(
+                        dense: true,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                        title: Text(
+                          t.calendar.updatedAt(
+                            date: DateFormat(
+                              'yyyy/MM/dd HH:mm',
+                            ).format(snapshot.cachedAt!.toLocal()),
+                          ),
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
-                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
                   ),
@@ -139,34 +147,28 @@ class _CalendarEventCard extends StatelessWidget {
     final isOngoing = _isOngoing(event, DateTime.now());
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        title: Text(
+          event.title,
+          style: titleStyle,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: isOngoing
+            ? Chip(
+                label: Text(t.calendar.ongoing, style: ongoingStyle),
+                backgroundColor: colorScheme.primaryContainer,
+                side: BorderSide.none,
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              )
+            : null,
+        subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    event.title,
-                    style: titleStyle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                if (isOngoing) ...[
-                  const SizedBox(width: 8),
-                  Chip(
-                    label: Text(t.calendar.ongoing, style: ongoingStyle),
-                    backgroundColor: colorScheme.primaryContainer,
-                    side: BorderSide.none,
-                    visualDensity: VisualDensity.compact,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                ],
-              ],
-            ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Text(_formatTimeRange(event), style: dateStyle),
             if (event.location != null) ...[
               const SizedBox(height: 4),
