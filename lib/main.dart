@@ -1,4 +1,6 @@
+import 'dart:developer';
 import 'dart:ui';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -6,10 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/services/analytics_service.dart';
-import 'package:tattoo/services/crashlytics_service.dart';
 import 'package:tattoo/services/firebase_service.dart';
-import 'dart:developer';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,18 +23,27 @@ Future<void> main() async {
     }
   }
 
-  FlutterError.onError = (errorDetails) {
-    CrashlyticsService().instance?.recordFlutterFatalError(errorDetails);
+  final container = ProviderContainer();
+  final firebase = container.read(firebaseServiceProvider);
+
+  FlutterError.onError = (details) {
+    firebase.crashlytics?.recordFlutterFatalError(details);
   };
   PlatformDispatcher.instance.onError = (error, stack) {
-    CrashlyticsService().instance?.recordError(error, stack, fatal: true);
+    firebase.crashlytics?.recordError(error, stack, fatal: true);
     return true;
   };
 
-  AnalyticsService().instance?.logAppOpen();
+  firebase.analytics?.logAppOpen();
 
   await LocaleSettings.useDeviceLocale();
-  runApp(ProviderScope(child: TranslationProvider(child: MyApp())));
+
+  runApp(
+    UncontrolledProviderScope(
+      container: container,
+      child: TranslationProvider(child: MyApp()),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

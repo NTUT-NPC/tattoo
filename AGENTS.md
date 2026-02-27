@@ -66,7 +66,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 - `tool/` - Dart CLI tools (credentials management)
 - `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType, ScoreStatus)
 - `lib/repositories/` - Repository class + constructor provider (DI wiring)
-- `lib/services/` - HTTP clients, parse responses, return DTOs (as records)
+- `lib/services/` - Clients that talk to external systems (NTUT HTTP services, Firebase, etc.)
 - `lib/database/` - Drift schema and database class
 - `lib/utils/` - HTTP utilities (cookie jar, interceptors)
 - `lib/i18n/` - slang i18n YAML sources and generated strings
@@ -99,10 +99,9 @@ MVVM pattern with Riverpod for DI and reactive state:
 - CourseService - 課程系統 (`aa_0010-oauth`)
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`)
 - StudentQueryService - 學生查詢專區 (`sa_003_oauth`)
-- AnalyticsService - Exposes nullable `FirebaseAnalytics` instance based on global toggle
-- Design principle: Match NTUT's actual system boundaries. Each service corresponds to one NTUT SSO target.
-- All share single cookie jar (NTUT session state)
-- Return DTOs as records (UserDto, SemesterDto, ScheduleDto, etc.) - no database writes
+- FirebaseService - Unified wrapper for Firebase Analytics and Crashlytics with global `useFirebase` toggle
+- NTUT services share single cookie jar (NTUT session state)
+- NTUT services return DTOs as records (UserDto, SemesterDto, ScheduleDto, etc.) - no database writes
 - DTOs are typedef'd records co-located with service implementation
 
 **Repositories:**
