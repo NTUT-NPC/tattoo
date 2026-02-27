@@ -225,7 +225,7 @@ class CalendarService {
         .replaceAll(r'\N', '\n')
         .replaceAll(r'\,', ',')
         .replaceAll(r'\;', ';')
-        .replaceAll(r'\\', r'\');
+        .replaceAll(r'\\', '\\');
   }
 }
 
