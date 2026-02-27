@@ -128,11 +128,12 @@ class _CalendarEventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final titleStyle = Theme.of(context).textTheme.titleMedium;
     final bodyStyle = Theme.of(context).textTheme.bodyMedium;
     final dateStyle = Theme.of(context).textTheme.titleSmall;
     final ongoingStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
-      color: Theme.of(context).colorScheme.onPrimaryContainer,
+      color: colorScheme.onPrimaryContainer,
       fontWeight: FontWeight.w600,
     );
     final isOngoing = _isOngoing(event, DateTime.now());
@@ -155,16 +156,12 @@ class _CalendarEventCard extends StatelessWidget {
                 ),
                 if (isOngoing) ...[
                   const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(t.calendar.ongoing, style: ongoingStyle),
+                  Chip(
+                    label: Text(t.calendar.ongoing, style: ongoingStyle),
+                    backgroundColor: colorScheme.primaryContainer,
+                    side: BorderSide.none,
+                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ],
               ],
