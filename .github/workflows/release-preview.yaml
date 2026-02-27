@@ -123,7 +123,7 @@ jobs:
           platform: ios
 
       - name: Build and Upload to TestFlight (App Store Connect)
-        run: bundle exec fastlane ios beta release_mode:true
+        run: bundle exec fastlane ios beta
 
       - name: Write iOS Job Summary
         uses: ./.github/actions/ios-summary
