@@ -60,7 +60,6 @@ platform :ios do
     commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
     commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
     skip_upload = options[:skip_upload].to_s == "true"
-    release_mode = options[:release_mode].to_s == "true"
 
     setup_ci if is_ci
 
@@ -80,7 +79,7 @@ platform :ios do
     archive_path = flutter_build(
       build: "ipa",
       build_number: build_number,
-      build_args: ["--no-codesign", "--dart-define=USE_FIREBASE=#{release_mode ? 'true' : 'false'}"],
+      build_args: ["--no-codesign", "--dart-define=USE_FIREBASE=true"],
     )
 
     build_app(
@@ -92,13 +91,11 @@ platform :ios do
 
     next if skip_upload
 
-    if release_mode
-      upload_symbols_to_crashlytics(
-        dsym_path: lane_context[SharedValues::DSYM_OUTPUT_PATH],
-        gsp_path: "ios/Runner/GoogleService-Info.plist",
-        binary_path: "ios/Pods/FirebaseCrashlytics/upload-symbols",
-      )
-    end
+    upload_symbols_to_crashlytics(
+      dsym_path: lane_context[SharedValues::DSYM_OUTPUT_PATH],
+      gsp_path: "ios/Runner/GoogleService-Info.plist",
+      binary_path: "ios/Pods/FirebaseCrashlytics/upload-symbols",
+    )
 
     app_store_connect_api_key(
       is_key_content_base64: true,
@@ -128,6 +125,7 @@ platform :android do
     output_file = flutter_build(
       build: "appbundle",
       build_number: build_number,
+      build_args: ["--dart-define=USE_FIREBASE=true"],
     )
 
     next if skip_upload
