@@ -45,6 +45,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsIntroZhTw intro = TranslationsIntroZhTw.internal(_root);
 	late final TranslationsLoginZhTw login = TranslationsLoginZhTw.internal(_root);
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
+	late final TranslationsCalendarZhTw calendar = TranslationsCalendarZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 }
@@ -160,11 +161,38 @@ class TranslationsNavZhTw {
 	/// zh-TW: '課表'
 	String get courseTable => '課表';
 
+	/// zh-TW: '行事曆'
+	String get calendar => '行事曆';
+
 	/// zh-TW: '成績'
 	String get scores => '成績';
 
 	/// zh-TW: '我'
 	String get profile => '我';
+}
+
+// Path: calendar
+class TranslationsCalendarZhTw {
+	TranslationsCalendarZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '行事曆載入失敗'
+	String get loadFailed => '行事曆載入失敗';
+
+	/// zh-TW: '離線模式：顯示快取的行事曆資料'
+	String get offlineMode => '離線模式：顯示快取的行事曆資料';
+
+	/// zh-TW: '更新時間 $date'
+	String updatedAt({required Object date}) => '更新時間 ${date}';
+
+	/// zh-TW: '近期沒有行事曆活動'
+	String get noUpcomingEvents => '近期沒有行事曆活動';
+
+	/// zh-TW: '$start - $end'
+	String dateRange({required Object start, required Object end}) => '${start} - ${end}';
 }
 
 // Path: profile
@@ -402,8 +430,14 @@ extension on Translations {
 			'login.errors.useStudentId' => '請直接使用學號登入，不要使用電子郵件',
 			'login.errors.loginFailed' => '登入失敗，請確認帳號密碼',
 			'nav.courseTable' => '課表',
+			'nav.calendar' => '行事曆',
 			'nav.scores' => '成績',
 			'nav.profile' => '我',
+			'calendar.loadFailed' => '行事曆載入失敗',
+			'calendar.offlineMode' => '離線模式：顯示快取的行事曆資料',
+			'calendar.updatedAt' => ({required Object date}) => '更新時間 ${date}',
+			'calendar.noUpcomingEvents' => '近期沒有行事曆活動',
+			'calendar.dateRange' => ({required Object start, required Object end}) => '${start} - ${end}',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
 			'profile.sections.notices' => '訊息範例',
