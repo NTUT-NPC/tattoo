@@ -2,6 +2,7 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/services/calendar_feed.dart';
 import 'package:tattoo/utils/http.dart';
 
+// dart format off
 /// ICS property names supported by the parser.
 enum IcsPropertyName {
   dtstart('DTSTART'),
@@ -9,8 +10,7 @@ enum IcsPropertyName {
   summary('SUMMARY'),
   location('LOCATION'),
   description('DESCRIPTION'),
-  uid('UID')
-  ;
+  uid('UID');
 
   final String value;
   const IcsPropertyName(this.value);
@@ -23,6 +23,7 @@ enum IcsPropertyName {
     return null;
   }
 }
+// dart format on
 
 /// Raw calendar event DTO returned by [CalendarService].
 ///
