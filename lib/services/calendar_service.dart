@@ -2,6 +2,27 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/services/calendar_feed.dart';
 import 'package:tattoo/utils/http.dart';
 
+/// ICS property names supported by the parser.
+enum IcsPropertyName {
+  dtstart('DTSTART'),
+  dtend('DTEND'),
+  summary('SUMMARY'),
+  location('LOCATION'),
+  description('DESCRIPTION'),
+  uid('UID');
+
+  final String value;
+  const IcsPropertyName(this.value);
+
+  /// Return the enum case for a property name string, or null if unknown.
+  static IcsPropertyName? fromString(String name) {
+    for (final prop in values) {
+      if (prop.value == name) return prop;
+    }
+    return null;
+  }
+}
+
 /// Raw calendar event DTO returned by [CalendarService].
 ///
 /// This record is intentionally close to the parsed ICS payload.
@@ -47,25 +68,25 @@ class CalendarService {
     final events = <CalendarEventDto>[];
 
     var inEvent = false;
-    final properties = <String, List<_IcsProperty>>{};
+    final properties = <IcsPropertyName, List<_IcsProperty>>{};
 
     void flushEvent() {
-      final startProperty = _firstProperty(properties, 'DTSTART');
+      final startProperty = _firstProperty(properties, IcsPropertyName.dtstart);
       if (startProperty == null) return;
 
       final start = _parseDateValue(startProperty);
       if (start == null) return;
 
-      final endProperty = _firstProperty(properties, 'DTEND');
+      final endProperty = _firstProperty(properties, IcsPropertyName.dtend);
       final end = _parseDateValue(endProperty) ?? start;
-      final summary = _firstProperty(properties, 'SUMMARY')?.value.trim();
+      final summary = _firstProperty(properties, IcsPropertyName.summary)?.value.trim();
       final title = (summary == null || summary.isEmpty)
           ? 'Untitled event'
           : summary;
 
-      final location = _firstProperty(properties, 'LOCATION')?.value.trim();
-      final description = _firstProperty(properties, 'DESCRIPTION')?.value;
-      final uid = _firstProperty(properties, 'UID')?.value;
+      final location = _firstProperty(properties, IcsPropertyName.location)?.value.trim();
+      final description = _firstProperty(properties, IcsPropertyName.description)?.value;
+      final uid = _firstProperty(properties, IcsPropertyName.uid)?.value;
       final isAllDay = _isDateOnly(startProperty);
 
       final normalizedEnd = end.isBefore(start) ? start : end;
@@ -107,7 +128,10 @@ class CalendarService {
       final rawValue = line.substring(separator + 1);
 
       final parts = rawNameAndParams.split(';');
-      final name = parts.first.toUpperCase();
+      final nameString = parts.first.toUpperCase();
+      final propName = IcsPropertyName.fromString(nameString);
+      if (propName == null) continue; // Skip unknown properties
+      
       final params = <String, String>{};
 
       for (final param in parts.skip(1)) {
@@ -119,10 +143,10 @@ class CalendarService {
       }
 
       properties
-          .putIfAbsent(name, () => [])
+          .putIfAbsent(propName, () => [])
           .add(
             _IcsProperty(
-              name: name,
+              name: propName,
               value: _unescapeIcsValue(rawValue),
               params: params,
             ),
@@ -160,8 +184,8 @@ class CalendarService {
 
   /// Returns the first property by name from the parsed event property map.
   _IcsProperty? _firstProperty(
-    Map<String, List<_IcsProperty>> properties,
-    String name,
+    Map<IcsPropertyName, List<_IcsProperty>> properties,
+    IcsPropertyName name,
   ) {
     return properties[name]?.first;
   }
@@ -231,7 +255,7 @@ class CalendarService {
 
 /// Internal representation of a parsed ICS property line.
 class _IcsProperty {
-  final String name;
+  final IcsPropertyName name;
   final String value;
   final Map<String, String> params;
 
