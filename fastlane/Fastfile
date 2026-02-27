@@ -57,6 +57,14 @@ platform :ios do
       suppress_xcode_output: true,
     )
 
+    if release_mode
+      upload_symbols_to_crashlytics(
+        dsym_path: lane_context[SharedValues::DSYM_OUTPUT_PATH],
+        gsp_path: "ios/Runner/GoogleService-Info.plist",
+        binary_path: "ios/Pods/FirebaseCrashlytics/upload-symbols",
+      )
+    end
+
     next if skip_upload
 
     app_store_connect_api_key(
