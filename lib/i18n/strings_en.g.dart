@@ -136,6 +136,7 @@ class _TranslationsCalendarEn extends TranslationsCalendarZhTw {
 	@override String get loadFailed => 'Calendar load failed';
 	@override String get offlineMode => 'Offline mode: showing cached calendar data';
 	@override String updatedAt({required Object date}) => 'Updated ${date}';
+	@override String get ended => 'Ended';
 	@override String get ongoing => 'Ongoing';
 	@override String get noUpcomingEvents => 'No upcoming calendar events';
 	@override String dateRange({required Object start, required Object end}) => '${start} - ${end}';
@@ -320,6 +321,7 @@ extension on TranslationsEn {
 			'calendar.loadFailed' => 'Calendar load failed',
 			'calendar.offlineMode' => 'Offline mode: showing cached calendar data',
 			'calendar.updatedAt' => ({required Object date}) => 'Updated ${date}',
+			'calendar.ended' => 'Ended',
 			'calendar.ongoing' => 'Ongoing',
 			'calendar.noUpcomingEvents' => 'No upcoming calendar events',
 			'calendar.dateRange' => ({required Object start, required Object end}) => '${start} - ${end}',

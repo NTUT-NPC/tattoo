@@ -51,12 +51,33 @@ class CalendarScreen extends ConsumerWidget {
         ),
         data: (snapshot) {
           final now = DateTime.now();
-          final events = snapshot.events
-              .where(
-                (event) =>
-                    event.end.isAfter(now.subtract(const Duration(days: 1))),
-              )
-              .toList();
+          final events =
+              snapshot.events
+                  .where(
+                    (event) => event.end.isAfter(
+                      now.subtract(const Duration(days: 1)),
+                    ),
+                  )
+                  .toList()
+                ..sort((left, right) {
+                  final leftGroup = _eventSortGroup(left, now);
+                  final rightGroup = _eventSortGroup(right, now);
+
+                  if (leftGroup != rightGroup) {
+                    return leftGroup.compareTo(rightGroup);
+                  }
+
+                  if (leftGroup == 1) {
+                    final endCompare = _eventSortEnd(left).compareTo(
+                      _eventSortEnd(right),
+                    );
+                    if (endCompare != 0) {
+                      return endCompare;
+                    }
+                  }
+
+                  return left.start.compareTo(right.start);
+                });
 
           return RefreshIndicator(
             onRefresh: () => _refresh(ref),
@@ -140,15 +161,21 @@ class _CalendarEventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
     final colorScheme = Theme.of(context).colorScheme;
     final titleStyle = Theme.of(context).textTheme.titleMedium;
     final bodyStyle = Theme.of(context).textTheme.bodyMedium;
     final dateStyle = Theme.of(context).textTheme.titleSmall;
+    final endedStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
+      color: colorScheme.onSurfaceVariant,
+      fontWeight: FontWeight.w600,
+    );
     final ongoingStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
       color: colorScheme.onPrimaryContainer,
       fontWeight: FontWeight.w600,
     );
-    final isOngoing = _isOngoing(event, DateTime.now());
+    final isEnded = _isEventEnded(event, now);
+    final isOngoing = _isEventOngoing(event, now);
 
     return Card(
       child: ListTile(
@@ -159,7 +186,15 @@ class _CalendarEventCard extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        trailing: isOngoing
+        trailing: isEnded
+            ? Chip(
+                label: Text(t.calendar.ended, style: endedStyle),
+                backgroundColor: colorScheme.surface,
+                side: BorderSide(color: colorScheme.outlineVariant),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              )
+            : isOngoing
             ? Chip(
                 label: Text(t.calendar.ongoing, style: ongoingStyle),
                 backgroundColor: colorScheme.primaryContainer,
@@ -216,24 +251,67 @@ class _CalendarEventCard extends StatelessWidget {
       end: formatter.format(endDate),
     );
   }
+}
 
-  bool _isOngoing(CalendarEvent event, DateTime now) {
-    if (event.isAllDay) {
-      final nowDate = DateTime(now.year, now.month, now.day);
-      final startDate = DateTime(
-        event.start.year,
-        event.start.month,
-        event.start.day,
-      );
-      var endDate = DateTime(event.end.year, event.end.month, event.end.day);
+bool _isEventOngoing(CalendarEvent event, DateTime now) {
+  if (event.isAllDay) {
+    final nowDate = DateTime(now.year, now.month, now.day);
+    final startDate = DateTime(
+      event.start.year,
+      event.start.month,
+      event.start.day,
+    );
+    var endDate = DateTime(event.end.year, event.end.month, event.end.day);
 
-      if (endDate.isAfter(startDate)) {
-        endDate = endDate.subtract(const Duration(days: 1));
-      }
-
-      return !nowDate.isBefore(startDate) && !nowDate.isAfter(endDate);
+    if (endDate.isAfter(startDate)) {
+      endDate = endDate.subtract(const Duration(days: 1));
     }
 
-    return !now.isBefore(event.start) && now.isBefore(event.end);
+    return !nowDate.isBefore(startDate) && !nowDate.isAfter(endDate);
   }
+
+  return !now.isBefore(event.start) && now.isBefore(event.end);
+}
+
+bool _isEventEnded(CalendarEvent event, DateTime now) {
+  if (event.isAllDay) {
+    final nowDate = DateTime(now.year, now.month, now.day);
+    final startDate = DateTime(
+      event.start.year,
+      event.start.month,
+      event.start.day,
+    );
+    var endDate = DateTime(event.end.year, event.end.month, event.end.day);
+
+    if (endDate.isAfter(startDate)) {
+      endDate = endDate.subtract(const Duration(days: 1));
+    }
+
+    return nowDate.isAfter(endDate);
+  }
+
+  return !now.isBefore(event.end);
+}
+
+int _eventSortGroup(CalendarEvent event, DateTime now) {
+  if (_isEventEnded(event, now)) return 0;
+  if (_isEventOngoing(event, now)) return 1;
+  return 2;
+}
+
+DateTime _eventSortEnd(CalendarEvent event) {
+  if (!event.isAllDay) return event.end;
+
+  final startDate = DateTime(
+    event.start.year,
+    event.start.month,
+    event.start.day,
+  );
+  final endDate = DateTime(event.end.year, event.end.month, event.end.day);
+
+  if (endDate.isAfter(startDate)) {
+    return endDate.subtract(const Duration(days: 1));
+  }
+
+  return endDate;
 }
