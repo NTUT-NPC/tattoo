@@ -9,7 +9,8 @@ enum IcsPropertyName {
   summary('SUMMARY'),
   location('LOCATION'),
   description('DESCRIPTION'),
-  uid('UID');
+  uid('UID')
+  ;
 
   final String value;
   const IcsPropertyName(this.value);
@@ -79,13 +80,22 @@ class CalendarService {
 
       final endProperty = _firstProperty(properties, IcsPropertyName.dtend);
       final end = _parseDateValue(endProperty) ?? start;
-      final summary = _firstProperty(properties, IcsPropertyName.summary)?.value.trim();
+      final summary = _firstProperty(
+        properties,
+        IcsPropertyName.summary,
+      )?.value.trim();
       final title = (summary == null || summary.isEmpty)
           ? 'Untitled event'
           : summary;
 
-      final location = _firstProperty(properties, IcsPropertyName.location)?.value.trim();
-      final description = _firstProperty(properties, IcsPropertyName.description)?.value;
+      final location = _firstProperty(
+        properties,
+        IcsPropertyName.location,
+      )?.value.trim();
+      final description = _firstProperty(
+        properties,
+        IcsPropertyName.description,
+      )?.value;
       final uid = _firstProperty(properties, IcsPropertyName.uid)?.value;
       final isAllDay = _isDateOnly(startProperty);
 
@@ -131,7 +141,7 @@ class CalendarService {
       final nameString = parts.first.toUpperCase();
       final propName = IcsPropertyName.fromString(nameString);
       if (propName == null) continue; // Skip unknown properties
-      
+
       final params = <String, String>{};
 
       for (final param in parts.skip(1)) {
