@@ -131,6 +131,11 @@ class _CalendarEventCard extends StatelessWidget {
     final titleStyle = Theme.of(context).textTheme.titleMedium;
     final bodyStyle = Theme.of(context).textTheme.bodyMedium;
     final dateStyle = Theme.of(context).textTheme.titleSmall;
+    final ongoingStyle = Theme.of(context).textTheme.labelMedium?.copyWith(
+      color: Theme.of(context).colorScheme.primary,
+      fontWeight: FontWeight.w600,
+    );
+    final isOngoing = _isOngoing(event, DateTime.now());
 
     return Card(
       child: Padding(
@@ -138,7 +143,12 @@ class _CalendarEventCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(event.title, style: titleStyle),
+            Row(
+              children: [
+                Expanded(child: Text(event.title, style: titleStyle)),
+                if (isOngoing) Text(t.calendar.ongoing, style: ongoingStyle),
+              ],
+            ),
             const SizedBox(height: 6),
             Text(_formatTimeRange(event), style: dateStyle),
             if (event.location != null) ...[
@@ -182,5 +192,21 @@ class _CalendarEventCard extends StatelessWidget {
       start: formatter.format(startDate),
       end: formatter.format(endDate),
     );
+  }
+
+  bool _isOngoing(CalendarEvent event, DateTime now) {
+    if (event.isAllDay) {
+      final nowDate = DateTime(now.year, now.month, now.day);
+      final startDate = DateTime(event.start.year, event.start.month, event.start.day);
+      var endDate = DateTime(event.end.year, event.end.month, event.end.day);
+
+      if (endDate.isAfter(startDate)) {
+        endDate = endDate.subtract(const Duration(days: 1));
+      }
+
+      return !nowDate.isBefore(startDate) && !nowDate.isAfter(endDate);
+    }
+
+    return !now.isBefore(event.start) && now.isBefore(event.end);
   }
 }

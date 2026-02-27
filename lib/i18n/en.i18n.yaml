@@ -43,6 +43,7 @@ calendar:
   loadFailed: Calendar load failed
   offlineMode: 'Offline mode: showing cached calendar data'
   updatedAt: Updated $date
+  ongoing: Ongoing
   noUpcomingEvents: No upcoming calendar events
   dateRange: $start - $end
 profile:

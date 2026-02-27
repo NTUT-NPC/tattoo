@@ -188,6 +188,9 @@ class TranslationsCalendarZhTw {
 	/// zh-TW: '更新時間 $date'
 	String updatedAt({required Object date}) => '更新時間 ${date}';
 
+	/// zh-TW: '進行中'
+	String get ongoing => '進行中';
+
 	/// zh-TW: '近期沒有行事曆活動'
 	String get noUpcomingEvents => '近期沒有行事曆活動';
 
@@ -436,6 +439,7 @@ extension on Translations {
 			'calendar.loadFailed' => '行事曆載入失敗',
 			'calendar.offlineMode' => '離線模式：顯示快取的行事曆資料',
 			'calendar.updatedAt' => ({required Object date}) => '更新時間 ${date}',
+			'calendar.ongoing' => '進行中',
 			'calendar.noUpcomingEvents' => '近期沒有行事曆活動',
 			'calendar.dateRange' => ({required Object start, required Object end}) => '${start} - ${end}',
 			'profile.sections.accountSettings' => '帳號設定',
