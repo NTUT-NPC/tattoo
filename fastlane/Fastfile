@@ -45,6 +45,8 @@ platform :ios do
 
     install_on_device(ipa: lane_context[SharedValues::IPA_OUTPUT_PATH])
 
+    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
+
     upload_symbols_to_crashlytics(
       dsym_path: lane_context[SharedValues::DSYM_OUTPUT_PATH],
       gsp_path: "ios/Runner/GoogleService-Info.plist",
@@ -90,6 +92,8 @@ platform :ios do
     )
 
     next if skip_upload
+
+    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
     upload_symbols_to_crashlytics(
       dsym_path: lane_context[SharedValues::DSYM_OUTPUT_PATH],
