@@ -23,17 +23,12 @@ RUN --mount=type=cache,target=/mise/cache \
     mise trust && \
     mise install flutter
 
-# Resolve app dependencies
+# Resolve app dependencies and generate documentation
 COPY pubspec.* ./
+COPY . .
 RUN --mount=type=cache,target=/root/.pub-cache \
     flutter --disable-analytics && \
-    flutter pub get --enforce-lockfile
-
-# Copy app source code
-COPY . .
-
-# Generate documentation
-RUN --mount=type=cache,target=/root/.pub-cache \
+    flutter pub get --enforce-lockfile && \
     dart doc
 
 FROM caddy:2-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d
