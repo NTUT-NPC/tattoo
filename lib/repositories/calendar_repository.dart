@@ -41,6 +41,15 @@ class CalendarRepository {
   /// - Otherwise, try network first.
   /// - On network failure, return cached events when cache exists.
   /// - Re-throw the network error if no cache is available.
+  ///
+  /// Note: Only [DioException] (network errors) is caught for fallback to cached ICS.
+  /// Other errors (such as [StateError] for empty/invalid ICS, or parsing bugs) are NOT caught intentionally.
+  ///
+  /// Rationale: This app only keeps events for one day after they end, so the cache is always recent.
+  /// If the server returns an empty or invalid feed, it's likely a real upstream problem (e.g., calendar deleted, access revoked, or a breaking change).
+  /// In these cases, showing old data could mislead users (e.g., showing already-expired events as if they're current).
+  ///
+  /// Therefore, we only fallback to cache on network errors, not on data/logic errors, to avoid surfacing stale or misleading information.
   Future<CalendarSnapshot> getEvents({bool refresh = false}) async {
     final cachedRaw = await _prefs.getString(_calendarIcsCacheKey);
     final cachedAt = DateTime.tryParse(
@@ -53,7 +62,7 @@ class CalendarRepository {
 
     try {
       return await _fetchFromNetworkOrThrow();
-    } catch (e) {
+    } on DioException {
       if (cachedRaw == null) rethrow;
 
       return CalendarSnapshot(
