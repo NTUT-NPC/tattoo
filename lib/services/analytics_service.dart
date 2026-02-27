@@ -1,20 +1,6 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-/// Global toggle for Firebase features.
-///
-/// This constant determines if Firebase should be initialized in `main.dart`
-/// and if [AnalyticsService] should expose a real [FirebaseAnalytics] instance.
-///
-/// Defaults to `true` only in release mode to avoid package name mismatch
-/// issues in debug mode (`club.ntut.tattoo.debug`).
-///
-/// Can be overridden via: `--dart-define=USE_FIREBASE=true`
-const bool useFirebase = bool.fromEnvironment(
-  'USE_FIREBASE',
-  defaultValue: kReleaseMode,
-);
+import 'package:tattoo/services/firebase_service.dart';
 
 /// Provider for the [AnalyticsService].
 final analyticsServiceProvider = Provider<AnalyticsService>((ref) {

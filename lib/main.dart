@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -6,6 +7,8 @@ import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/analytics_service.dart';
+import 'package:tattoo/services/crashlytics_service.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'dart:developer';
 
 Future<void> main() async {
@@ -20,6 +23,14 @@ Future<void> main() async {
       log(e.toString(), name: 'Firebase Initialization');
     }
   }
+
+  FlutterError.onError = (errorDetails) {
+    CrashlyticsService().instance?.recordFlutterFatalError(errorDetails);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    CrashlyticsService().instance?.recordError(error, stack, fatal: true);
+    return true;
+  };
 
   AnalyticsService().instance?.logAppOpen();
 
