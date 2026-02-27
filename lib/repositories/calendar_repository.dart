@@ -53,7 +53,7 @@ class CalendarRepository {
 
     try {
       return await _fetchFromNetworkOrThrow();
-    } on DioException {
+    } catch (e) {
       if (cachedRaw == null) rethrow;
 
       return CalendarSnapshot(
