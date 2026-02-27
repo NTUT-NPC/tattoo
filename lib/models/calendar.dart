@@ -1,3 +1,4 @@
+/// Domain model for a single calendar event used by the UI layer.
 class CalendarEvent {
   final String id;
   final String title;
@@ -18,6 +19,7 @@ class CalendarEvent {
   });
 }
 
+/// Repository result model containing event list and cache metadata.
 class CalendarSnapshot {
   final List<CalendarEvent> events;
   final DateTime? cachedAt;

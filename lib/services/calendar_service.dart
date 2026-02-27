@@ -2,6 +2,9 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/services/calendar_feed.dart';
 import 'package:tattoo/utils/http.dart';
 
+/// Raw calendar event DTO returned by [CalendarService].
+///
+/// This record is intentionally close to the parsed ICS payload.
 typedef CalendarEventDto = ({
   String id,
   String title,
@@ -12,11 +15,16 @@ typedef CalendarEventDto = ({
   bool isAllDay,
 });
 
+/// Provider for creating [CalendarService].
 final calendarServiceProvider = Provider<CalendarService>((ref) {
   return CalendarService();
 });
 
+/// Service responsible for fetching and parsing Google Calendar ICS data.
 class CalendarService {
+  /// Downloads the calendar ICS content as plain text.
+  ///
+  /// Throws a [StateError] when the response is empty.
   Future<String> fetchCalendarIcs() async {
     final response = await createDio().get<String>(
       calendarPublicIcsUrl,
@@ -30,6 +38,10 @@ class CalendarService {
     return ics;
   }
 
+  /// Parses ICS text into a sorted list of [CalendarEventDto].
+  ///
+  /// Supported fields: `UID`, `SUMMARY`, `LOCATION`, `DESCRIPTION`,
+  /// `DTSTART`, and `DTEND`.
   List<CalendarEventDto> parseEvents(String content) {
     final unfoldedLines = _unfoldLines(content);
     final events = <CalendarEventDto>[];
@@ -121,6 +133,7 @@ class CalendarService {
     return events;
   }
 
+  /// Unfolds wrapped ICS lines according to RFC 5545 line folding rules.
   List<String> _unfoldLines(String content) {
     final lines = content
         .replaceAll('\r\n', '\n')
@@ -145,6 +158,7 @@ class CalendarService {
     return unfolded;
   }
 
+  /// Returns the first property by name from the parsed event property map.
   _IcsProperty? _firstProperty(
     Map<String, List<_IcsProperty>> properties,
     String name,
@@ -152,11 +166,15 @@ class CalendarService {
     return properties[name]?.first;
   }
 
+  /// Returns whether a date property represents a date-only value.
   bool _isDateOnly(_IcsProperty property) {
     return property.params['VALUE']?.toUpperCase() == 'DATE' ||
         property.value.length == 8;
   }
 
+        /// Parses an ICS date/datetime property into local [DateTime].
+        ///
+        /// Handles all-day dates (`VALUE=DATE`) and UTC datetimes (`...Z`).
   DateTime? _parseDateValue(_IcsProperty? property) {
     if (property == null) return null;
 
@@ -200,6 +218,7 @@ class CalendarService {
     return DateTime(year, month, day, hour, minute, second);
   }
 
+  /// Unescapes escaped ICS text sequences.
   String _unescapeIcsValue(String value) {
     return value
         .replaceAll(r'\n', '\n')
@@ -210,6 +229,7 @@ class CalendarService {
   }
 }
 
+/// Internal representation of a parsed ICS property line.
 class _IcsProperty {
   final String name;
   final String value;

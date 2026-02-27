@@ -5,9 +5,13 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/calendar.dart';
 import 'package:tattoo/screens/main/calendar/calendar_providers.dart';
 
+/// Main calendar tab screen.
+///
+/// Displays upcoming events, supports pull-to-refresh, and shows cache status.
 class CalendarScreen extends ConsumerWidget {
   const CalendarScreen({super.key});
 
+  /// Reloads calendar data by invalidating and re-reading the provider.
   Future<void> _refresh(WidgetRef ref) async {
     ref.invalidate(calendarEventsProvider);
     await ref.read(calendarEventsProvider.future);
@@ -116,6 +120,7 @@ class CalendarScreen extends ConsumerWidget {
   }
 }
 
+/// Compact card widget for rendering one [CalendarEvent].
 class _CalendarEventCard extends StatelessWidget {
   final CalendarEvent event;
 
@@ -155,6 +160,7 @@ class _CalendarEventCard extends StatelessWidget {
     );
   }
 
+  /// Formats event dates as either a single day or a date range.
   String _formatTimeRange(CalendarEvent event) {
     final startDate = DateTime(
       event.start.year,

@@ -5,9 +5,13 @@ import 'package:tattoo/services/calendar_service.dart';
 import 'package:tattoo/utils/http.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
 
+/// SharedPreferences key for the raw ICS payload.
 const _calendarIcsCacheKey = 'calendar.ics.raw';
+
+/// SharedPreferences key for the timestamp when ICS cache was last updated.
 const _calendarIcsCachedAtKey = 'calendar.ics.cachedAt';
 
+/// Dependency-injected provider for [CalendarRepository].
 final calendarRepositoryProvider = Provider<CalendarRepository>((ref) {
   return CalendarRepository(
     prefs: ref.watch(sharedPreferencesProvider),
@@ -15,6 +19,11 @@ final calendarRepositoryProvider = Provider<CalendarRepository>((ref) {
   );
 });
 
+/// Repository for calendar event data.
+///
+/// This repository fetches events from Google Calendar ICS via [CalendarService],
+/// persists the raw payload in local storage, and falls back to cached content
+/// when the network request fails.
 class CalendarRepository {
   final SharedPreferencesAsync _prefs;
   final CalendarService _calendarService;
@@ -25,6 +34,13 @@ class CalendarRepository {
   }) : _prefs = prefs,
        _calendarService = calendarService;
 
+  /// Returns calendar events with cache fallback behavior.
+  ///
+  /// Behavior summary:
+  /// - If there is no local cache and `refresh` is false, fetch from network.
+  /// - Otherwise, try network first.
+  /// - On network failure, return cached events when cache exists.
+  /// - Re-throw the network error if no cache is available.
   Future<CalendarSnapshot> getEvents({bool refresh = false}) async {
     final cachedRaw = await _prefs.getString(_calendarIcsCacheKey);
     final cachedAt = DateTime.tryParse(
@@ -51,6 +67,7 @@ class CalendarRepository {
     }
   }
 
+  /// Fetches ICS from the network, parses events, and updates local cache.
   Future<CalendarSnapshot> _fetchFromNetworkOrThrow() async {
     final ics = await _calendarService.fetchCalendarIcs();
     final parsedEvents = _calendarService
@@ -69,6 +86,7 @@ class CalendarRepository {
     );
   }
 
+  /// Maps service DTO records to UI-facing [CalendarEvent] domain models.
   CalendarEvent _mapToDomainEvent(CalendarEventDto dto) {
     return CalendarEvent(
       id: dto.id,
