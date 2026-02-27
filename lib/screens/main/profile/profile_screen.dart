@@ -146,6 +146,11 @@ class ProfileScreen extends ConsumerWidget {
 
       SectionHeader(title: 'TAT'),
       OptionEntryTile(
+        icon: Icons.rice_bowl_outlined,
+        title: '點一碗炒飯',
+        onTap: () => throw Exception('炒飯'),
+      ),
+      OptionEntryTile(
         icon: Icons.favorite_border_outlined,
         title: t.profile.options.supportUs,
         onTap: () => _showDemoTap(context),
