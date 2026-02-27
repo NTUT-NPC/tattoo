@@ -172,9 +172,9 @@ class CalendarService {
         property.value.length == 8;
   }
 
-        /// Parses an ICS date/datetime property into local [DateTime].
-        ///
-        /// Handles all-day dates (`VALUE=DATE`) and UTC datetimes (`...Z`).
+  /// Parses an ICS date/datetime property into local [DateTime].
+  ///
+  /// Handles all-day dates (`VALUE=DATE`) and UTC datetimes (`...Z`).
   DateTime? _parseDateValue(_IcsProperty? property) {
     if (property == null) return null;
 

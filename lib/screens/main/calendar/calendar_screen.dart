@@ -74,7 +74,9 @@ class CalendarScreen extends ConsumerWidget {
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                       child: ListTile(
                         dense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                        ),
                         title: Text(
                           t.calendar.offlineMode,
                           style: Theme.of(context).textTheme.bodySmall,
@@ -88,7 +90,9 @@ class CalendarScreen extends ConsumerWidget {
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                       child: ListTile(
                         dense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                        ),
                         title: Text(
                           t.calendar.updatedAt(
                             date: DateFormat(
@@ -216,7 +220,11 @@ class _CalendarEventCard extends StatelessWidget {
   bool _isOngoing(CalendarEvent event, DateTime now) {
     if (event.isAllDay) {
       final nowDate = DateTime(now.year, now.month, now.day);
-      final startDate = DateTime(event.start.year, event.start.month, event.start.day);
+      final startDate = DateTime(
+        event.start.year,
+        event.start.month,
+        event.start.day,
+      );
       var endDate = DateTime(event.end.year, event.end.month, event.end.day);
 
       if (endDate.isAfter(startDate)) {
