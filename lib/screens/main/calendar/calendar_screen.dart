@@ -73,77 +73,30 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     CalendarSnapshot snapshot,
   ) {
     final now = DateTime.now();
-    final retainedEvents = snapshot.events
-        .where(
-          (event) => event.end.isAfter(
-            now.subtract(const Duration(days: 30)),
-          ),
-        )
-        .toList();
-
-    final activeEvents =
-        retainedEvents.where((event) => !_isEventEnded(event, now)).toList()
-          ..sort((left, right) {
-            final leftGroup = _eventSortGroup(left, now);
-            final rightGroup = _eventSortGroup(right, now);
-
-            if (leftGroup != rightGroup) {
-              return leftGroup.compareTo(rightGroup);
-            }
-
-            if (leftGroup == 0) {
-              final endCompare = _effectiveEnd(
-                left,
-              ).compareTo(_effectiveEnd(right));
-              if (endCompare != 0) {
-                return endCompare;
-              }
-            }
-
-            return left.start.compareTo(right.start);
-          });
-
-    final endedEvents =
-        retainedEvents.where((event) => _isEventEnded(event, now)).toList()
-          ..sort(
-            (left, right) =>
-                _effectiveEnd(right).compareTo(_effectiveEnd(left)),
-          );
+    final groupedEvents = _groupAndSortEvents(snapshot.events, now);
+    final activeEvents = groupedEvents.active;
+    final endedEvents = groupedEvents.ended;
 
     final hasVisibleEvents = activeEvents.isNotEmpty || endedEvents.isNotEmpty;
 
     return [
       if (!snapshot.refreshedFromNetwork)
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: ListTile(
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-              title: Text(
-                t.calendar.offlineMode,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          ),
+        _buildMetaTileSliver(
+          context,
+          text: t.calendar.offlineMode,
+          topPadding: 12,
+          bottomPadding: 0,
         ),
       if (snapshot.fetchedAt != null)
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-            child: ListTile(
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-              title: Text(
-                t.calendar.updatedAt(
-                  date: DateFormat(
-                    'yyyy/MM/dd HH:mm',
-                  ).format(snapshot.fetchedAt!.toLocal()),
-                ),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
+        _buildMetaTileSliver(
+          context,
+          text: t.calendar.updatedAt(
+            date: DateFormat(
+              'yyyy/MM/dd HH:mm',
+            ).format(snapshot.fetchedAt!.toLocal()),
           ),
+          topPadding: 8,
+          bottomPadding: 4,
         ),
       if (!hasVisibleEvents)
         SliverFillRemaining(
@@ -198,6 +151,64 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         },
       ),
     );
+  }
+
+  Widget _buildMetaTileSliver(
+    BuildContext context, {
+    required String text,
+    required double topPadding,
+    required double bottomPadding,
+  }) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16, topPadding, 16, bottomPadding),
+        child: ListTile(
+          dense: true,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+          title: Text(
+            text,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+      ),
+    );
+  }
+
+  ({List<CalendarEvent> active, List<CalendarEvent> ended}) _groupAndSortEvents(
+    List<CalendarEvent> events,
+    DateTime now,
+  ) {
+    final retainedEvents = events
+        .where(
+          (event) => event.end.isAfter(
+            now.subtract(const Duration(days: 30)),
+          ),
+        )
+        .toList();
+
+    final active = retainedEvents.where((event) => !_isEventEnded(event, now)).toList()
+      ..sort((left, right) {
+        final leftGroup = _eventSortGroup(left, now);
+        final rightGroup = _eventSortGroup(right, now);
+
+        if (leftGroup != rightGroup) {
+          return leftGroup.compareTo(rightGroup);
+        }
+
+        if (leftGroup == 0) {
+          final endCompare = _effectiveEnd(left).compareTo(_effectiveEnd(right));
+          if (endCompare != 0) {
+            return endCompare;
+          }
+        }
+
+        return left.start.compareTo(right.start);
+      });
+
+    final ended = retainedEvents.where((event) => _isEventEnded(event, now)).toList()
+      ..sort((left, right) => _effectiveEnd(right).compareTo(_effectiveEnd(left)));
+
+    return (active: active, ended: ended);
   }
 }
 
