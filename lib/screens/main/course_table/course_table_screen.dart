@@ -6,6 +6,7 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/database/database.dart' show User;
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/screens/main/course_table/course_table_block.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 
 // TODO: Import mock data from demo mode when implemented
@@ -238,7 +239,16 @@ class _CourseTableTabPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Text('Course table placeholder: $semester'),
+      child: Center(
+        child: SizedBox(
+          width: 70,
+          height: 60,
+          child: CourseTableBlock(
+            courseBlock: mockCourseTableBlock,
+            blockColor: Colors.orange,
+          ),
+        ),
+      ),
     );
   }
 }
