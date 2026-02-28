@@ -22,134 +22,125 @@ class CalendarScreen extends ConsumerWidget {
     final eventsAsync = ref.watch(calendarEventsProvider);
 
     return Scaffold(
-      body: eventsAsync.when(
-        loading: () => CustomScrollView(
+      body: RefreshIndicator(
+        onRefresh: () => _refresh(ref),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverAppBar(
               pinned: true,
               centerTitle: true,
               title: Text(t.nav.calendar),
             ),
-            const SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          ],
-        ),
-        error: (error, _) => CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              pinned: true,
-              centerTitle: true,
-              title: Text(t.nav.calendar),
-            ),
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: Text('${t.calendar.loadFailed}\n$error')),
-            ),
-          ],
-        ),
-        data: (snapshot) {
-          final now = DateTime.now();
-          final events =
-              snapshot.events
-                  .where(
-                    (event) => event.end.isAfter(
-                      now.subtract(const Duration(days: 1)),
-                    ),
-                  )
-                  .toList()
-                ..sort((left, right) {
-                  final leftGroup = _eventSortGroup(left, now);
-                  final rightGroup = _eventSortGroup(right, now);
-
-                  if (leftGroup != rightGroup) {
-                    return leftGroup.compareTo(rightGroup);
-                  }
-
-                  if (leftGroup == 1) {
-                    final endCompare = _effectiveEnd(left).compareTo(
-                      _effectiveEnd(right),
-                    );
-                    if (endCompare != 0) {
-                      return endCompare;
-                    }
-                  }
-
-                  return left.start.compareTo(right.start);
-                });
-
-          return RefreshIndicator(
-            onRefresh: () => _refresh(ref),
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  centerTitle: true,
-                  title: Text(t.nav.calendar),
+            ...eventsAsync.when(
+              loading: () => const [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: CircularProgressIndicator()),
                 ),
-                if (!snapshot.refreshedFromNetwork)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                      child: ListTile(
-                        dense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                        ),
-                        title: Text(
-                          t.calendar.offlineMode,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ),
-                    ),
-                  ),
-                if (snapshot.fetchedAt != null)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                      child: ListTile(
-                        dense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                        ),
-                        title: Text(
-                          t.calendar.updatedAt(
-                            date: DateFormat(
-                              'yyyy/MM/dd HH:mm',
-                            ).format(snapshot.fetchedAt!.toLocal()),
-                          ),
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ),
-                    ),
-                  ),
-                if (events.isEmpty)
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(child: Text(t.calendar.noUpcomingEvents)),
-                  )
-                else
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                    sliver: SliverList.builder(
-                      itemCount: events.length,
-                      itemBuilder: (context, index) {
-                        final event = events[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _CalendarEventCard(event: event),
-                        );
-                      },
-                    ),
-                  ),
               ],
+              error: (error, _) => [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Text('${t.calendar.loadFailed}\n$error'),
+                  ),
+                ),
+              ],
+              data: (snapshot) => _buildEventSlivers(context, snapshot),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
+  }
+
+  List<Widget> _buildEventSlivers(
+    BuildContext context,
+    CalendarSnapshot snapshot,
+  ) {
+    final now = DateTime.now();
+    final events =
+        snapshot.events
+            .where(
+              (event) => event.end.isAfter(
+                now.subtract(const Duration(days: 1)),
+              ),
+            )
+            .toList()
+          ..sort((left, right) {
+            final leftGroup = _eventSortGroup(left, now);
+            final rightGroup = _eventSortGroup(right, now);
+
+            if (leftGroup != rightGroup) {
+              return leftGroup.compareTo(rightGroup);
+            }
+
+            if (leftGroup == 1) {
+              final endCompare = _effectiveEnd(left).compareTo(
+                _effectiveEnd(right),
+              );
+              if (endCompare != 0) {
+                return endCompare;
+              }
+            }
+
+            return left.start.compareTo(right.start);
+          });
+
+    return [
+      if (!snapshot.refreshedFromNetwork)
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: ListTile(
+              dense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+              title: Text(
+                t.calendar.offlineMode,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ),
+        ),
+      if (snapshot.fetchedAt != null)
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: ListTile(
+              dense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+              title: Text(
+                t.calendar.updatedAt(
+                  date: DateFormat(
+                    'yyyy/MM/dd HH:mm',
+                  ).format(snapshot.fetchedAt!.toLocal()),
+                ),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ),
+        ),
+      if (events.isEmpty)
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(child: Text(t.calendar.noUpcomingEvents)),
+        )
+      else
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          sliver: SliverList.builder(
+            itemCount: events.length,
+            itemBuilder: (context, index) {
+              final event = events[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _CalendarEventCard(event: event),
+              );
+            },
+          ),
+        ),
+    ];
   }
 }
 
