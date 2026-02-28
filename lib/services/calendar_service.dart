@@ -1,4 +1,5 @@
 import 'package:riverpod/riverpod.dart';
+import 'package:tattoo/models/calendar.dart';
 import 'package:tattoo/services/calendar_feed.dart';
 import 'package:tattoo/utils/http.dart';
 
@@ -25,19 +26,6 @@ enum IcsPropertyName {
 }
 // dart format on
 
-/// Raw calendar event DTO returned by [CalendarService].
-///
-/// This record is intentionally close to the parsed ICS payload.
-typedef CalendarEventDto = ({
-  String id,
-  String title,
-  String? location,
-  String? description,
-  DateTime start,
-  DateTime end,
-  bool isAllDay,
-});
-
 /// Provider for creating [CalendarService].
 final calendarServiceProvider = Provider<CalendarService>((ref) {
   return CalendarService();
@@ -61,13 +49,13 @@ class CalendarService {
     return ics;
   }
 
-  /// Parses ICS text into a sorted list of [CalendarEventDto].
+  /// Parses ICS text into a sorted list of [CalendarEvent].
   ///
   /// Supported fields: `UID`, `SUMMARY`, `LOCATION`, `DESCRIPTION`,
   /// `DTSTART`, and `DTEND`.
-  List<CalendarEventDto> parseEvents(String content) {
+  List<CalendarEvent> parseEvents(String content) {
     final unfoldedLines = _unfoldLines(content);
-    final events = <CalendarEventDto>[];
+    final events = <CalendarEvent>[];
 
     var inEvent = false;
     final properties = <IcsPropertyName, List<_IcsProperty>>{};
@@ -102,7 +90,7 @@ class CalendarService {
 
       final normalizedEnd = end.isBefore(start) ? start : end;
       events.add(
-        (
+        CalendarEvent(
           id: uid?.trim().isNotEmpty == true
               ? uid!.trim()
               : '${start.toIso8601String()}::$title',

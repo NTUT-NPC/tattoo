@@ -66,10 +66,7 @@ class CalendarRepository {
       if (cachedRaw == null) rethrow;
 
       return CalendarSnapshot(
-        events: _calendarService
-            .parseEvents(cachedRaw)
-            .map(_mapToDomainEvent)
-            .toList(),
+        events: _calendarService.parseEvents(cachedRaw),
         cachedAt: cachedAt,
         refreshedFromNetwork: false,
       );
@@ -79,10 +76,7 @@ class CalendarRepository {
   /// Fetches ICS from the network, parses events, and updates local cache.
   Future<CalendarSnapshot> _fetchFromNetworkOrThrow() async {
     final ics = await _calendarService.fetchCalendarIcs();
-    final parsedEvents = _calendarService
-        .parseEvents(ics)
-        .map(_mapToDomainEvent)
-        .toList();
+    final parsedEvents = _calendarService.parseEvents(ics);
 
     final now = DateTime.now();
     await _prefs.setString(_calendarIcsCacheKey, ics);
@@ -92,19 +86,6 @@ class CalendarRepository {
       events: parsedEvents,
       cachedAt: now,
       refreshedFromNetwork: true,
-    );
-  }
-
-  /// Maps service DTO records to UI-facing [CalendarEvent] domain models.
-  CalendarEvent _mapToDomainEvent(CalendarEventDto dto) {
-    return CalendarEvent(
-      id: dto.id,
-      title: dto.title,
-      location: dto.location,
-      description: dto.description,
-      start: dto.start,
-      end: dto.end,
-      isAllDay: dto.isAllDay,
     );
   }
 }
