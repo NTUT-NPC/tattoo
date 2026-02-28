@@ -144,7 +144,7 @@ class CalendarService {
       properties
           .putIfAbsent(propName, () => [])
           .add(
-            _IcsProperty(
+            (
               name: propName,
               value: _unescapeIcsValue(rawValue),
               params: params,
@@ -253,14 +253,8 @@ class CalendarService {
 }
 
 /// Internal representation of a parsed ICS property line.
-class _IcsProperty {
-  final IcsPropertyName name;
-  final String value;
-  final Map<String, String> params;
-
-  const _IcsProperty({
-    required this.name,
-    required this.value,
-    required this.params,
-  });
-}
+typedef _IcsProperty = ({
+  IcsPropertyName name,
+  String value,
+  Map<String, String> params,
+});
