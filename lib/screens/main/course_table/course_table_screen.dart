@@ -8,6 +8,7 @@ import 'package:tattoo/database/database.dart' show User;
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 
+// TODO: Import mock data from demo mode when implemented
 const _placeholderOwnerName = '載入中';
 const _placeholderAvatarInitial = '載';
 
