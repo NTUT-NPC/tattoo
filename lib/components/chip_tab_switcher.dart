@@ -1,5 +1,5 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 
 /// A horizontally scrollable chip-style tab switcher.
 ///
@@ -78,16 +78,12 @@ class ChipTabSwitcher extends StatefulWidget {
     super.key,
     required this.tabs,
     this.controller,
-    this.visibleTabCount = 4.5,
-    this.minTabWidth = 56,
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
     this.spacing = 8,
   });
 
   final List<String> tabs;
   final TabController? controller;
-  final double visibleTabCount;
-  final double minTabWidth;
   final EdgeInsetsGeometry padding;
   final double spacing;
 
@@ -302,37 +298,25 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
       );
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final maxTabWidth = constraints.maxWidth / widget.visibleTabCount;
-        final effectiveMaxTabWidth = math.max(maxTabWidth, widget.minTabWidth);
-        final tabConstraints = BoxConstraints(
-          minWidth: widget.minTabWidth,
-          maxWidth: effectiveMaxTabWidth,
-        );
-
-        return SingleChildScrollView(
-          key: _scrollViewportKey,
-          controller: _scrollController,
-          padding: widget.padding,
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            spacing: widget.spacing,
-            children: [
-              for (var index = 0; index < widget.tabs.length; index++)
-                ConstrainedBox(
-                  key: _tabKeys[index],
-                  constraints: tabConstraints,
-                  child: _TabSwitchChip(
-                    label: widget.tabs[index],
-                    isSelected: index == _activeIndex,
-                    onTap: () => _handleChipTap(index),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
+    return SingleChildScrollView(
+      key: _scrollViewportKey,
+      controller: _scrollController,
+      padding: widget.padding,
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        spacing: widget.spacing,
+        children: [
+          for (var index = 0; index < widget.tabs.length; index++)
+            SizedBox(
+              key: _tabKeys[index],
+              child: _TabSwitchChip(
+                label: widget.tabs[index],
+                isSelected: index == _activeIndex,
+                onTap: () => _handleChipTap(index),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
