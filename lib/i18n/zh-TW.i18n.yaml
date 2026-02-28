@@ -45,6 +45,10 @@ calendar:
   updatedAt: 更新時間 $date
   ended: 已結束
   ongoing: 進行中
+  endedEvents: 已結束活動
+  endedEventsCount: 共 $count 筆
+  expandEndedEvents: 顯示
+  collapseEndedEvents: 收合
   noUpcomingEvents: 近期沒有行事曆活動
   dateRange: $start - $end
 profile:

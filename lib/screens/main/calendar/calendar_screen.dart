@@ -8,8 +8,15 @@ import 'package:tattoo/screens/main/calendar/calendar_providers.dart';
 /// Main calendar tab screen.
 ///
 /// Displays upcoming events, supports pull-to-refresh, and shows cache status.
-class CalendarScreen extends ConsumerWidget {
+class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
+
+  @override
+  ConsumerState<CalendarScreen> createState() => _CalendarScreenState();
+}
+
+class _CalendarScreenState extends ConsumerState<CalendarScreen> {
+  bool _showEndedEvents = false;
 
   /// Reloads calendar data by invalidating and re-reading the provider.
   Future<void> _refresh(WidgetRef ref) async {
@@ -17,8 +24,14 @@ class CalendarScreen extends ConsumerWidget {
     await ref.read(calendarEventsProvider.future);
   }
 
+  void _toggleEndedEvents() {
+    setState(() {
+      _showEndedEvents = !_showEndedEvents;
+    });
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final eventsAsync = ref.watch(calendarEventsProvider);
 
     return Scaffold(
@@ -60,14 +73,16 @@ class CalendarScreen extends ConsumerWidget {
     CalendarSnapshot snapshot,
   ) {
     final now = DateTime.now();
-    final events =
-        snapshot.events
-            .where(
-              (event) => event.end.isAfter(
-                now.subtract(const Duration(days: 1)),
-              ),
-            )
-            .toList()
+    final retainedEvents = snapshot.events
+        .where(
+          (event) => event.end.isAfter(
+            now.subtract(const Duration(days: 30)),
+          ),
+        )
+        .toList();
+
+    final activeEvents =
+        retainedEvents.where((event) => !_isEventEnded(event, now)).toList()
           ..sort((left, right) {
             final leftGroup = _eventSortGroup(left, now);
             final rightGroup = _eventSortGroup(right, now);
@@ -76,10 +91,10 @@ class CalendarScreen extends ConsumerWidget {
               return leftGroup.compareTo(rightGroup);
             }
 
-            if (leftGroup == 1) {
-              final endCompare = _effectiveEnd(left).compareTo(
-                _effectiveEnd(right),
-              );
+            if (leftGroup == 0) {
+              final endCompare = _effectiveEnd(
+                left,
+              ).compareTo(_effectiveEnd(right));
               if (endCompare != 0) {
                 return endCompare;
               }
@@ -87,6 +102,15 @@ class CalendarScreen extends ConsumerWidget {
 
             return left.start.compareTo(right.start);
           });
+
+    final endedEvents =
+        retainedEvents.where((event) => _isEventEnded(event, now)).toList()
+          ..sort(
+            (left, right) =>
+                _effectiveEnd(right).compareTo(_effectiveEnd(left)),
+          );
+
+    final hasVisibleEvents = activeEvents.isNotEmpty || endedEvents.isNotEmpty;
 
     return [
       if (!snapshot.refreshedFromNetwork)
@@ -121,26 +145,95 @@ class CalendarScreen extends ConsumerWidget {
             ),
           ),
         ),
-      if (events.isEmpty)
+      if (!hasVisibleEvents)
         SliverFillRemaining(
           hasScrollBody: false,
           child: Center(child: Text(t.calendar.noUpcomingEvents)),
         )
-      else
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-          sliver: SliverList.builder(
-            itemCount: events.length,
-            itemBuilder: (context, index) {
-              final event = events[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _CalendarEventCard(event: event),
-              );
-            },
+      else ...[
+        if (activeEvents.isNotEmpty)
+          _buildEventCardSliver(
+            activeEvents,
+            top: 8,
+            bottom: endedEvents.isNotEmpty ? 0 : 24,
           ),
-        ),
+        if (endedEvents.isNotEmpty)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            sliver: SliverToBoxAdapter(
+              child: _EndedEventsSection(
+                events: endedEvents,
+                expanded: _showEndedEvents,
+                onToggle: _toggleEndedEvents,
+              ),
+            ),
+          ),
+        if (_showEndedEvents && endedEvents.isNotEmpty)
+          _buildEventCardSliver(
+            endedEvents,
+            top: 8,
+            bottom: 24,
+          )
+        else
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+      ],
     ];
+  }
+
+  Widget _buildEventCardSliver(
+    List<CalendarEvent> events, {
+    required double top,
+    required double bottom,
+  }) {
+    return SliverPadding(
+      padding: EdgeInsets.fromLTRB(16, top, 16, bottom),
+      sliver: SliverList.builder(
+        itemCount: events.length,
+        itemBuilder: (context, index) {
+          final event = events[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _CalendarEventCard(event: event),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _EndedEventsSection extends StatelessWidget {
+  final List<CalendarEvent> events;
+  final bool expanded;
+  final VoidCallback onToggle;
+
+  const _EndedEventsSection({
+    required this.events,
+    required this.expanded,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        onTap: onToggle,
+        leading: const Icon(Icons.history),
+        title: Text(t.calendar.endedEvents),
+        subtitle: Text(t.calendar.endedEventsCount(count: events.length)),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              expanded
+                  ? t.calendar.collapseEndedEvents
+                  : t.calendar.expandEndedEvents,
+            ),
+            const SizedBox(width: 4),
+            Icon(expanded ? Icons.expand_less : Icons.expand_more),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -218,29 +311,28 @@ class _CalendarEventCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  /// Formats event dates as either a single day or a date range.
-  String _formatTimeRange(CalendarEvent event) {
-    final startDate = DateTime(
-      event.start.year,
-      event.start.month,
-      event.start.day,
-    );
+/// Formats event dates as either a single day or a date range.
+String _formatTimeRange(CalendarEvent event) {
+  final startDate = DateTime(
+    event.start.year,
+    event.start.month,
+    event.start.day,
+  );
 
-    // Strip time so same-day timed events compare equal to startDate.
-    final effective = _effectiveEnd(event);
-    final endDate = DateTime(effective.year, effective.month, effective.day);
+  final effective = _effectiveEnd(event);
+  final endDate = DateTime(effective.year, effective.month, effective.day);
 
-    final formatter = DateFormat('MM/dd');
-    if (startDate == endDate) {
-      return formatter.format(startDate);
-    }
-
-    return t.calendar.dateRange(
-      start: formatter.format(startDate),
-      end: formatter.format(endDate),
-    );
+  final formatter = DateFormat('MM/dd');
+  if (startDate == endDate) {
+    return formatter.format(startDate);
   }
+
+  return t.calendar.dateRange(
+    start: formatter.format(startDate),
+    end: formatter.format(endDate),
+  );
 }
 
 /// Returns the inclusive end date for an all-day event.
@@ -290,7 +382,7 @@ bool _isEventEnded(CalendarEvent event, DateTime now) {
 }
 
 int _eventSortGroup(CalendarEvent event, DateTime now) {
-  if (_isEventEnded(event, now)) return 0;
-  if (_isEventOngoing(event, now)) return 1;
-  return 2;
+  if (_isEventOngoing(event, now)) return 0;
+  if (_isEventEnded(event, now)) return 2;
+  return 1;
 }

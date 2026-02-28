@@ -138,6 +138,10 @@ class _TranslationsCalendarEn extends TranslationsCalendarZhTw {
 	@override String updatedAt({required Object date}) => 'Updated ${date}';
 	@override String get ended => 'Ended';
 	@override String get ongoing => 'Ongoing';
+	@override String get endedEvents => 'Ended events';
+	@override String endedEventsCount({required Object count}) => '${count} events';
+	@override String get expandEndedEvents => 'Show';
+	@override String get collapseEndedEvents => 'Hide';
 	@override String get noUpcomingEvents => 'No upcoming calendar events';
 	@override String dateRange({required Object start, required Object end}) => '${start} - ${end}';
 }
@@ -323,6 +327,10 @@ extension on TranslationsEn {
 			'calendar.updatedAt' => ({required Object date}) => 'Updated ${date}',
 			'calendar.ended' => 'Ended',
 			'calendar.ongoing' => 'Ongoing',
+			'calendar.endedEvents' => 'Ended events',
+			'calendar.endedEventsCount' => ({required Object count}) => '${count} events',
+			'calendar.expandEndedEvents' => 'Show',
+			'calendar.collapseEndedEvents' => 'Hide',
 			'calendar.noUpcomingEvents' => 'No upcoming calendar events',
 			'calendar.dateRange' => ({required Object start, required Object end}) => '${start} - ${end}',
 			'profile.sections.accountSettings' => 'Account Settings',

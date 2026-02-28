@@ -194,6 +194,18 @@ class TranslationsCalendarZhTw {
 	/// zh-TW: '進行中'
 	String get ongoing => '進行中';
 
+	/// zh-TW: '已結束活動'
+	String get endedEvents => '已結束活動';
+
+	/// zh-TW: '共 $count 筆'
+	String endedEventsCount({required Object count}) => '共 ${count} 筆';
+
+	/// zh-TW: '顯示'
+	String get expandEndedEvents => '顯示';
+
+	/// zh-TW: '收合'
+	String get collapseEndedEvents => '收合';
+
 	/// zh-TW: '近期沒有行事曆活動'
 	String get noUpcomingEvents => '近期沒有行事曆活動';
 
@@ -444,6 +456,10 @@ extension on Translations {
 			'calendar.updatedAt' => ({required Object date}) => '更新時間 ${date}',
 			'calendar.ended' => '已結束',
 			'calendar.ongoing' => '進行中',
+			'calendar.endedEvents' => '已結束活動',
+			'calendar.endedEventsCount' => ({required Object count}) => '共 ${count} 筆',
+			'calendar.expandEndedEvents' => '顯示',
+			'calendar.collapseEndedEvents' => '收合',
 			'calendar.noUpcomingEvents' => '近期沒有行事曆活動',
 			'calendar.dateRange' => ({required Object start, required Object end}) => '${start} - ${end}',
 			'profile.sections.accountSettings' => '帳號設定',

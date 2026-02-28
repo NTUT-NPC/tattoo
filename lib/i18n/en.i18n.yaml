@@ -45,6 +45,10 @@ calendar:
   updatedAt: Updated $date
   ended: Ended
   ongoing: Ongoing
+  endedEvents: Ended events
+  endedEventsCount: $count events
+  expandEndedEvents: Show
+  collapseEndedEvents: Hide
   noUpcomingEvents: No upcoming calendar events
   dateRange: $start - $end
 profile:
