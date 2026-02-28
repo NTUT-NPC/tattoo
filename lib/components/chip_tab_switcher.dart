@@ -420,3 +420,58 @@ class _TabSwitchChip extends StatelessWidget {
     );
   }
 }
+
+// Widget previews for _TabSwitchChip
+void tabSwitchChipPreviewOnTap() {}
+
+Widget _tabSwitchChipPreviewFrame({required Widget child}) {
+  return MaterialApp(
+    home: Scaffold(
+      body: Center(
+        child: child,
+      ),
+    ),
+  );
+}
+
+@Preview(
+  name: '_TabSwitchChip selected',
+  size: Size(220, 72),
+  group: 'Single Chip',
+)
+Widget tabSwitchChipSelectedPreview() {
+  return _tabSwitchChipPreviewFrame(
+    child: _TabSwitchChip(
+      label: '114-2',
+      isSelected: true,
+      onTap: tabSwitchChipPreviewOnTap,
+    ),
+  );
+}
+
+@Preview(
+  name: '_TabSwitchChip unselected',
+  size: Size(220, 72),
+  group: 'Single Chip',
+)
+Widget tabSwitchChipUnselectedPreview() {
+  return _tabSwitchChipPreviewFrame(
+    child: _TabSwitchChip(
+      label: '114-1',
+      isSelected: false,
+      onTap: tabSwitchChipPreviewOnTap,
+    ),
+  );
+}
+
+@Preview(name: 'ChipTabSwitcher', size: Size(220, 72), group: 'Tab Switcher')
+Widget tabSwitcherPreview() {
+  return _tabSwitchChipPreviewFrame(
+    child: ChipTabSwitcher(
+      tabs: ["114-1", "114-2", "113-1", "113-2", "112-1", "112-2"],
+      // controller: TabController(length: 6, vsync: const TestVSync()),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      spacing: 12,
+    ),
+  );
+}
