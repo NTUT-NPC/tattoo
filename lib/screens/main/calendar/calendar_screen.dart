@@ -186,27 +186,34 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         )
         .toList();
 
-    final active = retainedEvents.where((event) => !_isEventEnded(event, now)).toList()
-      ..sort((left, right) {
-        final leftGroup = _eventSortGroup(left, now);
-        final rightGroup = _eventSortGroup(right, now);
+    final active =
+        retainedEvents.where((event) => !_isEventEnded(event, now)).toList()
+          ..sort((left, right) {
+            final leftGroup = _eventSortGroup(left, now);
+            final rightGroup = _eventSortGroup(right, now);
 
-        if (leftGroup != rightGroup) {
-          return leftGroup.compareTo(rightGroup);
-        }
+            if (leftGroup != rightGroup) {
+              return leftGroup.compareTo(rightGroup);
+            }
 
-        if (leftGroup == 0) {
-          final endCompare = _effectiveEnd(left).compareTo(_effectiveEnd(right));
-          if (endCompare != 0) {
-            return endCompare;
-          }
-        }
+            if (leftGroup == 0) {
+              final endCompare = _effectiveEnd(
+                left,
+              ).compareTo(_effectiveEnd(right));
+              if (endCompare != 0) {
+                return endCompare;
+              }
+            }
 
-        return left.start.compareTo(right.start);
-      });
+            return left.start.compareTo(right.start);
+          });
 
-    final ended = retainedEvents.where((event) => _isEventEnded(event, now)).toList()
-      ..sort((left, right) => _effectiveEnd(right).compareTo(_effectiveEnd(left)));
+    final ended =
+        retainedEvents.where((event) => _isEventEnded(event, now)).toList()
+          ..sort(
+            (left, right) =>
+                _effectiveEnd(right).compareTo(_effectiveEnd(left)),
+          );
 
     return (active: active, ended: ended);
   }

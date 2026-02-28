@@ -152,15 +152,13 @@ class CalendarService {
         params[key] = value;
       }
 
-      properties
-          .putIfAbsent(propName, () => [])
-          .add(
-            (
-              name: propName,
-              value: _unescapeIcsValue(rawValue),
-              params: params,
-            ),
-          );
+      properties.putIfAbsent(propName, () => []).add(
+        (
+          name: propName,
+          value: _unescapeIcsValue(rawValue),
+          params: params,
+        ),
+      );
     }
 
     events.sort((left, right) => left.start.compareTo(right.start));
