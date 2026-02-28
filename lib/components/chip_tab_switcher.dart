@@ -466,12 +466,16 @@ Widget tabSwitchChipUnselectedPreview() {
 
 @Preview(name: 'ChipTabSwitcher', size: Size(220, 72), group: 'Tab Switcher')
 Widget tabSwitcherPreview() {
+  const tabs = ["114-1", "114-2", "113-1", "113-2", "112-1", "112-2"];
+
   return _tabSwitchChipPreviewFrame(
-    child: ChipTabSwitcher(
-      tabs: ["114-1", "114-2", "113-1", "113-2", "112-1", "112-2"],
-      // controller: TabController(length: 6, vsync: const TestVSync()),
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      spacing: 12,
+    child: DefaultTabController(
+      length: tabs.length,
+      child: ChipTabSwitcher(
+        tabs: tabs,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        spacing: 12,
+      ),
     ),
   );
 }
