@@ -1,6 +1,27 @@
-# Project Tattoo
+<!-- markdownlint-disable no-inline-html first-line-heading -->
 
-A modern reimplementation of TAT — the course helper app for Taipei Tech students
+<p align="center">
+  <img src="doc/icon.svg" alt="Tattoo Logo" align="center" width="128" height="128">
+</p>
+
+<h1 align="center">Tattoo</h1>
+
+<p align="center">
+  A modern reimplementation of TAT — the course helper app for Taipei Tech students
+</p>
+
+<p align="center">
+  <a href="https://ntut.club">
+    <img
+      alt="An NPC Project"
+      src="https://img.shields.io/badge/An_NPC_Project-333?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0iI2ZmZiI%2BPHBhdGggZD0iTTQgNHYyNGw4LTggMTYgOFY0bC04IDh6Ii8%2BPC9zdmc%2B"
+    >
+  </a>
+  <img
+    alt="Works on my machine"
+    src="https://img.shields.io/badge/Works_on-My_machine-dark_green"
+  >
+</p>
 
 ## What is this?
 
@@ -39,17 +60,18 @@ flutter run
 
 This project uses a private Git repository to manage sensitive credentials (signing keys, service accounts, and Firebase configuration files).
 
-1.  **Request Access:** Contact the maintainers for access to the `tattoo-credentials` repository.
-2.  **Configure `.env`:** Copy `.env.example` to `.env` and fill in the `MATCH_GIT_URL` and `MATCH_PASSWORD`.
-3.  **Fetch Configs:** Run `dart run tool/credentials.dart fetch`. This will decrypt and place files like `google-services.json` and `keystore.jks` in their respective directories.
+1. **Request Access:** Contact the maintainers for access to the `tattoo-credentials` repository.
+2. **Configure `.env`:** Copy `.env.example` to `.env` and fill in the `MATCH_GIT_URL` and `MATCH_PASSWORD`.
+3. **Fetch Configs:** Run `dart run tool/credentials.dart fetch`. This will decrypt and place files like `google-services.json` and `keystore.jks` in their respective directories.
 
 ### Firebase Setup (Maintainers only)
 
 If you need to reconfigure Firebase:
-1.  Install the [Firebase CLI](https://firebase.google.com/docs/cli).
-2.  Install the [FlutterFire CLI](https://firebase.google.com/docs/flutter/setup).
-3.  Run `flutterfire configure` to update `lib/firebase_options.dart`.
-4.  Encrypt and push new config files using `dart run tool/credentials.dart encrypt <file> <path_in_repo>`.
+
+1. Install the [Firebase CLI](https://firebase.google.com/docs/cli).
+2. Install the [FlutterFire CLI](https://firebase.google.com/docs/flutter/setup).
+3. Run `flutterfire configure` to update `lib/firebase_options.dart`.
+4. Encrypt and push new config files using `dart run tool/credentials.dart encrypt <file> <path_in_repo>`.
 
 ## Local Development
 
