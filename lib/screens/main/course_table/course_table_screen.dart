@@ -37,25 +37,25 @@ class CourseTableScreen extends ConsumerWidget {
               toolbarHeight: 56,
               backgroundColor: Theme.of(context).colorScheme.primary,
               flexibleSpace: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      _TableOwnerIndicator(
-                        context: context,
-                        profileAsync: profileAsync,
-                        avatarAsync: avatarAsync,
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                        child: Row(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        _TableOwnerIndicator(
+                          context: context,
+                          profileAsync: profileAsync,
+                          avatarAsync: avatarAsync,
+                        ),
+                        const Spacer(),
+                        Row(
                           mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           spacing: 8,
                           children: [
                             _CircularIconButton(
@@ -72,8 +72,8 @@ class CourseTableScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -111,6 +111,8 @@ class _TableOwnerIndicator extends StatelessWidget {
     required this.avatarAsync,
   });
 
+  static const double _height = 36;
+
   final BuildContext context;
   final AsyncValue<User?> profileAsync;
   final AsyncValue<File?> avatarAsync;
@@ -147,6 +149,7 @@ class _TableOwnerIndicator extends StatelessWidget {
           // TODO: implement course table sharing feature and switch here
           onTap: () {},
           child: Ink(
+            height: _height,
             padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),
             decoration: ShapeDecoration(
               shape: shape,
@@ -251,27 +254,26 @@ class _CircularIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1,
-      child: SizedBox.expand(
-        child: Material(
-          color: Colors.white.withValues(alpha: 0.7),
-          shape: const CircleBorder(),
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            splashFactory: InkRipple.splashFactory,
-            splashColor: Colors.black12,
-            highlightColor: Colors.black12,
-            onTap: onTap,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final iconSize = constraints.biggest.shortestSide * 0.45;
+    return SizedBox(
+      width: 28,
+      height: 28,
+      child: Material(
+        color: Colors.white.withValues(alpha: 0.7),
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          splashFactory: InkRipple.splashFactory,
+          splashColor: Colors.black12,
+          highlightColor: Colors.black12,
+          onTap: onTap,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final iconSize = constraints.biggest.shortestSide * 0.45;
 
-                return Center(
-                  child: Icon(icon, size: iconSize),
-                );
-              },
-            ),
+              return Center(
+                child: Icon(icon, size: iconSize),
+              );
+            },
           ),
         ),
       ),
