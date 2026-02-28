@@ -9,7 +9,7 @@ import 'package:tattoo/utils/shared_preferences.dart';
 const _calendarIcsCacheKey = 'calendar.ics.raw';
 
 /// SharedPreferences key for the timestamp when ICS cache was last updated.
-const _calendarIcsCachedAtKey = 'calendar.ics.cachedAt';
+const _calendarIcsFetchedAtKey = 'calendar.ics.fetchedAt';
 
 /// Dependency-injected provider for [CalendarRepository].
 final calendarRepositoryProvider = Provider<CalendarRepository>((ref) {
@@ -52,39 +52,39 @@ class CalendarRepository {
   /// Therefore, we only fallback to cache on network errors, not on data/logic errors, to avoid surfacing stale or misleading information.
   Future<CalendarSnapshot> getEvents({bool refresh = false}) async {
     final cachedRaw = await _prefs.getString(_calendarIcsCacheKey);
-    final cachedAt = DateTime.tryParse(
-      await _prefs.getString(_calendarIcsCachedAtKey) ?? '',
+    final fetchedAt = DateTime.tryParse(
+      await _prefs.getString(_calendarIcsFetchedAtKey) ?? '',
     );
 
     if (!refresh && cachedRaw == null) {
-      return _fetchFromNetworkOrThrow();
+      return _fetchEventsFromNetwork();
     }
 
     try {
-      return await _fetchFromNetworkOrThrow();
+      return await _fetchEventsFromNetwork();
     } on DioException {
       if (cachedRaw == null) rethrow;
 
       return CalendarSnapshot(
         events: _calendarService.parseEvents(cachedRaw),
-        cachedAt: cachedAt,
+        fetchedAt: fetchedAt,
         refreshedFromNetwork: false,
       );
     }
   }
 
   /// Fetches ICS from the network, parses events, and updates local cache.
-  Future<CalendarSnapshot> _fetchFromNetworkOrThrow() async {
+  Future<CalendarSnapshot> _fetchEventsFromNetwork() async {
     final ics = await _calendarService.fetchCalendarIcs();
     final parsedEvents = _calendarService.parseEvents(ics);
 
     final now = DateTime.now();
     await _prefs.setString(_calendarIcsCacheKey, ics);
-    await _prefs.setString(_calendarIcsCachedAtKey, now.toIso8601String());
+    await _prefs.setString(_calendarIcsFetchedAtKey, now.toIso8601String());
 
     return CalendarSnapshot(
       events: parsedEvents,
-      cachedAt: now,
+      fetchedAt: now,
       refreshedFromNetwork: true,
     );
   }

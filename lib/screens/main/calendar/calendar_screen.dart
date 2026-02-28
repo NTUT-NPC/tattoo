@@ -105,7 +105,7 @@ class CalendarScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                if (snapshot.cachedAt != null)
+                if (snapshot.fetchedAt != null)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -118,7 +118,7 @@ class CalendarScreen extends ConsumerWidget {
                           t.calendar.updatedAt(
                             date: DateFormat(
                               'yyyy/MM/dd HH:mm',
-                            ).format(snapshot.cachedAt!.toLocal()),
+                            ).format(snapshot.fetchedAt!.toLocal()),
                           ),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),

@@ -22,12 +22,12 @@ class CalendarEvent {
 /// Repository result model containing event list and cache metadata.
 class CalendarSnapshot {
   final List<CalendarEvent> events;
-  final DateTime? cachedAt;
+  final DateTime? fetchedAt;
   final bool refreshedFromNetwork;
 
   const CalendarSnapshot({
     required this.events,
-    required this.cachedAt,
+    required this.fetchedAt,
     required this.refreshedFromNetwork,
   });
 }
