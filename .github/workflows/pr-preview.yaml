@@ -12,8 +12,13 @@ on:
         description: 'Specific commit SHA to build (overrides branch)'
         required: false
         type: string
-      skip_upload:
-        description: 'Build without uploading or bumping build number'
+      deploy_android:
+        description: 'Deploy Android to Firebase App Distribution'
+        required: false
+        type: boolean
+        default: true
+      deploy_ios:
+        description: 'Deploy iOS to TestFlight'
         required: false
         type: boolean
         default: false
@@ -36,7 +41,6 @@ jobs:
       # so this output may be an empty string. This is intentional; all downstream uses of
       # needs.prepare.outputs.comment_id are guarded by the same pull_request-only condition.
       comment_id: ${{ steps.create.outputs.comment-id }}
-      skip_upload: ${{ steps.flags.outputs.skip_upload }}
       target_ref: ${{ steps.set-ref.outputs.ref }}
     steps:
       - name: Checkout Actions
@@ -57,18 +61,7 @@ jobs:
         with:
           ref: ${{ steps.set-ref.outputs.ref }}
 
-      - name: Check for skip-upload flag
-        id: flags
-        run: |
-          COMMIT_MSG="$(git show -s --format=%B)"
-          if [[ "$COMMIT_MSG" == *"[skip upload]"* ]] || [[ "${{ inputs.skip_upload }}" == "true" ]]; then
-            echo "skip_upload=true" >> $GITHUB_OUTPUT
-          else
-            echo "skip_upload=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Manage Build Number
-        if: steps.flags.outputs.skip_upload != 'true'
         id: build-number
         uses: ./.github/actions/manage-build-number
         with:
@@ -83,7 +76,7 @@ jobs:
           build_number: ${{ steps.build-number.outputs.build_number || vars.build_number }}
 
       - name: Find existing comment
-        if: github.event_name == 'pull_request' && steps.flags.outputs.skip_upload != 'true'
+        if: github.event_name == 'pull_request'
         uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
         id: find-comment
         with:
@@ -91,9 +84,29 @@ jobs:
           comment-author: github-actions[bot]
           body-includes: <!-- pr-preview-comment -->
 
+      - name: Read existing deploy checkboxes
+        id: checkboxes
+        if: github.event_name == 'pull_request'
+        env:
+          COMMENT_BODY: ${{ steps.find-comment.outputs.comment-body }}
+        run: |
+          ANDROID="x"
+          IOS=" "
+          BODY="$COMMENT_BODY"
+          if [ -n "$BODY" ]; then
+            if echo "$BODY" | grep -q '<!-- deploy-android -->'; then
+              [[ "$BODY" =~ \[x\]\ \<\!--\ deploy-android ]] && ANDROID="x" || ANDROID=" "
+            fi
+            if echo "$BODY" | grep -q '<!-- deploy-ios -->'; then
+              [[ "$BODY" =~ \[x\]\ \<\!--\ deploy-ios ]] && IOS="x" || IOS=" "
+            fi
+          fi
+          echo "android=$ANDROID" >> $GITHUB_OUTPUT
+          echo "ios=$IOS" >> $GITHUB_OUTPUT
+
       - name: Create or update initial comment
         id: create
-        if: github.event_name == 'pull_request' && steps.flags.outputs.skip_upload != 'true'
+        if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
@@ -104,6 +117,10 @@ jobs:
             **Build Number:** ${{ steps.build-number.outputs.build_number }}
             **Commit:** ${{ steps.summary.outputs.sha }}
             **Message:** ${{ steps.summary.outputs.message }}
+
+            ### Deploy
+            - [${{ steps.checkboxes.outputs.android }}] <!-- deploy-android --> Android (Firebase App Distribution)
+            - [${{ steps.checkboxes.outputs.ios }}] <!-- deploy-ios --> iOS (TestFlight)
           edit-mode: replace
 
   android:
@@ -131,14 +148,43 @@ jobs:
         with:
           platform: android
 
+      - name: Find preview comment
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: <!-- pr-preview-comment -->
+
+      - name: Check deploy checkbox
+        id: check-deploy
+        env:
+          COMMENT_BODY: ${{ steps.find-comment.outputs.comment-body }}
+        run: |
+          BODY="$COMMENT_BODY"
+          if [ -z "$BODY" ]; then
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.deploy_android }}" != "false" ]; then
+              echo "skip_upload=false" >> $GITHUB_OUTPUT
+            else
+              echo "skip_upload=true" >> $GITHUB_OUTPUT
+            fi
+            exit 0
+          fi
+          if echo "$BODY" | grep -q '\[x\] <!-- deploy-android -->'; then
+            echo "skip_upload=false" >> $GITHUB_OUTPUT
+          else
+            echo "skip_upload=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build and upload to Firebase App Distribution
         id: upload
         env:
           FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
-        run: bundle exec fastlane android preview skip_upload:${{ needs.prepare.outputs.skip_upload }}
+        run: bundle exec fastlane android preview skip_upload:${{ steps.check-deploy.outputs.skip_upload }}
 
       - name: Write Android Job Summary
-        if: needs.prepare.outputs.skip_upload != 'true'
+        if: steps.check-deploy.outputs.skip_upload != 'true'
         uses: ./.github/actions/android-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
@@ -146,7 +192,7 @@ jobs:
           testing_uri: ${{ steps.upload.outputs.testing_uri }}
 
       - name: Update comment with Android build
-        if: github.event_name == 'pull_request' && needs.prepare.outputs.skip_upload != 'true'
+        if: github.event_name == 'pull_request' && steps.check-deploy.outputs.skip_upload != 'true'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ needs.prepare.outputs.comment_id }}
@@ -190,17 +236,46 @@ jobs:
           cd ios && bundle exec pod install
           git diff --exit-code Podfile.lock
 
+      - name: Find preview comment
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: <!-- pr-preview-comment -->
+
+      - name: Check deploy checkbox
+        id: check-deploy
+        env:
+          COMMENT_BODY: ${{ steps.find-comment.outputs.comment-body }}
+        run: |
+          BODY="$COMMENT_BODY"
+          if [ -z "$BODY" ]; then
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.deploy_ios }}" != "false" ]; then
+              echo "skip_upload=false" >> $GITHUB_OUTPUT
+            else
+              echo "skip_upload=true" >> $GITHUB_OUTPUT
+            fi
+            exit 0
+          fi
+          if echo "$BODY" | grep -q '\[x\] <!-- deploy-ios -->'; then
+            echo "skip_upload=false" >> $GITHUB_OUTPUT
+          else
+            echo "skip_upload=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build and Upload to TestFlight
-        run: bundle exec fastlane ios beta skip_upload:${{ needs.prepare.outputs.skip_upload }}
+        run: bundle exec fastlane ios beta skip_upload:${{ steps.check-deploy.outputs.skip_upload }}
 
       - name: Write iOS Job Summary
-        if: needs.prepare.outputs.skip_upload != 'true'
+        if: steps.check-deploy.outputs.skip_upload != 'true'
         uses: ./.github/actions/ios-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
 
       - name: Update comment with iOS build
-        if: github.event_name == 'pull_request' && needs.prepare.outputs.skip_upload != 'true'
+        if: github.event_name == 'pull_request' && steps.check-deploy.outputs.skip_upload != 'true'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ needs.prepare.outputs.comment_id }}

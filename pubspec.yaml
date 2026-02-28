@@ -41,6 +41,9 @@ dependencies:
   shared_preferences: ^2.5.4
   flutter_image_compress: ^2.4.0
   msgpack_dart: ^1.0.1
+  firebase_core: ^4.4.0
+  firebase_crashlytics: ^5.0.7
+  firebase_analytics: ^12.1.2
 
 dev_dependencies:
   flutter_test:
