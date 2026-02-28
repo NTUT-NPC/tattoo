@@ -1,7 +1,18 @@
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/models/calendar.dart';
-import 'package:tattoo/services/calendar_feed.dart';
 import 'package:tattoo/utils/http.dart';
+
+const _calendarId = 'docfuhim9b22fqvp2tk842ak3c@group.calendar.google.com';
+
+Uri _buildCalendarPublicIcsUri(String id) {
+  return Uri.https(
+    'calendar.google.com',
+    '/calendar/ical/$id/public/basic.ics',
+  );
+}
+
+String get _calendarPublicIcsUrl =>
+    _buildCalendarPublicIcsUri(_calendarId).toString();
 
 // dart format off
 /// ICS property names supported by the parser.
@@ -38,7 +49,7 @@ class CalendarService {
   /// Throws a [StateError] when the response is empty.
   Future<String> fetchCalendarIcs() async {
     final response = await createDio().get<String>(
-      calendarPublicIcsUrl,
+      _calendarPublicIcsUrl,
       options: Options(responseType: ResponseType.plain),
     );
 
