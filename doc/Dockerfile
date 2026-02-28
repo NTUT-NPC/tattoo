@@ -1,4 +1,4 @@
-FROM debian:trixie-slim@sha256:f6e2cfac5cf956ea044b4bd75e6397b4372ad88fe00908045e9a0d21712ae3ba AS builder
+FROM debian:trixie-slim@sha256:1d3c811171a08a5adaa4a163fbafd96b61b87aa871bbc7aa15431ac275d3d430 AS builder
 
 # Install dependencies
 RUN apt-get update && \
@@ -30,7 +30,7 @@ RUN --mount=type=cache,target=/root/.pub-cache \
     flutter pub get --enforce-lockfile && \
     dart doc
 
-FROM caddy:2-alpine@sha256:4c6e91c6ed0e2fa03efd5b44747b625fec79bc9cd06ac5235a779726618e530d
+FROM caddy:2-alpine@sha256:3b2a0196e0687279c14c27adff9fc6b44acfa318dbb97eaebe385bdf99e5364c
 
 # Copy generated documentation
 COPY --from=builder /app/doc/api /usr/share/caddy
