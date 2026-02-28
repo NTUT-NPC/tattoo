@@ -45,8 +45,8 @@ class CourseTableScreen extends ConsumerWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      _tableOwnerIndicator(
-                        context,
+                      _TableOwnerIndicator(
+                        context: context,
                         profileAsync: profileAsync,
                         avatarAsync: avatarAsync,
                       ),
@@ -102,12 +102,21 @@ class CourseTableScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _tableOwnerIndicator(
-    BuildContext context, {
-    required AsyncValue<User?> profileAsync,
-    required AsyncValue<File?> avatarAsync,
-  }) {
+class _TableOwnerIndicator extends StatelessWidget {
+  const _TableOwnerIndicator({
+    required this.context,
+    required this.profileAsync,
+    required this.avatarAsync,
+  });
+
+  final BuildContext context;
+  final AsyncValue<User?> profileAsync;
+  final AsyncValue<File?> avatarAsync;
+
+  @override
+  Widget build(BuildContext context) {
     final profile = profileAsync.asData?.value;
     final avatarFile = avatarAsync.asData?.value;
     final isLoading = profileAsync is AsyncLoading<User?> && profile == null;
