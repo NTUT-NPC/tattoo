@@ -68,8 +68,8 @@ class CalendarScreen extends ConsumerWidget {
                   }
 
                   if (leftGroup == 1) {
-                    final endCompare = _eventSortEnd(left).compareTo(
-                      _eventSortEnd(right),
+                    final endCompare = _effectiveEnd(left).compareTo(
+                      _effectiveEnd(right),
                     );
                     if (endCompare != 0) {
                       return endCompare;
@@ -235,11 +235,10 @@ class _CalendarEventCard extends StatelessWidget {
       event.start.month,
       event.start.day,
     );
-    var endDate = DateTime(event.end.year, event.end.month, event.end.day);
 
-    if (event.isAllDay && endDate.isAfter(startDate)) {
-      endDate = endDate.subtract(const Duration(days: 1));
-    }
+    // Strip time so same-day timed events compare equal to startDate.
+    final effective = _effectiveEnd(event);
+    final endDate = DateTime(effective.year, effective.month, effective.day);
 
     final formatter = DateFormat('MM/dd');
     if (startDate == endDate) {
@@ -253,53 +252,13 @@ class _CalendarEventCard extends StatelessWidget {
   }
 }
 
-bool _isEventOngoing(CalendarEvent event, DateTime now) {
-  if (event.isAllDay) {
-    final nowDate = DateTime(now.year, now.month, now.day);
-    final startDate = DateTime(
-      event.start.year,
-      event.start.month,
-      event.start.day,
-    );
-    var endDate = DateTime(event.end.year, event.end.month, event.end.day);
-
-    if (endDate.isAfter(startDate)) {
-      endDate = endDate.subtract(const Duration(days: 1));
-    }
-
-    return !nowDate.isBefore(startDate) && !nowDate.isAfter(endDate);
-  }
-
-  return !now.isBefore(event.start) && now.isBefore(event.end);
-}
-
-bool _isEventEnded(CalendarEvent event, DateTime now) {
-  if (event.isAllDay) {
-    final nowDate = DateTime(now.year, now.month, now.day);
-    final startDate = DateTime(
-      event.start.year,
-      event.start.month,
-      event.start.day,
-    );
-    var endDate = DateTime(event.end.year, event.end.month, event.end.day);
-
-    if (endDate.isAfter(startDate)) {
-      endDate = endDate.subtract(const Duration(days: 1));
-    }
-
-    return nowDate.isAfter(endDate);
-  }
-
-  return !now.isBefore(event.end);
-}
-
-int _eventSortGroup(CalendarEvent event, DateTime now) {
-  if (_isEventEnded(event, now)) return 0;
-  if (_isEventOngoing(event, now)) return 1;
-  return 2;
-}
-
-DateTime _eventSortEnd(CalendarEvent event) {
+/// Returns the inclusive end date for an all-day event.
+///
+/// ICS all-day events use an exclusive end date (e.g. a single-day event on
+/// March 1 has DTEND=March 2). This subtracts one day when end > start to
+/// convert to an inclusive end. For non-all-day events, returns [event.end]
+/// unchanged.
+DateTime _effectiveEnd(CalendarEvent event) {
   if (!event.isAllDay) return event.end;
 
   final startDate = DateTime(
@@ -312,6 +271,35 @@ DateTime _eventSortEnd(CalendarEvent event) {
   if (endDate.isAfter(startDate)) {
     return endDate.subtract(const Duration(days: 1));
   }
-
   return endDate;
+}
+
+bool _isEventOngoing(CalendarEvent event, DateTime now) {
+  if (event.isAllDay) {
+    final nowDate = DateTime(now.year, now.month, now.day);
+    final startDate = DateTime(
+      event.start.year,
+      event.start.month,
+      event.start.day,
+    );
+    return !nowDate.isBefore(startDate) &&
+        !nowDate.isAfter(_effectiveEnd(event));
+  }
+
+  return !now.isBefore(event.start) && now.isBefore(event.end);
+}
+
+bool _isEventEnded(CalendarEvent event, DateTime now) {
+  if (event.isAllDay) {
+    final nowDate = DateTime(now.year, now.month, now.day);
+    return nowDate.isAfter(_effectiveEnd(event));
+  }
+
+  return !now.isBefore(event.end);
+}
+
+int _eventSortGroup(CalendarEvent event, DateTime now) {
+  if (_isEventEnded(event, now)) return 0;
+  if (_isEventOngoing(event, now)) return 1;
+  return 2;
 }
