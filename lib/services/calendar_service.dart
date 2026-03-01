@@ -68,6 +68,10 @@ class CalendarService {
   ///
   /// Supported fields: `UID`, `SUMMARY`, `LOCATION`, `DESCRIPTION`,
   /// `DTSTART`, and `DTEND`.
+  ///
+  /// Note: `TZID` parameters are preserved while parsing, but are not currently
+  /// applied for timezone conversion. Datetime values without a `Z` suffix are
+  /// interpreted as local wall time.
   List<CalendarEvent> parseEvents(String content) {
     final unfoldedLines = _unfoldLines(content);
     final events = <CalendarEvent>[];
@@ -211,6 +215,9 @@ class CalendarService {
   /// Parses an ICS date/datetime property into local [DateTime].
   ///
   /// Handles all-day dates (`VALUE=DATE`) and UTC datetimes (`...Z`).
+  ///
+  /// Limitation: `TZID` is currently ignored during conversion. For datetime
+  /// values without `Z`, the parser treats the timestamp as local wall time.
   DateTime? _parseDateValue(_IcsProperty? property) {
     if (property == null) return null;
 
