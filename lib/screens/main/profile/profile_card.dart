@@ -70,7 +70,8 @@ class ProfileCard extends ConsumerWidget {
         (
           AsyncValue(value: final profile, hasValue: true),
           AsyncValue(value: final registration, hasValue: true),
-        ) when profile != null =>
+        )
+            when profile != null =>
           ProfileContent(
             profile: profile,
             registration: registration,
