@@ -17,12 +17,26 @@
       src="https://img.shields.io/badge/An_NPC_Project-333?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0iI2ZmZiI%2BPHBhdGggZD0iTTQgNHYyNGw4LTggMTYgOFY0bC04IDh6Ii8%2BPC9zdmc%2B"
     >
   </a>
+  <a href="https://flutter.dev">
+    <img
+      alt="Made with Flutter"
+      src="https://img.shields.io/badge/Made_with-Flutter-02569B?logo=flutter"
+    >
+  </a>
   <img
     alt="Works on my machine"
     src="https://img.shields.io/badge/Works_on-My_machine-dark_green"
   >
+  <a href="https://translate.ntut.club">
+    <img
+      alt="Crowdin Translation Progress"
+      src="https://badges.crowdin.net/project-tattoo/localized.svg"
+    >
+  </a>
 </p>
-
+  
+**Help us translate!** We use [Crowdin](https://translate.ntut.club) to manage localizations. Join the project and help us bring Tattoo to your language!
+  
 ## What is this?
 
 Project Tattoo is a work-in-progress Flutter app that helps Taipei Tech (NTUT) students access their course schedules and academic information. This is a ground-up reimplementation with a focus on:
