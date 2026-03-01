@@ -34,6 +34,7 @@ Future<void> main() async {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.errors.occurred),
+        //TODO: Remove technical details from user-facing error messages
         content: Text(error.toString()),
         actions: [
           TextButton(
