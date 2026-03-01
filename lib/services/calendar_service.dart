@@ -44,11 +44,15 @@ final calendarServiceProvider = Provider<CalendarService>((ref) {
 
 /// Service responsible for fetching and parsing Google Calendar ICS data.
 class CalendarService {
+  CalendarService({Dio? dio}) : _dio = dio ?? createDio();
+
+  final Dio _dio;
+
   /// Downloads the calendar ICS content as plain text.
   ///
   /// Throws a [StateError] when the response is empty.
   Future<String> fetchCalendarIcs() async {
-    final response = await createDio().get<String>(
+    final response = await _dio.get<String>(
       _calendarPublicIcsUrl,
       options: Options(responseType: ResponseType.plain),
     );
