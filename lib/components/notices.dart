@@ -1,4 +1,7 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 
 /// Preset styles used by [BackgroundNotice].
@@ -275,4 +278,119 @@ class BackgroundNotice extends StatelessWidget {
         return Icons.info_outline;
     }
   }
+}
+
+Widget _noticePreviewFrame({
+  required Widget child,
+  AlignmentGeometry alignment = Alignment.center,
+}) {
+  return MaterialApp(
+    home: Scaffold(
+      body: SafeArea(
+        child: Align(
+          alignment: alignment,
+          child: child,
+        ),
+      ),
+    ),
+  );
+}
+
+void loginPrivacyPolicyPreviewOnTap() {}
+
+@Preview(
+  name: 'ClearNotice - Data Disclaimer',
+  group: 'Clear Notices',
+  size: Size(450, 90),
+)
+Widget clearNoticeProfileDataDisclaimerPreview() {
+  return _noticePreviewFrame(
+    child: ClearNotice(text: t.profile.dataDisclaimer),
+  );
+}
+
+@Preview(
+  name: 'ClearNoticeVertical - Developed By',
+  group: 'Clear Notices',
+  size: Size(450, 140),
+)
+Widget clearNoticeVerticalIntroDevelopedByPreview() {
+  return _noticePreviewFrame(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ClearNoticeVertical(
+          icon: SvgPicture.asset(
+            'assets/npc_horizontal.svg',
+            height: 24,
+            colorFilter: ColorFilter.mode(
+              Colors.grey[600]!,
+              BlendMode.srcIn,
+            ),
+          ),
+          text: TextSpan(text: t.intro.developedBy),
+        ),
+      ],
+    ),
+  );
+}
+
+@Preview(
+  name: 'ClearNoticeVertical - Privacy Notice',
+  group: 'Clear Notices',
+  size: Size(450, 170),
+)
+Widget clearNoticeVerticalLoginPrivacyPreview() {
+  return _noticePreviewFrame(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ClearNoticeVertical(
+            text: t.login.privacyNotice(
+              privacyPolicy: (text) => TextSpan(
+                text: text,
+                style: const TextStyle(decoration: TextDecoration.underline),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = loginPrivacyPolicyPreviewOnTap,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+@Preview(
+  name: 'BackgroundNotice - Profile Notices',
+  group: 'Background Notices',
+  size: Size(450, 300),
+)
+Widget backgroundNoticeProfileNoticesPreview() {
+  return _noticePreviewFrame(
+    alignment: Alignment.topCenter,
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        spacing: 8,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          BackgroundNotice(
+            text: t.profile.notices.betaTesting,
+            noticeType: NoticeType.info,
+          ),
+          BackgroundNotice(
+            text: t.profile.notices.passwordExpiring,
+            noticeType: NoticeType.warning,
+          ),
+          BackgroundNotice(
+            text: t.profile.notices.connectionError,
+            noticeType: NoticeType.error,
+          ),
+        ],
+      ),
+    ),
+  );
 }

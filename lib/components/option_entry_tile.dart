@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 
 /// Built-in trailing icon options for [OptionEntryTile].
 enum OptionEntryTileActionIcon {
@@ -169,4 +171,62 @@ class OptionEntryTile extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _optionEntryTilePreviewFrame({
+  required Widget child,
+  AlignmentGeometry alignment = Alignment.topCenter,
+}) {
+  return MaterialApp(
+    home: Scaffold(
+      body: SafeArea(
+        child: Align(
+          alignment: alignment,
+          child: child,
+        ),
+      ),
+    ),
+  );
+}
+
+void optionEntryTilePreviewOnTap() {}
+
+@Preview(
+  name: 'OptionEntryTile - Profile Options Block',
+  group: 'OptionEntryTile',
+  size: Size(420, 360),
+)
+Widget optionEntryTileProfileOptionsPreview() {
+  return _optionEntryTilePreviewFrame(
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        spacing: 8,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          OptionEntryTile(
+            icon: Icons.image,
+            title: t.profile.options.changeAvatar,
+            onTap: optionEntryTilePreviewOnTap,
+          ),
+          OptionEntryTile(
+            icon: Icons.logout,
+            title: t.profile.options.logout,
+            onTap: optionEntryTilePreviewOnTap,
+          ),
+          OptionEntryTile(
+            svgIconAsset: 'assets/npc_logo.svg',
+            title: t.profile.options.npcClub,
+            actionIcon: OptionEntryTileActionIcon.exitToApp,
+            onTap: optionEntryTilePreviewOnTap,
+          ),
+          OptionEntryTile(
+            title: t.general.unknown,
+            description: "這是一個帶描述的範例元件，採用預設 Icon。",
+            onTap: optionEntryTilePreviewOnTap,
+          ),
+        ],
+      ),
+    ),
+  );
 }
