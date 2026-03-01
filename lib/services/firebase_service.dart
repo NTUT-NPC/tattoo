@@ -33,4 +33,17 @@ class FirebaseService {
   /// The [FirebaseCrashlytics] instance, or `null` if Firebase is disabled.
   FirebaseCrashlytics? get crashlytics =>
       useFirebase ? FirebaseCrashlytics.instance : null;
+
+  /// Logs a custom message to Firebase Crashlytics if enabled.
+  ///
+  /// These logs appear in the "Logs" tab of a crash report and help provide
+  /// context for what happened leading up to a crash.
+  void log(String message) {
+    crashlytics?.log(message);
+  }
+
+  /// Returns a [FirebaseAnalyticsObserver] for use with navigation observers, or
+  /// `null` if Firebase is disabled.
+  FirebaseAnalyticsObserver? get analyticsObserver =>
+      useFirebase ? FirebaseAnalyticsObserver(analytics: analytics!) : null;
 }

@@ -26,6 +26,8 @@ Future<void> main() async {
   final container = ProviderContainer();
   final firebase = container.read(firebaseServiceProvider);
 
+  firebase.log('App starting...');
+
   void showErrorDialog(Object error, {String type = ""}) {
     final context = rootNavigatorKey.currentContext;
     if (context == null) return;

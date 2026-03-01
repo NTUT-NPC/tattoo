@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/services/course_service.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/portal_service.dart';
 
 import '../test_helpers.dart';
@@ -15,7 +16,7 @@ void main() {
     });
 
     setUp(() async {
-      portalService = PortalService();
+      portalService = PortalService(FirebaseService());
       courseService = CourseService();
 
       await portalService.login(

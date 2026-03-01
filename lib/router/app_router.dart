@@ -7,6 +7,7 @@ import 'package:tattoo/screens/main/score/score_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
+import 'package:tattoo/services/firebase_service.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -21,6 +22,9 @@ abstract class AppRoutes {
 final appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: AppRoutes.home,
+  observers: [
+    if (FirebaseService().analyticsObserver case final observer?) observer,
+  ],
   routes: [
     GoRoute(
       path: AppRoutes.intro,
