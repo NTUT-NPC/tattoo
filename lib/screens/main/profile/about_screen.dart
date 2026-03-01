@@ -64,7 +64,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                                       ?.value ??
                                   false;
 
-                              if (mounted) {
+                              if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
