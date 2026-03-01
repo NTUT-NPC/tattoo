@@ -20,8 +20,6 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 **Scopes (optional):** use `android` or `ios` when the change is platform-specific.
 
-Include `[skip upload]` in the commit body to skip the build number bump and Firebase/TestFlight upload while still running the build. Use this to preserve upload rate limits on changes that don't need testing on device.
-
 **Examples:**
 
 - `feat: add student query service`
