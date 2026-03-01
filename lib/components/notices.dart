@@ -106,7 +106,6 @@ class ClearNoticeVertical extends StatelessWidget {
   }
 }
 
-
 /// A bordered notice chip with a tinted background and semantic presets.
 ///
 /// Usage:
