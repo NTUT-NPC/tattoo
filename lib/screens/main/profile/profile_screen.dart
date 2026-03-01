@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,6 +12,7 @@ import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/portal_service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,6 +29,7 @@ class ProfileScreen extends ConsumerWidget {
       ref.refresh(userAvatarProvider.future),
       ref.refresh(activeRegistrationProvider.future),
     ]);
+    ref.read(testerActionProvider.notifier).refresh();
   }
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
@@ -122,6 +125,8 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final testerAction = ref.watch(testerActionProvider);
+
     // settings options for the profile tab
     final options = [
       SectionHeader(title: t.profile.sections.accountSettings),
@@ -146,11 +151,19 @@ class ProfileScreen extends ConsumerWidget {
 
       SectionHeader(title: 'TAT'),
       // TODO: remove before release
-      OptionEntryTile(
-        icon: Icons.rice_bowl_outlined,
-        title: '點一碗炒飯',
-        onTap: () => throw Exception('炒飯'),
-      ),
+      if (ref.watch(isBarEnabledProvider).asData?.value ?? false)
+        OptionEntryTile(
+          icon: Icons.sports_bar_outlined,
+          title: '去酒吧$testerAction',
+          onTap: () {
+            if (testerAction == '跑進吧檯被店員拖出去') {
+              SystemNavigator.pop();
+            } else {
+              throw Exception('酒吧陷入火海');
+            }
+          },
+        ),
+
       OptionEntryTile(
         icon: Icons.favorite_border_outlined,
         title: t.profile.options.supportUs,
@@ -159,12 +172,17 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile(
         icon: Icons.info_outline,
         title: t.profile.options.about,
-        onTap: () => _showDemoTap(context),
+        onTap: () async {
+          await context.push(AppRoutes.about);
+          if (context.mounted) {
+            ref.read(testerActionProvider.notifier).refresh();
+          }
+        },
       ),
       OptionEntryTile(
         svgIconAsset: "assets/npc_logo.svg",
         title: t.profile.options.npcClub,
-        onTap: () => _showDemoTap(context),
+        onTap: () => launchUrl(Uri.parse('https://ntut.club')),
       ),
 
       SectionHeader(title: t.profile.sections.appSettings),

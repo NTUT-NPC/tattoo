@@ -66,3 +66,9 @@ enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence
   droppedOut: Withdrawn
+about:
+  description: Project Tattoo (TAT) is an unofficial campus life assistant for National Taipei University of Technology (NTUT). Our goal is to provide a better student experience through a modern and user-friendly interface.
+  developers: Developers
+  helpTranslate: Help us translate TAT!
+  viewSource: View source code and contributions
+

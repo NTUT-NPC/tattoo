@@ -1,6 +1,7 @@
 import 'dart:io';
+import 'dart:math';
 
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 
@@ -26,3 +27,30 @@ final activeRegistrationProvider =
       await ref.watch(userProfileProvider.future);
       return ref.watch(authRepositoryProvider).getActiveRegistration();
     });
+
+/// Provides a random tester action string.
+final testerActionProvider =
+    NotifierProvider.autoDispose<TesterActionNotifier, String>(
+      TesterActionNotifier.new,
+    );
+
+class TesterActionNotifier extends Notifier<String> {
+  static const _actions = [
+    '點 0 杯啤酒',
+    '點 999999999 杯啤酒',
+    '點 1 支蜥蜴',
+    '點 -1 杯啤酒',
+    '點 1 份 asdfghjkl',
+    '點 1 碗炒飯',
+    '跑進吧檯被店員拖出去',
+  ];
+
+  @override
+  String build() {
+    return _actions[Random().nextInt(_actions.length)];
+  }
+
+  void refresh() {
+    state = _actions[Random().nextInt(_actions.length)];
+  }
+}

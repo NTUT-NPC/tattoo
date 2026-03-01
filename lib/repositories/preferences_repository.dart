@@ -9,7 +9,10 @@ enum PrefType { boolean, integer, double, string, stringList }
 /// Typed preference keys with defaults.
 enum PrefKey<T> {
   /// Whether to use mock data instead of live NTUT services.
-  demoMode<bool>(PrefType.boolean, false);
+  demoMode<bool>(PrefType.boolean, false),
+
+  /// Whether the "點一碗炒飯" easter egg is enabled.
+  isFriedRiceEnabled<bool>(PrefType.boolean, false);
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;
@@ -58,5 +61,29 @@ class PreferencesRepository {
       case PrefType.stringList:
         await _prefs.setStringList(key.name, value as List<String>);
     }
+  }
+}
+
+/// Provides the "isFriedRiceEnabled" easter egg preference.
+final isBarEnabledProvider = AsyncNotifierProvider<FriedRiceNotifier, bool>(
+  FriedRiceNotifier.new,
+);
+
+class FriedRiceNotifier extends AsyncNotifier<bool> {
+  @override
+  Future<bool> build() async {
+    final prefs = ref.watch(preferencesRepositoryProvider);
+    return await prefs.get(PrefKey.isFriedRiceEnabled);
+  }
+
+  Future<void> toggle() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final prefs = ref.read(preferencesRepositoryProvider);
+      final current = await prefs.get(PrefKey.isFriedRiceEnabled);
+      final newState = !current;
+      await prefs.set(PrefKey.isFriedRiceEnabled, newState);
+      return newState;
+    });
   }
 }
