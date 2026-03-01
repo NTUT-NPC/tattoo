@@ -114,7 +114,8 @@ class OptionEntryTile extends StatelessWidget {
               spacing: 12,
               children: [
                 Center(
-                  child: customLeading ??
+                  child:
+                      customLeading ??
                       (svgIconAsset != null
                           ? SizedBox.square(
                               dimension: 24,
