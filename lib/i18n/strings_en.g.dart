@@ -72,6 +72,8 @@ class _TranslationsErrorsEn extends TranslationsErrorsZhTw {
 
 	// Translations
 	@override String get occurred => 'An error occurred';
+	@override String get flutterError => 'A Flutter error occurred';
+	@override String get asyncError => 'An async error occurred';
 	@override String get sessionExpired => 'Session expired. Please sign in again.';
 	@override String get credentialsInvalid => 'Credentials are no longer valid. Please sign in again.';
 	@override String get connectionFailed => 'Cannot connect to the server. Please check your network connection.';
@@ -279,6 +281,8 @@ extension on TranslationsEn {
 			'general.notLoggedIn' => 'Not logged in',
 			'general.ok' => 'OK',
 			'errors.occurred' => 'An error occurred',
+			'errors.flutterError' => 'A Flutter error occurred',
+			'errors.asyncError' => 'An async error occurred',
 			'errors.sessionExpired' => 'Session expired. Please sign in again.',
 			'errors.credentialsInvalid' => 'Credentials are no longer valid. Please sign in again.',
 			'errors.connectionFailed' => 'Cannot connect to the server. Please check your network connection.',
