@@ -67,6 +67,46 @@ class ClearNotice extends StatelessWidget {
   }
 }
 
+class ClearWidgetVertical extends StatelessWidget {
+  final InlineSpan text;
+  final Widget? icon;
+
+  const ClearWidgetVertical({
+    super.key,
+    required this.text,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final screenHeight = MediaQuery.of(context).size.height;
+    return Column(
+      spacing: 8.0,
+      children: [
+        SizedBox(
+          child:
+              icon ??
+              Icon(
+                Icons.info_outline,
+                size: screenHeight * 0.035,
+                color: Colors.grey[600],
+              ),
+        ),
+        Text.rich(
+          text,
+          style: theme.textTheme.bodySmall?.copyWith(
+            height: 1.6,
+            color: Colors.grey[600],
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+}
+
+
 /// A bordered notice chip with a tinted background and semantic presets.
 ///
 /// Usage:
