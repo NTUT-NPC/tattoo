@@ -47,6 +47,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
+	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
 }
 
 // Path: general
@@ -199,6 +200,21 @@ class TranslationsEnrollmentStatusZhTw {
 
 	/// zh-TW: '退學'
 	String get droppedOut => '退學';
+}
+
+// Path: about
+class TranslationsAboutZhTw {
+	TranslationsAboutZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: 'Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。'
+	String get description => 'Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。';
+
+	/// zh-TW: '開發團隊'
+	String get developers => '開發團隊';
 }
 
 // Path: intro.features
@@ -426,6 +442,8 @@ extension on Translations {
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
+			'about.description' => 'Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。',
+			'about.developers' => '開發團隊',
 			_ => null,
 		};
 	}
