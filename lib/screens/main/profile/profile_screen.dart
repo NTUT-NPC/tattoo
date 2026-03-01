@@ -159,12 +159,12 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile(
         icon: Icons.info_outline,
         title: t.profile.options.about,
-        onTap: () => _showDemoTap(context),
+        onTap: () => context.push(AppRoutes.about),
       ),
       OptionEntryTile(
         svgIconAsset: "assets/npc_logo.svg",
         title: t.profile.options.npcClub,
-        onTap: () => _showDemoTap(context),
+        onTap: () => launchUrl(Uri.parse('https://ntut.club')),
       ),
 
       SectionHeader(title: t.profile.sections.appSettings),

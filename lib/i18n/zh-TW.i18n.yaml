@@ -66,3 +66,8 @@ enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學
   droppedOut: 退學
+about:
+  description: Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。
+  developers: 開發團隊
+  helpTranslate: 幫助我們翻譯TAT!
+  viewSource: 查看原始碼與貢獻
