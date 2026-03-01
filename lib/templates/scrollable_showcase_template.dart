@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class ScrollableShowcaseTemplate extends StatelessWidget {
   const ScrollableShowcaseTemplate({
     super.key,
-    required this.verticalPadding,
     required this.icon,
     required this.title,
     this.subtitle,
-    required this.theme,
     required this.content,
     required this.bottom,
   });
 
-  final double verticalPadding;
-  final SvgPicture icon;
+  final Widget icon;
   final String title;
   final String? subtitle;
-  final ThemeData theme;
-  final Column content;
-  final Column bottom;
+  final Widget content;
+  final Widget bottom;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final screenHeight = MediaQuery.of(context).size.height;
+    final verticalPadding = screenHeight * 0.1;
+
     return Padding(
       padding: EdgeInsets.fromLTRB(8, 0, 8, 16),
       child: CustomScrollView(

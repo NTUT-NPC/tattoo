@@ -75,10 +75,8 @@ class _IntroScreenState extends State<IntroScreen>
         child: Stack(
           children: [
             ScrollableShowcaseTemplate(
-              verticalPadding: verticalPadding,
               icon: icon,
               title: title,
-              theme: theme,
               content: content,
               bottom: bottom,
             ),
