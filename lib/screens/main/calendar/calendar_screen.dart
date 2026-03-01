@@ -36,6 +36,105 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     });
   }
 
+  Future<void> _showEventDetailsSheet(CalendarEvent event) async {
+    final now = DateTime.now();
+    final colorScheme = Theme.of(context).colorScheme;
+    final isEnded = _isEventEnded(event, now);
+    final isOngoing = _isEventOngoing(event, now);
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        final titleStyle = Theme.of(sheetContext).textTheme.titleLarge;
+        final bodyStyle = Theme.of(sheetContext).textTheme.bodyMedium;
+        final labelStyle = Theme.of(sheetContext).textTheme.labelMedium;
+
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(event.title, style: titleStyle),
+                const SizedBox(height: 12),
+                if (isEnded || isOngoing)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Chip(
+                      label: Text(
+                        isEnded ? t.calendar.ended : t.calendar.ongoing,
+                      ),
+                      backgroundColor: isEnded
+                          ? colorScheme.surfaceContainerHighest
+                          : colorScheme.primaryContainer,
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 8,
+                  children: [
+                    const Icon(Icons.schedule_outlined, size: 18),
+                    Expanded(
+                      child: Text(
+                        _formatDetailedTimeRange(event),
+                        style: labelStyle,
+                      ),
+                    ),
+                  ],
+                ),
+                if (event.location != null && event.location!.trim().isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 8,
+                      children: [
+                        const Icon(Icons.location_on_outlined, size: 18),
+                        Expanded(
+                          child: Text(event.location!, style: bodyStyle),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (event.description != null &&
+                    event.description!.trim().isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  Text(event.description!, style: bodyStyle),
+                ],
+                const SizedBox(height: 20),
+                // SizedBox(
+                //   width: double.infinity,
+                //   child: FilledButton.icon(
+                //     onPressed: () {
+                //       // TODO: Implement add-to-calendar integration.
+                //     },
+                //     icon: const Icon(Icons.event_available_outlined),
+                //     label: const Text('Add to my calendar'),
+                //   ),
+                // ),
+                // const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.of(sheetContext).pop(),
+                    label: Text(
+                      MaterialLocalizations.of(sheetContext).closeButtonLabel,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final eventsAsync = ref.watch(calendarEventsProvider);
@@ -163,7 +262,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           final event = events[index];
           return Padding(
             padding: EdgeInsets.only(bottom: kItemGap),
-            child: _CalendarEventCard(event: event),
+            child: _CalendarEventCard(
+              event: event,
+              onTap: () => _showEventDetailsSheet(event),
+            ),
           );
         },
       ),
@@ -276,8 +378,9 @@ class _EndedEventsSection extends StatelessWidget {
 /// Compact card widget for rendering one [CalendarEvent].
 class _CalendarEventCard extends StatelessWidget {
   final CalendarEvent event;
+  final VoidCallback onTap;
 
-  const _CalendarEventCard({required this.event});
+  const _CalendarEventCard({required this.event, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -299,10 +402,8 @@ class _CalendarEventCard extends StatelessWidget {
 
     return Card(
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 8,
-        ),
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         title: Text(
           event.title,
           style: titleStyle,
@@ -371,6 +472,37 @@ String _formatTimeRange(CalendarEvent event) {
   return t.calendar.dateRange(
     start: formatter.format(startDate),
     end: formatter.format(endDate),
+  );
+}
+
+String _formatDetailedTimeRange(CalendarEvent event) {
+  if (event.isAllDay) {
+    final startDate = DateTime(
+      event.start.year,
+      event.start.month,
+      event.start.day,
+    );
+    final endDate = DateTime(
+      _effectiveEnd(event).year,
+      _effectiveEnd(event).month,
+      _effectiveEnd(event).day,
+    );
+    final formatter = DateFormat('yyyy/MM/dd');
+
+    if (startDate == endDate) {
+      return formatter.format(startDate);
+    }
+
+    return t.calendar.dateRange(
+      start: formatter.format(startDate),
+      end: formatter.format(endDate),
+    );
+  }
+
+  final formatter = DateFormat('yyyy/MM/dd HH:mm');
+  return t.calendar.dateRange(
+    start: formatter.format(event.start.toLocal()),
+    end: formatter.format(event.end.toLocal()),
   );
 }
 
