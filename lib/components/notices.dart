@@ -301,7 +301,7 @@ void loginPrivacyPolicyPreviewOnTap() {}
 @Preview(
   name: 'ClearNotice - Data Disclaimer',
   group: 'Clear Notices',
-  size: Size(420, 90),
+  size: Size(450, 90),
 )
 Widget clearNoticeProfileDataDisclaimerPreview() {
   return _noticePreviewFrame(
@@ -312,20 +312,25 @@ Widget clearNoticeProfileDataDisclaimerPreview() {
 @Preview(
   name: 'ClearNoticeVertical - Developed By',
   group: 'Clear Notices',
-  size: Size(420, 140),
+  size: Size(450, 140),
 )
 Widget clearNoticeVerticalIntroDevelopedByPreview() {
   return _noticePreviewFrame(
-    child: ClearNoticeVertical(
-      icon: SvgPicture.asset(
-        'assets/npc_horizontal.svg',
-        height: 24,
-        colorFilter: ColorFilter.mode(
-          Colors.grey[600]!,
-          BlendMode.srcIn,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ClearNoticeVertical(
+          icon: SvgPicture.asset(
+            'assets/npc_horizontal.svg',
+            height: 24,
+            colorFilter: ColorFilter.mode(
+              Colors.grey[600]!,
+              BlendMode.srcIn,
+            ),
+          ),
+          text: TextSpan(text: t.intro.developedBy),
         ),
-      ),
-      text: TextSpan(text: t.intro.developedBy),
+      ],
     ),
   );
 }
@@ -333,22 +338,27 @@ Widget clearNoticeVerticalIntroDevelopedByPreview() {
 @Preview(
   name: 'ClearNoticeVertical - Privacy Notice',
   group: 'Clear Notices',
-  size: Size(420, 170),
+  size: Size(450, 170),
 )
 Widget clearNoticeVerticalLoginPrivacyPreview() {
   return _noticePreviewFrame(
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ClearNoticeVertical(
-        text: t.login.privacyNotice(
-          privacyPolicy: (text) => TextSpan(
-            text: text,
-            style: const TextStyle(decoration: TextDecoration.underline),
-            recognizer: TapGestureRecognizer()
-              ..onTap = loginPrivacyPolicyPreviewOnTap,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ClearNoticeVertical(
+            text: t.login.privacyNotice(
+              privacyPolicy: (text) => TextSpan(
+                text: text,
+                style: const TextStyle(decoration: TextDecoration.underline),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = loginPrivacyPolicyPreviewOnTap,
+              ),
+            ),
           ),
         ),
-      ),
+      ],
     ),
   );
 }
@@ -356,7 +366,7 @@ Widget clearNoticeVerticalLoginPrivacyPreview() {
 @Preview(
   name: 'BackgroundNotice - Profile Notices',
   group: 'Background Notices',
-  size: Size(420, 280),
+  size: Size(450, 300),
 )
 Widget backgroundNoticeProfileNoticesPreview() {
   return _noticePreviewFrame(
