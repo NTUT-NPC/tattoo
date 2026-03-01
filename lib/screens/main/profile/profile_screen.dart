@@ -11,6 +11,7 @@ import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/portal_service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -146,11 +147,12 @@ class ProfileScreen extends ConsumerWidget {
 
       SectionHeader(title: 'TAT'),
       // TODO: remove before release
-      OptionEntryTile(
-        icon: Icons.rice_bowl_outlined,
-        title: '點一碗炒飯',
-        onTap: () => throw Exception('炒飯'),
-      ),
+      if (ref.watch(isBarEnabledProvider).asData?.value ?? false)
+        OptionEntryTile(
+          icon: Icons.sports_bar_outlined,
+          title: '去酒吧點一碗炒飯',
+          onTap: () => throw Exception('酒吧陷入火海'),
+        ),
       OptionEntryTile(
         icon: Icons.favorite_border_outlined,
         title: t.profile.options.supportUs,

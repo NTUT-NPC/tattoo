@@ -8,14 +8,22 @@ import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/contributor.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/services/github_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AboutScreen extends ConsumerWidget {
+class AboutScreen extends ConsumerStatefulWidget {
   const AboutScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends ConsumerState<AboutScreen> {
+  int _logoClickCount = 0;
+
+  @override
+  Widget build(BuildContext context) {
     final contributorsAsync = ref.watch(contributorsProvider);
 
     return Scaffold(
@@ -35,10 +43,37 @@ class AboutScreen extends ConsumerWidget {
                     Column(
                       spacing: 8,
                       children: [
-                        SvgPicture.asset(
-                          'assets/tat_icon.svg',
-                          width: 80,
-                          height: 80,
+                        GestureDetector(
+                          onTap: () async {
+                            _logoClickCount++;
+                            if (_logoClickCount == 7) {
+                              _logoClickCount = 0;
+                              await ref
+                                  .read(isBarEnabledProvider.notifier)
+                                  .toggle();
+
+                              final newState =
+                                  ref
+                                      .read(isBarEnabledProvider)
+                                      .asData
+                                      ?.value ??
+                                  false;
+
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(newState ? '點一碗炒飯' : '已經吃飽了'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          child: SvgPicture.asset(
+                            'assets/tat_icon.svg',
+                            width: 80,
+                            height: 80,
+                          ),
                         ),
                         Text(
                           t.general.appTitle,
