@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:flutter/services.dart';
+
 import 'package:drift/drift.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -159,9 +161,13 @@ class AuthRepository {
   /// Returns `true` if both username and password exist in secure storage.
   /// This does not validate the credentials or check session state.
   Future<bool> hasCredentials() async {
-    final username = await _secureStorage.read(key: _usernameKey);
-    final password = await _secureStorage.read(key: _passwordKey);
-    return username != null && password != null;
+    try {
+      final username = await _secureStorage.read(key: _usernameKey);
+      final password = await _secureStorage.read(key: _passwordKey);
+      return username != null && password != null;
+    } on PlatformException {
+      return false;
+    }
   }
 
   /// Executes [call] with automatic re-authentication on session expiry.
