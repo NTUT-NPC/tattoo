@@ -27,17 +27,17 @@
     alt="Works on my machine"
     src="https://img.shields.io/badge/Works_on-My_machine-dark_green"
   >
-    <a href="https://translate.ntut.club">
-      <img
-        alt="Crowdin Translation Progress"
-        src="https://badges.crowdin.net/project-tattoo/localized.svg"
-      >
-    </a>
-  </p>
+  <a href="https://translate.ntut.club">
+    <img
+      alt="Crowdin Translation Progress"
+      src="https://badges.crowdin.net/project-tattoo/localized.svg"
+    >
+  </a>
+</p>
   
-  **Help us translate!** We use [Crowdin](https://translate.ntut.club) to manage localizations. Join the project and help us bring Tattoo to your language!
+**Help us translate!** We use [Crowdin](https://translate.ntut.club) to manage localizations. Join the project and help us bring Tattoo to your language!
   
-  ## What is this?
+## What is this?
 
 Project Tattoo is a work-in-progress Flutter app that helps Taipei Tech (NTUT) students access their course schedules and academic information. This is a ground-up reimplementation with a focus on:
 
