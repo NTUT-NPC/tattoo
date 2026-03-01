@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/templates/scrollable_showcase_template.dart';
+import 'package:tattoo/components/notices.dart';
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
@@ -48,26 +50,16 @@ class _IntroScreenState extends State<IntroScreen>
       ],
     );
 
-    final bottom = Column(
-      spacing: 8,
-      children: [
-        SvgPicture.asset(
-          'assets/npc_horizontal.svg',
-          height: 24,
-          colorFilter: ColorFilter.mode(
-            Colors.grey[600]!,
-            BlendMode.srcIn,
-          ),
+    final bottom = ClearNoticeVertical(
+      icon: SvgPicture.asset(
+        'assets/npc_horizontal.svg',
+        height: 24,
+        colorFilter: ColorFilter.mode(
+          Colors.grey[600]!,
+          BlendMode.srcIn,
         ),
-        Text(
-          t.intro.developedBy,
-          style: theme.textTheme.bodySmall?.copyWith(
-            height: 1.5,
-            color: Colors.grey[600],
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+      ),
+      text: TextSpan(text: t.intro.developedBy),
     );
 
     return Scaffold(

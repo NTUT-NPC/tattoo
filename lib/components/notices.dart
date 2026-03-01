@@ -67,11 +67,11 @@ class ClearNotice extends StatelessWidget {
   }
 }
 
-class ClearWidgetVertical extends StatelessWidget {
+class ClearNoticeVertical extends StatelessWidget {
   final InlineSpan text;
   final Widget? icon;
 
-  const ClearWidgetVertical({
+  const ClearNoticeVertical({
     super.key,
     required this.text,
     this.icon,

@@ -280,7 +280,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
 
                           // Privacy notice
-                          ClearWidgetVertical(
+                          ClearNoticeVertical(
                             text: t.login.privacyNotice(
                               privacyPolicy: (text) => TextSpan(
                                 text: text,
