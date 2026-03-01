@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/calendar.dart';
 import 'package:tattoo/screens/main/calendar/calendar_providers.dart';
+import 'package:tattoo/components/notices.dart';
 
 /// Main calendar tab screen.
 ///
@@ -162,13 +163,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return SliverToBoxAdapter(
       child: Padding(
         padding: EdgeInsets.fromLTRB(16, topPadding, 16, bottomPadding),
-        child: ListTile(
-          dense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-          title: Text(
-            text,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+        child: ClearNotice(
+          text: text,
+          textStyle: Theme.of(context).textTheme.bodySmall,
         ),
       ),
     );
