@@ -26,8 +26,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   /// Reloads calendar data by invalidating and re-reading the provider.
   Future<void> _refresh(WidgetRef ref) async {
-    ref.invalidate(calendarEventsProvider);
-    await ref.read(calendarEventsProvider.future);
+    ref.invalidate(calendarViewDataProvider);
+    await ref.read(calendarViewDataProvider.future);
   }
 
   void _toggleEndedEvents() {
@@ -39,8 +39,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   Future<void> _showEventDetailsSheet(CalendarEvent event) async {
     final now = DateTime.now();
     final colorScheme = Theme.of(context).colorScheme;
-    final isEnded = _isEventEnded(event, now);
-    final isOngoing = _isEventOngoing(event, now);
+    final status = calendarEventStatus(event, now);
+    final isEnded = status == CalendarEventStatus.ended;
+    final isOngoing = status == CalendarEventStatus.ongoing;
 
     await showModalBottomSheet<void>(
       context: context,
@@ -137,7 +138,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final eventsAsync = ref.watch(calendarEventsProvider);
+    final eventsAsync = ref.watch(calendarViewDataProvider);
 
     return Scaffold(
       body: RefreshIndicator(
@@ -165,7 +166,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   ),
                 ),
               ],
-              data: (snapshot) => _buildEventSlivers(context, snapshot),
+              data: (viewData) => _buildEventSlivers(context, viewData),
             ),
           ],
         ),
@@ -175,14 +176,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   List<Widget> _buildEventSlivers(
     BuildContext context,
-    CalendarSnapshot snapshot,
+    CalendarViewData viewData,
   ) {
-    final now = DateTime.now();
-    final groupedEvents = _groupAndSortEvents(snapshot.events, now);
-    final activeEvents = groupedEvents.active;
-    final endedEvents = groupedEvents.ended;
-
-    final hasVisibleEvents = activeEvents.isNotEmpty || endedEvents.isNotEmpty;
+    final snapshot = viewData.snapshot;
+    final activeEvents = viewData.activeEvents;
+    final endedEvents = viewData.endedEvents;
 
     return [
       if (!snapshot.refreshedFromNetwork)
@@ -203,7 +201,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           topPadding: kSectionGap,
           bottomPadding: kSectionGap / 2,
         ),
-      if (!hasVisibleEvents)
+      if (!viewData.hasVisibleEvents)
         SliverFillRemaining(
           hasScrollBody: false,
           child: Center(child: Text(t.calendar.noUpcomingEvents)),
@@ -293,50 +291,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ),
     );
   }
-
-  ({List<CalendarEvent> active, List<CalendarEvent> ended}) _groupAndSortEvents(
-    List<CalendarEvent> events,
-    DateTime now,
-  ) {
-    final retainedEvents = events
-        .where(
-          (event) => event.end.isAfter(
-            now.subtract(const Duration(days: 30)),
-          ),
-        )
-        .toList();
-
-    final active =
-        retainedEvents.where((event) => !_isEventEnded(event, now)).toList()
-          ..sort((left, right) {
-            final leftGroup = _eventSortGroup(left, now);
-            final rightGroup = _eventSortGroup(right, now);
-
-            if (leftGroup != rightGroup) {
-              return leftGroup.compareTo(rightGroup);
-            }
-
-            if (leftGroup == 0) {
-              final endCompare = _effectiveEnd(
-                left,
-              ).compareTo(_effectiveEnd(right));
-              if (endCompare != 0) {
-                return endCompare;
-              }
-            }
-
-            return left.start.compareTo(right.start);
-          });
-
-    final ended =
-        retainedEvents.where((event) => _isEventEnded(event, now)).toList()
-          ..sort(
-            (left, right) =>
-                _effectiveEnd(right).compareTo(_effectiveEnd(left)),
-          );
-
-    return (active: active, ended: ended);
-  }
 }
 
 class _EndedEventsSection extends StatelessWidget {
@@ -385,6 +339,7 @@ class _CalendarEventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
+    final status = calendarEventStatus(event, now);
     final colorScheme = Theme.of(context).colorScheme;
     final titleStyle = Theme.of(context).textTheme.titleMedium;
     final bodyStyle = Theme.of(context).textTheme.bodyMedium;
@@ -397,8 +352,8 @@ class _CalendarEventCard extends StatelessWidget {
       color: colorScheme.onPrimaryContainer,
       fontWeight: FontWeight.w600,
     );
-    final isEnded = _isEventEnded(event, now);
-    final isOngoing = _isEventOngoing(event, now);
+    final isEnded = status == CalendarEventStatus.ended;
+    final isOngoing = status == CalendarEventStatus.ongoing;
 
     return Card(
       child: ListTile(
@@ -461,7 +416,7 @@ String _formatTimeRange(CalendarEvent event) {
     event.start.day,
   );
 
-  final effective = _effectiveEnd(event);
+  final effective = calendarEventEffectiveEnd(event);
   final endDate = DateTime(effective.year, effective.month, effective.day);
 
   final formatter = DateFormat('MM/dd');
@@ -483,9 +438,9 @@ String _formatDetailedTimeRange(CalendarEvent event) {
       event.start.day,
     );
     final endDate = DateTime(
-      _effectiveEnd(event).year,
-      _effectiveEnd(event).month,
-      _effectiveEnd(event).day,
+      calendarEventEffectiveEnd(event).year,
+      calendarEventEffectiveEnd(event).month,
+      calendarEventEffectiveEnd(event).day,
     );
     final formatter = DateFormat('yyyy/MM/dd');
 
@@ -504,56 +459,4 @@ String _formatDetailedTimeRange(CalendarEvent event) {
     start: formatter.format(event.start.toLocal()),
     end: formatter.format(event.end.toLocal()),
   );
-}
-
-/// Returns the inclusive end date for an all-day event.
-///
-/// ICS all-day events use an exclusive end date (e.g. a single-day event on
-/// March 1 has DTEND=March 2). This subtracts one day when end > start to
-/// convert to an inclusive end. For non-all-day events, returns [event.end]
-/// unchanged.
-DateTime _effectiveEnd(CalendarEvent event) {
-  if (!event.isAllDay) return event.end;
-
-  final startDate = DateTime(
-    event.start.year,
-    event.start.month,
-    event.start.day,
-  );
-  final endDate = DateTime(event.end.year, event.end.month, event.end.day);
-
-  if (endDate.isAfter(startDate)) {
-    return endDate.subtract(const Duration(days: 1));
-  }
-  return endDate;
-}
-
-bool _isEventOngoing(CalendarEvent event, DateTime now) {
-  if (event.isAllDay) {
-    final nowDate = DateTime(now.year, now.month, now.day);
-    final startDate = DateTime(
-      event.start.year,
-      event.start.month,
-      event.start.day,
-    );
-    return !nowDate.isBefore(startDate) &&
-        !nowDate.isAfter(_effectiveEnd(event));
-  }
-
-  return !now.isBefore(event.start) && now.isBefore(event.end);
-}
-
-bool _isEventEnded(CalendarEvent event, DateTime now) {
-  if (event.isAllDay) {
-    final nowDate = DateTime(now.year, now.month, now.day);
-    return nowDate.isAfter(_effectiveEnd(event));
-  }
-
-  return !now.isBefore(event.end);
-}
-
-int _eventSortGroup(CalendarEvent event, DateTime now) {
-  if (_isEventOngoing(event, now)) return 0;
-  if (_isEventEnded(event, now)) return 2;
-  return 1;
 }
