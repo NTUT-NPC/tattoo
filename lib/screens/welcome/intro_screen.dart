@@ -5,7 +5,6 @@ import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/templates/scrollable_showcase_template.dart';
-import 'package:tattoo/components/notices.dart';
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
