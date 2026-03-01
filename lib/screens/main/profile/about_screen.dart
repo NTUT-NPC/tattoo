@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,6 +26,16 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final testerAction = [
+      '點 0 杯啤酒',
+      '點 999999999 杯啤酒',
+      '點 1 支蜥蜴',
+      '點 -1 杯啤酒',
+      '點 1 份 asdfghjkl',
+      '點 1 碗炒飯',
+      '跑進吧檯被店員拖出去',
+    ][Random().nextInt(7)];
+
     final contributorsAsync = ref.watch(contributorsProvider);
 
     return Scaffold(
@@ -62,7 +74,9 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(newState ? '點一碗炒飯' : '已經吃飽了'),
+                                    content: Text(
+                                      newState ? '去酒吧$testerAction' : '已經吃飽了',
+                                    ),
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -123,6 +124,16 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final testerAction = [
+      '點 0 杯啤酒',
+      '點 999999999 杯啤酒',
+      '點 1 支蜥蜴',
+      '點 -1 杯啤酒',
+      '點 1 份 asdfghjkl',
+      '點 1 碗炒飯',
+      '跑進吧檯被店員拖出去',
+    ][Random().nextInt(7)];
+
     // settings options for the profile tab
     final options = [
       SectionHeader(title: t.profile.sections.accountSettings),
@@ -150,7 +161,7 @@ class ProfileScreen extends ConsumerWidget {
       if (ref.watch(isBarEnabledProvider).asData?.value ?? false)
         OptionEntryTile(
           icon: Icons.sports_bar_outlined,
-          title: '去酒吧點一碗炒飯',
+          title: '去酒吧$testerAction',
           onTap: () => throw Exception('酒吧陷入火海'),
         ),
       OptionEntryTile(
