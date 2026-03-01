@@ -6,6 +6,11 @@ import 'package:tattoo/models/calendar.dart';
 import 'package:tattoo/screens/main/calendar/calendar_providers.dart';
 import 'package:tattoo/components/notices.dart';
 
+const double kHorizontalPadding = 16.0;
+const double kSectionGap = 8.0;
+const double kItemGap = 12.0;
+const double kBottomInset = 24.0;
+
 /// Main calendar tab screen.
 ///
 /// Displays upcoming events, supports pull-to-refresh, and shows cache status.
@@ -85,7 +90,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         _buildMetaTileSliver(
           context,
           text: t.calendar.offlineMode,
-          topPadding: 12,
+          topPadding: kSectionGap,
           bottomPadding: 0,
         ),
       if (snapshot.fetchedAt != null)
@@ -96,8 +101,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               'yyyy/MM/dd HH:mm',
             ).format(snapshot.fetchedAt!.toLocal()),
           ),
-          topPadding: 8,
-          bottomPadding: 4,
+          topPadding: kSectionGap,
+          bottomPadding: kSectionGap / 2,
         ),
       if (!hasVisibleEvents)
         SliverFillRemaining(
@@ -108,12 +113,17 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         if (activeEvents.isNotEmpty)
           _buildEventCardSliver(
             activeEvents,
-            top: 8,
-            bottom: endedEvents.isNotEmpty ? 0 : 24,
+            top: kSectionGap,
+            bottom: endedEvents.isNotEmpty ? 0 : kBottomInset,
           ),
         if (endedEvents.isNotEmpty)
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            padding: EdgeInsets.fromLTRB(
+              kHorizontalPadding,
+              kSectionGap / 2,
+              kHorizontalPadding,
+              0,
+            ),
             sliver: SliverToBoxAdapter(
               child: _EndedEventsSection(
                 events: endedEvents,
@@ -125,12 +135,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         if (_showEndedEvents && endedEvents.isNotEmpty)
           _buildEventCardSliver(
             endedEvents,
-            top: 8,
-            bottom: 24,
+            top: kSectionGap,
+            bottom: kBottomInset,
           )
         else
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: SizedBox(height: kBottomInset)),
       ],
+      const SliverToBoxAdapter(child: SizedBox(height: kBottomInset)),
     ];
   }
 
@@ -140,13 +151,18 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     required double bottom,
   }) {
     return SliverPadding(
-      padding: EdgeInsets.fromLTRB(16, top, 16, bottom),
+      padding: EdgeInsets.fromLTRB(
+        kHorizontalPadding,
+        top,
+        kHorizontalPadding,
+        bottom,
+      ),
       sliver: SliverList.builder(
         itemCount: events.length,
         itemBuilder: (context, index) {
           final event = events[index];
           return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: EdgeInsets.only(bottom: kItemGap),
             child: _CalendarEventCard(event: event),
           );
         },
@@ -162,7 +178,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(16, topPadding, 16, bottomPadding),
+        padding: EdgeInsets.fromLTRB(
+          kHorizontalPadding,
+          topPadding,
+          kHorizontalPadding,
+          bottomPadding,
+        ),
         child: ClearNotice(
           text: text,
           textStyle: Theme.of(context).textTheme.bodySmall,
