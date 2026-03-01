@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/components/notices.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -141,7 +142,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       body: SafeArea(
@@ -280,36 +280,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
 
                           // Privacy notice
-                          Column(
-                            spacing: 8.0,
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                size: screenHeight * 0.03,
-                                color: Colors.grey[600],
-                              ),
-                              Text.rich(
-                                t.login.privacyNotice(
-                                  privacyPolicy: (text) => TextSpan(
-                                    text: text,
-                                    style: const TextStyle(
-                                      decoration: TextDecoration.underline,
+                          ClearNoticeVertical(
+                            text: t.login.privacyNotice(
+                              privacyPolicy: (text) => TextSpan(
+                                text: text,
+                                style: const TextStyle(
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () => launchUrl(
+                                    Uri.parse(
+                                      'https://example.com/terms-of-service',
                                     ),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () => launchUrl(
-                                        Uri.parse(
-                                          'https://example.com/terms-of-service',
-                                        ),
-                                      ),
                                   ),
-                                ),
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  height: 1.6,
-                                  color: Colors.grey[600],
-                                ),
-                                textAlign: TextAlign.center,
                               ),
-                            ],
+                            ),
                           ),
                         ],
                       ),

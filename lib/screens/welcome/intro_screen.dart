@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/templates/scrollable_showcase_template.dart';
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
@@ -19,104 +21,55 @@ class _IntroScreenState extends State<IntroScreen>
     final screenHeight = MediaQuery.of(context).size.height;
     final verticalPadding = screenHeight * 0.1;
 
+    final title = t.general.appTitle;
+
+    final icon = SvgPicture.asset(
+      'assets/tat_icon.svg',
+      height: verticalPadding,
+    );
+
+    final content = Column(
+      spacing: 8,
+      children: [
+        _FeatureCard(
+          title: t.intro.features.courseTable.title,
+          description: t.intro.features.courseTable.description,
+          icon: Icons.calendar_month,
+        ),
+        _FeatureCard(
+          title: t.intro.features.scores.title,
+          description: t.intro.features.scores.description,
+          icon: Icons.bar_chart,
+        ),
+        _FeatureCard(
+          title: t.intro.features.campusLife.title,
+          description: t.intro.features.campusLife.description,
+          icon: Icons.location_city,
+        ),
+      ],
+    );
+
+    final bottom = ClearNoticeVertical(
+      icon: SvgPicture.asset(
+        'assets/npc_horizontal.svg',
+        height: 24,
+        colorFilter: ColorFilter.mode(
+          Colors.grey[600]!,
+          BlendMode.srcIn,
+        ),
+      ),
+      text: TextSpan(text: t.intro.developedBy),
+    );
+
     return Scaffold(
       body: SafeArea(
         child: Stack(
           children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(8, 0, 8, 16),
-              child: CustomScrollView(
-                slivers: [
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        0,
-                        verticalPadding,
-                        0,
-                        // Extra padding to avoid bottom bar overlap
-                        verticalPadding + 16,
-                      ),
-                      child: Column(
-                        spacing: 24,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Spacer(flex: 1),
-
-                          // Logo and title
-                          Column(
-                            children: [
-                              SvgPicture.asset(
-                                'assets/tat_icon.svg',
-                                height: verticalPadding,
-                              ),
-                              Text(
-                                t.general.appTitle,
-                                style: theme.textTheme.headlineLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-
-                          Spacer(flex: 1),
-
-                          // Features list
-                          Column(
-                            spacing: 8,
-                            children: [
-                              _FeatureCard(
-                                title: t.intro.features.courseTable.title,
-                                description:
-                                    t.intro.features.courseTable.description,
-                                icon: Icons.calendar_month,
-                              ),
-                              _FeatureCard(
-                                title: t.intro.features.scores.title,
-                                description:
-                                    t.intro.features.scores.description,
-                                icon: Icons.bar_chart,
-                              ),
-                              _FeatureCard(
-                                title: t.intro.features.campusLife.title,
-                                description:
-                                    t.intro.features.campusLife.description,
-                                icon: Icons.location_city,
-                              ),
-                            ],
-                          ),
-
-                          Spacer(flex: 2),
-
-                          // Logo and disclaimer
-                          Column(
-                            spacing: 8,
-                            children: [
-                              SvgPicture.asset(
-                                'assets/npc_horizontal.svg',
-                                height: 24,
-                                colorFilter: ColorFilter.mode(
-                                  Colors.grey[600]!,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                              Text(
-                                t.intro.developedBy,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  height: 1.5,
-                                  color: Colors.grey[600],
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            ScrollableShowcaseTemplate(
+              icon: icon,
+              title: title,
+              content: content,
+              bottom: bottom,
             ),
 
             // Bottom button with gradient fade
