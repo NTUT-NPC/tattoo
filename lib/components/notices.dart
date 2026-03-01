@@ -75,29 +75,32 @@ class ClearNoticeVertical extends StatelessWidget {
     super.key,
     required this.text,
     this.icon,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final screenHeight = MediaQuery.of(context).size.height;
+    final resolvedColor = color ?? Colors.grey[600];
+
     return Column(
       spacing: 8.0,
       children: [
         SizedBox(
-          child:
-              icon ??
-              Icon(
-                Icons.info_outline,
-                size: screenHeight * 0.035,
-                color: Colors.grey[600],
-              ),
+          child: IconTheme(
+            data: IconThemeData(
+              color: resolvedColor,
+              size: screenHeight * 0.03,
+            ),
+            child: icon ?? const Icon(Icons.info_outline),
+          ),
         ),
         Text.rich(
           text,
           style: theme.textTheme.bodySmall?.copyWith(
             height: 1.6,
-            color: Colors.grey[600],
+            color: resolvedColor,
           ),
           textAlign: TextAlign.center,
         ),
