@@ -63,8 +63,8 @@ class TranslationsGeneralZhTw {
 	/// zh-TW: '尚未實作'
 	String get notImplemented => '尚未實作';
 
-	/// zh-TW: '僅供參考'
-	String get dataDisclaimer => '僅供參考';
+	/// zh-TW: '本資料僅供參考'
+	String get dataDisclaimer => '本資料僅供參考';
 
 	/// zh-TW: '學生'
 	String get student => '學生';
@@ -382,7 +382,7 @@ extension on Translations {
 		return switch (path) {
 			'general.appTitle' => 'Project Tattoo',
 			'general.notImplemented' => '尚未實作',
-			'general.dataDisclaimer' => '僅供參考',
+			'general.dataDisclaimer' => '本資料僅供參考',
 			'general.student' => '學生',
 			'general.unknown' => '未知',
 			'general.notLoggedIn' => '未登入',
