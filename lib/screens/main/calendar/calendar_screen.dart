@@ -235,7 +235,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             top: kSectionGap,
             bottom: kBottomInset,
           )
-        else
+        else if (endedEvents.isNotEmpty)
           const SliverToBoxAdapter(child: SizedBox(height: kBottomInset)),
       ],
       const SliverToBoxAdapter(child: SizedBox(height: kBottomInset)),
