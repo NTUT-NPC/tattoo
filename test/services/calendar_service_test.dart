@@ -63,5 +63,28 @@ END:VCALENDAR
       expect(events[0].title, 'Escaped, Comma');
       expect(events[0].description, 'Line1\nLine2');
     });
+
+    test('converts UTC datetimes (Z suffix) to local time', () {
+      final ics = '''
+BEGIN:VCALENDAR
+BEGIN:VEVENT
+SUMMARY:UTC Event
+DTSTART:20260301T040000Z
+DTEND:20260301T050000Z
+UID:utc
+END:VEVENT
+END:VCALENDAR
+''';
+      final events = service.parseEvents(ics);
+      expect(events.length, 1);
+
+      final expectedStart = DateTime.utc(2026, 3, 1, 4, 0, 0).toLocal();
+      final expectedEnd = DateTime.utc(2026, 3, 1, 5, 0, 0).toLocal();
+
+      expect(events[0].isAllDay, false);
+      expect(events[0].start, expectedStart);
+      expect(events[0].end, expectedEnd);
+      expect(events[0].start.hour, expectedStart.hour);
+    });
   });
 }
