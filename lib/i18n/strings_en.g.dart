@@ -160,6 +160,8 @@ class _TranslationsAboutEn extends TranslationsAboutZhTw {
 	// Translations
 	@override String get description => 'Project Tattoo (TAT) is an unofficial campus life assistant for National Taipei University of Technology (NTUT). Our goal is to provide a better student experience through a modern and user-friendly interface.';
 	@override String get developers => 'Developers';
+	@override String get helpTranslate => 'Help us translate TAT!';
+	@override String get viewSource => 'View source code and contributions';
 }
 
 // Path: intro.features
@@ -335,6 +337,8 @@ extension on TranslationsEn {
 			'enrollmentStatus.droppedOut' => 'Withdrawn',
 			'about.description' => 'Project Tattoo (TAT) is an unofficial campus life assistant for National Taipei University of Technology (NTUT). Our goal is to provide a better student experience through a modern and user-friendly interface.',
 			'about.developers' => 'Developers',
+			'about.helpTranslate' => 'Help us translate TAT!',
+			'about.viewSource' => 'View source code and contributions',
 			_ => null,
 		};
 	}

@@ -215,6 +215,12 @@ class TranslationsAboutZhTw {
 
 	/// zh-TW: '開發團隊'
 	String get developers => '開發團隊';
+
+	/// zh-TW: '幫助我們翻譯TAT!'
+	String get helpTranslate => '幫助我們翻譯TAT!';
+
+	/// zh-TW: '查看原始碼與貢獻'
+	String get viewSource => '查看原始碼與貢獻';
 }
 
 // Path: intro.features
@@ -444,6 +450,8 @@ extension on Translations {
 			'enrollmentStatus.droppedOut' => '退學',
 			'about.description' => 'Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。',
 			'about.developers' => '開發團隊',
+			'about.helpTranslate' => '幫助我們翻譯TAT!',
+			'about.viewSource' => '查看原始碼與貢獻',
 			_ => null,
 		};
 	}

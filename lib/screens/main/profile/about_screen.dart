@@ -81,7 +81,7 @@ class AboutScreen extends ConsumerWidget {
                         OptionEntryTile(
                           icon: Icons.code,
                           title: 'GitHub',
-                          description: 'View source code and contribute',
+                          description: t.about.viewSource,
                           onTap: () => launchUrl(
                             Uri.parse('https://github.com/NTUT-NPC/tattoo'),
                           ),
@@ -89,7 +89,7 @@ class AboutScreen extends ConsumerWidget {
                         OptionEntryTile(
                           icon: Icons.translate,
                           title: 'Crowdin',
-                          description: 'Help us translate Tattoo',
+                          description: t.about.helpTranslate,
                           onTap: () => launchUrl(
                             Uri.parse('https://translate.ntut.club'),
                           ),
