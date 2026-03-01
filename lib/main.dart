@@ -26,11 +26,35 @@ Future<void> main() async {
   final container = ProviderContainer();
   final firebase = container.read(firebaseServiceProvider);
 
+  void showErrorDialog(Object error) {
+    final context = rootNavigatorKey.currentContext;
+    if (context == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.errors.occurred),
+        content: Text(error.toString()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(t.general.ok),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = (details) {
     firebase.crashlytics?.recordFlutterFatalError(details);
+    showErrorDialog(details.exception);
   };
+
+  // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
     firebase.crashlytics?.recordError(error, stack, fatal: true);
+    showErrorDialog(error);
     return true;
   };
 
