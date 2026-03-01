@@ -13,7 +13,7 @@ enum OptionEntryTileActionIcon {
 /// A reusable, tappable option row used in settings/profile style lists.
 ///
 /// The tile renders:
-/// 1. A leading icon ([icon] or [svgIconAsset])
+/// 1. A leading icon ([icon], [svgIconAsset], or [customLeading])
 /// 2. A title ([title]) and optional description ([description])
 /// 3. A trailing action icon, chosen from [actionIcon] or overridden by
 ///    [customActionIcon]
@@ -36,17 +36,9 @@ enum OptionEntryTileActionIcon {
 /// );
 ///
 /// OptionEntryTile(
-///   icon: Icons.logout,
-///   title: 'Sign out',
-///   actionIcon: OptionEntryTileActionIcon.exitToApp,
-///   onTap: onLogout,
-/// );
-///
-/// OptionEntryTile(
-///   icon: Icons.link,
-///   title: 'Open website',
-///   customActionIcon: const Icon(Icons.open_in_new),
-///   onTap: openWebsite,
+///   customLeading: CircleAvatar(child: Text('A')),
+///   title: 'Account',
+///   onTap: openAccount,
 /// );
 /// ```
 class OptionEntryTile extends StatelessWidget {
@@ -55,14 +47,15 @@ class OptionEntryTile extends StatelessWidget {
     super.key,
     this.icon = Icons.adjust_outlined,
     this.svgIconAsset,
+    this.customLeading,
     required this.title,
     this.description,
     this.onTap,
     this.actionIcon = OptionEntryTileActionIcon.navigateNext,
     this.customActionIcon,
   }) : assert(
-         icon != null || svgIconAsset != null,
-         'Either icon or svgIconAsset must be provided.',
+         icon != null || svgIconAsset != null || customLeading != null,
+         'Either icon, svgIconAsset, or customLeading must be provided.',
        );
 
   /// Leading icon shown at the start of the row.
@@ -72,8 +65,12 @@ class OptionEntryTile extends StatelessWidget {
 
   /// Leading SVG icon asset path shown at the start of the row.
   ///
-  /// When both [icon] and [svgIconAsset] are provided, [svgIconAsset] wins.
+  /// When multiple leading options are provided, priority is:
+  /// [customLeading] > [svgIconAsset] > [icon].
   final String? svgIconAsset;
+
+  /// Custom leading widget shown at the start of the row.
+  final Widget? customLeading;
 
   /// Primary label shown in a prominent text style.
   final String title;
@@ -117,20 +114,21 @@ class OptionEntryTile extends StatelessWidget {
               spacing: 12,
               children: [
                 Center(
-                  child: svgIconAsset != null
-                      ? SizedBox.square(
-                          dimension: 24,
-                          child: SvgPicture.asset(
-                            svgIconAsset!,
-                            fit: BoxFit.contain,
-                            alignment: Alignment.center,
-                            colorFilter: ColorFilter.mode(
-                              colorScheme.primary,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                        )
-                      : Icon(icon, color: colorScheme.primary),
+                  child: customLeading ??
+                      (svgIconAsset != null
+                          ? SizedBox.square(
+                              dimension: 24,
+                              child: SvgPicture.asset(
+                                svgIconAsset!,
+                                fit: BoxFit.contain,
+                                alignment: Alignment.center,
+                                colorFilter: ColorFilter.mode(
+                                  colorScheme.primary,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                            )
+                          : Icon(icon, color: colorScheme.primary)),
                 ),
 
                 Expanded(
