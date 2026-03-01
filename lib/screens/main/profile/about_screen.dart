@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -11,6 +9,7 @@ import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/contributor.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/services/github_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -26,15 +25,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final testerAction = [
-      '點 0 杯啤酒',
-      '點 999999999 杯啤酒',
-      '點 1 支蜥蜴',
-      '點 -1 杯啤酒',
-      '點 1 份 asdfghjkl',
-      '點 1 碗炒飯',
-      '跑進吧檯被店員拖出去',
-    ][Random().nextInt(7)];
+    final testerAction = ref.watch(testerActionProvider);
 
     final contributorsAsync = ref.watch(contributorsProvider);
 
@@ -63,6 +54,8 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                               await ref
                                   .read(isBarEnabledProvider.notifier)
                                   .toggle();
+
+                              ref.read(testerActionProvider.notifier).refresh();
 
                               final newState =
                                   ref

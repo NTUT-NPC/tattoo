@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,6 +29,7 @@ class ProfileScreen extends ConsumerWidget {
       ref.refresh(userAvatarProvider.future),
       ref.refresh(activeRegistrationProvider.future),
     ]);
+    ref.read(testerActionProvider.notifier).refresh();
   }
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
@@ -124,15 +125,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final testerAction = [
-      '點 0 杯啤酒',
-      '點 999999999 杯啤酒',
-      '點 1 支蜥蜴',
-      '點 -1 杯啤酒',
-      '點 1 份 asdfghjkl',
-      '點 1 碗炒飯',
-      '跑進吧檯被店員拖出去',
-    ][Random().nextInt(7)];
+    final testerAction = ref.watch(testerActionProvider);
 
     // settings options for the profile tab
     final options = [
@@ -162,8 +155,15 @@ class ProfileScreen extends ConsumerWidget {
         OptionEntryTile(
           icon: Icons.sports_bar_outlined,
           title: '去酒吧$testerAction',
-          onTap: () => throw Exception('酒吧陷入火海'),
+          onTap: () {
+            if (testerAction == '跑進吧檯被店員拖出去') {
+              SystemNavigator.pop();
+            } else {
+              throw Exception('酒吧陷入火海');
+            }
+          },
         ),
+
       OptionEntryTile(
         icon: Icons.favorite_border_outlined,
         title: t.profile.options.supportUs,
@@ -172,7 +172,12 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile(
         icon: Icons.info_outline,
         title: t.profile.options.about,
-        onTap: () => context.push(AppRoutes.about),
+        onTap: () async {
+          await context.push(AppRoutes.about);
+          if (context.mounted) {
+            ref.read(testerActionProvider.notifier).refresh();
+          }
+        },
       ),
       OptionEntryTile(
         svgIconAsset: "assets/npc_logo.svg",

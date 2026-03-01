@@ -66,11 +66,11 @@ class ProfileCard extends ConsumerWidget {
           ),
         ),
 
-        // DATA state: show profile content
+        // DATA state: show profile content (even if refreshing)
         (
-          AsyncData(value: final profile?),
-          AsyncData(value: final registration),
-        ) =>
+          AsyncValue(value: final profile, hasValue: true),
+          AsyncValue(value: final registration, hasValue: true),
+        ) when profile != null =>
           ProfileContent(
             profile: profile,
             registration: registration,

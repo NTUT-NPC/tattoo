@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -36,6 +37,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _onDestinationSelected(int index) {
+    if (index == 2) {
+      ref.read(testerActionProvider.notifier).refresh();
+    }
     widget.navigationShell.goBranch(
       index,
       initialLocation: index == widget.navigationShell.currentIndex,
