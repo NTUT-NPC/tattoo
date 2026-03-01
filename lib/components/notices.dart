@@ -26,7 +26,11 @@ class ClearNotice extends StatelessWidget {
   /// Leading icon displayed before [text].
   final Widget icon;
 
-  /// Foreground color for both icon and text.
+  /// Foreground color for text and icon theme.
+  ///
+  /// The icon color is only applied when [icon] is an [Icon] (or any widget
+  /// that reads [IconTheme]). If [icon] is another custom widget, this color
+  /// does not automatically change that widget's appearance.
   ///
   /// Defaults to `Colors.grey[600]` when omitted.
   final Color? color;
@@ -67,10 +71,59 @@ class ClearNotice extends StatelessWidget {
   }
 }
 
+/// A centered vertical notice with an optional top icon and rich text body.
+///
+/// This widget is useful for empty states or explanatory hints where text may
+/// need mixed styles via [InlineSpan].
+///
+/// Usage:
+/// ```dart
+/// ClearNoticeVertical(
+///   text: const TextSpan(
+///     text: '尚無資料，請稍後再試',
+///   ),
+///   color: Colors.grey,
+/// )
+/// ```
+///
+/// Rich text example:
+/// ```dart
+/// ClearNoticeVertical(
+///   icon: const Icon(Icons.school_outlined),
+///   text: TextSpan(
+///     children: [
+///       const TextSpan(text: '請先完成 '),
+///       TextSpan(
+///         text: '課程加選',
+///         style: TextStyle(
+///           color: Theme.of(context).colorScheme.primary,
+///           fontWeight: FontWeight.w700,
+///         ),
+///       ),
+///       const TextSpan(text: ' 後再查看。'),
+///     ],
+///   ),
+/// )
+/// ```
 class ClearNoticeVertical extends StatelessWidget {
+  /// Rich text content displayed under the icon.
   final InlineSpan text;
+
+  /// Optional icon shown above [text].
+  ///
+  /// Falls back to a grey `Icons.info_outline` icon sized by screen height.
   final Widget? icon;
 
+  /// Foreground color for text and icon theme.
+  ///
+  /// The icon color is only applied when [icon] is an [Icon] (or any widget
+  /// that reads [IconTheme]). If [icon] is another custom widget, this color
+  /// does not automatically change that widget's appearance.
+  ///
+  /// Defaults to `Colors.grey[600]` when omitted.
+  final Color? color;
+
+  /// Creates a vertical notice with rich-text support.
   const ClearNoticeVertical({
     super.key,
     required this.text,
@@ -146,6 +199,10 @@ class BackgroundNotice extends StatelessWidget {
   final Widget? icon;
 
   /// Optional accent color. Falls back to a preset color by [noticeType].
+  ///
+  /// The icon color is only applied when [icon] is an [Icon] (or any widget
+  /// that reads [IconTheme]). If [icon] is another custom widget, this color
+  /// does not automatically change that widget's appearance.
   final Color? color;
 
   /// Optional text style override for [text].
