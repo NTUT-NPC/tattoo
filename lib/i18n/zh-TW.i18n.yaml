@@ -8,6 +8,8 @@ general:
   ok: 確定
 errors:
   occurred: 發生錯誤
+  flutterError : 發生 Flutter 錯誤
+  asyncError: 發生非同步錯誤
   sessionExpired: 登入狀態已過期，請重新登入
   credentialsInvalid: 登入憑證已失效，請重新登入
   connectionFailed: 無法連線到伺服器，請檢查網路連線
