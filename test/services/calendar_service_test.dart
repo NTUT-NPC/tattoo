@@ -64,6 +64,23 @@ END:VCALENDAR
       expect(events[0].description, 'Line1\nLine2');
     });
 
+    test(r'keeps \\n as literal \n text', () {
+      final ics = '''
+BEGIN:VCALENDAR
+BEGIN:VEVENT
+SUMMARY:Literal backslash n
+DESCRIPTION:Prefix\\\\nSuffix
+DTSTART:20260301T120000
+DTEND:20260301T130000
+UID:literal-backslash-n
+END:VEVENT
+END:VCALENDAR
+''';
+      final events = service.parseEvents(ics);
+      expect(events.length, 1);
+      expect(events[0].description, r'Prefix\nSuffix');
+    });
+
     test('converts UTC datetimes (Z suffix) to local time', () {
       final ics = '''
 BEGIN:VCALENDAR

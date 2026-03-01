@@ -263,12 +263,38 @@ class CalendarService {
 
   /// Unescapes escaped ICS text sequences.
   String _unescapeIcsValue(String value) {
-    return value
-        .replaceAll(r'\n', '\n')
-        .replaceAll(r'\N', '\n')
-        .replaceAll(r'\,', ',')
-        .replaceAll(r'\;', ';')
-        .replaceAll(r'\\', '\\');
+    final buffer = StringBuffer();
+    for (var index = 0; index < value.length; index++) {
+      final ch = value[index];
+      if (ch == r'\') {
+        if (index + 1 < value.length) {
+          final next = value[++index];
+          switch (next) {
+            case 'n':
+            case 'N':
+              buffer.write('\n');
+              break;
+            case ',':
+              buffer.write(',');
+              break;
+            case ';':
+              buffer.write(';');
+              break;
+            case r'\':
+              buffer.write(r'\');
+              break;
+            default:
+              buffer.write(next);
+              break;
+          }
+        } else {
+          buffer.write(ch);
+        }
+      } else {
+        buffer.write(ch);
+      }
+    }
+    return buffer.toString();
   }
 }
 
