@@ -134,7 +134,6 @@ class ClearNoticeVertical extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final screenHeight = MediaQuery.of(context).size.height;
     final resolvedColor = color ?? Colors.grey[600];
 
     return Column(
@@ -144,7 +143,7 @@ class ClearNoticeVertical extends StatelessWidget {
           child: IconTheme(
             data: IconThemeData(
               color: resolvedColor,
-              size: screenHeight * 0.03,
+              size: 24,
             ),
             child: icon ?? const Icon(Icons.info_outline),
           ),
