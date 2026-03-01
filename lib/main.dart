@@ -26,14 +26,25 @@ Future<void> main() async {
   final container = ProviderContainer();
   final firebase = container.read(firebaseServiceProvider);
 
-  void showErrorDialog(Object error) {
+  void showErrorDialog(Object error, {String type = ""}) {
     final context = rootNavigatorKey.currentContext;
     if (context == null) return;
+    // get i18n string for error type, default to "An error occurred" if type is empty or not found
+    switch (type) {
+      case "flutter":
+        type = t.errors.flutterError;
+        break;
+      case "async":
+        type = t.errors.asyncError;
+        break;
+      default:
+        type = t.errors.occurred;
+    }
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(t.errors.occurred),
+        title: Text(type),
         // TODO: Remove technical details from user-facing error messages
         content: Text(error.toString()),
         actions: [
@@ -49,13 +60,15 @@ Future<void> main() async {
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = (details) {
     firebase.crashlytics?.recordFlutterFatalError(details);
-    showErrorDialog(details.exception);
+    showErrorDialog(details.exception, type: "flutter");
+    FlutterError.dumpErrorToConsole(details);
   };
 
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
     firebase.crashlytics?.recordError(error, stack, fatal: true);
-    showErrorDialog(error);
+    showErrorDialog(error, type: "async");
+    log('Uncaught asynchronous error: $error', stackTrace: stack);
     return true;
   };
 
