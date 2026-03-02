@@ -56,8 +56,7 @@ final calendarServiceProvider = Provider<CalendarService>(
 class CalendarService {
   final Dio _dio;
 
-  CalendarService(PortalService portalService)
-      : _dio = portalService.portalDio;
+  CalendarService(PortalService portalService) : _dio = portalService.portalDio;
 
   /// Fetches academic calendar events within a date range.
   ///

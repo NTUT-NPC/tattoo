@@ -33,7 +33,11 @@ void main() {
       // Verify structure of first event (skip holidays with empty titles)
       final event = events.firstWhere((e) => e.calTitle != null);
       expect(event.calTitle, isNotNull, reason: 'Event should have a title');
-      expect(event.calStart, isNotNull, reason: 'Event should have a start time');
+      expect(
+        event.calStart,
+        isNotNull,
+        reason: 'Event should have a start time',
+      );
     });
 
     test('should return empty list for a date range with no events', () async {
