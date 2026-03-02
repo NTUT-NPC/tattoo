@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod/riverpod.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Represents a calendar event from Google Calendar.
 typedef CalendarEventDto = ({
@@ -104,7 +103,7 @@ final calendarServiceProvider = Provider<CalendarService>(
 );
 
 // Compile-time environment variables (from --dart-define in CI/GitHub).
-// Falls back to hardcoded defaults if not defined.
+// For local development: flutter run --dart-define=GOOGLE_CALENDAR_API_KEY=your_key
 const _envCalendarId = String.fromEnvironment('GOOGLE_CALENDAR_ID');
 const _envApiKey = String.fromEnvironment('GOOGLE_CALENDAR_API_KEY');
 
@@ -125,9 +124,7 @@ class CalendarService {
     : _calendarId = _envCalendarId.isNotEmpty
           ? _envCalendarId
           : _defaultCalendarId,
-      _apiKey = _envApiKey.isNotEmpty
-          ? _envApiKey
-          : dotenv.env['GOOGLE_CALENDAR_API_KEY'] ?? '' {
+      _apiKey = _envApiKey {
     _dio = Dio()..options.baseUrl = _defaultApiUrl;
   }
 
