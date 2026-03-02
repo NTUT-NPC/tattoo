@@ -8950,6 +8950,502 @@ class UserSemesterRankingsCompanion
   }
 }
 
+class $CalendarEventsTable extends CalendarEvents
+    with TableInfo<$CalendarEventsTable, CalendarEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CalendarEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _eventIdMeta = const VerificationMeta(
+    'eventId',
+  );
+  @override
+  late final GeneratedColumn<String> eventId = GeneratedColumn<String>(
+    'event_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _summaryMeta = const VerificationMeta(
+    'summary',
+  );
+  @override
+  late final GeneratedColumn<String> summary = GeneratedColumn<String>(
+    'summary',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _locationMeta = const VerificationMeta(
+    'location',
+  );
+  @override
+  late final GeneratedColumn<String> location = GeneratedColumn<String>(
+    'location',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _startMeta = const VerificationMeta('start');
+  @override
+  late final GeneratedColumn<DateTime> start = GeneratedColumn<DateTime>(
+    'start',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endMeta = const VerificationMeta('end');
+  @override
+  late final GeneratedColumn<DateTime> end = GeneratedColumn<DateTime>(
+    'end',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    eventId,
+    summary,
+    description,
+    location,
+    start,
+    end,
+    fetchedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'calendar_events';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CalendarEvent> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('event_id')) {
+      context.handle(
+        _eventIdMeta,
+        eventId.isAcceptableOrUnknown(data['event_id']!, _eventIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_eventIdMeta);
+    }
+    if (data.containsKey('summary')) {
+      context.handle(
+        _summaryMeta,
+        summary.isAcceptableOrUnknown(data['summary']!, _summaryMeta),
+      );
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('location')) {
+      context.handle(
+        _locationMeta,
+        location.isAcceptableOrUnknown(data['location']!, _locationMeta),
+      );
+    }
+    if (data.containsKey('start')) {
+      context.handle(
+        _startMeta,
+        start.isAcceptableOrUnknown(data['start']!, _startMeta),
+      );
+    }
+    if (data.containsKey('end')) {
+      context.handle(
+        _endMeta,
+        end.isAcceptableOrUnknown(data['end']!, _endMeta),
+      );
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {eventId};
+  @override
+  CalendarEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CalendarEvent(
+      eventId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}event_id'],
+      )!,
+      summary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}summary'],
+      ),
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      location: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}location'],
+      ),
+      start: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start'],
+      ),
+      end: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}end'],
+      ),
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      ),
+    );
+  }
+
+  @override
+  $CalendarEventsTable createAlias(String alias) {
+    return $CalendarEventsTable(attachedDatabase, alias);
+  }
+}
+
+class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
+  /// Google Calendar event ID.
+  final String eventId;
+
+  /// Event title / summary.
+  final String? summary;
+
+  /// Event description body.
+  final String? description;
+
+  /// Event location string.
+  final String? location;
+
+  /// Event start time (local).
+  ///
+  /// Null if no start is provided by the API.
+  final DateTime? start;
+
+  /// Event end time (local).
+  ///
+  /// For all-day events this is the exclusive end date (day after the last day),
+  /// matching Google Calendar's convention.
+  final DateTime? end;
+
+  /// When this event row was last written from a successful network fetch.
+  ///
+  /// All rows share the same timestamp per fetch batch. Use the minimum across
+  /// all rows (or a separate metadata row) to determine overall freshness.
+  /// A null value indicates a partially written cache that should be refetched.
+  final DateTime? fetchedAt;
+  const CalendarEvent({
+    required this.eventId,
+    this.summary,
+    this.description,
+    this.location,
+    this.start,
+    this.end,
+    this.fetchedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['event_id'] = Variable<String>(eventId);
+    if (!nullToAbsent || summary != null) {
+      map['summary'] = Variable<String>(summary);
+    }
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || location != null) {
+      map['location'] = Variable<String>(location);
+    }
+    if (!nullToAbsent || start != null) {
+      map['start'] = Variable<DateTime>(start);
+    }
+    if (!nullToAbsent || end != null) {
+      map['end'] = Variable<DateTime>(end);
+    }
+    if (!nullToAbsent || fetchedAt != null) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    }
+    return map;
+  }
+
+  CalendarEventsCompanion toCompanion(bool nullToAbsent) {
+    return CalendarEventsCompanion(
+      eventId: Value(eventId),
+      summary: summary == null && nullToAbsent
+          ? const Value.absent()
+          : Value(summary),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      location: location == null && nullToAbsent
+          ? const Value.absent()
+          : Value(location),
+      start: start == null && nullToAbsent
+          ? const Value.absent()
+          : Value(start),
+      end: end == null && nullToAbsent ? const Value.absent() : Value(end),
+      fetchedAt: fetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fetchedAt),
+    );
+  }
+
+  factory CalendarEvent.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CalendarEvent(
+      eventId: serializer.fromJson<String>(json['eventId']),
+      summary: serializer.fromJson<String?>(json['summary']),
+      description: serializer.fromJson<String?>(json['description']),
+      location: serializer.fromJson<String?>(json['location']),
+      start: serializer.fromJson<DateTime?>(json['start']),
+      end: serializer.fromJson<DateTime?>(json['end']),
+      fetchedAt: serializer.fromJson<DateTime?>(json['fetchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'eventId': serializer.toJson<String>(eventId),
+      'summary': serializer.toJson<String?>(summary),
+      'description': serializer.toJson<String?>(description),
+      'location': serializer.toJson<String?>(location),
+      'start': serializer.toJson<DateTime?>(start),
+      'end': serializer.toJson<DateTime?>(end),
+      'fetchedAt': serializer.toJson<DateTime?>(fetchedAt),
+    };
+  }
+
+  CalendarEvent copyWith({
+    String? eventId,
+    Value<String?> summary = const Value.absent(),
+    Value<String?> description = const Value.absent(),
+    Value<String?> location = const Value.absent(),
+    Value<DateTime?> start = const Value.absent(),
+    Value<DateTime?> end = const Value.absent(),
+    Value<DateTime?> fetchedAt = const Value.absent(),
+  }) => CalendarEvent(
+    eventId: eventId ?? this.eventId,
+    summary: summary.present ? summary.value : this.summary,
+    description: description.present ? description.value : this.description,
+    location: location.present ? location.value : this.location,
+    start: start.present ? start.value : this.start,
+    end: end.present ? end.value : this.end,
+    fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
+  );
+  CalendarEvent copyWithCompanion(CalendarEventsCompanion data) {
+    return CalendarEvent(
+      eventId: data.eventId.present ? data.eventId.value : this.eventId,
+      summary: data.summary.present ? data.summary.value : this.summary,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      location: data.location.present ? data.location.value : this.location,
+      start: data.start.present ? data.start.value : this.start,
+      end: data.end.present ? data.end.value : this.end,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalendarEvent(')
+          ..write('eventId: $eventId, ')
+          ..write('summary: $summary, ')
+          ..write('description: $description, ')
+          ..write('location: $location, ')
+          ..write('start: $start, ')
+          ..write('end: $end, ')
+          ..write('fetchedAt: $fetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    eventId,
+    summary,
+    description,
+    location,
+    start,
+    end,
+    fetchedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CalendarEvent &&
+          other.eventId == this.eventId &&
+          other.summary == this.summary &&
+          other.description == this.description &&
+          other.location == this.location &&
+          other.start == this.start &&
+          other.end == this.end &&
+          other.fetchedAt == this.fetchedAt);
+}
+
+class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
+  final Value<String> eventId;
+  final Value<String?> summary;
+  final Value<String?> description;
+  final Value<String?> location;
+  final Value<DateTime?> start;
+  final Value<DateTime?> end;
+  final Value<DateTime?> fetchedAt;
+  final Value<int> rowid;
+  const CalendarEventsCompanion({
+    this.eventId = const Value.absent(),
+    this.summary = const Value.absent(),
+    this.description = const Value.absent(),
+    this.location = const Value.absent(),
+    this.start = const Value.absent(),
+    this.end = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CalendarEventsCompanion.insert({
+    required String eventId,
+    this.summary = const Value.absent(),
+    this.description = const Value.absent(),
+    this.location = const Value.absent(),
+    this.start = const Value.absent(),
+    this.end = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : eventId = Value(eventId);
+  static Insertable<CalendarEvent> custom({
+    Expression<String>? eventId,
+    Expression<String>? summary,
+    Expression<String>? description,
+    Expression<String>? location,
+    Expression<DateTime>? start,
+    Expression<DateTime>? end,
+    Expression<DateTime>? fetchedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (eventId != null) 'event_id': eventId,
+      if (summary != null) 'summary': summary,
+      if (description != null) 'description': description,
+      if (location != null) 'location': location,
+      if (start != null) 'start': start,
+      if (end != null) 'end': end,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CalendarEventsCompanion copyWith({
+    Value<String>? eventId,
+    Value<String?>? summary,
+    Value<String?>? description,
+    Value<String?>? location,
+    Value<DateTime?>? start,
+    Value<DateTime?>? end,
+    Value<DateTime?>? fetchedAt,
+    Value<int>? rowid,
+  }) {
+    return CalendarEventsCompanion(
+      eventId: eventId ?? this.eventId,
+      summary: summary ?? this.summary,
+      description: description ?? this.description,
+      location: location ?? this.location,
+      start: start ?? this.start,
+      end: end ?? this.end,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (eventId.present) {
+      map['event_id'] = Variable<String>(eventId.value);
+    }
+    if (summary.present) {
+      map['summary'] = Variable<String>(summary.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (location.present) {
+      map['location'] = Variable<String>(location.value);
+    }
+    if (start.present) {
+      map['start'] = Variable<DateTime>(start.value);
+    }
+    if (end.present) {
+      map['end'] = Variable<DateTime>(end.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalendarEventsCompanion(')
+          ..write('eventId: $eventId, ')
+          ..write('summary: $summary, ')
+          ..write('description: $description, ')
+          ..write('location: $location, ')
+          ..write('start: $start, ')
+          ..write('end: $end, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class UserRegistration extends DataClass {
   final int year;
   final int term;
@@ -9162,6 +9658,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $UserSemesterSummaryCadreRolesTable(this);
   late final $UserSemesterRankingsTable userSemesterRankings =
       $UserSemesterRankingsTable(this);
+  late final $CalendarEventsTable calendarEvents = $CalendarEventsTable(this);
   late final $UserRegistrationsView userRegistrations = $UserRegistrationsView(
     this,
   );
@@ -9223,6 +9720,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userSemesterSummaryTutors,
     userSemesterSummaryCadreRoles,
     userSemesterRankings,
+    calendarEvents,
     userRegistrations,
     teacherSemester,
     courseOfferingCourse,
@@ -19313,6 +19811,248 @@ typedef $$UserSemesterRankingsTableProcessedTableManager =
       UserSemesterRanking,
       PrefetchHooks Function({bool summary})
     >;
+typedef $$CalendarEventsTableCreateCompanionBuilder =
+    CalendarEventsCompanion Function({
+      required String eventId,
+      Value<String?> summary,
+      Value<String?> description,
+      Value<String?> location,
+      Value<DateTime?> start,
+      Value<DateTime?> end,
+      Value<DateTime?> fetchedAt,
+      Value<int> rowid,
+    });
+typedef $$CalendarEventsTableUpdateCompanionBuilder =
+    CalendarEventsCompanion Function({
+      Value<String> eventId,
+      Value<String?> summary,
+      Value<String?> description,
+      Value<String?> location,
+      Value<DateTime?> start,
+      Value<DateTime?> end,
+      Value<DateTime?> fetchedAt,
+      Value<int> rowid,
+    });
+
+class $$CalendarEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $CalendarEventsTable> {
+  $$CalendarEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get eventId => $composableBuilder(
+    column: $table.eventId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get summary => $composableBuilder(
+    column: $table.summary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get location => $composableBuilder(
+    column: $table.location,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get start => $composableBuilder(
+    column: $table.start,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get end => $composableBuilder(
+    column: $table.end,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CalendarEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CalendarEventsTable> {
+  $$CalendarEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get eventId => $composableBuilder(
+    column: $table.eventId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get summary => $composableBuilder(
+    column: $table.summary,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get location => $composableBuilder(
+    column: $table.location,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get start => $composableBuilder(
+    column: $table.start,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get end => $composableBuilder(
+    column: $table.end,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CalendarEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CalendarEventsTable> {
+  $$CalendarEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get eventId =>
+      $composableBuilder(column: $table.eventId, builder: (column) => column);
+
+  GeneratedColumn<String> get summary =>
+      $composableBuilder(column: $table.summary, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get location =>
+      $composableBuilder(column: $table.location, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get start =>
+      $composableBuilder(column: $table.start, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get end =>
+      $composableBuilder(column: $table.end, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+}
+
+class $$CalendarEventsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CalendarEventsTable,
+          CalendarEvent,
+          $$CalendarEventsTableFilterComposer,
+          $$CalendarEventsTableOrderingComposer,
+          $$CalendarEventsTableAnnotationComposer,
+          $$CalendarEventsTableCreateCompanionBuilder,
+          $$CalendarEventsTableUpdateCompanionBuilder,
+          (
+            CalendarEvent,
+            BaseReferences<_$AppDatabase, $CalendarEventsTable, CalendarEvent>,
+          ),
+          CalendarEvent,
+          PrefetchHooks Function()
+        > {
+  $$CalendarEventsTableTableManager(
+    _$AppDatabase db,
+    $CalendarEventsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CalendarEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CalendarEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CalendarEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> eventId = const Value.absent(),
+                Value<String?> summary = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<String?> location = const Value.absent(),
+                Value<DateTime?> start = const Value.absent(),
+                Value<DateTime?> end = const Value.absent(),
+                Value<DateTime?> fetchedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CalendarEventsCompanion(
+                eventId: eventId,
+                summary: summary,
+                description: description,
+                location: location,
+                start: start,
+                end: end,
+                fetchedAt: fetchedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String eventId,
+                Value<String?> summary = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<String?> location = const Value.absent(),
+                Value<DateTime?> start = const Value.absent(),
+                Value<DateTime?> end = const Value.absent(),
+                Value<DateTime?> fetchedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CalendarEventsCompanion.insert(
+                eventId: eventId,
+                summary: summary,
+                description: description,
+                location: location,
+                start: start,
+                end: end,
+                fetchedAt: fetchedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CalendarEventsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CalendarEventsTable,
+      CalendarEvent,
+      $$CalendarEventsTableFilterComposer,
+      $$CalendarEventsTableOrderingComposer,
+      $$CalendarEventsTableAnnotationComposer,
+      $$CalendarEventsTableCreateCompanionBuilder,
+      $$CalendarEventsTableUpdateCompanionBuilder,
+      (
+        CalendarEvent,
+        BaseReferences<_$AppDatabase, $CalendarEventsTable, CalendarEvent>,
+      ),
+      CalendarEvent,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -19375,4 +20115,6 @@ class $AppDatabaseManager {
       );
   $$UserSemesterRankingsTableTableManager get userSemesterRankings =>
       $$UserSemesterRankingsTableTableManager(_db, _db.userSemesterRankings);
+  $$CalendarEventsTableTableManager get calendarEvents =>
+      $$CalendarEventsTableTableManager(_db, _db.calendarEvents);
 }

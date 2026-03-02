@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:tattoo/repositories/calendar_repository.dart';
 import 'package:tattoo/services/calendar_service.dart';
-import 'package:tattoo/screens/main/calendar/calendar_providers.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -23,6 +24,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Calendar')),
       body: eventsAsync.when(
+        // Only show the full-screen spinner on the very first load (empty DB).
+        // Once data has been displayed, skipLoadingOnRefresh/Reload keeps the
+        // calendar mounted while a background or pull-to-refresh fetch runs.
+        skipLoadingOnRefresh: true,
+        skipLoadingOnReload: true,
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
           child: Column(
@@ -39,18 +45,31 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             ],
           ),
         ),
-        data: (events) => _buildCalendar(events),
+        data: (result) => _buildCalendar(result.events, result.fetchedAt),
       ),
     );
   }
 
-  Widget _buildCalendar(List<CalendarEventDto> events) {
+  Widget _buildCalendar(List<CalendarEventDto> events, DateTime? fetchedAt) {
     // Group events by date for efficient lookup
     final eventsByDate = groupEventsByDate(events);
     final selectedEvents = _getEventsForDay(_selectedDay, eventsByDate);
 
     return RefreshIndicator(
-      onRefresh: () async => ref.refresh(calendarEventsProvider.future),
+      onRefresh: () async {
+        try {
+          // Fetch from network directly — does NOT change the provider's
+          // loading state, so the calendar grid stays fully visible.
+          await ref.read(calendarRepositoryProvider).refreshEvents();
+        } catch (_) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to refresh calendar')),
+          );
+        }
+        // Re-read from DB (always succeeds) to update the displayed events.
+        ref.invalidate(calendarEventsProvider);
+      },
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -88,6 +107,18 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             ),
           ),
           const SliverToBoxAdapter(child: Divider(height: 1)),
+          if (fetchedAt != null)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(
+                  'Updated ${DateFormat.yMd().add_jm().format(fetchedAt)}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                ),
+              ),
+            ),
           if (selectedEvents.isEmpty)
             SliverFillRemaining(
               child: Center(

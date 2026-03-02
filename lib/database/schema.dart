@@ -598,3 +598,45 @@ class Materials extends Table with AutoIncrementId {
     {courseOffering, href},
   ];
 }
+
+/// NTUT academic calendar events cached from the remote calendar source.
+///
+/// All events are stored flat; multi-day events keep their original start/end.
+/// The [fetchedAt] column records when the entire event list was last fetched
+/// from the network, enabling TTL-based cache invalidation.
+///
+/// Data source: CalendarService (Google Calendar API proxy)
+class CalendarEvents extends Table {
+  /// Google Calendar event ID.
+  late final eventId = text()();
+
+  /// Event title / summary.
+  late final summary = text().nullable()();
+
+  /// Event description body.
+  late final description = text().nullable()();
+
+  /// Event location string.
+  late final location = text().nullable()();
+
+  /// Event start time (local).
+  ///
+  /// Null if no start is provided by the API.
+  late final start = dateTime().nullable()();
+
+  /// Event end time (local).
+  ///
+  /// For all-day events this is the exclusive end date (day after the last day),
+  /// matching Google Calendar's convention.
+  late final end = dateTime().nullable()();
+
+  /// When this event row was last written from a successful network fetch.
+  ///
+  /// All rows share the same timestamp per fetch batch. Use the minimum across
+  /// all rows (or a separate metadata row) to determine overall freshness.
+  /// A null value indicates a partially written cache that should be refetched.
+  late final fetchedAt = dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {eventId};
+}
