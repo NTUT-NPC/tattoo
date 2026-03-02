@@ -165,7 +165,13 @@ class CalendarService {
         queryParameters: queryParameters,
       );
     } on DioException catch (e) {
-      log('Failed to fetch calendar events: $e', name: 'CalendarService');
+      // Log sanitized error information to avoid exposing API key in URLs
+      final statusCode = e.response?.statusCode ?? 'unknown';
+      final errorMessage = e.message ?? 'Unknown error';
+      log(
+        'Failed to fetch calendar events (status: $statusCode, error: $errorMessage)',
+        name: 'CalendarService',
+      );
       rethrow;
     }
 
