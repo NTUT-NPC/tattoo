@@ -136,6 +136,12 @@ class CalendarService {
           ? _envCalendarId
           : _defaultCalendarId,
       _apiKey = _envApiKey {
+    if (_apiKey.isEmpty) {
+      const message =
+          'Missing GOOGLE_CALENDAR_API_KEY environment variable for CalendarService.';
+      log(message, name: 'CalendarService');
+      throw StateError(message);
+    }
     _dio = Dio()..options.baseUrl = _defaultApiUrl;
   }
 
