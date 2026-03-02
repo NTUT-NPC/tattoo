@@ -54,7 +54,7 @@ class AboutScreen extends ConsumerWidget {
                             final buildNumber =
                                 snapshot.data?.buildNumber ?? '...';
                             return Text(
-                              'Version $version ($buildNumber)',
+                              '$version ($buildNumber)',
                               style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(
                                     color: Theme.of(context).hintColor,
@@ -77,7 +77,7 @@ class AboutScreen extends ConsumerWidget {
                     Column(
                       spacing: 8,
                       children: [
-                        SectionHeader(title: t.$wip('相關連結')),
+                        SectionHeader(title: t.about.relatedLinks),
                         OptionEntryTile(
                           icon: Icons.code,
                           title: 'GitHub',
@@ -155,10 +155,7 @@ class AboutScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
 
                     // Copyright
-                    ClearNotice(
-                      text:
-                          'Copyright © 2026 NTUT Programming Club\nLicensed under GPLv3',
-                    ),
+                    ClearNotice(text: t.about.copyright),
                   ],
                 ),
               ),

@@ -221,6 +221,12 @@ class TranslationsAboutZhTw {
 
 	/// zh-TW: '查看原始碼與貢獻'
 	String get viewSource => '查看原始碼與貢獻';
+
+	/// zh-TW: '相關連結'
+	String get relatedLinks => '相關連結';
+
+	/// zh-TW: '版權所有 北科程式設計研究社\n採用 GPL-3.0 授權'
+	String get copyright => '版權所有 北科程式設計研究社\n採用 GPL-3.0 授權';
 }
 
 // Path: intro.features
@@ -452,6 +458,8 @@ extension on Translations {
 			'about.developers' => '開發團隊',
 			'about.helpTranslate' => '幫助我們翻譯TAT!',
 			'about.viewSource' => '查看原始碼與貢獻',
+			'about.relatedLinks' => '相關連結',
+			'about.copyright' => '版權所有 北科程式設計研究社\n採用 GPL-3.0 授權',
 			_ => null,
 		};
 	}
