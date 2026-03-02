@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/models/contributor.dart';
 import 'package:tattoo/utils/http.dart';
@@ -19,7 +18,6 @@ class GithubService {
     _dio = createDio()..options.baseUrl = 'https://api.github.com/';
   }
 
-  @visibleForTesting
   Dio get dio => _dio;
 
   Future<List<Contributor>> getContributors() async {
