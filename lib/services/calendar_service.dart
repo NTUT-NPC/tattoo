@@ -38,7 +38,8 @@ extension CalendarEventDtoExtension on CalendarEventDto {
     final dateFormat = DateFormat.MMMd(locale);
 
     if (isAllDay) {
-      if (end == null || _isSameDay(start!, end!.subtract(const Duration(days: 1)))) {
+      if (end == null ||
+          _isSameDay(start!, end!.subtract(const Duration(days: 1)))) {
         // Single-day all-day event
         return dateFormat.format(start!);
       }
@@ -84,8 +85,9 @@ Map<DateTime, List<CalendarEventDto>> groupEventsByDate(
 
     // For multi-day events, add to each day in the range
     // For same-day events, endDay equals currentDay, so we use do-while to include at least one day
-    final endDay =
-        end != null ? DateTime(end.year, end.month, end.day) : currentDay;
+    final endDay = end != null
+        ? DateTime(end.year, end.month, end.day)
+        : currentDay;
 
     do {
       eventsByDate.putIfAbsent(currentDay, () => []).add(event);
@@ -105,15 +107,15 @@ final calendarServiceProvider = Provider<CalendarService>(
 ///
 /// Currently uses Google Calendar API directly for testing.
 /// TODO: Replace with proxy API in production.
+class CalendarService {
   late final Dio _dio;
   final String _calendarId;
   final String _apiKey;
 
   CalendarService()
-      : _calendarId = dotenv.env['GOOGLE_CALENDAR_ID']!,
-        _apiKey = dotenv.env['GOOGLE_CALENDAR_API_KEY']! {
-    _dio = Dio()
-      ..options.baseUrl = dotenv.env['GOOGLE_CALENDAR_API_URL']!;
+    : _calendarId = dotenv.env['GOOGLE_CALENDAR_ID']!,
+      _apiKey = dotenv.env['GOOGLE_CALENDAR_API_KEY']! {
+    _dio = Dio()..options.baseUrl = dotenv.env['GOOGLE_CALENDAR_API_URL']!;
   }
 
   /// Fetches calendar events from Google Calendar.
