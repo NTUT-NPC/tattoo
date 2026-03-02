@@ -79,8 +79,8 @@ Future<void> main() async {
   await LocaleSettings.useDeviceLocale();
 
   final authRepository = container.read(authRepositoryProvider);
-  final hasCredentials = await authRepository.hasCredentials();
-  final initialLocation = hasCredentials ? AppRoutes.home : AppRoutes.intro;
+  final user = await authRepository.getUser();
+  final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
   final router = buildAppRouter(initialLocation: initialLocation);
 
   runApp(
