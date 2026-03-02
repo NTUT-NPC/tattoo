@@ -159,9 +159,9 @@ class CalendarService {
       'timeZone': 'Asia/Taipei',
     };
 
-    if (timeMin != null) {
-      queryParameters['timeMin'] = timeMin.toUtc().toIso8601String();
-    }
+    // Default to events from now onwards when `timeMin` is not provided.
+    final effectiveTimeMin = timeMin ?? DateTime.now();
+    queryParameters['timeMin'] = effectiveTimeMin.toUtc().toIso8601String();
     if (timeMax != null) {
       queryParameters['timeMax'] = timeMax.toUtc().toIso8601String();
     }
