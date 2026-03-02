@@ -3,6 +3,17 @@
     "slang": {
       "command": "dart",
       "args": ["run", "slang_mcp"]
+    },
+    "firebase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "firebase-tools@latest",
+        "mcp",
+        "--only",
+        "core,developerknowledge,analytics,appdistribution,crashlytics"
+      ],
+      "env": {}
     }
   }
 }
