@@ -32,7 +32,6 @@ Future<void> main() async {
   final container = ProviderContainer();
   final firebase = container.read(firebaseServiceProvider);
 
-
   firebase.log('App starting...');
 
   void showErrorDialog(Object error, {ErrorType type = ErrorType.unknown}) {
@@ -43,7 +42,6 @@ Future<void> main() async {
       ErrorType.async => t.errors.asyncError,
       ErrorType.unknown => t.errors.occurred,
     };
-
 
     showDialog(
       context: context,
