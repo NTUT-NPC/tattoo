@@ -75,8 +75,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: TableCalendar<CalendarEventDto>(
-              firstDay: DateTime.utc(2019, 1, 1),
-              lastDay: DateTime.utc(2030, 12, 31),
+              firstDay: DateTime(2020, 1, 1),
+              lastDay: DateTime(2050, 12, 31),
               focusedDay: _focusedDay,
               locale: 'zh_TW',
               calendarFormat: _calendarFormat,
