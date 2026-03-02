@@ -1,7 +1,9 @@
 import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/services/calendar_service.dart';
+import 'package:tattoo/utils/shared_preferences.dart';
 
 /// Result of fetching calendar events, including cache metadata.
 typedef CalendarEventsResult = ({
@@ -14,6 +16,7 @@ final calendarRepositoryProvider = Provider<CalendarRepository>((ref) {
   return CalendarRepository(
     calendarService: ref.watch(calendarServiceProvider),
     database: ref.watch(databaseProvider),
+    prefs: ref.watch(sharedPreferencesProvider),
   );
 });
 
@@ -37,28 +40,42 @@ final calendarEventsProvider = FutureProvider<CalendarEventsResult>((
 /// when the user explicitly pulls to refresh.  There is no automatic
 /// background refresh.
 class CalendarRepository {
+  static const _lastFetchedAtPrefKey = 'calendarEventsLastFetchedAt';
+
   final CalendarService _calendarService;
   final AppDatabase _database;
+  final SharedPreferencesAsync _prefs;
 
   CalendarRepository({
     required CalendarService calendarService,
     required AppDatabase database,
+    required SharedPreferencesAsync prefs,
   }) : _calendarService = calendarService,
-       _database = database;
+       _database = database,
+       _prefs = prefs;
 
   /// Returns calendar events from the local DB.
   ///
-  /// Fetches from the network only when the DB is empty (first launch).
+  /// Fetches from the network only when no successful fetch metadata exists.
+  ///
+  /// This allows successful empty results to be cached and prevents repeated
+  /// first-load fetches/spinners when the remote calendar has no events.
   Future<CalendarEventsResult> getEvents() async {
     final cached = await _getCachedEvents();
+    final lastFetchedAt = await _getLastFetchedAt();
+
     if (cached.isNotEmpty) {
       return (
         events: _rowsToDtos(cached),
-        fetchedAt: cached.first.fetchedAt,
+        fetchedAt: lastFetchedAt ?? cached.first.fetchedAt,
       );
     }
 
-    // First launch: no local data, fetch from network.
+    if (lastFetchedAt != null) {
+      return (events: <CalendarEventDto>[], fetchedAt: lastFetchedAt);
+    }
+
+    // Never fetched: fetch from network.
     return _fetchAndStore();
   }
 
@@ -108,7 +125,19 @@ class CalendarRepository {
       });
     });
 
+    await _setLastFetchedAt(now);
+
     return (events: dtos, fetchedAt: now);
+  }
+
+  Future<DateTime?> _getLastFetchedAt() async {
+    final raw = await _prefs.getString(_lastFetchedAtPrefKey);
+    if (raw == null) return null;
+    return DateTime.tryParse(raw);
+  }
+
+  Future<void> _setLastFetchedAt(DateTime fetchedAt) {
+    return _prefs.setString(_lastFetchedAtPrefKey, fetchedAt.toIso8601String());
   }
 
   List<CalendarEventDto> _rowsToDtos(List<CalendarEvent> rows) {
