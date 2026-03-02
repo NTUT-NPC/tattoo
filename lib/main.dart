@@ -7,7 +7,7 @@ import 'package:tattoo/router/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load();
+  await dotenv.load(fileName: '.env');
   await LocaleSettings.useDeviceLocale();
   runApp(ProviderScope(child: TranslationProvider(child: MyApp())));
 }
