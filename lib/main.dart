@@ -87,6 +87,8 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  static const themeColor = Color(0xFF4B709B);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
@@ -95,7 +97,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: AppLocaleUtils.supportedLocales,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF4B709B)),
+        colorScheme: ColorScheme.fromSeed(seedColor: themeColor),
       ),
       routerConfig: appRouter,
     );
