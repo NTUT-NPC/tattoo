@@ -66,8 +66,13 @@ extension CalendarEventDtoExtension on CalendarEventDto {
 
 /// Groups events by date, expanding multi-day events across all days they span.
 ///
-/// For multi-day events, the event is added to each day in the range.
-/// Google Calendar's end date for all-day events is exclusive (day after last day).
+/// For multi-day events, the event is added to each day in the range:
+/// - All-day events: end date is exclusive (follows Google Calendar semantics)
+/// - Timed events: end date is inclusive (event appears on the day it ends)
+///
+/// Example:
+/// - All-day event Mar 1-3: appears on Mar 1, 2 (end date Mar 3 is exclusive)
+/// - Timed event Mar 1 23:00 to Mar 2 01:00: appears on Mar 1, 2
 Map<DateTime, List<CalendarEventDto>> groupEventsByDate(
   List<CalendarEventDto> events,
 ) {
@@ -79,19 +84,25 @@ Map<DateTime, List<CalendarEventDto>> groupEventsByDate(
 
     if (start == null) continue;
 
-    // Normalize start date
+    // Normalize start date to midnight
     var currentDay = DateTime(start.year, start.month, start.day);
 
-    // For multi-day events, add to each day in the range
-    // For same-day events, endDay equals currentDay, so we use do-while to include at least one day
-    final endDay = end != null
-        ? DateTime(end.year, end.month, end.day)
+    // Determine the last day to include in the range
+    final lastDay = end != null
+        ? event.isAllDay
+              ? DateTime(
+                  end.year,
+                  end.month,
+                  end.day,
+                ).subtract(const Duration(days: 1))
+              : DateTime(end.year, end.month, end.day)
         : currentDay;
 
     do {
       eventsByDate.putIfAbsent(currentDay, () => []).add(event);
       currentDay = currentDay.add(const Duration(days: 1));
-    } while (currentDay.isBefore(endDay));
+    } while (currentDay.isBefore(lastDay) ||
+        currentDay.isAtSameMomentAs(lastDay));
   }
 
   return eventsByDate;
