@@ -156,6 +156,31 @@ class AuthRepository {
     await _clearAvatarCache();
   }
 
+  /// Re-authenticates with stored credentials to refresh the session and
+  /// update login-level fields (avatar filename, password expiry) in the DB.
+  ///
+  /// Throws [NotLoggedInException] if no stored credentials are available.
+  /// Throws [DioException] on network failure.
+  Future<UserDto> refreshLogin() async {
+    final username = await _secureStorage.read(key: _usernameKey);
+    final password = await _secureStorage.read(key: _passwordKey);
+    if (username == null || password == null) throw NotLoggedInException();
+
+    final userDto = await _portalService.login(username, password);
+    _onAuthStatusChanged(AuthStatus.authenticated);
+
+    await (_database.update(
+      _database.users,
+    )..where((u) => u.studentId.equals(username))).write(
+      UsersCompanion(
+        avatarFilename: Value(userDto.avatarFilename ?? ''),
+        passwordExpiresInDays: Value(userDto.passwordExpiresInDays),
+      ),
+    );
+
+    return userDto;
+  }
+
   /// Whether the user has stored login credentials.
   ///
   /// Returns `true` if both username and password exist in secure storage.

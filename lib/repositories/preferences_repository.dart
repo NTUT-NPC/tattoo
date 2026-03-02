@@ -1,5 +1,11 @@
+import 'package:dio/dio.dart';
+import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tattoo/database/database.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/services/portal_service.dart';
+import 'package:tattoo/utils/avatar_payload.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
 
 /// SharedPreferences value type, used to dispatch to the correct accessor.
@@ -21,16 +27,35 @@ enum PrefKey<T> {
 final preferencesRepositoryProvider = Provider<PreferencesRepository>((ref) {
   return PreferencesRepository(
     prefs: ref.watch(sharedPreferencesProvider),
+    portalService: ref.watch(portalServiceProvider),
+    database: ref.watch(databaseProvider),
+    authRepository: ref.watch(authRepositoryProvider),
   );
 });
 
 /// Manages app preferences: demo mode, color customizations, onboarding status.
+///
+/// Supports cloud sync by embedding preferences as MessagePack in the
+/// avatar file uploaded to NTUT's portal. See [syncUp] and [syncDown].
 class PreferencesRepository {
   final SharedPreferencesAsync _prefs;
+  final PortalService _portalService;
+  final AppDatabase _database;
+  final AuthRepository _authRepository;
+  bool _syncing = false;
+
+  /// Internal key for persisting the dirty flag across app restarts.
+  static const _dirtyKey = '_prefsSyncDirty';
 
   PreferencesRepository({
     required SharedPreferencesAsync prefs,
-  }) : _prefs = prefs;
+    required PortalService portalService,
+    required AppDatabase database,
+    required AuthRepository authRepository,
+  }) : _prefs = prefs,
+       _portalService = portalService,
+       _database = database,
+       _authRepository = authRepository;
 
   /// Gets a preference value, returning the key's default if not set.
   Future<T> get<T>(PrefKey<T> key) async {
@@ -44,7 +69,7 @@ class PreferencesRepository {
     return (value as T?) ?? key.defaultValue;
   }
 
-  /// Sets a preference value.
+  /// Sets a preference value and marks local state as dirty for cloud sync.
   Future<void> set<T>(PrefKey<T> key, T value) async {
     switch (key.type) {
       case PrefType.boolean:
@@ -58,5 +83,122 @@ class PreferencesRepository {
       case PrefType.stringList:
         await _prefs.setStringList(key.name, value as List<String>);
     }
+    _dirty = true;
+    _maybeSyncUp();
   }
+
+  /// Uploads preferences embedded in the current avatar.
+  ///
+  /// Downloads the current avatar, appends serialized preferences, and
+  /// re-uploads. The avatar image is preserved — only the trailing
+  /// payload changes.
+  ///
+  /// If the user has no avatar, the server's generated placeholder is
+  /// used as the base image, which becomes the user's new avatar.
+  ///
+  /// Clears the dirty flag on success.
+  Future<void> syncUp() async {
+    final userDto = await _authRepository.refreshLogin();
+    final filename = userDto.avatarFilename ?? '';
+
+    final avatarBytes = await _portalService.getAvatar(filename);
+
+    // Strip any existing payload to avoid nesting
+    final (:jpeg, version: _, data: _) = decodeAvatarPayload(avatarBytes);
+
+    final prefs = await _toMap();
+    final combined = encodeAvatarPayload(jpeg, prefs);
+
+    final newFilename = await _portalService.uploadAvatar(combined, filename);
+
+    final user = await _database.select(_database.users).getSingle();
+    await (_database.update(_database.users)
+          ..where((u) => u.id.equals(user.id)))
+        .write(UsersCompanion(avatarFilename: Value(newFilename)));
+
+    _dirty = false;
+  }
+
+  /// Syncs preferences with the cloud on app launch.
+  ///
+  /// If local changes were not uploaded (dirty flag set), syncs up first
+  /// to avoid overwriting them. Then syncs down to pull any cloud changes.
+  /// No-op if not logged in.
+  Future<void> syncOnLaunch() async {
+    try {
+      if (await _dirty) await syncUp();
+      await syncDown();
+    } on NotLoggedInException {
+      return;
+    }
+  }
+
+  /// Downloads the avatar and restores embedded preferences if present.
+  Future<void> syncDown() async {
+    final userDto = await _authRepository.refreshLogin();
+    final filename = userDto.avatarFilename;
+    if (filename == null || filename.isEmpty) return;
+
+    final avatarBytes = await _portalService.getAvatar(filename);
+
+    final (:jpeg, :version, :data) = decodeAvatarPayload(avatarBytes);
+    if (data == null || version != 0x00) return;
+
+    await _fromMap(data);
+  }
+
+  /// Serializes all preferences to a map for cloud sync.
+  Future<Map<String, dynamic>> _toMap() async {
+    return {
+      for (final key in PrefKey.values) key.name: await get(key),
+    };
+  }
+
+  /// Restores preferences from a cloud sync map.
+  ///
+  /// Writes directly to SharedPreferences to avoid triggering [set]'s
+  /// dirty flag and sync logic.
+  Future<void> _fromMap(Map<String, dynamic> map) async {
+    await Future.wait([
+      for (final key in PrefKey.values)
+        if (map.containsKey(key.name))
+          switch (key.type) {
+            PrefType.boolean => _prefs.setBool(key.name, map[key.name] as bool),
+            PrefType.integer => _prefs.setInt(key.name, map[key.name] as int),
+            PrefType.double => _prefs.setDouble(
+              key.name,
+              map[key.name] as double,
+            ),
+            PrefType.string => _prefs.setString(
+              key.name,
+              map[key.name] as String,
+            ),
+            PrefType.stringList => _prefs.setStringList(
+              key.name,
+              map[key.name] as List<String>,
+            ),
+          },
+    ]);
+  }
+
+  /// Fire-and-forget sync with coalescing: if already syncing, the dirty
+  /// flag ensures one more sync runs after the current one finishes.
+  Future<void> _maybeSyncUp() async {
+    if (_syncing) return;
+    _syncing = true;
+    try {
+      while (await _dirty) {
+        await syncUp();
+      }
+    } on DioException catch (_) {
+      // Network failures are fine — dirty flag persists for next attempt
+    } on NotLoggedInException {
+      // Not logged in — dirty flag persists until after login
+    } finally {
+      _syncing = false;
+    }
+  }
+
+  Future<bool> get _dirty async => await _prefs.getBool(_dirtyKey) ?? false;
+  set _dirty(bool value) => _prefs.setBool(_dirtyKey, value);
 }
