@@ -163,7 +163,7 @@ class _TranslationsAboutEn extends TranslationsAboutZhTw {
 	@override String get helpTranslate => 'Help us translate TAT!';
 	@override String get viewSource => 'View source code and contributions';
 	@override String get relatedLinks => 'Related Links';
-	@override String get copyright => 'Copyright NTUT Programming Club\nLicensed under GPL-3.0.';
+	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
 }
 
 // Path: intro.features
@@ -342,7 +342,7 @@ extension on TranslationsEn {
 			'about.helpTranslate' => 'Help us translate TAT!',
 			'about.viewSource' => 'View source code and contributions',
 			'about.relatedLinks' => 'Related Links',
-			'about.copyright' => 'Copyright NTUT Programming Club\nLicensed under GPL-3.0.',
+			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
 			_ => null,
 		};
 	}
