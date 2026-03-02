@@ -49,60 +49,69 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final eventsByDate = groupEventsByDate(events);
     final selectedEvents = _getEventsForDay(_selectedDay, eventsByDate);
 
-    return Column(
-      children: [
-        TableCalendar<CalendarEventDto>(
-          firstDay: DateTime.utc(2019, 1, 1),
-          lastDay: DateTime.utc(2030, 12, 31),
-          focusedDay: _focusedDay,
-          locale: 'zh_TW',
-          calendarFormat: _calendarFormat,
-          selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-          eventLoader: (day) => _getEventsForDay(day, eventsByDate),
-          onDaySelected: (selectedDay, focusedDay) {
-            setState(() {
-              _selectedDay = selectedDay;
-              _focusedDay = focusedDay;
-            });
-          },
-          onFormatChanged: (format) {
-            setState(() {
-              _calendarFormat = format;
-            });
-          },
-          onPageChanged: (focusedDay) {
-            _focusedDay = focusedDay;
-          },
-          daysOfWeekHeight: 24,
-          calendarStyle: CalendarStyle(
-            markersMaxCount: 3,
-            markerDecoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              shape: BoxShape.circle,
+    return RefreshIndicator(
+      onRefresh: () async => ref.refresh(calendarEventsProvider.future),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: TableCalendar<CalendarEventDto>(
+              firstDay: DateTime.utc(2019, 1, 1),
+              lastDay: DateTime.utc(2030, 12, 31),
+              focusedDay: _focusedDay,
+              locale: 'zh_TW',
+              calendarFormat: _calendarFormat,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              eventLoader: (day) => _getEventsForDay(day, eventsByDate),
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                });
+              },
+              onFormatChanged: (format) {
+                setState(() {
+                  _calendarFormat = format;
+                });
+              },
+              onPageChanged: (focusedDay) {
+                _focusedDay = focusedDay;
+              },
+              daysOfWeekHeight: 24,
+              calendarStyle: CalendarStyle(
+                markersMaxCount: 3,
+                markerDecoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  shape: BoxShape.circle,
+                ),
+              ),
             ),
           ),
-        ),
-        const Divider(height: 1),
-        Expanded(
-          child: selectedEvents.isEmpty
-              ? Center(
-                  child: Text(
-                    'No events on this day',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
+          const SliverToBoxAdapter(child: Divider(height: 1)),
+          if (selectedEvents.isEmpty)
+            SliverFillRemaining(
+              child: Center(
+                child: Text(
+                  'No events on this day',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
                   ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: selectedEvents.length,
-                  itemBuilder: (context, index) {
-                    final event = selectedEvents[index];
-                    return _EventCard(event: event);
-                  },
                 ),
-        ),
-      ],
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.all(8),
+              sliver: SliverList.builder(
+                itemCount: selectedEvents.length,
+                itemBuilder: (context, index) {
+                  final event = selectedEvents[index];
+                  return _EventCard(event: event);
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 
