@@ -2,9 +2,63 @@
 
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/models/course.dart';
 import 'package:tattoo/services/course_service.dart';
 import 'package:tattoo/services/i_school_plus_service.dart';
 import 'package:tattoo/services/portal_service.dart';
+
+/// Temporary UI contract for one course entry in the course table.
+///
+/// Field names and types align with current database schema as much as possible
+/// so repository implementation can migrate without API changes.
+typedef CourseTableInfoObject = ({
+  /// [CourseOfferings.number].
+  String number,
+
+  /// [Courses.nameZh].
+  String? courseNameZh,
+
+  /// [Teachers.nameZh] of this offering.
+  ///
+  /// A course offering can have multiple teachers.
+  List<String> teacherNamesZh,
+
+  /// [Courses.credits].
+  double credits,
+
+  /// [Courses.hours].
+  int hours,
+
+  /// [Classrooms.nameZh] of this offering.
+  ///
+  /// A course offering can use multiple classrooms.
+  List<String> classroomNamesZh,
+
+  /// Raw schedule format from [Schedules] table.
+  ///
+  /// Each entry is one `(dayOfWeek, period)` slot.
+  List<({DayOfWeek dayOfWeek, Period period})> schedule,
+
+  /// [Classes.nameZh] of this offering.
+  ///
+  /// A course offering can target multiple classes.
+  List<String> classNamesZh,
+});
+
+/// Temporary UI contract for one renderable time block in the course table.
+typedef CourseTableBlockObject = ({
+  /// Course metadata shown in this block.
+  CourseTableInfoObject courseInfo,
+
+  /// Weekday of this block.
+  DayOfWeek dayOfWeek,
+
+  /// Inclusive start slot of this block.
+  Period startSection,
+
+  /// Inclusive end slot of this block.
+  Period endSection,
+});
 
 /// Provides the [CourseRepository] instance.
 final courseRepositoryProvider = Provider<CourseRepository>((ref) {
