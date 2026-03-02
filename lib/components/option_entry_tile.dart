@@ -173,13 +173,13 @@ class OptionEntryTile extends StatelessWidget {
   }
 
   Widget _buildLeading(ColorScheme colorScheme) {
-    if (_leading != null) return _leading!;
+    if (_leading != null) return _leading;
 
     if (_svgIconAsset != null) {
       return SizedBox.square(
         dimension: 24,
         child: SvgPicture.asset(
-          _svgIconAsset!,
+          _svgIconAsset,
           fit: BoxFit.contain,
           alignment: Alignment.center,
           colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
