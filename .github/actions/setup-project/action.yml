@@ -86,14 +86,3 @@ runs:
     - name: Install Flutter dependencies
       shell: bash
       run: flutter pub get --enforce-lockfile
-
-    - name: Create .env file
-      shell: bash
-      env:
-        GOOGLE_CALENDAR_API_URL: ${{ env.GOOGLE_CALENDAR_API_URL }}
-        GOOGLE_CALENDAR_ID: ${{ env.GOOGLE_CALENDAR_ID }}
-        GOOGLE_CALENDAR_API_KEY: ${{ env.GOOGLE_CALENDAR_API_KEY }}
-      run: |
-        echo "GOOGLE_CALENDAR_API_URL=${GOOGLE_CALENDAR_API_URL}" >> .env
-        echo "GOOGLE_CALENDAR_ID=${GOOGLE_CALENDAR_ID}" >> .env
-        echo "GOOGLE_CALENDAR_API_KEY=${GOOGLE_CALENDAR_API_KEY}" >> .env

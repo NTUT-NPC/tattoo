@@ -103,6 +103,15 @@ final calendarServiceProvider = Provider<CalendarService>(
   (ref) => CalendarService(),
 );
 
+// Compile-time environment variables (from --dart-define in CI/GitHub).
+// Falls back to hardcoded defaults if not defined.
+const _envCalendarId = String.fromEnvironment('GOOGLE_CALENDAR_ID');
+const _envApiKey = String.fromEnvironment('GOOGLE_CALENDAR_API_KEY');
+
+const _defaultCalendarId =
+    'docfuhim9b22fqvp2tk842ak3c@group.calendar.google.com';
+const _defaultApiUrl = 'https://www.googleapis.com/calendar/v3/';
+
 /// Service for fetching NTUT calendar events.
 ///
 /// Currently uses Google Calendar API directly for testing.
@@ -113,9 +122,13 @@ class CalendarService {
   final String _apiKey;
 
   CalendarService()
-    : _calendarId = dotenv.env['GOOGLE_CALENDAR_ID']!,
-      _apiKey = dotenv.env['GOOGLE_CALENDAR_API_KEY']! {
-    _dio = Dio()..options.baseUrl = dotenv.env['GOOGLE_CALENDAR_API_URL']!;
+    : _calendarId = _envCalendarId.isNotEmpty
+          ? _envCalendarId
+          : _defaultCalendarId,
+      _apiKey = _envApiKey.isNotEmpty
+          ? _envApiKey
+          : dotenv.env['GOOGLE_CALENDAR_API_KEY'] ?? '' {
+    _dio = Dio()..options.baseUrl = _defaultApiUrl;
   }
 
   /// Fetches calendar events from Google Calendar.
