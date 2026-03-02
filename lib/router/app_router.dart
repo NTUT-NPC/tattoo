@@ -18,9 +18,9 @@ abstract class AppRoutes {
   static const login = '/login';
 }
 
-final appRouter = GoRouter(
+GoRouter buildAppRouter({required String initialLocation}) => GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: AppRoutes.home,
+  initialLocation: initialLocation,
   routes: [
     GoRoute(
       path: AppRoutes.intro,
