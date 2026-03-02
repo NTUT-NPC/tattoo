@@ -5,7 +5,11 @@ general:
   student: Student
   unknown: Unknown
   notLoggedIn: Not logged in
+  ok: OK
 errors:
+  occurred: An error occurred
+  flutterError : A Flutter error occurred
+  asyncError: An async error occurred
   sessionExpired: Session expired. Please sign in again.
   credentialsInvalid: Credentials are no longer valid. Please sign in again.
   connectionFailed: Cannot connect to the server. Please check your network connection.

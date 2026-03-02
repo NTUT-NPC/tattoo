@@ -74,6 +74,9 @@ class TranslationsGeneralZhTw {
 
 	/// zh-TW: '未登入'
 	String get notLoggedIn => '未登入';
+
+	/// zh-TW: '確定'
+	String get ok => '確定';
 }
 
 // Path: errors
@@ -83,6 +86,15 @@ class TranslationsErrorsZhTw {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// zh-TW: '發生錯誤'
+	String get occurred => '發生錯誤';
+
+	/// zh-TW: '發生 Flutter 錯誤'
+	String get flutterError => '發生 Flutter 錯誤';
+
+	/// zh-TW: '發生非同步錯誤'
+	String get asyncError => '發生非同步錯誤';
 
 	/// zh-TW: '登入狀態已過期，請重新登入'
 	String get sessionExpired => '登入狀態已過期，請重新登入';
@@ -380,6 +392,10 @@ extension on Translations {
 			'general.student' => '學生',
 			'general.unknown' => '未知',
 			'general.notLoggedIn' => '未登入',
+			'general.ok' => '確定',
+			'errors.occurred' => '發生錯誤',
+			'errors.flutterError' => '發生 Flutter 錯誤',
+			'errors.asyncError' => '發生非同步錯誤',
 			'errors.sessionExpired' => '登入狀態已過期，請重新登入',
 			'errors.credentialsInvalid' => '登入憑證已失效，請重新登入',
 			'errors.connectionFailed' => '無法連線到伺服器，請檢查網路連線',
