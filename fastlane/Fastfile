@@ -13,6 +13,15 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+# Common build arguments for all Flutter builds
+def common_build_args
+  args = ["--dart-define=USE_FIREBASE=true"]
+  if ENV["GOOGLE_CALENDAR_API_KEY"]
+    args << "--dart-define=GOOGLE_CALENDAR_API_KEY=#{ENV["GOOGLE_CALENDAR_API_KEY"]}"
+  end
+  args
+end
+
 def changelog(pr_number, pr_title, commit_sha, commit_message)
   prefix = pr_number.to_s.empty? ? pr_title : "PR ##{pr_number}: #{pr_title}"
   "#{prefix}\n#{commit_sha} #{commit_message}"
@@ -32,7 +41,7 @@ platform :ios do
 
     archive_path = flutter_build(
       build: "ipa",
-      build_args: ["--no-codesign", "--dart-define=USE_FIREBASE=true"],
+      build_args: ["--no-codesign"] + common_build_args,
     )
 
     build_app(
@@ -81,7 +90,7 @@ platform :ios do
     archive_path = flutter_build(
       build: "ipa",
       build_number: build_number,
-      build_args: ["--no-codesign", "--dart-define=USE_FIREBASE=true"],
+      build_args: ["--no-codesign"] + common_build_args,
     )
 
     build_app(
@@ -129,7 +138,7 @@ platform :android do
     output_file = flutter_build(
       build: "appbundle",
       build_number: build_number,
-      build_args: ["--dart-define=USE_FIREBASE=true"],
+      build_args: common_build_args,
     )
 
     next if skip_upload
@@ -165,7 +174,7 @@ platform :android do
     output_file = flutter_build(
       build: "appbundle",
       build_number: build_number,
-      build_args: ["--dart-define=USE_FIREBASE=true"],
+      build_args: common_build_args,
     )
 
     next if skip_upload

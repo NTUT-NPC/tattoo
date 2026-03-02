@@ -69,6 +69,7 @@ jobs:
       MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
       MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      GOOGLE_CALENDAR_API_KEY: ${{ secrets.GOOGLE_CALENDAR_API_KEY }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
       PR_TITLE: "Release build"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
@@ -107,6 +108,7 @@ jobs:
       APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
       APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+      GOOGLE_CALENDAR_API_KEY: ${{ secrets.GOOGLE_CALENDAR_API_KEY }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
       PR_TITLE: "Release build"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
