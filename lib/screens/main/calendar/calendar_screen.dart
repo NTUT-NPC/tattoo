@@ -110,7 +110,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           if (fetchedAt != null)
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Text(
                   'Updated ${DateFormat.yMd().add_jm().format(fetchedAt)}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
