@@ -145,6 +145,22 @@ class ProfileScreen extends ConsumerWidget {
       ),
 
       SectionHeader(title: 'TAT'),
+      // TODO: remove before release
+      OptionEntryTile(
+        icon: Icons.rice_bowl_outlined,
+        title: '點一碗炒飯',
+        onTap: () => throw Exception('炒飯'),
+      ),
+      OptionEntryTile(
+        icon: Icons.bug_report_outlined,
+        title: '非 Flutter 框架崩潰',
+        onTap: () async {
+          // This will be caught by PlatformDispatcher.instance.onError
+          Future.delayed(Duration.zero, () {
+            throw Exception('非框架崩潰');
+          });
+        },
+      ),
       OptionEntryTile(
         icon: Icons.favorite_border_outlined,
         title: t.profile.options.supportUs,

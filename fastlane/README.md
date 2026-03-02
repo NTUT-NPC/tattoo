@@ -15,6 +15,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
+### ios device
+
+```sh
+[bundle exec] fastlane ios device
+```
+
+Build, install on connected device, and upload dSYMs
+
 ### ios beta
 
 ```sh

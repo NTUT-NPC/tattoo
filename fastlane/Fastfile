@@ -19,6 +19,41 @@ def changelog(pr_number, pr_title, commit_sha, commit_message)
 end
 
 platform :ios do
+  desc "Build, install on connected device, and upload dSYMs"
+  lane :device do
+    sync_code_signing(type: "adhoc")
+
+    update_code_signing_settings(
+      path: "ios/Runner.xcodeproj",
+      sdk: "iphoneos*",
+      code_sign_identity: "iPhone Distribution",
+      profile_name: "match AdHoc #{ENV["FASTLANE_APP_IDENTIFIER"]}",
+    )
+
+    archive_path = flutter_build(
+      build: "ipa",
+      build_args: ["--no-codesign", "--dart-define=USE_FIREBASE=true"],
+    )
+
+    build_app(
+      skip_build_archive: true,
+      archive_path: archive_path,
+      export_team_id: ENV["FASTLANE_TEAM_ID"],
+      export_method: "ad-hoc",
+      suppress_xcode_output: true,
+    )
+
+    install_on_device(ipa: lane_context[SharedValues::IPA_OUTPUT_PATH])
+
+    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
+
+    upload_symbols_to_crashlytics(
+      dsym_path: lane_context[SharedValues::DSYM_OUTPUT_PATH],
+      gsp_path: "ios/Runner/GoogleService-Info.plist",
+      binary_path: "ios/Pods/FirebaseCrashlytics/upload-symbols",
+    )
+  end
+
   desc "Build and upload to TestFlight"
   lane :beta do |options|
     build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
@@ -46,7 +81,7 @@ platform :ios do
     archive_path = flutter_build(
       build: "ipa",
       build_number: build_number,
-      build_args: ["--no-codesign"],
+      build_args: ["--no-codesign", "--dart-define=USE_FIREBASE=true"],
     )
 
     build_app(
@@ -57,6 +92,14 @@ platform :ios do
     )
 
     next if skip_upload
+
+    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
+
+    upload_symbols_to_crashlytics(
+      dsym_path: lane_context[SharedValues::DSYM_OUTPUT_PATH],
+      gsp_path: "ios/Runner/GoogleService-Info.plist",
+      binary_path: "ios/Pods/FirebaseCrashlytics/upload-symbols",
+    )
 
     app_store_connect_api_key(
       is_key_content_base64: true,
@@ -86,6 +129,7 @@ platform :android do
     output_file = flutter_build(
       build: "appbundle",
       build_number: build_number,
+      build_args: ["--dart-define=USE_FIREBASE=true"],
     )
 
     next if skip_upload
@@ -121,6 +165,7 @@ platform :android do
     output_file = flutter_build(
       build: "appbundle",
       build_number: build_number,
+      build_args: ["--dart-define=USE_FIREBASE=true"],
     )
 
     next if skip_upload
