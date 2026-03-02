@@ -65,9 +65,14 @@ class CalendarRepository {
     final lastFetchedAt = await _getLastFetchedAt();
 
     if (cached.isNotEmpty) {
+      final batchFetchedAt = _getBatchFetchedAt(cached);
+      if (batchFetchedAt == null) {
+        return _fetchAndStore();
+      }
+
       return (
         events: _rowsToDtos(cached),
-        fetchedAt: lastFetchedAt ?? cached.first.fetchedAt,
+        fetchedAt: lastFetchedAt ?? batchFetchedAt,
       );
     }
 
@@ -138,6 +143,18 @@ class CalendarRepository {
 
   Future<void> _setLastFetchedAt(DateTime fetchedAt) {
     return _prefs.setString(_lastFetchedAtPrefKey, fetchedAt.toIso8601String());
+  }
+
+  DateTime? _getBatchFetchedAt(List<CalendarEvent> rows) {
+    DateTime? minFetchedAt;
+    for (final row in rows) {
+      final fetchedAt = row.fetchedAt;
+      if (fetchedAt == null) return null;
+      if (minFetchedAt == null || fetchedAt.isBefore(minFetchedAt)) {
+        minFetchedAt = fetchedAt;
+      }
+    }
+    return minFetchedAt;
   }
 
   List<CalendarEventDto> _rowsToDtos(List<CalendarEvent> rows) {
