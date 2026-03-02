@@ -36,8 +36,21 @@ login:
     loginFailed: 登入失敗，請確認帳號密碼
 nav:
   courseTable: 課表
+  calendar: 行事曆
   scores: 成績
   profile: 我
+calendar:
+  loadFailed: 行事曆載入失敗
+  offlineMode: '離線模式：顯示快取的行事曆資料'
+  updatedAt: 更新時間 $date
+  ended: 已結束
+  ongoing: 進行中
+  endedEvents: 已結束活動
+  endedEventsCount: 共 $count 筆
+  expandEndedEvents: 顯示
+  collapseEndedEvents: 收合
+  noUpcomingEvents: 近期沒有行事曆活動
+  dateRange: $start - $end
 profile:
   sections:
     accountSettings: 帳號設定

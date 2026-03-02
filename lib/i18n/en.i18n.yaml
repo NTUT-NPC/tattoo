@@ -36,8 +36,21 @@ login:
     loginFailed: Login failed. Please verify your credentials.
 nav:
   courseTable: Courses
+  calendar: Calendar
   scores: Scores
   profile: Me
+calendar:
+  loadFailed: Calendar load failed
+  offlineMode: 'Offline mode: showing cached calendar data'
+  updatedAt: Updated $date
+  ended: Ended
+  ongoing: Ongoing
+  endedEvents: Ended events
+  endedEventsCount: $count events
+  expandEndedEvents: Show
+  collapseEndedEvents: Hide
+  noUpcomingEvents: No upcoming calendar events
+  dateRange: $start - $end
 profile:
   sections:
     accountSettings: Account Settings

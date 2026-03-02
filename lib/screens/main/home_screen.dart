@@ -54,6 +54,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           NavigationDestination(icon: Icon(Icons.school), label: t.nav.scores),
           NavigationDestination(
+            icon: Icon(Icons.calendar_month),
+            label: t.nav.calendar,
+          ),
+          NavigationDestination(
             icon: Icon(Icons.account_circle),
             label: t.nav.profile,
           ),

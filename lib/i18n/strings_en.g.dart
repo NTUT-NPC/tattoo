@@ -44,6 +44,7 @@ class TranslationsEn extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsIntroEn intro = _TranslationsIntroEn._(_root);
 	@override late final _TranslationsLoginEn login = _TranslationsLoginEn._(_root);
 	@override late final _TranslationsNavEn nav = _TranslationsNavEn._(_root);
+	@override late final _TranslationsCalendarEn calendar = _TranslationsCalendarEn._(_root);
 	@override late final _TranslationsProfileEn profile = _TranslationsProfileEn._(_root);
 	@override late final _TranslationsEnrollmentStatusEn enrollmentStatus = _TranslationsEnrollmentStatusEn._(_root);
 }
@@ -120,8 +121,29 @@ class _TranslationsNavEn extends TranslationsNavZhTw {
 
 	// Translations
 	@override String get courseTable => 'Courses';
+	@override String get calendar => 'Calendar';
 	@override String get scores => 'Scores';
 	@override String get profile => 'Me';
+}
+
+// Path: calendar
+class _TranslationsCalendarEn extends TranslationsCalendarZhTw {
+	_TranslationsCalendarEn._(TranslationsEn root) : this._root = root, super.internal(root);
+
+	final TranslationsEn _root; // ignore: unused_field
+
+	// Translations
+	@override String get loadFailed => 'Calendar load failed';
+	@override String get offlineMode => 'Offline mode: showing cached calendar data';
+	@override String updatedAt({required Object date}) => 'Updated ${date}';
+	@override String get ended => 'Ended';
+	@override String get ongoing => 'Ongoing';
+	@override String get endedEvents => 'Ended events';
+	@override String endedEventsCount({required Object count}) => '${count} events';
+	@override String get expandEndedEvents => 'Show';
+	@override String get collapseEndedEvents => 'Hide';
+	@override String get noUpcomingEvents => 'No upcoming calendar events';
+	@override String dateRange({required Object start, required Object end}) => '${start} - ${end}';
 }
 
 // Path: profile
@@ -297,8 +319,20 @@ extension on TranslationsEn {
 			'login.errors.useStudentId' => 'Please use your student ID to sign in, not an email address',
 			'login.errors.loginFailed' => 'Login failed. Please verify your credentials.',
 			'nav.courseTable' => 'Courses',
+			'nav.calendar' => 'Calendar',
 			'nav.scores' => 'Scores',
 			'nav.profile' => 'Me',
+			'calendar.loadFailed' => 'Calendar load failed',
+			'calendar.offlineMode' => 'Offline mode: showing cached calendar data',
+			'calendar.updatedAt' => ({required Object date}) => 'Updated ${date}',
+			'calendar.ended' => 'Ended',
+			'calendar.ongoing' => 'Ongoing',
+			'calendar.endedEvents' => 'Ended events',
+			'calendar.endedEventsCount' => ({required Object count}) => '${count} events',
+			'calendar.expandEndedEvents' => 'Show',
+			'calendar.collapseEndedEvents' => 'Hide',
+			'calendar.noUpcomingEvents' => 'No upcoming calendar events',
+			'calendar.dateRange' => ({required Object start, required Object end}) => '${start} - ${end}',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
 			'profile.sections.notices' => 'Notices',
