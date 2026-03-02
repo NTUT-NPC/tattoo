@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/i18n/strings.g.dart';
@@ -6,6 +7,7 @@ import 'package:tattoo/router/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load();
   await LocaleSettings.useDeviceLocale();
   runApp(ProviderScope(child: TranslationProvider(child: MyApp())));
 }
