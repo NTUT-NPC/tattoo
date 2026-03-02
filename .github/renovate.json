@@ -11,20 +11,20 @@
   },
   "packageRules": [
     {
-      "matchPackageNames": ["dart", "dev.flutter.flutter-plugin-loader"],
+      "matchPackageNames": [
+        "dart",
+        "dev.flutter.flutter-plugin-loader",
+        "java",
+        "ruby"
+      ],
       "enabled": false
     },
     {
       "matchManagers": ["pub"],
       "groupName": "Flutter dependencies",
-      "groupSlug": "flutter",
+      "groupSlug": "pub",
       "rangeStrategy": "bump",
       "versioning": "npm"
-    },
-    {
-      "matchManagers": ["mise"],
-      "groupName": "Development tools",
-      "groupSlug": "dev-tools"
     },
     {
       "matchFileNames": ["android/**"],
