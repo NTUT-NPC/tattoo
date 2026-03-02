@@ -24,11 +24,12 @@ final calendarRepositoryProvider = Provider<CalendarRepository>((ref) {
 /// - Pull-to-refresh calls [CalendarRepository.refreshEvents] directly and
 ///   then invalidates this provider to rebuild with the new DB rows — the
 ///   loading state is never triggered because the DB already has data.
-final calendarEventsProvider =
-    FutureProvider<CalendarEventsResult>((ref) async {
-      final repo = ref.watch(calendarRepositoryProvider);
-      return repo.getEvents();
-    });
+final calendarEventsProvider = FutureProvider<CalendarEventsResult>((
+  ref,
+) async {
+  final repo = ref.watch(calendarRepositoryProvider);
+  return repo.getEvents();
+});
 
 /// Manages calendar event persistence.
 ///
@@ -71,10 +72,9 @@ class CalendarRepository {
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  Future<List<CalendarEvent>> _getCachedEvents() =>
-      (_database.select(_database.calendarEvents)
-            ..orderBy([(t) => OrderingTerm.asc(t.start)]))
-          .get();
+  Future<List<CalendarEvent>> _getCachedEvents() => (_database.select(
+    _database.calendarEvents,
+  )..orderBy([(t) => OrderingTerm.asc(t.start)])).get();
 
   Future<CalendarEventsResult> _fetchAndStore() async {
     final now = DateTime.now();
