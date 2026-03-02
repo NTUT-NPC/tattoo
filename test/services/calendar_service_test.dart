@@ -1,16 +1,29 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/services/calendar_service.dart';
 
+import '../test_helpers.dart';
+
 void main() {
   group('CalendarService Integration Tests', () {
     late CalendarService calendarService;
+
+    setUpAll(() {
+      TestCredentials.validateGoogleCalendarApiKey();
+    });
 
     setUp(() {
       calendarService = CalendarService();
     });
 
-    test('should fetch calendar events from Google Calendar', () async {
-      final events = await calendarService.getEvents(maxResults: 10);
+    test('should fetch calendar events with explicit time range', () async {
+      final now = DateTime.now();
+      final twoWeeksLater = now.add(const Duration(days: 14));
+
+      final events = await calendarService.getEvents(
+        timeMin: now,
+        timeMax: twoWeeksLater,
+        maxResults: 10,
+      );
 
       // Basic validation - the API should return a list (may be empty)
       expect(events, isA<List<CalendarEventDto>>());

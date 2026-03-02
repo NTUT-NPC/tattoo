@@ -8,7 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 /// ```json
 /// {
 ///   "NTUT_TEST_USERNAME": "111360109",
-///   "NTUT_TEST_PASSWORD": "your_password"
+///   "NTUT_TEST_PASSWORD": "your_password",
+///   "GOOGLE_CALENDAR_API_KEY": "your_api_key"
 /// }
 /// ```
 ///
@@ -19,6 +20,9 @@ import 'package:flutter_test/flutter_test.dart';
 class TestCredentials {
   static const String username = String.fromEnvironment('NTUT_TEST_USERNAME');
   static const String password = String.fromEnvironment('NTUT_TEST_PASSWORD');
+  static const String googleCalendarApiKey = String.fromEnvironment(
+    'GOOGLE_CALENDAR_API_KEY',
+  );
 
   static void validate() {
     if (username.isEmpty || password.isEmpty) {
@@ -27,7 +31,22 @@ class TestCredentials {
         '1. Create test/test_config.json with your credentials:\n'
         '   {\n'
         '     "NTUT_TEST_USERNAME": "111360109",\n'
-        '     "NTUT_TEST_PASSWORD": "your_password"\n'
+        '     "NTUT_TEST_PASSWORD": "your_password",\n'
+        '     "GOOGLE_CALENDAR_API_KEY": "your_api_key"\n'
+        '   }\n\n'
+        '2. Run tests with:\n'
+        '   flutter test --dart-define-from-file=test/test_config.json',
+      );
+    }
+  }
+
+  static void validateGoogleCalendarApiKey() {
+    if (googleCalendarApiKey.isEmpty) {
+      throw Exception(
+        'Google Calendar API key not provided.\n\n'
+        '1. Add GOOGLE_CALENDAR_API_KEY to test/test_config.json:\n'
+        '   {\n'
+        '     "GOOGLE_CALENDAR_API_KEY": "your_api_key"\n'
         '   }\n\n'
         '2. Run tests with:\n'
         '   flutter test --dart-define-from-file=test/test_config.json',
