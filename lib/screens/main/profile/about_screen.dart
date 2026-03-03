@@ -7,7 +7,6 @@ import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/models/contributor.dart';
 import 'package:tattoo/services/github_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -108,51 +107,56 @@ class AboutScreen extends ConsumerWidget {
                     ),
 
                     // Contributors Section
-                    Column(
-                      spacing: 8,
-                      children: [
-                        SectionHeader(title: t.about.developers),
-                        contributorsAsync.when(
-                          data: (List<Contributor> contributors) => Column(
-                            spacing: 8,
-                            children: [
-                              ...contributors.map(
-                                (Contributor contributor) => OptionEntryTile(
-                                  leading: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.network(
-                                      contributor.avatarUrl,
-                                      width: 24,
-                                      height: 24,
-                                      errorBuilder:
-                                          (context, error, stackTrace) =>
-                                              Container(
-                                                width: 24,
-                                                height: 24,
-                                                color: theme.dividerColor,
-                                                child: const Icon(
-                                                  Icons.person,
-                                                  size: 16,
-                                                  color: Colors.white,
+                    contributorsAsync.when(
+                      data: (contributors) => contributors == null
+                          ? const SizedBox.shrink()
+                          : Column(
+                              spacing: 8,
+                              children: [
+                                SectionHeader(title: t.about.developers),
+                                ...contributors.map(
+                                  (contributor) => OptionEntryTile(
+                                    leading: ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.network(
+                                        contributor.avatarUrl,
+                                        width: 24,
+                                        height: 24,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Container(
+                                                  width: 24,
+                                                  height: 24,
+                                                  color: theme.dividerColor,
+                                                  child: const Icon(
+                                                    Icons.person,
+                                                    size: 16,
+                                                    color: Colors.white,
+                                                  ),
                                                 ),
-                                              ),
+                                      ),
+                                    ),
+                                    title: contributor.login,
+                                    onTap: () => launchUrl(
+                                      Uri.parse(contributor.htmlUrl),
                                     ),
                                   ),
-                                  title: contributor.login,
-                                  onTap: () =>
-                                      launchUrl(Uri.parse(contributor.htmlUrl)),
                                 ),
-                              ),
-                              OptionEntryTile.svg(
-                                svgIconAsset: 'assets/npc_logo.svg',
-                                title: t.profile.options.npcClub,
-                                actionIcon: OptionEntryTileActionIcon.exitToApp,
-                                onTap: () =>
-                                    launchUrl(Uri.parse('https://ntut.club')),
-                              ),
-                            ],
-                          ),
-                          loading: () => Skeletonizer(
+                                OptionEntryTile.svg(
+                                  svgIconAsset: 'assets/npc_logo.svg',
+                                  title: t.profile.options.npcClub,
+                                  actionIcon:
+                                      OptionEntryTileActionIcon.exitToApp,
+                                  onTap: () =>
+                                      launchUrl(Uri.parse('https://ntut.club')),
+                                ),
+                              ],
+                            ),
+                      loading: () => Column(
+                        spacing: 8,
+                        children: [
+                          SectionHeader(title: t.about.developers),
+                          Skeletonizer(
                             child: Column(
                               spacing: 8,
                               children: List.generate(
@@ -164,14 +168,20 @@ class AboutScreen extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          error: (err, stack) => OptionEntryTile.svg(
+                        ],
+                      ),
+                      error: (err, stack) => Column(
+                        spacing: 8,
+                        children: [
+                          SectionHeader(title: t.about.developers),
+                          OptionEntryTile.svg(
                             svgIconAsset: 'assets/npc_logo.svg',
                             title: t.profile.options.npcClub,
                             onTap: () =>
                                 launchUrl(Uri.parse('https://ntut.club')),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
 
                     const SizedBox(height: 16),

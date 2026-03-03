@@ -4,7 +4,7 @@ import 'package:tattoo/utils/http.dart';
 
 final githubServiceProvider = Provider((ref) => GithubService());
 
-final contributorsProvider = FutureProvider.autoDispose<List<Contributor>>((
+final contributorsProvider = FutureProvider.autoDispose<List<Contributor>?>((
   ref,
 ) async {
   final githubService = ref.watch(githubServiceProvider);
@@ -20,7 +20,7 @@ class GithubService {
 
   Dio get dio => _dio;
 
-  Future<List<Contributor>> getContributors() async {
+  Future<List<Contributor>?> getContributors() async {
     final response = await _dio.get('repos/NTUT-NPC/tattoo/contributors');
 
     if (response.data is List) {
@@ -29,6 +29,7 @@ class GithubService {
           .where((contributor) => !contributor.isBot)
           .toList();
     }
-    return [];
+
+    return null;
   }
 }

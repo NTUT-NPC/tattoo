@@ -52,12 +52,12 @@ void main() {
       test('fetches and filters contributors excluding bots', () async {
         final contributors = await githubService.getContributors();
 
-        expect(contributors, isNotEmpty);
-        expect(contributors.every((c) => !c.isBot), isTrue);
+        expect(contributors, isNotNull);
+        expect(contributors!.every((c) => !c.isBot), isTrue);
         expect(contributors.every((c) => c.login.isNotEmpty), isTrue);
       });
 
-      test('returns empty list if response data is not a list', () async {
+      test('returns null if response data is not a list', () async {
         githubService.dio.httpClientAdapter = MockAdapter((options) async {
           return ResponseBody.fromBytes(
             Uint8List.fromList('{"message": "Success"}'.codeUnits),
@@ -69,7 +69,7 @@ void main() {
         });
 
         final contributors = await githubService.getContributors();
-        expect(contributors, isEmpty);
+        expect(contributors, isNull);
       });
 
       test('propagates DioException on connection error', () async {
