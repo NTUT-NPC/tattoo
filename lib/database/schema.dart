@@ -357,22 +357,6 @@ class CourseOfferingClasses extends Table {
   Set<Column> get primaryKey => {courseOffering, classEntity};
 }
 
-/// Junction table linking course offerings to their classrooms.
-///
-/// Note: Current design maps classrooms to entire course offerings.
-/// TODO: Consider adding classroom FK to Schedules instead for per-timeslot
-/// classroom mapping, as some courses may use different rooms for different sessions.
-class CourseOfferingClassrooms extends Table {
-  /// Reference to the course offering.
-  late final courseOffering = integer().references(CourseOfferings, #id)();
-
-  /// Reference to the classroom.
-  late final classroom = integer().references(Classrooms, #id)();
-
-  @override
-  Set<Column> get primaryKey => {courseOffering, classroom};
-}
-
 /// Junction table linking course offerings to enrolled students.
 ///
 /// Represents the enrollment/roster for each course section.
@@ -401,6 +385,12 @@ class Schedules extends Table with AutoIncrementId {
 
   /// Period within the day for this class session.
   late final period = intEnum<Period>()();
+
+  /// Reference to the classroom for this specific timeslot.
+  ///
+  /// Nullable because some timeslots may not have a classroom assigned.
+  /// Different timeslots for the same course may reference different classrooms.
+  late final classroom = integer().nullable().references(Classrooms, #id)();
 
   @override
   List<Set<Column>> get uniqueKeys => [

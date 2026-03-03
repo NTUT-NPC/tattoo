@@ -36,7 +36,6 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     // Junction tables and dependent tables
     CourseOfferingTeachers,
     CourseOfferingClasses,
-    CourseOfferingClassrooms,
     CourseOfferingStudents,
     Schedules,
     Materials,
