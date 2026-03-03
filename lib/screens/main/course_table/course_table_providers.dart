@@ -26,7 +26,7 @@ final CourseTableInfoObject mockCourseTableInfo = (
   teacherNamesZh: ['王小明', '李小華'],
   credits: 3,
   hours: 3,
-  classroomNamesZh: ['六教305', '三教101'],
+  classroomNamesZh: ['科研B1234', '三教101'],
   schedule: [
     (dayOfWeek: DayOfWeek.monday, period: Period.third),
     (dayOfWeek: DayOfWeek.monday, period: Period.fourth),

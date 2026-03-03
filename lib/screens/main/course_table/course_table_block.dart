@@ -56,13 +56,13 @@ class CourseTableBlock extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             AutoSizeText(
-              courseInfo.classroomNamesZh.join(', '),
+              '${courseInfo.classroomNamesZh[0]} +${courseInfo.classroomNamesZh.length > 1 ? '${courseInfo.classroomNamesZh.length - 1}' : ''}',
               style: theme.textTheme.bodySmall?.copyWith(
-                fontSize: 8,
+                fontSize: 10,
                 fontWeight: FontWeight.w400,
               ),
               maxLines: 1,
-              minFontSize: 6,
+              minFontSize: 8,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
             ),
