@@ -244,9 +244,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
 
                           // Error message
-                          if (_errorMessage != null)
+                          if (_errorMessage case final errorMessage?)
                             Text(
-                              _errorMessage!,
+                              errorMessage,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: theme.colorScheme.error,

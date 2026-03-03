@@ -79,9 +79,9 @@ class ShowcaseShell extends StatelessWidget {
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      if (subtitle != null)
+                      if (subtitle case final subtitle?)
                         Text(
-                          subtitle!,
+                          subtitle,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: Colors.grey[600],
                           ),
