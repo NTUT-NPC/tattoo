@@ -47,7 +47,7 @@ class CourseTableBlock extends StatelessWidget {
             AutoSizeText(
               courseInfo.courseNameZh ?? '',
               style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
               maxLines: 2,
