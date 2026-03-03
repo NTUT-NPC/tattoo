@@ -167,7 +167,7 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
     _tabController = controller;
     _tabAnimation = controller?.animation;
 
-    if (controller != null) {
+    if (controller case final controller?) {
       _activeIndex = _resolveActiveIndex(controller);
       _attachControllerListeners();
       _scrollTabIntoView(_activeIndex, animate: false);

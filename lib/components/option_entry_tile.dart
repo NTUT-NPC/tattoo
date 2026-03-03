@@ -153,9 +153,9 @@ class OptionEntryTile extends StatelessWidget {
                         title,
                         style: theme.textTheme.titleMedium,
                       ),
-                      if (description != null) ...[
+                      if (description case final description?) ...[
                         Text(
-                          description!,
+                          description,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
