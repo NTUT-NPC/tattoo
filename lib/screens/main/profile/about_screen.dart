@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
@@ -77,9 +76,12 @@ class AboutScreen extends ConsumerWidget {
                     const SizedBox(height: 8),
 
                     // Description
-                    BackgroundNotice(
-                      text: t.about.description,
-                      noticeType: NoticeType.info,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        t.about.description,
+                        textAlign: .justify,
+                      ),
                     ),
 
                     // Links Section
@@ -187,7 +189,14 @@ class AboutScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
 
                     // Copyright
-                    ClearNotice(text: t.about.copyright),
+                    Text.rich(
+                      TextSpan(text: t.about.copyright),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        height: 1.6,
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ],
                 ),
               ),
