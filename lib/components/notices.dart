@@ -257,26 +257,18 @@ class BackgroundNotice extends StatelessWidget {
 
   Color _presetColor(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    switch (noticeType) {
-      case NoticeType.warning:
-        return colorScheme.tertiary;
-      case NoticeType.error:
-        return colorScheme.error;
-      case NoticeType.info:
-        return colorScheme.primary;
-    }
+    return switch (noticeType) {
+      NoticeType.warning => colorScheme.tertiary,
+      NoticeType.error => colorScheme.error,
+      NoticeType.info => colorScheme.primary,
+    };
   }
 
-  IconData _presetIcon() {
-    switch (noticeType) {
-      case NoticeType.warning:
-        return Icons.warning_amber_rounded;
-      case NoticeType.error:
-        return Icons.error_outline;
-      case NoticeType.info:
-        return Icons.info_outline;
-    }
-  }
+  IconData _presetIcon() => switch (noticeType) {
+    NoticeType.warning => Icons.warning_amber_rounded,
+    NoticeType.error => Icons.error_outline,
+    NoticeType.info => Icons.info_outline,
+  };
 }
 
 @Preview(
