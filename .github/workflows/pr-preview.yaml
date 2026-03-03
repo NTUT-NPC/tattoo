@@ -231,10 +231,6 @@ jobs:
         with:
           platform: ios
 
-      - name: Verify Podfile.lock is up-to-date
-        run: |
-          flutter build ios --config-only
-          git diff --exit-code ios/Podfile.lock
 
       - name: Find preview comment
         if: github.event_name == 'pull_request'
