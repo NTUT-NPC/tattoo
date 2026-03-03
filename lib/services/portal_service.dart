@@ -58,6 +58,10 @@ final portalServiceProvider = Provider<PortalService>((ref) => PortalService());
 class PortalService {
   late final Dio _portalDio;
 
+  /// The portal Dio instance, for use by services that share the portal host
+  /// (e.g., [CalendarService]).
+  Dio get portalDio => _portalDio;
+
   PortalService() {
     // Emulate the NTUT iOS app's HTTP client
     _portalDio = createDio()

@@ -4,13 +4,14 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-02-27. If stale (>30 days), verify Status section against codebase.
+**Last updated:** 2026-03-03. If stale (>30 days), verify Status section against codebase.
 
 ## Status
 
 **Done:**
 
 - PortalService (auth+SSO, getSsoUrl for system browser auth, changePassword, getAvatar, uploadAvatar), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial)
+- CalendarService (getCalendar - academic calendar events via calModeApp.do JSON API)
 - StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile)
 - HTTP utils, InvalidCookieFilter interceptor
 - Drift database schema with all tables
@@ -39,7 +40,6 @@ Follow @CONTRIBUTING.md for git operation guidelines.
   - getClassAndMentor (註冊編班與導師查詢)
   - updateContactInfo (維護個人聯絡資料)
   - getGraduationQualifications (查詢畢業資格審查)
-- PortalService: getCalendar
 
 **Todo - Repository Layer:**
 
@@ -96,6 +96,7 @@ MVVM pattern with Riverpod for DI and reactive state:
 **Services:**
 
 - PortalService - Portal auth, SSO
+- CalendarService - 學校行事曆 (calModeApp.do JSON API, requires portal session)
 - CourseService - 課程系統 (`aa_0010-oauth`)
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`)
 - StudentQueryService - 學生查詢專區 (`sa_003_oauth`)
