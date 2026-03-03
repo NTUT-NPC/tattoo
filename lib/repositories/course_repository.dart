@@ -60,6 +60,29 @@ typedef CourseTableBlockObject = ({
   Period endSection,
 });
 
+typedef CourseTableSummaryObject = ({
+  // The semester this course table belongs to.
+  Semester semester,
+
+  /// Course blocks to render in the table.
+  List<CourseTableBlockObject> courses,
+
+  /// Whether the table has courses in the morning (before 12:00).
+  bool hasAmCourse,
+  bool hasPmCourse,
+  bool hasNightCourse,
+  Period earliestStartSection,
+  Period latestEndSection,
+  bool hasWeekdayCourse,
+  bool hasWeekendCourse,
+
+  /// Total credits of all courses in the table.
+  double totalCredits,
+
+  /// Total hours of all courses in the table.
+  int totalHours,
+});
+
 /// Provides the [CourseRepository] instance.
 final courseRepositoryProvider = Provider<CourseRepository>((ref) {
   return CourseRepository(
