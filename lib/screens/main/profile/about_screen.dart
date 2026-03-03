@@ -66,8 +66,9 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                                       ?.value ??
                                   false;
 
-                              final newTesterActionIndex =
-                                  ref.read(testerActionProvider);
+                              final newTesterActionIndex = ref.read(
+                                testerActionProvider,
+                              );
                               final newTesterAction =
                                   t.about.easter.actions[newTesterActionIndex];
 
@@ -77,8 +78,8 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                                     content: Text(
                                       newState
                                           ? t.about.easter.goBar(
-                                            action: newTesterAction,
-                                          )
+                                              action: newTesterAction,
+                                            )
                                           : t.about.easter.full,
                                     ),
                                     behavior: SnackBarBehavior.floating,
