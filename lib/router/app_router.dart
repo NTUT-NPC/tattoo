@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tattoo/router/animated_shell_container.dart';
+import 'package:tattoo/shells/animated_shell_container.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';

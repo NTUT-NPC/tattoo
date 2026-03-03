@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
 
+/// A vertically centered showcase layout with icon/title header, body, and footer.
+///
+/// This shell is designed for onboarding or intro-style pages where the main
+/// content should stay centered while still allowing scrolling on small screens.
+///
+/// Example:
+/// ```dart
+/// ShowcaseShell(
+///   icon: const Icon(Icons.school_outlined, size: 64),
+///   title: 'Tattoo',
+///   subtitle: 'NTUT Course Assistant',
+///   body: const Text('Feature list goes here'),
+///   footer: const Text('Powered by NTUT'),
+/// )
+/// ```
 class ShowcaseShell extends StatelessWidget {
+  /// Creates a centered showcase page scaffold.
   const ShowcaseShell({
     super.key,
     required this.icon,
@@ -10,10 +26,19 @@ class ShowcaseShell extends StatelessWidget {
     required this.footer,
   });
 
+  /// Header icon displayed above [title].
   final Widget icon;
+
+  /// Main headline text shown near the top center.
   final String title;
+
+  /// Optional secondary text shown under [title].
   final String? subtitle;
+
+  /// Main content section shown between the header and footer.
   final Widget body;
+
+  /// Bottom section, typically used for branding or a disclaimer.
   final Widget footer;
 
   @override
