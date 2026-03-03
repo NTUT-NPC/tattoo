@@ -190,26 +190,6 @@ class ProfileScreen extends ConsumerWidget {
       ),
     ];
 
-    final notices = [
-      // TODO: make notices dynamic and animated.
-      SectionHeader(title: t.profile.sections.notices),
-
-      BackgroundNotice(
-        text: t.profile.notices.betaTesting,
-        noticeType: NoticeType.info,
-      ),
-
-      BackgroundNotice(
-        text: t.profile.notices.passwordExpiring,
-        noticeType: NoticeType.warning,
-      ),
-
-      BackgroundNotice(
-        text: t.profile.notices.connectionError,
-        noticeType: NoticeType.error,
-      ),
-    ];
-
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
@@ -226,11 +206,6 @@ class ProfileScreen extends ConsumerWidget {
 
                       ClearNotice(
                         text: t.profile.dataDisclaimer,
-                      ),
-
-                      Column(
-                        spacing: 8,
-                        children: notices,
                       ),
 
                       Column(

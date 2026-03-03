@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tattoo/i18n/strings.g.dart';
+import 'widget_preview_frame.dart';
 
 /// Built-in trailing icon options for [OptionEntryTile].
 enum OptionEntryTileActionIcon {
@@ -29,6 +32,11 @@ enum OptionEntryTileActionIcon {
 ///   onTap: () => context.push('/profile'),
 /// );
 ///
+/// OptionEntryTile.icon(
+///   title: 'Settings',
+///   description: 'Default leading icon with custom description',
+/// );
+///
 /// OptionEntryTile.svg(
 ///   svgIconAsset: 'assets/settings.svg',
 ///   title: 'Settings',
@@ -45,7 +53,7 @@ class OptionEntryTile extends StatelessWidget {
   /// Creates an [OptionEntryTile] with a custom leading widget.
   const OptionEntryTile({
     super.key,
-    required Widget leading,
+    required leading,
     required this.title,
     this.description,
     this.onTap,
@@ -58,7 +66,7 @@ class OptionEntryTile extends StatelessWidget {
   /// Creates an [OptionEntryTile] with a built-in [Icon] as the leading widget.
   const OptionEntryTile.icon({
     super.key,
-    required IconData icon,
+    IconData icon = Icons.adjust_outlined,
     required this.title,
     this.description,
     this.onTap,
@@ -189,4 +197,54 @@ class OptionEntryTile extends StatelessWidget {
 
     return Icon(_icon, color: colorScheme.primary);
   }
+}
+
+@Preview(
+  name: 'OptionEntryTile - Profile Options Block',
+  group: 'OptionEntryTile',
+  size: Size(420, 600),
+)
+Widget optionEntryTileProfileOptionsPreview() {
+  return WidgetPreviewFrame(
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        spacing: 8,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          OptionEntryTile.icon(
+            icon: Icons.image,
+            title: t.profile.options.changeAvatar,
+            onTap: () {},
+          ),
+          OptionEntryTile.icon(
+            icon: Icons.logout,
+            title: t.profile.options.logout,
+            onTap: () {},
+          ),
+          OptionEntryTile.svg(
+            svgIconAsset: 'assets/npc_logo.svg',
+            title: t.profile.options.npcClub,
+            actionIcon: OptionEntryTileActionIcon.exitToApp,
+            onTap: () {},
+          ),
+          OptionEntryTile.icon(
+            title: t.general.unknown,
+            description:
+                'Example tile with a description, using the default icon.',
+            onTap: () {},
+          ),
+          OptionEntryTile(
+            title: t.general.unknown,
+            description: previewPlaceholder,
+            leading: const CircleAvatar(
+              radius: 12,
+              backgroundColor: Colors.blue,
+            ),
+            onTap: () {},
+          ),
+        ],
+      ),
+    ),
+  );
 }

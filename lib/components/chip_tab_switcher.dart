@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
+import 'widget_preview_frame.dart';
 
 /// A horizontally scrollable chip-style tab switcher.
 ///
@@ -421,30 +422,17 @@ class _TabSwitchChip extends StatelessWidget {
   }
 }
 
-// Widget previews for _TabSwitchChip
-void tabSwitchChipPreviewOnTap() {}
-
-Widget _tabSwitchChipPreviewFrame({required Widget child}) {
-  return MaterialApp(
-    home: Scaffold(
-      body: Center(
-        child: child,
-      ),
-    ),
-  );
-}
-
 @Preview(
   name: '_TabSwitchChip selected',
   size: Size(220, 72),
   group: 'Single Chip',
 )
 Widget tabSwitchChipSelectedPreview() {
-  return _tabSwitchChipPreviewFrame(
+  return WidgetPreviewFrame(
     child: _TabSwitchChip(
       label: '114-2',
       isSelected: true,
-      onTap: tabSwitchChipPreviewOnTap,
+      onTap: () {},
     ),
   );
 }
@@ -455,11 +443,11 @@ Widget tabSwitchChipSelectedPreview() {
   group: 'Single Chip',
 )
 Widget tabSwitchChipUnselectedPreview() {
-  return _tabSwitchChipPreviewFrame(
+  return WidgetPreviewFrame(
     child: _TabSwitchChip(
       label: '114-1',
       isSelected: false,
-      onTap: tabSwitchChipPreviewOnTap,
+      onTap: () {},
     ),
   );
 }
@@ -468,7 +456,7 @@ Widget tabSwitchChipUnselectedPreview() {
 Widget tabSwitcherPreview() {
   const tabs = ["114-1", "114-2", "113-1", "113-2", "112-1", "112-2"];
 
-  return _tabSwitchChipPreviewFrame(
+  return WidgetPreviewFrame(
     child: DefaultTabController(
       length: tabs.length,
       child: ChipTabSwitcher(
