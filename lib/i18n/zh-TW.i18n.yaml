@@ -85,6 +85,7 @@ about:
     barTitle: 酒吧暫未營業
     barClosed: "酒吧今天打烊了，改天再來探索吧！"
     barKicked: "你被店員勸退，還是早點回家休息吧～"
+    barFire: 酒吧陷入火海
     full: "已經吃飽了"
     goBar: "去酒吧${action}"
     actions:

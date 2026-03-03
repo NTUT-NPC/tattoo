@@ -31,23 +31,11 @@ class ProfileDangerZone extends ConsumerWidget {
           color: dangerColor,
           borderColor: dangerColor,
           onTap: () {
-            showDialog<void>(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Text(t.about.easter.barTitle),
-                content: Text(
-                  testerActionIndex == t.about.easter.actions.length - 1
-                      ? t.about.easter.barKicked
-                      : t.about.easter.barClosed,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(t.general.ok),
-                  ),
-                ],
-              ),
-            );
+            if (testerActionIndex == t.about.easter.actions.length - 1) {
+              SystemNavigator.pop();
+            } else {
+              throw Exception(t.about.easter.barFire);
+            }
           },
         ),
         OptionEntryTile.icon(

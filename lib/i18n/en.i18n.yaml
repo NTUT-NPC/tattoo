@@ -85,6 +85,7 @@ about:
     barTitle: Bar is currently closed
     barClosed: "The bar is closed today, come back another time to explore!"
     barKicked: "You were kicked out by the staff, you should go home and rest early~"
+    barFire: "Bar is on fire"
     full: "Already full"
     goBar: "Go to the bar ${action}"
     actions:

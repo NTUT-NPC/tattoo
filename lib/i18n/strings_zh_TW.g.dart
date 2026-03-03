@@ -399,6 +399,9 @@ class TranslationsAboutEasterZhTw {
 	/// zh-TW: '你被店員勸退，還是早點回家休息吧～'
 	String get barKicked => '你被店員勸退，還是早點回家休息吧～';
 
+	/// zh-TW: '酒吧陷入火海'
+	String get barFire => '酒吧陷入火海';
+
 	/// zh-TW: '已經吃飽了'
 	String get full => '已經吃飽了';
 
@@ -537,6 +540,7 @@ extension on Translations {
 			'about.easter.barTitle' => '酒吧暫未營業',
 			'about.easter.barClosed' => '酒吧今天打烊了，改天再來探索吧！',
 			'about.easter.barKicked' => '你被店員勸退，還是早點回家休息吧～',
+			'about.easter.barFire' => '酒吧陷入火海',
 			'about.easter.full' => '已經吃飽了',
 			'about.easter.goBar' => ({required Object action}) => '去酒吧${action}',
 			'about.easter.actions.0' => '點 0 杯啤酒',
