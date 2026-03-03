@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'widget_previews_frame.dart';
+import 'widget_preview_frame.dart';
 
 class SectionHeader extends StatelessWidget {
   const SectionHeader({required this.title, super.key});
