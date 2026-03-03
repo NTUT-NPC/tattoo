@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tattoo/router/animated_shell_container.dart';
+import 'package:tattoo/shells/animated_shell_container.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
@@ -20,9 +20,9 @@ abstract class AppRoutes {
   static const about = '/about';
 }
 
-final appRouter = GoRouter(
+GoRouter buildAppRouter({required String initialLocation}) => GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: AppRoutes.home,
+  initialLocation: initialLocation,
   routes: [
     GoRoute(
       path: AppRoutes.intro,

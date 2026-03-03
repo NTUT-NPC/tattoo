@@ -3,10 +3,12 @@ import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
@@ -76,16 +78,25 @@ Future<void> main() async {
 
   await LocaleSettings.useDeviceLocale();
 
+  final authRepository = container.read(authRepositoryProvider);
+  final user = await authRepository.getUser();
+  final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
+  final router = buildAppRouter(initialLocation: initialLocation);
+
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: TranslationProvider(child: MyApp()),
+      child: TranslationProvider(
+        child: MyApp(router: router),
+      ),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required this.router});
+
+  final GoRouter router;
 
   static const themeColor = Color(0xFF4B709B);
 
@@ -99,7 +110,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: themeColor),
       ),
-      routerConfig: appRouter,
+      routerConfig: router,
     );
   }
 }

@@ -1,15 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 
-/// Handles tab switch animation and preserves state of each branch.
+/// A branch container that animates index changes with a fade-through effect.
+///
+/// Each branch stays mounted in the tree, so widget state is preserved while
+/// switching tabs. During transition, only the current and previous branches
+/// are visible, and only the current branch receives pointer events.
+///
+/// Example:
+/// ```dart
+/// AnimatedShellContainer(
+///   currentIndex: navigationShell.currentIndex,
+///   children: navigationShell.branchNavigators,
+/// )
+/// ```
 class AnimatedShellContainer extends StatefulWidget {
+  /// Creates an animated shell branch container.
   const AnimatedShellContainer({
     super.key,
     required this.currentIndex,
     required this.children,
   });
 
+  /// Active branch index in [children].
   final int currentIndex;
+
+  /// Branch widgets to keep alive and cross-fade between.
   final List<Widget> children;
 
   @override

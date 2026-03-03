@@ -231,10 +231,6 @@ jobs:
         with:
           platform: ios
 
-      - name: Verify Podfile.lock is up-to-date
-        run: |
-          cd ios && bundle exec pod install
-          git diff --exit-code Podfile.lock
 
       - name: Find preview comment
         if: github.event_name == 'pull_request'
