@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'widget_previews_frame.dart';
 
 /// Preset styles used by [BackgroundNotice].
 enum NoticeType { warning, error, info }
@@ -278,31 +279,13 @@ class BackgroundNotice extends StatelessWidget {
   }
 }
 
-Widget _noticePreviewFrame({
-  required Widget child,
-  AlignmentGeometry alignment = Alignment.center,
-}) {
-  return MaterialApp(
-    home: Scaffold(
-      body: SafeArea(
-        child: Align(
-          alignment: alignment,
-          child: child,
-        ),
-      ),
-    ),
-  );
-}
-
-void loginPrivacyPolicyPreviewOnTap() {}
-
 @Preview(
   name: 'ClearNotice - Data Disclaimer',
   group: 'Clear Notices',
   size: Size(450, 90),
 )
 Widget clearNoticeProfileDataDisclaimerPreview() {
-  return _noticePreviewFrame(
+  return WidgetPreviewFrame(
     child: ClearNotice(text: t.profile.dataDisclaimer),
   );
 }
@@ -313,7 +296,7 @@ Widget clearNoticeProfileDataDisclaimerPreview() {
   size: Size(450, 140),
 )
 Widget clearNoticeVerticalIntroDevelopedByPreview() {
-  return _noticePreviewFrame(
+  return WidgetPreviewFrame(
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -339,7 +322,7 @@ Widget clearNoticeVerticalIntroDevelopedByPreview() {
   size: Size(450, 170),
 )
 Widget clearNoticeVerticalLoginPrivacyPreview() {
-  return _noticePreviewFrame(
+  return WidgetPreviewFrame(
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -351,7 +334,7 @@ Widget clearNoticeVerticalLoginPrivacyPreview() {
                 text: text,
                 style: const TextStyle(decoration: TextDecoration.underline),
                 recognizer: TapGestureRecognizer()
-                  ..onTap = loginPrivacyPolicyPreviewOnTap,
+                  ..onTap = () {}
               ),
             ),
           ),
@@ -367,8 +350,7 @@ Widget clearNoticeVerticalLoginPrivacyPreview() {
   size: Size(450, 300),
 )
 Widget backgroundNoticeProfileNoticesPreview() {
-  return _noticePreviewFrame(
-    alignment: Alignment.topCenter,
+  return WidgetPreviewFrame(
     child: Padding(
       padding: const EdgeInsets.all(16),
       child: Column(

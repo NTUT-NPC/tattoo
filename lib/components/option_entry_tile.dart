@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'widget_previews_frame.dart';
 
 /// Built-in trailing icon options for [OptionEntryTile].
 enum OptionEntryTileActionIcon {
@@ -193,31 +194,13 @@ class OptionEntryTile extends StatelessWidget {
   }
 }
 
-Widget _optionEntryTilePreviewFrame({
-  required Widget child,
-  AlignmentGeometry alignment = Alignment.topCenter,
-}) {
-  return MaterialApp(
-    home: Scaffold(
-      body: SafeArea(
-        child: Align(
-          alignment: alignment,
-          child: child,
-        ),
-      ),
-    ),
-  );
-}
-
-void optionEntryTilePreviewOnTap() {}
-
 @Preview(
   name: 'OptionEntryTile - Profile Options Block',
   group: 'OptionEntryTile',
   size: Size(420, 600),
 )
 Widget optionEntryTileProfileOptionsPreview() {
-  return _optionEntryTilePreviewFrame(
+  return WidgetPreviewFrame(
     child: Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -227,23 +210,23 @@ Widget optionEntryTileProfileOptionsPreview() {
           OptionEntryTile.icon(
             icon: Icons.image,
             title: t.profile.options.changeAvatar,
-            onTap: optionEntryTilePreviewOnTap,
+            onTap: () {},
           ),
           OptionEntryTile.icon(
             icon: Icons.logout,
             title: t.profile.options.logout,
-            onTap: optionEntryTilePreviewOnTap,
+            onTap: () {},
           ),
           OptionEntryTile.svg(
             svgIconAsset: 'assets/npc_logo.svg',
             title: t.profile.options.npcClub,
             actionIcon: OptionEntryTileActionIcon.exitToApp,
-            onTap: optionEntryTilePreviewOnTap,
+            onTap: () {},
           ),
           OptionEntryTile(
             title: t.general.unknown,
             description: "這是一個帶描述的範例元件，採用預設 Icon。",
-            onTap: optionEntryTilePreviewOnTap,
+            onTap: () {},
           ),
           OptionEntryTile(
             title: t.general.unknown,
@@ -252,7 +235,7 @@ Widget optionEntryTileProfileOptionsPreview() {
               radius: 12,
               backgroundColor: Colors.blue,
             ),
-            onTap: optionEntryTilePreviewOnTap,
+            onTap: () {},
           ),
         ],
       ),
