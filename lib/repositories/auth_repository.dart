@@ -154,16 +154,6 @@ class AuthRepository {
     await _clearAvatarCache();
   }
 
-  /// Whether the user has stored login credentials.
-  ///
-  /// Returns `true` if both username and password exist in secure storage.
-  /// This does not validate the credentials or check session state.
-  Future<bool> hasCredentials() async {
-    final username = await _secureStorage.read(key: _usernameKey);
-    final password = await _secureStorage.read(key: _passwordKey);
-    return username != null && password != null;
-  }
-
   /// Executes [call] with automatic re-authentication on session expiry.
   ///
   /// If [call] fails with a non-[DioException] error (indicating session

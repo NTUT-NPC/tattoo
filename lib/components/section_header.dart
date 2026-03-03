@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
+import 'package:tattoo/i18n/strings.g.dart';
+import 'widget_preview_frame.dart';
 
 class SectionHeader extends StatelessWidget {
   const SectionHeader({required this.title, super.key});
@@ -19,4 +22,15 @@ class SectionHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+@Preview(
+  name: 'SectionHeader - Account Settings',
+  group: 'SectionHeader',
+  size: Size(420, 80),
+)
+Widget sectionHeaderAccountSettingsPreview() {
+  return WidgetPreviewFrame(
+    child: SectionHeader(title: t.profile.sections.accountSettings),
+  );
 }

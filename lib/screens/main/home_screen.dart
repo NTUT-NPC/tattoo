@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({
     super.key,
     required this.navigationShell,
@@ -14,42 +12,20 @@ class HomeScreen extends ConsumerStatefulWidget {
 
   final StatefulNavigationShell navigationShell;
 
-  @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _checkAuth();
-  }
-
-  Future<void> _checkAuth() async {
-    final authRepository = ref.read(authRepositoryProvider);
-    final hasCredentials = await authRepository.hasCredentials();
-
-    if (!mounted) return;
-
-    if (!hasCredentials) {
-      context.go(AppRoutes.intro);
-    }
-  }
-
-  void _onDestinationSelected(int index) {
+  void _onDestinationSelected(WidgetRef ref, int index) {
     if (index == 2) {
       ref.read(testerActionProvider.notifier).refresh();
     }
-    widget.navigationShell.goBranch(
+    navigationShell.goBranch(
       index,
-      initialLocation: index == widget.navigationShell.currentIndex,
+      initialLocation: index == navigationShell.currentIndex,
     );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: widget.navigationShell,
+      body: navigationShell,
       bottomNavigationBar: NavigationBar(
         destinations: <NavigationDestination>[
           NavigationDestination(
@@ -62,8 +38,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             label: t.nav.profile,
           ),
         ],
-        selectedIndex: widget.navigationShell.currentIndex,
-        onDestinationSelected: _onDestinationSelected,
+        selectedIndex: navigationShell.currentIndex,
+        onDestinationSelected: (index) => _onDestinationSelected(ref, index),
       ),
     );
   }

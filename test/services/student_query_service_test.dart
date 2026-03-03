@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
 import 'package:tattoo/models/user.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/portal_service.dart';
 import 'package:tattoo/services/student_query_service.dart';
 
@@ -17,7 +18,7 @@ void main() {
     });
 
     setUp(() async {
-      portalService = PortalService();
+      portalService = PortalService(FirebaseService());
       studentQueryService = StudentQueryService();
 
       await portalService.login(

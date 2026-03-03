@@ -30,20 +30,12 @@ void main() {
       githubService = GithubService();
     });
 
-    test(
-      'should fetch contributors from NTUT-NPC/tattoo and exclude bots',
-      () async {
-        final contributors = await githubService.getContributors();
-
-        expect(contributors, isNotEmpty);
-        expect(contributors.every((c) => !c.isBot), isTrue);
-        expect(contributors.any((c) => c.login.isNotEmpty), true);
-      },
-    );
-
-    test('should handle API errors gracefully', () async {
+    test('fetches and filters contributors excluding bots', () async {
       final contributors = await githubService.getContributors();
-      expect(contributors, isList);
+
+      expect(contributors, isNotNull);
+      expect(contributors!.every((c) => !c.isBot), isTrue);
+      expect(contributors.every((c) => c.login.isNotEmpty), isTrue);
     });
   });
 }

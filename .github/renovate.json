@@ -15,16 +15,16 @@
       "enabled": false
     },
     {
-      "matchManagers": ["pub"],
-      "groupName": "Flutter dependencies",
-      "groupSlug": "flutter",
-      "rangeStrategy": "bump",
-      "versioning": "npm"
+      "matchManagers": ["mise"],
+      "matchPackageNames": ["java", "ruby"],
+      "enabled": false
     },
     {
-      "matchManagers": ["mise"],
-      "groupName": "Development tools",
-      "groupSlug": "dev-tools"
+      "matchManagers": ["pub"],
+      "groupName": "Flutter dependencies",
+      "groupSlug": "pub",
+      "rangeStrategy": "bump",
+      "versioning": "npm"
     },
     {
       "matchFileNames": ["android/**"],

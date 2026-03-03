@@ -11,10 +11,10 @@ runs:
     - name: Install mise
       uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
       with:
-        install_args: > 
+        install_args: >
           ${{ case(
-            inputs.platform == 'android', 'flutter ruby java',
-            inputs.platform == 'ios', 'flutter ruby',
+            inputs.platform == 'android', 'flutter java',
+            inputs.platform == 'ios', 'flutter',
             'flutter'
           ) }}
         add_shims_to_path: false # Use direct bin paths
@@ -30,6 +30,26 @@ runs:
           exit 1
         fi
         echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_OUTPUT
+
+    - name: Setup Ruby
+      if: ${{ inputs.platform == 'android' || inputs.platform == 'ios' }}
+      uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
+      with:
+        bundler-cache: true
+      env:
+        BUNDLE_FROZEN: "true"
+
+    - name: Setup Flutter pub cache
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
+      with:
+        key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+        path: ~/.pub-cache
+        restore-keys: |
+          ${{ runner.os }}-pub-
+
+    - name: Install Flutter dependencies
+      shell: bash
+      run: flutter pub get --enforce-lockfile
 
     - name: Setup Gradle cache
       if: ${{ inputs.platform == 'android' }}
@@ -58,12 +78,6 @@ runs:
       shell: bash
       run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
 
-    - name: Setup Ruby
-      if: ${{ inputs.platform == 'android' || inputs.platform == 'ios' }}
-      uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
-      with:
-        bundler-cache: true
-
     - name: Setup CocoaPods cache
       if: ${{ inputs.platform == 'ios' }}
       uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
@@ -73,14 +87,30 @@ runs:
         restore-keys: |
           ${{ runner.os }}-pods-
 
-    - name: Setup Flutter pub cache
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
-      with:
-        key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-        path: ~/.pub-cache
-        restore-keys: |
-          ${{ runner.os }}-pub-
-
-    - name: Install Flutter dependencies
+    - name: Check iOS config drift
+      id: ios-drift
+      if: ${{ inputs.platform == 'ios' }}
       shell: bash
-      run: flutter pub get --enforce-lockfile
+      run: |
+        flutter build ios --config-only --no-pub --no-codesign
+
+        if git diff --quiet ios/; then
+          echo "changed=false" >> $GITHUB_OUTPUT
+        else
+          git diff --text ios/ > ios-drift.patch
+          echo "changed=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Upload iOS drift patch
+      if: ${{ inputs.platform == 'ios' && steps.ios-drift.outputs.changed == 'true' }}
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        archive: false
+        path: ios-drift.patch
+
+    - name: Fail on iOS config drift
+      if: ${{ inputs.platform == 'ios' && steps.ios-drift.outputs.changed == 'true' }}
+      shell: bash
+      run: |
+        echo "::error::ios/ has uncommitted changes after flutter build ios --config-only. Download the patch artifact and apply it with: git apply ios-drift.patch"
+        exit 1

@@ -62,6 +62,7 @@ class _TranslationsGeneralEn extends TranslationsGeneralZhTw {
 	@override String get student => 'Student';
 	@override String get unknown => 'Unknown';
 	@override String get notLoggedIn => 'Not logged in';
+	@override String get ok => 'OK';
 }
 
 // Path: errors
@@ -71,6 +72,9 @@ class _TranslationsErrorsEn extends TranslationsErrorsZhTw {
 	final TranslationsEn _root; // ignore: unused_field
 
 	// Translations
+	@override String get occurred => 'An error occurred';
+	@override String get flutterError => 'A Flutter error occurred';
+	@override String get asyncError => 'An async error occurred';
 	@override String get sessionExpired => 'Session expired. Please sign in again.';
 	@override String get credentialsInvalid => 'Credentials are no longer valid. Please sign in again.';
 	@override String get connectionFailed => 'Cannot connect to the server. Please check your network connection.';
@@ -162,6 +166,8 @@ class _TranslationsAboutEn extends TranslationsAboutZhTw {
 	@override String get developers => 'Developers';
 	@override String get helpTranslate => 'Help us translate TAT!';
 	@override String get viewSource => 'View source code and contributions';
+	@override String get relatedLinks => 'Related Links';
+	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
 }
 
 // Path: intro.features
@@ -289,6 +295,10 @@ extension on TranslationsEn {
 			'general.student' => 'Student',
 			'general.unknown' => 'Unknown',
 			'general.notLoggedIn' => 'Not logged in',
+			'general.ok' => 'OK',
+			'errors.occurred' => 'An error occurred',
+			'errors.flutterError' => 'A Flutter error occurred',
+			'errors.asyncError' => 'An async error occurred',
 			'errors.sessionExpired' => 'Session expired. Please sign in again.',
 			'errors.credentialsInvalid' => 'Credentials are no longer valid. Please sign in again.',
 			'errors.connectionFailed' => 'Cannot connect to the server. Please check your network connection.',
@@ -339,6 +349,8 @@ extension on TranslationsEn {
 			'about.developers' => 'Developers',
 			'about.helpTranslate' => 'Help us translate TAT!',
 			'about.viewSource' => 'View source code and contributions',
+			'about.relatedLinks' => 'Related Links',
+			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
 			_ => null,
 		};
 	}

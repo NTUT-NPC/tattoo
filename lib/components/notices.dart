@@ -1,5 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'widget_preview_frame.dart';
 
 /// Preset styles used by [BackgroundNotice].
 enum NoticeType { warning, error, info }
@@ -26,7 +30,11 @@ class ClearNotice extends StatelessWidget {
   /// Leading icon displayed before [text].
   final Widget icon;
 
-  /// Foreground color for both icon and text.
+  /// Foreground color for text and icon theme.
+  ///
+  /// The icon color is only applied when [icon] is an [Icon] (or any widget
+  /// that reads [IconTheme]). If [icon] is another custom widget, this color
+  /// does not automatically change that widget's appearance.
   ///
   /// Defaults to `Colors.grey[600]` when omitted.
   final Color? color;
@@ -67,13 +75,101 @@ class ClearNotice extends StatelessWidget {
   }
 }
 
+/// A centered vertical notice with an optional top icon and rich text body.
+///
+/// This widget is useful for empty states or explanatory hints where text may
+/// need mixed styles via [InlineSpan].
+///
+/// Usage:
+/// ```dart
+/// ClearNoticeVertical(
+///   text: const TextSpan(
+///     text: '尚無資料，請稍後再試',
+///   ),
+///   color: Colors.grey,
+/// )
+/// ```
+///
+/// Rich text example:
+/// ```dart
+/// ClearNoticeVertical(
+///   icon: const Icon(Icons.school_outlined),
+///   text: TextSpan(
+///     children: [
+///       const TextSpan(text: '請先完成 '),
+///       TextSpan(
+///         text: '課程加選',
+///         style: TextStyle(
+///           color: Theme.of(context).colorScheme.primary,
+///           fontWeight: FontWeight.w700,
+///         ),
+///       ),
+///       const TextSpan(text: ' 後再查看。'),
+///     ],
+///   ),
+/// )
+/// ```
+class ClearNoticeVertical extends StatelessWidget {
+  /// Rich text content displayed under the icon.
+  final InlineSpan text;
+
+  /// Optional icon shown above [text].
+  ///
+  /// Falls back to a grey `Icons.info_outline` icon sized by screen height.
+  final Widget? icon;
+
+  /// Foreground color for text and icon theme.
+  ///
+  /// The icon color is only applied when [icon] is an [Icon] (or any widget
+  /// that reads [IconTheme]). If [icon] is another custom widget, this color
+  /// does not automatically change that widget's appearance.
+  ///
+  /// Defaults to `Colors.grey[600]` when omitted.
+  final Color? color;
+
+  /// Creates a vertical notice with rich-text support.
+  const ClearNoticeVertical({
+    super.key,
+    required this.text,
+    this.icon,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final resolvedColor = color ?? Colors.grey[600];
+
+    return Column(
+      spacing: 8.0,
+      children: [
+        IconTheme(
+          data: IconThemeData(
+            color: resolvedColor,
+            size: 24,
+          ),
+          child: icon ?? const Icon(Icons.info_outline),
+        ),
+        Text.rich(
+          text,
+          style: theme.textTheme.bodySmall?.copyWith(
+            height: 1.6,
+            color: resolvedColor,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+}
+
 /// A bordered notice chip with a tinted background and semantic presets.
 ///
 /// Usage:
 /// ```dart
 /// Column(
 ///   children: const [
-///     OptionEntryTile(
+///     OptionEntryTile.icon(
 ///       icon: Icons.info_outline,
 ///       title: 'About',
 ///     ),
@@ -104,6 +200,10 @@ class BackgroundNotice extends StatelessWidget {
   final Widget? icon;
 
   /// Optional accent color. Falls back to a preset color by [noticeType].
+  ///
+  /// The icon color is only applied when [icon] is an [Icon] (or any widget
+  /// that reads [IconTheme]). If [icon] is another custom widget, this color
+  /// does not automatically change that widget's appearance.
   final Color? color;
 
   /// Optional text style override for [text].
@@ -157,24 +257,111 @@ class BackgroundNotice extends StatelessWidget {
 
   Color _presetColor(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    switch (noticeType) {
-      case NoticeType.warning:
-        return colorScheme.tertiary;
-      case NoticeType.error:
-        return colorScheme.error;
-      case NoticeType.info:
-        return colorScheme.primary;
-    }
+    return switch (noticeType) {
+      NoticeType.warning => colorScheme.tertiary,
+      NoticeType.error => colorScheme.error,
+      NoticeType.info => colorScheme.primary,
+    };
   }
 
-  IconData _presetIcon() {
-    switch (noticeType) {
-      case NoticeType.warning:
-        return Icons.warning_amber_rounded;
-      case NoticeType.error:
-        return Icons.error_outline;
-      case NoticeType.info:
-        return Icons.info_outline;
-    }
-  }
+  IconData _presetIcon() => switch (noticeType) {
+    NoticeType.warning => Icons.warning_amber_rounded,
+    NoticeType.error => Icons.error_outline,
+    NoticeType.info => Icons.info_outline,
+  };
+}
+
+@Preview(
+  name: 'ClearNotice - Data Disclaimer',
+  group: 'Clear Notices',
+  size: Size(450, 90),
+)
+Widget clearNoticeProfileDataDisclaimerPreview() {
+  return WidgetPreviewFrame(
+    child: ClearNotice(text: t.profile.dataDisclaimer),
+  );
+}
+
+@Preview(
+  name: 'ClearNoticeVertical - Developed By',
+  group: 'Clear Notices',
+  size: Size(450, 140),
+)
+Widget clearNoticeVerticalIntroDevelopedByPreview() {
+  return WidgetPreviewFrame(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ClearNoticeVertical(
+          icon: SvgPicture.asset(
+            'assets/npc_horizontal.svg',
+            height: 24,
+            colorFilter: ColorFilter.mode(
+              Colors.grey[600]!,
+              BlendMode.srcIn,
+            ),
+          ),
+          text: TextSpan(text: t.intro.developedBy),
+        ),
+      ],
+    ),
+  );
+}
+
+@Preview(
+  name: 'ClearNoticeVertical - Privacy Notice',
+  group: 'Clear Notices',
+  size: Size(450, 170),
+)
+Widget clearNoticeVerticalLoginPrivacyPreview() {
+  return WidgetPreviewFrame(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ClearNoticeVertical(
+            text: t.login.privacyNotice(
+              privacyPolicy: (text) => TextSpan(
+                text: text,
+                style: const TextStyle(decoration: TextDecoration.underline),
+                recognizer: TapGestureRecognizer()..onTap = () {},
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+@Preview(
+  name: 'BackgroundNotice - Profile Notices',
+  group: 'Background Notices',
+  size: Size(450, 300),
+)
+Widget backgroundNoticeProfileNoticesPreview() {
+  return WidgetPreviewFrame(
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        spacing: 8,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          BackgroundNotice(
+            text: t.profile.notices.betaTesting,
+            noticeType: NoticeType.info,
+          ),
+          BackgroundNotice(
+            text: t.profile.notices.passwordExpiring,
+            noticeType: NoticeType.warning,
+          ),
+          BackgroundNotice(
+            text: t.profile.notices.connectionError,
+            noticeType: NoticeType.error,
+          ),
+        ],
+      ),
+    ),
+  );
 }

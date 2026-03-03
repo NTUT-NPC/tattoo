@@ -3,15 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/models/contributor.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/services/github_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+final packageInfoProvider = FutureProvider.autoDispose<PackageInfo>((ref) {
+  return PackageInfo.fromPlatform();
+});
 
 class AboutScreen extends ConsumerStatefulWidget {
   const AboutScreen({super.key});
@@ -28,6 +30,8 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
     final testerAction = ref.watch(testerActionProvider);
 
     final contributorsAsync = ref.watch(contributorsProvider);
+    final packageInfoAsync = ref.watch(packageInfoProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -84,25 +88,29 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                         ),
                         Text(
                           t.general.appTitle,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        FutureBuilder<PackageInfo>(
-                          future: PackageInfo.fromPlatform(),
-                          builder: (context, snapshot) {
-                            final version = snapshot.data?.version ?? '...';
-                            final buildNumber =
-                                snapshot.data?.buildNumber ?? '...';
-                            return Text(
-                              'Version $version ($buildNumber)',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(
-                                    color: Theme.of(context).hintColor,
-                                  ),
-                            );
-                          },
+                        packageInfoAsync.when(
+                          data: (packageInfo) => Text(
+                            '${packageInfo.version} (${packageInfo.buildNumber})',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.hintColor,
+                            ),
+                          ),
+                          loading: () => Text(
+                            '... (...)',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.hintColor,
+                            ),
+                          ),
+                          error: (error, stackTrace) => Text(
+                            '... (...)',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.hintColor,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -110,17 +118,20 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                     const SizedBox(height: 8),
 
                     // Description
-                    BackgroundNotice(
-                      text: t.about.description,
-                      noticeType: NoticeType.info,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        t.about.description,
+                        textAlign: .justify,
+                      ),
                     ),
 
                     // Links Section
                     Column(
                       spacing: 8,
                       children: [
-                        SectionHeader(title: t.$wip('相關連結')),
-                        OptionEntryTile(
+                        SectionHeader(title: t.about.relatedLinks),
+                        OptionEntryTile.icon(
                           icon: Icons.code,
                           title: 'GitHub',
                           description: t.about.viewSource,
@@ -128,7 +139,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                             Uri.parse('https://github.com/NTUT-NPC/tattoo'),
                           ),
                         ),
-                        OptionEntryTile(
+                        OptionEntryTile.icon(
                           icon: Icons.translate,
                           title: 'Crowdin',
                           description: t.about.helpTranslate,
@@ -140,66 +151,93 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                     ),
 
                     // Contributors Section
-                    Column(
-                      spacing: 8,
-                      children: [
-                        SectionHeader(title: t.about.developers),
-                        contributorsAsync.when(
-                          data: (List<Contributor> contributors) => Column(
-                            spacing: 8,
-                            children: [
-                              ...contributors.map(
-                                (Contributor contributor) => OptionEntryTile(
-                                  customLeading: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.network(
-                                      contributor.avatarUrl,
-                                      width: 24,
-                                      height: 24,
+                    contributorsAsync.when(
+                      data: (contributors) => contributors == null
+                          ? const SizedBox.shrink()
+                          : Column(
+                              spacing: 8,
+                              children: [
+                                SectionHeader(title: t.about.developers),
+                                ...contributors.map(
+                                  (contributor) => OptionEntryTile(
+                                    leading: ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.network(
+                                        contributor.avatarUrl,
+                                        width: 24,
+                                        height: 24,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Container(
+                                                  width: 24,
+                                                  height: 24,
+                                                  color: theme.dividerColor,
+                                                  child: const Icon(
+                                                    Icons.person,
+                                                    size: 16,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                      ),
+                                    ),
+                                    title: contributor.login,
+                                    onTap: () => launchUrl(
+                                      Uri.parse(contributor.htmlUrl),
                                     ),
                                   ),
-                                  title: contributor.login,
-                                  onTap: () =>
-                                      launchUrl(Uri.parse(contributor.htmlUrl)),
                                 ),
-                              ),
-                              OptionEntryTile(
-                                svgIconAsset: 'assets/npc_logo.svg',
-                                title: t.profile.options.npcClub,
-                                actionIcon: OptionEntryTileActionIcon.exitToApp,
-                                onTap: () =>
-                                    launchUrl(Uri.parse('https://ntut.club')),
-                              ),
-                            ],
-                          ),
-                          loading: () => Skeletonizer(
+                                OptionEntryTile.svg(
+                                  svgIconAsset: 'assets/npc_logo.svg',
+                                  title: t.profile.options.npcClub,
+                                  actionIcon:
+                                      OptionEntryTileActionIcon.exitToApp,
+                                  onTap: () =>
+                                      launchUrl(Uri.parse('https://ntut.club')),
+                                ),
+                              ],
+                            ),
+                      loading: () => Column(
+                        spacing: 8,
+                        children: [
+                          SectionHeader(title: t.about.developers),
+                          Skeletonizer(
                             child: Column(
                               spacing: 8,
                               children: List.generate(
                                 3,
-                                (index) => const OptionEntryTile(
+                                (index) => const OptionEntryTile.icon(
                                   icon: Icons.person,
                                   title: 'Contributor Name',
                                 ),
                               ),
                             ),
                           ),
-                          error: (err, stack) => OptionEntryTile(
+                        ],
+                      ),
+                      error: (err, stack) => Column(
+                        spacing: 8,
+                        children: [
+                          SectionHeader(title: t.about.developers),
+                          OptionEntryTile.svg(
                             svgIconAsset: 'assets/npc_logo.svg',
                             title: t.profile.options.npcClub,
                             onTap: () =>
                                 launchUrl(Uri.parse('https://ntut.club')),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
 
                     const SizedBox(height: 16),
 
                     // Copyright
-                    ClearNotice(
-                      text:
-                          'Copyright © 2026 NTUT Programming Club\nLicensed under GPLv3',
+                    Text.rich(
+                      TextSpan(text: t.about.copyright),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        height: 1.6,
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),

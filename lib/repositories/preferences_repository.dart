@@ -49,18 +49,16 @@ class PreferencesRepository {
 
   /// Sets a preference value.
   Future<void> set<T>(PrefKey<T> key, T value) async {
-    switch (key.type) {
-      case PrefType.boolean:
-        await _prefs.setBool(key.name, value as bool);
-      case PrefType.integer:
-        await _prefs.setInt(key.name, value as int);
-      case PrefType.double:
-        await _prefs.setDouble(key.name, value as double);
-      case PrefType.string:
-        await _prefs.setString(key.name, value as String);
-      case PrefType.stringList:
-        await _prefs.setStringList(key.name, value as List<String>);
-    }
+    await switch (key.type) {
+      PrefType.boolean => _prefs.setBool(key.name, value as bool),
+      PrefType.integer => _prefs.setInt(key.name, value as int),
+      PrefType.double => _prefs.setDouble(key.name, value as double),
+      PrefType.string => _prefs.setString(key.name, value as String),
+      PrefType.stringList => _prefs.setStringList(
+        key.name,
+        value as List<String>,
+      ),
+    };
   }
 }
 
