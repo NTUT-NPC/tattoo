@@ -35,17 +35,16 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
     final newState = !current;
     await prefs.set(PrefKey.showDangerZone, newState);
 
-    ref.read(testerActionProvider.notifier).refresh();
+    ref.invalidate(dangerZoneActionProvider);
 
-    final newTesterActionIndex = ref.read(testerActionProvider);
-    final newTesterAction = t.profile.dangerZone.actions[newTesterActionIndex];
+    final action = ref.read(dangerZoneActionProvider);
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             newState
-                ? t.profile.dangerZone.goAction(action: newTesterAction)
+                ? t.profile.dangerZone.goAction(action: action)
                 : t.profile.dangerZone.alreadyFull,
           ),
           behavior: SnackBarBehavior.floating,

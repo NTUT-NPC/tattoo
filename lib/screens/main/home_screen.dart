@@ -14,7 +14,7 @@ class HomeScreen extends ConsumerWidget {
 
   void _onDestinationSelected(WidgetRef ref, int index) {
     if (index == 2) {
-      ref.read(testerActionProvider.notifier).refresh();
+      ref.invalidate(dangerZoneActionProvider);
     }
     navigationShell.goBranch(
       index,

@@ -28,7 +28,7 @@ class ProfileScreen extends ConsumerWidget {
       ref.refresh(userAvatarProvider.future),
       ref.refresh(activeRegistrationProvider.future),
     ]);
-    ref.read(testerActionProvider.notifier).refresh();
+    ref.invalidate(dangerZoneActionProvider);
   }
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
@@ -158,7 +158,7 @@ class ProfileScreen extends ConsumerWidget {
         onTap: () async {
           await context.push(AppRoutes.about);
           if (context.mounted) {
-            ref.read(testerActionProvider.notifier).refresh();
+            ref.invalidate(dangerZoneActionProvider);
           }
         },
       ),

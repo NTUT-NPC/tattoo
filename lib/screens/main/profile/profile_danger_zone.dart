@@ -21,8 +21,7 @@ class ProfileDangerZone extends ConsumerWidget {
       builder: (context, snapshot) {
         if (!(snapshot.data ?? false)) return const SizedBox.shrink();
 
-        final testerActionIndex = ref.watch(testerActionProvider);
-        final testerAction = t.profile.dangerZone.actions[testerActionIndex];
+        final action = ref.watch(dangerZoneActionProvider);
 
         return Column(
           spacing: 8,
@@ -33,12 +32,11 @@ class ProfileDangerZone extends ConsumerWidget {
             ),
             OptionEntryTile.icon(
               icon: Icons.sports_bar_outlined,
-              title: t.profile.dangerZone.goAction(action: testerAction),
+              title: t.profile.dangerZone.goAction(action: action),
               color: dangerColor,
               borderColor: dangerColor,
               onTap: () {
-                if (testerActionIndex ==
-                    t.profile.dangerZone.actions.length - 1) {
+                if (action == t.profile.dangerZone.actions.last) {
                   SystemNavigator.pop();
                 } else {
                   throw Exception(t.profile.dangerZone.fireMessage);

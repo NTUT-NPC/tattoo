@@ -30,21 +30,9 @@ final activeRegistrationProvider =
       return ref.watch(authRepositoryProvider).getActiveRegistration();
     });
 
-/// Provides a random tester action index.
-final testerActionProvider =
-    NotifierProvider.autoDispose<TesterActionNotifier, int>(
-      TesterActionNotifier.new,
-    );
-
-class TesterActionNotifier extends Notifier<int> {
-  @override
-  int build() {
-    final length = t.profile.dangerZone.actions.length;
-    return Random().nextInt(length);
-  }
-
-  void refresh() {
-    final length = t.profile.dangerZone.actions.length;
-    state = Random().nextInt(length);
-  }
-}
+/// Random action string from [t.profile.dangerZone.actions] for the easter egg button.
+/// Invalidate to pick a new action.
+final dangerZoneActionProvider = Provider.autoDispose<String>((ref) {
+  final actions = t.profile.dangerZone.actions;
+  return actions[Random().nextInt(actions.length)];
+});
