@@ -8,14 +8,13 @@ enum DayOfWeek {
   wednesday('三'),
   thursday('四'),
   friday('五'),
-  saturday('六'),
+  saturday('六');
 
   final String label;
   const DayOfWeek(this.label);
 }
 // dart format on
 
-// dart format off
 /// Class period within a day, following NTUT's schedule structure.
 ///
 /// NTUT uses periods 1-4, N (noon), 5-9, and A-D:
