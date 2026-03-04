@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
-import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'course_table_providers.dart';
 
-/// 課程時間區塊 Widget，呈現單一課程在課表中的視覺化表現。
 class CourseTableBlock extends StatelessWidget {
   final CourseTableBlockObject courseBlock;
   final Color blockColor;
