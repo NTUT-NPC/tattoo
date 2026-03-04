@@ -25,6 +25,35 @@ class AboutScreen extends ConsumerStatefulWidget {
 class _AboutScreenState extends ConsumerState<AboutScreen> {
   int _logoClickCount = 0;
 
+  Future<void> _onLogoTap(BuildContext context, WidgetRef ref) async {
+    _logoClickCount++;
+    if (_logoClickCount != 7) return;
+
+    _logoClickCount = 0;
+    final prefs = ref.read(preferencesRepositoryProvider);
+    final current = await prefs.get(PrefKey.isBarEnabled);
+    final newState = !current;
+    await prefs.set(PrefKey.isBarEnabled, newState);
+
+    ref.read(testerActionProvider.notifier).refresh();
+
+    final newTesterActionIndex = ref.read(testerActionProvider);
+    final newTesterAction = t.profile.dangerZone.actions[newTesterActionIndex];
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            newState
+                ? t.profile.dangerZone.goAction(action: newTesterAction)
+                : t.profile.dangerZone.alreadyFull,
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final contributorsAsync = ref.watch(contributorsProvider);
@@ -49,47 +78,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                       spacing: 8,
                       children: [
                         GestureDetector(
-                          onTap: () async {
-                            _logoClickCount++;
-                            if (_logoClickCount == 7) {
-                              _logoClickCount = 0;
-                              await ref
-                                  .read(isBarEnabledProvider.notifier)
-                                  .toggle();
-
-                              ref.read(testerActionProvider.notifier).refresh();
-
-                              final newState =
-                                  ref
-                                      .read(isBarEnabledProvider)
-                                      .asData
-                                      ?.value ??
-                                  false;
-
-                              final newTesterActionIndex = ref.read(
-                                testerActionProvider,
-                              );
-                              final newTesterAction = t
-                                  .profile
-                                  .dangerZone
-                                  .actions[newTesterActionIndex];
-
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      newState
-                                          ? t.profile.dangerZone.goAction(
-                                              action: newTesterAction,
-                                            )
-                                          : t.profile.dangerZone.alreadyFull,
-                                    ),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              }
-                            }
-                          },
+                          onTap: () => _onLogoTap(context, ref),
                           child: SvgPicture.asset(
                             'assets/tat_icon.svg',
                             width: 80,

@@ -61,27 +61,3 @@ class PreferencesRepository {
     };
   }
 }
-
-/// Provides the "isBarEnabled" easter egg preference.
-final isBarEnabledProvider = AsyncNotifierProvider<BarEnabledNotifier, bool>(
-  BarEnabledNotifier.new,
-);
-
-class BarEnabledNotifier extends AsyncNotifier<bool> {
-  @override
-  Future<bool> build() async {
-    final prefs = ref.watch(preferencesRepositoryProvider);
-    return await prefs.get(PrefKey.isBarEnabled);
-  }
-
-  Future<void> toggle() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final prefs = ref.read(preferencesRepositoryProvider);
-      final current = await prefs.get(PrefKey.isBarEnabled);
-      final newState = !current;
-      await prefs.set(PrefKey.isBarEnabled, newState);
-      return newState;
-    });
-  }
-}
