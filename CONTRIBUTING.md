@@ -30,8 +30,18 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 Use kebab-case: `add-student-query-service`, `fix-login-crash`
 
+## Code Style
+
+Dart 3 idioms — prefer these over traditional alternatives:
+
+- **Switch expressions** over `if`/`else` chains for producing values: `final x = switch (y) { ... };`
+- **Dot shorthands** where type is inferred: `.externalApplication` not `LaunchMode.externalApplication`
+- **If-case null checks**: `if (x case final x?)` not `if (x != null)`
+- **Formatter workaround:** Wrap enhanced enums (with fields/methods) in `// dart format off` / `// dart format on` — the formatter splits the last value's trailing `;` onto its own line
+
 ## Git and GitHub Workflows
 
-- Use rebase to update PRs with the base branch, unless there are conflicts.
+- Updating a branch with the base branch: prefer rebase, but use merge if the branch contains commits by other contributors (rebase rewrites authorship) or if there are conflicts.
 - AI review comments should be addressed and resolved by the PR author.
 - Human review comments should be resolved by the reviewer.
+- Fix formatting and lint errors in the same commit as the code change, not as a separate commit.
