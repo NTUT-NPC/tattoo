@@ -26,6 +26,11 @@ class FirebaseService {
   FirebaseAnalytics? get analytics =>
       useFirebase ? FirebaseAnalytics.instance : null;
 
+  /// Returns a [FirebaseAnalyticsObserver] for use with navigation observers, or
+  /// `null` if Firebase is disabled.
+  FirebaseAnalyticsObserver? get analyticsObserver =>
+      useFirebase ? FirebaseAnalyticsObserver(analytics: analytics!) : null;
+
   /// The [FirebaseCrashlytics] instance, or `null` if Firebase is disabled.
   FirebaseCrashlytics? get crashlytics =>
       useFirebase ? FirebaseCrashlytics.instance : null;
@@ -37,11 +42,6 @@ class FirebaseService {
   void log(String message) {
     crashlytics?.log(message);
   }
-
-  /// Returns a [FirebaseAnalyticsObserver] for use with navigation observers, or
-  /// `null` if Firebase is disabled.
-  FirebaseAnalyticsObserver? get analyticsObserver =>
-      useFirebase ? FirebaseAnalyticsObserver(analytics: analytics!) : null;
 }
 
 /// Global [FirebaseService] instance.
