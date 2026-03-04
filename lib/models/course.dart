@@ -1,15 +1,17 @@
 // dart format off
 /// Day of the week for class schedules.
 enum DayOfWeek {
-  sunday,
-  monday,
-  tuesday,
-  wednesday,
-  thursday,
-  friday,
-  saturday;
+  // TODO: turn weekday label to i18n string
+  sunday('日'),
+  monday('一'),
+  tuesday('二'),
+  wednesday('三'),
+  thursday('四'),
+  friday('五'),
+  saturday('六'),
 
-  bool get isWeekday => this != sunday && this != saturday;
+  final String label;
+  const DayOfWeek(this.label);
 }
 // dart format on
 
