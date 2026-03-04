@@ -36,6 +36,7 @@ final CourseTableInfoObject mockCourseTableInfo = (
 
 final CourseTableBlockObject mockCourseTableBlock = (
   courseInfo: mockCourseTableInfo,
+  classroomNameZh: '六教305',
   dayOfWeek: DayOfWeek.monday,
   startSection: Period.third,
   endSection: Period.fourth,

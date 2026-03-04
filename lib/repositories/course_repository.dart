@@ -50,6 +50,9 @@ typedef CourseTableBlockObject = ({
   /// Course metadata shown in this block.
   CourseTableInfoObject courseInfo,
 
+  /// Classroom name for this block.
+  String classroomNameZh,
+
   /// Weekday of this block.
   DayOfWeek dayOfWeek,
 
