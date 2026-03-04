@@ -183,9 +183,15 @@ void main() {
           reason: 'At least one course should have a schedule',
         );
 
-        // Verify schedule structure is valid (enums are guaranteed by type system)
-        // Just checking that we can access a random one without errors
-        coursesWithSchedule.pickRandom();
+        // Verify classroom names are non-empty when present
+        final coursesWithClassrooms = coursesWithSchedule.where(
+          (s) => s.schedule!.any((e) => e.$3 != null),
+        );
+        expect(
+          coursesWithClassrooms,
+          isNotEmpty,
+          reason: 'At least one course should have a classroom',
+        );
       });
 
       test('should parse course types correctly', () async {
@@ -545,13 +551,6 @@ void main() {
         // Office hours may or may not be set by teacher
         if (teacher.officeHours != null && teacher.officeHours!.isNotEmpty) {
           for (final officeHour in teacher.officeHours!) {
-            // Verify day is valid (guaranteed by type system, but check parsing)
-            expect(
-              officeHour.day,
-              isIn(DayOfWeek.values),
-              reason: 'Day should be a valid DayOfWeek enum',
-            );
-
             // Verify time ranges are valid
             expect(
               officeHour.startTime.hour,

@@ -31,11 +31,11 @@ typedef ScheduleDto = ({
   /// List of class/program references this course belongs to.
   List<ReferenceDto>? classes,
 
-  /// Weekly schedule as list of (day, period) tuples.
-  List<(DayOfWeek, Period)>? schedule,
-
-  /// Reference to the classroom location.
-  ReferenceDto? classroom,
+  /// Weekly schedule as list of (day, period, classroom) tuples.
+  ///
+  /// Each entry includes the classroom for that specific timeslot, as some
+  /// courses use different rooms for different sessions.
+  List<(DayOfWeek, Period, ReferenceDto?)>? schedule,
 
   /// Enrollment status for special cases (e.g., "撤選" for withdrawal).
   ///
@@ -238,13 +238,78 @@ class CourseService {
     );
 
     final document = parse(response.data);
+    final tables = document.querySelectorAll('table');
+    if (tables.length < 2) {
+      throw Exception('Expected timetable grid and course list tables.');
+    }
 
-    // There are two tables in the document; the first one is a timetable grid
-    // The second table is a list with one course per row, we'll extract that
-    final courseSelectionTable = document.querySelectorAll('table')[1];
+    // Parse the timetable grid (table[0]) for per-timeslot schedule+classroom
+    // Structure: header row has day labels (一–日), data rows have period
+    // labels in column 0 and course cells with <a> links for the rest.
+    final timetableGrid = tables[0];
+    final timetableRows = timetableGrid.querySelectorAll('tr');
+    if (timetableRows.length < 3) {
+      throw Exception('Timetable grid has no data rows.');
+    }
 
-    // Find all rows except the first two header rows and the last summary row
-    final tableRows = courseSelectionTable.querySelectorAll('tr');
+    // Build column -> DayOfWeek map from header row
+    const dayCharToEnum = {
+      '一': DayOfWeek.monday,
+      '二': DayOfWeek.tuesday,
+      '三': DayOfWeek.wednesday,
+      '四': DayOfWeek.thursday,
+      '五': DayOfWeek.friday,
+      '六': DayOfWeek.saturday,
+      '日': DayOfWeek.sunday,
+    };
+    final headerCells = timetableRows[1].children;
+    final colToDayMap = <int, DayOfWeek>{};
+    for (var i = 1; i < headerCells.length; i++) {
+      final text = headerCells[i].text.trim();
+      final day = dayCharToEnum.entries
+          .firstWhereOrNull((e) => text.contains(e.key))
+          ?.value;
+      if (day != null) colToDayMap[i] = day;
+    }
+
+    // Build schedule map keyed by course ID from the grid
+    final periodRegex = RegExp(r'第 (\S) 節');
+    final scheduleMap = <String, List<(DayOfWeek, Period, ReferenceDto?)>>{};
+
+    for (var rowIndex = 2; rowIndex < timetableRows.length; rowIndex++) {
+      final cells = timetableRows[rowIndex].children;
+      if (cells.isEmpty) continue;
+
+      final periodMatch = periodRegex.firstMatch(cells[0].text);
+      if (periodMatch == null) continue;
+      final period = Period.values.firstWhereOrNull(
+        (p) => p.code == periodMatch.group(1),
+      );
+      if (period == null) continue;
+
+      for (var colIndex = 1; colIndex < cells.length; colIndex++) {
+        final day = colToDayMap[colIndex];
+        if (day == null) continue;
+
+        final anchors = cells[colIndex].querySelectorAll('a');
+        if (anchors.isEmpty) continue;
+
+        final courseRef = _parseAnchorRef(anchors[0]);
+        final courseId = courseRef.id;
+        if (courseId == null) continue;
+
+        final classroomRef = anchors.length >= 3
+            ? _parseAnchorRef(anchors[2])
+            : null;
+
+        scheduleMap.putIfAbsent(courseId, () => []);
+        scheduleMap[courseId]!.add((day, period, classroomRef));
+      }
+    }
+
+    // Parse the course list (table[1]) for metadata
+    final courseListTable = tables[1];
+    final tableRows = courseListTable.querySelectorAll('tr');
     final trimmedTableRows = tableRows.sublist(2, tableRows.length - 1);
     if (trimmedTableRows.isEmpty) {
       throw Exception('No courses found in the selection table.');
@@ -253,7 +318,6 @@ class CourseService {
     return trimmedTableRows.map((row) {
       final cells = row.children;
 
-      // Extract basic course information
       final number = _parseCellText(cells[0]);
       final course = _parseCellRef(cells[1]);
       final phase = int.tryParse(cells[2].text.trim());
@@ -263,27 +327,9 @@ class CourseService {
       final teacher = _parseCellRef(cells[6]);
       final classes = _parseCellRefs(cells[7]);
 
-      // Parse schedule from day columns (indices 8-14)
-      final schedule = <(DayOfWeek, Period)>[];
-      final days = DayOfWeek.values;
+      // Look up schedule+classroom from the timetable grid by course ID
+      final schedule = course.id != null ? scheduleMap[course.id!] : null;
 
-      for (var i = 0; i < days.length; i++) {
-        final dayText = _parseCellText(cells[8 + i]);
-        if (dayText == null) continue;
-
-        // Parse period codes (e.g., "7 8" or "8 9 A") and skip invalid ones
-        final periods = dayText
-            .split(' ')
-            .map(
-              (e) => Period.values.firstWhereOrNull((p) => p.code == e.trim()),
-            )
-            .whereType<Period>()
-            .toList();
-        final scheduleOfDay = periods.map((p) => (days[i], p));
-        schedule.addAll(scheduleOfDay);
-      }
-
-      final classroom = _parseCellRef(cells[15]);
       final status = _parseCellText(cells[16]);
       final language = _parseCellText(cells[17]);
       final syllabusId = _parseCellRef(cells[18]).id;
@@ -298,8 +344,7 @@ class CourseService {
         type: type,
         teacher: teacher,
         classes: classes,
-        schedule: schedule.isEmpty ? null : schedule,
-        classroom: classroom,
+        schedule: schedule,
         status: status,
         language: language,
         syllabusId: syllabusId,
@@ -596,6 +641,14 @@ class CourseService {
   String? _parseCellText(Element cell) {
     final text = cell.text.trim();
     return text.isNotEmpty ? text : null;
+  }
+
+  ReferenceDto _parseAnchorRef(Element anchor) {
+    final name = anchor.text.trim();
+    final href = anchor.attributes['href'];
+    if (href == null) return (id: null, name: name.isNotEmpty ? name : null);
+    final code = Uri.parse(href).queryParameters['code'];
+    return (id: code, name: name.isNotEmpty ? name : null);
   }
 
   ReferenceDto _parseCellRef(Element cell) {

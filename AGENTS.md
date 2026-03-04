@@ -14,7 +14,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile)
 - HTTP utils, InvalidCookieFilter interceptor
 - Drift database schema with all tables
-- Service DTOs migrated to Dart 3 records
+- Service DTOs migrated to Dart 3 records. ScheduleDto embeds per-timeslot classrooms in `schedule: List<(DayOfWeek, Period, ReferenceDto?)>?` (parsed from timetable grid)
 - Repository stubs (AuthRepository, CourseRepository)
 - Riverpod setup (manual providers, no codegen — riverpod_generator incompatible with Drift-generated types)
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`)
