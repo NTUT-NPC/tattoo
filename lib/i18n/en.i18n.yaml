@@ -43,10 +43,10 @@ nav:
   scores: Scores
   profile: Me
 profile:
+  dataDisclaimer: For reference only. Not valid as official documentation.
   sections:
     accountSettings: Account Settings
     appSettings: App Settings
-    notices: Notices
     dangerZone: Danger Zone
   dangerZone:
     nonFlutterCrash: Non-Flutter Framework Crash
@@ -59,17 +59,12 @@ profile:
     npcClub: NTUT NPC Club
     preferences: Preferences
     logout: Sign Out
-  notices:
-    betaTesting: The new version of TAT is still in beta. Please report any issues you encounter.
-    passwordExpiring: Your password will expire in 7 days. Please update it to avoid being locked out.
-    connectionError: Cannot connect to the server. Data may be inaccurate.
   avatar:
     uploading: Updating avatar...
     uploadSuccess: Avatar updated
     tooLarge: Image exceeds the 20 MB size limit
     invalidFormat: Unrecognized image format
     uploadFailed: Failed to change avatar. Please try again later.
-  dataDisclaimer: For reference only. Not valid as official documentation.
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence

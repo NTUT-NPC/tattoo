@@ -136,12 +136,11 @@ class _TranslationsProfileEn extends TranslationsProfileZhTw {
 	final TranslationsEn _root; // ignore: unused_field
 
 	// Translations
+	@override String get dataDisclaimer => 'For reference only. Not valid as official documentation.';
 	@override late final _TranslationsProfileSectionsEn sections = _TranslationsProfileSectionsEn._(_root);
 	@override late final _TranslationsProfileDangerZoneEn dangerZone = _TranslationsProfileDangerZoneEn._(_root);
 	@override late final _TranslationsProfileOptionsEn options = _TranslationsProfileOptionsEn._(_root);
-	@override late final _TranslationsProfileNoticesEn notices = _TranslationsProfileNoticesEn._(_root);
 	@override late final _TranslationsProfileAvatarEn avatar = _TranslationsProfileAvatarEn._(_root);
-	@override String get dataDisclaimer => 'For reference only. Not valid as official documentation.';
 }
 
 // Path: enrollmentStatus
@@ -205,7 +204,6 @@ class _TranslationsProfileSectionsEn extends TranslationsProfileSectionsZhTw {
 	// Translations
 	@override String get accountSettings => 'Account Settings';
 	@override String get appSettings => 'App Settings';
-	@override String get notices => 'Notices';
 	@override String get dangerZone => 'Danger Zone';
 }
 
@@ -234,18 +232,6 @@ class _TranslationsProfileOptionsEn extends TranslationsProfileOptionsZhTw {
 	@override String get npcClub => 'NTUT NPC Club';
 	@override String get preferences => 'Preferences';
 	@override String get logout => 'Sign Out';
-}
-
-// Path: profile.notices
-class _TranslationsProfileNoticesEn extends TranslationsProfileNoticesZhTw {
-	_TranslationsProfileNoticesEn._(TranslationsEn root) : this._root = root, super.internal(root);
-
-	final TranslationsEn _root; // ignore: unused_field
-
-	// Translations
-	@override String get betaTesting => 'The new version of TAT is still in beta. Please report any issues you encounter.';
-	@override String get passwordExpiring => 'Your password will expire in 7 days. Please update it to avoid being locked out.';
-	@override String get connectionError => 'Cannot connect to the server. Data may be inaccurate.';
 }
 
 // Path: profile.avatar
@@ -361,9 +347,9 @@ extension on TranslationsEn {
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.profile' => 'Me',
+			'profile.dataDisclaimer' => 'For reference only. Not valid as official documentation.',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
-			'profile.sections.notices' => 'Notices',
 			'profile.sections.dangerZone' => 'Danger Zone',
 			'profile.dangerZone.nonFlutterCrash' => 'Non-Flutter Framework Crash',
 			'profile.dangerZone.nonFlutterCrashException' => 'Simulation of asynchronous error',
@@ -374,15 +360,11 @@ extension on TranslationsEn {
 			'profile.options.npcClub' => 'NTUT NPC Club',
 			'profile.options.preferences' => 'Preferences',
 			'profile.options.logout' => 'Sign Out',
-			'profile.notices.betaTesting' => 'The new version of TAT is still in beta. Please report any issues you encounter.',
-			'profile.notices.passwordExpiring' => 'Your password will expire in 7 days. Please update it to avoid being locked out.',
-			'profile.notices.connectionError' => 'Cannot connect to the server. Data may be inaccurate.',
 			'profile.avatar.uploading' => 'Updating avatar...',
 			'profile.avatar.uploadSuccess' => 'Avatar updated',
 			'profile.avatar.tooLarge' => 'Image exceeds the 20 MB size limit',
 			'profile.avatar.invalidFormat' => 'Unrecognized image format',
 			'profile.avatar.uploadFailed' => 'Failed to change avatar. Please try again later.',
-			'profile.dataDisclaimer' => 'For reference only. Not valid as official documentation.',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',
