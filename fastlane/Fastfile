@@ -108,8 +108,7 @@ platform :ios do
 
     changelog = changelog(pr_number, pr_title, commit_sha, commit_message)
 
-    target_groups = ["Private External Testing"]
-    target_groups << "Public External Testing" if public_tester
+    target_groups = public_tester ? ["Private External Testing", "Public External Testing"] : ["Private External Testing"]
 
     upload_to_testflight(
       changelog: changelog,
@@ -142,8 +141,10 @@ platform :android do
     changelog_text = changelog(pr_number, pr_title, commit_sha, commit_message)
     aab_path = options[:aab] || File.expand_path("../build/app/outputs/bundle/release/app-release.aab", __dir__)
 
+    target_groups = public_tester ? ["pub-tester", "dev-tester"] : ["dev-tester"]
+
     release = firebase_app_distribution(
-      groups: public_tester ? "pub-tester" : "dev-tester",
+      groups: target_groups,
       release_notes: changelog_text,
       android_artifact_type: "AAB",
       android_artifact_path: aab_path,
