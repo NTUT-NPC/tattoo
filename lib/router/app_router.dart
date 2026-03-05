@@ -15,6 +15,7 @@ final rootNavigatorKey = GlobalKey<NavigatorState>();
 abstract class AppRoutes {
   static const home = '/';
   static const score = '/score';
+  static const calendar = '/calendar';
   static const profile = '/profile';
   static const intro = '/intro';
   static const login = '/login';
@@ -70,6 +71,15 @@ GoRouter createAppRouter(
               path: AppRoutes.score,
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: ScoreScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.calendar,
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: CalendarScreen()),
             ),
           ],
         ),
