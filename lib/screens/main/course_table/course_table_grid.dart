@@ -5,6 +5,7 @@ import 'package:tattoo/database/database.dart' show Semester;
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:tattoo/screens/main/course_table/course_table_block.dart';
 
 List<DayOfWeek> _weekDays = [
   DayOfWeek.monday,
@@ -71,7 +72,7 @@ class CourseTableGrid extends StatelessWidget {
         ),
         SliverToBoxAdapter(
           child: Stack(
-            children: [_buildPeriodRows()],
+            children: [_buildPeriodRows(), ..._buildCourseBlocks()],
           ),
         ),
       ],
@@ -132,6 +133,55 @@ class CourseTableGrid extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  List<Widget> _buildCourseBlocks() {
+    final columnWidth = (viewportWidth! - _stubWidth) / _weekDays.length;
+    const blockColors = <Color>[
+      Colors.blue,
+      Colors.green,
+      Colors.orange,
+      Colors.pink,
+      Colors.teal,
+      Colors.indigo,
+      Colors.red,
+    ];
+
+    final blocks = <Widget>[];
+    for (var i = 0; i < couseTableSummary.courses.length; i++) {
+      final course = couseTableSummary.courses[i];
+      final dayIndex = _weekDays.indexOf(course.dayOfWeek);
+      final startIndex = _periods.indexOf(course.startSection);
+      final endIndex = _periods.indexOf(course.endSection);
+
+      if (dayIndex == -1 || startIndex == -1 || endIndex == -1) {
+        continue;
+      }
+
+      final blockTop = startIndex * _periodRowHeight;
+      final blockLeft = _stubWidth + (dayIndex * columnWidth);
+      final blockHeight = (endIndex - startIndex + 1) * _periodRowHeight;
+
+      blocks.add(
+        Positioned(
+          top: blockTop,
+          left: blockLeft,
+          child: SizedBox(
+            width: columnWidth,
+            height: blockHeight,
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: CourseTableBlock(
+                courseBlock: course,
+                blockColor: blockColors[i % blockColors.length],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return blocks;
   }
 }
 

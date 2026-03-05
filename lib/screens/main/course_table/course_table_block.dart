@@ -47,7 +47,7 @@ class CourseTableBlock extends StatelessWidget {
             AutoSizeText(
               courseInfo.courseNameZh ?? '',
               style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
               maxLines: 2,
@@ -56,13 +56,13 @@ class CourseTableBlock extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             AutoSizeText(
-              '${courseInfo.classroomNamesZh[0]} +${courseInfo.classroomNamesZh.length > 1 ? '${courseInfo.classroomNamesZh.length - 1}' : ''}',
+              '${courseInfo.classroomNamesZh[0]}${courseInfo.classroomNamesZh.length > 1 ? ' +${courseInfo.classroomNamesZh.length - 1}' : ''}',
               style: theme.textTheme.bodySmall?.copyWith(
-                fontSize: 10,
+                fontSize: 8,
                 fontWeight: FontWeight.w400,
               ),
               maxLines: 1,
-              minFontSize: 8,
+              minFontSize: 6,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
             ),
