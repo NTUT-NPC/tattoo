@@ -16,8 +16,6 @@ class CourseTableBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final courseInfo = courseBlock.courseInfo;
-
     final containerColor = HSLColor.fromColor(
       blockColor,
     ).withLightness(0.95).withSaturation(1).toColor();
@@ -41,36 +39,36 @@ class CourseTableBlock extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
         child: SizedBox(
-        height: 64,
-        width: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AutoSizeText(
-              courseInfo.courseNameZh ?? '',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
+          height: 64,
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AutoSizeText(
+                courseBlock.courseNameZh ?? courseBlock.courseNumber,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+                maxLines: 2,
+                minFontSize: 10,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
-              maxLines: 2,
-              minFontSize: 10,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-            AutoSizeText(
-              '${courseInfo.classroomNamesZh[0]}${courseInfo.classroomNamesZh.length > 1 ? ' +${courseInfo.classroomNamesZh.length - 1}' : ''}',
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontSize: 8,
-                fontWeight: FontWeight.w400,
+              AutoSizeText(
+                courseBlock.classroomNameZh,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontSize: 8,
+                  fontWeight: FontWeight.w400,
+                ),
+                maxLines: 1,
+                minFontSize: 6,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
               ),
-              maxLines: 1,
-              minFontSize: 6,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
