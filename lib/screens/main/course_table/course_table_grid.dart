@@ -52,7 +52,7 @@ class CourseTableGrid extends StatelessWidget {
   final double _stubWidth = 20;
 
   // TODO: dynamic row height based on viewport height
-  final double _periodRowHeight = 60;
+  final double _periodRowHeight = 64;
 
   @override
   Widget build(BuildContext context) {
