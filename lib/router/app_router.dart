@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tattoo/screens/main/calendar/calendar_screen.dart';
 import 'package:tattoo/shells/animated_shell_container.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
@@ -15,6 +16,7 @@ final rootNavigatorKey = GlobalKey<NavigatorState>();
 abstract class AppRoutes {
   static const home = '/';
   static const score = '/score';
+  static const calendar = '/calendar';
   static const profile = '/profile';
   static const intro = '/intro';
   static const login = '/login';
@@ -70,6 +72,15 @@ GoRouter createAppRouter(
               path: AppRoutes.score,
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: ScoreScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.calendar,
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: CalendarScreen()),
             ),
           ],
         ),
