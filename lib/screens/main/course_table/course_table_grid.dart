@@ -204,19 +204,8 @@ final CourseTableSummaryObject _previewCourseTableSummary = (
   semester: Semester(id: 1, year: 114, term: 2),
   courses: [
     (
-      courseInfo: (
-        number: 'CSIE3002',
-        courseNameZh: '作業系統',
-        teacherNamesZh: ['陳大文'],
-        credits: 3.0,
-        hours: 3,
-        classroomNamesZh: ['共同科館201'],
-        schedule: [
-          (dayOfWeek: DayOfWeek.monday, period: Period.first),
-          (dayOfWeek: DayOfWeek.monday, period: Period.second),
-        ],
-        classNamesZh: ['資工三甲'],
-      ),
+      courseNumber: 'CSIE3002',
+      courseNameZh: '作業系統',
       classroomNameZh: '共同科館201',
       dayOfWeek: DayOfWeek.monday,
       startSection: Period.first,

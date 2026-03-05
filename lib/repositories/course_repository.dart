@@ -47,8 +47,11 @@ typedef CourseTableInfoObject = ({
 
 /// Temporary UI contract for one renderable time block in the course table.
 typedef CourseTableBlockObject = ({
-  /// Course metadata shown in this block.
-  CourseTableInfoObject courseInfo,
+  /// [CourseOfferings.number].
+  String courseNumber,
+
+  /// [Courses.nameZh].
+  String? courseNameZh,
 
   /// Classroom name for this block.
   String classroomNameZh,
