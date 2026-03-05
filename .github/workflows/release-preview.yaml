@@ -70,10 +70,6 @@ jobs:
     needs: [prepare]
     env:
       FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
-      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
-      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
-      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
       PR_TITLE: "Release build"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
@@ -90,14 +86,17 @@ jobs:
         with:
           platform: android
 
-      - name: Upload to Google Play Console
-        run: bundle exec fastlane android release
+      - name: Build Android App Bundle
+        run: bundle exec fastlane android build
 
-      - name: Build and upload to Firebase App Distribution
+      - name: Upload to Google Play Console
+        run: bundle exec fastlane android release_googleplay skip_build:true
+
+      - name: Upload to Firebase App Distribution
         id: upload
         env:
           FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
-        run: bundle exec fastlane android preview
+        run: bundle exec fastlane android release_firebase skip_build:true
 
       - name: Write Android Job Summary
         uses: ./.github/actions/android-summary

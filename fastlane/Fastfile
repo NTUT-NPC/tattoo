@@ -121,33 +121,32 @@ platform :ios do
 end
 
 platform :android do
-  desc "Build and upload PR preview to Firebase App Distribution"
-  lane :preview do |options|
+  private_lane :build_appbundle do |options|
     build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
-    pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
-    pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
-    commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
-    commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
-    skip_upload = options[:skip_upload].to_s == "true"
-    public_tester = options[:public_tester].to_s == "true"
-
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
-
-    output_file = flutter_build(
+    
+    flutter_build(
       build: "appbundle",
       build_number: build_number,
       build_args: ["--dart-define=USE_FIREBASE=true"],
     )
+  end
 
-    next if skip_upload
+  private_lane :upload_firebase do |options|
+    pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
+    pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
+    commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
+    commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
+    public_tester = options[:public_tester].to_s == "true" || ENV["PUBLIC_TESTER"].to_s == "true"
 
-    changelog = changelog(pr_number, pr_title, commit_sha, commit_message)
+    changelog_text = changelog(pr_number, pr_title, commit_sha, commit_message)
+    aab_path = options[:aab] || File.expand_path("../build/app/outputs/bundle/release/app-release.aab", __dir__)
 
     release = firebase_app_distribution(
       groups: public_tester ? "pub-tester" : "dev-tester",
-      release_notes: changelog,
+      release_notes: changelog_text,
       android_artifact_type: "AAB",
-      android_artifact_path: output_file,
+      android_artifact_path: aab_path,
       service_credentials_file: File.expand_path("../service-account.json", __dir__),
     )
 
@@ -158,26 +157,13 @@ platform :android do
     end
   end
 
-  desc "Build and upload to Google Play Console"
-  lane :release do |options|
+  private_lane :upload_playstore do |options|
     build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
     pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
     pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
     commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
     commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
-    skip_upload = options[:skip_upload].to_s == "true"
 
-    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
-
-    output_file = flutter_build(
-      build: "appbundle",
-      build_number: build_number,
-      build_args: ["--dart-define=USE_FIREBASE=true"],
-    )
-
-    next if skip_upload
-
-    # Create dynamic changelog files in the standard fastlane/metadata directory
     changelog_text = changelog(pr_number, pr_title, commit_sha, commit_message)
     ["zh-TW"].each do |locale|
       path = "metadata/android/#{locale}/changelogs"
@@ -185,15 +171,51 @@ platform :android do
       File.write("#{path}/#{build_number}.txt", changelog_text)
     end
 
+    aab_path = options[:aab] || File.expand_path("../build/app/outputs/bundle/release/app-release.aab", __dir__)
+
     upload_to_play_store(
       package_name: ENV["FASTLANE_APP_IDENTIFIER"],
       track: "internal",
-      aab: output_file,
+      aab: aab_path,
       json_key: File.expand_path("../service-account.json", __dir__),
       skip_upload_metadata: false,
       skip_upload_images: true,
       skip_upload_screenshots: true,
       skip_upload_changelogs: false
     )
+  end
+
+  desc "Build the Android App Bundle"
+  lane :build do |options|
+    build_appbundle(options)
+  end
+
+  desc "Build and upload PR preview to Firebase App Distribution"
+  lane :preview do |options|
+    aab = options[:aab]
+    aab ||= build_appbundle(options) unless options[:skip_build].to_s == "true"
+    upload_firebase(options.merge(aab: aab)) unless options[:skip_upload].to_s == "true"
+  end
+
+  desc "Build and upload to Google Play Console"
+  lane :release_googleplay do |options|
+    aab = options[:aab]
+    aab ||= build_appbundle(options) unless options[:skip_build].to_s == "true"
+    upload_playstore(options.merge(aab: aab)) unless options[:skip_upload].to_s == "true"
+  end
+
+  desc "Build and upload to Firebase App Distribution"
+  lane :release_firebase do |options|
+    aab = options[:aab]
+    aab ||= build_appbundle(options) unless options[:skip_build].to_s == "true"
+    upload_firebase(options.merge(aab: aab)) unless options[:skip_upload].to_s == "true"
+  end
+
+  desc "Build and upload to Google Play Console & Firebase"
+  lane :release do |options|
+    aab = options[:aab]
+    aab ||= build_appbundle(options) unless options[:skip_build].to_s == "true"
+    upload_playstore(options.merge(aab: aab)) unless options[:skip_upload_playstore].to_s == "true"
+    upload_firebase(options.merge(aab: aab)) unless options[:skip_upload_firebase].to_s == "true"
   end
 end
