@@ -62,6 +62,7 @@ platform :ios do
     commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
     commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
     skip_upload = options[:skip_upload].to_s == "true"
+    public_tester = options[:public_tester].to_s == "true" 
 
     setup_ci if is_ci
 
@@ -107,9 +108,14 @@ platform :ios do
 
     changelog = changelog(pr_number, pr_title, commit_sha, commit_message)
 
+    target_groups = ["Private External Testing"]
+    target_groups << "Public External Testing" if public_tester
+
     upload_to_testflight(
       skip_waiting_for_build_processing: is_ci,
       changelog: changelog,
+      distribute_external: true,
+      groups: target_groups,
     )
   end
 end
@@ -123,6 +129,7 @@ platform :android do
     commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
     commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
     skip_upload = options[:skip_upload].to_s == "true"
+    public_tester = options[:public_tester].to_s == "true"
 
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
@@ -137,7 +144,7 @@ platform :android do
     changelog = changelog(pr_number, pr_title, commit_sha, commit_message)
 
     release = firebase_app_distribution(
-      groups: "dev-tester",
+      groups: public_tester ? "pub-tester" : "dev-tester",
       release_notes: changelog,
       android_artifact_type: "AAB",
       android_artifact_path: output_file,

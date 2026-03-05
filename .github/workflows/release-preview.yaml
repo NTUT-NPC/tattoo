@@ -7,13 +7,18 @@ on:
   workflow_dispatch:
     inputs:
       branch_name:
-        description: 'Specific branch to build from HEAD (Uses CI logic from dropdown)'
+        description: "Specific branch to build from HEAD (Uses CI logic from dropdown)"
         required: false
         type: string
       commit_sha:
-        description: 'Specific commit SHA to build (overrides branch)'
+        description: "Specific commit SHA to build (overrides branch)"
         required: false
         type: string
+      public_tester:
+        description: "Upload to external public testers (TestFlight/Firebase)"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -73,6 +78,7 @@ jobs:
       PR_TITLE: "Release build"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+      PUBLIC_TESTER: ${{ inputs.public_tester }}
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -87,11 +93,17 @@ jobs:
       - name: Upload to Google Play Console
         run: bundle exec fastlane android release
 
+      - name: Build and upload to Firebase App Distribution
+        id: upload
+        env:
+          FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
+        run: bundle exec fastlane android preview
+
       - name: Write Android Job Summary
         uses: ./.github/actions/android-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
-          type: 'playstore'
+          type: "playstore"
 
   ios:
     runs-on: macos-latest
@@ -111,6 +123,7 @@ jobs:
       PR_TITLE: "Release build"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+      PUBLIC_TESTER: ${{ inputs.public_tester }}
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
