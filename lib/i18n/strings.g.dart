@@ -16,7 +16,7 @@ import 'package:slang/generated.dart';
 import 'package:slang_flutter/slang_flutter.dart';
 export 'package:slang_flutter/slang_flutter.dart';
 
-import 'strings_en.g.dart' deferred as l_en;
+import 'strings_en_US.g.dart' deferred as l_en_US;
 part 'strings_zh_TW.g.dart';
 
 /// Supported locales.
@@ -27,7 +27,7 @@ part 'strings_zh_TW.g.dart';
 /// - if (LocaleSettings.currentLocale == AppLocale.zhTw) // locale check
 enum AppLocale with BaseAppLocale<AppLocale, Translations> {
 	zhTw(languageCode: 'zh', countryCode: 'TW'),
-	en(languageCode: 'en');
+	enUs(languageCode: 'en', countryCode: 'US');
 
 	const AppLocale({
 		required this.languageCode,
@@ -52,9 +52,9 @@ enum AppLocale with BaseAppLocale<AppLocale, Translations> {
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case AppLocale.en:
-				await l_en.loadLibrary();
-				return l_en.TranslationsEn(
+			case AppLocale.enUs:
+				await l_en_US.loadLibrary();
+				return l_en_US.TranslationsEnUs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
@@ -75,8 +75,8 @@ enum AppLocale with BaseAppLocale<AppLocale, Translations> {
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,
 				);
-			case AppLocale.en:
-				return l_en.TranslationsEn(
+			case AppLocale.enUs:
+				return l_en_US.TranslationsEnUs(
 					overrides: overrides,
 					cardinalResolver: cardinalResolver,
 					ordinalResolver: ordinalResolver,

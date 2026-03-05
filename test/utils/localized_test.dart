@@ -21,7 +21,7 @@ void main() {
     });
 
     group('when locale is en', () {
-      setUp(() async => LocaleSettings.setLocale(AppLocale.en));
+      setUp(() async => LocaleSettings.setLocale(AppLocale.enUs));
 
       test('returns en when both provided', () {
         expect(localized('中文', 'English'), 'English');
