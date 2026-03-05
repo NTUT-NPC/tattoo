@@ -8770,6 +8770,252 @@ class UserSemesterRankingsCompanion
   }
 }
 
+class CourseTableSlot extends DataClass {
+  final int id;
+  final String number;
+  final String? nameZh;
+  final String? nameEn;
+  final DayOfWeek dayOfWeek;
+  final Period period;
+  final String? nameZh1;
+  const CourseTableSlot({
+    required this.id,
+    required this.number,
+    this.nameZh,
+    this.nameEn,
+    required this.dayOfWeek,
+    required this.period,
+    this.nameZh1,
+  });
+  factory CourseTableSlot.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CourseTableSlot(
+      id: serializer.fromJson<int>(json['id']),
+      number: serializer.fromJson<String>(json['number']),
+      nameZh: serializer.fromJson<String?>(json['nameZh']),
+      nameEn: serializer.fromJson<String?>(json['nameEn']),
+      dayOfWeek: $SchedulesTable.$converterdayOfWeek.fromJson(
+        serializer.fromJson<int>(json['dayOfWeek']),
+      ),
+      period: $SchedulesTable.$converterperiod.fromJson(
+        serializer.fromJson<int>(json['period']),
+      ),
+      nameZh1: serializer.fromJson<String?>(json['nameZh1']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'number': serializer.toJson<String>(number),
+      'nameZh': serializer.toJson<String?>(nameZh),
+      'nameEn': serializer.toJson<String?>(nameEn),
+      'dayOfWeek': serializer.toJson<int>(
+        $SchedulesTable.$converterdayOfWeek.toJson(dayOfWeek),
+      ),
+      'period': serializer.toJson<int>(
+        $SchedulesTable.$converterperiod.toJson(period),
+      ),
+      'nameZh1': serializer.toJson<String?>(nameZh1),
+    };
+  }
+
+  CourseTableSlot copyWith({
+    int? id,
+    String? number,
+    Value<String?> nameZh = const Value.absent(),
+    Value<String?> nameEn = const Value.absent(),
+    DayOfWeek? dayOfWeek,
+    Period? period,
+    Value<String?> nameZh1 = const Value.absent(),
+  }) => CourseTableSlot(
+    id: id ?? this.id,
+    number: number ?? this.number,
+    nameZh: nameZh.present ? nameZh.value : this.nameZh,
+    nameEn: nameEn.present ? nameEn.value : this.nameEn,
+    dayOfWeek: dayOfWeek ?? this.dayOfWeek,
+    period: period ?? this.period,
+    nameZh1: nameZh1.present ? nameZh1.value : this.nameZh1,
+  );
+  @override
+  String toString() {
+    return (StringBuffer('CourseTableSlot(')
+          ..write('id: $id, ')
+          ..write('number: $number, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('dayOfWeek: $dayOfWeek, ')
+          ..write('period: $period, ')
+          ..write('nameZh1: $nameZh1')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, number, nameZh, nameEn, dayOfWeek, period, nameZh1);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CourseTableSlot &&
+          other.id == this.id &&
+          other.number == this.number &&
+          other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn &&
+          other.dayOfWeek == this.dayOfWeek &&
+          other.period == this.period &&
+          other.nameZh1 == this.nameZh1);
+}
+
+class $CourseTableSlotsView
+    extends ViewInfo<$CourseTableSlotsView, CourseTableSlot>
+    implements HasResultSet {
+  final String? _alias;
+  @override
+  final _$AppDatabase attachedDatabase;
+  $CourseTableSlotsView(this.attachedDatabase, [this._alias]);
+  $SchedulesTable get schedules => attachedDatabase.schedules.createAlias('t0');
+  $CourseOfferingsTable get courseOfferings =>
+      attachedDatabase.courseOfferings.createAlias('t1');
+  $CoursesTable get courses => attachedDatabase.courses.createAlias('t2');
+  $ClassroomsTable get classrooms =>
+      attachedDatabase.classrooms.createAlias('t3');
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    number,
+    nameZh,
+    nameEn,
+    dayOfWeek,
+    period,
+    nameZh1,
+  ];
+  @override
+  String get aliasedName => _alias ?? entityName;
+  @override
+  String get entityName => 'course_table_slots';
+  @override
+  Map<SqlDialect, String>? get createViewStatements => null;
+  @override
+  $CourseTableSlotsView get asDslTable => this;
+  @override
+  CourseTableSlot map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CourseTableSlot(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      number: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}number'],
+      )!,
+      nameZh: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_zh'],
+      ),
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      ),
+      dayOfWeek: $SchedulesTable.$converterdayOfWeek.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}day_of_week'],
+        )!,
+      ),
+      period: $SchedulesTable.$converterperiod.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}period'],
+        )!,
+      ),
+      nameZh1: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_zh1'],
+      ),
+    );
+  }
+
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(courseOfferings.id, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<String> number = GeneratedColumn<String>(
+    'number',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(courseOfferings.number, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
+    'name_zh',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courses.nameZh, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courses.nameEn, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumnWithTypeConverter<DayOfWeek, int> dayOfWeek =
+      GeneratedColumn<int>(
+        'day_of_week',
+        aliasedName,
+        false,
+        generatedAs: GeneratedAs(schedules.dayOfWeek, false),
+        type: DriftSqlType.int,
+      ).withConverter<DayOfWeek>($SchedulesTable.$converterdayOfWeek);
+  late final GeneratedColumnWithTypeConverter<Period, int> period =
+      GeneratedColumn<int>(
+        'period',
+        aliasedName,
+        false,
+        generatedAs: GeneratedAs(schedules.period, false),
+        type: DriftSqlType.int,
+      ).withConverter<Period>($SchedulesTable.$converterperiod);
+  late final GeneratedColumn<String> nameZh1 = GeneratedColumn<String>(
+    'name_zh1',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(classrooms.nameZh, false),
+    type: DriftSqlType.string,
+  );
+  @override
+  $CourseTableSlotsView createAlias(String alias) {
+    return $CourseTableSlotsView(attachedDatabase, alias);
+  }
+
+  @override
+  Query? get query =>
+      (attachedDatabase.selectOnly(schedules)..addColumns($columns)).join([
+        innerJoin(
+          courseOfferings,
+          courseOfferings.id.equalsExp(schedules.courseOffering),
+        ),
+        innerJoin(courses, courses.id.equalsExp(courseOfferings.course)),
+        leftOuterJoin(classrooms, classrooms.id.equalsExp(schedules.classroom)),
+      ]);
+  @override
+  Set<String> get readTables => const {
+    'schedules',
+    'course_offerings',
+    'courses',
+    'classrooms',
+  };
+}
+
 class UserRegistration extends DataClass {
   final int year;
   final int term;
@@ -8980,6 +9226,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $UserSemesterSummaryCadreRolesTable(this);
   late final $UserSemesterRankingsTable userSemesterRankings =
       $UserSemesterRankingsTable(this);
+  late final $CourseTableSlotsView courseTableSlots = $CourseTableSlotsView(
+    this,
+  );
   late final $UserRegistrationsView userRegistrations = $UserRegistrationsView(
     this,
   );
@@ -9040,6 +9289,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userSemesterSummaryTutors,
     userSemesterSummaryCadreRoles,
     userSemesterRankings,
+    courseTableSlots,
     userRegistrations,
     teacherSemester,
     courseOfferingCourse,

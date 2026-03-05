@@ -20,7 +20,6 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 });
 
 @DriftDatabase(
-  views: [UserRegistrations],
   tables: [
     // Base tables
     Users,
@@ -45,6 +44,10 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     UserSemesterSummaryTutors,
     UserSemesterSummaryCadreRoles,
     UserSemesterRankings,
+  ],
+  views: [
+    CourseTableSlots,
+    UserRegistrations,
   ],
 )
 class AppDatabase extends _$AppDatabase {
