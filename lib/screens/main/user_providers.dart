@@ -67,7 +67,7 @@ final CourseTableSummaryObject mockCourseTableSummary = (
     (
       courseInfo: (
         number: 'CSIE3021',
-        courseNameZh: '資料探勘',
+        courseNameZh: '平面顯示器',
         teacherNamesZh: ['林小雅'],
         credits: 2.0,
         hours: 1,
