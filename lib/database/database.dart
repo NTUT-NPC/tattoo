@@ -58,7 +58,8 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    beforeOpen: (details) async {
+    onUpgrade: destructiveFallback.onUpgrade,
+    beforeOpen: (_) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );
