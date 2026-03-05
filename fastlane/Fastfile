@@ -112,7 +112,6 @@ platform :ios do
     target_groups << "Public External Testing" if public_tester
 
     upload_to_testflight(
-      skip_waiting_for_build_processing: is_ci,
       changelog: changelog,
       distribute_external: true,
       groups: target_groups,
