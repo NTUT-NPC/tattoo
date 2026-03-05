@@ -24,7 +24,7 @@ final CourseTableInfoObject mockCourseTableInfo = (
   number: 'CSIE3001',
   courseNameZh: '微處理機及自動控制應用實務',
   teacherNamesZh: ['王小明', '李小華'],
-  credits: 3,
+  credits: 3.0,
   hours: 3,
   classroomNamesZh: ['科研B1234', '三教101'],
   schedule: [
@@ -50,7 +50,7 @@ final CourseTableSummaryObject mockCourseTableSummary = (
         number: 'CSIE3002',
         courseNameZh: '作業系統',
         teacherNamesZh: ['陳大文'],
-        credits: 3,
+        credits: 3.0,
         hours: 2,
         classroomNamesZh: ['共同科館201'],
         schedule: [
@@ -69,7 +69,7 @@ final CourseTableSummaryObject mockCourseTableSummary = (
         number: 'CSIE3021',
         courseNameZh: '資料探勘',
         teacherNamesZh: ['林小雅'],
-        credits: 2,
+        credits: 2.0,
         hours: 1,
         classroomNamesZh: ['六教304'],
         schedule: [(dayOfWeek: DayOfWeek.tuesday, period: Period.fifth)],
@@ -85,7 +85,7 @@ final CourseTableSummaryObject mockCourseTableSummary = (
         number: 'CSIE3045',
         courseNameZh: '雲端平台實作',
         teacherNamesZh: ['吳佳穎'],
-        credits: 3,
+        credits: 3.0,
         hours: 3,
         classroomNamesZh: ['科研B215'],
         schedule: [
@@ -105,7 +105,7 @@ final CourseTableSummaryObject mockCourseTableSummary = (
         number: 'CSIE3990',
         courseNameZh: '人工智慧導論',
         teacherNamesZh: ['張承恩'],
-        credits: 2,
+        credits: 2.0,
         hours: 2,
         classroomNamesZh: ['綜科館502'],
         schedule: [
@@ -124,7 +124,7 @@ final CourseTableSummaryObject mockCourseTableSummary = (
         number: 'CSIE3901',
         courseNameZh: '行動應用程式開發',
         teacherNamesZh: ['黃柏鈞'],
-        credits: 4,
+        credits: 4.0,
         hours: 4,
         classroomNamesZh: ['億光大樓909'],
         schedule: [
@@ -142,6 +142,7 @@ final CourseTableSummaryObject mockCourseTableSummary = (
     ),
   ],
   hasAmCourse: true,
+  hasNCourse: false,
   hasPmCourse: true,
   hasNightCourse: false,
   earliestStartSection: Period.first,
@@ -149,6 +150,6 @@ final CourseTableSummaryObject mockCourseTableSummary = (
   hasWeekdayCourse: true,
   hasSatCourse: false,
   hasSunCourse: false,
-  totalCredits: 14,
+  totalCredits: 14.0,
   totalHours: 12,
 );
