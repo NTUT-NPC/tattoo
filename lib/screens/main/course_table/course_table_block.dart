@@ -18,13 +18,13 @@ class CourseTableBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final containerColor = HSLColor.fromColor(
       blockColor,
-    ).withLightness(0.95).withSaturation(1).toColor();
+    ).withLightness(0.95).withSaturation(0.3).toColor();
     final borderColor = HSLColor.fromColor(
       blockColor,
-    ).withLightness(0.4).withSaturation(0.8).toColor();
+    ).withLightness(0.3).withSaturation(0.8).toColor();
     final borderStyle = Border.all(
       color: borderColor,
-      width: 1.5,
+      width: 1,
     );
     final theme = Theme.of(context);
 
