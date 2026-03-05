@@ -30,15 +30,17 @@ class CourseTableBlock extends StatelessWidget {
     );
     final theme = Theme.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: containerColor,
-        borderRadius: BorderRadius.circular(8),
-        border: borderStyle,
-      ),
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-      child: SizedBox(
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+      child: Container(
+        decoration: BoxDecoration(
+          color: containerColor,
+          borderRadius: BorderRadius.circular(8),
+          border: borderStyle,
+        ),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+        child: SizedBox(
         height: 64,
         width: double.infinity,
         child: Column(
@@ -68,6 +70,7 @@ class CourseTableBlock extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

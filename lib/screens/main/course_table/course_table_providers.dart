@@ -153,14 +153,13 @@ final CourseTableSummaryObject mockCourseTableSummary = (
         classroomNamesZh: ['宏裕704'],
         schedule: [
           (dayOfWeek: DayOfWeek.thursday, period: Period.sixth),
-          (dayOfWeek: DayOfWeek.thursday, period: Period.seventh),
         ],
         classNamesZh: ['跨院選修'],
       ),
       classroomNameZh: '宏裕704',
       dayOfWeek: DayOfWeek.thursday,
       startSection: Period.sixth,
-      endSection: Period.seventh,
+      endSection: Period.sixth,
     ),
     (
       courseInfo: (
