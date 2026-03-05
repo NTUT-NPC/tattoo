@@ -30,51 +30,53 @@ class CourseTableScreen extends ConsumerWidget {
     return DefaultTabController(
       length: _courseTableTabs.length,
       child: Scaffold(
+        // A scaffold appbar to handle status bar height.
+        appBar: AppBar(
+          toolbarHeight: 0,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+        ),
         body: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
-              floating: false,
-              snap: false,
+              primary: false,
               toolbarHeight: 56,
               backgroundColor: Theme.of(context).colorScheme.primary,
-              flexibleSpace: SafeArea(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        _TableOwnerIndicator(
-                          context: context,
-                          profileAsync: profileAsync,
-                          avatarAsync: avatarAsync,
-                        ),
-                        const Spacer(),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          spacing: 8,
-                          children: [
-                            _CircularIconButton(
-                              icon: Icons.refresh_outlined,
-                              onTap: () => _showDemoTap(context),
-                            ),
-                            _CircularIconButton(
-                              icon: Icons.share_outlined,
-                              onTap: () => _showDemoTap(context),
-                            ),
-                            _CircularIconButton(
-                              icon: Icons.more_vert_outlined,
-                              onTap: () => _showDemoTap(context),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+              flexibleSpace: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _TableOwnerIndicator(
+                        context: context,
+                        profileAsync: profileAsync,
+                        avatarAsync: avatarAsync,
+                      ),
+                      const Spacer(),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        spacing: 8,
+                        children: [
+                          _CircularIconButton(
+                            icon: Icons.refresh_outlined,
+                            onTap: () => _showDemoTap(context),
+                          ),
+                          _CircularIconButton(
+                            icon: Icons.share_outlined,
+                            onTap: () => _showDemoTap(context),
+                          ),
+                          _CircularIconButton(
+                            icon: Icons.more_vert_outlined,
+                            onTap: () => _showDemoTap(context),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
