@@ -72,6 +72,7 @@ typedef CourseTableSummaryObject = ({
 
   /// Whether the table has courses in the morning (before 12:00).
   bool hasAmCourse,
+  bool hasNCourse,
   bool hasPmCourse,
   bool hasNightCourse,
   Period earliestStartSection,
