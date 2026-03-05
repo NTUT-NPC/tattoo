@@ -6,6 +6,14 @@
 // Usage:
 //   dart run tool/credentials.dart fetch
 //   dart run tool/credentials.dart encrypt <source-file> <dest-path-in-repo>
+//
+// WARNING: The reset command will discard all local changes in the credentials
+// repository and hard-reset it to origin/${config.gitBranch}.
+// Any uncommitted changes in $_repoDir will be lost.
+//
+// Usage:
+//   dart run tool/credentials.dart reset
+//
 
 import 'dart:convert';
 import 'dart:io';
@@ -302,6 +310,48 @@ Future<void> encrypt(
   );
 }
 
+Future<void> resetRepo(Config config) async {
+  final gitDir = Directory('$_repoDir/.git');
+  if (!gitDir.existsSync()) {
+    stderr.writeln('No local credentials repo found at $_repoDir.');
+    stderr.writeln('Run `dart run tool/credentials.dart fetch` first.');
+    exit(1);
+  }
+
+  stdout.writeln(
+    'WARNING: This will discard all local changes in the credentials\n'
+    'repository and hard-reset it to origin/${config.gitBranch}.\n'
+    'Any uncommitted changes in $_repoDir will be lost.\n',
+  );
+  stdout.write('Type "yes" to confirm: ');
+  final answer = stdin.readLineSync()?.trim() ?? '';
+  if (answer != 'yes') {
+    stdout.writeln('Aborted.');
+    exit(0);
+  }
+
+  stdout.writeln('Fetching latest from remote...');
+  await _git([
+    '-C',
+    _repoDir,
+    'fetch',
+    '--depth',
+    '1',
+    'origin',
+    config.gitBranch,
+  ], config.gitBasicAuthorization);
+
+  await _git([
+    '-C',
+    _repoDir,
+    'reset',
+    '--hard',
+    'origin/${config.gitBranch}',
+  ], config.gitBasicAuthorization);
+
+  stdout.writeln('Credentials repository reset to origin/${config.gitBranch}.');
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -310,6 +360,7 @@ Future<void> main(List<String> args) async {
   if (args.isEmpty) {
     stderr.writeln('Usage:');
     stderr.writeln('  dart run tool/credentials.dart fetch');
+    stderr.writeln('  dart run tool/credentials.dart reset (dangerous)');
     stderr.writeln(
       '  dart run tool/credentials.dart encrypt <source-file> <dest-path-in-repo>',
     );
@@ -321,6 +372,8 @@ Future<void> main(List<String> args) async {
   switch (args[0]) {
     case 'fetch':
       await fetch(config);
+    case 'reset':
+      await resetRepo(config);
     case 'encrypt':
       if (args.length < 3) {
         stderr.writeln(
