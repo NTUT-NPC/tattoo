@@ -3,14 +3,14 @@ description: Write Android build information to GitHub Job Summary
 
 inputs:
   build_number:
-    description: 'Build number'
+    description: "Build number"
     required: true
   type:
-    description: 'Distribution type: firebase or playstore'
+    description: "Distribution type: firebase, playstore, or release (both)"
     required: true
-    default: 'firebase'
+    default: "firebase"
   testing_uri:
-    description: 'Install URI (required for firebase)'
+    description: "Install URI (required for firebase)"
     required: false
 
 runs:
@@ -19,14 +19,15 @@ runs:
     - name: Write Android Job Summary
       shell: bash
       run: |
-        if [ "${{ inputs.type }}" == "firebase" ]; then
+        if [ "${{ inputs.type }}" == "firebase" ] || [ "${{ inputs.type }}" == "release" ]; then
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
         ### Android (Firebase App Distribution)
         Build **${{ inputs.build_number }}** successfully uploaded to Firebase App Distribution.
         [Install build ${{ inputs.build_number }}](${{ inputs.testing_uri }})
         > **Note:** It may take a few minutes for the build to appear in the Firebase App after upload.
         EOF
-        else
+        fi
+        if [ "${{ inputs.type }}" == "playstore" ] || [ "${{ inputs.type }}" == "release" ]; then
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
         ### Android (Google Play)
         Build **${{ inputs.build_number }}** successfully uploaded to Google Play.
