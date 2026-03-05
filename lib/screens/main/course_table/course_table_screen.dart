@@ -6,7 +6,7 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/database/database.dart' show User;
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/screens/main/course_table/course_table_block.dart';
+import 'package:tattoo/screens/main/course_table/course_table_grid.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 
 // TODO: Import mock data from demo mode when implemented
@@ -30,8 +30,8 @@ class CourseTableScreen extends ConsumerWidget {
     return DefaultTabController(
       length: _courseTableTabs.length,
       child: Scaffold(
-        body: CustomScrollView(
-          slivers: [
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
               floating: false,
               snap: false,
@@ -91,14 +91,12 @@ class CourseTableScreen extends ConsumerWidget {
               titleSpacing: 0,
               title: const ChipTabSwitcher(tabs: _courseTableTabs),
             ),
-            SliverFillRemaining(
-              child: TabBarView(
-                children: _courseTableTabs
-                    .map((tab) => _CourseTableTabPlaceholder(semester: tab))
-                    .toList(),
-              ),
-            ),
           ],
+          body: TabBarView(
+            children: _courseTableTabs
+                .map((tab) => _CourseTableTabContent(semester: tab))
+                .toList(),
+          ),
         ),
       ),
     );
@@ -230,25 +228,25 @@ const _courseTableTabs = <String>[
   '110-2',
 ];
 
-class _CourseTableTabPlaceholder extends StatelessWidget {
-  const _CourseTableTabPlaceholder({required this.semester});
+class _CourseTableTabContent extends StatelessWidget {
+  const _CourseTableTabContent({required this.semester});
 
   final String semester;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Center(
-        child: SizedBox(
-          width: 70,
-          height: 60,
-          child: CourseTableBlock(
-            courseBlock: mockCourseTableBlock,
-            blockColor: Colors.orange,
-          ),
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final initialGridViewportWidth = constraints.maxWidth;
+        final initialGridViewportHeight = constraints.maxHeight;
+
+        return CourseTableGrid(
+          key: ValueKey(semester),
+          couseTableSummary: mockCourseTableSummary,
+          viewportWidth: initialGridViewportWidth,
+          viewportHeight: initialGridViewportHeight,
+        );
+      },
     );
   }
 }
