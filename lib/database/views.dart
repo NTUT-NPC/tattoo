@@ -32,11 +32,14 @@ abstract class CourseTableSlots extends View {
   Courses get courses;
   Classrooms get classrooms;
 
+  Expression<String> get classroomNameZh => classrooms.nameZh;
+
   @override
   Query as() =>
       select([
         courseOfferings.id,
         courseOfferings.number,
+        courseOfferings.semester,
         courses.nameZh,
         courses.nameEn,
         courses.credits,
@@ -46,7 +49,7 @@ abstract class CourseTableSlots extends View {
         // TODO: Add classrooms.nameEn — English page uses abbreviated format
         // (e.g., "TB2_201") with a separate building legend table. Need to
         // parse the legend and store both short and full English names.
-        classrooms.nameZh,
+        classroomNameZh,
       ]).from(schedules).join([
         innerJoin(
           courseOfferings,
