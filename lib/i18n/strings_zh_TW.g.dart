@@ -238,6 +238,15 @@ class TranslationsAboutZhTw {
 	/// zh-TW: '相關連結'
 	String get relatedLinks => '相關連結';
 
+	/// zh-TW: '隱私權政策'
+	String get privacyPolicy => '隱私權政策';
+
+	/// zh-TW: 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md'
+	String get privacyPolicyUrl => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md';
+
+	/// zh-TW: '查看隱私權政策'
+	String get viewPrivacyPolicy => '查看隱私權政策';
+
 	/// zh-TW: '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出'
 	String get copyright => '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
 }
@@ -513,6 +522,9 @@ extension on Translations {
 			'about.helpTranslate' => '幫助我們翻譯TAT!',
 			'about.viewSource' => '查看原始碼與貢獻',
 			'about.relatedLinks' => '相關連結',
+			'about.privacyPolicy' => '隱私權政策',
+			'about.privacyPolicyUrl' => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md',
+			'about.viewPrivacyPolicy' => '查看隱私權政策',
 			'about.copyright' => '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
 			_ => null,
 		};

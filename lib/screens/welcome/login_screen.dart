@@ -290,8 +290,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () => launchUrl(
                                     Uri.parse(
-                                      // TODO: Replace with actual privacy policy URL
-                                      'https://example.com/terms-of-service',
+                                      t.about.privacyPolicyUrl,
                                     ),
                                   ),
                               ),

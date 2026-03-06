@@ -89,5 +89,8 @@ about:
   helpTranslate: 幫助我們翻譯TAT!
   viewSource: 查看原始碼與貢獻
   relatedLinks: 相關連結
+  privacyPolicy: 隱私權政策
+  privacyPolicyUrl: https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md
+  viewPrivacyPolicy: 查看隱私權政策
   copyright: © 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出
 

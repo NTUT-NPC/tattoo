@@ -145,6 +145,14 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                             Uri.parse('https://translate.ntut.club'),
                           ),
                         ),
+                        OptionEntryTile.icon(
+                          icon: Icons.privacy_tip,
+                          title: t.about.privacyPolicy,
+                          description: t.about.viewPrivacyPolicy,
+                          onTap: () => launchUrl(
+                            Uri.parse(t.about.privacyPolicyUrl),
+                          ),
+                        ),
                       ],
                     ),
 

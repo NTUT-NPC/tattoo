@@ -167,6 +167,9 @@ class _TranslationsAboutEnUs extends TranslationsAboutZhTw {
 	@override String get helpTranslate => 'Help us translate TAT!';
 	@override String get viewSource => 'View source code and contributions';
 	@override String get relatedLinks => 'Related Links';
+	@override String get privacyPolicy => 'Privacy Policy';
+	@override String get privacyPolicyUrl => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md';
+	@override String get viewPrivacyPolicy => 'View our privacy policy';
 	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
 }
 
@@ -376,6 +379,9 @@ extension on TranslationsEnUs {
 			'about.helpTranslate' => 'Help us translate TAT!',
 			'about.viewSource' => 'View source code and contributions',
 			'about.relatedLinks' => 'Related Links',
+			'about.privacyPolicy' => 'Privacy Policy',
+			'about.privacyPolicyUrl' => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md',
+			'about.viewPrivacyPolicy' => 'View our privacy policy',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
 			_ => null,
 		};
