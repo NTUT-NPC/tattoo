@@ -90,6 +90,7 @@ class Users extends Table with AutoIncrementId, Fetchable {
   /// Number of days until the user's password expires.
   ///
   /// Null if password expiration is not enforced or unknown.
+  /// Not a [Fetchable] field.
   late final passwordExpiresInDays = integer().nullable()();
 }
 
@@ -135,17 +136,20 @@ class Courses extends Table with AutoIncrementId, Fetchable {
   /// Number of class hours per week.
   late final hours = integer()();
 
-  /// Course name in English.
-  late final nameEn = text().nullable()();
-
   /// Course name in Traditional Chinese.
-  late final nameZh = text().nullable()();
+  late final nameZh = text()();
 
-  /// Course description in English.
-  late final descriptionEn = text().nullable()();
+  /// Course name in English.
+  ///
+  /// Not a [Fetchable] field — populated from the English course page,
+  /// which is fetched alongside the Chinese page and may gracefully fail.
+  late final nameEn = text().nullable()();
 
   /// Course description in Traditional Chinese.
   late final descriptionZh = text().nullable()();
+
+  /// Course description in English.
+  late final descriptionEn = text().nullable()();
 }
 
 /// Academic department information.
@@ -277,38 +281,47 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   ///
   /// For multi-part courses like 物理 with the same name. Some courses
   /// encode the sequence in the name instead (e.g., 英文溝通與應用(一)).
-  late final phase = integer()();
+  ///
+  /// Not a [Fetchable] field.
+  late final phase = integer().nullable()();
 
   /// Course type for graduation credit requirements (課程標準).
   ///
   /// Uses symbols from syllabus page: ○, △, ☆, ●, ▲, ★
   /// See [CourseType] enum for mapping.
-  late final courseType = textEnum<CourseType>()();
+  late final courseType = textEnum<CourseType>().nullable()();
 
   /// Enrollment status for special cases (e.g., "撤選" for withdrawal).
   ///
   /// Normally null for regular enrolled courses.
+  /// Not a [Fetchable] field.
   late final status = text().nullable()();
 
   /// Language of instruction (e.g., "英語").
+  ///
+  /// Not a [Fetchable] field.
   late final language = text().nullable()();
 
-  /// Additional remarks or notes about this offering.
+  /// System-generated remarks about this offering (備註).
+  ///
+  /// Not a [Fetchable] field.
   late final remarks = text().nullable()();
+
+  /// Syllabus ID for fetching detailed syllabus information.
+  ///
+  /// Not a [Fetchable] field.
+  late final syllabusId = text().nullable()();
+
+  // Syllabus fields (教學大綱與進度)
+
+  /// When the syllabus was last updated (最後更新時間).
+  late final syllabusUpdatedAt = dateTime().nullable()();
 
   /// Number of enrolled students (人).
   late final enrolled = integer().nullable()();
 
   /// Number of withdrawn students (撤).
   late final withdrawn = integer().nullable()();
-
-  // Syllabus fields (教學大綱與進度)
-
-  /// Syllabus ID for fetching detailed syllabus information.
-  late final syllabusId = text().nullable()();
-
-  /// When the syllabus was last updated (最後更新時間).
-  late final syllabusUpdatedAt = dateTime().nullable()();
 
   /// Course objective/outline (課程大綱).
   late final objective = text().nullable()();
@@ -324,6 +337,9 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
 
   /// Textbooks and reference materials (使用教材、參考書目或其他).
   late final textbooks = text().nullable()();
+
+  /// Teacher-authored remarks from the syllabus page (備註).
+  late final syllabusRemarks = text().nullable()();
 }
 
 // Junction tables and dependent tables

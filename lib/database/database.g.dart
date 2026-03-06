@@ -390,6 +390,7 @@ class User extends DataClass implements Insertable<User> {
   /// Number of days until the user's password expires.
   ///
   /// Null if password expiration is not enforced or unknown.
+  /// Not a [Fetchable] field.
   final int? passwordExpiresInDays;
   const User({
     required this.id,
@@ -1378,30 +1379,19 @@ class $CoursesTable extends Courses with TableInfo<$CoursesTable, Course> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _nameEnMeta = const VerificationMeta('nameEn');
-  @override
-  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
-    'name_en',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
   static const VerificationMeta _nameZhMeta = const VerificationMeta('nameZh');
   @override
   late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
     'name_zh',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.string,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
   );
-  static const VerificationMeta _descriptionEnMeta = const VerificationMeta(
-    'descriptionEn',
-  );
+  static const VerificationMeta _nameEnMeta = const VerificationMeta('nameEn');
   @override
-  late final GeneratedColumn<String> descriptionEn = GeneratedColumn<String>(
-    'description_en',
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -1418,6 +1408,17 @@ class $CoursesTable extends Courses with TableInfo<$CoursesTable, Course> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _descriptionEnMeta = const VerificationMeta(
+    'descriptionEn',
+  );
+  @override
+  late final GeneratedColumn<String> descriptionEn = GeneratedColumn<String>(
+    'description_en',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1425,10 +1426,10 @@ class $CoursesTable extends Courses with TableInfo<$CoursesTable, Course> {
     code,
     credits,
     hours,
-    nameEn,
     nameZh,
-    descriptionEn,
+    nameEn,
     descriptionZh,
+    descriptionEn,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1475,25 +1476,18 @@ class $CoursesTable extends Courses with TableInfo<$CoursesTable, Course> {
     } else if (isInserting) {
       context.missing(_hoursMeta);
     }
-    if (data.containsKey('name_en')) {
-      context.handle(
-        _nameEnMeta,
-        nameEn.isAcceptableOrUnknown(data['name_en']!, _nameEnMeta),
-      );
-    }
     if (data.containsKey('name_zh')) {
       context.handle(
         _nameZhMeta,
         nameZh.isAcceptableOrUnknown(data['name_zh']!, _nameZhMeta),
       );
+    } else if (isInserting) {
+      context.missing(_nameZhMeta);
     }
-    if (data.containsKey('description_en')) {
+    if (data.containsKey('name_en')) {
       context.handle(
-        _descriptionEnMeta,
-        descriptionEn.isAcceptableOrUnknown(
-          data['description_en']!,
-          _descriptionEnMeta,
-        ),
+        _nameEnMeta,
+        nameEn.isAcceptableOrUnknown(data['name_en']!, _nameEnMeta),
       );
     }
     if (data.containsKey('description_zh')) {
@@ -1502,6 +1496,15 @@ class $CoursesTable extends Courses with TableInfo<$CoursesTable, Course> {
         descriptionZh.isAcceptableOrUnknown(
           data['description_zh']!,
           _descriptionZhMeta,
+        ),
+      );
+    }
+    if (data.containsKey('description_en')) {
+      context.handle(
+        _descriptionEnMeta,
+        descriptionEn.isAcceptableOrUnknown(
+          data['description_en']!,
+          _descriptionEnMeta,
         ),
       );
     }
@@ -1534,21 +1537,21 @@ class $CoursesTable extends Courses with TableInfo<$CoursesTable, Course> {
         DriftSqlType.int,
         data['${effectivePrefix}hours'],
       )!,
+      nameZh: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_zh'],
+      )!,
       nameEn: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name_en'],
       ),
-      nameZh: attachedDatabase.typeMapping.read(
+      descriptionZh: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}name_zh'],
+        data['${effectivePrefix}description_zh'],
       ),
       descriptionEn: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}description_en'],
-      ),
-      descriptionZh: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}description_zh'],
       ),
     );
   }
@@ -1582,27 +1585,30 @@ class Course extends DataClass implements Insertable<Course> {
   /// Number of class hours per week.
   final int hours;
 
-  /// Course name in English.
-  final String? nameEn;
-
   /// Course name in Traditional Chinese.
-  final String? nameZh;
+  final String nameZh;
 
-  /// Course description in English.
-  final String? descriptionEn;
+  /// Course name in English.
+  ///
+  /// Not a [Fetchable] field — populated from the English course page,
+  /// which is fetched alongside the Chinese page and may gracefully fail.
+  final String? nameEn;
 
   /// Course description in Traditional Chinese.
   final String? descriptionZh;
+
+  /// Course description in English.
+  final String? descriptionEn;
   const Course({
     required this.id,
     this.fetchedAt,
     required this.code,
     required this.credits,
     required this.hours,
+    required this.nameZh,
     this.nameEn,
-    this.nameZh,
-    this.descriptionEn,
     this.descriptionZh,
+    this.descriptionEn,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1614,17 +1620,15 @@ class Course extends DataClass implements Insertable<Course> {
     map['code'] = Variable<String>(code);
     map['credits'] = Variable<double>(credits);
     map['hours'] = Variable<int>(hours);
+    map['name_zh'] = Variable<String>(nameZh);
     if (!nullToAbsent || nameEn != null) {
       map['name_en'] = Variable<String>(nameEn);
     }
-    if (!nullToAbsent || nameZh != null) {
-      map['name_zh'] = Variable<String>(nameZh);
+    if (!nullToAbsent || descriptionZh != null) {
+      map['description_zh'] = Variable<String>(descriptionZh);
     }
     if (!nullToAbsent || descriptionEn != null) {
       map['description_en'] = Variable<String>(descriptionEn);
-    }
-    if (!nullToAbsent || descriptionZh != null) {
-      map['description_zh'] = Variable<String>(descriptionZh);
     }
     return map;
   }
@@ -1638,18 +1642,16 @@ class Course extends DataClass implements Insertable<Course> {
       code: Value(code),
       credits: Value(credits),
       hours: Value(hours),
+      nameZh: Value(nameZh),
       nameEn: nameEn == null && nullToAbsent
           ? const Value.absent()
           : Value(nameEn),
-      nameZh: nameZh == null && nullToAbsent
-          ? const Value.absent()
-          : Value(nameZh),
-      descriptionEn: descriptionEn == null && nullToAbsent
-          ? const Value.absent()
-          : Value(descriptionEn),
       descriptionZh: descriptionZh == null && nullToAbsent
           ? const Value.absent()
           : Value(descriptionZh),
+      descriptionEn: descriptionEn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(descriptionEn),
     );
   }
 
@@ -1664,10 +1666,10 @@ class Course extends DataClass implements Insertable<Course> {
       code: serializer.fromJson<String>(json['code']),
       credits: serializer.fromJson<double>(json['credits']),
       hours: serializer.fromJson<int>(json['hours']),
+      nameZh: serializer.fromJson<String>(json['nameZh']),
       nameEn: serializer.fromJson<String?>(json['nameEn']),
-      nameZh: serializer.fromJson<String?>(json['nameZh']),
-      descriptionEn: serializer.fromJson<String?>(json['descriptionEn']),
       descriptionZh: serializer.fromJson<String?>(json['descriptionZh']),
+      descriptionEn: serializer.fromJson<String?>(json['descriptionEn']),
     );
   }
   @override
@@ -1679,10 +1681,10 @@ class Course extends DataClass implements Insertable<Course> {
       'code': serializer.toJson<String>(code),
       'credits': serializer.toJson<double>(credits),
       'hours': serializer.toJson<int>(hours),
+      'nameZh': serializer.toJson<String>(nameZh),
       'nameEn': serializer.toJson<String?>(nameEn),
-      'nameZh': serializer.toJson<String?>(nameZh),
-      'descriptionEn': serializer.toJson<String?>(descriptionEn),
       'descriptionZh': serializer.toJson<String?>(descriptionZh),
+      'descriptionEn': serializer.toJson<String?>(descriptionEn),
     };
   }
 
@@ -1692,24 +1694,24 @@ class Course extends DataClass implements Insertable<Course> {
     String? code,
     double? credits,
     int? hours,
+    String? nameZh,
     Value<String?> nameEn = const Value.absent(),
-    Value<String?> nameZh = const Value.absent(),
-    Value<String?> descriptionEn = const Value.absent(),
     Value<String?> descriptionZh = const Value.absent(),
+    Value<String?> descriptionEn = const Value.absent(),
   }) => Course(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
     code: code ?? this.code,
     credits: credits ?? this.credits,
     hours: hours ?? this.hours,
+    nameZh: nameZh ?? this.nameZh,
     nameEn: nameEn.present ? nameEn.value : this.nameEn,
-    nameZh: nameZh.present ? nameZh.value : this.nameZh,
-    descriptionEn: descriptionEn.present
-        ? descriptionEn.value
-        : this.descriptionEn,
     descriptionZh: descriptionZh.present
         ? descriptionZh.value
         : this.descriptionZh,
+    descriptionEn: descriptionEn.present
+        ? descriptionEn.value
+        : this.descriptionEn,
   );
   Course copyWithCompanion(CoursesCompanion data) {
     return Course(
@@ -1718,14 +1720,14 @@ class Course extends DataClass implements Insertable<Course> {
       code: data.code.present ? data.code.value : this.code,
       credits: data.credits.present ? data.credits.value : this.credits,
       hours: data.hours.present ? data.hours.value : this.hours,
-      nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
       nameZh: data.nameZh.present ? data.nameZh.value : this.nameZh,
-      descriptionEn: data.descriptionEn.present
-          ? data.descriptionEn.value
-          : this.descriptionEn,
+      nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
       descriptionZh: data.descriptionZh.present
           ? data.descriptionZh.value
           : this.descriptionZh,
+      descriptionEn: data.descriptionEn.present
+          ? data.descriptionEn.value
+          : this.descriptionEn,
     );
   }
 
@@ -1737,10 +1739,10 @@ class Course extends DataClass implements Insertable<Course> {
           ..write('code: $code, ')
           ..write('credits: $credits, ')
           ..write('hours: $hours, ')
-          ..write('nameEn: $nameEn, ')
           ..write('nameZh: $nameZh, ')
-          ..write('descriptionEn: $descriptionEn, ')
-          ..write('descriptionZh: $descriptionZh')
+          ..write('nameEn: $nameEn, ')
+          ..write('descriptionZh: $descriptionZh, ')
+          ..write('descriptionEn: $descriptionEn')
           ..write(')'))
         .toString();
   }
@@ -1752,10 +1754,10 @@ class Course extends DataClass implements Insertable<Course> {
     code,
     credits,
     hours,
-    nameEn,
     nameZh,
-    descriptionEn,
+    nameEn,
     descriptionZh,
+    descriptionEn,
   );
   @override
   bool operator ==(Object other) =>
@@ -1766,10 +1768,10 @@ class Course extends DataClass implements Insertable<Course> {
           other.code == this.code &&
           other.credits == this.credits &&
           other.hours == this.hours &&
-          other.nameEn == this.nameEn &&
           other.nameZh == this.nameZh &&
-          other.descriptionEn == this.descriptionEn &&
-          other.descriptionZh == this.descriptionZh);
+          other.nameEn == this.nameEn &&
+          other.descriptionZh == this.descriptionZh &&
+          other.descriptionEn == this.descriptionEn);
 }
 
 class CoursesCompanion extends UpdateCompanion<Course> {
@@ -1778,20 +1780,20 @@ class CoursesCompanion extends UpdateCompanion<Course> {
   final Value<String> code;
   final Value<double> credits;
   final Value<int> hours;
+  final Value<String> nameZh;
   final Value<String?> nameEn;
-  final Value<String?> nameZh;
-  final Value<String?> descriptionEn;
   final Value<String?> descriptionZh;
+  final Value<String?> descriptionEn;
   const CoursesCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
     this.code = const Value.absent(),
     this.credits = const Value.absent(),
     this.hours = const Value.absent(),
-    this.nameEn = const Value.absent(),
     this.nameZh = const Value.absent(),
-    this.descriptionEn = const Value.absent(),
+    this.nameEn = const Value.absent(),
     this.descriptionZh = const Value.absent(),
+    this.descriptionEn = const Value.absent(),
   });
   CoursesCompanion.insert({
     this.id = const Value.absent(),
@@ -1799,23 +1801,24 @@ class CoursesCompanion extends UpdateCompanion<Course> {
     required String code,
     required double credits,
     required int hours,
+    required String nameZh,
     this.nameEn = const Value.absent(),
-    this.nameZh = const Value.absent(),
-    this.descriptionEn = const Value.absent(),
     this.descriptionZh = const Value.absent(),
+    this.descriptionEn = const Value.absent(),
   }) : code = Value(code),
        credits = Value(credits),
-       hours = Value(hours);
+       hours = Value(hours),
+       nameZh = Value(nameZh);
   static Insertable<Course> custom({
     Expression<int>? id,
     Expression<DateTime>? fetchedAt,
     Expression<String>? code,
     Expression<double>? credits,
     Expression<int>? hours,
-    Expression<String>? nameEn,
     Expression<String>? nameZh,
-    Expression<String>? descriptionEn,
+    Expression<String>? nameEn,
     Expression<String>? descriptionZh,
+    Expression<String>? descriptionEn,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1823,10 +1826,10 @@ class CoursesCompanion extends UpdateCompanion<Course> {
       if (code != null) 'code': code,
       if (credits != null) 'credits': credits,
       if (hours != null) 'hours': hours,
-      if (nameEn != null) 'name_en': nameEn,
       if (nameZh != null) 'name_zh': nameZh,
-      if (descriptionEn != null) 'description_en': descriptionEn,
+      if (nameEn != null) 'name_en': nameEn,
       if (descriptionZh != null) 'description_zh': descriptionZh,
+      if (descriptionEn != null) 'description_en': descriptionEn,
     });
   }
 
@@ -1836,10 +1839,10 @@ class CoursesCompanion extends UpdateCompanion<Course> {
     Value<String>? code,
     Value<double>? credits,
     Value<int>? hours,
+    Value<String>? nameZh,
     Value<String?>? nameEn,
-    Value<String?>? nameZh,
-    Value<String?>? descriptionEn,
     Value<String?>? descriptionZh,
+    Value<String?>? descriptionEn,
   }) {
     return CoursesCompanion(
       id: id ?? this.id,
@@ -1847,10 +1850,10 @@ class CoursesCompanion extends UpdateCompanion<Course> {
       code: code ?? this.code,
       credits: credits ?? this.credits,
       hours: hours ?? this.hours,
-      nameEn: nameEn ?? this.nameEn,
       nameZh: nameZh ?? this.nameZh,
-      descriptionEn: descriptionEn ?? this.descriptionEn,
+      nameEn: nameEn ?? this.nameEn,
       descriptionZh: descriptionZh ?? this.descriptionZh,
+      descriptionEn: descriptionEn ?? this.descriptionEn,
     );
   }
 
@@ -1872,17 +1875,17 @@ class CoursesCompanion extends UpdateCompanion<Course> {
     if (hours.present) {
       map['hours'] = Variable<int>(hours.value);
     }
-    if (nameEn.present) {
-      map['name_en'] = Variable<String>(nameEn.value);
-    }
     if (nameZh.present) {
       map['name_zh'] = Variable<String>(nameZh.value);
     }
-    if (descriptionEn.present) {
-      map['description_en'] = Variable<String>(descriptionEn.value);
+    if (nameEn.present) {
+      map['name_en'] = Variable<String>(nameEn.value);
     }
     if (descriptionZh.present) {
       map['description_zh'] = Variable<String>(descriptionZh.value);
+    }
+    if (descriptionEn.present) {
+      map['description_en'] = Variable<String>(descriptionEn.value);
     }
     return map;
   }
@@ -1895,10 +1898,10 @@ class CoursesCompanion extends UpdateCompanion<Course> {
           ..write('code: $code, ')
           ..write('credits: $credits, ')
           ..write('hours: $hours, ')
-          ..write('nameEn: $nameEn, ')
           ..write('nameZh: $nameZh, ')
-          ..write('descriptionEn: $descriptionEn, ')
-          ..write('descriptionZh: $descriptionZh')
+          ..write('nameEn: $nameEn, ')
+          ..write('descriptionZh: $descriptionZh, ')
+          ..write('descriptionEn: $descriptionEn')
           ..write(')'))
         .toString();
   }
@@ -3609,19 +3612,19 @@ class $CourseOfferingsTable extends CourseOfferings
   late final GeneratedColumn<int> phase = GeneratedColumn<int>(
     'phase',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.int,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<CourseType, String> courseType =
+  late final GeneratedColumnWithTypeConverter<CourseType?, String> courseType =
       GeneratedColumn<String>(
         'course_type',
         aliasedName,
-        false,
+        true,
         type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      ).withConverter<CourseType>($CourseOfferingsTable.$convertercourseType);
+        requiredDuringInsert: false,
+      ).withConverter<CourseType?>($CourseOfferingsTable.$convertercourseTypen);
   static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
   late final GeneratedColumn<String> status = GeneratedColumn<String>(
@@ -3653,28 +3656,6 @@ class $CourseOfferingsTable extends CourseOfferings
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _enrolledMeta = const VerificationMeta(
-    'enrolled',
-  );
-  @override
-  late final GeneratedColumn<int> enrolled = GeneratedColumn<int>(
-    'enrolled',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _withdrawnMeta = const VerificationMeta(
-    'withdrawn',
-  );
-  @override
-  late final GeneratedColumn<int> withdrawn = GeneratedColumn<int>(
-    'withdrawn',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-  );
   static const VerificationMeta _syllabusIdMeta = const VerificationMeta(
     'syllabusId',
   );
@@ -3698,6 +3679,28 @@ class $CourseOfferingsTable extends CourseOfferings
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _enrolledMeta = const VerificationMeta(
+    'enrolled',
+  );
+  @override
+  late final GeneratedColumn<int> enrolled = GeneratedColumn<int>(
+    'enrolled',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _withdrawnMeta = const VerificationMeta(
+    'withdrawn',
+  );
+  @override
+  late final GeneratedColumn<int> withdrawn = GeneratedColumn<int>(
+    'withdrawn',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _objectiveMeta = const VerificationMeta(
     'objective',
   );
@@ -3742,6 +3745,17 @@ class $CourseOfferingsTable extends CourseOfferings
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _syllabusRemarksMeta = const VerificationMeta(
+    'syllabusRemarks',
+  );
+  @override
+  late final GeneratedColumn<String> syllabusRemarks = GeneratedColumn<String>(
+    'syllabus_remarks',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3754,14 +3768,15 @@ class $CourseOfferingsTable extends CourseOfferings
     status,
     language,
     remarks,
-    enrolled,
-    withdrawn,
     syllabusId,
     syllabusUpdatedAt,
+    enrolled,
+    withdrawn,
     objective,
     weeklyPlan,
     evaluation,
     textbooks,
+    syllabusRemarks,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3813,8 +3828,6 @@ class $CourseOfferingsTable extends CourseOfferings
         _phaseMeta,
         phase.isAcceptableOrUnknown(data['phase']!, _phaseMeta),
       );
-    } else if (isInserting) {
-      context.missing(_phaseMeta);
     }
     if (data.containsKey('status')) {
       context.handle(
@@ -3834,18 +3847,6 @@ class $CourseOfferingsTable extends CourseOfferings
         remarks.isAcceptableOrUnknown(data['remarks']!, _remarksMeta),
       );
     }
-    if (data.containsKey('enrolled')) {
-      context.handle(
-        _enrolledMeta,
-        enrolled.isAcceptableOrUnknown(data['enrolled']!, _enrolledMeta),
-      );
-    }
-    if (data.containsKey('withdrawn')) {
-      context.handle(
-        _withdrawnMeta,
-        withdrawn.isAcceptableOrUnknown(data['withdrawn']!, _withdrawnMeta),
-      );
-    }
     if (data.containsKey('syllabus_id')) {
       context.handle(
         _syllabusIdMeta,
@@ -3859,6 +3860,18 @@ class $CourseOfferingsTable extends CourseOfferings
           data['syllabus_updated_at']!,
           _syllabusUpdatedAtMeta,
         ),
+      );
+    }
+    if (data.containsKey('enrolled')) {
+      context.handle(
+        _enrolledMeta,
+        enrolled.isAcceptableOrUnknown(data['enrolled']!, _enrolledMeta),
+      );
+    }
+    if (data.containsKey('withdrawn')) {
+      context.handle(
+        _withdrawnMeta,
+        withdrawn.isAcceptableOrUnknown(data['withdrawn']!, _withdrawnMeta),
       );
     }
     if (data.containsKey('objective')) {
@@ -3883,6 +3896,15 @@ class $CourseOfferingsTable extends CourseOfferings
       context.handle(
         _textbooksMeta,
         textbooks.isAcceptableOrUnknown(data['textbooks']!, _textbooksMeta),
+      );
+    }
+    if (data.containsKey('syllabus_remarks')) {
+      context.handle(
+        _syllabusRemarksMeta,
+        syllabusRemarks.isAcceptableOrUnknown(
+          data['syllabus_remarks']!,
+          _syllabusRemarksMeta,
+        ),
       );
     }
     return context;
@@ -3917,12 +3939,12 @@ class $CourseOfferingsTable extends CourseOfferings
       phase: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}phase'],
-      )!,
-      courseType: $CourseOfferingsTable.$convertercourseType.fromSql(
+      ),
+      courseType: $CourseOfferingsTable.$convertercourseTypen.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}course_type'],
-        )!,
+        ),
       ),
       status: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -3936,14 +3958,6 @@ class $CourseOfferingsTable extends CourseOfferings
         DriftSqlType.string,
         data['${effectivePrefix}remarks'],
       ),
-      enrolled: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}enrolled'],
-      ),
-      withdrawn: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}withdrawn'],
-      ),
       syllabusId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}syllabus_id'],
@@ -3951,6 +3965,14 @@ class $CourseOfferingsTable extends CourseOfferings
       syllabusUpdatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}syllabus_updated_at'],
+      ),
+      enrolled: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}enrolled'],
+      ),
+      withdrawn: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}withdrawn'],
       ),
       objective: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -3968,6 +3990,10 @@ class $CourseOfferingsTable extends CourseOfferings
         DriftSqlType.string,
         data['${effectivePrefix}textbooks'],
       ),
+      syllabusRemarks: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}syllabus_remarks'],
+      ),
     );
   }
 
@@ -3978,6 +4004,8 @@ class $CourseOfferingsTable extends CourseOfferings
 
   static JsonTypeConverter2<CourseType, String, String> $convertercourseType =
       const EnumNameConverter<CourseType>(CourseType.values);
+  static JsonTypeConverter2<CourseType?, String?, String?>
+  $convertercourseTypen = JsonTypeConverter2.asNullable($convertercourseType);
 }
 
 class CourseOffering extends DataClass implements Insertable<CourseOffering> {
@@ -4007,36 +4035,45 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   ///
   /// For multi-part courses like 物理 with the same name. Some courses
   /// encode the sequence in the name instead (e.g., 英文溝通與應用(一)).
-  final int phase;
+  ///
+  /// Not a [Fetchable] field.
+  final int? phase;
 
   /// Course type for graduation credit requirements (課程標準).
   ///
   /// Uses symbols from syllabus page: ○, △, ☆, ●, ▲, ★
   /// See [CourseType] enum for mapping.
-  final CourseType courseType;
+  final CourseType? courseType;
 
   /// Enrollment status for special cases (e.g., "撤選" for withdrawal).
   ///
   /// Normally null for regular enrolled courses.
+  /// Not a [Fetchable] field.
   final String? status;
 
   /// Language of instruction (e.g., "英語").
+  ///
+  /// Not a [Fetchable] field.
   final String? language;
 
-  /// Additional remarks or notes about this offering.
+  /// System-generated remarks about this offering (備註).
+  ///
+  /// Not a [Fetchable] field.
   final String? remarks;
+
+  /// Syllabus ID for fetching detailed syllabus information.
+  ///
+  /// Not a [Fetchable] field.
+  final String? syllabusId;
+
+  /// When the syllabus was last updated (最後更新時間).
+  final DateTime? syllabusUpdatedAt;
 
   /// Number of enrolled students (人).
   final int? enrolled;
 
   /// Number of withdrawn students (撤).
   final int? withdrawn;
-
-  /// Syllabus ID for fetching detailed syllabus information.
-  final String? syllabusId;
-
-  /// When the syllabus was last updated (最後更新時間).
-  final DateTime? syllabusUpdatedAt;
 
   /// Course objective/outline (課程大綱).
   final String? objective;
@@ -4052,25 +4089,29 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
 
   /// Textbooks and reference materials (使用教材、參考書目或其他).
   final String? textbooks;
+
+  /// Teacher-authored remarks from the syllabus page (備註).
+  final String? syllabusRemarks;
   const CourseOffering({
     required this.id,
     this.fetchedAt,
     required this.course,
     required this.semester,
     required this.number,
-    required this.phase,
-    required this.courseType,
+    this.phase,
+    this.courseType,
     this.status,
     this.language,
     this.remarks,
-    this.enrolled,
-    this.withdrawn,
     this.syllabusId,
     this.syllabusUpdatedAt,
+    this.enrolled,
+    this.withdrawn,
     this.objective,
     this.weeklyPlan,
     this.evaluation,
     this.textbooks,
+    this.syllabusRemarks,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4082,10 +4123,12 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     map['course'] = Variable<int>(course);
     map['semester'] = Variable<int>(semester);
     map['number'] = Variable<String>(number);
-    map['phase'] = Variable<int>(phase);
-    {
+    if (!nullToAbsent || phase != null) {
+      map['phase'] = Variable<int>(phase);
+    }
+    if (!nullToAbsent || courseType != null) {
       map['course_type'] = Variable<String>(
-        $CourseOfferingsTable.$convertercourseType.toSql(courseType),
+        $CourseOfferingsTable.$convertercourseTypen.toSql(courseType),
       );
     }
     if (!nullToAbsent || status != null) {
@@ -4097,17 +4140,17 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     if (!nullToAbsent || remarks != null) {
       map['remarks'] = Variable<String>(remarks);
     }
-    if (!nullToAbsent || enrolled != null) {
-      map['enrolled'] = Variable<int>(enrolled);
-    }
-    if (!nullToAbsent || withdrawn != null) {
-      map['withdrawn'] = Variable<int>(withdrawn);
-    }
     if (!nullToAbsent || syllabusId != null) {
       map['syllabus_id'] = Variable<String>(syllabusId);
     }
     if (!nullToAbsent || syllabusUpdatedAt != null) {
       map['syllabus_updated_at'] = Variable<DateTime>(syllabusUpdatedAt);
+    }
+    if (!nullToAbsent || enrolled != null) {
+      map['enrolled'] = Variable<int>(enrolled);
+    }
+    if (!nullToAbsent || withdrawn != null) {
+      map['withdrawn'] = Variable<int>(withdrawn);
     }
     if (!nullToAbsent || objective != null) {
       map['objective'] = Variable<String>(objective);
@@ -4121,6 +4164,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     if (!nullToAbsent || textbooks != null) {
       map['textbooks'] = Variable<String>(textbooks);
     }
+    if (!nullToAbsent || syllabusRemarks != null) {
+      map['syllabus_remarks'] = Variable<String>(syllabusRemarks);
+    }
     return map;
   }
 
@@ -4133,8 +4179,12 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       course: Value(course),
       semester: Value(semester),
       number: Value(number),
-      phase: Value(phase),
-      courseType: Value(courseType),
+      phase: phase == null && nullToAbsent
+          ? const Value.absent()
+          : Value(phase),
+      courseType: courseType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(courseType),
       status: status == null && nullToAbsent
           ? const Value.absent()
           : Value(status),
@@ -4144,18 +4194,18 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       remarks: remarks == null && nullToAbsent
           ? const Value.absent()
           : Value(remarks),
-      enrolled: enrolled == null && nullToAbsent
-          ? const Value.absent()
-          : Value(enrolled),
-      withdrawn: withdrawn == null && nullToAbsent
-          ? const Value.absent()
-          : Value(withdrawn),
       syllabusId: syllabusId == null && nullToAbsent
           ? const Value.absent()
           : Value(syllabusId),
       syllabusUpdatedAt: syllabusUpdatedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(syllabusUpdatedAt),
+      enrolled: enrolled == null && nullToAbsent
+          ? const Value.absent()
+          : Value(enrolled),
+      withdrawn: withdrawn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(withdrawn),
       objective: objective == null && nullToAbsent
           ? const Value.absent()
           : Value(objective),
@@ -4168,6 +4218,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       textbooks: textbooks == null && nullToAbsent
           ? const Value.absent()
           : Value(textbooks),
+      syllabusRemarks: syllabusRemarks == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syllabusRemarks),
     );
   }
 
@@ -4182,23 +4235,24 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       course: serializer.fromJson<int>(json['course']),
       semester: serializer.fromJson<int>(json['semester']),
       number: serializer.fromJson<String>(json['number']),
-      phase: serializer.fromJson<int>(json['phase']),
-      courseType: $CourseOfferingsTable.$convertercourseType.fromJson(
-        serializer.fromJson<String>(json['courseType']),
+      phase: serializer.fromJson<int?>(json['phase']),
+      courseType: $CourseOfferingsTable.$convertercourseTypen.fromJson(
+        serializer.fromJson<String?>(json['courseType']),
       ),
       status: serializer.fromJson<String?>(json['status']),
       language: serializer.fromJson<String?>(json['language']),
       remarks: serializer.fromJson<String?>(json['remarks']),
-      enrolled: serializer.fromJson<int?>(json['enrolled']),
-      withdrawn: serializer.fromJson<int?>(json['withdrawn']),
       syllabusId: serializer.fromJson<String?>(json['syllabusId']),
       syllabusUpdatedAt: serializer.fromJson<DateTime?>(
         json['syllabusUpdatedAt'],
       ),
+      enrolled: serializer.fromJson<int?>(json['enrolled']),
+      withdrawn: serializer.fromJson<int?>(json['withdrawn']),
       objective: serializer.fromJson<String?>(json['objective']),
       weeklyPlan: serializer.fromJson<String?>(json['weeklyPlan']),
       evaluation: serializer.fromJson<String?>(json['evaluation']),
       textbooks: serializer.fromJson<String?>(json['textbooks']),
+      syllabusRemarks: serializer.fromJson<String?>(json['syllabusRemarks']),
     );
   }
   @override
@@ -4210,21 +4264,22 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       'course': serializer.toJson<int>(course),
       'semester': serializer.toJson<int>(semester),
       'number': serializer.toJson<String>(number),
-      'phase': serializer.toJson<int>(phase),
-      'courseType': serializer.toJson<String>(
-        $CourseOfferingsTable.$convertercourseType.toJson(courseType),
+      'phase': serializer.toJson<int?>(phase),
+      'courseType': serializer.toJson<String?>(
+        $CourseOfferingsTable.$convertercourseTypen.toJson(courseType),
       ),
       'status': serializer.toJson<String?>(status),
       'language': serializer.toJson<String?>(language),
       'remarks': serializer.toJson<String?>(remarks),
-      'enrolled': serializer.toJson<int?>(enrolled),
-      'withdrawn': serializer.toJson<int?>(withdrawn),
       'syllabusId': serializer.toJson<String?>(syllabusId),
       'syllabusUpdatedAt': serializer.toJson<DateTime?>(syllabusUpdatedAt),
+      'enrolled': serializer.toJson<int?>(enrolled),
+      'withdrawn': serializer.toJson<int?>(withdrawn),
       'objective': serializer.toJson<String?>(objective),
       'weeklyPlan': serializer.toJson<String?>(weeklyPlan),
       'evaluation': serializer.toJson<String?>(evaluation),
       'textbooks': serializer.toJson<String?>(textbooks),
+      'syllabusRemarks': serializer.toJson<String?>(syllabusRemarks),
     };
   }
 
@@ -4234,40 +4289,44 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     int? course,
     int? semester,
     String? number,
-    int? phase,
-    CourseType? courseType,
+    Value<int?> phase = const Value.absent(),
+    Value<CourseType?> courseType = const Value.absent(),
     Value<String?> status = const Value.absent(),
     Value<String?> language = const Value.absent(),
     Value<String?> remarks = const Value.absent(),
-    Value<int?> enrolled = const Value.absent(),
-    Value<int?> withdrawn = const Value.absent(),
     Value<String?> syllabusId = const Value.absent(),
     Value<DateTime?> syllabusUpdatedAt = const Value.absent(),
+    Value<int?> enrolled = const Value.absent(),
+    Value<int?> withdrawn = const Value.absent(),
     Value<String?> objective = const Value.absent(),
     Value<String?> weeklyPlan = const Value.absent(),
     Value<String?> evaluation = const Value.absent(),
     Value<String?> textbooks = const Value.absent(),
+    Value<String?> syllabusRemarks = const Value.absent(),
   }) => CourseOffering(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
     course: course ?? this.course,
     semester: semester ?? this.semester,
     number: number ?? this.number,
-    phase: phase ?? this.phase,
-    courseType: courseType ?? this.courseType,
+    phase: phase.present ? phase.value : this.phase,
+    courseType: courseType.present ? courseType.value : this.courseType,
     status: status.present ? status.value : this.status,
     language: language.present ? language.value : this.language,
     remarks: remarks.present ? remarks.value : this.remarks,
-    enrolled: enrolled.present ? enrolled.value : this.enrolled,
-    withdrawn: withdrawn.present ? withdrawn.value : this.withdrawn,
     syllabusId: syllabusId.present ? syllabusId.value : this.syllabusId,
     syllabusUpdatedAt: syllabusUpdatedAt.present
         ? syllabusUpdatedAt.value
         : this.syllabusUpdatedAt,
+    enrolled: enrolled.present ? enrolled.value : this.enrolled,
+    withdrawn: withdrawn.present ? withdrawn.value : this.withdrawn,
     objective: objective.present ? objective.value : this.objective,
     weeklyPlan: weeklyPlan.present ? weeklyPlan.value : this.weeklyPlan,
     evaluation: evaluation.present ? evaluation.value : this.evaluation,
     textbooks: textbooks.present ? textbooks.value : this.textbooks,
+    syllabusRemarks: syllabusRemarks.present
+        ? syllabusRemarks.value
+        : this.syllabusRemarks,
   );
   CourseOffering copyWithCompanion(CourseOfferingsCompanion data) {
     return CourseOffering(
@@ -4283,14 +4342,14 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       status: data.status.present ? data.status.value : this.status,
       language: data.language.present ? data.language.value : this.language,
       remarks: data.remarks.present ? data.remarks.value : this.remarks,
-      enrolled: data.enrolled.present ? data.enrolled.value : this.enrolled,
-      withdrawn: data.withdrawn.present ? data.withdrawn.value : this.withdrawn,
       syllabusId: data.syllabusId.present
           ? data.syllabusId.value
           : this.syllabusId,
       syllabusUpdatedAt: data.syllabusUpdatedAt.present
           ? data.syllabusUpdatedAt.value
           : this.syllabusUpdatedAt,
+      enrolled: data.enrolled.present ? data.enrolled.value : this.enrolled,
+      withdrawn: data.withdrawn.present ? data.withdrawn.value : this.withdrawn,
       objective: data.objective.present ? data.objective.value : this.objective,
       weeklyPlan: data.weeklyPlan.present
           ? data.weeklyPlan.value
@@ -4299,6 +4358,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           ? data.evaluation.value
           : this.evaluation,
       textbooks: data.textbooks.present ? data.textbooks.value : this.textbooks,
+      syllabusRemarks: data.syllabusRemarks.present
+          ? data.syllabusRemarks.value
+          : this.syllabusRemarks,
     );
   }
 
@@ -4315,14 +4377,15 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           ..write('status: $status, ')
           ..write('language: $language, ')
           ..write('remarks: $remarks, ')
-          ..write('enrolled: $enrolled, ')
-          ..write('withdrawn: $withdrawn, ')
           ..write('syllabusId: $syllabusId, ')
           ..write('syllabusUpdatedAt: $syllabusUpdatedAt, ')
+          ..write('enrolled: $enrolled, ')
+          ..write('withdrawn: $withdrawn, ')
           ..write('objective: $objective, ')
           ..write('weeklyPlan: $weeklyPlan, ')
           ..write('evaluation: $evaluation, ')
-          ..write('textbooks: $textbooks')
+          ..write('textbooks: $textbooks, ')
+          ..write('syllabusRemarks: $syllabusRemarks')
           ..write(')'))
         .toString();
   }
@@ -4339,14 +4402,15 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     status,
     language,
     remarks,
-    enrolled,
-    withdrawn,
     syllabusId,
     syllabusUpdatedAt,
+    enrolled,
+    withdrawn,
     objective,
     weeklyPlan,
     evaluation,
     textbooks,
+    syllabusRemarks,
   );
   @override
   bool operator ==(Object other) =>
@@ -4362,14 +4426,15 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           other.status == this.status &&
           other.language == this.language &&
           other.remarks == this.remarks &&
-          other.enrolled == this.enrolled &&
-          other.withdrawn == this.withdrawn &&
           other.syllabusId == this.syllabusId &&
           other.syllabusUpdatedAt == this.syllabusUpdatedAt &&
+          other.enrolled == this.enrolled &&
+          other.withdrawn == this.withdrawn &&
           other.objective == this.objective &&
           other.weeklyPlan == this.weeklyPlan &&
           other.evaluation == this.evaluation &&
-          other.textbooks == this.textbooks);
+          other.textbooks == this.textbooks &&
+          other.syllabusRemarks == this.syllabusRemarks);
 }
 
 class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
@@ -4378,19 +4443,20 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   final Value<int> course;
   final Value<int> semester;
   final Value<String> number;
-  final Value<int> phase;
-  final Value<CourseType> courseType;
+  final Value<int?> phase;
+  final Value<CourseType?> courseType;
   final Value<String?> status;
   final Value<String?> language;
   final Value<String?> remarks;
-  final Value<int?> enrolled;
-  final Value<int?> withdrawn;
   final Value<String?> syllabusId;
   final Value<DateTime?> syllabusUpdatedAt;
+  final Value<int?> enrolled;
+  final Value<int?> withdrawn;
   final Value<String?> objective;
   final Value<String?> weeklyPlan;
   final Value<String?> evaluation;
   final Value<String?> textbooks;
+  final Value<String?> syllabusRemarks;
   const CourseOfferingsCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
@@ -4402,14 +4468,15 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.status = const Value.absent(),
     this.language = const Value.absent(),
     this.remarks = const Value.absent(),
-    this.enrolled = const Value.absent(),
-    this.withdrawn = const Value.absent(),
     this.syllabusId = const Value.absent(),
     this.syllabusUpdatedAt = const Value.absent(),
+    this.enrolled = const Value.absent(),
+    this.withdrawn = const Value.absent(),
     this.objective = const Value.absent(),
     this.weeklyPlan = const Value.absent(),
     this.evaluation = const Value.absent(),
     this.textbooks = const Value.absent(),
+    this.syllabusRemarks = const Value.absent(),
   });
   CourseOfferingsCompanion.insert({
     this.id = const Value.absent(),
@@ -4417,24 +4484,23 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     required int course,
     required int semester,
     required String number,
-    required int phase,
-    required CourseType courseType,
+    this.phase = const Value.absent(),
+    this.courseType = const Value.absent(),
     this.status = const Value.absent(),
     this.language = const Value.absent(),
     this.remarks = const Value.absent(),
-    this.enrolled = const Value.absent(),
-    this.withdrawn = const Value.absent(),
     this.syllabusId = const Value.absent(),
     this.syllabusUpdatedAt = const Value.absent(),
+    this.enrolled = const Value.absent(),
+    this.withdrawn = const Value.absent(),
     this.objective = const Value.absent(),
     this.weeklyPlan = const Value.absent(),
     this.evaluation = const Value.absent(),
     this.textbooks = const Value.absent(),
+    this.syllabusRemarks = const Value.absent(),
   }) : course = Value(course),
        semester = Value(semester),
-       number = Value(number),
-       phase = Value(phase),
-       courseType = Value(courseType);
+       number = Value(number);
   static Insertable<CourseOffering> custom({
     Expression<int>? id,
     Expression<DateTime>? fetchedAt,
@@ -4446,14 +4512,15 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Expression<String>? status,
     Expression<String>? language,
     Expression<String>? remarks,
-    Expression<int>? enrolled,
-    Expression<int>? withdrawn,
     Expression<String>? syllabusId,
     Expression<DateTime>? syllabusUpdatedAt,
+    Expression<int>? enrolled,
+    Expression<int>? withdrawn,
     Expression<String>? objective,
     Expression<String>? weeklyPlan,
     Expression<String>? evaluation,
     Expression<String>? textbooks,
+    Expression<String>? syllabusRemarks,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -4466,14 +4533,15 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       if (status != null) 'status': status,
       if (language != null) 'language': language,
       if (remarks != null) 'remarks': remarks,
-      if (enrolled != null) 'enrolled': enrolled,
-      if (withdrawn != null) 'withdrawn': withdrawn,
       if (syllabusId != null) 'syllabus_id': syllabusId,
       if (syllabusUpdatedAt != null) 'syllabus_updated_at': syllabusUpdatedAt,
+      if (enrolled != null) 'enrolled': enrolled,
+      if (withdrawn != null) 'withdrawn': withdrawn,
       if (objective != null) 'objective': objective,
       if (weeklyPlan != null) 'weekly_plan': weeklyPlan,
       if (evaluation != null) 'evaluation': evaluation,
       if (textbooks != null) 'textbooks': textbooks,
+      if (syllabusRemarks != null) 'syllabus_remarks': syllabusRemarks,
     });
   }
 
@@ -4483,19 +4551,20 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Value<int>? course,
     Value<int>? semester,
     Value<String>? number,
-    Value<int>? phase,
-    Value<CourseType>? courseType,
+    Value<int?>? phase,
+    Value<CourseType?>? courseType,
     Value<String?>? status,
     Value<String?>? language,
     Value<String?>? remarks,
-    Value<int?>? enrolled,
-    Value<int?>? withdrawn,
     Value<String?>? syllabusId,
     Value<DateTime?>? syllabusUpdatedAt,
+    Value<int?>? enrolled,
+    Value<int?>? withdrawn,
     Value<String?>? objective,
     Value<String?>? weeklyPlan,
     Value<String?>? evaluation,
     Value<String?>? textbooks,
+    Value<String?>? syllabusRemarks,
   }) {
     return CourseOfferingsCompanion(
       id: id ?? this.id,
@@ -4508,14 +4577,15 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       status: status ?? this.status,
       language: language ?? this.language,
       remarks: remarks ?? this.remarks,
-      enrolled: enrolled ?? this.enrolled,
-      withdrawn: withdrawn ?? this.withdrawn,
       syllabusId: syllabusId ?? this.syllabusId,
       syllabusUpdatedAt: syllabusUpdatedAt ?? this.syllabusUpdatedAt,
+      enrolled: enrolled ?? this.enrolled,
+      withdrawn: withdrawn ?? this.withdrawn,
       objective: objective ?? this.objective,
       weeklyPlan: weeklyPlan ?? this.weeklyPlan,
       evaluation: evaluation ?? this.evaluation,
       textbooks: textbooks ?? this.textbooks,
+      syllabusRemarks: syllabusRemarks ?? this.syllabusRemarks,
     );
   }
 
@@ -4542,7 +4612,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     }
     if (courseType.present) {
       map['course_type'] = Variable<String>(
-        $CourseOfferingsTable.$convertercourseType.toSql(courseType.value),
+        $CourseOfferingsTable.$convertercourseTypen.toSql(courseType.value),
       );
     }
     if (status.present) {
@@ -4554,17 +4624,17 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     if (remarks.present) {
       map['remarks'] = Variable<String>(remarks.value);
     }
-    if (enrolled.present) {
-      map['enrolled'] = Variable<int>(enrolled.value);
-    }
-    if (withdrawn.present) {
-      map['withdrawn'] = Variable<int>(withdrawn.value);
-    }
     if (syllabusId.present) {
       map['syllabus_id'] = Variable<String>(syllabusId.value);
     }
     if (syllabusUpdatedAt.present) {
       map['syllabus_updated_at'] = Variable<DateTime>(syllabusUpdatedAt.value);
+    }
+    if (enrolled.present) {
+      map['enrolled'] = Variable<int>(enrolled.value);
+    }
+    if (withdrawn.present) {
+      map['withdrawn'] = Variable<int>(withdrawn.value);
     }
     if (objective.present) {
       map['objective'] = Variable<String>(objective.value);
@@ -4577,6 +4647,9 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     }
     if (textbooks.present) {
       map['textbooks'] = Variable<String>(textbooks.value);
+    }
+    if (syllabusRemarks.present) {
+      map['syllabus_remarks'] = Variable<String>(syllabusRemarks.value);
     }
     return map;
   }
@@ -4594,14 +4667,15 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
           ..write('status: $status, ')
           ..write('language: $language, ')
           ..write('remarks: $remarks, ')
-          ..write('enrolled: $enrolled, ')
-          ..write('withdrawn: $withdrawn, ')
           ..write('syllabusId: $syllabusId, ')
           ..write('syllabusUpdatedAt: $syllabusUpdatedAt, ')
+          ..write('enrolled: $enrolled, ')
+          ..write('withdrawn: $withdrawn, ')
           ..write('objective: $objective, ')
           ..write('weeklyPlan: $weeklyPlan, ')
           ..write('evaluation: $evaluation, ')
-          ..write('textbooks: $textbooks')
+          ..write('textbooks: $textbooks, ')
+          ..write('syllabusRemarks: $syllabusRemarks')
           ..write(')'))
         .toString();
   }
@@ -8773,7 +8847,7 @@ class UserSemesterRankingsCompanion
 class CourseTableSlot extends DataClass {
   final int id;
   final String number;
-  final String? nameZh;
+  final String nameZh;
   final String? nameEn;
   final double credits;
   final int hours;
@@ -8783,7 +8857,7 @@ class CourseTableSlot extends DataClass {
   const CourseTableSlot({
     required this.id,
     required this.number,
-    this.nameZh,
+    required this.nameZh,
     this.nameEn,
     required this.credits,
     required this.hours,
@@ -8799,7 +8873,7 @@ class CourseTableSlot extends DataClass {
     return CourseTableSlot(
       id: serializer.fromJson<int>(json['id']),
       number: serializer.fromJson<String>(json['number']),
-      nameZh: serializer.fromJson<String?>(json['nameZh']),
+      nameZh: serializer.fromJson<String>(json['nameZh']),
       nameEn: serializer.fromJson<String?>(json['nameEn']),
       credits: serializer.fromJson<double>(json['credits']),
       hours: serializer.fromJson<int>(json['hours']),
@@ -8818,7 +8892,7 @@ class CourseTableSlot extends DataClass {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'number': serializer.toJson<String>(number),
-      'nameZh': serializer.toJson<String?>(nameZh),
+      'nameZh': serializer.toJson<String>(nameZh),
       'nameEn': serializer.toJson<String?>(nameEn),
       'credits': serializer.toJson<double>(credits),
       'hours': serializer.toJson<int>(hours),
@@ -8835,7 +8909,7 @@ class CourseTableSlot extends DataClass {
   CourseTableSlot copyWith({
     int? id,
     String? number,
-    Value<String?> nameZh = const Value.absent(),
+    String? nameZh,
     Value<String?> nameEn = const Value.absent(),
     double? credits,
     int? hours,
@@ -8845,7 +8919,7 @@ class CourseTableSlot extends DataClass {
   }) => CourseTableSlot(
     id: id ?? this.id,
     number: number ?? this.number,
-    nameZh: nameZh.present ? nameZh.value : this.nameZh,
+    nameZh: nameZh ?? this.nameZh,
     nameEn: nameEn.present ? nameEn.value : this.nameEn,
     credits: credits ?? this.credits,
     hours: hours ?? this.hours,
@@ -8944,7 +9018,7 @@ class $CourseTableSlotsView
       nameZh: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name_zh'],
-      ),
+      )!,
       nameEn: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name_en'],
@@ -8993,7 +9067,7 @@ class $CourseTableSlotsView
   late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
     'name_zh',
     aliasedName,
-    true,
+    false,
     generatedAs: GeneratedAs(courses.nameZh, false),
     type: DriftSqlType.string,
   );
@@ -10784,10 +10858,10 @@ typedef $$CoursesTableCreateCompanionBuilder =
       required String code,
       required double credits,
       required int hours,
+      required String nameZh,
       Value<String?> nameEn,
-      Value<String?> nameZh,
-      Value<String?> descriptionEn,
       Value<String?> descriptionZh,
+      Value<String?> descriptionEn,
     });
 typedef $$CoursesTableUpdateCompanionBuilder =
     CoursesCompanion Function({
@@ -10796,10 +10870,10 @@ typedef $$CoursesTableUpdateCompanionBuilder =
       Value<String> code,
       Value<double> credits,
       Value<int> hours,
+      Value<String> nameZh,
       Value<String?> nameEn,
-      Value<String?> nameZh,
-      Value<String?> descriptionEn,
       Value<String?> descriptionZh,
+      Value<String?> descriptionEn,
     });
 
 final class $$CoursesTableReferences
@@ -10880,23 +10954,23 @@ class $$CoursesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get nameEn => $composableBuilder(
-    column: $table.nameEn,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<String> get nameZh => $composableBuilder(
     column: $table.nameZh,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get descriptionEn => $composableBuilder(
-    column: $table.descriptionEn,
+  ColumnFilters<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
     builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<String> get descriptionZh => $composableBuilder(
     column: $table.descriptionZh,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get descriptionEn => $composableBuilder(
+    column: $table.descriptionEn,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10985,23 +11059,23 @@ class $$CoursesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get nameEn => $composableBuilder(
-    column: $table.nameEn,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get nameZh => $composableBuilder(
     column: $table.nameZh,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get descriptionEn => $composableBuilder(
-    column: $table.descriptionEn,
+  ColumnOrderings<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
     builder: (column) => ColumnOrderings(column),
   );
 
   ColumnOrderings<String> get descriptionZh => $composableBuilder(
     column: $table.descriptionZh,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get descriptionEn => $composableBuilder(
+    column: $table.descriptionEn,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -11030,19 +11104,19 @@ class $$CoursesTableAnnotationComposer
   GeneratedColumn<int> get hours =>
       $composableBuilder(column: $table.hours, builder: (column) => column);
 
-  GeneratedColumn<String> get nameEn =>
-      $composableBuilder(column: $table.nameEn, builder: (column) => column);
-
   GeneratedColumn<String> get nameZh =>
       $composableBuilder(column: $table.nameZh, builder: (column) => column);
 
-  GeneratedColumn<String> get descriptionEn => $composableBuilder(
-    column: $table.descriptionEn,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get nameEn =>
+      $composableBuilder(column: $table.nameEn, builder: (column) => column);
 
   GeneratedColumn<String> get descriptionZh => $composableBuilder(
     column: $table.descriptionZh,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get descriptionEn => $composableBuilder(
+    column: $table.descriptionEn,
     builder: (column) => column,
   );
 
@@ -11130,20 +11204,20 @@ class $$CoursesTableTableManager
                 Value<String> code = const Value.absent(),
                 Value<double> credits = const Value.absent(),
                 Value<int> hours = const Value.absent(),
+                Value<String> nameZh = const Value.absent(),
                 Value<String?> nameEn = const Value.absent(),
-                Value<String?> nameZh = const Value.absent(),
-                Value<String?> descriptionEn = const Value.absent(),
                 Value<String?> descriptionZh = const Value.absent(),
+                Value<String?> descriptionEn = const Value.absent(),
               }) => CoursesCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
                 code: code,
                 credits: credits,
                 hours: hours,
-                nameEn: nameEn,
                 nameZh: nameZh,
-                descriptionEn: descriptionEn,
+                nameEn: nameEn,
                 descriptionZh: descriptionZh,
+                descriptionEn: descriptionEn,
               ),
           createCompanionCallback:
               ({
@@ -11152,20 +11226,20 @@ class $$CoursesTableTableManager
                 required String code,
                 required double credits,
                 required int hours,
+                required String nameZh,
                 Value<String?> nameEn = const Value.absent(),
-                Value<String?> nameZh = const Value.absent(),
-                Value<String?> descriptionEn = const Value.absent(),
                 Value<String?> descriptionZh = const Value.absent(),
+                Value<String?> descriptionEn = const Value.absent(),
               }) => CoursesCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
                 code: code,
                 credits: credits,
                 hours: hours,
-                nameEn: nameEn,
                 nameZh: nameZh,
-                descriptionEn: descriptionEn,
+                nameEn: nameEn,
                 descriptionZh: descriptionZh,
+                descriptionEn: descriptionEn,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -12939,19 +13013,20 @@ typedef $$CourseOfferingsTableCreateCompanionBuilder =
       required int course,
       required int semester,
       required String number,
-      required int phase,
-      required CourseType courseType,
+      Value<int?> phase,
+      Value<CourseType?> courseType,
       Value<String?> status,
       Value<String?> language,
       Value<String?> remarks,
-      Value<int?> enrolled,
-      Value<int?> withdrawn,
       Value<String?> syllabusId,
       Value<DateTime?> syllabusUpdatedAt,
+      Value<int?> enrolled,
+      Value<int?> withdrawn,
       Value<String?> objective,
       Value<String?> weeklyPlan,
       Value<String?> evaluation,
       Value<String?> textbooks,
+      Value<String?> syllabusRemarks,
     });
 typedef $$CourseOfferingsTableUpdateCompanionBuilder =
     CourseOfferingsCompanion Function({
@@ -12960,19 +13035,20 @@ typedef $$CourseOfferingsTableUpdateCompanionBuilder =
       Value<int> course,
       Value<int> semester,
       Value<String> number,
-      Value<int> phase,
-      Value<CourseType> courseType,
+      Value<int?> phase,
+      Value<CourseType?> courseType,
       Value<String?> status,
       Value<String?> language,
       Value<String?> remarks,
-      Value<int?> enrolled,
-      Value<int?> withdrawn,
       Value<String?> syllabusId,
       Value<DateTime?> syllabusUpdatedAt,
+      Value<int?> enrolled,
+      Value<int?> withdrawn,
       Value<String?> objective,
       Value<String?> weeklyPlan,
       Value<String?> evaluation,
       Value<String?> textbooks,
+      Value<String?> syllabusRemarks,
     });
 
 final class $$CourseOfferingsTableReferences
@@ -13199,7 +13275,7 @@ class $$CourseOfferingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<CourseType, CourseType, String>
+  ColumnWithTypeConverterFilters<CourseType?, CourseType, String>
   get courseType => $composableBuilder(
     column: $table.courseType,
     builder: (column) => ColumnWithTypeConverterFilters(column),
@@ -13220,16 +13296,6 @@ class $$CourseOfferingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get enrolled => $composableBuilder(
-    column: $table.enrolled,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get withdrawn => $composableBuilder(
-    column: $table.withdrawn,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<String> get syllabusId => $composableBuilder(
     column: $table.syllabusId,
     builder: (column) => ColumnFilters(column),
@@ -13237,6 +13303,16 @@ class $$CourseOfferingsTableFilterComposer
 
   ColumnFilters<DateTime> get syllabusUpdatedAt => $composableBuilder(
     column: $table.syllabusUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get enrolled => $composableBuilder(
+    column: $table.enrolled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get withdrawn => $composableBuilder(
+    column: $table.withdrawn,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13257,6 +13333,11 @@ class $$CourseOfferingsTableFilterComposer
 
   ColumnFilters<String> get textbooks => $composableBuilder(
     column: $table.textbooks,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syllabusRemarks => $composableBuilder(
+    column: $table.syllabusRemarks,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13509,16 +13590,6 @@ class $$CourseOfferingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get enrolled => $composableBuilder(
-    column: $table.enrolled,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get withdrawn => $composableBuilder(
-    column: $table.withdrawn,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get syllabusId => $composableBuilder(
     column: $table.syllabusId,
     builder: (column) => ColumnOrderings(column),
@@ -13526,6 +13597,16 @@ class $$CourseOfferingsTableOrderingComposer
 
   ColumnOrderings<DateTime> get syllabusUpdatedAt => $composableBuilder(
     column: $table.syllabusUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get enrolled => $composableBuilder(
+    column: $table.enrolled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get withdrawn => $composableBuilder(
+    column: $table.withdrawn,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -13546,6 +13627,11 @@ class $$CourseOfferingsTableOrderingComposer
 
   ColumnOrderings<String> get textbooks => $composableBuilder(
     column: $table.textbooks,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syllabusRemarks => $composableBuilder(
+    column: $table.syllabusRemarks,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -13617,7 +13703,7 @@ class $$CourseOfferingsTableAnnotationComposer
   GeneratedColumn<int> get phase =>
       $composableBuilder(column: $table.phase, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<CourseType, String> get courseType =>
+  GeneratedColumnWithTypeConverter<CourseType?, String> get courseType =>
       $composableBuilder(
         column: $table.courseType,
         builder: (column) => column,
@@ -13632,12 +13718,6 @@ class $$CourseOfferingsTableAnnotationComposer
   GeneratedColumn<String> get remarks =>
       $composableBuilder(column: $table.remarks, builder: (column) => column);
 
-  GeneratedColumn<int> get enrolled =>
-      $composableBuilder(column: $table.enrolled, builder: (column) => column);
-
-  GeneratedColumn<int> get withdrawn =>
-      $composableBuilder(column: $table.withdrawn, builder: (column) => column);
-
   GeneratedColumn<String> get syllabusId => $composableBuilder(
     column: $table.syllabusId,
     builder: (column) => column,
@@ -13647,6 +13727,12 @@ class $$CourseOfferingsTableAnnotationComposer
     column: $table.syllabusUpdatedAt,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get enrolled =>
+      $composableBuilder(column: $table.enrolled, builder: (column) => column);
+
+  GeneratedColumn<int> get withdrawn =>
+      $composableBuilder(column: $table.withdrawn, builder: (column) => column);
 
   GeneratedColumn<String> get objective =>
       $composableBuilder(column: $table.objective, builder: (column) => column);
@@ -13663,6 +13749,11 @@ class $$CourseOfferingsTableAnnotationComposer
 
   GeneratedColumn<String> get textbooks =>
       $composableBuilder(column: $table.textbooks, builder: (column) => column);
+
+  GeneratedColumn<String> get syllabusRemarks => $composableBuilder(
+    column: $table.syllabusRemarks,
+    builder: (column) => column,
+  );
 
   $$CoursesTableAnnotationComposer get course {
     final $$CoursesTableAnnotationComposer composer = $composerBuilder(
@@ -13908,19 +13999,20 @@ class $$CourseOfferingsTableTableManager
                 Value<int> course = const Value.absent(),
                 Value<int> semester = const Value.absent(),
                 Value<String> number = const Value.absent(),
-                Value<int> phase = const Value.absent(),
-                Value<CourseType> courseType = const Value.absent(),
+                Value<int?> phase = const Value.absent(),
+                Value<CourseType?> courseType = const Value.absent(),
                 Value<String?> status = const Value.absent(),
                 Value<String?> language = const Value.absent(),
                 Value<String?> remarks = const Value.absent(),
-                Value<int?> enrolled = const Value.absent(),
-                Value<int?> withdrawn = const Value.absent(),
                 Value<String?> syllabusId = const Value.absent(),
                 Value<DateTime?> syllabusUpdatedAt = const Value.absent(),
+                Value<int?> enrolled = const Value.absent(),
+                Value<int?> withdrawn = const Value.absent(),
                 Value<String?> objective = const Value.absent(),
                 Value<String?> weeklyPlan = const Value.absent(),
                 Value<String?> evaluation = const Value.absent(),
                 Value<String?> textbooks = const Value.absent(),
+                Value<String?> syllabusRemarks = const Value.absent(),
               }) => CourseOfferingsCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -13932,14 +14024,15 @@ class $$CourseOfferingsTableTableManager
                 status: status,
                 language: language,
                 remarks: remarks,
-                enrolled: enrolled,
-                withdrawn: withdrawn,
                 syllabusId: syllabusId,
                 syllabusUpdatedAt: syllabusUpdatedAt,
+                enrolled: enrolled,
+                withdrawn: withdrawn,
                 objective: objective,
                 weeklyPlan: weeklyPlan,
                 evaluation: evaluation,
                 textbooks: textbooks,
+                syllabusRemarks: syllabusRemarks,
               ),
           createCompanionCallback:
               ({
@@ -13948,19 +14041,20 @@ class $$CourseOfferingsTableTableManager
                 required int course,
                 required int semester,
                 required String number,
-                required int phase,
-                required CourseType courseType,
+                Value<int?> phase = const Value.absent(),
+                Value<CourseType?> courseType = const Value.absent(),
                 Value<String?> status = const Value.absent(),
                 Value<String?> language = const Value.absent(),
                 Value<String?> remarks = const Value.absent(),
-                Value<int?> enrolled = const Value.absent(),
-                Value<int?> withdrawn = const Value.absent(),
                 Value<String?> syllabusId = const Value.absent(),
                 Value<DateTime?> syllabusUpdatedAt = const Value.absent(),
+                Value<int?> enrolled = const Value.absent(),
+                Value<int?> withdrawn = const Value.absent(),
                 Value<String?> objective = const Value.absent(),
                 Value<String?> weeklyPlan = const Value.absent(),
                 Value<String?> evaluation = const Value.absent(),
                 Value<String?> textbooks = const Value.absent(),
+                Value<String?> syllabusRemarks = const Value.absent(),
               }) => CourseOfferingsCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -13972,14 +14066,15 @@ class $$CourseOfferingsTableTableManager
                 status: status,
                 language: language,
                 remarks: remarks,
-                enrolled: enrolled,
-                withdrawn: withdrawn,
                 syllabusId: syllabusId,
                 syllabusUpdatedAt: syllabusUpdatedAt,
+                enrolled: enrolled,
+                withdrawn: withdrawn,
                 objective: objective,
                 weeklyPlan: weeklyPlan,
                 evaluation: evaluation,
                 textbooks: textbooks,
+                syllabusRemarks: syllabusRemarks,
               ),
           withReferenceMapper: (p0) => p0
               .map(
