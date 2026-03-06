@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
@@ -197,15 +196,6 @@ class ProfileScreen extends ConsumerWidget {
                       Column(
                         spacing: 8,
                         children: options,
-                      ),
-
-                      FutureBuilder<PackageInfo>(
-                        future: PackageInfo.fromPlatform(),
-                        builder: (context, snapshot) => ClearNotice(
-                          text: snapshot.hasData
-                              ? "TAT ${snapshot.data!.version} (${snapshot.data!.buildNumber})"
-                              : "TAT",
-                        ),
                       ),
                     ],
                   ),
