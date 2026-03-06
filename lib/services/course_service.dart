@@ -440,7 +440,7 @@ class CourseService {
     final dataRows = tableRows.sublist(2, tableRows.length - 1);
 
     // Parse the table and build a map of course number -> English names
-    // Columns existed in the Chinese page are skipped
+    // Columns also present in the Chinese page are skipped
     final map = <String, _EnglishCourseNames>{};
     for (final row in dataRows) {
       final cells = row.children;
