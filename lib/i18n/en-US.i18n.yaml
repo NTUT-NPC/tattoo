@@ -8,7 +8,7 @@ general:
   ok: OK
 errors:
   occurred: An error occurred
-  flutterError : A Flutter error occurred
+  flutterError: A Flutter error occurred
   asyncError: An async error occurred
   sessionExpired: Session expired. Please sign in again.
   credentialsInvalid: Credentials are no longer valid. Please sign in again.
@@ -68,7 +68,7 @@ profile:
     closedTitle: Bar is currently closed
     closedMessage: "The bar is closed today, come back another time to explore!"
     kickedMessage: "You were kicked out by the staff. Better head home and rest!"
-    fireMessage: "Bar is on fire"
+    fireMessage: Bar is on fire
     alreadyFull: "Already full"
     goAction: "Go to the bar and ${action}"
     actions:
@@ -89,6 +89,5 @@ about:
   helpTranslate: Help us translate TAT!
   viewSource: View source code and contributions
   relatedLinks: Related Links
-  copyright: © 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0
-
+  copyright: '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0'
 
