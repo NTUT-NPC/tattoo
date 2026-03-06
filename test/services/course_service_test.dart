@@ -185,7 +185,7 @@ void main() {
 
         // Verify classroom names are non-empty when present
         final coursesWithClassrooms = coursesWithSchedule.where(
-          (s) => s.schedule!.any((e) => e.$3 != null),
+          (s) => s.schedule!.any((e) => e.classroom != null),
         );
         expect(
           coursesWithClassrooms,

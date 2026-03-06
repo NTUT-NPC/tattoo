@@ -31,11 +31,11 @@ typedef ScheduleDto = ({
   /// List of class/program references this course belongs to.
   List<ReferenceDto>? classes,
 
-  /// Weekly schedule as list of (day, period, classroom) tuples.
+  /// Weekly schedule as list of (day, period, classroom) entries.
   ///
   /// Each entry includes the classroom for that specific timeslot, as some
   /// courses use different rooms for different sessions.
-  List<(DayOfWeek, Period, ReferenceDto?)>? schedule,
+  List<({DayOfWeek day, Period period, ReferenceDto? classroom})>? schedule,
 
   /// Enrollment status for special cases (e.g., "撤選" for withdrawal).
   ///
@@ -277,7 +277,11 @@ class CourseService {
 
     // Build schedule map keyed by course ID from the grid
     final periodRegex = RegExp(r'第 (\S) 節');
-    final scheduleMap = <String, List<(DayOfWeek, Period, ReferenceDto?)>>{};
+    final scheduleMap =
+        <
+          String,
+          List<({DayOfWeek day, Period period, ReferenceDto? classroom})>
+        >{};
 
     for (var rowIndex = 2; rowIndex < timetableRows.length; rowIndex++) {
       final cells = timetableRows[rowIndex].children;
@@ -306,7 +310,11 @@ class CourseService {
             : null;
 
         scheduleMap.putIfAbsent(courseId, () => []);
-        scheduleMap[courseId]!.add((day, period, classroomRef));
+        scheduleMap[courseId]!.add((
+          day: day,
+          period: period,
+          classroom: classroomRef,
+        ));
       }
     }
 

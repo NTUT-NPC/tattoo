@@ -38,38 +38,39 @@ typedef CourseTableCell = ({
 ///
 /// Only the start slot of a multi-period block has an entry; subsequent
 /// slots covered by [CourseTableCell.span] are absent from the map.
-typedef CourseTableData = Map<(DayOfWeek, Period), CourseTableCell>;
+typedef CourseTableData =
+    Map<({DayOfWeek day, Period period}), CourseTableCell>;
 
 /// Derived layout metadata computed from [CourseTableData] keys.
 ///
 /// Used by the course table UI to decide which rows/columns to show.
 extension CourseTableMeta on CourseTableData {
   /// Whether any course falls on a weekday (Mon-Fri).
-  bool get hasWeekdayCourse => keys.any((s) => s.$1.isWeekday);
+  bool get hasWeekdayCourse => keys.any((s) => s.day.isWeekday);
 
   /// Whether any course falls on Saturday.
-  bool get hasSaturdayCourse => keys.any((s) => s.$1 == DayOfWeek.saturday);
+  bool get hasSaturdayCourse => keys.any((s) => s.day == DayOfWeek.saturday);
 
   /// Whether any course falls on Sunday.
-  bool get hasSundayCourse => keys.any((s) => s.$1 == DayOfWeek.sunday);
+  bool get hasSundayCourse => keys.any((s) => s.day == DayOfWeek.sunday);
 
   /// Whether any course falls in the morning period (1-4).
-  bool get hasAMCourse => keys.any((s) => s.$2.isAM);
+  bool get hasAMCourse => keys.any((s) => s.period.isAM);
 
   /// Whether any course falls in the afternoon period (5-9).
-  bool get hasPMCourse => keys.any((s) => s.$2.isPM);
+  bool get hasPMCourse => keys.any((s) => s.period.isPM);
 
   /// Whether any course falls in the evening period (A-D).
-  bool get hasEveningCourse => keys.any((s) => s.$2.isEvening);
+  bool get hasEveningCourse => keys.any((s) => s.period.isEvening);
 
   /// Earliest period that has a course.
   Period get earliestPeriod =>
-      Period.values[keys.map((s) => s.$2.index).reduce(min)];
+      Period.values[keys.map((s) => s.period.index).reduce(min)];
 
   /// Latest period that has a course (accounting for span).
   Period get latestPeriod =>
       Period.values[entries
-          .map((e) => e.key.$2.index + e.value.span - 1)
+          .map((e) => e.key.period.index + e.value.span - 1)
           .reduce(max)];
 
   /// Unique courses by number, for aggregation.
