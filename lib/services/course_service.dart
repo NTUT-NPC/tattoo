@@ -198,15 +198,18 @@ class CourseService {
     // Document structure: table>tr>td>img+a[href]
     final document = parse(response.data);
     final tableAnchors = document.querySelectorAll('table a[href]');
-    final tableLinks = tableAnchors.map((e) => e.attributes['href']).toList();
+    final tableLinks = tableAnchors
+        .map((e) => e.attributes['href'])
+        .whereType<String>()
+        .toList();
 
     // Parse links and extract query parameters
     // Link format: Select.jsp?format=-2&code=111360109&year=114&sem=1
     return tableLinks.map((link) {
-      final queryParams = Uri.parse(link!).queryParameters;
+      final queryParams = Uri.parse(link).queryParameters;
       return (
-        year: int.parse(queryParams['year']!),
-        term: int.parse(queryParams['sem']!),
+        year: int.tryParse(queryParams['year'] ?? ''),
+        term: int.tryParse(queryParams['sem'] ?? ''),
       );
     }).toList();
   }
