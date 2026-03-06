@@ -358,7 +358,11 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
 /// Supports multiple teachers per course offering (team teaching).
 class CourseOfferingTeachers extends Table {
   /// Reference to the course offering.
-  late final courseOffering = integer().references(CourseOfferings, #id)();
+  late final courseOffering = integer().references(
+    CourseOfferings,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Reference to the teacher.
   late final teacher = integer().references(Teachers, #id)();
@@ -372,7 +376,11 @@ class CourseOfferingTeachers extends Table {
 /// A course offering may target multiple classes (e.g., shared courses).
 class CourseOfferingClasses extends Table {
   /// Reference to the course offering.
-  late final courseOffering = integer().references(CourseOfferings, #id)();
+  late final courseOffering = integer().references(
+    CourseOfferings,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Reference to the class/major.
   late final classEntity = integer().references(Classes, #id)();
@@ -386,7 +394,11 @@ class CourseOfferingClasses extends Table {
 /// Represents the enrollment/roster for each course section.
 class CourseOfferingStudents extends Table {
   /// Reference to the course offering.
-  late final courseOffering = integer().references(CourseOfferings, #id)();
+  late final courseOffering = integer().references(
+    CourseOfferings,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Reference to the student.
   late final student = integer().references(Students, #id)();
@@ -402,7 +414,11 @@ class CourseOfferingStudents extends Table {
 @TableIndex(name: 'schedule_course_offering', columns: {#courseOffering})
 class Schedules extends Table with AutoIncrementId {
   /// Reference to the course offering.
-  late final courseOffering = integer().references(CourseOfferings, #id)();
+  late final courseOffering = integer().references(
+    CourseOfferings,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Day of the week for this class session.
   late final dayOfWeek = intEnum<DayOfWeek>()();
@@ -596,7 +612,11 @@ class UserSemesterRankings extends Table {
 @TableIndex(name: 'material_course_offering', columns: {#courseOffering})
 class Materials extends Table with AutoIncrementId {
   /// Reference to the course offering this material belongs to.
-  late final courseOffering = integer().references(CourseOfferings, #id)();
+  late final courseOffering = integer().references(
+    CourseOfferings,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Title/name of the material or resource.
   late final title = text().nullable()();

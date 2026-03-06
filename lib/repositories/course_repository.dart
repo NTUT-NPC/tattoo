@@ -183,8 +183,18 @@ class CourseRepository {
       ),
     );
 
+    final freshNumbers = dtos.map((d) => d.number).nonNulls.toSet();
+
     // Persist to database
     await _database.transaction(() async {
+      // Remove offerings no longer in the response (e.g. dropped courses).
+      // Junction/child rows are cascade-deleted by FK constraints.
+      await (_database.delete(_database.courseOfferings)..where(
+            (o) =>
+                o.semester.equals(semester.id) & o.number.isNotIn(freshNumbers),
+          ))
+          .go();
+
       for (final dto in dtos) {
         if (dto.number == null) continue;
         final courseId = dto.course?.id;
