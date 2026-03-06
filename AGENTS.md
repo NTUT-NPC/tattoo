@@ -4,7 +4,7 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-03-05. If stale (>7 days), verify Status section against codebase.
+**Last updated:** 2026-03-06. If stale (>7 days), verify Status section against codebase.
 
 ## Status
 
@@ -13,7 +13,8 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - PortalService, CourseService, ISchoolPlusService, StudentQueryService, GitHubService
 - Service integration tests
 - Drift database schema
-- AuthRepository, PreferencesRepository, CourseRepository (stubs)
+- AuthRepository, PreferencesRepository
+- CourseRepository: getSemesters, getCourseTable (with TTL caching)
 - Riverpod, go_router, i18n (zh_TW, en_US)
 - UI: intro, login, home (table/score/profile tabs), about, easter egg, ShowcaseShell
 
@@ -21,7 +22,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 - ISchoolPlusService: getCourseAnnouncement, getCourseAnnouncementDetail, courseSubscribe, getCourseSubscribe, getSubscribeNotice
 - CourseService: getDepartmentMap, getCourseCategory
-- CourseService (English): Parse English Course System (`/course/en/`) for English names (courses, teachers, syllabus)
+- CourseService (English): Parse English Course System (`/course/en/`) for English names (syllabus, teacher profiles)
 - StudentQueryService (sa_003_oauth - 學生查詢專區):
   - getGPA (學期及歷年GPA查詢)
   - getMidtermWarnings (期中預警查詢)
@@ -37,7 +38,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 **Todo - Repository Layer:**
 
-- Implement CourseRepository methods (schedules, materials, rosters, caching)
+- Implement remaining CourseRepository methods (materials, rosters, announcements)
 - StudentRepository stub and implementation (grades, GPA, rankings)
 
 **Todo - App:**
@@ -107,7 +108,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 - AuthRepository - User identity, session, profile. Implemented: login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage
 - PreferencesRepository - Typed `PrefKey<T>` enum with SharedPreferencesAsync
-- CourseRepository - Course schedules, catalog, materials, rosters, announcements (stubs only)
+- CourseRepository - Implemented: getSemesters, getCourseTable (with TTL caching, DB persistence, bilingual names). Stubs: getCourseOffering, getCourseDetails, getMaterials, getStudents
 - StudentRepository (TODO) - Grades, GPA, rankings, warnings, graduation status
 - Transform DTOs into relational DB tables
 - Return DTOs or domain models to UI
