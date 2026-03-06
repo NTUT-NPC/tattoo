@@ -39,6 +39,8 @@ abstract class CourseTableSlots extends View {
         courseOfferings.number,
         courses.nameZh,
         courses.nameEn,
+        courses.credits,
+        courses.hours,
         schedules.dayOfWeek,
         schedules.period,
         classrooms.nameZh,

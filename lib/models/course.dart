@@ -1,3 +1,4 @@
+// dart format off
 /// Day of the week for class schedules.
 enum DayOfWeek {
   sunday,
@@ -6,8 +7,11 @@ enum DayOfWeek {
   wednesday,
   thursday,
   friday,
-  saturday,
+  saturday;
+
+  bool get isWeekday => this != sunday && this != saturday;
 }
+// dart format on
 
 // dart format off
 /// Class period within a day, following NTUT's schedule structure.
@@ -35,6 +39,10 @@ enum Period {
 
   final String code;
   const Period(this.code);
+
+  bool get isAM => index <= Period.fourth.index;
+  bool get isPM => index >= Period.fifth.index && index <= Period.ninth.index;
+  bool get isEvening => index >= Period.aPeriod.index;
 }
 
 /// Course type for graduation credit requirements (課程標準).

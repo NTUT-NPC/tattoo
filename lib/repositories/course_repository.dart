@@ -1,5 +1,7 @@
 // ignore_for_file: unused_field
 
+import 'dart:math';
+
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/course.dart';
@@ -24,6 +26,12 @@ typedef CourseTableCell = ({
 
   /// Localized classroom name for this timeslot.
   String? classroomName,
+
+  /// Number of credits for this course.
+  double credits,
+
+  /// Number of class hours per week.
+  int hours,
 });
 
 /// Maps `(dayOfWeek, period)` grid positions to cell data.
@@ -36,35 +44,46 @@ typedef CourseTableData = Map<(DayOfWeek, Period), CourseTableCell>;
 ///
 /// Used by the course table UI to decide which rows/columns to show.
 extension CourseTableMeta on CourseTableData {
-  /// Whether any course falls in the morning period (before noon).
-  bool hasAmCourse() => true;
-
-  /// Whether any course falls in the afternoon period.
-  bool hasPmCourse() => true;
-
-  /// Whether any course falls in the evening period.
-  bool hasNightCourse() => true;
-
-  /// Earliest period that has a course.
-  Period earliestStartSection() => .first;
-
-  /// Latest period that has a course (accounting for span).
-  Period latestEndSection() => .first;
-
-  /// Whether any course falls on a weekday (Mon–Fri).
-  bool hasWeekdayCourse() => true;
+  /// Whether any course falls on a weekday (Mon-Fri).
+  bool get hasWeekdayCourse => keys.any((s) => s.$1.isWeekday);
 
   /// Whether any course falls on Saturday.
-  bool hasSatCourse() => true;
+  bool get hasSaturdayCourse => keys.any((s) => s.$1 == DayOfWeek.saturday);
 
   /// Whether any course falls on Sunday.
-  bool hasSunCourse() => true;
+  bool get hasSundayCourse => keys.any((s) => s.$1 == DayOfWeek.sunday);
+
+  /// Whether any course falls in the morning period (1-4).
+  bool get hasAMCourse => keys.any((s) => s.$2.isAM);
+
+  /// Whether any course falls in the afternoon period (5-9).
+  bool get hasPMCourse => keys.any((s) => s.$2.isPM);
+
+  /// Whether any course falls in the evening period (A-D).
+  bool get hasEveningCourse => keys.any((s) => s.$2.isEvening);
+
+  /// Earliest period that has a course.
+  Period get earliestPeriod =>
+      Period.values[keys.map((s) => s.$2.index).reduce(min)];
+
+  /// Latest period that has a course (accounting for span).
+  Period get latestPeriod =>
+      Period.values[entries
+          .map((e) => e.key.$2.index + e.value.span - 1)
+          .reduce(max)];
+
+  /// Unique courses by number, for aggregation.
+  Iterable<CourseTableCell> get _uniqueCourses {
+    final seen = <String>{};
+    return values.where((cell) => seen.add(cell.number));
+  }
 
   /// Sum of credits across all distinct courses.
-  double totalCredits() => 1.0;
+  double get totalCredits =>
+      _uniqueCourses.fold(0.0, (sum, cell) => sum + cell.credits);
 
   /// Sum of hours across all distinct courses.
-  int totalHours() => 1;
+  int get totalHours => _uniqueCourses.fold(0, (sum, cell) => sum + cell.hours);
 }
 
 /// Provides the [CourseRepository] instance.

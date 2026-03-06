@@ -8775,6 +8775,8 @@ class CourseTableSlot extends DataClass {
   final String number;
   final String? nameZh;
   final String? nameEn;
+  final double credits;
+  final int hours;
   final DayOfWeek dayOfWeek;
   final Period period;
   final String? nameZh1;
@@ -8783,6 +8785,8 @@ class CourseTableSlot extends DataClass {
     required this.number,
     this.nameZh,
     this.nameEn,
+    required this.credits,
+    required this.hours,
     required this.dayOfWeek,
     required this.period,
     this.nameZh1,
@@ -8797,6 +8801,8 @@ class CourseTableSlot extends DataClass {
       number: serializer.fromJson<String>(json['number']),
       nameZh: serializer.fromJson<String?>(json['nameZh']),
       nameEn: serializer.fromJson<String?>(json['nameEn']),
+      credits: serializer.fromJson<double>(json['credits']),
+      hours: serializer.fromJson<int>(json['hours']),
       dayOfWeek: $SchedulesTable.$converterdayOfWeek.fromJson(
         serializer.fromJson<int>(json['dayOfWeek']),
       ),
@@ -8814,6 +8820,8 @@ class CourseTableSlot extends DataClass {
       'number': serializer.toJson<String>(number),
       'nameZh': serializer.toJson<String?>(nameZh),
       'nameEn': serializer.toJson<String?>(nameEn),
+      'credits': serializer.toJson<double>(credits),
+      'hours': serializer.toJson<int>(hours),
       'dayOfWeek': serializer.toJson<int>(
         $SchedulesTable.$converterdayOfWeek.toJson(dayOfWeek),
       ),
@@ -8829,6 +8837,8 @@ class CourseTableSlot extends DataClass {
     String? number,
     Value<String?> nameZh = const Value.absent(),
     Value<String?> nameEn = const Value.absent(),
+    double? credits,
+    int? hours,
     DayOfWeek? dayOfWeek,
     Period? period,
     Value<String?> nameZh1 = const Value.absent(),
@@ -8837,6 +8847,8 @@ class CourseTableSlot extends DataClass {
     number: number ?? this.number,
     nameZh: nameZh.present ? nameZh.value : this.nameZh,
     nameEn: nameEn.present ? nameEn.value : this.nameEn,
+    credits: credits ?? this.credits,
+    hours: hours ?? this.hours,
     dayOfWeek: dayOfWeek ?? this.dayOfWeek,
     period: period ?? this.period,
     nameZh1: nameZh1.present ? nameZh1.value : this.nameZh1,
@@ -8848,6 +8860,8 @@ class CourseTableSlot extends DataClass {
           ..write('number: $number, ')
           ..write('nameZh: $nameZh, ')
           ..write('nameEn: $nameEn, ')
+          ..write('credits: $credits, ')
+          ..write('hours: $hours, ')
           ..write('dayOfWeek: $dayOfWeek, ')
           ..write('period: $period, ')
           ..write('nameZh1: $nameZh1')
@@ -8856,8 +8870,17 @@ class CourseTableSlot extends DataClass {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, number, nameZh, nameEn, dayOfWeek, period, nameZh1);
+  int get hashCode => Object.hash(
+    id,
+    number,
+    nameZh,
+    nameEn,
+    credits,
+    hours,
+    dayOfWeek,
+    period,
+    nameZh1,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8866,6 +8889,8 @@ class CourseTableSlot extends DataClass {
           other.number == this.number &&
           other.nameZh == this.nameZh &&
           other.nameEn == this.nameEn &&
+          other.credits == this.credits &&
+          other.hours == this.hours &&
           other.dayOfWeek == this.dayOfWeek &&
           other.period == this.period &&
           other.nameZh1 == this.nameZh1);
@@ -8890,6 +8915,8 @@ class $CourseTableSlotsView
     number,
     nameZh,
     nameEn,
+    credits,
+    hours,
     dayOfWeek,
     period,
     nameZh1,
@@ -8922,6 +8949,14 @@ class $CourseTableSlotsView
         DriftSqlType.string,
         data['${effectivePrefix}name_en'],
       ),
+      credits: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}credits'],
+      )!,
+      hours: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hours'],
+      )!,
       dayOfWeek: $SchedulesTable.$converterdayOfWeek.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.int,
@@ -8968,6 +9003,20 @@ class $CourseTableSlotsView
     true,
     generatedAs: GeneratedAs(courses.nameEn, false),
     type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<double> credits = GeneratedColumn<double>(
+    'credits',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(courses.credits, false),
+    type: DriftSqlType.double,
+  );
+  late final GeneratedColumn<int> hours = GeneratedColumn<int>(
+    'hours',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(courses.hours, false),
+    type: DriftSqlType.int,
   );
   late final GeneratedColumnWithTypeConverter<DayOfWeek, int> dayOfWeek =
       GeneratedColumn<int>(
