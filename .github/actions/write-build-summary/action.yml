@@ -3,18 +3,18 @@ description: Get commit info and write build information to GitHub Job Summary
 
 inputs:
   title:
-    description: 'Summary title'
+    description: Summary title
     required: true
   build_number:
-    description: 'Build number'
+    description: Build number
     required: true
 
 outputs:
   sha:
-    description: 'Short commit SHA'
+    description: Short commit SHA
     value: ${{ steps.commit.outputs.sha }}
   message:
-    description: 'Commit message'
+    description: Commit message
     value: ${{ steps.commit.outputs.message }}
 
 runs:

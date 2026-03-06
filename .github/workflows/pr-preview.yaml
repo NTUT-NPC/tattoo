@@ -72,7 +72,7 @@ jobs:
         id: summary
         uses: ./.github/actions/write-build-summary
         with:
-          title: "Preview Builds"
+          title: Preview Builds
           build_number: ${{ steps.build-number.outputs.build_number || vars.build_number }}
 
       - name: Find existing comment
@@ -188,7 +188,7 @@ jobs:
         uses: ./.github/actions/android-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
-          type: "firebase"
+          type: firebase
           testing_uri: ${{ steps.upload.outputs.testing_uri }}
 
       - name: Update comment with Android build

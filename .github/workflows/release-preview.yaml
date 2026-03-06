@@ -65,7 +65,7 @@ jobs:
         id: summary
         uses: ./.github/actions/write-build-summary
         with:
-          title: "Release Builds"
+          title: Release Builds
           build_number: ${{ steps.build-number.outputs.build_number }}
 
       - name: Find or create pre-release
@@ -100,7 +100,7 @@ jobs:
       MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
-      PR_TITLE: "Release build"
+      PR_TITLE: Release build
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
       PUBLIC_TESTER: ${{ inputs.public_tester }}
@@ -124,7 +124,7 @@ jobs:
         uses: ./.github/actions/android-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
-          type: "release"
+          type: release
           testing_uri: ${{ steps.upload.outputs.testing_uri }}
 
       - name: Append Android result to pre-release
@@ -160,7 +160,7 @@ jobs:
       APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
-      PR_TITLE: "Release build"
+      PR_TITLE: Release build
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
       PUBLIC_TESTER: ${{ inputs.public_tester }}

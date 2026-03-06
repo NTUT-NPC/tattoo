@@ -3,7 +3,7 @@ description: Write iOS build information to GitHub Job Summary
 
 inputs:
   build_number:
-    description: 'Build number'
+    description: Build number
     required: true
 
 runs:

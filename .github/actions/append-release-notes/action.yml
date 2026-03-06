@@ -3,10 +3,10 @@ description: Appends a section to the pre-release GitHub Release notes
 
 inputs:
   body:
-    description: "Content to append to the pre-release notes"
+    description: Content to append to the pre-release notes
     required: true
   github_token:
-    description: "GitHub token with contents:write permission"
+    description: GitHub token with contents:write permission
     required: true
 
 runs:
