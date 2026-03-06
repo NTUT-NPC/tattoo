@@ -18,8 +18,8 @@ runs:
         GH_TOKEN: ${{ inputs.github_token }}
         BODY: ${{ inputs.body }}
       run: |
-        CURRENT=$(gh release view pre-release --json body -q .body)
+        CURRENT=$(gh release view daily --json body -q .body)
         NOTES_FILE=$(mktemp)
         printf '%s\n\n%s\n' "$CURRENT" "$BODY" > "$NOTES_FILE"
-        gh release edit pre-release --notes-file "$NOTES_FILE"
+        gh release edit daily --notes-file "$NOTES_FILE"
         rm -f "$NOTES_FILE"

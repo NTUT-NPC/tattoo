@@ -62,7 +62,7 @@ platform :ios do
     commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
     commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
     skip_upload = options[:skip_upload].to_s == "true"
-    public_tester = options[:public_tester].to_s == "true" 
+    include_public_tester = options[:include_public_tester].to_s == "true" || ENV["PUBLIC_TESTER"] == "true"
 
     setup_ci if is_ci
 
@@ -108,7 +108,7 @@ platform :ios do
 
     changelog = changelog(pr_number, pr_title, commit_sha, commit_message)
 
-    target_groups = public_tester ? ["Private External Testing", "Public External Testing"] : ["Private External Testing"]
+    target_groups = include_public_tester ? ["Private External Testers", "Public External Testers"] : ["Private External Testers"]
 
     upload_to_testflight(
       changelog: changelog,
@@ -123,12 +123,11 @@ platform :android do
     build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
-    aab_path = flutter_build(
+    flutter_build(
       build: "appbundle",
       build_number: build_number,
       build_args: ["--dart-define=USE_FIREBASE=true"],
     )
-    aab_path
   end
 
   private_lane :upload_firebase do |options|
@@ -136,12 +135,12 @@ platform :android do
     pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
     commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
     commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
-    public_tester = options[:public_tester].to_s == "true" || ENV["PUBLIC_TESTER"].to_s == "true"
+    include_public_tester = options[:include_public_tester].to_s == "true" || ENV["PUBLIC_TESTER"].to_s == "true"
 
     changelog_text = changelog(pr_number, pr_title, commit_sha, commit_message)
     aab_path = options[:aab] || File.expand_path("../build/app/outputs/bundle/release/app-release.aab", __dir__)
 
-    target_groups = public_tester ? ["pub-tester", "dev-tester"] : ["dev-tester"]
+    target_groups = include_public_tester ? ["pub-tester", "dev-tester"] : ["dev-tester"]
 
     release = firebase_app_distribution(
       groups: target_groups,
@@ -193,20 +192,6 @@ platform :android do
 
   desc "Build and upload PR preview to Firebase App Distribution"
   lane :preview do |options|
-    aab = options[:aab]
-    aab ||= build_appbundle(options) unless options[:skip_build].to_s == "true"
-    upload_firebase(options.merge(aab: aab)) unless options[:skip_upload].to_s == "true"
-  end
-
-  desc "Build and upload to Google Play Console"
-  lane :release_googleplay do |options|
-    aab = options[:aab]
-    aab ||= build_appbundle(options) unless options[:skip_build].to_s == "true"
-    upload_playstore(options.merge(aab: aab)) unless options[:skip_upload].to_s == "true"
-  end
-
-  desc "Build and upload to Firebase App Distribution"
-  lane :release_firebase do |options|
     aab = options[:aab]
     aab ||= build_appbundle(options) unless options[:skip_build].to_s == "true"
     upload_firebase(options.merge(aab: aab)) unless options[:skip_upload].to_s == "true"
