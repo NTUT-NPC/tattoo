@@ -265,6 +265,7 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 	@override String get clearPreferences => 'Clear Preferences';
 	@override String get clearUserData => 'Clear User Data';
 	@override String cleared({required Object item}) => '${item} cleared';
+	@override String clearFailed({required Object item}) => 'Failed to clear ${item}';
 	@override late final _TranslationsProfileDangerZoneItemsEnUs items = _TranslationsProfileDangerZoneItemsEnUs._(_root);
 }
 
@@ -392,6 +393,7 @@ extension on TranslationsEnUs {
 			'profile.dangerZone.clearPreferences' => 'Clear Preferences',
 			'profile.dangerZone.clearUserData' => 'Clear User Data',
 			'profile.dangerZone.cleared' => ({required Object item}) => '${item} cleared',
+			'profile.dangerZone.clearFailed' => ({required Object item}) => 'Failed to clear ${item}',
 			'profile.dangerZone.items.cache' => 'Cache',
 			'profile.dangerZone.items.cookies' => 'Cookies',
 			'profile.dangerZone.items.preferences' => 'Preferences',

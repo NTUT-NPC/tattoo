@@ -401,6 +401,9 @@ class TranslationsProfileDangerZoneZhTw {
 	/// zh-TW: '已清除${item}'
 	String cleared({required Object item}) => '已清除${item}';
 
+	/// zh-TW: '清除${item}失敗'
+	String clearFailed({required Object item}) => '清除${item}失敗';
+
 	late final TranslationsProfileDangerZoneItemsZhTw items = TranslationsProfileDangerZoneItemsZhTw.internal(_root);
 }
 
@@ -548,6 +551,7 @@ extension on Translations {
 			'profile.dangerZone.clearPreferences' => '清除偏好設定',
 			'profile.dangerZone.clearUserData' => '清除使用者資料',
 			'profile.dangerZone.cleared' => ({required Object item}) => '已清除${item}',
+			'profile.dangerZone.clearFailed' => ({required Object item}) => '清除${item}失敗',
 			'profile.dangerZone.items.cache' => '快取',
 			'profile.dangerZone.items.cookies' => 'Cookies',
 			'profile.dangerZone.items.preferences' => '偏好設定',

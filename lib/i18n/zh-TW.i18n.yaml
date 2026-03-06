@@ -84,6 +84,7 @@ profile:
     clearPreferences: 清除偏好設定
     clearUserData: 清除使用者資料
     cleared: 已清除${item}
+    clearFailed: 清除${item}失敗
     items:
       cache: 快取
       cookies: Cookies

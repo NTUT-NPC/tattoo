@@ -123,7 +123,16 @@ class ProfileDangerZone extends ConsumerWidget {
     String item,
     Future<void> Function() action,
   ) async {
-    await action();
+    try {
+      await action();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.profile.dangerZone.clearFailed(item: item))),
+        );
+      }
+      return;
+    }
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(t.profile.dangerZone.cleared(item: item))),
