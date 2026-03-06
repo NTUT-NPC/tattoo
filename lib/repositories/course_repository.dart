@@ -7,6 +7,7 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/services/course_service.dart';
 import 'package:tattoo/services/i_school_plus_service.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/utils/fetch_with_ttl.dart';
 import 'package:tattoo/utils/localized.dart';
 
 /// Data for a single cell in the course table grid.
@@ -152,13 +153,29 @@ class CourseRepository {
 
   /// Gets the course schedule for a semester.
   ///
-  /// Use [getCourseOffering] for related data (teachers, classrooms, schedules).
+  /// Returns cached data if fresh (within TTL). Set [refresh] to `true` to
+  /// bypass TTL (pull-to-refresh).
   ///
-  /// Throws [Exception] on network failure.
+  /// Use [getCourseOffering] for related data (teachers, classrooms, schedules).
   Future<CourseTableData> getCourseTable({
     required User user,
     required Semester semester,
+    bool refresh = false,
   }) async {
+    final cached = await _buildCourseTableData(semester.id);
+
+    return fetchWithTtl(
+      cached: cached.isEmpty ? null : cached,
+      getFetchedAt: (_) => semester.courseTableFetchedAt,
+      fetchFromNetwork: () => _fetchCourseTableFromNetwork(user, semester),
+      refresh: refresh,
+    );
+  }
+
+  Future<CourseTableData> _fetchCourseTableFromNetwork(
+    User user,
+    Semester semester,
+  ) async {
     final dtos = await _authRepository.withAuth(
       () => _courseService.getCourseTable(
         username: user.studentId,
@@ -269,13 +286,24 @@ class CourseRepository {
           }
         }
       }
+
+      // Update the fetch timestamp on the semester
+      await (_database.update(
+        _database.semesters,
+      )..where((s) => s.id.equals(semester.id))).write(
+        SemestersCompanion(
+          courseTableFetchedAt: Value(DateTime.now()),
+        ),
+      );
     });
 
-    // Query view and build CourseTableData
+    return _buildCourseTableData(semester.id);
+  }
+
+  Future<CourseTableData> _buildCourseTableData(int semesterId) async {
     final rows = await (_database.select(
       _database.courseTableSlots,
-    )..where((s) => s.semester.equals(semester.id))).get();
-
+    )..where((s) => s.semester.equals(semesterId))).get();
     final data = CourseTableData();
 
     for (final row in rows) {

@@ -1106,8 +1106,19 @@ class $SemestersTable extends Semesters
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _courseTableFetchedAtMeta =
+      const VerificationMeta('courseTableFetchedAt');
   @override
-  List<GeneratedColumn> get $columns => [id, year, term];
+  late final GeneratedColumn<DateTime> courseTableFetchedAt =
+      GeneratedColumn<DateTime>(
+        'course_table_fetched_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [id, year, term, courseTableFetchedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1139,6 +1150,15 @@ class $SemestersTable extends Semesters
     } else if (isInserting) {
       context.missing(_termMeta);
     }
+    if (data.containsKey('course_table_fetched_at')) {
+      context.handle(
+        _courseTableFetchedAtMeta,
+        courseTableFetchedAt.isAcceptableOrUnknown(
+          data['course_table_fetched_at']!,
+          _courseTableFetchedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1164,6 +1184,10 @@ class $SemestersTable extends Semesters
         DriftSqlType.int,
         data['${effectivePrefix}term'],
       )!,
+      courseTableFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}course_table_fetched_at'],
+      ),
     );
   }
 
@@ -1182,13 +1206,24 @@ class Semester extends DataClass implements Insertable<Semester> {
 
   /// Term number within the year (0=Pre-study, 1=Fall, 2=Spring, 3=Summer).
   final int term;
-  const Semester({required this.id, required this.year, required this.term});
+
+  /// When the course table was last fetched from the server for this semester.
+  final DateTime? courseTableFetchedAt;
+  const Semester({
+    required this.id,
+    required this.year,
+    required this.term,
+    this.courseTableFetchedAt,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['year'] = Variable<int>(year);
     map['term'] = Variable<int>(term);
+    if (!nullToAbsent || courseTableFetchedAt != null) {
+      map['course_table_fetched_at'] = Variable<DateTime>(courseTableFetchedAt);
+    }
     return map;
   }
 
@@ -1197,6 +1232,9 @@ class Semester extends DataClass implements Insertable<Semester> {
       id: Value(id),
       year: Value(year),
       term: Value(term),
+      courseTableFetchedAt: courseTableFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(courseTableFetchedAt),
     );
   }
 
@@ -1209,6 +1247,9 @@ class Semester extends DataClass implements Insertable<Semester> {
       id: serializer.fromJson<int>(json['id']),
       year: serializer.fromJson<int>(json['year']),
       term: serializer.fromJson<int>(json['term']),
+      courseTableFetchedAt: serializer.fromJson<DateTime?>(
+        json['courseTableFetchedAt'],
+      ),
     );
   }
   @override
@@ -1218,19 +1259,33 @@ class Semester extends DataClass implements Insertable<Semester> {
       'id': serializer.toJson<int>(id),
       'year': serializer.toJson<int>(year),
       'term': serializer.toJson<int>(term),
+      'courseTableFetchedAt': serializer.toJson<DateTime?>(
+        courseTableFetchedAt,
+      ),
     };
   }
 
-  Semester copyWith({int? id, int? year, int? term}) => Semester(
+  Semester copyWith({
+    int? id,
+    int? year,
+    int? term,
+    Value<DateTime?> courseTableFetchedAt = const Value.absent(),
+  }) => Semester(
     id: id ?? this.id,
     year: year ?? this.year,
     term: term ?? this.term,
+    courseTableFetchedAt: courseTableFetchedAt.present
+        ? courseTableFetchedAt.value
+        : this.courseTableFetchedAt,
   );
   Semester copyWithCompanion(SemestersCompanion data) {
     return Semester(
       id: data.id.present ? data.id.value : this.id,
       year: data.year.present ? data.year.value : this.year,
       term: data.term.present ? data.term.value : this.term,
+      courseTableFetchedAt: data.courseTableFetchedAt.present
+          ? data.courseTableFetchedAt.value
+          : this.courseTableFetchedAt,
     );
   }
 
@@ -1239,46 +1294,54 @@ class Semester extends DataClass implements Insertable<Semester> {
     return (StringBuffer('Semester(')
           ..write('id: $id, ')
           ..write('year: $year, ')
-          ..write('term: $term')
+          ..write('term: $term, ')
+          ..write('courseTableFetchedAt: $courseTableFetchedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, year, term);
+  int get hashCode => Object.hash(id, year, term, courseTableFetchedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Semester &&
           other.id == this.id &&
           other.year == this.year &&
-          other.term == this.term);
+          other.term == this.term &&
+          other.courseTableFetchedAt == this.courseTableFetchedAt);
 }
 
 class SemestersCompanion extends UpdateCompanion<Semester> {
   final Value<int> id;
   final Value<int> year;
   final Value<int> term;
+  final Value<DateTime?> courseTableFetchedAt;
   const SemestersCompanion({
     this.id = const Value.absent(),
     this.year = const Value.absent(),
     this.term = const Value.absent(),
+    this.courseTableFetchedAt = const Value.absent(),
   });
   SemestersCompanion.insert({
     this.id = const Value.absent(),
     required int year,
     required int term,
+    this.courseTableFetchedAt = const Value.absent(),
   }) : year = Value(year),
        term = Value(term);
   static Insertable<Semester> custom({
     Expression<int>? id,
     Expression<int>? year,
     Expression<int>? term,
+    Expression<DateTime>? courseTableFetchedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (year != null) 'year': year,
       if (term != null) 'term': term,
+      if (courseTableFetchedAt != null)
+        'course_table_fetched_at': courseTableFetchedAt,
     });
   }
 
@@ -1286,11 +1349,13 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
     Value<int>? id,
     Value<int>? year,
     Value<int>? term,
+    Value<DateTime?>? courseTableFetchedAt,
   }) {
     return SemestersCompanion(
       id: id ?? this.id,
       year: year ?? this.year,
       term: term ?? this.term,
+      courseTableFetchedAt: courseTableFetchedAt ?? this.courseTableFetchedAt,
     );
   }
 
@@ -1306,6 +1371,11 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
     if (term.present) {
       map['term'] = Variable<int>(term.value);
     }
+    if (courseTableFetchedAt.present) {
+      map['course_table_fetched_at'] = Variable<DateTime>(
+        courseTableFetchedAt.value,
+      );
+    }
     return map;
   }
 
@@ -1314,7 +1384,8 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
     return (StringBuffer('SemestersCompanion(')
           ..write('id: $id, ')
           ..write('year: $year, ')
-          ..write('term: $term')
+          ..write('term: $term, ')
+          ..write('courseTableFetchedAt: $courseTableFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -10370,12 +10441,14 @@ typedef $$SemestersTableCreateCompanionBuilder =
       Value<int> id,
       required int year,
       required int term,
+      Value<DateTime?> courseTableFetchedAt,
     });
 typedef $$SemestersTableUpdateCompanionBuilder =
     SemestersCompanion Function({
       Value<int> id,
       Value<int> year,
       Value<int> term,
+      Value<DateTime?> courseTableFetchedAt,
     });
 
 final class $$SemestersTableReferences
@@ -10493,6 +10566,11 @@ class $$SemestersTableFilterComposer
 
   ColumnFilters<int> get term => $composableBuilder(
     column: $table.term,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get courseTableFetchedAt => $composableBuilder(
+    column: $table.courseTableFetchedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10621,6 +10699,11 @@ class $$SemestersTableOrderingComposer
     column: $table.term,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get courseTableFetchedAt => $composableBuilder(
+    column: $table.courseTableFetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SemestersTableAnnotationComposer
@@ -10640,6 +10723,11 @@ class $$SemestersTableAnnotationComposer
 
   GeneratedColumn<int> get term =>
       $composableBuilder(column: $table.term, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get courseTableFetchedAt => $composableBuilder(
+    column: $table.courseTableFetchedAt,
+    builder: (column) => column,
+  );
 
   Expression<T> teachersRefs<T extends Object>(
     Expression<T> Function($$TeachersTableAnnotationComposer a) f,
@@ -10779,13 +10867,25 @@ class $$SemestersTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> year = const Value.absent(),
                 Value<int> term = const Value.absent(),
-              }) => SemestersCompanion(id: id, year: year, term: term),
+                Value<DateTime?> courseTableFetchedAt = const Value.absent(),
+              }) => SemestersCompanion(
+                id: id,
+                year: year,
+                term: term,
+                courseTableFetchedAt: courseTableFetchedAt,
+              ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required int year,
                 required int term,
-              }) => SemestersCompanion.insert(id: id, year: year, term: term),
+                Value<DateTime?> courseTableFetchedAt = const Value.absent(),
+              }) => SemestersCompanion.insert(
+                id: id,
+                year: year,
+                term: term,
+                courseTableFetchedAt: courseTableFetchedAt,
+              ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
