@@ -32,18 +32,21 @@ abstract class CourseTableSlots extends View {
   Courses get courses;
   Classrooms get classrooms;
 
+  Expression<String> get classroomNameZh => classrooms.nameZh;
+
   @override
   Query as() =>
       select([
         courseOfferings.id,
         courseOfferings.number,
+        courseOfferings.semester,
         courses.nameZh,
         courses.nameEn,
         courses.credits,
         courses.hours,
         schedules.dayOfWeek,
         schedules.period,
-        classrooms.nameZh,
+        classroomNameZh,
       ]).from(schedules).join([
         innerJoin(
           courseOfferings,

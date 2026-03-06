@@ -243,6 +243,11 @@ class Classes extends Table with AutoIncrementId, Fetchable {
 
   /// Class name in Traditional Chinese (e.g., "電子四甲").
   late final nameZh = text().unique()();
+
+  /// Class name in English (e.g., "4EN4A").
+  ///
+  /// Not a [Fetchable] field — populated from the English course page.
+  late final nameEn = text().nullable()();
 }
 
 /// Classroom/location information in a particular semester.

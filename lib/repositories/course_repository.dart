@@ -1,11 +1,13 @@
 import 'dart:math';
 
+import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/services/course_service.dart';
 import 'package:tattoo/services/i_school_plus_service.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/utils/localized.dart';
 
 /// Data for a single cell in the course table grid.
 typedef CourseTableCell = ({
@@ -157,7 +159,186 @@ class CourseRepository {
     required User user,
     required Semester semester,
   }) async {
-    throw UnimplementedError();
+    final dtos = await _authRepository.withAuth(
+      () => _courseService.getCourseTable(
+        username: user.studentId,
+        semester: (year: semester.year, term: semester.term),
+      ),
+    );
+
+    // Persist to database
+    await _database.transaction(() async {
+      for (final dto in dtos) {
+        if (dto.number == null) continue;
+        final courseId = dto.course?.id;
+        final courseNameZh = dto.course?.nameZh;
+        if (courseId == null || courseNameZh == null) continue;
+
+        final dbCourseId = await _database.upsertCourse(
+          code: courseId,
+          credits: dto.credits ?? 0,
+          hours: dto.hours ?? 0,
+          nameZh: courseNameZh,
+          nameEn: dto.course?.nameEn,
+        );
+
+        final offeringId = await _database.upsertCourseOffering(
+          courseId: dbCourseId,
+          semesterId: semester.id,
+          number: dto.number!,
+          phase: dto.phase,
+          status: dto.status,
+          language: dto.language,
+          remarks: dto.remarks,
+          syllabusId: dto.syllabusId,
+        );
+
+        // Clear old junctions and schedules for this offering
+        await (_database.delete(
+          _database.courseOfferingTeachers,
+        )..where((t) => t.courseOffering.equals(offeringId))).go();
+        await (_database.delete(
+          _database.courseOfferingClasses,
+        )..where((t) => t.courseOffering.equals(offeringId))).go();
+        await (_database.delete(
+          _database.schedules,
+        )..where((t) => t.courseOffering.equals(offeringId))).go();
+
+        // Teacher
+        if (dto.teacher case LocalizedRefDto(:final id?, :final nameZh?)) {
+          final teacherId = await _database.upsertTeacher(
+            code: id,
+            semesterId: semester.id,
+            nameZh: nameZh,
+            nameEn: dto.teacher?.nameEn,
+          );
+          await _database
+              .into(_database.courseOfferingTeachers)
+              .insert(
+                CourseOfferingTeachersCompanion.insert(
+                  courseOffering: offeringId,
+                  teacher: teacherId,
+                ),
+                mode: .insertOrIgnore,
+              );
+        }
+
+        // Classes
+        if (dto.classes case final classes?) {
+          for (final c in classes) {
+            if (c case LocalizedRefDto(:final id?, :final nameZh?)) {
+              final classId = await _database.upsertClass(
+                code: id,
+                nameZh: nameZh,
+                nameEn: c.nameEn,
+              );
+              await _database
+                  .into(_database.courseOfferingClasses)
+                  .insert(
+                    CourseOfferingClassesCompanion.insert(
+                      courseOffering: offeringId,
+                      classEntity: classId,
+                    ),
+                    mode: .insertOrIgnore,
+                  );
+            }
+          }
+        }
+
+        // Schedules
+        if (dto.schedule case final slots?) {
+          for (final slot in slots) {
+            int? classroomId;
+            if (slot.classroom case (id: final id?, name: final name?)) {
+              classroomId = await _database.upsertClassroom(
+                code: id,
+                nameZh: name,
+              );
+            }
+            await _database
+                .into(_database.schedules)
+                .insert(
+                  SchedulesCompanion.insert(
+                    courseOffering: offeringId,
+                    dayOfWeek: slot.day,
+                    period: slot.period,
+                    classroom: Value(classroomId),
+                  ),
+                  mode: .insertOrReplace,
+                );
+          }
+        }
+      }
+    });
+
+    // Query view and build CourseTableData
+    final rows = await (_database.select(
+      _database.courseTableSlots,
+    )..where((s) => s.semester.equals(semester.id))).get();
+
+    final data = CourseTableData();
+
+    for (final row in rows) {
+      final key = (day: row.dayOfWeek, period: row.period);
+      if (data.containsKey(key)) continue;
+
+      data[key] = (
+        id: row.id,
+        number: row.number,
+        span: 1,
+        courseName: localized(row.nameZh, row.nameEn),
+        classroomName: row.classroomNameZh,
+        credits: row.credits,
+        hours: row.hours,
+      );
+    }
+
+    // Compute spans: for each slot, look ahead at consecutive periods on the
+    // same day. Matching courses get marked span=0 (consumed), and the starting
+    // slot gets the total span. Consumed slots are removed at the end.
+    for (final entry in data.entries.toList()) {
+      if (entry.value.span == 0) continue;
+      var span = 1;
+      while (true) {
+        final nextPeriodIndex = entry.key.period.index + span;
+        if (nextPeriodIndex >= Period.values.length) break;
+        final nextKey = (
+          day: entry.key.day,
+          period: Period.values[nextPeriodIndex],
+        );
+        if (data[nextKey] case final next?
+            when next.number == entry.value.number) {
+          data[nextKey] = (
+            id: next.id,
+            number: next.number,
+            span: 0,
+            courseName: next.courseName,
+            classroomName: next.classroomName,
+            credits: next.credits,
+            hours: next.hours,
+          );
+          span++;
+        } else {
+          break;
+        }
+      }
+      if (span > 1) {
+        data[entry.key] = (
+          id: entry.value.id,
+          number: entry.value.number,
+          span: span,
+          courseName: entry.value.courseName,
+          classroomName: entry.value.classroomName,
+          credits: entry.value.credits,
+          hours: entry.value.hours,
+        );
+      }
+    }
+
+    // Remove consumed slots (span == 0)
+    data.removeWhere((_, cell) => cell.span == 0);
+
+    return data;
   }
 
   /// Gets a course offering with related data (teachers, classrooms, schedules).
