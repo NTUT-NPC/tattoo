@@ -60,6 +60,9 @@ extension CourseTableMeta on CourseTableData {
   /// Whether any course falls in the afternoon period (5-9).
   bool get hasPMCourse => keys.any((s) => s.period.isPM);
 
+  /// Whether any course falls in the noon period (N).
+  bool get hasNoonCourse => keys.any((s) => s.period == Period.nPeriod);
+
   /// Whether any course falls in the evening period (A-D).
   bool get hasEveningCourse => keys.any((s) => s.period.isEvening);
 
