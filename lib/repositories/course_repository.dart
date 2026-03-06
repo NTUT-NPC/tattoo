@@ -6,6 +6,7 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/services/course_service.dart';
 import 'package:tattoo/services/i_school_plus_service.dart';
 import 'package:tattoo/services/portal_service.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 
 /// Data for a single cell in the course table grid.
 typedef CourseTableCell = ({
@@ -73,6 +74,7 @@ final courseRepositoryProvider = Provider<CourseRepository>((ref) {
     courseService: ref.watch(courseServiceProvider),
     iSchoolPlusService: ref.watch(iSchoolPlusServiceProvider),
     database: ref.watch(databaseProvider),
+    authRepository: ref.watch(authRepositoryProvider),
   );
 });
 
@@ -82,11 +84,11 @@ final courseRepositoryProvider = Provider<CourseRepository>((ref) {
 /// final repo = ref.watch(courseRepositoryProvider);
 ///
 /// // Get available semesters
-/// final semesters = await repo.getSemesters('111360109');
+/// final semesters = await repo.getSemesters(user);
 ///
 /// // Get course schedule for a semester
 /// final courses = await repo.getCourseTable(
-///   username: '111360109',
+///   user: user,
 ///   semester: semesters.first,
 /// );
 ///
@@ -98,22 +100,36 @@ class CourseRepository {
   final CourseService _courseService;
   final ISchoolPlusService _iSchoolPlusService;
   final AppDatabase _database;
+  final AuthRepository _authRepository;
 
   CourseRepository({
     required PortalService portalService,
     required CourseService courseService,
     required ISchoolPlusService iSchoolPlusService,
     required AppDatabase database,
+    required AuthRepository authRepository,
   }) : _portalService = portalService,
        _courseService = courseService,
        _iSchoolPlusService = iSchoolPlusService,
-       _database = database;
+       _database = database,
+       _authRepository = authRepository;
 
   /// Gets available semesters for a student.
-  ///
-  /// Throws [Exception] on network failure.
-  Future<List<Semester>> getSemesters(String username) async {
-    throw UnimplementedError();
+  Future<List<Semester>> getSemesters(User user) async {
+    final dtos = await _authRepository.withAuth(
+      () => _courseService.getCourseSemesterList(user.studentId),
+    );
+
+    final semesters = await Future.wait(
+      dtos.map((dto) async {
+        if (dto case (year: final year?, term: final term?)) {
+          final id = await _database.getOrCreateSemester(year, term);
+          return Semester(id: id, year: year, term: term);
+        }
+      }),
+    );
+
+    return semesters.nonNulls.toList();
   }
 
   /// Gets the course schedule for a semester.
@@ -122,7 +138,7 @@ class CourseRepository {
   ///
   /// Throws [Exception] on network failure.
   Future<CourseTableData> getCourseTable({
-    required String username,
+    required User user,
     required Semester semester,
   }) async {
     throw UnimplementedError();
