@@ -3,14 +3,14 @@ description: Write Android build information to GitHub Job Summary
 
 inputs:
   build_number:
-    description: Build number
+    description: 'Build number'
     required: true
   type:
-    description: "Distribution type: firebase, playstore, or release (both)"
+    description: 'Distribution type: firebase, playstore, or release (both)'
     required: true
-    default: firebase
+    default: 'firebase'
   testing_uri:
-    description: Install URI (required for firebase)
+    description: 'Install URI (required for firebase)'
     required: false
 
 runs:

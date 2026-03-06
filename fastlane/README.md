@@ -52,22 +52,6 @@ Build the Android App Bundle
 
 Build and upload PR preview to Firebase App Distribution
 
-### android release_googleplay
-
-```sh
-[bundle exec] fastlane android release_googleplay
-```
-
-Build and upload to Google Play Console
-
-### android release_firebase
-
-```sh
-[bundle exec] fastlane android release_firebase
-```
-
-Build and upload to Firebase App Distribution
-
 ### android release
 
 ```sh

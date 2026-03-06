@@ -3,15 +3,15 @@ description: Determine the target ref for checkout based on inputs and context
 
 inputs:
   branch_name:
-    description: Specific branch to build from HEAD
+    description: 'Specific branch to build from HEAD'
     required: false
   commit_sha:
-    description: Specific commit SHA to build
+    description: 'Specific commit SHA to build'
     required: false
 
 outputs:
   ref:
-    description: The resolved ref
+    description: 'The resolved ref'
     value: ${{ steps.set-ref.outputs.ref }}
 
 runs:
