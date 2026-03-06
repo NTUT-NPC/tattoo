@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
@@ -137,6 +139,7 @@ class CourseTableGrid extends StatelessWidget {
 
   List<Widget> _buildCourseBlocks() {
     final columnWidth = (viewportWidth! - _stubWidth) / _weekDays.length;
+    final random = Random();
     const blockColors = <Color>[
       Colors.blue,
       Colors.green,
@@ -161,6 +164,10 @@ class CourseTableGrid extends StatelessWidget {
       final blockTop = startIndex * _periodRowHeight;
       final blockLeft = _stubWidth + (dayIndex * columnWidth);
       final blockHeight = (endIndex - startIndex + 1) * _periodRowHeight;
+      final delayMs = 50 + random.nextInt(101);
+      const riseDurationMs = 350;
+      final totalDurationMs = riseDurationMs + delayMs;
+      final startAt = delayMs / totalDurationMs;
 
       blocks.add(
         Positioned(
@@ -171,9 +178,23 @@ class CourseTableGrid extends StatelessWidget {
             height: blockHeight,
             child: Padding(
               padding: const EdgeInsets.all(2),
-              child: CourseTableBlock(
-                courseBlock: course,
-                blockColor: blockColors[i % blockColors.length],
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 1, end: 0),
+                duration: Duration(milliseconds: totalDurationMs),
+                curve: Interval(startAt, 1, curve: Curves.easeOutCubic),
+                builder: (context, t, child) {
+                  return Opacity(
+                    opacity: 1 - t,
+                    child: Transform.translate(
+                      offset: Offset(0, 16 * t),
+                      child: child,
+                    ),
+                  );
+                },
+                child: CourseTableBlock(
+                  courseBlock: course,
+                  blockColor: blockColors[i % blockColors.length],
+                ),
               ),
             ),
           ),
