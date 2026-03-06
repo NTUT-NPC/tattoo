@@ -79,6 +79,17 @@ profile:
       - 點 1 份 asdfghjkl
       - 點 1 碗炒飯
       - 跑進吧檯被店員拖出去
+    clearCache: 清除快取
+    clearCookies: 清除 Cookies
+    clearPreferences: 清除偏好設定
+    clearUserData: 清除使用者資料
+    cleared: 已清除${item}
+    clearFailed: 清除${item}失敗
+    items:
+      cache: 快取
+      cookies: Cookies
+      preferences: 偏好設定
+      userData: 使用者資料
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學

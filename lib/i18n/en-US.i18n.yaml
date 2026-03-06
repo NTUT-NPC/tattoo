@@ -79,6 +79,17 @@ profile:
       - order 1 asdfghjkl
       - order 1 bowl of fried rice
       - get kicked out by the staff
+    clearCache: Clear Cache
+    clearCookies: Clear Cookies
+    clearPreferences: Clear Preferences
+    clearUserData: Clear User Data
+    cleared: ${item} cleared
+    clearFailed: Failed to clear ${item}
+    items:
+      cache: Cache
+      cookies: Cookies
+      preferences: Preferences
+      userData: User data
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence

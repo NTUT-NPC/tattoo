@@ -260,6 +260,13 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 		'order 1 bowl of fried rice',
 		'get kicked out by the staff',
 	];
+	@override String get clearCache => 'Clear Cache';
+	@override String get clearCookies => 'Clear Cookies';
+	@override String get clearPreferences => 'Clear Preferences';
+	@override String get clearUserData => 'Clear User Data';
+	@override String cleared({required Object item}) => '${item} cleared';
+	@override String clearFailed({required Object item}) => 'Failed to clear ${item}';
+	@override late final _TranslationsProfileDangerZoneItemsEnUs items = _TranslationsProfileDangerZoneItemsEnUs._(_root);
 }
 
 // Path: intro.features.courseTable
@@ -293,6 +300,19 @@ class _TranslationsIntroFeaturesCampusLifeEnUs extends TranslationsIntroFeatures
 	// Translations
 	@override String get title => 'Campus Life';
 	@override String get description => 'Access campus life information, with more features coming soon.';
+}
+
+// Path: profile.dangerZone.items
+class _TranslationsProfileDangerZoneItemsEnUs extends TranslationsProfileDangerZoneItemsZhTw {
+	_TranslationsProfileDangerZoneItemsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get cache => 'Cache';
+	@override String get cookies => 'Cookies';
+	@override String get preferences => 'Preferences';
+	@override String get userData => 'User data';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -368,6 +388,16 @@ extension on TranslationsEnUs {
 			'profile.dangerZone.actions.4' => 'order 1 asdfghjkl',
 			'profile.dangerZone.actions.5' => 'order 1 bowl of fried rice',
 			'profile.dangerZone.actions.6' => 'get kicked out by the staff',
+			'profile.dangerZone.clearCache' => 'Clear Cache',
+			'profile.dangerZone.clearCookies' => 'Clear Cookies',
+			'profile.dangerZone.clearPreferences' => 'Clear Preferences',
+			'profile.dangerZone.clearUserData' => 'Clear User Data',
+			'profile.dangerZone.cleared' => ({required Object item}) => '${item} cleared',
+			'profile.dangerZone.clearFailed' => ({required Object item}) => 'Failed to clear ${item}',
+			'profile.dangerZone.items.cache' => 'Cache',
+			'profile.dangerZone.items.cookies' => 'Cookies',
+			'profile.dangerZone.items.preferences' => 'Preferences',
+			'profile.dangerZone.items.userData' => 'User data',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',

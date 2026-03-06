@@ -385,6 +385,26 @@ class TranslationsProfileDangerZoneZhTw {
 		'點 1 碗炒飯',
 		'跑進吧檯被店員拖出去',
 	];
+
+	/// zh-TW: '清除快取'
+	String get clearCache => '清除快取';
+
+	/// zh-TW: '清除 Cookies'
+	String get clearCookies => '清除 Cookies';
+
+	/// zh-TW: '清除偏好設定'
+	String get clearPreferences => '清除偏好設定';
+
+	/// zh-TW: '清除使用者資料'
+	String get clearUserData => '清除使用者資料';
+
+	/// zh-TW: '已清除${item}'
+	String cleared({required Object item}) => '已清除${item}';
+
+	/// zh-TW: '清除${item}失敗'
+	String clearFailed({required Object item}) => '清除${item}失敗';
+
+	late final TranslationsProfileDangerZoneItemsZhTw items = TranslationsProfileDangerZoneItemsZhTw.internal(_root);
 }
 
 // Path: intro.features.courseTable
@@ -430,6 +450,27 @@ class TranslationsIntroFeaturesCampusLifeZhTw {
 
 	/// zh-TW: '彙整其他校園生活資訊，更多功能敬請期待。'
 	String get description => '彙整其他校園生活資訊，更多功能敬請期待。';
+}
+
+// Path: profile.dangerZone.items
+class TranslationsProfileDangerZoneItemsZhTw {
+	TranslationsProfileDangerZoneItemsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '快取'
+	String get cache => '快取';
+
+	/// zh-TW: 'Cookies'
+	String get cookies => 'Cookies';
+
+	/// zh-TW: '偏好設定'
+	String get preferences => '偏好設定';
+
+	/// zh-TW: '使用者資料'
+	String get userData => '使用者資料';
 }
 
 /// The flat map containing all translations for locale <zh-TW>.
@@ -505,6 +546,16 @@ extension on Translations {
 			'profile.dangerZone.actions.4' => '點 1 份 asdfghjkl',
 			'profile.dangerZone.actions.5' => '點 1 碗炒飯',
 			'profile.dangerZone.actions.6' => '跑進吧檯被店員拖出去',
+			'profile.dangerZone.clearCache' => '清除快取',
+			'profile.dangerZone.clearCookies' => '清除 Cookies',
+			'profile.dangerZone.clearPreferences' => '清除偏好設定',
+			'profile.dangerZone.clearUserData' => '清除使用者資料',
+			'profile.dangerZone.cleared' => ({required Object item}) => '已清除${item}',
+			'profile.dangerZone.clearFailed' => ({required Object item}) => '清除${item}失敗',
+			'profile.dangerZone.items.cache' => '快取',
+			'profile.dangerZone.items.cookies' => 'Cookies',
+			'profile.dangerZone.items.preferences' => '偏好設定',
+			'profile.dangerZone.items.userData' => '使用者資料',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
