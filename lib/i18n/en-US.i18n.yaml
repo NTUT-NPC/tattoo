@@ -84,6 +84,7 @@ profile:
     clearPreferences: Clear Preferences
     clearUserData: Clear User Data
     cleared: ${item} cleared
+    clearFailed: Failed to clear ${item}
     items:
       cache: Cache
       cookies: Cookies
