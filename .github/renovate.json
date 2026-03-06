@@ -9,6 +9,9 @@
   "constraints": {
     "flutter": "3.41.2"
   },
+  "bundler": {
+    "fileMatch": ["(^|/)Pluginfile$"]
+  },
   "packageRules": [
     {
       "matchPackageNames": ["dart", "dev.flutter.flutter-plugin-loader"],
@@ -37,7 +40,7 @@
       "groupSlug": "ios"
     },
     {
-      "matchFileNames": [".github/**", "Gemfile", "doc/Dockerfile"],
+      "matchFileNames": [".github/**", "Gemfile", "fastlane/Pluginfile", "doc/Dockerfile"],
       "groupName": "CI dependencies",
       "groupSlug": "ci"
     }
