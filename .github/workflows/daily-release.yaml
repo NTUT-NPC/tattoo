@@ -1,4 +1,4 @@
-name: Release Preview
+name: Daily Release
 
 on:
   schedule:
@@ -130,7 +130,8 @@ jobs:
         run: |
           bundle exec fastlane android build
           bundle exec fastlane android release
-          gh release upload daily build/app/outputs/flutter-apk/app-release.apk#tattoo-${{ needs.prepare.outputs.build_number }}-android.apk --clobber
+          APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" -not -name "*sha1" | head -n 1)
+          gh release upload daily "${APK_PATH}#tattoo-${{ needs.prepare.outputs.build_number }}-android.apk" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -194,7 +195,8 @@ jobs:
       - name: Build and Upload to TestFlight (App Store Connect)
         run: |
           bundle exec fastlane ios upload_testflight
-          gh release upload daily Runner.ipa#tattoo-${{ needs.prepare.outputs.build_number }}-ios.ipa --clobber
+          IPA_PATH=$(find . -maxdepth 2 -name "*.ipa" | head -n 1)
+          gh release upload daily "${IPA_PATH}#tattoo-${{ needs.prepare.outputs.build_number }}-ios.ipa" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
 
