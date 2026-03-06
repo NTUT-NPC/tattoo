@@ -31,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number }}
+      version_suffix: ${{ steps.version-suffix.outputs.suffix }}
       commit_sha: ${{ steps.summary.outputs.sha }}
       commit_message: ${{ steps.summary.outputs.message }}
       target_ref: ${{ steps.set-ref.outputs.ref }}
@@ -40,6 +41,10 @@ jobs:
         with:
           sparse-checkout: .github/actions
           sparse-checkout-cone-mode: false
+
+      - name: Set Version Suffix
+        id: version-suffix
+        run: echo "suffix=$(TZ='Asia/Taipei' date +'%Y%m%d')" >> $GITHUB_OUTPUT
 
       - name: Resolve Target Ref
         id: set-ref
@@ -103,6 +108,7 @@ jobs:
       MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      VERSION_SUFFIX: ${{ needs.prepare.outputs.version_suffix }}
       PR_TITLE: "Release build"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
@@ -169,6 +175,7 @@ jobs:
       APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      VERSION_SUFFIX: ${{ needs.prepare.outputs.version_suffix }}
       PR_TITLE: "Release build"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
