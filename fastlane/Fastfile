@@ -227,7 +227,9 @@ platform :android do
   desc "Build and install on connected Android device"
   lane :device do |options|
     apk_path = build_apk(options)
-    sh("adb -d install -r #{apk_path}")
+    # Use serial if provided, otherwise default to -d (physical device)
+    device_id = options[:serial] ? "-s #{options[:serial]}" : "-d"
+    sh("adb #{device_id} install -r #{apk_path}")
   end
 
   desc "Build and upload PR preview to Firebase App Distribution"

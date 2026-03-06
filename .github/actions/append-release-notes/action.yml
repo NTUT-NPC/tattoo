@@ -22,11 +22,19 @@ runs:
         BODY: ${{ inputs.body }}
         TAG: ${{ inputs.tag }}
       run: |
-        CURRENT=$(gh release view daily --json body -q .body)
+        export CURRENT=$(gh release view daily --json body -q .body)
+        export BODY="${{ inputs.body }}"
+        export TAG="${{ inputs.tag }}"
         
         if [[ -n "$TAG" ]] && echo "$CURRENT" | grep -q "$TAG"; then
-          # Replace the tag with the body
-          NEW_NOTES=$(echo "$CURRENT" | sed "s|$TAG|$BODY|")
+          # Use perl to handle multiline replacement safely
+          NEW_NOTES=$(perl -e '
+            my $c = $ENV{CURRENT};
+            my $b = $ENV{BODY};
+            my $t = $ENV{TAG};
+            $c =~ s/\Q$t\E/$b/g;
+            print $c;
+          ')
         else
           # Fallback to appending if no tag or tag not found
           NEW_NOTES=$(printf '%s\n\n%s\n' "$CURRENT" "$BODY")
