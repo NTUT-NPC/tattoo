@@ -63,15 +63,17 @@ extension CourseTableMeta on CourseTableData {
   /// Whether any course falls in the evening period (A-D).
   bool get hasEveningCourse => keys.any((s) => s.period.isEvening);
 
-  /// Earliest period that has a course.
-  Period get earliestPeriod =>
-      Period.values[keys.map((s) => s.period.index).reduce(min)];
+  /// Earliest period that has a course, or null if empty.
+  Period? get earliestPeriod => isEmpty
+      ? null
+      : Period.values[keys.map((s) => s.period.index).reduce(min)];
 
-  /// Latest period that has a course (accounting for span).
-  Period get latestPeriod =>
-      Period.values[entries
-          .map((e) => e.key.period.index + e.value.span - 1)
-          .reduce(max)];
+  /// Latest period that has a course (accounting for span), or null if empty.
+  Period? get latestPeriod => isEmpty
+      ? null
+      : Period.values[entries
+            .map((e) => e.key.period.index + e.value.span - 1)
+            .reduce(max)];
 
   /// Unique courses by number, for aggregation.
   Iterable<CourseTableCell> get _uniqueCourses {
