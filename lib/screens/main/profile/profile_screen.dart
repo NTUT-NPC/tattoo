@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -175,33 +176,39 @@ class ProfileScreen extends ConsumerWidget {
       const ProfileDangerZone(),
     ];
 
-    return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () => _refresh(ref),
-          child: CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverToBoxAdapter(
-                  child: Column(
-                    spacing: 16,
-                    children: [
-                      ProfileCard(),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: switch (Theme.of(context).brightness) {
+        Brightness.light => SystemUiOverlayStyle.dark,
+        Brightness.dark => SystemUiOverlayStyle.light,
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: () => _refresh(ref),
+            child: CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverToBoxAdapter(
+                    child: Column(
+                      spacing: 16,
+                      children: [
+                        ProfileCard(),
 
-                      ClearNotice(
-                        text: t.profile.dataDisclaimer,
-                      ),
+                        ClearNotice(
+                          text: t.profile.dataDisclaimer,
+                        ),
 
-                      Column(
-                        spacing: 8,
-                        children: options,
-                      ),
-                    ],
+                        Column(
+                          spacing: 8,
+                          children: options,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
