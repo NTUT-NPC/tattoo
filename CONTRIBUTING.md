@@ -37,6 +37,7 @@ Dart 3 idioms — prefer these over traditional alternatives:
 - **Switch expressions** over `if`/`else` chains for producing values: `final x = switch (y) { ... };`
 - **Dot shorthands** where type is inferred: `.externalApplication` not `LaunchMode.externalApplication`
 - **If-case null checks**: `if (x case final x?)` not `if (x != null)`
+- **`.nonNulls` over `.whereType<T>()`** when filtering nulls from a known type: `.map(...).nonNulls` not `.map(...).whereType<String>()`
 - **Formatter workaround:** Wrap enhanced enums (with fields/methods) in `// dart format off` / `// dart format on` — the formatter splits the last value's trailing `;` onto its own line
 
 ## Typography & i18n
