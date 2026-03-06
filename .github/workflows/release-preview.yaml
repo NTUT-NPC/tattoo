@@ -13,8 +13,8 @@ on:
         description: 'Specific commit SHA to build (overrides branch)'
         required: false
         type: string
-      include_public_tester:
-        description: "Upload to external public testers (TestFlight/Firebase)"
+      include_public_testers:
+        description: 'Upload to external public testers (TestFlight/Firebase)'
         required: false
         type: boolean
         default: false
@@ -103,7 +103,7 @@ jobs:
       PR_TITLE: "Release build"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      PUBLIC_TESTER: ${{ inputs.include_public_tester }}
+      PUBLIC_TESTERS: ${{ inputs.include_public_testers }}
       FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
     steps:
       - name: Checkout code
@@ -163,7 +163,7 @@ jobs:
       PR_TITLE: "Release build"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      PUBLIC_TESTER: ${{ inputs.include_public_tester }}
+      PUBLIC_TESTERS: ${{ inputs.include_public_testers }}
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
