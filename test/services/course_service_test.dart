@@ -108,8 +108,8 @@ void main() {
 
         // Verify required fields are present for regular courses
         expect(firstRegularCourse.number, isNotEmpty);
-        expect(firstRegularCourse.course?.name, isNotNull);
-        expect(firstRegularCourse.course?.name, isNotEmpty);
+        expect(firstRegularCourse.course?.nameZh, isNotNull);
+        expect(firstRegularCourse.course?.nameZh, isNotEmpty);
 
         // Verify numeric fields have reasonable values
         if (firstRegularCourse.credits != null) {
@@ -142,7 +142,7 @@ void main() {
 
         final coursesWithNames = courseTable
             .where(
-              (schedule) => schedule.course?.name != null,
+              (schedule) => schedule.course?.nameZh != null,
             )
             .toList();
 
@@ -154,9 +154,98 @@ void main() {
 
         for (final course in coursesWithNames) {
           expect(
-            course.course!.name,
+            course.course!.nameZh,
             isNotEmpty,
             reason: 'Course name should not be empty',
+          );
+        }
+      });
+
+      test('should parse English course names', () async {
+        final semesters = await courseService.getCourseSemesterList(
+          TestCredentials.username,
+        );
+        final courseTable = await courseService.getCourseTable(
+          username: TestCredentials.username,
+          semester: semesters.pickRandom(),
+        );
+
+        final regularCourses = courseTable.where(
+          (s) => s.number != null && s.number!.isNotEmpty,
+        );
+
+        final coursesWithEnName = regularCourses
+            .where((s) => s.course?.nameEn != null)
+            .toList();
+        expect(
+          coursesWithEnName,
+          isNotEmpty,
+          reason: 'At least one course should have an English name',
+        );
+        for (final course in coursesWithEnName) {
+          expect(course.course!.nameEn, isNotEmpty);
+        }
+      });
+
+      test('should parse English teacher names', () async {
+        final semesters = await courseService.getCourseSemesterList(
+          TestCredentials.username,
+        );
+        final courseTable = await courseService.getCourseTable(
+          username: TestCredentials.username,
+          semester: semesters.pickRandom(),
+        );
+
+        final regularCourses = courseTable.where(
+          (s) => s.number != null && s.number!.isNotEmpty,
+        );
+
+        final coursesWithEnTeacher = regularCourses
+            .where((s) => s.teacher?.nameEn != null)
+            .toList();
+        expect(
+          coursesWithEnTeacher,
+          isNotEmpty,
+          reason: 'At least one course should have an English teacher name',
+        );
+        for (final course in coursesWithEnTeacher) {
+          expect(course.teacher!.nameEn, isNotEmpty);
+        }
+      });
+
+      test('should parse English class names', () async {
+        final semesters = await courseService.getCourseSemesterList(
+          TestCredentials.username,
+        );
+        final courseTable = await courseService.getCourseTable(
+          username: TestCredentials.username,
+          semester: semesters.pickRandom(),
+        );
+
+        final regularCourses = courseTable.where(
+          (s) => s.number != null && s.number!.isNotEmpty,
+        );
+
+        final coursesWithClasses = regularCourses
+            .where((s) => s.classes != null && s.classes!.isNotEmpty)
+            .toList();
+        expect(coursesWithClasses, isNotEmpty);
+
+        // Verify English names match Chinese classes by code
+        for (final course in coursesWithClasses) {
+          for (final c in course.classes!) {
+            expect(c.id, isNotNull, reason: 'Class should have an ID');
+            expect(
+              c.nameZh,
+              isNotNull,
+              reason: 'Class should have a Chinese name',
+            );
+          }
+          final withEnName = course.classes!.where((c) => c.nameEn != null);
+          expect(
+            withEnName,
+            isNotEmpty,
+            reason: 'At least one class per course should have an English name',
           );
         }
       });

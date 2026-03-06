@@ -84,6 +84,19 @@ typedef ReferenceDto = ({
   String? name,
 });
 
+/// Reference with localized names, for entities available in both Chinese and
+/// English course systems.
+typedef LocalizedRefDto = ({
+  /// Entity's unique identifier code.
+  String? id,
+
+  /// Name in Traditional Chinese.
+  String? nameZh,
+
+  /// Name in English.
+  String? nameEn,
+});
+
 /// Academic semester identifier.
 typedef SemesterDto = ({
   /// Academic year in ROC calendar (e.g., 114 for 2025).
