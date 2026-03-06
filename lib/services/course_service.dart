@@ -200,7 +200,7 @@ class CourseService {
     final tableAnchors = document.querySelectorAll('table a[href]');
     final tableLinks = tableAnchors
         .map((e) => e.attributes['href'])
-        .whereType<String>()
+        .nonNulls
         .toList();
 
     // Parse links and extract query parameters

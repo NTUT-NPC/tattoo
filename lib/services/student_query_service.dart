@@ -222,7 +222,7 @@ class StudentQueryService {
     final semesterButtons = document.querySelectorAll("input[type='submit']");
     final semesterMatches = semesterButtons
         .map((btn) => semesterPattern.firstMatch(btn.attributes['value'] ?? ''))
-        .whereType<RegExpMatch>()
+        .nonNulls
         .toList();
 
     final tables = document.querySelectorAll('table');
