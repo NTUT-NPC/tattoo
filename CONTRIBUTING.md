@@ -39,6 +39,10 @@ Dart 3 idioms — prefer these over traditional alternatives:
 - **If-case null checks**: `if (x case final x?)` not `if (x != null)`
 - **Formatter workaround:** Wrap enhanced enums (with fields/methods) in `// dart format off` / `// dart format on` — the formatter splits the last value's trailing `;` onto its own line
 
+## Typography & i18n
+
+**CJK and Latin/numeric characters:** Do not insert literal spaces between CJK and alphanumeric characters in i18n strings or UI code. The rendering layer (or the user's browser/system) should handle the presentation-level spacing (see [#149](https://github.com/NTUT-NPC/tattoo/issues/149)).
+
 ## Git and GitHub Workflows
 
 - Updating a branch with the base branch: prefer rebase, but use merge if the branch contains commits by other contributors (rebase rewrites authorship) or if there are conflicts.

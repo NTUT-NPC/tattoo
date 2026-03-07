@@ -91,8 +91,8 @@ class TranslationsErrorsZhTw {
 	/// zh-TW: '發生錯誤'
 	String get occurred => '發生錯誤';
 
-	/// zh-TW: '發生 Flutter 錯誤'
-	String get flutterError => '發生 Flutter 錯誤';
+	/// zh-TW: '發生Flutter錯誤'
+	String get flutterError => '發生Flutter錯誤';
 
 	/// zh-TW: '發生非同步錯誤'
 	String get asyncError => '發生非同步錯誤';
@@ -223,8 +223,8 @@ class TranslationsAboutZhTw {
 
 	// Translations
 
-	/// zh-TW: 'Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。'
-	String get description => 'Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。';
+	/// zh-TW: 'Project Tattoo (TAT)是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。'
+	String get description => 'Project Tattoo (TAT)是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。';
 
 	/// zh-TW: '開發團隊'
 	String get developers => '開發團隊';
@@ -316,8 +316,8 @@ class TranslationsProfileOptionsZhTw {
 	/// zh-TW: '支持我們'
 	String get supportUs => '支持我們';
 
-	/// zh-TW: '關於 TAT'
-	String get about => '關於 TAT';
+	/// zh-TW: '關於TAT'
+	String get about => '關於TAT';
 
 	/// zh-TW: '北科程式設計研究社'
 	String get npcClub => '北科程式設計研究社';
@@ -343,8 +343,8 @@ class TranslationsProfileAvatarZhTw {
 	/// zh-TW: '個人圖片已更新'
 	String get uploadSuccess => '個人圖片已更新';
 
-	/// zh-TW: '圖片大小超過 20 MB 限制'
-	String get tooLarge => '圖片大小超過 20 MB 限制';
+	/// zh-TW: '圖片大小超過20 MB限制'
+	String get tooLarge => '圖片大小超過20 MB限制';
 
 	/// zh-TW: '無法辨識的圖片格式'
 	String get invalidFormat => '無法辨識的圖片格式';
@@ -361,8 +361,8 @@ class TranslationsProfileDangerZoneZhTw {
 
 	// Translations
 
-	/// zh-TW: '非 Flutter 框架崩潰'
-	String get nonFlutterCrash => '非 Flutter 框架崩潰';
+	/// zh-TW: '非Flutter框架崩潰'
+	String get nonFlutterCrash => '非Flutter框架崩潰';
 
 	/// zh-TW: '模擬非同步錯誤'
 	String get nonFlutterCrashException => '模擬非同步錯誤';
@@ -457,7 +457,7 @@ extension on Translations {
 			'general.notLoggedIn' => '未登入',
 			'general.ok' => '確定',
 			'errors.occurred' => '發生錯誤',
-			'errors.flutterError' => '發生 Flutter 錯誤',
+			'errors.flutterError' => '發生Flutter錯誤',
 			'errors.asyncError' => '發生非同步錯誤',
 			'errors.sessionExpired' => '登入狀態已過期，請重新登入',
 			'errors.credentialsInvalid' => '登入憑證已失效，請重新登入',
@@ -490,16 +490,16 @@ extension on Translations {
 			'profile.options.changePassword' => '更改密碼',
 			'profile.options.changeAvatar' => '更改個人圖片',
 			'profile.options.supportUs' => '支持我們',
-			'profile.options.about' => '關於 TAT',
+			'profile.options.about' => '關於TAT',
 			'profile.options.npcClub' => '北科程式設計研究社',
 			'profile.options.preferences' => '偏好設定',
 			'profile.options.logout' => '登出帳號',
 			'profile.avatar.uploading' => '正在更新個人圖片...',
 			'profile.avatar.uploadSuccess' => '個人圖片已更新',
-			'profile.avatar.tooLarge' => '圖片大小超過 20 MB 限制',
+			'profile.avatar.tooLarge' => '圖片大小超過20 MB限制',
 			'profile.avatar.invalidFormat' => '無法辨識的圖片格式',
 			'profile.avatar.uploadFailed' => '更改個人圖片失敗，請稍後再試',
-			'profile.dangerZone.nonFlutterCrash' => '非 Flutter 框架崩潰',
+			'profile.dangerZone.nonFlutterCrash' => '非Flutter框架崩潰',
 			'profile.dangerZone.nonFlutterCrashException' => '模擬非同步錯誤',
 			'profile.dangerZone.closedTitle' => '酒吧暫未營業',
 			'profile.dangerZone.closedMessage' => '酒吧今天打烊了，改天再來探索吧！',
@@ -517,7 +517,7 @@ extension on Translations {
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
-			'about.description' => 'Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。',
+			'about.description' => 'Project Tattoo (TAT)是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。',
 			'about.developers' => '開發團隊',
 			'about.helpTranslate' => '幫助我們翻譯TAT!',
 			'about.viewSource' => '查看原始碼與貢獻',
