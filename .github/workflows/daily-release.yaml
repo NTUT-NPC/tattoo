@@ -37,6 +37,7 @@ jobs:
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number }}
       version_suffix: ${{ steps.version-suffix.outputs.suffix }}
+      date: ${{ steps.version-suffix.outputs.date }}
       commit_sha: ${{ steps.summary.outputs.sha }}
       commit_message: ${{ steps.summary.outputs.message }}
       target_ref: ${{ steps.set-ref.outputs.ref }}
@@ -50,7 +51,10 @@ jobs:
 
       - name: Set Version Suffix
         id: version-suffix
-        run: echo "suffix=daily.$(TZ='Asia/Taipei' date +'%Y%m%d')" >> $GITHUB_OUTPUT
+        run: |
+          DATE=$(TZ='Asia/Taipei' date +'%Y%m%d')
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+          echo "suffix=daily.$DATE" >> $GITHUB_OUTPUT
 
       - name: Resolve Target Ref
         id: set-ref
@@ -147,7 +151,7 @@ jobs:
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
       VERSION_SUFFIX: ${{ needs.prepare.outputs.version_suffix }}
-      PR_TITLE: "Release build"
+      PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
       PUBLIC_TESTERS: ${{ inputs.include_public_testers }}
@@ -219,7 +223,7 @@ jobs:
       APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
       VERSION_SUFFIX: ${{ needs.prepare.outputs.version_suffix }}
-      PR_TITLE: "Release build"
+      PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
       PUBLIC_TESTERS: ${{ inputs.include_public_testers }}
