@@ -50,7 +50,7 @@ jobs:
 
       - name: Set Version Suffix
         id: version-suffix
-        run: echo "suffix=$(TZ='Asia/Taipei' date +'%Y%m%d')" >> $GITHUB_OUTPUT
+        run: echo "suffix=daily.$(TZ='Asia/Taipei' date +'%Y%m%d')" >> $GITHUB_OUTPUT
 
       - name: Resolve Target Ref
         id: set-ref

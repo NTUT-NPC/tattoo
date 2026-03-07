@@ -54,7 +54,7 @@ jobs:
         id: version-suffix
         run: |
           if [ -n "${{ github.event.pull_request.number }}" ]; then
-            echo "suffix=PR${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "suffix=pr.${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           else
             echo "suffix=dev" >> $GITHUB_OUTPUT
           fi
