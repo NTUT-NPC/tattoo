@@ -8,7 +8,7 @@ general:
   ok: 確定
 errors:
   occurred: 發生錯誤
-  flutterError : 發生 Flutter 錯誤
+  flutterError: 發生Flutter錯誤
   asyncError: 發生非同步錯誤
   sessionExpired: 登入狀態已過期，請重新登入
   credentialsInvalid: 登入憑證已失效，請重新登入
@@ -52,18 +52,18 @@ profile:
     changePassword: 更改密碼
     changeAvatar: 更改個人圖片
     supportUs: 支持我們
-    about: 關於 TAT
+    about: 關於TAT
     npcClub: 北科程式設計研究社
     preferences: 偏好設定
     logout: 登出帳號
   avatar:
     uploading: 正在更新個人圖片...
     uploadSuccess: 個人圖片已更新
-    tooLarge: 圖片大小超過 20 MB 限制
+    tooLarge: 圖片大小超過20 MB限制
     invalidFormat: 無法辨識的圖片格式
     uploadFailed: 更改個人圖片失敗，請稍後再試
   dangerZone:
-    nonFlutterCrash: 非 Flutter 框架崩潰
+    nonFlutterCrash: 非Flutter框架崩潰
     nonFlutterCrashException: 模擬非同步錯誤
     closedTitle: 酒吧暫未營業
     closedMessage: "酒吧今天打烊了，改天再來探索吧！"
@@ -72,19 +72,19 @@ profile:
     alreadyFull: "已經吃飽了"
     goAction: "去酒吧${action}"
     actions:
-      - 點 0 杯啤酒
-      - 點 999999999 杯啤酒
-      - 點 1 支蜥蜴
-      - 點 -1 杯啤酒
-      - 點 1 份 asdfghjkl
-      - 點 1 碗炒飯
+      - 點0杯啤酒
+      - 點999999999杯啤酒
+      - 點1支蜥蜴
+      - 點-1杯啤酒
+      - 點1份asdfghjkl
+      - 點1碗炒飯
       - 跑進吧檯被店員拖出去
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學
   droppedOut: 退學
 about:
-  description: Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。
+  description: Project Tattoo (TAT)是國立臺北科技大學(NTUT)的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。
   developers: 開發團隊
   helpTranslate: 幫助我們翻譯TAT!
   viewSource: 查看原始碼與貢獻
@@ -92,5 +92,4 @@ about:
   privacyPolicy: 隱私權政策
   privacyPolicyUrl: https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md
   viewPrivacyPolicy: 查看隱私權政策
-  copyright: © 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出
-
+  copyright: © 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出
