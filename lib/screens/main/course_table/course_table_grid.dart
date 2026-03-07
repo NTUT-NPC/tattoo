@@ -213,10 +213,14 @@ class CourseTableGrid extends StatelessWidget {
 )
 Widget previewCourseTableGrid() {
   return WidgetPreviewFrame(
-    child: CourseTableGrid(
-      couseTableSummary: _previewCourseTableSummary,
-      viewportWidth: 420,
-      viewportHeight: 720,
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        return CourseTableGrid(
+          couseTableSummary: _previewCourseTableSummary,
+          viewportWidth: constraints.maxWidth,
+          viewportHeight: constraints.maxHeight,
+        );
+      },
     ),
   );
 }

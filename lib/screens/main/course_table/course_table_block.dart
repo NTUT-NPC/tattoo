@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
+import 'package:tattoo/components/app_skeleton.dart';
+import 'package:tattoo/components/widget_preview_frame.dart';
+import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'course_table_providers.dart';
 
 class CourseTableBlock extends StatelessWidget {
   final CourseTableBlockObject courseBlock;
@@ -74,22 +76,100 @@ class CourseTableBlock extends StatelessWidget {
   }
 }
 
-@Preview(name: 'CourseTableBlock', size: Size(70, 140))
-Widget previewCourseTableBlock() {
-  return Directionality(
-    textDirection: TextDirection.ltr,
-    child: Theme(
-      data: ThemeData(useMaterial3: true),
-      child: Material(
-        child: SizedBox(
-          width: 70,
-          height: 70,
+class CourseTableBlockSkeleton extends StatelessWidget {
+  const CourseTableBlockSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final baseColor = colorScheme.surfaceContainerHighest;
+    final borderColor = colorScheme.outlineVariant;
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor, width: 1),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Skeletonizer(
+        effect: PulseEffect(
+          from: baseColor,
+          to: borderColor,
+          duration: const Duration(milliseconds: 800),
+        ),
+        child: Skeleton.leaf(
+          child: Container(color: baseColor),
+        ),
+      ),
+    );
+  }
+}
+
+@Preview(
+  name: 'Named Course',
+  group: 'Course Table',
+  size: Size(220, 150),
+)
+Widget courseTableBlockNamedPreview() {
+  return WidgetPreviewFrame(
+    child: Row(
+      spacing: 4,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 50,
+          height: 68,
           child: CourseTableBlock(
-            courseBlock: mockCourseTableBlock,
+            courseBlock: _previewNamedCourseTableBlock,
             blockColor: Colors.blue,
           ),
         ),
-      ),
+        SizedBox(
+          width: 50,
+          height: 136,
+          child: CourseTableBlock(
+            courseBlock: _previewNamedCourseTableBlock,
+            blockColor: Colors.red,
+          ),
+        ),
+      ],
     ),
   );
 }
+
+@Preview(
+  name: 'CourseTableBlockSkeleton',
+  group: 'Course Table',
+  size: Size(220, 150),
+)
+Widget courseTableBlockSkeletonPreview() {
+  return WidgetPreviewFrame(
+    child: Row(
+      spacing: 4,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          width: 50,
+          height: 68,
+          child: CourseTableBlockSkeleton(),
+        ),
+        const SizedBox(
+          width: 50,
+          height: 136,
+          child: CourseTableBlockSkeleton(),
+        ),
+      ],
+    ),
+  );
+}
+
+final CourseTableBlockObject _previewNamedCourseTableBlock = (
+  courseNumber: 'CSIE3001',
+  courseNameZh: '微處理機及自動控制應用實務',
+  classroomNameZh: '六教305',
+  dayOfWeek: DayOfWeek.monday,
+  startSection: Period.third,
+  endSection: Period.fourth,
+);
