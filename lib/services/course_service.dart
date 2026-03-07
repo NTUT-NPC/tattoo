@@ -186,20 +186,16 @@ class CourseService {
       ..options.baseUrl = 'https://aps.ntut.edu.tw/course/';
   }
 
-  /// Fetches the list of available semesters for a student's course schedule.
+  /// Fetches the list of available semesters for the authenticated student.
   ///
   /// Returns a list of semester identifiers (year and semester number) for which
-  /// course schedules are available for the given [username] (student ID).
+  /// course schedules are available. The server identifies the student from the
+  /// session cookie established by SSO.
   ///
   /// This method should be called before [getCourseTable] to determine which
   /// semesters have course data available.
-  Future<List<SemesterDto>> getCourseSemesterList(
-    String username,
-  ) async {
-    final response = await _courseDio.post(
-      'tw/Select.jsp',
-      data: {'code': username, 'format': '-3'},
-    );
+  Future<List<SemesterDto>> getCourseSemesterList() async {
+    final response = await _courseDio.get('tw/Select.jsp');
 
     // Find available course tables by reading anchor references
     // Document structure: table>tr>td>img+a[href]

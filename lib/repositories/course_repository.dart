@@ -109,7 +109,7 @@ final courseRepositoryProvider = Provider<CourseRepository>((ref) {
 /// final repo = ref.watch(courseRepositoryProvider);
 ///
 /// // Get available semesters
-/// final semesters = await repo.getSemesters(user);
+/// final semesters = await repo.getSemesters();
 ///
 /// // Get course schedule for a semester
 /// final courses = await repo.getCourseTable(
@@ -139,10 +139,10 @@ class CourseRepository {
        _database = database,
        _authRepository = authRepository;
 
-  /// Gets available semesters for a student.
-  Future<List<Semester>> getSemesters(User user) async {
+  /// Gets available semesters for the authenticated student.
+  Future<List<Semester>> getSemesters() async {
     final dtos = await _authRepository.withAuth(
-      () => _courseService.getCourseSemesterList(user.studentId),
+      () => _courseService.getCourseSemesterList(),
     );
 
     final semesters = await Future.wait(
