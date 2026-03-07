@@ -41,7 +41,7 @@ Dart 3 idioms — prefer these over traditional alternatives:
 
 ## Typography & i18n
 
-**CJK and Latin/numeric characters:** Do not insert literal spaces between CJK and alphanumeric characters in i18n strings or UI code. The rendering layer (or the user's browser/system) should handle the presentation-level spacing (see [#149](https://github.com/NTUT-NPC/tattoo/issues/149)).
+- **No CJK–Latin spaces:** Do not insert literal spaces between CJK and alphanumeric characters. Spacing is a rendering concern.
 
 ## Git and GitHub Workflows
 
