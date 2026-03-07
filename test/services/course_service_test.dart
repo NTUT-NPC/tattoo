@@ -30,9 +30,7 @@ void main() {
 
     group('getCourseSemesterList', () {
       test('should return and parse semester list correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
 
         expect(
           semesters,
@@ -60,9 +58,7 @@ void main() {
 
     group('getCourseTable', () {
       test('should return course schedule for valid semester', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
 
         if (semesters.isEmpty) {
           fail('No semesters available for testing');
@@ -81,9 +77,7 @@ void main() {
       });
 
       test('should parse all expected fields from course schedule', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -132,9 +126,7 @@ void main() {
       });
 
       test('should parse course names correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -162,9 +154,7 @@ void main() {
       });
 
       test('should parse English course names', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -188,9 +178,7 @@ void main() {
       });
 
       test('should parse English teacher names', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -214,9 +202,7 @@ void main() {
       });
 
       test('should parse English class names', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -251,9 +237,7 @@ void main() {
       });
 
       test('should parse schedule times correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -284,9 +268,7 @@ void main() {
       });
 
       test('should parse course types correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -323,9 +305,7 @@ void main() {
 
     group('getCourse', () {
       test('should parse all course detail fields correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -381,9 +361,7 @@ void main() {
 
     group('getSyllabus', () {
       test('should parse syllabus fields correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -448,9 +426,7 @@ void main() {
       });
 
       test('should parse syllabus content fields', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -500,9 +476,7 @@ void main() {
       });
 
       test('should parse email when available', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -536,9 +510,7 @@ void main() {
 
     group('getTeacher', () {
       test('should parse teacher profile fields correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final semester = semesters.pickRandom();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
@@ -612,9 +584,7 @@ void main() {
       });
 
       test('should parse office hours correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final semester = semesters.pickRandom();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
