@@ -147,11 +147,15 @@ class CourseRepository {
   /// bypass TTL (pull-to-refresh).
   Future<List<Semester>> getSemesters({bool refresh = false}) async {
     final user = await _database.select(_database.users).getSingleOrNull();
+    final hasOfferings = _database.select(_database.courseOfferings)
+      ..where((co) => co.semester.equalsExp(_database.semesters.id));
     final cached =
-        await (_database.select(_database.semesters)..orderBy([
-              (s) => OrderingTerm.desc(s.year),
-              (s) => OrderingTerm.desc(s.term),
-            ]))
+        await (_database.select(_database.semesters)
+              ..where((_) => existsQuery(hasOfferings))
+              ..orderBy([
+                (s) => OrderingTerm.desc(s.year),
+                (s) => OrderingTerm.desc(s.term),
+              ]))
             .get();
 
     return fetchWithTtl(
