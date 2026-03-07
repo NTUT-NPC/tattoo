@@ -141,9 +141,10 @@ class CourseRepository {
 
   /// Gets available semesters for the authenticated student.
   Future<List<Semester>> getSemesters() async {
-    final dtos = await _authRepository.withAuth(
-      () => _courseService.getCourseSemesterList(),
-    );
+    final dtos = await _authRepository.withAuth(() async {
+      await _portalService.sso(.courseService);
+      return _courseService.getCourseSemesterList();
+    });
 
     final semesters = await Future.wait(
       dtos.map((dto) async {
