@@ -11,8 +11,14 @@ import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/services/github_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-final packageInfoProvider = FutureProvider.autoDispose<PackageInfo>((ref) {
-  return PackageInfo.fromPlatform();
+final packageInfoProvider = FutureProvider.autoDispose<String>((ref) async {
+  final packageInfo = await PackageInfo.fromPlatform();
+  const suffix = String.fromEnvironment('VERSION_SUFFIX', defaultValue: 'dev');
+
+  if (suffix == 'release' || suffix.isEmpty) {
+    return '${packageInfo.version} (${packageInfo.buildNumber})';
+  }
+  return '${packageInfo.version}-$suffix (${packageInfo.buildNumber})';
 });
 
 class AboutScreen extends ConsumerStatefulWidget {
@@ -91,8 +97,8 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                           ),
                         ),
                         packageInfoAsync.when(
-                          data: (packageInfo) => Text(
-                            '${packageInfo.version} (${packageInfo.buildNumber})',
+                          data: (versionText) => Text(
+                            versionText,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.hintColor,
                             ),

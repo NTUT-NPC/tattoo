@@ -1,0 +1,43 @@
+name: Append Release Notes
+description: Appends a section to the pre-release GitHub Release notes
+
+inputs:
+  body:
+    description: Content to append to the pre-release notes
+    required: true
+  tag:
+    description: Placeholder tag to replace with the body (e.g., <!--android-build-->)
+    required: false
+  github_token:
+    description: GitHub token with contents:write permission
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Update pre-release notes
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+        BODY: ${{ inputs.body }}
+        TAG: ${{ inputs.tag }}
+      run: |
+        export CURRENT=$(gh release view daily --json body -q .body)
+        export BODY="${{ inputs.body }}"
+        export TAG="${{ inputs.tag }}"
+        
+        if [[ -n "$TAG" ]] && echo "$CURRENT" | grep -q "$TAG"; then
+          # Use perl to handle multiline replacement safely
+          NEW_NOTES=$(perl -e '
+            my $c = $ENV{CURRENT};
+            my $b = $ENV{BODY};
+            my $t = $ENV{TAG};
+            $c =~ s/\Q$t\E/$b/g;
+            print $c;
+          ')
+        else
+          # Fallback to appending if no tag or tag not found
+          NEW_NOTES=$(printf '%s\n\n%s\n' "$CURRENT" "$BODY")
+        fi
+        
+        gh release edit daily --notes "$NEW_NOTES"
