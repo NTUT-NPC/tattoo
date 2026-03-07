@@ -5,7 +5,6 @@ import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:riverpod/riverpod.dart';
-import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// Represents a logged-in NTUT Portal user.
@@ -44,7 +43,7 @@ enum PortalServiceCode {
 
 /// Provides the singleton [PortalService] instance.
 final portalServiceProvider = Provider<PortalService>((ref) {
-  return PortalService(ref.read(firebaseServiceProvider));
+  return PortalService();
 });
 
 /// Service for authenticating with NTUT Portal and performing SSO.
@@ -60,9 +59,8 @@ final portalServiceProvider = Provider<PortalService>((ref) {
 /// calling [sso] for each required service.
 class PortalService {
   late final Dio _portalDio;
-  final FirebaseService _firebase;
 
-  PortalService(this._firebase) {
+  PortalService() {
     // Emulate the NTUT iOS app's HTTP client
     _portalDio = createDio()
       ..options.baseUrl = 'https://app.ntut.edu.tw/'
@@ -83,7 +81,6 @@ class PortalService {
   ///
   /// Throws an [Exception] if login fails due to invalid credentials.
   Future<UserDto> login(String username, String password) async {
-    _firebase.log('Attempting login');
     final response = await _portalDio.post(
       'login.do',
       queryParameters: {'muid': username, 'mpassword': password},
@@ -91,11 +88,8 @@ class PortalService {
 
     final body = jsonDecode(response.data);
     if (!body['success']) {
-      _firebase.log('Login failed');
       throw Exception('Login failed. Please check your credentials.');
     }
-
-    _firebase.log('Login successful');
 
     final String? passwordExpiredRemind = body['passwordExpiredRemind'];
 

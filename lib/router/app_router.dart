@@ -21,10 +21,8 @@ abstract class AppRoutes {
   static const about = '/about';
 }
 
-/// Creates a configured [GoRouter] with the provided [firebase] service
-/// for analytics observers, starting at [initialLocation].
-GoRouter createAppRouter(
-  FirebaseService firebase, {
+/// Creates a configured [GoRouter] starting at [initialLocation].
+GoRouter createAppRouter({
   required String initialLocation,
 }) => GoRouter(
   navigatorKey: rootNavigatorKey,

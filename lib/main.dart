@@ -32,7 +32,6 @@ Future<void> main() async {
   }
 
   final container = ProviderContainer();
-  final firebase = container.read(firebaseServiceProvider);
 
   firebase.log('App starting...');
 
@@ -83,7 +82,7 @@ Future<void> main() async {
   final authRepository = container.read(authRepositoryProvider);
   final user = await authRepository.getUser();
   final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
-  final router = createAppRouter(firebase, initialLocation: initialLocation);
+  final router = createAppRouter(initialLocation: initialLocation);
 
   runApp(
     UncontrolledProviderScope(

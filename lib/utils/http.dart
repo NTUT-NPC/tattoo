@@ -10,6 +10,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:intl/intl.dart';
 // ignore: implementation_imports
 import 'package:dio/src/transformers/util/consolidate_bytes.dart';
+import 'package:tattoo/services/firebase_service.dart';
 
 export 'package:dio/dio.dart';
 
@@ -83,20 +84,30 @@ class PlainTextTransformer extends BackgroundTransformer {
 }
 
 /// One-line log [Interceptor] for requests and responses.
+///
+/// Logs to both `dart:developer` and Firebase Crashlytics for breadcrumb
+/// context in crash reports.
 class LogInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
+    final compactFormat = NumberFormat.compact().format;
+
     final method = response.requestOptions.method;
     final uri = response.requestOptions.uri;
     final parameters = response.requestOptions.queryParameters.length;
-    final bodyLength = response.requestOptions.data?.length;
+    final requestBodyLength = switch (response.requestOptions.data) {
+      String s => s.length,
+      List l => l.length,
+      FormData f => f.length,
+      Map m => m.length,
+      _ => null,
+    };
 
     final requestLog = [
       method,
       "${uri.origin}${uri.path}",
       if (parameters > 0) "$parameters param${parameters != 1 ? 's' : ''}",
-      if (bodyLength is int)
-        "${NumberFormat.compact().format(bodyLength)}B body",
+      if (requestBodyLength case final l?) "${compactFormat(l)}B",
     ].join(' ');
 
     final statusCode = response.statusCode;
@@ -104,22 +115,29 @@ class LogInterceptor extends Interceptor {
         .value(HttpHeaders.contentTypeHeader)
         ?.split(';')
         .first;
-    final contentLength =
-        int.tryParse(
-          response.headers.value(HttpHeaders.contentLengthHeader) ?? '',
-        ) ??
-        response.data.length ??
-        0;
-    final cookies = response.headers[HttpHeaders.setCookieHeader]?.length ?? 0;
+    final contentLengthHeader = response.headers.value(
+      HttpHeaders.contentLengthHeader,
+    );
+    final responseBodyLength =
+        int.tryParse(contentLengthHeader ?? '') ??
+        switch (response.data) {
+          String s => s.length,
+          List l => l.length,
+          Map m => m.length,
+          _ => null,
+        };
+    final cookies = response.headers[HttpHeaders.setCookieHeader]?.length;
 
     final responseLog = [
       statusCode,
-      if (contentType != null) contentType,
-      if (contentLength > 0) '${NumberFormat.compact().format(contentLength)}B',
-      if (cookies > 0) "$cookies cookie${cookies != 1 ? 's' : ''}",
+      if (contentType case final t) t,
+      if (responseBodyLength case final l?) '${compactFormat(l)}B',
+      if (cookies case final c? when c > 0) "$c cookie${c != 1 ? 's' : ''}",
     ].join(' ');
 
-    log("$requestLog => $responseLog", name: 'HTTP');
+    final message = "$requestLog => $responseLog";
+    log(message, name: 'HTTP');
+    firebase.log(message);
     handler.next(response);
   }
 }
