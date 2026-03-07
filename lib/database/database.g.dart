@@ -147,6 +147,17 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _semestersFetchedAtMeta =
+      const VerificationMeta('semestersFetchedAt');
+  @override
+  late final GeneratedColumn<DateTime> semestersFetchedAt =
+      GeneratedColumn<DateTime>(
+        'semesters_fetched_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -162,6 +173,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     avatarFilename,
     email,
     passwordExpiresInDays,
+    semestersFetchedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -273,6 +285,15 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         ),
       );
     }
+    if (data.containsKey('semesters_fetched_at')) {
+      context.handle(
+        _semestersFetchedAtMeta,
+        semestersFetchedAt.isAcceptableOrUnknown(
+          data['semesters_fetched_at']!,
+          _semestersFetchedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -334,6 +355,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.int,
         data['${effectivePrefix}password_expires_in_days'],
       ),
+      semestersFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}semesters_fetched_at'],
+      ),
     );
   }
 
@@ -391,6 +416,9 @@ class User extends DataClass implements Insertable<User> {
   ///
   /// Null if password expiration is not enforced or unknown.
   final int? passwordExpiresInDays;
+
+  /// When the semester list was last fetched from the course system.
+  final DateTime? semestersFetchedAt;
   const User({
     required this.id,
     this.fetchedAt,
@@ -405,6 +433,7 @@ class User extends DataClass implements Insertable<User> {
     required this.avatarFilename,
     required this.email,
     this.passwordExpiresInDays,
+    this.semestersFetchedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -437,6 +466,9 @@ class User extends DataClass implements Insertable<User> {
     map['email'] = Variable<String>(email);
     if (!nullToAbsent || passwordExpiresInDays != null) {
       map['password_expires_in_days'] = Variable<int>(passwordExpiresInDays);
+    }
+    if (!nullToAbsent || semestersFetchedAt != null) {
+      map['semesters_fetched_at'] = Variable<DateTime>(semestersFetchedAt);
     }
     return map;
   }
@@ -472,6 +504,9 @@ class User extends DataClass implements Insertable<User> {
       passwordExpiresInDays: passwordExpiresInDays == null && nullToAbsent
           ? const Value.absent()
           : Value(passwordExpiresInDays),
+      semestersFetchedAt: semestersFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(semestersFetchedAt),
     );
   }
 
@@ -496,6 +531,9 @@ class User extends DataClass implements Insertable<User> {
       passwordExpiresInDays: serializer.fromJson<int?>(
         json['passwordExpiresInDays'],
       ),
+      semestersFetchedAt: serializer.fromJson<DateTime?>(
+        json['semestersFetchedAt'],
+      ),
     );
   }
   @override
@@ -515,6 +553,7 @@ class User extends DataClass implements Insertable<User> {
       'avatarFilename': serializer.toJson<String>(avatarFilename),
       'email': serializer.toJson<String>(email),
       'passwordExpiresInDays': serializer.toJson<int?>(passwordExpiresInDays),
+      'semestersFetchedAt': serializer.toJson<DateTime?>(semestersFetchedAt),
     };
   }
 
@@ -532,6 +571,7 @@ class User extends DataClass implements Insertable<User> {
     String? avatarFilename,
     String? email,
     Value<int?> passwordExpiresInDays = const Value.absent(),
+    Value<DateTime?> semestersFetchedAt = const Value.absent(),
   }) => User(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
@@ -548,6 +588,9 @@ class User extends DataClass implements Insertable<User> {
     passwordExpiresInDays: passwordExpiresInDays.present
         ? passwordExpiresInDays.value
         : this.passwordExpiresInDays,
+    semestersFetchedAt: semestersFetchedAt.present
+        ? semestersFetchedAt.value
+        : this.semestersFetchedAt,
   );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -574,6 +617,9 @@ class User extends DataClass implements Insertable<User> {
       passwordExpiresInDays: data.passwordExpiresInDays.present
           ? data.passwordExpiresInDays.value
           : this.passwordExpiresInDays,
+      semestersFetchedAt: data.semestersFetchedAt.present
+          ? data.semestersFetchedAt.value
+          : this.semestersFetchedAt,
     );
   }
 
@@ -592,7 +638,8 @@ class User extends DataClass implements Insertable<User> {
           ..write('departmentEn: $departmentEn, ')
           ..write('avatarFilename: $avatarFilename, ')
           ..write('email: $email, ')
-          ..write('passwordExpiresInDays: $passwordExpiresInDays')
+          ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
+          ..write('semestersFetchedAt: $semestersFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -612,6 +659,7 @@ class User extends DataClass implements Insertable<User> {
     avatarFilename,
     email,
     passwordExpiresInDays,
+    semestersFetchedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -629,7 +677,8 @@ class User extends DataClass implements Insertable<User> {
           other.departmentEn == this.departmentEn &&
           other.avatarFilename == this.avatarFilename &&
           other.email == this.email &&
-          other.passwordExpiresInDays == this.passwordExpiresInDays);
+          other.passwordExpiresInDays == this.passwordExpiresInDays &&
+          other.semestersFetchedAt == this.semestersFetchedAt);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -646,6 +695,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String> avatarFilename;
   final Value<String> email;
   final Value<int?> passwordExpiresInDays;
+  final Value<DateTime?> semestersFetchedAt;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
@@ -660,6 +710,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.avatarFilename = const Value.absent(),
     this.email = const Value.absent(),
     this.passwordExpiresInDays = const Value.absent(),
+    this.semestersFetchedAt = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
@@ -675,6 +726,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     required String avatarFilename,
     required String email,
     this.passwordExpiresInDays = const Value.absent(),
+    this.semestersFetchedAt = const Value.absent(),
   }) : studentId = Value(studentId),
        nameZh = Value(nameZh),
        avatarFilename = Value(avatarFilename),
@@ -693,6 +745,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<String>? avatarFilename,
     Expression<String>? email,
     Expression<int>? passwordExpiresInDays,
+    Expression<DateTime>? semestersFetchedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -709,6 +762,8 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (email != null) 'email': email,
       if (passwordExpiresInDays != null)
         'password_expires_in_days': passwordExpiresInDays,
+      if (semestersFetchedAt != null)
+        'semesters_fetched_at': semestersFetchedAt,
     });
   }
 
@@ -726,6 +781,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<String>? avatarFilename,
     Value<String>? email,
     Value<int?>? passwordExpiresInDays,
+    Value<DateTime?>? semestersFetchedAt,
   }) {
     return UsersCompanion(
       id: id ?? this.id,
@@ -742,6 +798,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       email: email ?? this.email,
       passwordExpiresInDays:
           passwordExpiresInDays ?? this.passwordExpiresInDays,
+      semestersFetchedAt: semestersFetchedAt ?? this.semestersFetchedAt,
     );
   }
 
@@ -789,6 +846,11 @@ class UsersCompanion extends UpdateCompanion<User> {
         passwordExpiresInDays.value,
       );
     }
+    if (semestersFetchedAt.present) {
+      map['semesters_fetched_at'] = Variable<DateTime>(
+        semestersFetchedAt.value,
+      );
+    }
     return map;
   }
 
@@ -807,7 +869,8 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('departmentEn: $departmentEn, ')
           ..write('avatarFilename: $avatarFilename, ')
           ..write('email: $email, ')
-          ..write('passwordExpiresInDays: $passwordExpiresInDays')
+          ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
+          ..write('semestersFetchedAt: $semestersFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -9411,6 +9474,7 @@ typedef $$UsersTableCreateCompanionBuilder =
       required String avatarFilename,
       required String email,
       Value<int?> passwordExpiresInDays,
+      Value<DateTime?> semestersFetchedAt,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
     UsersCompanion Function({
@@ -9427,6 +9491,7 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<String> avatarFilename,
       Value<String> email,
       Value<int?> passwordExpiresInDays,
+      Value<DateTime?> semestersFetchedAt,
     });
 
 final class $$UsersTableReferences
@@ -9551,6 +9616,11 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<int> get passwordExpiresInDays => $composableBuilder(
     column: $table.passwordExpiresInDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get semestersFetchedAt => $composableBuilder(
+    column: $table.semestersFetchedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9679,6 +9749,11 @@ class $$UsersTableOrderingComposer
     column: $table.passwordExpiresInDays,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get semestersFetchedAt => $composableBuilder(
+    column: $table.semestersFetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$UsersTableAnnotationComposer
@@ -9736,6 +9811,11 @@ class $$UsersTableAnnotationComposer
 
   GeneratedColumn<int> get passwordExpiresInDays => $composableBuilder(
     column: $table.passwordExpiresInDays,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get semestersFetchedAt => $composableBuilder(
+    column: $table.semestersFetchedAt,
     builder: (column) => column,
   );
 
@@ -9835,6 +9915,7 @@ class $$UsersTableTableManager
                 Value<String> avatarFilename = const Value.absent(),
                 Value<String> email = const Value.absent(),
                 Value<int?> passwordExpiresInDays = const Value.absent(),
+                Value<DateTime?> semestersFetchedAt = const Value.absent(),
               }) => UsersCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -9849,6 +9930,7 @@ class $$UsersTableTableManager
                 avatarFilename: avatarFilename,
                 email: email,
                 passwordExpiresInDays: passwordExpiresInDays,
+                semestersFetchedAt: semestersFetchedAt,
               ),
           createCompanionCallback:
               ({
@@ -9865,6 +9947,7 @@ class $$UsersTableTableManager
                 required String avatarFilename,
                 required String email,
                 Value<int?> passwordExpiresInDays = const Value.absent(),
+                Value<DateTime?> semestersFetchedAt = const Value.absent(),
               }) => UsersCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -9879,6 +9962,7 @@ class $$UsersTableTableManager
                 avatarFilename: avatarFilename,
                 email: email,
                 passwordExpiresInDays: passwordExpiresInDays,
+                semestersFetchedAt: semestersFetchedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(

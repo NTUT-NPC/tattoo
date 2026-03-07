@@ -118,6 +118,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Migrations:** No migration strategy until first release. Schema changes are made directly — the database is recreated on each install during development.
 
+**Cache Timestamps:** For data that doesn't have its own `fetchedAt` column, add a nullable `{feature}FetchedAt` column on the parent row's table (e.g., `Semesters.courseTableFetchedAt` for per-semester course table cache). For data with no natural parent row (e.g., the semester list itself), use a column on the `Users` table.
+
 **Indexing Strategy:**
 
 - Avoid premature optimization - this is a personal data app with small datasets (~60-70 courses per student)

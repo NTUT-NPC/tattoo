@@ -2,6 +2,7 @@
 
 import 'dart:math';
 
+import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/course.dart';
@@ -9,6 +10,7 @@ import 'package:tattoo/services/course_service.dart';
 import 'package:tattoo/services/i_school_plus_service.dart';
 import 'package:tattoo/services/portal_service.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/utils/fetch_with_ttl.dart';
 
 /// Data for a single cell in the course table grid.
 typedef CourseTableCell = ({
@@ -140,19 +142,41 @@ class CourseRepository {
        _authRepository = authRepository;
 
   /// Gets available semesters for the authenticated student.
-  Future<List<Semester>> getSemesters() async {
+  ///
+  /// Returns cached data if fresh (within TTL). Set [refresh] to `true` to
+  /// bypass TTL (pull-to-refresh).
+  Future<List<Semester>> getSemesters({bool refresh = false}) async {
+    final user = await _database.select(_database.users).getSingleOrNull();
+    final cached =
+        await (_database.select(_database.semesters)..orderBy([
+              (s) => OrderingTerm.desc(s.year),
+              (s) => OrderingTerm.desc(s.term),
+            ]))
+            .get();
+
+    return fetchWithTtl(
+      cached: cached.isEmpty ? null : cached,
+      getFetchedAt: (_) => user?.semestersFetchedAt,
+      fetchFromNetwork: _fetchSemestersFromNetwork,
+      refresh: refresh,
+    );
+  }
+
+  Future<List<Semester>> _fetchSemestersFromNetwork() async {
     final dtos = await _authRepository.withAuth(() async {
       await _portalService.sso(.courseService);
       return _courseService.getCourseSemesterList();
     });
 
-    final semesters = await Future.wait(
-      dtos.map((dto) async {
-        if (dto case (year: final year?, term: final term?)) {
-          final id = await _database.getOrCreateSemester(year, term);
-          return Semester(id: id, year: year, term: term);
-        }
-      }),
+    final semesters = await dtos.map((dto) async {
+      if (dto case (year: final year?, term: final term?)) {
+        final id = await _database.getOrCreateSemester(year, term);
+        return Semester(id: id, year: year, term: term);
+      }
+    }).wait;
+
+    await (_database.update(_database.users)).write(
+      UsersCompanion(semestersFetchedAt: Value(DateTime.now())),
     );
 
     return semesters.nonNulls.toList();

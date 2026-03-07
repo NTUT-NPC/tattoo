@@ -91,6 +91,9 @@ class Users extends Table with AutoIncrementId, Fetchable {
   ///
   /// Null if password expiration is not enforced or unknown.
   late final passwordExpiresInDays = integer().nullable()();
+
+  /// When the semester list was last fetched from the course system.
+  late final semestersFetchedAt = dateTime().nullable()();
 }
 
 /// Student seen in an I-School Plus course roster.
