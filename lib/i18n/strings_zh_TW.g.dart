@@ -223,8 +223,8 @@ class TranslationsAboutZhTw {
 
 	// Translations
 
-	/// zh-TW: 'Project Tattoo (TAT)是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。'
-	String get description => 'Project Tattoo (TAT)是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。';
+	/// zh-TW: 'Project Tattoo (TAT)是國立臺北科技大學(NTUT)的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。'
+	String get description => 'Project Tattoo (TAT)是國立臺北科技大學(NTUT)的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。';
 
 	/// zh-TW: '開發團隊'
 	String get developers => '開發團隊';
@@ -247,8 +247,8 @@ class TranslationsAboutZhTw {
 	/// zh-TW: '查看隱私權政策'
 	String get viewPrivacyPolicy => '查看隱私權政策';
 
-	/// zh-TW: '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出'
-	String get copyright => '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
+	/// zh-TW: '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出'
+	String get copyright => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
 }
 
 // Path: intro.features
@@ -386,12 +386,12 @@ class TranslationsProfileDangerZoneZhTw {
 	String goAction({required Object action}) => '去酒吧${action}';
 
 	List<String> get actions => [
-		'點 0 杯啤酒',
-		'點 999999999 杯啤酒',
-		'點 1 支蜥蜴',
-		'點 -1 杯啤酒',
-		'點 1 份 asdfghjkl',
-		'點 1 碗炒飯',
+		'點0杯啤酒',
+		'點999999999杯啤酒',
+		'點1支蜥蜴',
+		'點-1杯啤酒',
+		'點1份asdfghjkl',
+		'點1碗炒飯',
 		'跑進吧檯被店員拖出去',
 	];
 }
@@ -507,17 +507,17 @@ extension on Translations {
 			'profile.dangerZone.fireMessage' => '酒吧陷入火海',
 			'profile.dangerZone.alreadyFull' => '已經吃飽了',
 			'profile.dangerZone.goAction' => ({required Object action}) => '去酒吧${action}',
-			'profile.dangerZone.actions.0' => '點 0 杯啤酒',
-			'profile.dangerZone.actions.1' => '點 999999999 杯啤酒',
-			'profile.dangerZone.actions.2' => '點 1 支蜥蜴',
-			'profile.dangerZone.actions.3' => '點 -1 杯啤酒',
-			'profile.dangerZone.actions.4' => '點 1 份 asdfghjkl',
-			'profile.dangerZone.actions.5' => '點 1 碗炒飯',
+			'profile.dangerZone.actions.0' => '點0杯啤酒',
+			'profile.dangerZone.actions.1' => '點999999999杯啤酒',
+			'profile.dangerZone.actions.2' => '點1支蜥蜴',
+			'profile.dangerZone.actions.3' => '點-1杯啤酒',
+			'profile.dangerZone.actions.4' => '點1份asdfghjkl',
+			'profile.dangerZone.actions.5' => '點1碗炒飯',
 			'profile.dangerZone.actions.6' => '跑進吧檯被店員拖出去',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
-			'about.description' => 'Project Tattoo (TAT)是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。',
+			'about.description' => 'Project Tattoo (TAT)是國立臺北科技大學(NTUT)的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。',
 			'about.developers' => '開發團隊',
 			'about.helpTranslate' => '幫助我們翻譯TAT!',
 			'about.viewSource' => '查看原始碼與貢獻',
@@ -525,7 +525,7 @@ extension on Translations {
 			'about.privacyPolicy' => '隱私權政策',
 			'about.privacyPolicyUrl' => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md',
 			'about.viewPrivacyPolicy' => '查看隱私權政策',
-			'about.copyright' => '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
+			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
 			_ => null,
 		};
 	}
