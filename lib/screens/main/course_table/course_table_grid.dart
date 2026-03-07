@@ -87,8 +87,7 @@ class CourseTableGrid extends StatelessWidget {
         SizedBox(width: _stubWidth),
         for (var day in _weekDays)
           SizedBox(
-            // TODO: dynamic width
-            width: (viewportWidth! - _stubWidth) / 5,
+            width: (viewportWidth! - _stubWidth) / _weekDays.length,
             child: AutoSizeText(
               day.label,
               textAlign: .center,
