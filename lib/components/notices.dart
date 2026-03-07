@@ -349,11 +349,11 @@ Widget backgroundNoticeProfileNoticesPreview() {
         mainAxisSize: MainAxisSize.min,
         children: [
           BackgroundNotice(
-            text: "目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。",
+            text: "目前新版的TAT仍在測試階段，若有問題歡迎和我們反映。",
             noticeType: NoticeType.info,
           ),
           BackgroundNotice(
-            text: "您的密碼將於 7 天後到期，請盡快更新以免無法登入。",
+            text: "您的密碼將於7天後到期，請盡快更新以免無法登入。",
             noticeType: NoticeType.warning,
           ),
           BackgroundNotice(
