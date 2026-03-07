@@ -2,9 +2,94 @@
 
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/models/course.dart';
 import 'package:tattoo/services/course_service.dart';
 import 'package:tattoo/services/i_school_plus_service.dart';
 import 'package:tattoo/services/portal_service.dart';
+
+/// Temporary UI contract for one course entry in the course table.
+///
+/// Field names and types align with current database schema as much as possible
+/// so repository implementation can migrate without API changes.
+typedef CourseTableInfoObject = ({
+  /// [CourseOfferings.number].
+  String number,
+
+  /// [Courses.nameZh].
+  String? courseNameZh,
+
+  /// [Teachers.nameZh] of this offering.
+  ///
+  /// A course offering can have multiple teachers.
+  List<String> teacherNamesZh,
+
+  /// [Courses.credits].
+  double credits,
+
+  /// [Courses.hours].
+  int hours,
+
+  /// [Classrooms.nameZh] of this offering.
+  ///
+  /// A course offering can use multiple classrooms.
+  List<String> classroomNamesZh,
+
+  /// Raw schedule format from [Schedules] table.
+  ///
+  /// Each entry is one `(dayOfWeek, period)` slot.
+  List<({DayOfWeek dayOfWeek, Period period})> schedule,
+
+  /// [Classes.nameZh] of this offering.
+  ///
+  /// A course offering can target multiple classes.
+  List<String> classNamesZh,
+});
+
+/// Temporary UI contract for one renderable time block in the course table.
+typedef CourseTableBlockObject = ({
+  /// [CourseOfferings.number].
+  String courseNumber,
+
+  /// [Courses.nameZh].
+  String? courseNameZh,
+
+  /// Classroom name for this block.
+  String classroomNameZh,
+
+  /// Weekday of this block.
+  DayOfWeek dayOfWeek,
+
+  /// Inclusive start slot of this block.
+  Period startSection,
+
+  /// Inclusive end slot of this block.
+  Period endSection,
+});
+
+typedef CourseTableSummaryObject = ({
+  // The semester this course table belongs to.
+  Semester semester,
+
+  /// Course blocks to render in the table.
+  List<CourseTableBlockObject> courses,
+
+  /// Whether the table has courses in the morning (before 12:00).
+  bool hasAmCourse,
+  bool hasNCourse,
+  bool hasPmCourse,
+  bool hasNightCourse,
+  Period earliestStartSection,
+  Period latestEndSection,
+  bool hasWeekdayCourse,
+  bool hasSatCourse,
+  bool hasSunCourse,
+
+  /// Total credits of all courses in the table.
+  double totalCredits,
+
+  /// Total hours of all courses in the table.
+  int totalHours,
+});
 
 /// Provides the [CourseRepository] instance.
 final courseRepositoryProvider = Provider<CourseRepository>((ref) {

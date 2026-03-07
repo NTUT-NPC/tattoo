@@ -45,20 +45,22 @@ Future<void> main() async {
       ErrorType.unknown => t.errors.occurred,
     };
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(errorTitle),
-        // TODO: Remove technical details from user-facing error messages
-        content: Text(error.toString()),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.general.ok),
-          ),
-        ],
-      ),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(errorTitle),
+          // TODO: Remove technical details from user-facing error messages
+          content: Text(error.toString()),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(t.general.ok),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   // Pass all uncaught "fatal" errors from the framework to Crashlytics

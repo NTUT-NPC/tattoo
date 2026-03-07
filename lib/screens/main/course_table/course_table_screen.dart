@@ -6,6 +6,7 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/database/database.dart' show User;
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/screens/main/course_table/course_table_grid.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 
 // TODO: Import mock data from demo mode when implemented
@@ -29,51 +30,53 @@ class CourseTableScreen extends ConsumerWidget {
     return DefaultTabController(
       length: _courseTableTabs.length,
       child: Scaffold(
-        body: CustomScrollView(
-          slivers: [
+        // A scaffold appbar to handle status bar height.
+        appBar: AppBar(
+          toolbarHeight: 0,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+        ),
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverAppBar(
-              floating: false,
-              snap: false,
+              primary: false,
               toolbarHeight: 56,
               backgroundColor: Theme.of(context).colorScheme.primary,
-              flexibleSpace: SafeArea(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        _TableOwnerIndicator(
-                          context: context,
-                          profileAsync: profileAsync,
-                          avatarAsync: avatarAsync,
-                        ),
-                        const Spacer(),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          spacing: 8,
-                          children: [
-                            _CircularIconButton(
-                              icon: Icons.refresh_outlined,
-                              onTap: () => _showDemoTap(context),
-                            ),
-                            _CircularIconButton(
-                              icon: Icons.share_outlined,
-                              onTap: () => _showDemoTap(context),
-                            ),
-                            _CircularIconButton(
-                              icon: Icons.more_vert_outlined,
-                              onTap: () => _showDemoTap(context),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+              flexibleSpace: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _TableOwnerIndicator(
+                        context: context,
+                        profileAsync: profileAsync,
+                        avatarAsync: avatarAsync,
+                      ),
+                      const Spacer(),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        spacing: 8,
+                        children: [
+                          _CircularIconButton(
+                            icon: Icons.refresh_outlined,
+                            onTap: () => _showDemoTap(context),
+                          ),
+                          _CircularIconButton(
+                            icon: Icons.share_outlined,
+                            onTap: () => _showDemoTap(context),
+                          ),
+                          _CircularIconButton(
+                            icon: Icons.more_vert_outlined,
+                            onTap: () => _showDemoTap(context),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -90,14 +93,12 @@ class CourseTableScreen extends ConsumerWidget {
               titleSpacing: 0,
               title: const ChipTabSwitcher(tabs: _courseTableTabs),
             ),
-            SliverFillRemaining(
-              child: TabBarView(
-                children: _courseTableTabs
-                    .map((tab) => _CourseTableTabPlaceholder(semester: tab))
-                    .toList(),
-              ),
-            ),
           ],
+          body: TabBarView(
+            children: _courseTableTabs
+                .map((tab) => _CourseTableTabContent(semester: tab))
+                .toList(),
+          ),
         ),
       ),
     );
@@ -229,16 +230,25 @@ const _courseTableTabs = <String>[
   '110-2',
 ];
 
-class _CourseTableTabPlaceholder extends StatelessWidget {
-  const _CourseTableTabPlaceholder({required this.semester});
+class _CourseTableTabContent extends StatelessWidget {
+  const _CourseTableTabContent({required this.semester});
 
   final String semester;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Text('Course table placeholder: $semester'),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final initialGridViewportWidth = constraints.maxWidth;
+        final initialGridViewportHeight = constraints.maxHeight;
+
+        return CourseTableGrid(
+          key: ValueKey(semester),
+          couseTableSummary: mockCourseTableSummary,
+          viewportWidth: initialGridViewportWidth,
+          viewportHeight: initialGridViewportHeight,
+        );
+      },
     );
   }
 }
