@@ -34,7 +34,7 @@ List<Period> _periods = [
   Period.dPeriod,
 ];
 
-class CourseTableGrid extends StatelessWidget {
+class CourseTableGrid extends StatefulWidget {
   const CourseTableGrid({
     super.key,
     required this.couseTableSummary,
@@ -50,11 +50,27 @@ class CourseTableGrid extends StatelessWidget {
   /// Initial visible height of the grid viewport (before user scrolls).
   final double? viewportHeight;
 
+  @override
+  State<CourseTableGrid> createState() => _CourseTableGridState();
+}
+
+class _CourseTableGridState extends State<CourseTableGrid> {
+  bool _loading = true;
+
   final double _tableHeaderHeight = 25;
   final double _stubWidth = 20;
 
   // TODO: dynamic row height based on viewport height
   final double _periodRowHeight = 64;
+
+  @override
+  void initState() {
+    super.initState();
+    final random = Random();
+    Future.delayed(Duration(milliseconds: random.nextInt(1000)), () {
+      if (mounted) setState(() => _loading = false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +90,10 @@ class CourseTableGrid extends StatelessWidget {
         ),
         SliverToBoxAdapter(
           child: Stack(
-            children: [_buildPeriodRows(), ..._buildCourseBlocks()],
+            children: [
+              _buildPeriodRows(),
+              ...(_loading ? _bulidSkeleton() : _buildCourseBlocks()),
+            ],
           ),
         ),
       ],
@@ -87,7 +106,7 @@ class CourseTableGrid extends StatelessWidget {
         SizedBox(width: _stubWidth),
         for (var day in _weekDays)
           SizedBox(
-            width: (viewportWidth! - _stubWidth) / _weekDays.length,
+            width: (widget.viewportWidth! - _stubWidth) / _weekDays.length,
             child: AutoSizeText(
               day.label,
               textAlign: .center,
@@ -120,7 +139,7 @@ class CourseTableGrid extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: viewportWidth! - _stubWidth,
+                width: widget.viewportWidth! - _stubWidth,
                 height: _periodRowHeight,
                 child: Container(
                   decoration: BoxDecoration(
@@ -136,8 +155,77 @@ class CourseTableGrid extends StatelessWidget {
     );
   }
 
+  
+  List<Widget> _bulidSkeleton() {
+    final columnWidth = (widget.viewportWidth! - _stubWidth) / _weekDays.length;
+    final random = Random();
+
+    // Track occupied slots per day to avoid overlaps
+    final occupied = List.generate(_weekDays.length, (_) => <int>{});
+    final blocks = <Widget>[];
+
+    for (var i = 0; i < 16; i++) {
+      final dayIndex = random.nextInt(_weekDays.length);
+      final spanLength = 2 + random.nextInt(2); // 2-3 periods
+      final maxStart = _periods.length - spanLength;
+
+      // Find a non-overlapping start index
+      int? startIndex;
+      for (var attempt = 0; attempt < 10; attempt++) {
+        final candidate = random.nextInt(maxStart + 1);
+        final slots = List.generate(spanLength, (j) => candidate + j);
+        if (slots.every((s) => !occupied[dayIndex].contains(s))) {
+          startIndex = candidate;
+          occupied[dayIndex].addAll(slots);
+          break;
+        }
+      }
+      if (startIndex == null) continue;
+
+      final blockTop = startIndex * _periodRowHeight;
+      final blockLeft = _stubWidth + (dayIndex * columnWidth);
+      final blockHeight = spanLength * _periodRowHeight;
+      final delayMs = 50 + random.nextInt(101);
+      const riseDurationMs = 350;
+      final totalDurationMs = riseDurationMs + delayMs;
+      final startAt = delayMs / totalDurationMs;
+
+      blocks.add(
+        Positioned(
+          key: ValueKey('skeleton-$i'),
+          top: blockTop,
+          left: blockLeft,
+          child: SizedBox(
+            width: columnWidth,
+            height: blockHeight,
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 1, end: 0),
+                duration: Duration(milliseconds: totalDurationMs),
+                curve: Interval(startAt, 1, curve: Curves.easeOutCubic),
+                builder: (context, t, child) {
+                  return Opacity(
+                    opacity: 1 - t,
+                    child: Transform.translate(
+                      offset: Offset(0, 16 * t),
+                      child: child,
+                    ),
+                  );
+                },
+                child: const CourseTableBlockSkeleton(),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return blocks;
+  }
+
   List<Widget> _buildCourseBlocks() {
-    final columnWidth = (viewportWidth! - _stubWidth) / _weekDays.length;
+    final columnWidth = (widget.viewportWidth! - _stubWidth) / _weekDays.length;
     final random = Random();
     const blockColors = <Color>[
       Colors.blue,
@@ -150,8 +238,8 @@ class CourseTableGrid extends StatelessWidget {
     ];
 
     final blocks = <Widget>[];
-    for (var i = 0; i < couseTableSummary.courses.length; i++) {
-      final course = couseTableSummary.courses[i];
+    for (var i = 0; i < widget.couseTableSummary.courses.length; i++) {
+      final course = widget.couseTableSummary.courses[i];
       final dayIndex = _weekDays.indexOf(course.dayOfWeek);
       final startIndex = _periods.indexOf(course.startSection);
       final endIndex = _periods.indexOf(course.endSection);
@@ -170,6 +258,7 @@ class CourseTableGrid extends StatelessWidget {
 
       blocks.add(
         Positioned(
+          key: ValueKey('course-$i'),
           top: blockTop,
           left: blockLeft,
           child: SizedBox(
