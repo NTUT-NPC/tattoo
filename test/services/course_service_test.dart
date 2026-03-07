@@ -30,9 +30,7 @@ void main() {
 
     group('getCourseSemesterList', () {
       test('should return and parse semester list correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
 
         expect(
           semesters,
@@ -60,9 +58,7 @@ void main() {
 
     group('getCourseTable', () {
       test('should return course schedule for valid semester', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
 
         if (semesters.isEmpty) {
           fail('No semesters available for testing');
@@ -81,9 +77,7 @@ void main() {
       });
 
       test('should parse all expected fields from course schedule', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -108,8 +102,8 @@ void main() {
 
         // Verify required fields are present for regular courses
         expect(firstRegularCourse.number, isNotEmpty);
-        expect(firstRegularCourse.course?.name, isNotNull);
-        expect(firstRegularCourse.course?.name, isNotEmpty);
+        expect(firstRegularCourse.course?.nameZh, isNotNull);
+        expect(firstRegularCourse.course?.nameZh, isNotEmpty);
 
         // Verify numeric fields have reasonable values
         if (firstRegularCourse.credits != null) {
@@ -132,9 +126,7 @@ void main() {
       });
 
       test('should parse course names correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -142,7 +134,7 @@ void main() {
 
         final coursesWithNames = courseTable
             .where(
-              (schedule) => schedule.course?.name != null,
+              (schedule) => schedule.course?.nameZh != null,
             )
             .toList();
 
@@ -154,17 +146,98 @@ void main() {
 
         for (final course in coursesWithNames) {
           expect(
-            course.course!.name,
+            course.course!.nameZh,
             isNotEmpty,
             reason: 'Course name should not be empty',
           );
         }
       });
 
-      test('should parse schedule times correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
+      test('should parse English course names', () async {
+        final semesters = await courseService.getCourseSemesterList();
+        final courseTable = await courseService.getCourseTable(
+          username: TestCredentials.username,
+          semester: semesters.pickRandom(),
         );
+
+        final regularCourses = courseTable.where(
+          (s) => s.number != null && s.number!.isNotEmpty,
+        );
+
+        final coursesWithEnName = regularCourses
+            .where((s) => s.course?.nameEn != null)
+            .toList();
+        expect(
+          coursesWithEnName,
+          isNotEmpty,
+          reason: 'At least one course should have an English name',
+        );
+        for (final course in coursesWithEnName) {
+          expect(course.course!.nameEn, isNotEmpty);
+        }
+      });
+
+      test('should parse English teacher names', () async {
+        final semesters = await courseService.getCourseSemesterList();
+        final courseTable = await courseService.getCourseTable(
+          username: TestCredentials.username,
+          semester: semesters.pickRandom(),
+        );
+
+        final regularCourses = courseTable.where(
+          (s) => s.number != null && s.number!.isNotEmpty,
+        );
+
+        final coursesWithEnTeacher = regularCourses
+            .where((s) => s.teacher?.nameEn != null)
+            .toList();
+        expect(
+          coursesWithEnTeacher,
+          isNotEmpty,
+          reason: 'At least one course should have an English teacher name',
+        );
+        for (final course in coursesWithEnTeacher) {
+          expect(course.teacher!.nameEn, isNotEmpty);
+        }
+      });
+
+      test('should parse English class names', () async {
+        final semesters = await courseService.getCourseSemesterList();
+        final courseTable = await courseService.getCourseTable(
+          username: TestCredentials.username,
+          semester: semesters.pickRandom(),
+        );
+
+        final regularCourses = courseTable.where(
+          (s) => s.number != null && s.number!.isNotEmpty,
+        );
+
+        final coursesWithClasses = regularCourses
+            .where((s) => s.classes != null && s.classes!.isNotEmpty)
+            .toList();
+        expect(coursesWithClasses, isNotEmpty);
+
+        // Verify English names match Chinese classes by code
+        for (final course in coursesWithClasses) {
+          for (final c in course.classes!) {
+            expect(c.id, isNotNull, reason: 'Class should have an ID');
+            expect(
+              c.nameZh,
+              isNotNull,
+              reason: 'Class should have a Chinese name',
+            );
+          }
+          final withEnName = course.classes!.where((c) => c.nameEn != null);
+          expect(
+            withEnName,
+            isNotEmpty,
+            reason: 'At least one class per course should have an English name',
+          );
+        }
+      });
+
+      test('should parse schedule times correctly', () async {
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -185,7 +258,7 @@ void main() {
 
         // Verify classroom names are non-empty when present
         final coursesWithClassrooms = coursesWithSchedule.where(
-          (s) => s.schedule!.any((e) => e.$3 != null),
+          (s) => s.schedule!.any((e) => e.classroom != null),
         );
         expect(
           coursesWithClassrooms,
@@ -195,9 +268,7 @@ void main() {
       });
 
       test('should parse course types correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -234,9 +305,7 @@ void main() {
 
     group('getCourse', () {
       test('should parse all course detail fields correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -292,9 +361,7 @@ void main() {
 
     group('getSyllabus', () {
       test('should parse syllabus fields correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -359,9 +426,7 @@ void main() {
       });
 
       test('should parse syllabus content fields', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -411,9 +476,7 @@ void main() {
       });
 
       test('should parse email when available', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
@@ -447,9 +510,7 @@ void main() {
 
     group('getTeacher', () {
       test('should parse teacher profile fields correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final semester = semesters.pickRandom();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
@@ -523,9 +584,7 @@ void main() {
       });
 
       test('should parse office hours correctly', () async {
-        final semesters = await courseService.getCourseSemesterList(
-          TestCredentials.username,
-        );
+        final semesters = await courseService.getCourseSemesterList();
         final semester = semesters.pickRandom();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,

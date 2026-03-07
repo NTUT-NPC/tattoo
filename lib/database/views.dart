@@ -21,3 +21,38 @@ abstract class UserRegistrations extends View {
         ),
       ]);
 }
+
+/// Flat view of schedule slots with course offering and course metadata.
+///
+/// One row per `(dayOfWeek, period)` slot. Repository groups these rows
+/// into [CourseTableCell] maps for the course table UI.
+abstract class CourseTableSlots extends View {
+  Schedules get schedules;
+  CourseOfferings get courseOfferings;
+  Courses get courses;
+  Classrooms get classrooms;
+
+  @override
+  Query as() =>
+      select([
+        courseOfferings.id,
+        courseOfferings.number,
+        courses.nameZh,
+        courses.nameEn,
+        courses.credits,
+        courses.hours,
+        schedules.dayOfWeek,
+        schedules.period,
+        classrooms.nameZh,
+      ]).from(schedules).join([
+        innerJoin(
+          courseOfferings,
+          courseOfferings.id.equalsExp(schedules.courseOffering),
+        ),
+        innerJoin(courses, courses.id.equalsExp(courseOfferings.course)),
+        leftOuterJoin(
+          classrooms,
+          classrooms.id.equalsExp(schedules.classroom),
+        ),
+      ]);
+}
