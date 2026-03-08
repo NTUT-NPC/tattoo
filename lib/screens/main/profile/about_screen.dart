@@ -96,24 +96,10 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        packageInfoAsync.when(
-                          data: (versionText) => Text(
-                            versionText,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.hintColor,
-                            ),
-                          ),
-                          loading: () => Text(
-                            '... (...)',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.hintColor,
-                            ),
-                          ),
-                          error: (error, stackTrace) => Text(
-                            '... (...)',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.hintColor,
-                            ),
+                        Text(
+                          packageInfoAsync.value ?? '... (...)',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.hintColor,
                           ),
                         ),
                       ],
