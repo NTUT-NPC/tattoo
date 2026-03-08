@@ -22,9 +22,8 @@ runs:
         BODY: ${{ inputs.body }}
         TAG: ${{ inputs.tag }}
       run: |
-        export CURRENT=$(gh release view daily --json body -q .body)
-        export BODY="${{ inputs.body }}"
-        export TAG="${{ inputs.tag }}"
+        CURRENT=$(gh release view daily --json body -q .body)
+        export CURRENT
         
         if [[ -n "$TAG" ]] && echo "$CURRENT" | grep -q "$TAG"; then
           # Use perl to handle multiline replacement safely
