@@ -432,8 +432,10 @@ class CourseService {
     if (tables.length < 2) return {};
 
     final tableRows = tables[1].querySelectorAll('tr');
-    if (tableRows.length < 3) return {};
-    final dataRows = tableRows.sublist(2, tableRows.length - 1);
+    if (tableRows.length < 2) return {};
+    // English table has 1 header row (Chinese table has 2 — student info is in
+    // a separate table here). Last row is the "Total" summary.
+    final dataRows = tableRows.sublist(1, tableRows.length - 1);
 
     // Parse the table and build a map of course number -> English names
     // Columns also present in the Chinese page are skipped
