@@ -108,8 +108,6 @@ class _FlippableProfileCardState extends State<_FlippableProfileCard>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _animation;
-  double _startAngle = 0.0;
-  double _endAngle = 0.0;
 
   @override
   void initState() {
@@ -118,7 +116,11 @@ class _FlippableProfileCardState extends State<_FlippableProfileCard>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+    _animation = _controller.drive(
+      Tween<double>(begin: 0.0, end: math.pi).chain(
+        CurveTween(curve: Curves.easeInOut),
+      ),
+    );
   }
 
   @override
@@ -128,12 +130,12 @@ class _FlippableProfileCardState extends State<_FlippableProfileCard>
   }
 
   void _toggleFlip() {
-    if (_controller.isAnimating) return;
-    setState(() {
-      _startAngle = _endAngle;
-      _endAngle += math.pi;
-    });
-    _controller.forward(from: 0.0);
+    if (_controller.status == AnimationStatus.forward ||
+        _controller.status == AnimationStatus.completed) {
+      _controller.reverse();
+    } else {
+      _controller.forward();
+    }
   }
 
   @override
@@ -143,12 +145,9 @@ class _FlippableProfileCardState extends State<_FlippableProfileCard>
       child: AnimatedBuilder(
         animation: _animation,
         builder: (context, child) {
-          final angle =
-              _startAngle + (_endAngle - _startAngle) * _animation.value;
-          final normalizedAngle = angle % (2 * math.pi);
-          // When angle is between pi/2 and 3pi/2, we're looking at the back side
-          final isBack =
-              normalizedAngle > math.pi / 2 && normalizedAngle < 1.5 * math.pi;
+          final angle = _animation.value;
+          // Since we only rotate from 0 to pi, back side is visible after pi/2
+          final isBack = angle > math.pi / 2;
 
           return Transform(
             transform: Matrix4.identity()
