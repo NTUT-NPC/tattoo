@@ -5,18 +5,18 @@
     android:viewportWidth="200"
     android:viewportHeight="80">
     <path
-        android:fillColor="@color/branding_gray"
+        android:fillColor="@color/splash_branding_foreground"
         android:pathData="M145.44,30.08h-20.58v20.58h20.58V43.8h-13.72v-6.86h13.72V30.08z" />
     <path
-        android:fillColor="@color/branding_gray"
+        android:fillColor="@color/splash_branding_foreground"
         android:pathData="M96.57,50.66l6.86-13.72h6.86v6.86h-6.86v6.86h13.72V30.08H96.57V50.66z" />
     <path
-        android:fillColor="@color/branding_gray"
+        android:fillColor="@color/splash_branding_foreground"
         android:pathData="M68.28,50.66h6.86V36.94h6.86v13.72h6.86V30.08H68.28V50.66z" />
     <path
-        android:fillColor="@color/branding_gray"
+        android:fillColor="@color/splash_branding_foreground"
         android:pathData="M153.14,50.66V43.8H160v6.86H153.14z" />
     <path
-        android:fillColor="@color/branding_gray"
+        android:fillColor="@color/splash_branding_foreground"
         android:pathData="M40,29.34v20.58l6.86-6.86l13.72,6.86V29.34l-6.86,6.86L40,29.34z" />
 </vector>
