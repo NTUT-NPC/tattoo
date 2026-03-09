@@ -335,7 +335,7 @@ class CourseService {
       if (day != null) colToDayMap[i] = day;
     }
 
-    // Build schedule map keyed by course ID from the grid
+    // Build schedule map keyed by course name from the grid
     final periodRegex = RegExp(r'第 (\S) 節');
     final scheduleMap =
         <
@@ -359,18 +359,20 @@ class CourseService {
         if (day == null) continue;
 
         final anchors = cells[colIndex].querySelectorAll('a');
-        if (anchors.isEmpty) continue;
 
-        final courseRef = _parseAnchorRef(anchors[0]);
-        final courseId = courseRef.id;
-        if (courseId == null) continue;
+        // Key by course name — works for both regular courses (with <a>
+        // links) and special entries like 班週會 (plain text).
+        final courseName = anchors.isNotEmpty
+            ? anchors[0].text.trim()
+            : cells[colIndex].text.trim();
+        if (courseName.isEmpty) continue;
 
         final classroomRef = anchors.length >= 3
             ? _parseAnchorRef(anchors[2])
             : null;
 
-        scheduleMap.putIfAbsent(courseId, () => []);
-        scheduleMap[courseId]!.add((
+        scheduleMap.putIfAbsent(courseName, () => []);
+        scheduleMap[courseName]!.add((
           day: day,
           period: period,
           classroom: classroomRef,
@@ -398,8 +400,8 @@ class CourseService {
       final teacher = _parseCellRef(cells[6]); // TODO: Handle multiple teachers
       final classes = _parseCellRefs(cells[7]);
 
-      // Look up schedule+classroom from the timetable grid by course ID
-      final schedule = course.id != null ? scheduleMap[course.id!] : null;
+      // Look up schedule+classroom from the timetable grid by course name
+      final schedule = scheduleMap[course.name];
 
       final status = _parseCellText(cells[16]);
       final language = _parseCellText(cells[17]);
