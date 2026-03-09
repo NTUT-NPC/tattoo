@@ -254,7 +254,8 @@ class Classrooms extends Table with AutoIncrementId, Fetchable {
   /// Classroom name/location in Traditional Chinese (e.g., "共同大樓 101").
   late final nameZh = text()();
 
-  // TODO: Add fields for full name, floor, capacity, usage
+  // TODO: Add nameEn (full English name parsed from building legend table),
+  // and fields for floor, capacity, usage
 }
 
 // Tables with foreign keys to base tables

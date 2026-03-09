@@ -43,6 +43,9 @@ abstract class CourseTableSlots extends View {
         courses.hours,
         schedules.dayOfWeek,
         schedules.period,
+        // TODO: Add classrooms.nameEn — English page uses abbreviated format
+        // (e.g., "TB2_201") with a separate building legend table. Need to
+        // parse the legend and store both short and full English names.
         classrooms.nameZh,
       ]).from(schedules).join([
         innerJoin(
