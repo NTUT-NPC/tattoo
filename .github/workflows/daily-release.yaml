@@ -153,7 +153,7 @@ jobs:
       PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      PUBLIC_TESTERS: ${{ inputs.include_public_testers }}
+      PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
       FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
     steps:
       - name: Checkout code
@@ -225,7 +225,7 @@ jobs:
       PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      PUBLIC_TESTERS: ${{ inputs.include_public_testers }}
+      PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
