@@ -13,7 +13,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/portal_service.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
@@ -104,14 +104,11 @@ class ProfileScreen extends ConsumerWidget {
           .withAuth(
             () => ref.read(portalServiceProvider).getSsoUrl(serviceCode),
           );
-      final launched = await launchUrl(
-        url,
-        // iOS doesn't preserve the in-app browser's session, so we have to open externally to maintain login state.
-        mode: Platform.isIOS ? .externalApplication : .platformDefault,
-      );
-      if (!launched) throw Exception('Could not open browser');
-    } catch (e) {
-      if (context.mounted) _showMessage(context, 'Failed to open: $e');
+      // iOS doesn't preserve the in-app browser's session, so we have to
+      // open externally to maintain login state.
+      await launchUrl(url, inExternalApplication: Platform.isIOS);
+    } on DioException {
+      if (context.mounted) _showMessage(context, t.errors.connectionFailed);
     }
   }
 

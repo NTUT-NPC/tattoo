@@ -9,7 +9,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/services/github_service.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:tattoo/utils/launch_url.dart';
 
 final packageInfoProvider = FutureProvider.autoDispose<String>((ref) async {
   final packageInfo = await PackageInfo.fromPlatform();
