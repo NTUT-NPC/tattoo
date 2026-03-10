@@ -167,10 +167,10 @@ class CourseRepository {
   }
 
   Future<List<Semester>> _fetchSemestersFromNetwork() async {
-    final dtos = await _authRepository.withAuth(() async {
-      await _portalService.sso(.courseService);
-      return _courseService.getCourseSemesterList();
-    });
+    final dtos = await _authRepository.withAuth(
+      _courseService.getCourseSemesterList,
+      sso: [.courseService],
+    );
 
     final semesters = await dtos.map((dto) async {
       if (dto case (year: final year?, term: final term?)) {
