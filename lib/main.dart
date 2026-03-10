@@ -64,8 +64,10 @@ Future<void> main() async {
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = (details) {
     firebase.crashlytics?.recordFlutterFatalError(details);
-    showErrorDialog(details.exception, type: ErrorType.flutter);
     FlutterError.dumpErrorToConsole(details);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showErrorDialog(details.exception, type: ErrorType.flutter);
+    });
   };
 
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics

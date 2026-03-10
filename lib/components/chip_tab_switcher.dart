@@ -174,6 +174,8 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
     }
   }
 
+  bool _pendingUpdate = false;
+
   void _handleTabChange() {
     final controller = _tabController;
     if (controller == null || widget.tabs.isEmpty) {
@@ -185,10 +187,20 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
       return;
     }
 
-    setState(() {
-      _activeIndex = nextActiveIndex;
+    if (_pendingUpdate) return;
+    _pendingUpdate = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _pendingUpdate = false;
+      if (!mounted) return;
+      final currentController = _tabController;
+      if (currentController == null) return;
+      final resolved = _resolveActiveIndex(currentController);
+      if (_activeIndex == resolved) return;
+      setState(() {
+        _activeIndex = resolved;
+      });
+      _scrollTabIntoView(_activeIndex);
     });
-    _scrollTabIntoView(_activeIndex);
   }
 
   int _resolveActiveIndex(TabController controller) {
