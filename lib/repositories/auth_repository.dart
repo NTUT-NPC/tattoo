@@ -51,7 +51,7 @@ enum AuthStatus {
   offline,
 
   /// Stored credentials were rejected or are missing.
-  credentialsExpired,
+  unauthenticated,
 }
 
 const _secureStorage = FlutterSecureStorage();
@@ -61,7 +61,7 @@ const _secureStorage = FlutterSecureStorage();
 /// Updated automatically by [AuthRepository.withAuth] on success or failure.
 class AuthStatusNotifier extends Notifier<AuthStatus> {
   @override
-  AuthStatus build() => AuthStatus.authenticated;
+  AuthStatus build() => .authenticated;
 
   void update(AuthStatus status) => state = status;
 }
@@ -103,6 +103,8 @@ class AuthRepository {
   final FlutterSecureStorage _secureStorage;
   final void Function(AuthStatus) _onAuthStatusChanged;
 
+  final _ssoCache = <PortalServiceCode>{};
+
   static const _usernameKey = 'username';
   static const _passwordKey = 'password';
 
@@ -128,7 +130,7 @@ class AuthRepository {
     // Save credentials for auto-login
     await _secureStorage.write(key: _usernameKey, value: username);
     await _secureStorage.write(key: _passwordKey, value: password);
-    _onAuthStatusChanged(AuthStatus.authenticated);
+    _onAuthStatusChanged(.authenticated);
 
     return _database.transaction(() async {
       await _database.delete(_database.users).go();
@@ -152,6 +154,7 @@ class AuthRepository {
     await cookieJar.deleteAll();
     await _clearCredentials();
     await _clearAvatarCache();
+    _ssoCache.clear();
   }
 
   /// Re-authenticates with stored credentials to refresh the session and
@@ -165,7 +168,7 @@ class AuthRepository {
     if (username == null || password == null) throw NotLoggedInException();
 
     final userDto = await _portalService.login(username, password);
-    _onAuthStatusChanged(AuthStatus.authenticated);
+    _onAuthStatusChanged(.authenticated);
 
     await (_database.update(
       _database.users,
@@ -181,46 +184,69 @@ class AuthRepository {
 
   /// Executes [call] with automatic re-authentication on session expiry.
   ///
+  /// If [sso] is provided, ensures SSO sessions are established for the
+  /// listed services before calling [call]. SSO state is cached per service
+  /// and only re-established when the portal session is refreshed.
+  ///
   /// If [call] fails with a non-[DioException] error (indicating session
   /// expiry or auth failure), this method re-authenticates using stored
-  /// credentials and retries [call] once.
+  /// credentials, re-establishes SSO sessions, and retries [call] once.
   ///
   /// Throws [NotLoggedInException] if no stored credentials are available.
   /// Throws [InvalidCredentialsException] if stored credentials are rejected
   /// (credentials are automatically cleared from secure storage).
   /// Rethrows [DioException] from [call] or re-auth (network errors).
-  Future<T> withAuth<T>(Future<T> Function() call) async {
+  Future<T> withAuth<T>(
+    Future<T> Function() call, {
+    List<PortalServiceCode> sso = const [],
+  }) async {
     try {
+      await _ensureSso(sso);
       final result = await call();
-      _onAuthStatusChanged(AuthStatus.authenticated);
+      _onAuthStatusChanged(.authenticated);
       return result;
-    } catch (e) {
-      if (e is DioException) {
-        _onAuthStatusChanged(AuthStatus.offline);
-        rethrow;
-      }
-
+    } on DioException {
+      _onAuthStatusChanged(.offline);
+      rethrow;
+    } catch (_) {
       final username = await _secureStorage.read(key: _usernameKey);
       final password = await _secureStorage.read(key: _passwordKey);
       if (username == null || password == null) {
-        _onAuthStatusChanged(AuthStatus.credentialsExpired);
+        _onAuthStatusChanged(.unauthenticated);
         throw NotLoggedInException();
       }
 
       try {
         await _portalService.login(username, password);
       } on DioException {
-        _onAuthStatusChanged(AuthStatus.offline);
+        _onAuthStatusChanged(.offline);
         rethrow;
       } catch (_) {
         await _clearCredentials();
-        _onAuthStatusChanged(AuthStatus.credentialsExpired);
+        _onAuthStatusChanged(.unauthenticated);
         throw InvalidCredentialsException();
       }
 
-      _onAuthStatusChanged(AuthStatus.authenticated);
-      return await call();
+      _ssoCache.clear();
+      try {
+        await _ensureSso(sso);
+        final result = await call();
+        _onAuthStatusChanged(.authenticated);
+        return result;
+      } on DioException {
+        _onAuthStatusChanged(.offline);
+        rethrow;
+      }
     }
+  }
+
+  /// Establishes SSO sessions for services not yet cached.
+  Future<void> _ensureSso(List<PortalServiceCode> services) async {
+    final uncached = services.where((s) => !_ssoCache.contains(s)).toList();
+    await uncached.map((s) async {
+      await _portalService.sso(s);
+      _ssoCache.add(s);
+    }).wait;
   }
 
   /// Gets the current user with automatic cache refresh.
@@ -265,7 +291,7 @@ class AuthRepository {
     final username = await _secureStorage.read(key: _usernameKey);
     final password = await _secureStorage.read(key: _passwordKey);
     if (username == null || password == null) {
-      _onAuthStatusChanged(AuthStatus.credentialsExpired);
+      _onAuthStatusChanged(.unauthenticated);
       throw NotLoggedInException();
     }
 
@@ -276,21 +302,23 @@ class AuthRepository {
     try {
       userDto = await _portalService.login(username, password);
     } on DioException {
-      _onAuthStatusChanged(AuthStatus.offline);
+      _onAuthStatusChanged(.offline);
       rethrow;
     } catch (_) {
       await _clearCredentials();
-      _onAuthStatusChanged(AuthStatus.credentialsExpired);
+      _onAuthStatusChanged(.unauthenticated);
       throw InvalidCredentialsException();
     }
-    _onAuthStatusChanged(AuthStatus.authenticated);
+    _onAuthStatusChanged(.authenticated);
 
-    final (profile, records) = await withAuth(() async {
-      await _portalService.sso(PortalServiceCode.studentQueryService);
-      final profileFuture = _studentQueryService.getStudentProfile();
-      final recordsFuture = _studentQueryService.getRegistrationRecords();
-      return (await profileFuture, await recordsFuture);
-    });
+    final (profile, records) = await withAuth(
+      () async {
+        final profileFuture = _studentQueryService.getStudentProfile();
+        final recordsFuture = _studentQueryService.getRegistrationRecords();
+        return (profileFuture, recordsFuture).wait;
+      },
+      sso: [.studentQueryService],
+    );
 
     return _database.transaction(() async {
       await (_database.update(
