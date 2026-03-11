@@ -154,8 +154,7 @@ class AuthRepository {
   Future<void> logout() async {
     await _database.delete(_database.users).go();
     await cookieJar.deleteAll();
-    await _secureStorage.delete(key: _usernameKey);
-    await _secureStorage.delete(key: _passwordKey);
+    await _clearCredentials();
     await _clearAvatarCache();
     _ssoCache.clear();
   }
@@ -225,6 +224,7 @@ class AuthRepository {
         _onAuthStatusChanged(.offline);
         rethrow;
       } on LoginException {
+        await _clearCredentials();
         _onAuthStatusChanged(.unauthenticated);
         rethrow;
       }
@@ -307,6 +307,7 @@ class AuthRepository {
       _onAuthStatusChanged(.offline);
       rethrow;
     } on LoginException {
+      await _clearCredentials();
       _onAuthStatusChanged(.unauthenticated);
       rethrow;
     }
@@ -537,6 +538,12 @@ class AuthRepository {
       frameInfo?.image.dispose();
       codec?.dispose();
     }
+  }
+
+  /// Clears stored login credentials from secure storage.
+  Future<void> _clearCredentials() async {
+    await _secureStorage.delete(key: _usernameKey);
+    await _secureStorage.delete(key: _passwordKey);
   }
 
   /// Clears cached avatar files.
