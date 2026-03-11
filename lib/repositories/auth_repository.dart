@@ -61,7 +61,7 @@ const _secureStorage = FlutterSecureStorage();
 /// Updated automatically by [AuthRepository.withAuth] on success or failure.
 class AuthStatusNotifier extends Notifier<AuthStatus> {
   @override
-  AuthStatus build() => AuthStatus.authenticated;
+  AuthStatus build() => .authenticated;
 
   void update(AuthStatus status) => state = status;
 }
@@ -130,7 +130,7 @@ class AuthRepository {
     // Save credentials for auto-login
     await _secureStorage.write(key: _usernameKey, value: username);
     await _secureStorage.write(key: _passwordKey, value: password);
-    _onAuthStatusChanged(AuthStatus.authenticated);
+    _onAuthStatusChanged(.authenticated);
 
     return _database.transaction(() async {
       await _database.delete(_database.users).go();
@@ -168,7 +168,7 @@ class AuthRepository {
     if (username == null || password == null) throw NotLoggedInException();
 
     final userDto = await _portalService.login(username, password);
-    _onAuthStatusChanged(AuthStatus.authenticated);
+    _onAuthStatusChanged(.authenticated);
 
     await (_database.update(
       _database.users,
@@ -291,7 +291,7 @@ class AuthRepository {
     final username = await _secureStorage.read(key: _usernameKey);
     final password = await _secureStorage.read(key: _passwordKey);
     if (username == null || password == null) {
-      _onAuthStatusChanged(AuthStatus.unauthenticated);
+      _onAuthStatusChanged(.unauthenticated);
       throw NotLoggedInException();
     }
 
@@ -302,14 +302,14 @@ class AuthRepository {
     try {
       userDto = await _portalService.login(username, password);
     } on DioException {
-      _onAuthStatusChanged(AuthStatus.offline);
+      _onAuthStatusChanged(.offline);
       rethrow;
     } catch (_) {
       await _clearCredentials();
-      _onAuthStatusChanged(AuthStatus.unauthenticated);
+      _onAuthStatusChanged(.unauthenticated);
       throw InvalidCredentialsException();
     }
-    _onAuthStatusChanged(AuthStatus.authenticated);
+    _onAuthStatusChanged(.authenticated);
 
     final (profile, records) = await withAuth(
       () async {
