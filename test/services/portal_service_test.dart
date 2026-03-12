@@ -73,7 +73,7 @@ void main() {
       });
     });
 
-    group('avatar', () {
+    group('getAvatar and uploadAvatar', () {
       test('should get placeholder when filename is empty', () async {
         await portalService.login(
           TestCredentials.username,
@@ -231,7 +231,7 @@ void main() {
       });
     });
 
-    group('calendar', () {
+    group('getCalendar', () {
       setUp(() async {
         await portalService.login(
           TestCredentials.username,
