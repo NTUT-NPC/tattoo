@@ -20,7 +20,6 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 });
 
 @DriftDatabase(
-  views: [UserRegistrations],
   tables: [
     // Base tables
     Users,
@@ -46,6 +45,10 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     UserSemesterSummaryCadreRoles,
     UserSemesterRankings,
   ],
+  views: [
+    CourseTableSlots,
+    UserRegistrations,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   // After generating code, this class needs to define a `schemaVersion` getter
@@ -58,7 +61,8 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    beforeOpen: (details) async {
+    onUpgrade: destructiveFallback.onUpgrade,
+    beforeOpen: (_) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );

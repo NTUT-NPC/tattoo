@@ -91,8 +91,8 @@ class TranslationsErrorsZhTw {
 	/// zh-TW: '發生錯誤'
 	String get occurred => '發生錯誤';
 
-	/// zh-TW: '發生 Flutter 錯誤'
-	String get flutterError => '發生 Flutter 錯誤';
+	/// zh-TW: '發生Flutter錯誤'
+	String get flutterError => '發生Flutter錯誤';
 
 	/// zh-TW: '發生非同步錯誤'
 	String get asyncError => '發生非同步錯誤';
@@ -187,13 +187,14 @@ class TranslationsProfileZhTw {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
-	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
-	late final TranslationsProfileNoticesZhTw notices = TranslationsProfileNoticesZhTw.internal(_root);
-	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
 
 	/// zh-TW: '本資料僅供參考，不做其他證明用途'
 	String get dataDisclaimer => '本資料僅供參考，不做其他證明用途';
+
+	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
+	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
+	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
+	late final TranslationsProfileDangerZoneZhTw dangerZone = TranslationsProfileDangerZoneZhTw.internal(_root);
 }
 
 // Path: enrollmentStatus
@@ -222,8 +223,8 @@ class TranslationsAboutZhTw {
 
 	// Translations
 
-	/// zh-TW: 'Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。'
-	String get description => 'Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。';
+	/// zh-TW: 'Project Tattoo (TAT)是國立臺北科技大學(NTUT)的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。'
+	String get description => 'Project Tattoo (TAT)是國立臺北科技大學(NTUT)的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。';
 
 	/// zh-TW: '開發團隊'
 	String get developers => '開發團隊';
@@ -237,8 +238,17 @@ class TranslationsAboutZhTw {
 	/// zh-TW: '相關連結'
 	String get relatedLinks => '相關連結';
 
-	/// zh-TW: '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出'
-	String get copyright => '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
+	/// zh-TW: '隱私權政策'
+	String get privacyPolicy => '隱私權政策';
+
+	/// zh-TW: 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md'
+	String get privacyPolicyUrl => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md';
+
+	/// zh-TW: '查看隱私權政策'
+	String get viewPrivacyPolicy => '查看隱私權政策';
+
+	/// zh-TW: '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出'
+	String get copyright => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
 }
 
 // Path: intro.features
@@ -269,6 +279,18 @@ class TranslationsLoginErrorsZhTw {
 
 	/// zh-TW: '登入失敗，請確認帳號密碼'
 	String get loginFailed => '登入失敗，請確認帳號密碼';
+
+	/// zh-TW: '學號或密碼錯誤'
+	String get wrongCredentials => '學號或密碼錯誤';
+
+	/// zh-TW: '帳號已被鎖定，請稍後再試'
+	String get accountLocked => '帳號已被鎖定，請稍後再試';
+
+	/// zh-TW: '密碼已過期，請至校園入口網站變更密碼'
+	String get passwordExpired => '密碼已過期，請至校園入口網站變更密碼';
+
+	/// zh-TW: '需要進行手機驗證，請至校園入口網站完成驗證'
+	String get mobileVerificationRequired => '需要進行手機驗證，請至校園入口網站完成驗證';
 }
 
 // Path: profile.sections
@@ -285,8 +307,8 @@ class TranslationsProfileSectionsZhTw {
 	/// zh-TW: '應用程式設定'
 	String get appSettings => '應用程式設定';
 
-	/// zh-TW: '訊息範例'
-	String get notices => '訊息範例';
+	/// zh-TW: '危險區域'
+	String get dangerZone => '危險區域';
 }
 
 // Path: profile.options
@@ -306,8 +328,8 @@ class TranslationsProfileOptionsZhTw {
 	/// zh-TW: '支持我們'
 	String get supportUs => '支持我們';
 
-	/// zh-TW: '關於 TAT'
-	String get about => '關於 TAT';
+	/// zh-TW: '關於TAT'
+	String get about => '關於TAT';
 
 	/// zh-TW: '北科程式設計研究社'
 	String get npcClub => '北科程式設計研究社';
@@ -317,24 +339,6 @@ class TranslationsProfileOptionsZhTw {
 
 	/// zh-TW: '登出帳號'
 	String get logout => '登出帳號';
-}
-
-// Path: profile.notices
-class TranslationsProfileNoticesZhTw {
-	TranslationsProfileNoticesZhTw.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。'
-	String get betaTesting => '目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。';
-
-	/// zh-TW: '您的密碼將於 7 天後到期，請盡快更新以免無法登入。'
-	String get passwordExpiring => '您的密碼將於 7 天後到期，請盡快更新以免無法登入。';
-
-	/// zh-TW: '無法連接到伺服器，資料可能不正確。'
-	String get connectionError => '無法連接到伺服器，資料可能不正確。';
 }
 
 // Path: profile.avatar
@@ -351,14 +355,77 @@ class TranslationsProfileAvatarZhTw {
 	/// zh-TW: '個人圖片已更新'
 	String get uploadSuccess => '個人圖片已更新';
 
-	/// zh-TW: '圖片大小超過 20 MB 限制'
-	String get tooLarge => '圖片大小超過 20 MB 限制';
+	/// zh-TW: '圖片大小超過20 MB限制'
+	String get tooLarge => '圖片大小超過20 MB限制';
 
 	/// zh-TW: '無法辨識的圖片格式'
 	String get invalidFormat => '無法辨識的圖片格式';
 
 	/// zh-TW: '更改個人圖片失敗，請稍後再試'
 	String get uploadFailed => '更改個人圖片失敗，請稍後再試';
+}
+
+// Path: profile.dangerZone
+class TranslationsProfileDangerZoneZhTw {
+	TranslationsProfileDangerZoneZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '非Flutter框架崩潰'
+	String get nonFlutterCrash => '非Flutter框架崩潰';
+
+	/// zh-TW: '模擬非同步錯誤'
+	String get nonFlutterCrashException => '模擬非同步錯誤';
+
+	/// zh-TW: '酒吧暫未營業'
+	String get closedTitle => '酒吧暫未營業';
+
+	/// zh-TW: '酒吧今天打烊了，改天再來探索吧！'
+	String get closedMessage => '酒吧今天打烊了，改天再來探索吧！';
+
+	/// zh-TW: '你被店員勸退，還是早點回家休息吧～'
+	String get kickedMessage => '你被店員勸退，還是早點回家休息吧～';
+
+	/// zh-TW: '酒吧陷入火海'
+	String get fireMessage => '酒吧陷入火海';
+
+	/// zh-TW: '已經吃飽了'
+	String get alreadyFull => '已經吃飽了';
+
+	/// zh-TW: '去酒吧${action}'
+	String goAction({required Object action}) => '去酒吧${action}';
+
+	List<String> get actions => [
+		'點0杯啤酒',
+		'點999999999杯啤酒',
+		'點1支蜥蜴',
+		'點-1杯啤酒',
+		'點1份asdfghjkl',
+		'點1碗炒飯',
+		'跑進吧檯被店員拖出去',
+	];
+
+	/// zh-TW: '清除快取'
+	String get clearCache => '清除快取';
+
+	/// zh-TW: '清除Cookies'
+	String get clearCookies => '清除Cookies';
+
+	/// zh-TW: '清除偏好設定'
+	String get clearPreferences => '清除偏好設定';
+
+	/// zh-TW: '清除使用者資料'
+	String get clearUserData => '清除使用者資料';
+
+	/// zh-TW: '已清除${item}'
+	String cleared({required Object item}) => '已清除${item}';
+
+	/// zh-TW: '清除${item}失敗'
+	String clearFailed({required Object item}) => '清除${item}失敗';
+
+	late final TranslationsProfileDangerZoneItemsZhTw items = TranslationsProfileDangerZoneItemsZhTw.internal(_root);
 }
 
 // Path: intro.features.courseTable
@@ -406,6 +473,27 @@ class TranslationsIntroFeaturesCampusLifeZhTw {
 	String get description => '彙整其他校園生活資訊，更多功能敬請期待。';
 }
 
+// Path: profile.dangerZone.items
+class TranslationsProfileDangerZoneItemsZhTw {
+	TranslationsProfileDangerZoneItemsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '快取'
+	String get cache => '快取';
+
+	/// zh-TW: 'Cookies'
+	String get cookies => 'Cookies';
+
+	/// zh-TW: '偏好設定'
+	String get preferences => '偏好設定';
+
+	/// zh-TW: '使用者資料'
+	String get userData => '使用者資料';
+}
+
 /// The flat map containing all translations for locale <zh-TW>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -422,7 +510,7 @@ extension on Translations {
 			'general.notLoggedIn' => '未登入',
 			'general.ok' => '確定',
 			'errors.occurred' => '發生錯誤',
-			'errors.flutterError' => '發生 Flutter 錯誤',
+			'errors.flutterError' => '發生Flutter錯誤',
 			'errors.asyncError' => '發生非同步錯誤',
 			'errors.sessionExpired' => '登入狀態已過期，請重新登入',
 			'errors.credentialsInvalid' => '登入憑證已失效，請重新登入',
@@ -445,37 +533,66 @@ extension on Translations {
 			'login.errors.emptyFields' => '請填寫學號與密碼',
 			'login.errors.useStudentId' => '請直接使用學號登入，不要使用電子郵件',
 			'login.errors.loginFailed' => '登入失敗，請確認帳號密碼',
+			'login.errors.wrongCredentials' => '學號或密碼錯誤',
+			'login.errors.accountLocked' => '帳號已被鎖定，請稍後再試',
+			'login.errors.passwordExpired' => '密碼已過期，請至校園入口網站變更密碼',
+			'login.errors.mobileVerificationRequired' => '需要進行手機驗證，請至校園入口網站完成驗證',
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.profile' => '我',
+			'profile.dataDisclaimer' => '本資料僅供參考，不做其他證明用途',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
-			'profile.sections.notices' => '訊息範例',
+			'profile.sections.dangerZone' => '危險區域',
 			'profile.options.changePassword' => '更改密碼',
 			'profile.options.changeAvatar' => '更改個人圖片',
 			'profile.options.supportUs' => '支持我們',
-			'profile.options.about' => '關於 TAT',
+			'profile.options.about' => '關於TAT',
 			'profile.options.npcClub' => '北科程式設計研究社',
 			'profile.options.preferences' => '偏好設定',
 			'profile.options.logout' => '登出帳號',
-			'profile.notices.betaTesting' => '目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。',
-			'profile.notices.passwordExpiring' => '您的密碼將於 7 天後到期，請盡快更新以免無法登入。',
-			'profile.notices.connectionError' => '無法連接到伺服器，資料可能不正確。',
 			'profile.avatar.uploading' => '正在更新個人圖片...',
 			'profile.avatar.uploadSuccess' => '個人圖片已更新',
-			'profile.avatar.tooLarge' => '圖片大小超過 20 MB 限制',
+			'profile.avatar.tooLarge' => '圖片大小超過20 MB限制',
 			'profile.avatar.invalidFormat' => '無法辨識的圖片格式',
 			'profile.avatar.uploadFailed' => '更改個人圖片失敗，請稍後再試',
-			'profile.dataDisclaimer' => '本資料僅供參考，不做其他證明用途',
+			'profile.dangerZone.nonFlutterCrash' => '非Flutter框架崩潰',
+			'profile.dangerZone.nonFlutterCrashException' => '模擬非同步錯誤',
+			'profile.dangerZone.closedTitle' => '酒吧暫未營業',
+			'profile.dangerZone.closedMessage' => '酒吧今天打烊了，改天再來探索吧！',
+			'profile.dangerZone.kickedMessage' => '你被店員勸退，還是早點回家休息吧～',
+			'profile.dangerZone.fireMessage' => '酒吧陷入火海',
+			'profile.dangerZone.alreadyFull' => '已經吃飽了',
+			'profile.dangerZone.goAction' => ({required Object action}) => '去酒吧${action}',
+			'profile.dangerZone.actions.0' => '點0杯啤酒',
+			'profile.dangerZone.actions.1' => '點999999999杯啤酒',
+			'profile.dangerZone.actions.2' => '點1支蜥蜴',
+			'profile.dangerZone.actions.3' => '點-1杯啤酒',
+			'profile.dangerZone.actions.4' => '點1份asdfghjkl',
+			'profile.dangerZone.actions.5' => '點1碗炒飯',
+			'profile.dangerZone.actions.6' => '跑進吧檯被店員拖出去',
+			'profile.dangerZone.clearCache' => '清除快取',
+			'profile.dangerZone.clearCookies' => '清除Cookies',
+			'profile.dangerZone.clearPreferences' => '清除偏好設定',
+			'profile.dangerZone.clearUserData' => '清除使用者資料',
+			'profile.dangerZone.cleared' => ({required Object item}) => '已清除${item}',
+			'profile.dangerZone.clearFailed' => ({required Object item}) => '清除${item}失敗',
+			'profile.dangerZone.items.cache' => '快取',
+			'profile.dangerZone.items.cookies' => 'Cookies',
+			'profile.dangerZone.items.preferences' => '偏好設定',
+			'profile.dangerZone.items.userData' => '使用者資料',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
-			'about.description' => 'Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。',
+			'about.description' => 'Project Tattoo (TAT)是國立臺北科技大學(NTUT)的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。',
 			'about.developers' => '開發團隊',
 			'about.helpTranslate' => '幫助我們翻譯TAT!',
 			'about.viewSource' => '查看原始碼與貢獻',
 			'about.relatedLinks' => '相關連結',
-			'about.copyright' => '© 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
+			'about.privacyPolicy' => '隱私權政策',
+			'about.privacyPolicyUrl' => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md',
+			'about.viewPrivacyPolicy' => '查看隱私權政策',
+			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
 			_ => null,
 		};
 	}

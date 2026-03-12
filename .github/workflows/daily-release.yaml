@@ -1,0 +1,272 @@
+name: Daily Release
+
+on:
+  schedule:
+    - cron: "0 21 * * *" # Daily at 05:00 UTC+8 (21:00 UTC)
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Specific branch to build from HEAD (Uses CI logic from dropdown)'
+        required: false
+        type: string
+      commit_sha:
+        description: 'Specific commit SHA to build (overrides branch)'
+        required: false
+        type: string
+      include_public_testers:
+        description: 'Upload to external public testers (TestFlight/Firebase)'
+        required: false
+        type: boolean
+        default: false
+      force_build:
+        description: 'Force build even if no changes'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      build_number: ${{ steps.build-number.outputs.build_number }}
+      version_suffix: ${{ steps.version-suffix.outputs.suffix }}
+      date: ${{ steps.version-suffix.outputs.date }}
+      commit_sha: ${{ steps.summary.outputs.sha }}
+      commit_message: ${{ steps.summary.outputs.message }}
+      target_ref: ${{ steps.set-ref.outputs.ref }}
+      skip_build: ${{ steps.check-changes.outputs.skip }}
+    steps:
+      - name: Checkout Actions
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+
+      - name: Set Version Suffix
+        id: version-suffix
+        run: |
+          DATE=$(TZ='Asia/Taipei' date +'%Y%m%d')
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+          echo "suffix=daily.$DATE" >> $GITHUB_OUTPUT
+
+      - name: Resolve Target Ref
+        id: set-ref
+        uses: ./.github/actions/resolve-ref
+        with:
+          branch_name: ${{ inputs.branch_name }}
+          commit_sha: ${{ inputs.commit_sha }}
+
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ steps.set-ref.outputs.ref }}
+
+      - name: Check for changes
+        id: check-changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ inputs.force_build }}" = "true" ]; then
+            echo "skip=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if gh release view daily &>/dev/null; then
+            LAST_SHA=$(gh release view daily --json targetCommitish -q .targetCommitish)
+            CURRENT_SHA=$(git rev-parse HEAD)
+            if [ "$LAST_SHA" = "$CURRENT_SHA" ]; then
+              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "No changes since last daily build ($LAST_SHA). Skipping."
+            else
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Manage Build Number
+        if: steps.check-changes.outputs.skip != 'true'
+        id: build-number
+        uses: ./.github/actions/manage-build-number
+        with:
+          github_token: ${{ secrets.BUILD_NUMBER_PAT }}
+          current_build_number: ${{ vars.build_number }}
+
+      - name: Write Build Summary
+        if: steps.check-changes.outputs.skip != 'true'
+        id: summary
+        uses: ./.github/actions/write-build-summary
+        with:
+          title: "Release Builds"
+          build_number: ${{ steps.build-number.outputs.build_number }}
+
+      - name: Find or create pre-release
+        if: steps.check-changes.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BODY=$(cat <<'BODY_EOF'
+          **Build Number:** ${{ steps.build-number.outputs.build_number }}
+          **Commit:** ${{ steps.summary.outputs.sha }}
+          **Message:** ${{ steps.summary.outputs.message }}
+
+          <!--android-build-->
+
+          <!--ios-build-->
+
+          ---
+          > [!WARNING]
+          > Installing via the provided APK or IPA below is **discouraged**.
+          > Please use **Firebase App Distribution** (Android) or **TestFlight** (iOS) for the best experience and automatic updates.
+          BODY_EOF
+          )
+
+          if gh release view daily &>/dev/null; then
+            gh release delete daily --yes --cleanup-tag
+          fi
+
+          gh release create daily \
+            --title "Daily Build $(TZ='Asia/Taipei' date +'%Y-%m-%d')" \
+            --notes "$BODY" \
+            --target $(git rev-parse HEAD) \
+            --prerelease
+
+  android:
+    runs-on: ubuntu-latest
+    needs: [prepare]
+    if: needs.prepare.outputs.skip_build != 'true'
+    env:
+      FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      VERSION_SUFFIX: ${{ needs.prepare.outputs.version_suffix }}
+      PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
+      COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+      COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+      PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
+      FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ needs.prepare.outputs.target_ref }}
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          platform: android
+
+      - name: Build packages and upload to Firebase App Distribution
+        id: build
+        run: |
+          bundle exec fastlane android build_apk
+          bundle exec fastlane android release
+          APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" -not -name "*sha1" | head -n 1)
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload APK to Release
+        run: gh release upload daily "${{ steps.build.outputs.apk_path }}#tattoo-${{ needs.prepare.outputs.build_number }}-android.apk" --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Write Android Job Summary
+        uses: ./.github/actions/android-summary
+        with:
+          build_number: ${{ needs.prepare.outputs.build_number }}
+          type: release
+          testing_uri: ${{ steps.build.outputs.testing_uri }}
+
+      - name: Append Android result to pre-release
+        uses: ./.github/actions/append-release-notes
+        with:
+          github_token: ${{ github.token }}
+          tag: "<!--android-build-->"
+          body: |
+            ### Android
+            You can join the testing program here:
+            [Join Firebase App Distribution](${{ vars.FIREBASE_PUBLIC_LINK }})
+
+            [Install build ${{ needs.prepare.outputs.build_number }} in Firebase App Distribution](${{ steps.build.outputs.testing_uri }})
+
+            1. Open the Firebase App Distribution app on your Android device
+            2. Select "Project Tattoo"
+            3. Install or update to the latest build
+
+            > If you cannot find the new release in Firebase App Distribution, navigate to the home page and back.
+            > Installing the App Distribution app is optional but recommended.
+
+  ios:
+    runs-on: macos-latest
+    needs: [prepare]
+    if: needs.prepare.outputs.skip_build != 'true'
+    env:
+      FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      FASTLANE_APPLE_ID: ${{ secrets.FASTLANE_APPLE_ID }}
+      FASTLANE_TEAM_ID: ${{ secrets.FASTLANE_TEAM_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+      APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+      BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      VERSION_SUFFIX: ${{ needs.prepare.outputs.version_suffix }}
+      PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
+      COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+      COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+      PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ needs.prepare.outputs.target_ref }}
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          platform: ios
+
+      - name: Build iOS
+        id: build
+        run: |
+          bundle exec fastlane ios upload_testflight
+          IPA_PATH=$(find . -maxdepth 2 -name "*.ipa" | head -n 1)
+          echo "ipa_path=$IPA_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload iOS to Release
+        run: gh release upload daily "${{ steps.build.outputs.ipa_path }}#tattoo-${{ needs.prepare.outputs.build_number }}-ios.ipa" --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Write iOS Job Summary
+        uses: ./.github/actions/ios-summary
+        with:
+          build_number: ${{ needs.prepare.outputs.build_number }}
+
+      - name: Append iOS result to pre-release
+        uses: ./.github/actions/append-release-notes
+        with:
+          github_token: ${{ github.token }}
+          tag: "<!--ios-build-->"
+          body: |
+            ### iOS (TestFlight)
+            You can also join the TestFlight program here:
+            [Join TestFlight](${{ vars.TESTFLIGHT_PUBLIC_LINK }}) to install build ${{ needs.prepare.outputs.build_number }}.
+
+            1. Open the TestFlight app on your iOS device
+            2. Select "Project Tattoo"
+            3. Install build ${{ needs.prepare.outputs.build_number }}
+
+            > Install TestFlight app from App Store if you don't have it (required iOS 16.0 or later)
+            > TestFlight app is blocked by NTUT Wi-Fi, please use your own mobile data or other networks to install.

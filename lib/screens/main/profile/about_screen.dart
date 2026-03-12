@@ -6,18 +6,61 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/services/github_service.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:tattoo/utils/launch_url.dart';
 
-final packageInfoProvider = FutureProvider.autoDispose<PackageInfo>((ref) {
-  return PackageInfo.fromPlatform();
+final packageInfoProvider = FutureProvider.autoDispose<String>((ref) async {
+  final packageInfo = await PackageInfo.fromPlatform();
+  const suffix = String.fromEnvironment('VERSION_SUFFIX');
+
+  if (suffix.isEmpty) {
+    return '${packageInfo.version} (${packageInfo.buildNumber})';
+  }
+  return '${packageInfo.version}-$suffix (${packageInfo.buildNumber})';
 });
 
-class AboutScreen extends ConsumerWidget {
+class AboutScreen extends ConsumerStatefulWidget {
   const AboutScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends ConsumerState<AboutScreen> {
+  int _logoClickCount = 0;
+
+  Future<void> _onLogoTap(BuildContext context, WidgetRef ref) async {
+    _logoClickCount++;
+    if (_logoClickCount != 7) return;
+
+    _logoClickCount = 0;
+    final prefs = ref.read(preferencesRepositoryProvider);
+    final current = await prefs.get(PrefKey.showDangerZone);
+    final newState = !current;
+    await prefs.set(PrefKey.showDangerZone, newState);
+
+    ref.invalidate(dangerZoneActionProvider);
+
+    final action = ref.read(dangerZoneActionProvider);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            newState
+                ? t.profile.dangerZone.goAction(action: action)
+                : t.profile.dangerZone.alreadyFull,
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final contributorsAsync = ref.watch(contributorsProvider);
     final packageInfoAsync = ref.watch(packageInfoProvider);
     final theme = Theme.of(context);
@@ -39,10 +82,13 @@ class AboutScreen extends ConsumerWidget {
                     Column(
                       spacing: 8,
                       children: [
-                        SvgPicture.asset(
-                          'assets/tat_icon.svg',
-                          width: 80,
-                          height: 80,
+                        GestureDetector(
+                          onTap: () => _onLogoTap(context, ref),
+                          child: SvgPicture.asset(
+                            'assets/tat_icon.svg',
+                            width: 80,
+                            height: 80,
+                          ),
                         ),
                         Text(
                           t.general.appTitle,
@@ -50,24 +96,10 @@ class AboutScreen extends ConsumerWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        packageInfoAsync.when(
-                          data: (packageInfo) => Text(
-                            '${packageInfo.version} (${packageInfo.buildNumber})',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.hintColor,
-                            ),
-                          ),
-                          loading: () => Text(
-                            '... (...)',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.hintColor,
-                            ),
-                          ),
-                          error: (error, stackTrace) => Text(
-                            '... (...)',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.hintColor,
-                            ),
+                        Text(
+                          packageInfoAsync.value ?? '... (...)',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.hintColor,
                           ),
                         ),
                       ],
@@ -103,6 +135,14 @@ class AboutScreen extends ConsumerWidget {
                           description: t.about.helpTranslate,
                           onTap: () => launchUrl(
                             Uri.parse('https://translate.ntut.club'),
+                          ),
+                        ),
+                        OptionEntryTile.icon(
+                          icon: Icons.privacy_tip,
+                          title: t.about.privacyPolicy,
+                          description: t.about.viewPrivacyPolicy,
+                          onTap: () => launchUrl(
+                            Uri.parse(t.about.privacyPolicyUrl),
                           ),
                         ),
                       ],

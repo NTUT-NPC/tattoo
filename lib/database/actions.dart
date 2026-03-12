@@ -3,6 +3,18 @@ import 'package:tattoo/database/database.dart';
 
 /// Reusable database operations shared across repositories.
 extension DatabaseActions on AppDatabase {
+  /// Drops and recreates all tables, fully resetting the database.
+  Future<void> deleteEverything() async {
+    await transaction(() async {
+      final m = Migrator(this);
+      final reversed = allSchemaEntities.toList().reversed;
+      for (final entity in reversed) {
+        await m.drop(entity);
+      }
+      await m.createAll();
+    });
+  }
+
   /// Returns the ID of an existing semester row, or creates one if missing.
   Future<int> getOrCreateSemester(int year, int term) async {
     return (await into(semesters).insertReturning(

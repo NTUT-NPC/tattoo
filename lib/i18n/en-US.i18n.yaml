@@ -1,0 +1,110 @@
+general:
+  appTitle: Project Tattoo
+  notImplemented: Not implemented
+  dataDisclaimer: For reference only
+  student: Student
+  unknown: Unknown
+  notLoggedIn: Not logged in
+  ok: OK
+errors:
+  occurred: An error occurred
+  flutterError: A Flutter error occurred
+  asyncError: An async error occurred
+  sessionExpired: Session expired. Please sign in again.
+  credentialsInvalid: Credentials are no longer valid. Please sign in again.
+  connectionFailed: Cannot connect to the server. Please check your network connection.
+intro:
+  features:
+    courseTable:
+      title: Courses
+      description: Quickly view your course schedule and switch between semesters.
+    scores:
+      title: Scores
+      description: Check your grades and credits with integrated historical records.
+    campusLife:
+      title: Campus Life
+      description: Access campus life information, with more features coming soon.
+  developedBy: Developed by NTUT NPC Club\nAll information is for reference only. Please refer to the official university system.
+  continue: Continue
+login:
+  welcomeLine1: Welcome to
+  welcomeLine2: Campus Life
+  instruction(rich): "Sign in with your ${portalLink(NTUT Portal)} account credentials."
+  studentId: Student ID
+  password: Password
+  loginButton: Sign In
+  privacyNotice(rich): "Your credentials are stored securely on your device\nBy signing in, you agree to our ${privacyPolicy(Privacy Policy)}."
+  errors:
+    emptyFields: Please enter your student ID and password
+    useStudentId: Please use your student ID to sign in, not an email address
+    loginFailed: Login failed. Please verify your credentials.
+    wrongCredentials: Incorrect student ID or password.
+    accountLocked: Account locked due to too many failed attempts. Please try again later.
+    passwordExpired: Your password has expired. Please change it on the NTUT portal.
+    mobileVerificationRequired: Mobile phone verification is required. Please complete it on the NTUT portal.
+nav:
+  courseTable: Courses
+  scores: Scores
+  profile: Me
+profile:
+  dataDisclaimer: For reference only. Not valid as official documentation.
+  sections:
+    accountSettings: Account Settings
+    appSettings: App Settings
+    dangerZone: Danger Zone
+  options:
+    changePassword: Change Password
+    changeAvatar: Change Avatar
+    supportUs: Support Us
+    about: About TAT
+    npcClub: NTUT NPC Club
+    preferences: Preferences
+    logout: Sign Out
+  avatar:
+    uploading: Updating avatar...
+    uploadSuccess: Avatar updated
+    tooLarge: Image exceeds the 20 MB size limit
+    invalidFormat: Unrecognized image format
+    uploadFailed: Failed to change avatar. Please try again later.
+  dangerZone:
+    nonFlutterCrash: Non-Flutter Framework Crash
+    nonFlutterCrashException: Simulation of asynchronous error
+    closedTitle: Bar is currently closed
+    closedMessage: "The bar is closed today, come back another time to explore!"
+    kickedMessage: "You were kicked out by the staff. Better head home and rest!"
+    fireMessage: Bar is on fire
+    alreadyFull: "Already full"
+    goAction: "Go to the bar and ${action}"
+    actions:
+      - order 0 beers
+      - order 999999999 beers
+      - order 1 lizard
+      - order -1 beer
+      - order 1 asdfghjkl
+      - order 1 bowl of fried rice
+      - get kicked out by the staff
+    clearCache: Clear Cache
+    clearCookies: Clear Cookies
+    clearPreferences: Clear Preferences
+    clearUserData: Clear User Data
+    cleared: '${item} cleared'
+    clearFailed: Failed to clear ${item}
+    items:
+      cache: Cache
+      cookies: Cookies
+      preferences: Preferences
+      userData: User data
+enrollmentStatus:
+  learning: Enrolled
+  leaveOfAbsence: Leave of Absence
+  droppedOut: Withdrawn
+about:
+  description: Project Tattoo (TAT) is an unofficial campus life assistant for National Taipei University of Technology (NTUT). Our goal is to provide a better student experience through a modern and user-friendly interface.
+  developers: Developers
+  helpTranslate: Help us translate TAT!
+  viewSource: View source code and contributions
+  relatedLinks: Related Links
+  privacyPolicy: Privacy Policy
+  privacyPolicyUrl: https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md
+  viewPrivacyPolicy: View our privacy policy
+  copyright: "© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0"

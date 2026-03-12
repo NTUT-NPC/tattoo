@@ -2,5 +2,5 @@
 #
 # Ensure this file is checked in to source control!
 
-gem 'fastlane-plugin-flutter'
-gem 'fastlane-plugin-firebase_app_distribution'
+gem 'fastlane-plugin-flutter', '~> 0.8.0'
+gem 'fastlane-plugin-firebase_app_distribution', '~> 1.0.0'

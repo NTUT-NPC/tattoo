@@ -8,7 +8,7 @@ general:
   ok: 確定
 errors:
   occurred: 發生錯誤
-  flutterError : 發生 Flutter 錯誤
+  flutterError: 發生Flutter錯誤
   asyncError: 發生非同步錯誤
   sessionExpired: 登入狀態已過期，請重新登入
   credentialsInvalid: 登入憑證已失效，請重新登入
@@ -38,43 +38,73 @@ login:
     emptyFields: 請填寫學號與密碼
     useStudentId: 請直接使用學號登入，不要使用電子郵件
     loginFailed: 登入失敗，請確認帳號密碼
+    wrongCredentials: 學號或密碼錯誤
+    accountLocked: 帳號已被鎖定，請稍後再試
+    passwordExpired: 密碼已過期，請至校園入口網站變更密碼
+    mobileVerificationRequired: 需要進行手機驗證，請至校園入口網站完成驗證
 nav:
   courseTable: 課表
   scores: 成績
   profile: 我
 profile:
+  dataDisclaimer: 本資料僅供參考，不做其他證明用途
   sections:
     accountSettings: 帳號設定
     appSettings: 應用程式設定
-    notices: 訊息範例
+    dangerZone: 危險區域
   options:
     changePassword: 更改密碼
     changeAvatar: 更改個人圖片
     supportUs: 支持我們
-    about: 關於 TAT
+    about: 關於TAT
     npcClub: 北科程式設計研究社
     preferences: 偏好設定
     logout: 登出帳號
-  notices:
-    betaTesting: 目前新版的 TAT 仍在測試階段，若有問題歡迎和我們反映。
-    passwordExpiring: 您的密碼將於 7 天後到期，請盡快更新以免無法登入。
-    connectionError: 無法連接到伺服器，資料可能不正確。
   avatar:
     uploading: 正在更新個人圖片...
     uploadSuccess: 個人圖片已更新
-    tooLarge: 圖片大小超過 20 MB 限制
+    tooLarge: 圖片大小超過20 MB限制
     invalidFormat: 無法辨識的圖片格式
     uploadFailed: 更改個人圖片失敗，請稍後再試
-  dataDisclaimer: 本資料僅供參考，不做其他證明用途
+  dangerZone:
+    nonFlutterCrash: 非Flutter框架崩潰
+    nonFlutterCrashException: 模擬非同步錯誤
+    closedTitle: 酒吧暫未營業
+    closedMessage: "酒吧今天打烊了，改天再來探索吧！"
+    kickedMessage: "你被店員勸退，還是早點回家休息吧～"
+    fireMessage: 酒吧陷入火海
+    alreadyFull: "已經吃飽了"
+    goAction: "去酒吧${action}"
+    actions:
+      - 點0杯啤酒
+      - 點999999999杯啤酒
+      - 點1支蜥蜴
+      - 點-1杯啤酒
+      - 點1份asdfghjkl
+      - 點1碗炒飯
+      - 跑進吧檯被店員拖出去
+    clearCache: 清除快取
+    clearCookies: 清除Cookies
+    clearPreferences: 清除偏好設定
+    clearUserData: 清除使用者資料
+    cleared: 已清除${item}
+    clearFailed: 清除${item}失敗
+    items:
+      cache: 快取
+      cookies: Cookies
+      preferences: 偏好設定
+      userData: 使用者資料
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學
   droppedOut: 退學
 about:
-  description: Project Tattoo (TAT) 是國立臺北科技大學（NTUT）的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。
+  description: Project Tattoo (TAT)是國立臺北科技大學(NTUT)的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。
   developers: 開發團隊
   helpTranslate: 幫助我們翻譯TAT!
   viewSource: 查看原始碼與貢獻
   relatedLinks: 相關連結
-  copyright: © 2025 北科程式設計研究社\n以GNU GPL v3.0授權條款釋出
-
+  privacyPolicy: 隱私權政策
+  privacyPolicyUrl: https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md
+  viewPrivacyPolicy: 查看隱私權政策
+  copyright: © 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出

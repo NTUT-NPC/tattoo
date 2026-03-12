@@ -3,7 +3,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:tattoo/models/login_exception.dart';
+import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
@@ -100,6 +101,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) context.go(AppRoutes.home);
     } on DioException {
       if (mounted) _setError(t.errors.connectionFailed);
+    } on LoginException catch (e) {
+      if (mounted) {
+        switch (e) {
+          case WrongCredentialsException():
+            _setError(
+              t.login.errors.wrongCredentials,
+              username: true,
+              password: true,
+            );
+          case AccountLockedException():
+            _setError(t.login.errors.accountLocked);
+          case PasswordExpiredException():
+            _setError(t.login.errors.passwordExpired);
+          case MobileVerificationRequiredException():
+            _setError(t.login.errors.mobileVerificationRequired);
+          case UnknownLoginException():
+            _setError(
+              t.login.errors.loginFailed,
+              username: true,
+              password: true,
+            );
+        }
+      }
     } catch (_) {
       if (mounted) {
         _setError(t.login.errors.loginFailed, username: true, password: true);
@@ -290,8 +314,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () => launchUrl(
                                     Uri.parse(
-                                      // TODO: Replace with actual privacy policy URL
-                                      'https://example.com/terms-of-service',
+                                      t.about.privacyPolicyUrl,
                                     ),
                                   ),
                               ),

@@ -2,5 +2,5 @@
 <resources>
     <color name="splash_icon_background">#3a3b3b</color>
     <color name="splash_icon_foreground">#cccccc</color>
-    <color name="branding_gray">#b7b7b7</color>
+    <color name="splash_branding_foreground">#b7b7b7</color>
 </resources>

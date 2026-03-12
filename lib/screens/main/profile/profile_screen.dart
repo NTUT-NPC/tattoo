@@ -2,19 +2,21 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/services/portal_service.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:tattoo/services/portal/portal_service.dart';
+import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
+import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -69,7 +71,7 @@ class ProfileScreen extends ConsumerWidget {
       AvatarTooLargeException() => t.profile.avatar.tooLarge,
       FormatException() => t.profile.avatar.invalidFormat,
       NotLoggedInException() => t.errors.sessionExpired,
-      InvalidCredentialsException() => t.errors.credentialsInvalid,
+      LoginException() => t.errors.credentialsInvalid,
       DioException() => t.errors.connectionFailed,
       _ => t.profile.avatar.uploadFailed,
     };
@@ -103,14 +105,11 @@ class ProfileScreen extends ConsumerWidget {
           .withAuth(
             () => ref.read(portalServiceProvider).getSsoUrl(serviceCode),
           );
-      final launched = await launchUrl(
-        url,
-        // iOS doesn't preserve the in-app browser's session, so we have to open externally to maintain login state.
-        mode: Platform.isIOS ? .externalApplication : .platformDefault,
-      );
-      if (!launched) throw Exception('Could not open browser');
-    } catch (e) {
-      if (context.mounted) _showMessage(context, 'Failed to open: $e');
+      // iOS doesn't preserve the in-app browser's session, so we have to
+      // open externally to maintain login state.
+      await launchUrl(url, inExternalApplication: Platform.isIOS);
+    } on DioException {
+      if (context.mounted) _showMessage(context, t.errors.connectionFailed);
     }
   }
 
@@ -145,22 +144,6 @@ class ProfileScreen extends ConsumerWidget {
       ),
 
       SectionHeader(title: 'TAT'),
-      // TODO: remove before release
-      OptionEntryTile.icon(
-        icon: Icons.rice_bowl_outlined,
-        title: '點一碗炒飯',
-        onTap: () => throw Exception('炒飯'),
-      ),
-      OptionEntryTile.icon(
-        icon: Icons.bug_report_outlined,
-        title: '非 Flutter 框架崩潰',
-        onTap: () async {
-          // This will be caught by PlatformDispatcher.instance.onError
-          Future.delayed(Duration.zero, () {
-            throw Exception('非框架崩潰');
-          });
-        },
-      ),
       OptionEntryTile.icon(
         icon: Icons.favorite_border_outlined,
         title: t.profile.options.supportUs,
@@ -188,44 +171,42 @@ class ProfileScreen extends ConsumerWidget {
         title: t.profile.options.logout,
         onTap: () => _logout(context, ref),
       ),
+      const ProfileDangerZone(),
     ];
 
-    return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () => _refresh(ref),
-          child: CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverToBoxAdapter(
-                  child: Column(
-                    spacing: 16,
-                    children: [
-                      ProfileCard(),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: switch (Theme.of(context).brightness) {
+        Brightness.light => SystemUiOverlayStyle.dark,
+        Brightness.dark => SystemUiOverlayStyle.light,
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: () => _refresh(ref),
+            child: CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverToBoxAdapter(
+                    child: Column(
+                      spacing: 16,
+                      children: [
+                        ProfileCard(),
 
-                      ClearNotice(
-                        text: t.profile.dataDisclaimer,
-                      ),
-
-                      Column(
-                        spacing: 8,
-                        children: options,
-                      ),
-
-                      FutureBuilder<PackageInfo>(
-                        future: PackageInfo.fromPlatform(),
-                        builder: (context, snapshot) => ClearNotice(
-                          text: snapshot.hasData
-                              ? "TAT ${snapshot.data!.version} (${snapshot.data!.buildNumber})"
-                              : "TAT",
+                        ClearNotice(
+                          text: t.profile.dataDisclaimer,
                         ),
-                      ),
-                    ],
+
+                        Column(
+                          spacing: 8,
+                          children: options,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -35,6 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number || vars.build_number }}
+      version_suffix: ${{ steps.version-suffix.outputs.suffix }}
       commit_sha: ${{ steps.summary.outputs.sha }}
       commit_message: ${{ steps.summary.outputs.message }}
       # Note: For workflow_dispatch runs, the "create" step is skipped (it only runs on pull_request),
@@ -48,6 +49,15 @@ jobs:
         with:
           sparse-checkout: .github/actions
           sparse-checkout-cone-mode: false
+
+      - name: Set Version Suffix
+        id: version-suffix
+        run: |
+          if [ -n "${{ github.event.pull_request.number }}" ]; then
+            echo "suffix=pr.${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          else
+            echo "suffix=dev" >> $GITHUB_OUTPUT
+          fi
 
       - name: Resolve Target Ref
         id: set-ref
@@ -132,6 +142,7 @@ jobs:
       MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      VERSION_SUFFIX: ${{ needs.prepare.outputs.version_suffix }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       PR_TITLE: ${{ github.event.pull_request.title }}
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
@@ -216,6 +227,7 @@ jobs:
       APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      VERSION_SUFFIX: ${{ needs.prepare.outputs.version_suffix }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       PR_TITLE: ${{ github.event.pull_request.title }}
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
@@ -262,7 +274,7 @@ jobs:
           fi
 
       - name: Build and Upload to TestFlight
-        run: bundle exec fastlane ios beta skip_upload:${{ steps.check-deploy.outputs.skip_upload }}
+        run: bundle exec fastlane ios upload_testflight skip_upload:${{ steps.check-deploy.outputs.skip_upload }}
 
       - name: Write iOS Job Summary
         if: steps.check-deploy.outputs.skip_upload != 'true'

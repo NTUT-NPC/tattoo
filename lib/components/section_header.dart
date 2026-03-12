@@ -4,9 +4,10 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'widget_preview_frame.dart';
 
 class SectionHeader extends StatelessWidget {
-  const SectionHeader({required this.title, super.key});
+  const SectionHeader({required this.title, this.color, super.key});
 
   final String title;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class SectionHeader extends StatelessWidget {
         title,
         style: theme.textTheme.titleMedium?.copyWith(
           fontWeight: FontWeight.bold,
-          color: theme.colorScheme.primary,
+          color: color ?? theme.colorScheme.primary,
         ),
       ),
     );

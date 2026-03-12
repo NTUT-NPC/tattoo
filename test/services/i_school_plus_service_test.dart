@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tattoo/services/i_school_plus_service.dart';
-import 'package:tattoo/services/portal_service.dart';
+import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
+import 'package:tattoo/services/i_school_plus/ntut_i_school_plus_service.dart';
+import 'package:tattoo/services/portal/portal_service.dart';
+import 'package:tattoo/services/portal/ntut_portal_service.dart';
 
 import '../test_helpers.dart';
 
@@ -13,8 +15,8 @@ void main() {
     setUpAll(() async {
       TestCredentials.validate();
 
-      portalService = PortalService();
-      iSchoolPlusService = ISchoolPlusService();
+      portalService = NtutPortalService();
+      iSchoolPlusService = NtutISchoolPlusService();
 
       await portalService.login(
         TestCredentials.username,
@@ -32,8 +34,8 @@ void main() {
     });
 
     setUp(() async {
-      portalService = PortalService();
-      iSchoolPlusService = ISchoolPlusService();
+      portalService = NtutPortalService();
+      iSchoolPlusService = NtutISchoolPlusService();
 
       await portalService.login(
         TestCredentials.username,

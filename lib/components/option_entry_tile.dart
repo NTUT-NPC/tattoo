@@ -59,6 +59,8 @@ class OptionEntryTile extends StatelessWidget {
     this.onTap,
     this.actionIcon = OptionEntryTileActionIcon.navigateNext,
     this.customActionIcon,
+    this.color,
+    this.borderColor,
   }) : _leading = leading,
        _icon = null,
        _svgIconAsset = null;
@@ -72,6 +74,8 @@ class OptionEntryTile extends StatelessWidget {
     this.onTap,
     this.actionIcon = OptionEntryTileActionIcon.navigateNext,
     this.customActionIcon,
+    this.color,
+    this.borderColor,
   }) : _leading = null,
        _icon = icon,
        _svgIconAsset = null;
@@ -85,6 +89,8 @@ class OptionEntryTile extends StatelessWidget {
     this.onTap,
     this.actionIcon = OptionEntryTileActionIcon.navigateNext,
     this.customActionIcon,
+    this.color,
+    this.borderColor,
   }) : _leading = null,
        _icon = null,
        _svgIconAsset = svgIconAsset;
@@ -117,6 +123,12 @@ class OptionEntryTile extends StatelessWidget {
   /// When provided, this overrides [actionIcon].
   final Icon? customActionIcon;
 
+  /// Optional color for the leading icon or SVG. Defaults to the theme's primary color.
+  final Color? color;
+
+  /// Optional color for the tile border. Defaults to the theme's outlineVariant color.
+  final Color? borderColor;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -132,7 +144,9 @@ class OptionEntryTile extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: borderRadius,
-            border: Border.all(color: colorScheme.outlineVariant),
+            border: Border.all(
+              color: borderColor ?? colorScheme.outlineVariant,
+            ),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -190,12 +204,15 @@ class OptionEntryTile extends StatelessWidget {
           _svgIconAsset,
           fit: BoxFit.contain,
           alignment: Alignment.center,
-          colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
+          colorFilter: ColorFilter.mode(
+            color ?? colorScheme.primary,
+            BlendMode.srcIn,
+          ),
         ),
       );
     }
 
-    return Icon(_icon, color: colorScheme.primary);
+    return Icon(_icon, color: color ?? colorScheme.primary);
   }
 }
 

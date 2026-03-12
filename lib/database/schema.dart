@@ -91,6 +91,9 @@ class Users extends Table with AutoIncrementId, Fetchable {
   ///
   /// Null if password expiration is not enforced or unknown.
   late final passwordExpiresInDays = integer().nullable()();
+
+  /// When the semester list was last fetched from the course system.
+  late final semestersFetchedAt = dateTime().nullable()();
 }
 
 /// Student seen in an I-School Plus course roster.
@@ -251,7 +254,8 @@ class Classrooms extends Table with AutoIncrementId, Fetchable {
   /// Classroom name/location in Traditional Chinese (e.g., "共同大樓 101").
   late final nameZh = text()();
 
-  // TODO: Add fields for full name, floor, capacity, usage
+  // TODO: Add nameEn (full English name parsed from building legend table),
+  // and fields for floor, capacity, usage
 }
 
 // Tables with foreign keys to base tables

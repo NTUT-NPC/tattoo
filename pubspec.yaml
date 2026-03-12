@@ -22,8 +22,8 @@ dependencies:
   collection: ^1.19.1
   intl: ^0.20.2
   flutter_svg: ^2.2.3
-  drift: ^2.31.0
-  drift_flutter: ^0.2.8
+  drift: ^2.32.0
+  drift_flutter: ^0.3.0
   path_provider: ^2.1.5
   url_launcher: ^6.3.2
   riverpod: ^3.2.1
@@ -40,6 +40,7 @@ dependencies:
   http_parser: ^4.1.2
   shared_preferences: ^2.5.4
   flutter_image_compress: ^2.4.0
+  msgpack_dart: ^1.0.1
   firebase_core: ^4.4.0
   firebase_crashlytics: ^5.0.7
   firebase_analytics: ^12.1.2
@@ -50,7 +51,7 @@ dev_dependencies:
 
   flutter_lints: ^6.0.0
   build_runner: ^2.11.1
-  drift_dev: ^2.31.0
+  drift_dev: ^2.32.0
   pointycastle: ^4.0.0
   slang_mcp: ^0.1.2
 

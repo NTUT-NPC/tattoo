@@ -23,10 +23,10 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Build, install on connected device, and upload dSYMs
 
-### ios beta
+### ios upload_testflight
 
 ```sh
-[bundle exec] fastlane ios beta
+[bundle exec] fastlane ios upload_testflight
 ```
 
 Build and upload to TestFlight
@@ -35,6 +35,22 @@ Build and upload to TestFlight
 
 
 ## Android
+
+### android build
+
+```sh
+[bundle exec] fastlane android build
+```
+
+Build the APK
+
+### android device
+
+```sh
+[bundle exec] fastlane android device
+```
+
+Build and install on connected Android device
 
 ### android preview
 
@@ -50,7 +66,7 @@ Build and upload PR preview to Firebase App Distribution
 [bundle exec] fastlane android release
 ```
 
-Build and upload to Google Play Console
+Build and upload to Google Play Console & Firebase
 
 ----
 

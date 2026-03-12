@@ -349,15 +349,15 @@ Widget backgroundNoticeProfileNoticesPreview() {
         mainAxisSize: MainAxisSize.min,
         children: [
           BackgroundNotice(
-            text: t.profile.notices.betaTesting,
+            text: "目前新版的TAT仍在測試階段，若有問題歡迎和我們反映。",
             noticeType: NoticeType.info,
           ),
           BackgroundNotice(
-            text: t.profile.notices.passwordExpiring,
+            text: "您的密碼將於7天後到期，請盡快更新以免無法登入。",
             noticeType: NoticeType.warning,
           ),
           BackgroundNotice(
-            text: t.profile.notices.connectionError,
+            text: "無法連接到伺服器，資料可能不正確。",
             noticeType: NoticeType.error,
           ),
         ],
