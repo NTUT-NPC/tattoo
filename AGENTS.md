@@ -4,18 +4,21 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-03-05. If stale (>7 days), verify Status section against codebase.
+**Last updated:** 2026-03-11. If stale (>7 days), verify Status section against codebase.
 
 ## Status
 
 **Done:**
 
-- PortalService, CourseService, ISchoolPlusService, StudentQueryService, GitHubService
-- Service integration tests
-- Drift database schema
-- AuthRepository, PreferencesRepository, CourseRepository (stubs)
-- Riverpod, go_router, i18n (zh_TW, en_US)
-- UI: intro, login, home (table/score/profile tabs), about, easter egg, ShowcaseShell
+- PortalService (auth+SSO, getSsoUrl for system browser auth, changePassword, getAvatar, uploadAvatar, getCalendar), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial), StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile), GitHubService
+- Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`)
+- Drift database schema with all tables
+- Service DTOs migrated to Dart 3 records
+- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage), PreferencesRepository, CourseRepository (stubs)
+- Riverpod setup (manual providers, no codegen — riverpod_generator incompatible with Drift-generated types)
+- go_router navigation setup
+- UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile), about, easter egg, ShowcaseShell. Home uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
+- i18n (zh_TW, en_US) via slang
 
 **Todo - Service Layer:**
 
@@ -33,7 +36,6 @@ Follow @CONTRIBUTING.md for git operation guidelines.
   - getClassAndMentor (註冊編班與導師查詢)
   - updateContactInfo (維護個人聯絡資料)
   - getGraduationQualifications (查詢畢業資格審查)
-- PortalService: getCalendar
 
 **Todo - Repository Layer:**
 
@@ -93,7 +95,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 **Services:**
 
 - **Architecture:** NTUT services (Portal, Course, ISchoolPlus, StudentQuery) use `abstract interface class` with concrete implementations (e.g., `NtutPortalService`) to enable mocking and demo modes. Files are grouped by subdirectory (e.g., `lib/services/portal/`). Interfaces, DTOs, and providers live in the interface file, while logic lives in the implementation file. Consumers only import the interface file.
-- PortalService - Portal auth, SSO (auth+SSO, getSsoUrl, changePassword, getAvatar, uploadAvatar)
+- PortalService - Portal auth, SSO (auth+SSO, getSsoUrl, changePassword, getAvatar, uploadAvatar, getCalendar - academic calendar events via calModeApp.do JSON API)
 - CourseService - 課程系統 (`aa_0010-oauth`) — HTML parsing
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`) — getStudents, getMaterials, getMaterial
 - StudentQueryService - 學生查詢專區 (`sa_003_oauth`) — getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:intl/intl.dart';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
@@ -211,5 +212,46 @@ class NtutPortalService implements PortalService {
     };
 
     return (actionUrl, formData);
+  }
+
+  @override
+  Future<List<CalendarEventDto>> getCalendar(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    final formatter = DateFormat('yyyy/MM/dd');
+    final response = await _portalDio.get(
+      'calModeApp.do',
+      queryParameters: {
+        'startDate': formatter.format(startDate),
+        'endDate': formatter.format(endDate),
+      },
+    );
+
+    final List<dynamic> events = jsonDecode(response.data);
+    String? normalizeEmpty(String? value) =>
+        value?.isNotEmpty == true ? value : null;
+    DateTime? fromEpoch(int? ms) =>
+        ms != null ? DateTime.fromMillisecondsSinceEpoch(ms) : null;
+
+    return events
+        .where(
+          // Filter out weekend markers
+          (e) => e['isHoliday'] != '1',
+        )
+        .map<CalendarEventDto>(
+          (e) => (
+            id: e['id'],
+            start: fromEpoch(e['calStart']),
+            end: fromEpoch(e['calEnd']),
+            allDay: e['allDay'] == '1',
+            title: normalizeEmpty(e['calTitle']),
+            place: normalizeEmpty(e['calPlace']),
+            content: normalizeEmpty(e['calContent']),
+            ownerName: normalizeEmpty(e['ownerName']),
+            creatorName: normalizeEmpty(e['creatorName']),
+          ),
+        )
+        .toList();
   }
 }

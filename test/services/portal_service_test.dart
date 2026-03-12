@@ -74,7 +74,7 @@ void main() {
       });
     });
 
-    group('avatar', () {
+    group('getAvatar and uploadAvatar', () {
       test('should get placeholder when filename is empty', () async {
         await portalService.login(
           TestCredentials.username,
@@ -230,6 +230,51 @@ void main() {
           throwsException,
         );
       });
+    });
+
+    group('getCalendar', () {
+      setUp(() async {
+        await portalService.login(
+          TestCredentials.username,
+          TestCredentials.password,
+        );
+        await respectfulDelay();
+      });
+
+      test('should return calendar events for a semester date range', () async {
+        final events = await portalService.getCalendar(
+          DateTime(2025, 1, 1),
+          DateTime(2025, 6, 30),
+        );
+
+        expect(events, isNotEmpty, reason: 'Semester should have events');
+
+        for (final event in events) {
+          expect(
+            event.title,
+            isNotNull,
+            reason: 'Every event should have a title',
+          );
+          expect(
+            event.start,
+            isNotNull,
+            reason: 'Every event should have a start time',
+          );
+        }
+      });
+
+      test(
+        'should return empty list for a date range with no events',
+        () async {
+          // A single day far in the past unlikely to have events
+          final events = await portalService.getCalendar(
+            DateTime(2000, 1, 1),
+            DateTime(2000, 1, 2),
+          );
+
+          expect(events, isEmpty);
+        },
+      );
     });
   });
 }

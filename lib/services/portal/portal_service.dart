@@ -23,6 +23,39 @@ typedef UserDto = ({
   int? passwordExpiresInDays,
 });
 
+/// Represents a calendar event from the NTUT Portal.
+///
+/// Weekend markers (isHoliday with empty title) are filtered out by
+/// [PortalService.getCalendar].
+typedef CalendarEventDto = ({
+  /// Event ID.
+  int? id,
+
+  /// Event start time.
+  DateTime? start,
+
+  /// Event end time.
+  DateTime? end,
+
+  /// Whether this is an all-day event.
+  bool allDay,
+
+  /// Event title / description.
+  String? title,
+
+  /// Event location.
+  String? place,
+
+  /// Event content / details.
+  String? content,
+
+  /// Owner name (e.g., "學校行事曆").
+  String? ownerName,
+
+  /// Creator name (e.g., "教務處").
+  String? creatorName,
+});
+
 // dart format off
 /// Identification codes for NTUT services used in SSO authentication.
 ///
@@ -121,4 +154,15 @@ abstract interface class PortalService {
   ///
   /// Throws an [Exception] if the SSO form is not found (user may not be logged in).
   Future<Uri> getSsoUrl(PortalServiceCode serviceCode);
+
+  /// Fetches academic calendar events within a date range.
+  ///
+  /// Returns a list of calendar events (e.g., holidays, exam periods,
+  /// registration deadlines) between [startDate] and [endDate] inclusive.
+  ///
+  /// Requires an active portal session (call [login] first).
+  Future<List<CalendarEventDto>> getCalendar(
+    DateTime startDate,
+    DateTime endDate,
+  );
 }
