@@ -87,7 +87,7 @@ profile:
     clearCookies: Clear Cookies
     clearPreferences: Clear Preferences
     clearUserData: Clear User Data
-    cleared: ${item} cleared
+    cleared: '${item} cleared'
     clearFailed: Failed to clear ${item}
     items:
       cache: Cache
@@ -107,4 +107,4 @@ about:
   privacyPolicy: Privacy Policy
   privacyPolicyUrl: https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md
   viewPrivacyPolicy: View our privacy policy
-  copyright: '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0'
+  copyright: "© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0"
