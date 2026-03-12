@@ -36,23 +36,23 @@ typedef CalendarEventDto = ({
   /// Event ID.
   int? id,
 
-  /// Event start time (epoch milliseconds).
-  int? calStart,
+  /// Event start time.
+  DateTime? start,
 
-  /// Event end time (epoch milliseconds).
-  int? calEnd,
+  /// Event end time.
+  DateTime? end,
 
-  /// Whether this is an all-day event ("1" = yes).
-  String? allDay,
+  /// Whether this is an all-day event.
+  bool allDay,
 
   /// Event title / description.
-  String? calTitle,
+  String? title,
 
   /// Event location.
-  String? calPlace,
+  String? place,
 
   /// Event content / details.
-  String? calContent,
+  String? content,
 
   /// Owner name (e.g., "學校行事曆").
   String? ownerName,
@@ -354,6 +354,8 @@ class PortalService {
     final List<dynamic> events = jsonDecode(response.data);
     String? normalizeEmpty(String? value) =>
         value?.isNotEmpty == true ? value : null;
+    DateTime? fromEpoch(int? ms) =>
+        ms != null ? DateTime.fromMillisecondsSinceEpoch(ms) : null;
 
     return events
         .where(
@@ -363,12 +365,12 @@ class PortalService {
         .map<CalendarEventDto>(
           (e) => (
             id: e['id'],
-            calStart: e['calStart'],
-            calEnd: e['calEnd'],
-            allDay: normalizeEmpty(e['allDay']),
-            calTitle: normalizeEmpty(e['calTitle']),
-            calPlace: normalizeEmpty(e['calPlace']),
-            calContent: normalizeEmpty(e['calContent']),
+            start: fromEpoch(e['calStart']),
+            end: fromEpoch(e['calEnd']),
+            allDay: e['allDay'] == '1',
+            title: normalizeEmpty(e['calTitle']),
+            place: normalizeEmpty(e['calPlace']),
+            content: normalizeEmpty(e['calContent']),
             ownerName: normalizeEmpty(e['ownerName']),
             creatorName: normalizeEmpty(e['creatorName']),
           ),

@@ -248,33 +248,32 @@ void main() {
 
         expect(events, isNotEmpty, reason: 'Semester should have events');
 
-        // Verify structure of first non-holiday event (skip holidays with empty titles)
-        final namedEvents = events.where((e) => e.calTitle != null).toList();
-        expect(
-          namedEvents,
-          isNotEmpty,
-          reason:
-              'Semester should have at least one event with a non-null title',
-        );
-        final event = namedEvents.first;
-        expect(event.calTitle, isNotNull, reason: 'Event should have a title');
-        expect(
-          event.calStart,
-          isNotNull,
-          reason: 'Event should have a start time',
-        );
+        for (final event in events) {
+          expect(
+            event.title,
+            isNotNull,
+            reason: 'Every event should have a title',
+          );
+          expect(
+            event.start,
+            isNotNull,
+            reason: 'Every event should have a start time',
+          );
+        }
       });
 
-      test('should return empty list for a date range with no events', () async {
-        // A single day far in the past unlikely to have events
-        final events = await portalService.getCalendar(
-          DateTime(2000, 1, 1),
-          DateTime(2000, 1, 2),
-        );
+      test(
+        'should return empty list for a date range with no events',
+        () async {
+          // A single day far in the past unlikely to have events
+          final events = await portalService.getCalendar(
+            DateTime(2000, 1, 1),
+            DateTime(2000, 1, 2),
+          );
 
-        // May still contain weekend/holiday markers, but should be a valid list
-        expect(events, isA<List>());
-      });
+          expect(events, isEmpty);
+        },
+      );
     });
   });
 }
