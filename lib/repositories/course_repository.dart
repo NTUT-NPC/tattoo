@@ -21,8 +21,12 @@ typedef CourseTableCell = ({
   /// [CourseOfferings.number].
   String number,
 
-  /// Number of consecutive period rows this cell spans.
+  /// Number of consecutive period rows this cell spans (excluding noon).
   int span,
+
+  /// Whether this cell spans across the noon period, meaning the UI must
+  /// account for the noon row's height when calculating the cell's size.
+  bool crossesNoon,
 
   /// Localized course name.
   String courseName,
@@ -369,6 +373,7 @@ class CourseRepository {
         id: row.id,
         number: row.number,
         span: 1,
+        crossesNoon: false,
         courseName: localized(row.nameZh, row.nameEn),
         classroomName: row.classroomNameZh,
         credits: row.credits,
@@ -379,29 +384,40 @@ class CourseRepository {
     // Compute spans: for each slot, look ahead at consecutive periods on the
     // same day. Matching offerings are tracked in a consumed set, and the
     // starting slot gets the total span. Consumed slots are removed at the end.
+    //
+    // When no course occupies the noon period on any day, courses that span
+    // across noon (e.g. period 4 → 5) are merged. The noon period is skipped
+    // (not counted in span) and crossesNoon is set for UI height calculation.
+    final hasNoon = data.keys.any((s) => s.period == Period.nPeriod);
     final consumed = <({DayOfWeek day, Period period})>{};
     for (final entry in data.entries) {
       if (consumed.contains(entry.key)) continue;
       var span = 1;
-      while (true) {
-        final nextPeriodIndex = entry.key.period.index + span;
-        if (nextPeriodIndex >= Period.values.length) break;
-        final nextKey = (
-          day: entry.key.day,
-          period: Period.values[nextPeriodIndex],
-        );
+      var crossesNoon = false;
+      var lookIndex = entry.key.period.index + 1;
+      while (lookIndex < Period.values.length) {
+        final nextPeriod = Period.values[lookIndex];
+        // Skip noon if no courses use it
+        if (nextPeriod == Period.nPeriod && !hasNoon) {
+          lookIndex++;
+          continue;
+        }
+        final nextKey = (day: entry.key.day, period: nextPeriod);
         if (data[nextKey] case final next? when next.id == entry.value.id) {
           consumed.add(nextKey);
           span++;
+          crossesNoon = entry.key.period.isAM && nextPeriod.isPM;
+          lookIndex++;
         } else {
           break;
         }
       }
-      if (span > 1) {
+      if (span > 1 || crossesNoon) {
         data[entry.key] = (
           id: entry.value.id,
           number: entry.value.number,
           span: span,
+          crossesNoon: crossesNoon,
           courseName: entry.value.courseName,
           classroomName: entry.value.classroomName,
           credits: entry.value.credits,
