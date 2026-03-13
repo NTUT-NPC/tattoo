@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/services/course_service.dart';
-import 'package:tattoo/services/portal_service.dart';
-import 'package:tattoo/services/student_query_service.dart';
+import 'package:tattoo/services/course/course_service.dart';
+import 'package:tattoo/services/portal/portal_service.dart';
+import 'package:tattoo/services/student_query/student_query_service.dart';
 
 typedef ScorePageState = ({
   List<SemesterScoreDto> semesters,

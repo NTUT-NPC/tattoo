@@ -401,9 +401,11 @@ class NtutStudentQueryService implements StudentQueryService {
     }
 
     results.sort((a, b) {
-      final yearCompare = b.semester.year.compareTo(a.semester.year);
+      final yearCompare = (b.semester.year ?? -1).compareTo(
+        a.semester.year ?? -1,
+      );
       if (yearCompare != 0) return yearCompare;
-      return b.semester.term.compareTo(a.semester.term);
+      return (b.semester.term ?? -1).compareTo(a.semester.term ?? -1);
     });
 
     return results;

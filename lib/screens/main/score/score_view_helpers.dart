@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tattoo/models/score.dart';
-import 'package:tattoo/services/student_query_service.dart';
+import 'package:tattoo/services/student_query/student_query_service.dart';
 
 String semesterKey(SemesterScoreDto semester) {
   final year = semester.semester.year;

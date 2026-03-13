@@ -4,7 +4,7 @@ import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/screens/main/score/score_screen_actions.dart';
 import 'package:tattoo/screens/main/score/score_view_helpers.dart';
-import 'package:tattoo/services/student_query_service.dart';
+import 'package:tattoo/services/student_query/student_query_service.dart';
 import 'package:tattoo/screens/main/score/score_providers.dart';
 
 class ScoreScreen extends ConsumerStatefulWidget {
