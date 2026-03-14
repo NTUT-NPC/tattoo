@@ -246,20 +246,31 @@ class TeacherOfficeHours extends Table with AutoIncrementId {
   ];
 }
 
-/// Student class/major (系級) in a particular semester.
+/// Student class/major (系級) for a particular semester.
 ///
-/// Represents academic departments and year levels (e.g., "電子四甲").
+/// Each row represents a class snapshot for a specific semester.
+/// The same class code maps to different names across academic years
+/// (e.g., code 2905 = "電子二甲" in year 113, "電子三甲" in year 114).
+@TableIndex(name: 'class_semester', columns: {#semester})
 class Classes extends Table with AutoIncrementId, Fetchable {
-  /// Unique class code in the NTUT system.
-  late final code = text().unique()();
+  /// Class code/ID in the NTUT system.
+  late final code = text()();
+
+  /// Reference to the semester this snapshot is for.
+  late final semester = integer().references(Semesters, #id)();
 
   /// Class name in Traditional Chinese (e.g., "電子四甲").
-  late final nameZh = text().unique()();
+  late final nameZh = text()();
 
   /// Class name in English (e.g., "4EN4A").
   ///
   /// Not a [Fetchable] field — populated from the English course page.
   late final nameEn = text().nullable()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {code, semester},
+  ];
 }
 
 /// Classroom/location information in a particular semester.

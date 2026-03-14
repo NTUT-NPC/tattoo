@@ -108,12 +108,14 @@ extension DatabaseActions on AppDatabase {
   /// Returns the ID of an existing class row, or creates one.
   Future<int> upsertClass({
     required String code,
+    required int semesterId,
     required String nameZh,
     String? nameEn,
   }) async {
     return (await into(classes).insertReturning(
       ClassesCompanion.insert(
         code: code,
+        semester: semesterId,
         nameZh: nameZh,
         nameEn: Value(nameEn),
       ),
@@ -122,7 +124,7 @@ extension DatabaseActions on AppDatabase {
           nameZh: Value(nameZh),
           nameEn: Value.absentIfNull(nameEn),
         ),
-        target: [classes.code],
+        target: [classes.code, classes.semester],
       ),
     )).id;
   }

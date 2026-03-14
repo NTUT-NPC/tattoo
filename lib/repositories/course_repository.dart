@@ -305,6 +305,7 @@ class CourseRepository {
             if (c case LocalizedRefDto(:final id?, :final nameZh?)) {
               final classId = await _database.upsertClass(
                 code: id,
+                semesterId: semester.id,
                 nameZh: nameZh,
                 nameEn: c.nameEn,
               );
