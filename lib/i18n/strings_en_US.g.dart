@@ -44,6 +44,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsIntroEnUs intro = _TranslationsIntroEnUs._(_root);
 	@override late final _TranslationsLoginEnUs login = _TranslationsLoginEnUs._(_root);
 	@override late final _TranslationsNavEnUs nav = _TranslationsNavEnUs._(_root);
+	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
 	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
 	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
@@ -127,6 +128,16 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	@override String get courseTable => 'Courses';
 	@override String get scores => 'Scores';
 	@override String get profile => 'Me';
+}
+
+// Path: courseTable
+class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
+	_TranslationsCourseTableEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get notFound => 'Course table not found';
 }
 
 // Path: profile
@@ -368,6 +379,7 @@ extension on TranslationsEnUs {
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.profile' => 'Me',
+			'courseTable.notFound' => 'Course table not found',
 			'profile.dataDisclaimer' => 'For reference only. Not valid as official documentation.',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',

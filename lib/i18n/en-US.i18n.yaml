@@ -46,6 +46,8 @@ nav:
   courseTable: Courses
   scores: Scores
   profile: Me
+courseTable:
+  notFound: Course table not found
 profile:
   dataDisclaimer: For reference only. Not valid as official documentation.
   sections:

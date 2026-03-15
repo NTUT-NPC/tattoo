@@ -2,33 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
-import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
-class CourseTableBlock extends StatelessWidget {
-  final CourseTableBlockObject courseBlock;
-  final Color blockColor;
+class CourseTableCell extends StatelessWidget {
+  final CourseTableCellData courseTableCellData;
+  final Color cellColor;
 
-  const CourseTableBlock({
-    required this.courseBlock,
-    required this.blockColor,
+  const CourseTableCell({
+    required this.courseTableCellData,
+    required this.cellColor,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     final containerColor = HSLColor.fromColor(
-      blockColor,
+      cellColor,
     ).withLightness(0.95).withSaturation(0.3).toColor();
     final borderColor = HSLColor.fromColor(
-      blockColor,
+      cellColor,
     ).withLightness(0.3).withSaturation(0.8).toColor();
     final borderStyle = Border.all(
       color: borderColor,
       width: 1,
     );
     final theme = Theme.of(context);
+    final courseTitle = courseTableCellData.courseName.isNotEmpty
+        ? courseTableCellData.courseName
+        : courseTableCellData.number;
+    final classroomName = courseTableCellData.classroomName;
 
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
@@ -47,7 +50,7 @@ class CourseTableBlock extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AutoSizeText(
-                courseBlock.courseNameZh ?? courseBlock.courseNumber,
+                courseTitle,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -57,17 +60,19 @@ class CourseTableBlock extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
               ),
-              AutoSizeText(
-                courseBlock.classroomNameZh,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontSize: 8,
-                  fontWeight: FontWeight.w400,
+              if (classroomName case final classroomName?
+                  when classroomName.isNotEmpty)
+                AutoSizeText(
+                  classroomName,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontSize: 8,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  maxLines: 1,
+                  minFontSize: 6,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                 ),
-                maxLines: 1,
-                minFontSize: 6,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
             ],
           ),
         ),
@@ -76,8 +81,8 @@ class CourseTableBlock extends StatelessWidget {
   }
 }
 
-class CourseTableBlockSkeleton extends StatelessWidget {
-  const CourseTableBlockSkeleton({super.key});
+class CourseTableCellSkeleton extends StatelessWidget {
+  const CourseTableCellSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +115,7 @@ class CourseTableBlockSkeleton extends StatelessWidget {
   group: 'Course Table',
   size: Size(220, 150),
 )
-Widget courseTableBlockNamedPreview() {
+Widget courseTableCellNamedPreview() {
   return WidgetPreviewFrame(
     child: Row(
       spacing: 4,
@@ -120,17 +125,17 @@ Widget courseTableBlockNamedPreview() {
         SizedBox(
           width: 50,
           height: 68,
-          child: CourseTableBlock(
-            courseBlock: _previewNamedCourseTableBlock,
-            blockColor: Colors.blue,
+          child: CourseTableCell(
+            courseTableCellData: _previewNamedCourseTableCell,
+            cellColor: Colors.blue,
           ),
         ),
         SizedBox(
           width: 50,
           height: 136,
-          child: CourseTableBlock(
-            courseBlock: _previewNamedCourseTableBlock,
-            blockColor: Colors.red,
+          child: CourseTableCell(
+            courseTableCellData: _previewNamedCourseTableCell,
+            cellColor: Colors.red,
           ),
         ),
       ],
@@ -139,11 +144,11 @@ Widget courseTableBlockNamedPreview() {
 }
 
 @Preview(
-  name: 'CourseTableBlockSkeleton',
+  name: 'CourseTableCellSkeleton',
   group: 'Course Table',
   size: Size(220, 150),
 )
-Widget courseTableBlockSkeletonPreview() {
+Widget courseTableCellSkeletonPreview() {
   return WidgetPreviewFrame(
     child: Row(
       spacing: 4,
@@ -153,23 +158,25 @@ Widget courseTableBlockSkeletonPreview() {
         const SizedBox(
           width: 50,
           height: 68,
-          child: CourseTableBlockSkeleton(),
+          child: CourseTableCellSkeleton(),
         ),
         const SizedBox(
           width: 50,
           height: 136,
-          child: CourseTableBlockSkeleton(),
+          child: CourseTableCellSkeleton(),
         ),
       ],
     ),
   );
 }
 
-final CourseTableBlockObject _previewNamedCourseTableBlock = (
-  courseNumber: 'CSIE3001',
-  courseNameZh: '微處理機及自動控制應用實務',
-  classroomNameZh: '六教305',
-  dayOfWeek: DayOfWeek.monday,
-  startSection: Period.third,
-  endSection: Period.fourth,
+final CourseTableCellData _previewNamedCourseTableCell = (
+  id: 1,
+  number: 'CSIE3001',
+  span: 2,
+  crossesNoon: false,
+  courseName: '微處理機及自動控制應用實務',
+  classroomName: '六教305',
+  credits: 3.0,
+  hours: 3,
 );

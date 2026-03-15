@@ -46,6 +46,8 @@ nav:
   courseTable: 課表
   scores: 成績
   profile: 我
+courseTable:
+  notFound: 找不到課表
 profile:
   dataDisclaimer: 本資料僅供參考，不做其他證明用途
   sections:

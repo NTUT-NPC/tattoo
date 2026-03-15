@@ -45,6 +45,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsIntroZhTw intro = TranslationsIntroZhTw.internal(_root);
 	late final TranslationsLoginZhTw login = TranslationsLoginZhTw.internal(_root);
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
+	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
@@ -178,6 +179,18 @@ class TranslationsNavZhTw {
 
 	/// zh-TW: '我'
 	String get profile => '我';
+}
+
+// Path: courseTable
+class TranslationsCourseTableZhTw {
+	TranslationsCourseTableZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '找不到課表'
+	String get notFound => '找不到課表';
 }
 
 // Path: profile
@@ -540,6 +553,7 @@ extension on Translations {
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.profile' => '我',
+			'courseTable.notFound' => '找不到課表',
 			'profile.dataDisclaimer' => '本資料僅供參考，不做其他證明用途',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',

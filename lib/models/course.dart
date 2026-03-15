@@ -37,7 +37,8 @@ enum Period {
   aPeriod('A'),
   bPeriod('B'),
   cPeriod('C'),
-  dPeriod('D');
+  dPeriod('D')
+  ;
 
   final String code;
   const Period(this.code);
@@ -69,7 +70,8 @@ enum CourseType {
   universityMajorRequired('▲'),
 
   /// ★ Major Elective Credits (專業選修).
-  majorElective('★');
+  majorElective('★')
+  ;
 
   /// The symbol used on the syllabus page (修 column).
   final String symbol;

@@ -9,6 +9,7 @@ import 'package:tattoo/screens/main/user_providers.dart';
 // TODO: Import mock data from demo mode when implemented
 const _placeholderOwnerName = '載入中';
 const _placeholderAvatarInitial = '載';
+const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
 
 class CourseTableScreen extends StatelessWidget {
   const CourseTableScreen({super.key});
@@ -22,7 +23,9 @@ class CourseTableScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: _courseTableTabs.length,
+      length: displayedSemesterTabLabels.isEmpty
+          ? 1
+          : displayedSemesterTabLabels.length,
       child: Scaffold(
         // A scaffold appbar to handle status bar height.
         appBar: AppBar(
@@ -85,14 +88,74 @@ class CourseTableScreen extends StatelessWidget {
               surfaceTintColor: Colors.transparent,
               elevation: 0,
               titleSpacing: 0,
-              title: const ChipTabSwitcher(tabs: _courseTableTabs),
+              title: displayedSemesterTabLabels.isEmpty
+                  ? const SizedBox.shrink()
+                  : IgnorePointer(
+                      ignoring: isSemesterLoading,
+                      child: AppSkeleton(
+                        enabled: isSemesterLoading,
+                        child: ChipTabSwitcher(
+                          tabs: displayedSemesterTabLabels,
+                        ),
+                      ),
+                    ),
             ),
           ],
-          body: TabBarView(
-            children: _courseTableTabs
-                .map((tab) => _CourseTableTabContent(semester: tab))
-                .toList(),
-          ),
+          body: switch (semestersAsync) {
+            AsyncError(:final error) => Center(
+              child: Text('Error: $error'),
+            ),
+            AsyncData(value: final semesters) when semesters.isEmpty => Center(
+              child: Text(
+                profileAsync.asData?.value == null
+                    ? t.general.notLoggedIn
+                    : t.courseTable.notFound,
+              ),
+            ),
+            AsyncData(value: final semesters) => TabBarView(
+              children: [
+                for (final semester in semesters)
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final courseTableAsync = ref.watch(
+                        courseTableProvider(semester),
+                      );
+
+                      return switch (courseTableAsync) {
+                        AsyncError(:final error) => Center(
+                          child: Text('Error: $error'),
+                        ),
+                        _ => LayoutBuilder(
+                          builder: (context, constraints) {
+                            return CourseTableGrid(
+                              key: ValueKey(_semesterLabel(semester)),
+                              courseTableData:
+                                  courseTableAsync.asData?.value ??
+                                  CourseTableData(),
+                              loading:
+                                  courseTableAsync.isLoading &&
+                                  !courseTableAsync.hasValue,
+                              viewportWidth: constraints.maxWidth,
+                              viewportHeight: constraints.maxHeight,
+                            );
+                          },
+                        ),
+                      };
+                    },
+                  ),
+              ],
+            ),
+            _ => LayoutBuilder(
+              builder: (context, constraints) {
+                return CourseTableGrid(
+                  courseTableData: CourseTableData(),
+                  loading: true,
+                  viewportWidth: constraints.maxWidth,
+                  viewportHeight: constraints.maxHeight,
+                );
+              },
+            ),
+          },
         ),
       ),
     );
@@ -202,41 +265,6 @@ class _TableOwnerIndicator extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-const _courseTableTabs = <String>[
-  '114-2',
-  '114-1',
-  '113-2',
-  '113-1',
-  '112-2',
-  '112-1',
-  '111-2',
-  '111-1',
-  '110-2',
-];
-
-class _CourseTableTabContent extends StatelessWidget {
-  const _CourseTableTabContent({required this.semester});
-
-  final String semester;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final initialGridViewportWidth = constraints.maxWidth;
-        final initialGridViewportHeight = constraints.maxHeight;
-
-        return CourseTableGrid(
-          key: ValueKey(semester),
-          couseTableSummary: mockCourseTableSummary,
-          viewportWidth: initialGridViewportWidth,
-          viewportHeight: initialGridViewportHeight,
-        );
-      },
     );
   }
 }
