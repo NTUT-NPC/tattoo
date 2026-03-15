@@ -153,6 +153,7 @@ class NtutCourseService implements CourseService {
 
     // Build schedule map keyed by course name from the grid
     final periodRegex = RegExp(r'第 (\S) 節');
+    final eClassroomRegex = RegExp(r'\s*\(e\)$');
     final scheduleMap =
         <
           String,
@@ -183,9 +184,16 @@ class NtutCourseService implements CourseService {
             : cells[colIndex].text.trim();
         if (courseName.isEmpty) continue;
 
-        final classroomRef = anchors.length >= 3
+        var classroomRef = anchors.length >= 3
             ? _parseAnchorRef(anchors[2])
             : null;
+        // Strip e化教室 marker "(e)" from classroom names
+        if (classroomRef?.name case final name?) {
+          classroomRef = (
+            id: classroomRef!.id,
+            name: name.replaceFirst(eClassroomRegex, ''),
+          );
+        }
 
         scheduleMap.putIfAbsent(courseName, () => []);
         scheduleMap[courseName]!.add((
