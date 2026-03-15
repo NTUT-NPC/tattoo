@@ -34,6 +34,7 @@ class CourseTableScreen extends StatelessWidget {
         ),
         body: NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            // primary app bar with owner indicator and action buttons
             SliverAppBar(
               primary: false,
               toolbarHeight: 56,
@@ -78,6 +79,8 @@ class CourseTableScreen extends StatelessWidget {
                 ),
               ),
             ),
+            
+            // secondary app bar with semester tabs
             SliverAppBar(
               primary: false,
               floating: true,
@@ -101,17 +104,25 @@ class CourseTableScreen extends StatelessWidget {
                     ),
             ),
           ],
+
           body: switch (semestersAsync) {
+            // ERROR state: show error message
             AsyncError(:final error) => Center(
-              child: Text('Error: $error'),
+              child: Center(child: Text('Error: $error')),
             ),
+          
+            // EMPTY state: show not found message
             AsyncData(value: final semesters) when semesters.isEmpty => Center(
-              child: Text(
-                profileAsync.asData?.value == null
-                    ? t.general.notLoggedIn
-                    : t.courseTable.notFound,
+              child: Center(
+                child: Text(
+                  profileAsync.asData?.value == null
+                      ? t.general.notLoggedIn
+                      : t.courseTable.notFound,
+                ),
               ),
             ),
+
+            // LOADED state: show course table with tabs
             AsyncData(value: final semesters) => TabBarView(
               children: [
                 for (final semester in semesters)
@@ -120,10 +131,10 @@ class CourseTableScreen extends StatelessWidget {
                       final courseTableAsync = ref.watch(
                         courseTableProvider(semester),
                       );
-
+          
                       return switch (courseTableAsync) {
                         AsyncError(:final error) => Center(
-                          child: Text('Error: $error'),
+                          child: Center(child: Text('Error: $error')),
                         ),
                         _ => LayoutBuilder(
                           builder: (context, constraints) {
@@ -145,6 +156,8 @@ class CourseTableScreen extends StatelessWidget {
                   ),
               ],
             ),
+          
+            // LOADING state: show loading skeleton
             _ => LayoutBuilder(
               builder: (context, constraints) {
                 return CourseTableGrid(
