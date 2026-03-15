@@ -28,6 +28,7 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     Courses,
     Departments,
     Teachers,
+    TeacherProfiles,
     Classes,
     Classrooms,
     // Tables with foreign keys to base tables

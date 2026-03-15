@@ -67,28 +67,58 @@ extension DatabaseActions on AppDatabase {
     )).id;
   }
 
-  /// Returns the ID of an existing teacher row, or creates/updates one.
-  Future<int> upsertTeacher({
+  /// Returns the ID of an existing teacher profile, or creates/updates one.
+  Future<int> upsertTeacherProfile({
     required String code,
     required int semesterId,
     required String nameZh,
     String? nameEn,
+    String? email,
+    int? departmentId,
+    String? title,
+    double? teachingHours,
+    String? officeHoursNote,
   }) async {
-    return (await into(teachers).insertReturning(
-      TeachersCompanion.insert(
-        code: code,
-        semester: semesterId,
-        nameZh: nameZh,
-        nameEn: Value(nameEn),
-      ),
-      onConflict: DoUpdate(
-        (old) => TeachersCompanion(
-          nameZh: Value(nameZh),
-          nameEn: Value.absentIfNull(nameEn),
+    return transaction(() async {
+      final teacher = await into(teachers).insertReturning(
+        TeachersCompanion.insert(
+          code: code,
+          nameZh: nameZh,
+          nameEn: Value(nameEn),
         ),
-        target: [teachers.code, teachers.semester],
-      ),
-    )).id;
+        onConflict: DoUpdate(
+          (old) => TeachersCompanion(
+            nameZh: Value(nameZh),
+            nameEn: Value.absentIfNull(nameEn),
+          ),
+          target: [teachers.code],
+        ),
+      );
+
+      final profile = await into(teacherProfiles).insertReturning(
+        TeacherProfilesCompanion.insert(
+          teacher: teacher.id,
+          semester: semesterId,
+          email: Value(email),
+          department: Value(departmentId),
+          title: Value(title),
+          teachingHours: Value(teachingHours),
+          officeHoursNote: Value(officeHoursNote),
+        ),
+        onConflict: DoUpdate(
+          (old) => TeacherProfilesCompanion(
+            email: Value.absentIfNull(email),
+            department: Value.absentIfNull(departmentId),
+            title: Value.absentIfNull(title),
+            teachingHours: Value.absentIfNull(teachingHours),
+            officeHoursNote: Value.absentIfNull(officeHoursNote),
+          ),
+          target: [teacherProfiles.teacher, teacherProfiles.semester],
+        ),
+      );
+
+      return profile.id;
+    });
   }
 
   /// Returns the ID of an existing classroom row, or creates/updates one.

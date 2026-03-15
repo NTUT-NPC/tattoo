@@ -175,23 +175,31 @@ class Departments extends Table with AutoIncrementId, Fetchable {
   late final nameZh = text()();
 }
 
-/// Teacher/instructor information for a particular semester.
+/// Static teacher/instructor information.
 ///
-/// Each row represents a teacher's profile snapshot for a specific semester.
-/// The same teacher will have multiple rows across different semesters.
-@TableIndex(name: 'teacher_semester', columns: {#semester})
+/// Represents a teacher's identity across all semesters.
 class Teachers extends Table with AutoIncrementId, Fetchable {
   /// Teacher code/ID in the NTUT system.
-  late final code = text()();
-
-  /// Reference to the semester this profile is for.
-  late final semester = integer().references(Semesters, #id)();
+  late final code = text().unique()();
 
   /// Teacher's name in Traditional Chinese.
   late final nameZh = text()();
 
   /// Teacher's name in English.
   late final nameEn = text().nullable()();
+}
+
+/// Teacher/instructor profile for a particular semester.
+///
+/// Each row represents a teacher's profile snapshot for a specific semester.
+/// The same teacher will have multiple rows across different semesters.
+@TableIndex(name: 'teacher_profile_semester', columns: {#semester})
+class TeacherProfiles extends Table with AutoIncrementId, Fetchable {
+  /// Reference to the teacher.
+  late final teacher = integer().references(Teachers, #id)();
+
+  /// Reference to the semester this profile is for.
+  late final semester = integer().references(Semesters, #id)();
 
   /// Teacher's email address.
   ///
@@ -212,7 +220,7 @@ class Teachers extends Table with AutoIncrementId, Fetchable {
 
   @override
   List<Set<Column>> get uniqueKeys => [
-    {code, semester},
+    {teacher, semester},
   ];
 }
 
@@ -220,10 +228,10 @@ class Teachers extends Table with AutoIncrementId, Fetchable {
 ///
 /// Each row represents one office hour time slot for a teacher.
 /// A teacher may have multiple office hour slots per week.
-@TableIndex(name: 'teacher_office_hour_teacher', columns: {#teacher})
+@TableIndex(name: 'teacher_office_hour_profile', columns: {#teacherProfile})
 class TeacherOfficeHours extends Table with AutoIncrementId {
-  /// Reference to the teacher (semester-specific).
-  late final teacher = integer().references(Teachers, #id)();
+  /// Reference to the teacher profile (semester-specific).
+  late final teacherProfile = integer().references(TeacherProfiles, #id)();
 
   /// Day of the week for this office hour slot.
   late final dayOfWeek = intEnum<DayOfWeek>()();
@@ -242,7 +250,7 @@ class TeacherOfficeHours extends Table with AutoIncrementId {
 
   @override
   List<Set<Column>> get uniqueKeys => [
-    {teacher, dayOfWeek, startHour, startMinute},
+    {teacherProfile, dayOfWeek, startHour, startMinute},
   ];
 }
 
@@ -388,11 +396,11 @@ class CourseOfferingTeachers extends Table {
     onDelete: KeyAction.cascade,
   )();
 
-  /// Reference to the teacher.
-  late final teacher = integer().references(Teachers, #id)();
+  /// Reference to the teacher profile.
+  late final teacherProfile = integer().references(TeacherProfiles, #id)();
 
   @override
-  Set<Column> get primaryKey => {courseOffering, teacher};
+  Set<Column> get primaryKey => {courseOffering, teacherProfile};
 }
 
 /// Junction table linking course offerings to the classes they're intended for.
@@ -572,11 +580,11 @@ class UserSemesterSummaryTutors extends Table {
     onDelete: KeyAction.cascade,
   )();
 
-  /// Reference to the teacher serving as tutor.
-  late final teacher = integer().references(Teachers, #id)();
+  /// Reference to the teacher profile serving as tutor.
+  late final teacherProfile = integer().references(TeacherProfiles, #id)();
 
   @override
-  Set<Column> get primaryKey => {summary, teacher};
+  Set<Column> get primaryKey => {summary, teacherProfile};
 }
 
 /// Class cadre roles held by the user in a semester.

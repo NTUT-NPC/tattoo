@@ -306,7 +306,7 @@ class CourseRepository {
 
         // Teacher
         if (dto.teacher case LocalizedRefDto(:final id?, :final nameZh?)) {
-          final teacherId = await _database.upsertTeacher(
+          final profileId = await _database.upsertTeacherProfile(
             code: id,
             semesterId: semester.id,
             nameZh: nameZh,
@@ -317,7 +317,7 @@ class CourseRepository {
               .insert(
                 CourseOfferingTeachersCompanion.insert(
                   courseOffering: offeringId,
-                  teacher: teacherId,
+                  teacherProfile: profileId,
                 ),
                 mode: .insertOrIgnore,
               );
