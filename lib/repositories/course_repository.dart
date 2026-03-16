@@ -254,26 +254,18 @@ class CourseRepository {
         final courseId = dto.course?.id;
         final courseNameZh = dto.course?.nameZh;
         if (courseId == null || courseNameZh == null) {
-          _firebaseService.crashlytics?.recordError(
-            Exception(
-              'Skipped offering with incomplete course data: '
-              'number=${dto.number}, courseId=$courseId, '
-              'courseNameZh=$courseNameZh',
-            ),
-            StackTrace.current,
-            fatal: false,
+          _firebaseService.recordNonFatal(
+            'Skipped offering with incomplete course data: '
+            'number=${dto.number}, courseId=$courseId, '
+            'courseNameZh=$courseNameZh',
           );
           continue;
         }
 
         if (dto.credits == null || dto.hours == null) {
-          _firebaseService.crashlytics?.recordError(
-            Exception(
-              'Course $courseId missing credits/hours: '
-              'credits=${dto.credits}, hours=${dto.hours}',
-            ),
-            StackTrace.current,
-            fatal: false,
+          _firebaseService.recordNonFatal(
+            'Course $courseId missing credits/hours: '
+            'credits=${dto.credits}, hours=${dto.hours}',
           );
         }
 
@@ -489,13 +481,9 @@ class CourseRepository {
     );
 
     if (dto.nameZh == null || dto.credits == null || dto.hours == null) {
-      _firebaseService.crashlytics?.recordError(
-        Exception(
-          'Incomplete course data for $code: '
-          'nameZh=${dto.nameZh}, credits=${dto.credits}, hours=${dto.hours}',
-        ),
-        StackTrace.current,
-        fatal: false,
+      _firebaseService.recordNonFatal(
+        'Incomplete course data for $code: '
+        'nameZh=${dto.nameZh}, credits=${dto.credits}, hours=${dto.hours}',
       );
     }
 
