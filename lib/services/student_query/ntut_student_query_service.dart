@@ -174,7 +174,7 @@ class NtutStudentQueryService implements StudentQueryService {
     final results = <GpaDto>[];
     final seen = <String>{};
 
-    for (final row in document.querySelectorAll('tr')) {
+    for (final row in document.querySelectorAll('tr').skip(1)) {
       final cells = row.querySelectorAll('td');
       if (cells.length < 2) continue;
 
