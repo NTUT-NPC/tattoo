@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
 import 'package:tattoo/utils/fetch_with_ttl.dart';
 
@@ -20,6 +21,7 @@ final studentRepositoryProvider = Provider<StudentRepository>((ref) {
   return StudentRepository(
     database: ref.watch(databaseProvider),
     authRepository: ref.watch(authRepositoryProvider),
+    courseRepository: ref.watch(courseRepositoryProvider),
     studentQueryService: ref.watch(studentQueryServiceProvider),
   );
 });
@@ -28,14 +30,17 @@ final studentRepositoryProvider = Provider<StudentRepository>((ref) {
 class StudentRepository {
   final AppDatabase _database;
   final AuthRepository _authRepository;
+  final CourseRepository _courseRepository;
   final StudentQueryService _studentQueryService;
 
   StudentRepository({
     required AppDatabase database,
     required AuthRepository authRepository,
+    required CourseRepository courseRepository,
     required StudentQueryService studentQueryService,
   }) : _database = database,
        _authRepository = authRepository,
+       _courseRepository = courseRepository,
        _studentQueryService = studentQueryService;
 
   /// Gets aggregated academic records grouped by semester.
@@ -85,6 +90,14 @@ class StudentRepository {
       }
     }
 
+    // Collect all unique course codes and resolve them in parallel
+    final courseCodes = semesters
+        .expand((s) => s.scores)
+        .map((s) => s.courseCode)
+        .nonNulls
+        .toSet();
+    await courseCodes.map(_courseRepository.getCourse).wait;
+
     await _database.transaction(() async {
       final fetchedSemesterIds = <int>{};
 
@@ -126,9 +139,40 @@ class StudentRepository {
                       ))
                   .id;
 
-          // TODO: Persist per-course scores via CourseRepository.getCourse()
-          // to resolve course codes to proper Course rows before inserting
-          // into the Scores table.
+          await (_database.delete(_database.scores)..where(
+                (t) => t.user.equals(userId) & t.semester.equals(semesterId),
+              ))
+              .go();
+
+          for (final score in semester.scores) {
+            if (score.courseCode == null) continue;
+
+            final course =
+                await (_database.select(_database.courses)
+                      ..where((c) => c.code.equals(score.courseCode!)))
+                    .getSingleOrNull();
+            if (course == null) continue;
+
+            final offeringId = switch (score.number) {
+              final number? => (await (_database.select(
+                _database.courseOfferings,
+              )..where((o) => o.number.equals(number))).getSingleOrNull())?.id,
+              _ => null,
+            };
+
+            await _database
+                .into(_database.scores)
+                .insert(
+                  ScoresCompanion.insert(
+                    user: userId,
+                    semester: semesterId,
+                    course: course.id,
+                    courseOffering: Value(offeringId),
+                    score: Value(score.score),
+                    status: Value(score.status),
+                  ),
+                );
+          }
 
           await (_database.delete(_database.userSemesterRankings)..where(
                 (t) => t.summary.equals(summaryId),
