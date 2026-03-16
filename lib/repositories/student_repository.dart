@@ -157,13 +157,9 @@ class StudentRepository {
                       ..where((c) => c.code.equals(score.courseCode!)))
                     .getSingleOrNull();
             if (course == null) {
-              _firebaseService.crashlytics?.recordError(
-                Exception(
-                  'Score skipped: course ${score.courseCode} not found '
-                  'after pre-resolution (number=${score.number})',
-                ),
-                StackTrace.current,
-                fatal: false,
+              _firebaseService.recordNonFatal(
+                'Score skipped: course ${score.courseCode} not found '
+                'after pre-resolution (number=${score.number})',
               );
               continue;
             }
