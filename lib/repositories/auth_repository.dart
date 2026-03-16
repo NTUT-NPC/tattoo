@@ -210,7 +210,12 @@ class AuthRepository {
       final result = await call();
       _onAuthStatusChanged(.authenticated);
       return result;
-    } on DioException {
+    } on DioException catch (e) {
+      // Dio wraps all interceptor exceptions; unwrap SessionExpiredException
+      // so the catch-all block below triggers re-authentication.
+      if (e.error is SessionExpiredException) {
+        Error.throwWithStackTrace(e.error!, e.stackTrace);
+      }
       _onAuthStatusChanged(.offline);
       rethrow;
     } catch (_) {
