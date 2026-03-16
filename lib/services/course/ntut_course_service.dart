@@ -153,7 +153,7 @@ class NtutCourseService implements CourseService {
 
     // Build schedule map keyed by course name from the grid
     final periodRegex = RegExp(r'第 (\S) 節');
-    final eClassroomRegex = RegExp(r'\s*\(e\)$');
+    final eClassroomRegex = RegExp(r'\s*\(?e\)?\s*$');
     final scheduleMap =
         <
           String,
