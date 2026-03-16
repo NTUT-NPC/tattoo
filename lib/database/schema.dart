@@ -508,11 +508,6 @@ class Scores extends Table with AutoIncrementId {
 
   /// Special score status (null when [score] is numeric).
   late final status = textEnum<ScoreStatus>().nullable()();
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-    {user, course, semester},
-  ];
 }
 
 /// Per-user per-semester academic summary from the student query system.

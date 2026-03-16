@@ -76,17 +76,17 @@ class StudentRepository {
       sso: [.studentQueryService],
     );
 
-    final gpaBySemester = <String, double>{};
+    final gpaBySemester = <(int, int), double>{};
     for (final gpa in gpas) {
       if (gpa.semester case (year: final year?, term: final term?)) {
-        gpaBySemester['$year-$term'] = gpa.grandTotalGpa;
+        gpaBySemester[(year, term)] = gpa.grandTotalGpa;
       }
     }
 
-    final rankingsBySemester = <String, List<GradeRankingEntryDto>>{};
+    final rankingsBySemester = <(int, int), List<GradeRankingEntryDto>>{};
     for (final ranking in rankings) {
       if (ranking.semester case (year: final year?, term: final term?)) {
-        rankingsBySemester['$year-$term'] = ranking.entries;
+        rankingsBySemester[(year, term)] = ranking.entries;
       }
     }
 
@@ -106,7 +106,7 @@ class StudentRepository {
           final semesterRow = await _database.getOrCreateSemester(year, term);
           final semesterId = semesterRow.id;
           fetchedSemesterIds.add(semesterId);
-          final key = '$year-$term';
+          final key = (year, term);
 
           final summaryId =
               (await _database
