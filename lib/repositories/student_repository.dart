@@ -3,6 +3,7 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
 import 'package:tattoo/utils/fetch_with_ttl.dart';
 
@@ -22,6 +23,7 @@ final studentRepositoryProvider = Provider<StudentRepository>((ref) {
     database: ref.watch(databaseProvider),
     authRepository: ref.watch(authRepositoryProvider),
     courseRepository: ref.watch(courseRepositoryProvider),
+    firebaseService: ref.watch(firebaseServiceProvider),
     studentQueryService: ref.watch(studentQueryServiceProvider),
   );
 });
@@ -31,16 +33,19 @@ class StudentRepository {
   final AppDatabase _database;
   final AuthRepository _authRepository;
   final CourseRepository _courseRepository;
+  final FirebaseService _firebaseService;
   final StudentQueryService _studentQueryService;
 
   StudentRepository({
     required AppDatabase database,
     required AuthRepository authRepository,
     required CourseRepository courseRepository,
+    required FirebaseService firebaseService,
     required StudentQueryService studentQueryService,
   }) : _database = database,
        _authRepository = authRepository,
        _courseRepository = courseRepository,
+       _firebaseService = firebaseService,
        _studentQueryService = studentQueryService;
 
   /// Gets aggregated academic records grouped by semester.
@@ -151,7 +156,17 @@ class StudentRepository {
                 await (_database.select(_database.courses)
                       ..where((c) => c.code.equals(score.courseCode!)))
                     .getSingleOrNull();
-            if (course == null) continue;
+            if (course == null) {
+              _firebaseService.crashlytics?.recordError(
+                Exception(
+                  'Score skipped: course ${score.courseCode} not found '
+                  'after pre-resolution (number=${score.number})',
+                ),
+                StackTrace.current,
+                fatal: false,
+              );
+              continue;
+            }
 
             final offeringId = switch (score.number) {
               final number? => (await (_database.select(
