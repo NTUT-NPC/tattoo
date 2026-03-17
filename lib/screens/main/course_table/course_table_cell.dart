@@ -19,10 +19,10 @@ class CourseTableCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final containerColor = HSLColor.fromColor(
       cellColor,
-    ).withLightness(0.95).withSaturation(0.3).toColor();
+    ).withLightness(0.9).withSaturation(0.4).toColor();
     final borderColor = HSLColor.fromColor(
       cellColor,
-    ).withLightness(0.3).withSaturation(0.8).toColor();
+    ).withLightness(0.3).withSaturation(0.6).toColor();
     final borderStyle = Border.all(
       color: borderColor,
       width: 1,
