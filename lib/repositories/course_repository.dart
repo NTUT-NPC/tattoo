@@ -537,7 +537,9 @@ class CourseRepository {
   /// Gets course materials (files, recordings, etc.) from I-School Plus.
   ///
   /// Throws [Exception] on network failure.
-  Future<List<Material>> getMaterials(CourseOffering courseOffering) async {
+  Future<List<CourseMaterial>> getMaterials(
+    CourseOffering courseOffering,
+  ) async {
     throw UnimplementedError();
   }
 
@@ -548,7 +550,7 @@ class CourseRepository {
   ///
   /// Throws [Exception] on network failure.
   /// Throws [UnimplementedError] for course recordings (not yet supported).
-  Future<MaterialDto> getMaterialDownload(Material material) async {
+  Future<MaterialDto> getMaterialDownload(CourseMaterial material) async {
     throw UnimplementedError();
   }
 

@@ -6159,7 +6159,7 @@ class SchedulesCompanion extends UpdateCompanion<Schedule> {
 }
 
 class $MaterialsTable extends Materials
-    with TableInfo<$MaterialsTable, Material> {
+    with TableInfo<$MaterialsTable, CourseMaterial> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -6218,7 +6218,7 @@ class $MaterialsTable extends Materials
   static const String $name = 'materials';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Material> instance, {
+    Insertable<CourseMaterial> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -6259,9 +6259,9 @@ class $MaterialsTable extends Materials
     {courseOffering, href},
   ];
   @override
-  Material map(Map<String, dynamic> data, {String? tablePrefix}) {
+  CourseMaterial map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Material(
+    return CourseMaterial(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
@@ -6287,7 +6287,7 @@ class $MaterialsTable extends Materials
   }
 }
 
-class Material extends DataClass implements Insertable<Material> {
+class CourseMaterial extends DataClass implements Insertable<CourseMaterial> {
   /// Auto-incrementing primary key.
   final int id;
 
@@ -6302,7 +6302,7 @@ class Material extends DataClass implements Insertable<Material> {
   /// This is an encoded identifier from the SCORM manifest.
   /// This value is used internally by I-School Plus to locate the resource.
   final String? href;
-  const Material({
+  const CourseMaterial({
     required this.id,
     required this.courseOffering,
     this.title,
@@ -6333,12 +6333,12 @@ class Material extends DataClass implements Insertable<Material> {
     );
   }
 
-  factory Material.fromJson(
+  factory CourseMaterial.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Material(
+    return CourseMaterial(
       id: serializer.fromJson<int>(json['id']),
       courseOffering: serializer.fromJson<int>(json['courseOffering']),
       title: serializer.fromJson<String?>(json['title']),
@@ -6356,19 +6356,19 @@ class Material extends DataClass implements Insertable<Material> {
     };
   }
 
-  Material copyWith({
+  CourseMaterial copyWith({
     int? id,
     int? courseOffering,
     Value<String?> title = const Value.absent(),
     Value<String?> href = const Value.absent(),
-  }) => Material(
+  }) => CourseMaterial(
     id: id ?? this.id,
     courseOffering: courseOffering ?? this.courseOffering,
     title: title.present ? title.value : this.title,
     href: href.present ? href.value : this.href,
   );
-  Material copyWithCompanion(MaterialsCompanion data) {
-    return Material(
+  CourseMaterial copyWithCompanion(MaterialsCompanion data) {
+    return CourseMaterial(
       id: data.id.present ? data.id.value : this.id,
       courseOffering: data.courseOffering.present
           ? data.courseOffering.value
@@ -6380,7 +6380,7 @@ class Material extends DataClass implements Insertable<Material> {
 
   @override
   String toString() {
-    return (StringBuffer('Material(')
+    return (StringBuffer('CourseMaterial(')
           ..write('id: $id, ')
           ..write('courseOffering: $courseOffering, ')
           ..write('title: $title, ')
@@ -6394,14 +6394,14 @@ class Material extends DataClass implements Insertable<Material> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Material &&
+      (other is CourseMaterial &&
           other.id == this.id &&
           other.courseOffering == this.courseOffering &&
           other.title == this.title &&
           other.href == this.href);
 }
 
-class MaterialsCompanion extends UpdateCompanion<Material> {
+class MaterialsCompanion extends UpdateCompanion<CourseMaterial> {
   final Value<int> id;
   final Value<int> courseOffering;
   final Value<String?> title;
@@ -6418,7 +6418,7 @@ class MaterialsCompanion extends UpdateCompanion<Material> {
     this.title = const Value.absent(),
     this.href = const Value.absent(),
   }) : courseOffering = Value(courseOffering);
-  static Insertable<Material> custom({
+  static Insertable<CourseMaterial> custom({
     Expression<int>? id,
     Expression<int>? courseOffering,
     Expression<String>? title,
@@ -14031,7 +14031,7 @@ final class $$CourseOfferingsTableReferences
     );
   }
 
-  static MultiTypedResultKey<$MaterialsTable, List<Material>>
+  static MultiTypedResultKey<$MaterialsTable, List<CourseMaterial>>
   _materialsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.materials,
     aliasName: $_aliasNameGenerator(
@@ -15073,7 +15073,7 @@ class $$CourseOfferingsTableTableManager
                         await $_getPrefetchedData<
                           CourseOffering,
                           $CourseOfferingsTable,
-                          Material
+                          CourseMaterial
                         >(
                           currentTable: table,
                           referencedTable: $$CourseOfferingsTableReferences
@@ -16699,7 +16699,7 @@ typedef $$MaterialsTableUpdateCompanionBuilder =
     });
 
 final class $$MaterialsTableReferences
-    extends BaseReferences<_$AppDatabase, $MaterialsTable, Material> {
+    extends BaseReferences<_$AppDatabase, $MaterialsTable, CourseMaterial> {
   $$MaterialsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
@@ -16868,14 +16868,14 @@ class $$MaterialsTableTableManager
         RootTableManager<
           _$AppDatabase,
           $MaterialsTable,
-          Material,
+          CourseMaterial,
           $$MaterialsTableFilterComposer,
           $$MaterialsTableOrderingComposer,
           $$MaterialsTableAnnotationComposer,
           $$MaterialsTableCreateCompanionBuilder,
           $$MaterialsTableUpdateCompanionBuilder,
-          (Material, $$MaterialsTableReferences),
-          Material,
+          (CourseMaterial, $$MaterialsTableReferences),
+          CourseMaterial,
           PrefetchHooks Function({bool courseOffering})
         > {
   $$MaterialsTableTableManager(_$AppDatabase db, $MaterialsTable table)
@@ -16970,14 +16970,14 @@ typedef $$MaterialsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
       $MaterialsTable,
-      Material,
+      CourseMaterial,
       $$MaterialsTableFilterComposer,
       $$MaterialsTableOrderingComposer,
       $$MaterialsTableAnnotationComposer,
       $$MaterialsTableCreateCompanionBuilder,
       $$MaterialsTableUpdateCompanionBuilder,
-      (Material, $$MaterialsTableReferences),
-      Material,
+      (CourseMaterial, $$MaterialsTableReferences),
+      CourseMaterial,
       PrefetchHooks Function({bool courseOffering})
     >;
 typedef $$TeacherOfficeHoursTableCreateCompanionBuilder =

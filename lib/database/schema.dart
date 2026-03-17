@@ -637,6 +637,7 @@ class UserSemesterRankings extends Table {
 /// Represents files, recordings, and other materials posted to I-School Plus.
 ///
 /// Data source: I-School Plus materials and recordings page
+@DataClassName('CourseMaterial')
 @TableIndex(name: 'material_course_offering', columns: {#courseOffering})
 class Materials extends Table with AutoIncrementId {
   /// Reference to the course offering this material belongs to.
