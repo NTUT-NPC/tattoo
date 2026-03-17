@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/models/classroom.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/services/course/course_service.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
@@ -239,6 +240,10 @@ class CourseRepository {
 
     final freshNumbers = dtos.map((d) => d.number).nonNulls.toSet();
 
+    // Deduplicate Crashlytics reports for unknown classroom prefixes,
+    // since the same classroom can appear in multiple schedule slots.
+    final reportedUnknownClassrooms = <String>{};
+
     // Persist to database
     await _database.transaction(() async {
       // Remove offerings no longer in the response (e.g. dropped courses).
@@ -346,9 +351,18 @@ class CourseRepository {
           for (final slot in slots) {
             int? classroomId;
             if (slot.classroom case (id: final id?, name: final name?)) {
+              final nameEn = translateClassroomName(name);
+              if (nameEn == null && reportedUnknownClassrooms.add(id)) {
+                _firebaseService.crashlytics?.recordError(
+                  Exception('Unknown classroom prefix: $name (code: $id)'),
+                  StackTrace.current,
+                  fatal: false,
+                );
+              }
               classroomId = await _database.upsertClassroom(
                 code: id,
                 nameZh: name,
+                nameEn: nameEn,
               );
             }
             await _database
@@ -395,7 +409,10 @@ class CourseRepository {
         span: 1,
         crossesNoon: false,
         courseName: localized(row.nameZh, row.nameEn),
-        classroomName: row.classroomNameZh,
+        classroomName: switch ((row.classroomNameZh, row.classroomNameEn)) {
+          (final zh?, final en) => localized(zh, en),
+          _ => null,
+        },
         credits: row.credits,
         hours: row.hours,
       );

@@ -91,15 +91,23 @@ extension DatabaseActions on AppDatabase {
     )).id;
   }
 
-  /// Returns the ID of an existing classroom row, or creates one.
+  /// Returns the ID of an existing classroom row, or creates/updates one.
   Future<int> upsertClassroom({
     required String code,
     required String nameZh,
+    String? nameEn,
   }) async {
     return (await into(classrooms).insertReturning(
-      ClassroomsCompanion.insert(code: code, nameZh: nameZh),
+      ClassroomsCompanion.insert(
+        code: code,
+        nameZh: nameZh,
+        nameEn: Value(nameEn),
+      ),
       onConflict: DoUpdate(
-        (old) => ClassroomsCompanion(nameZh: Value(nameZh)),
+        (old) => ClassroomsCompanion(
+          nameZh: Value(nameZh),
+          nameEn: Value.absentIfNull(nameEn),
+        ),
         target: [classrooms.code],
       ),
     )).id;

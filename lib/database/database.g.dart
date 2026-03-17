@@ -3590,8 +3590,17 @@ class $ClassroomsTable extends Classrooms
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _nameEnMeta = const VerificationMeta('nameEn');
   @override
-  List<GeneratedColumn> get $columns => [id, fetchedAt, code, nameZh];
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, fetchedAt, code, nameZh, nameEn];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -3629,6 +3638,12 @@ class $ClassroomsTable extends Classrooms
     } else if (isInserting) {
       context.missing(_nameZhMeta);
     }
+    if (data.containsKey('name_en')) {
+      context.handle(
+        _nameEnMeta,
+        nameEn.isAcceptableOrUnknown(data['name_en']!, _nameEnMeta),
+      );
+    }
     return context;
   }
 
@@ -3654,6 +3669,10 @@ class $ClassroomsTable extends Classrooms
         DriftSqlType.string,
         data['${effectivePrefix}name_zh'],
       )!,
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      ),
     );
   }
 
@@ -3680,13 +3699,20 @@ class Classroom extends DataClass implements Insertable<Classroom> {
   /// Unique classroom code in the NTUT system.
   final String code;
 
-  /// Classroom name/location in Traditional Chinese (e.g., "共同大樓 101").
+  /// Classroom name/location in Traditional Chinese (e.g., "共同312").
   final String nameZh;
+
+  /// Abbreviated English classroom name (e.g., "GSB 312").
+  ///
+  /// Translated from the Chinese name using a building prefix dictionary.
+  /// Null when the building prefix is unrecognized.
+  final String? nameEn;
   const Classroom({
     required this.id,
     this.fetchedAt,
     required this.code,
     required this.nameZh,
+    this.nameEn,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3697,6 +3723,9 @@ class Classroom extends DataClass implements Insertable<Classroom> {
     }
     map['code'] = Variable<String>(code);
     map['name_zh'] = Variable<String>(nameZh);
+    if (!nullToAbsent || nameEn != null) {
+      map['name_en'] = Variable<String>(nameEn);
+    }
     return map;
   }
 
@@ -3708,6 +3737,9 @@ class Classroom extends DataClass implements Insertable<Classroom> {
           : Value(fetchedAt),
       code: Value(code),
       nameZh: Value(nameZh),
+      nameEn: nameEn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nameEn),
     );
   }
 
@@ -3721,6 +3753,7 @@ class Classroom extends DataClass implements Insertable<Classroom> {
       fetchedAt: serializer.fromJson<DateTime?>(json['fetchedAt']),
       code: serializer.fromJson<String>(json['code']),
       nameZh: serializer.fromJson<String>(json['nameZh']),
+      nameEn: serializer.fromJson<String?>(json['nameEn']),
     );
   }
   @override
@@ -3731,6 +3764,7 @@ class Classroom extends DataClass implements Insertable<Classroom> {
       'fetchedAt': serializer.toJson<DateTime?>(fetchedAt),
       'code': serializer.toJson<String>(code),
       'nameZh': serializer.toJson<String>(nameZh),
+      'nameEn': serializer.toJson<String?>(nameEn),
     };
   }
 
@@ -3739,11 +3773,13 @@ class Classroom extends DataClass implements Insertable<Classroom> {
     Value<DateTime?> fetchedAt = const Value.absent(),
     String? code,
     String? nameZh,
+    Value<String?> nameEn = const Value.absent(),
   }) => Classroom(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
     code: code ?? this.code,
     nameZh: nameZh ?? this.nameZh,
+    nameEn: nameEn.present ? nameEn.value : this.nameEn,
   );
   Classroom copyWithCompanion(ClassroomsCompanion data) {
     return Classroom(
@@ -3751,6 +3787,7 @@ class Classroom extends DataClass implements Insertable<Classroom> {
       fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
       code: data.code.present ? data.code.value : this.code,
       nameZh: data.nameZh.present ? data.nameZh.value : this.nameZh,
+      nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
     );
   }
 
@@ -3760,13 +3797,14 @@ class Classroom extends DataClass implements Insertable<Classroom> {
           ..write('id: $id, ')
           ..write('fetchedAt: $fetchedAt, ')
           ..write('code: $code, ')
-          ..write('nameZh: $nameZh')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, fetchedAt, code, nameZh);
+  int get hashCode => Object.hash(id, fetchedAt, code, nameZh, nameEn);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3774,7 +3812,8 @@ class Classroom extends DataClass implements Insertable<Classroom> {
           other.id == this.id &&
           other.fetchedAt == this.fetchedAt &&
           other.code == this.code &&
-          other.nameZh == this.nameZh);
+          other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn);
 }
 
 class ClassroomsCompanion extends UpdateCompanion<Classroom> {
@@ -3782,17 +3821,20 @@ class ClassroomsCompanion extends UpdateCompanion<Classroom> {
   final Value<DateTime?> fetchedAt;
   final Value<String> code;
   final Value<String> nameZh;
+  final Value<String?> nameEn;
   const ClassroomsCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
     this.code = const Value.absent(),
     this.nameZh = const Value.absent(),
+    this.nameEn = const Value.absent(),
   });
   ClassroomsCompanion.insert({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
     required String code,
     required String nameZh,
+    this.nameEn = const Value.absent(),
   }) : code = Value(code),
        nameZh = Value(nameZh);
   static Insertable<Classroom> custom({
@@ -3800,12 +3842,14 @@ class ClassroomsCompanion extends UpdateCompanion<Classroom> {
     Expression<DateTime>? fetchedAt,
     Expression<String>? code,
     Expression<String>? nameZh,
+    Expression<String>? nameEn,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (fetchedAt != null) 'fetched_at': fetchedAt,
       if (code != null) 'code': code,
       if (nameZh != null) 'name_zh': nameZh,
+      if (nameEn != null) 'name_en': nameEn,
     });
   }
 
@@ -3814,12 +3858,14 @@ class ClassroomsCompanion extends UpdateCompanion<Classroom> {
     Value<DateTime?>? fetchedAt,
     Value<String>? code,
     Value<String>? nameZh,
+    Value<String?>? nameEn,
   }) {
     return ClassroomsCompanion(
       id: id ?? this.id,
       fetchedAt: fetchedAt ?? this.fetchedAt,
       code: code ?? this.code,
       nameZh: nameZh ?? this.nameZh,
+      nameEn: nameEn ?? this.nameEn,
     );
   }
 
@@ -3838,6 +3884,9 @@ class ClassroomsCompanion extends UpdateCompanion<Classroom> {
     if (nameZh.present) {
       map['name_zh'] = Variable<String>(nameZh.value);
     }
+    if (nameEn.present) {
+      map['name_en'] = Variable<String>(nameEn.value);
+    }
     return map;
   }
 
@@ -3847,7 +3896,8 @@ class ClassroomsCompanion extends UpdateCompanion<Classroom> {
           ..write('id: $id, ')
           ..write('fetchedAt: $fetchedAt, ')
           ..write('code: $code, ')
-          ..write('nameZh: $nameZh')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn')
           ..write(')'))
         .toString();
   }
@@ -9214,6 +9264,7 @@ class CourseTableSlot extends DataClass {
   final DayOfWeek dayOfWeek;
   final Period period;
   final String? classroomNameZh;
+  final String? classroomNameEn;
   const CourseTableSlot({
     required this.id,
     required this.number,
@@ -9225,6 +9276,7 @@ class CourseTableSlot extends DataClass {
     required this.dayOfWeek,
     required this.period,
     this.classroomNameZh,
+    this.classroomNameEn,
   });
   factory CourseTableSlot.fromJson(
     Map<String, dynamic> json, {
@@ -9246,6 +9298,7 @@ class CourseTableSlot extends DataClass {
         serializer.fromJson<int>(json['period']),
       ),
       classroomNameZh: serializer.fromJson<String?>(json['classroomNameZh']),
+      classroomNameEn: serializer.fromJson<String?>(json['classroomNameEn']),
     );
   }
   @override
@@ -9266,6 +9319,7 @@ class CourseTableSlot extends DataClass {
         $SchedulesTable.$converterperiod.toJson(period),
       ),
       'classroomNameZh': serializer.toJson<String?>(classroomNameZh),
+      'classroomNameEn': serializer.toJson<String?>(classroomNameEn),
     };
   }
 
@@ -9280,6 +9334,7 @@ class CourseTableSlot extends DataClass {
     DayOfWeek? dayOfWeek,
     Period? period,
     Value<String?> classroomNameZh = const Value.absent(),
+    Value<String?> classroomNameEn = const Value.absent(),
   }) => CourseTableSlot(
     id: id ?? this.id,
     number: number ?? this.number,
@@ -9293,6 +9348,9 @@ class CourseTableSlot extends DataClass {
     classroomNameZh: classroomNameZh.present
         ? classroomNameZh.value
         : this.classroomNameZh,
+    classroomNameEn: classroomNameEn.present
+        ? classroomNameEn.value
+        : this.classroomNameEn,
   );
   @override
   String toString() {
@@ -9306,7 +9364,8 @@ class CourseTableSlot extends DataClass {
           ..write('hours: $hours, ')
           ..write('dayOfWeek: $dayOfWeek, ')
           ..write('period: $period, ')
-          ..write('classroomNameZh: $classroomNameZh')
+          ..write('classroomNameZh: $classroomNameZh, ')
+          ..write('classroomNameEn: $classroomNameEn')
           ..write(')'))
         .toString();
   }
@@ -9323,6 +9382,7 @@ class CourseTableSlot extends DataClass {
     dayOfWeek,
     period,
     classroomNameZh,
+    classroomNameEn,
   );
   @override
   bool operator ==(Object other) =>
@@ -9337,7 +9397,8 @@ class CourseTableSlot extends DataClass {
           other.hours == this.hours &&
           other.dayOfWeek == this.dayOfWeek &&
           other.period == this.period &&
-          other.classroomNameZh == this.classroomNameZh);
+          other.classroomNameZh == this.classroomNameZh &&
+          other.classroomNameEn == this.classroomNameEn);
 }
 
 class $CourseTableSlotsView
@@ -9365,6 +9426,7 @@ class $CourseTableSlotsView
     dayOfWeek,
     period,
     classroomNameZh,
+    classroomNameEn,
   ];
   @override
   String get aliasedName => _alias ?? entityName;
@@ -9421,6 +9483,10 @@ class $CourseTableSlotsView
       classroomNameZh: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}classroom_name_zh'],
+      ),
+      classroomNameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}classroom_name_en'],
       ),
     );
   }
@@ -9495,6 +9561,13 @@ class $CourseTableSlotsView
     aliasedName,
     true,
     generatedAs: GeneratedAs(classrooms.nameZh, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> classroomNameEn = GeneratedColumn<String>(
+    'classroom_name_en',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(classrooms.nameEn, false),
     type: DriftSqlType.string,
   );
   @override
@@ -13473,6 +13546,7 @@ typedef $$ClassroomsTableCreateCompanionBuilder =
       Value<DateTime?> fetchedAt,
       required String code,
       required String nameZh,
+      Value<String?> nameEn,
     });
 typedef $$ClassroomsTableUpdateCompanionBuilder =
     ClassroomsCompanion Function({
@@ -13480,6 +13554,7 @@ typedef $$ClassroomsTableUpdateCompanionBuilder =
       Value<DateTime?> fetchedAt,
       Value<String> code,
       Value<String> nameZh,
+      Value<String?> nameEn,
     });
 
 final class $$ClassroomsTableReferences
@@ -13531,6 +13606,11 @@ class $$ClassroomsTableFilterComposer
 
   ColumnFilters<String> get nameZh => $composableBuilder(
     column: $table.nameZh,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13588,6 +13668,11 @@ class $$ClassroomsTableOrderingComposer
     column: $table.nameZh,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ClassroomsTableAnnotationComposer
@@ -13610,6 +13695,9 @@ class $$ClassroomsTableAnnotationComposer
 
   GeneratedColumn<String> get nameZh =>
       $composableBuilder(column: $table.nameZh, builder: (column) => column);
+
+  GeneratedColumn<String> get nameEn =>
+      $composableBuilder(column: $table.nameEn, builder: (column) => column);
 
   Expression<T> schedulesRefs<T extends Object>(
     Expression<T> Function($$SchedulesTableAnnotationComposer a) f,
@@ -13669,11 +13757,13 @@ class $$ClassroomsTableTableManager
                 Value<DateTime?> fetchedAt = const Value.absent(),
                 Value<String> code = const Value.absent(),
                 Value<String> nameZh = const Value.absent(),
+                Value<String?> nameEn = const Value.absent(),
               }) => ClassroomsCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
                 code: code,
                 nameZh: nameZh,
+                nameEn: nameEn,
               ),
           createCompanionCallback:
               ({
@@ -13681,11 +13771,13 @@ class $$ClassroomsTableTableManager
                 Value<DateTime?> fetchedAt = const Value.absent(),
                 required String code,
                 required String nameZh,
+                Value<String?> nameEn = const Value.absent(),
               }) => ClassroomsCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
                 code: code,
                 nameZh: nameZh,
+                nameEn: nameEn,
               ),
           withReferenceMapper: (p0) => p0
               .map(

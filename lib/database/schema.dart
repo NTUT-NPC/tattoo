@@ -280,11 +280,14 @@ class Classrooms extends Table with AutoIncrementId, Fetchable {
   /// Unique classroom code in the NTUT system.
   late final code = text().unique()();
 
-  /// Classroom name/location in Traditional Chinese (e.g., "共同大樓 101").
+  /// Classroom name/location in Traditional Chinese (e.g., "共同312").
   late final nameZh = text()();
 
-  // TODO: Add nameEn (full English name parsed from building legend table),
-  // and fields for floor, capacity, usage
+  /// Abbreviated English classroom name (e.g., "GSB 312").
+  ///
+  /// Translated from the Chinese name using a building prefix dictionary.
+  /// Null when the building prefix is unrecognized.
+  late final nameEn = text().nullable()();
 }
 
 // Tables with foreign keys to base tables

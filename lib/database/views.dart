@@ -33,6 +33,7 @@ abstract class CourseTableSlots extends View {
   Classrooms get classrooms;
 
   Expression<String> get classroomNameZh => classrooms.nameZh;
+  Expression<String> get classroomNameEn => classrooms.nameEn;
 
   @override
   Query as() =>
@@ -46,10 +47,8 @@ abstract class CourseTableSlots extends View {
         courses.hours,
         schedules.dayOfWeek,
         schedules.period,
-        // TODO: Add classrooms.nameEn — English page uses abbreviated format
-        // (e.g., "TB2_201") with a separate building legend table. Need to
-        // parse the legend and store both short and full English names.
         classroomNameZh,
+        classroomNameEn,
       ]).from(schedules).join([
         innerJoin(
           courseOfferings,
