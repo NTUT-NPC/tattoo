@@ -4,7 +4,7 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
+import 'package:tattoo/screens/main/user_providers.dart';
 
 // TODO: Import mock data from demo mode when implemented
 const _placeholderOwnerName = '載入中';
@@ -102,8 +102,8 @@ class _TableOwnerIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileAsync = ref.watch(courseTableUserProfileProvider);
-    final avatarAsync = ref.watch(courseTableUserAvatarProvider);
+    final profileAsync = ref.watch(userProfileProvider);
+    final avatarAsync = ref.watch(userAvatarProvider);
     final profile = profileAsync.asData?.value;
     final avatarFile = avatarAsync.asData?.value;
     final isLoading = profileAsync is AsyncLoading<User?> && profile == null;

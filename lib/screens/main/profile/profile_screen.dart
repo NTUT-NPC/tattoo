@@ -18,6 +18,7 @@ import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
+import 'package:tattoo/screens/main/user_providers.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
