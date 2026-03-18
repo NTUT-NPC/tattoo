@@ -1,18 +1,16 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
+import 'package:tattoo/screens/main/user_providers.dart';
 
 // TODO: Import mock data from demo mode when implemented
 const _placeholderOwnerName = '載入中';
 const _placeholderAvatarInitial = '載';
 
-class CourseTableScreen extends ConsumerWidget {
+class CourseTableScreen extends StatelessWidget {
   const CourseTableScreen({super.key});
 
   void _showDemoTap(BuildContext context) {
@@ -22,10 +20,7 @@ class CourseTableScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final profileAsync = ref.watch(courseTableUserProfileProvider);
-    final avatarAsync = ref.watch(courseTableUserAvatarProvider);
-
+  Widget build(BuildContext context) {
     return DefaultTabController(
       length: _courseTableTabs.length,
       child: Scaffold(
@@ -47,11 +42,7 @@ class CourseTableScreen extends ConsumerWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        _TableOwnerIndicator(
-                          context: context,
-                          profileAsync: profileAsync,
-                          avatarAsync: avatarAsync,
-                        ),
+                        const _TableOwnerIndicator(),
                         const Spacer(),
                         Row(
                           mainAxisSize: MainAxisSize.min,
@@ -104,21 +95,15 @@ class CourseTableScreen extends ConsumerWidget {
   }
 }
 
-class _TableOwnerIndicator extends StatelessWidget {
-  const _TableOwnerIndicator({
-    required this.context,
-    required this.profileAsync,
-    required this.avatarAsync,
-  });
+class _TableOwnerIndicator extends ConsumerWidget {
+  const _TableOwnerIndicator();
 
   static const double _height = 36;
 
-  final BuildContext context;
-  final AsyncValue<User?> profileAsync;
-  final AsyncValue<File?> avatarAsync;
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(userProfileProvider);
+    final avatarAsync = ref.watch(userAvatarProvider);
     final profile = profileAsync.asData?.value;
     final avatarFile = avatarAsync.asData?.value;
     final isLoading = profileAsync is AsyncLoading<User?> && profile == null;

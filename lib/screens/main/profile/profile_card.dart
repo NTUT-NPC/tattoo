@@ -9,6 +9,7 @@ import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/user.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
+import 'package:tattoo/screens/main/user_providers.dart';
 
 const _placeholderProfile = User(
   id: 0,

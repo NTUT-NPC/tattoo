@@ -1,25 +1,10 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/database/database.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
-
 import 'package:tattoo/i18n/strings.g.dart';
-
-/// Provides the current user's profile.
-///
-/// Returns `null` if not logged in. Automatically fetches full profile if stale.
-final userProfileProvider = FutureProvider.autoDispose<User?>((ref) {
-  return ref.watch(authRepositoryProvider).getUser();
-});
-
-/// Provides the current user's avatar file.
-///
-/// Returns `null` if user has no avatar or not logged in.
-final userAvatarProvider = FutureProvider.autoDispose<File?>((ref) {
-  return ref.watch(authRepositoryProvider).getAvatar();
-});
+import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/screens/main/user_providers.dart';
 
 /// Provides the user's active registration (current class and semester).
 ///
