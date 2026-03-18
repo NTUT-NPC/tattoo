@@ -4,6 +4,8 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/screens/main/course_table/course_table_grid.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 
 // TODO: Import mock data from demo mode when implemented
@@ -11,7 +13,7 @@ const _placeholderOwnerName = '載入中';
 const _placeholderAvatarInitial = '載';
 const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
 
-class CourseTableScreen extends StatelessWidget {
+class CourseTableScreen extends ConsumerWidget {
   const CourseTableScreen({super.key});
 
   void _showDemoTap(BuildContext context) {
@@ -21,7 +23,18 @@ class CourseTableScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(userProfileProvider);
+    final semestersAsync = ref.watch(courseTableSemestersProvider);
+    final displayedSemesterTabLabels = switch (semestersAsync) {
+      AsyncData(value: final semesters) =>
+        semesters.map(_semesterLabel).toList(growable: false),
+      _ => _loadingSemesterTabLabels,
+    };
+    final isSemesterLoading =
+        semestersAsync is AsyncLoading<List<Semester>> &&
+        semestersAsync.asData?.value == null;
+
     return DefaultTabController(
       length: displayedSemesterTabLabels.isEmpty
           ? 1
@@ -49,11 +62,7 @@ class CourseTableScreen extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      _TableOwnerIndicator(
-                        context: context,
-                        profileAsync: profileAsync,
-                        avatarAsync: avatarAsync,
-                      ),
+                      const _TableOwnerIndicator(),
                       const Spacer(),
                       Row(
                         mainAxisSize: MainAxisSize.min,
@@ -105,8 +114,13 @@ class CourseTableScreen extends StatelessWidget {
             ),
           ],
 
-          body: _StableViewportBuilder(
-            builder: (context, viewportSize) {
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final viewportSize = Size(
+                constraints.maxWidth,
+                constraints.maxHeight,
+              );
+
               return Column(
                 children: [
                   // main content area with course table
@@ -288,6 +302,8 @@ class _TableOwnerIndicator extends ConsumerWidget {
     );
   }
 }
+
+String _semesterLabel(Semester semester) => '${semester.year}-${semester.term}';
 
 class _CircularIconButton extends StatelessWidget {
   const _CircularIconButton({

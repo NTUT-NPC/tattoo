@@ -24,7 +24,7 @@ final userAvatarProvider = FutureProvider.autoDispose<File?>((ref) {
 /// Returns an empty list if the user is not logged in.
 final courseTableSemestersProvider = FutureProvider.autoDispose<List<Semester>>(
   (ref) async {
-    final user = await ref.watch(courseTableUserProfileProvider.future);
+    final user = await ref.watch(userProfileProvider.future);
     if (user == null) return [];
 
     try {
@@ -43,7 +43,7 @@ final courseTableProvider = FutureProvider.autoDispose
       ref,
       semester,
     ) async {
-      final user = await ref.watch(courseTableUserProfileProvider.future);
+      final user = await ref.watch(userProfileProvider.future);
       if (user == null) return CourseTableData();
 
       try {

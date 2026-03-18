@@ -315,7 +315,9 @@ class CourseTableGrid extends StatelessWidget {
     List<Period> visiblePeriods,
   ) {
     final columnWidth = _dayColumnWidth;
-    final random = Random();
+    // Derive a stable seed from the widget key so each semester keeps its own
+    // placeholder layout across rebuilds without adding another parameter.
+    final random = Random(key.hashCode);
 
     // Track occupied slots per day to avoid overlaps
     final occupied = List.generate(visibleDaysOfWeek.length, (_) => <int>{});
