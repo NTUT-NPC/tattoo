@@ -109,6 +109,7 @@ extension DatabaseActions on AppDatabase {
         ),
         onConflict: DoUpdate(
           (old) => TeacherSemestersCompanion(
+            teacher: Value(teacher.id),
             email: Value.absentIfNull(email),
             department: Value.absentIfNull(departmentId),
             title: Value.absentIfNull(title),
