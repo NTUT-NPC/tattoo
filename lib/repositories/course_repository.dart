@@ -46,7 +46,7 @@ typedef CourseTableCellData = ({
 /// Maps `(dayOfWeek, period)` grid positions to cell data.
 ///
 /// Only the start slot of a multi-period block has an entry; subsequent
-/// slots covered by [CourseTableCell.span] are absent from the map.
+/// slots covered by [CourseTableCellData.span] are absent from the map.
 typedef CourseTableData =
     Map<({DayOfWeek day, Period period}), CourseTableCellData>;
 
@@ -55,8 +55,8 @@ typedef CourseTableEntry =
     MapEntry<({DayOfWeek day, Period period}), CourseTableCellData>;
 
 extension on CourseTableEntry {
-  /// All [Period]s this entry occupies, accounting for [CourseTableCell.span]
-  /// and skipping noon when [CourseTableCell.crossesNoon] is true.
+  /// All [Period]s this entry occupies, accounting for [CourseTableCellData.span]
+  /// and skipping noon when [CourseTableCellData.crossesNoon] is true.
   Iterable<Period> get periods {
     final noonIndex = Period.nPeriod.index;
     final start = key.period.index;

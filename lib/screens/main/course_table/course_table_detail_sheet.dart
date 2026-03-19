@@ -34,58 +34,53 @@ class CourseTableDetailSheet extends StatelessWidget {
       top: false,
       child: Padding(
         padding: .fromLTRB(16, 8, 16, 16),
-        child: SizedBox(
-          width: double.infinity,
-          child: Column(
-            mainAxisSize: .min,
-            crossAxisAlignment: .start,
-            spacing: 16,
-            children: [
-              SizedBox(
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: .center,
-                  children: [
-                    Text(
-                      cell.courseName.isNotEmpty
-                          ? cell.courseName
-                          : cell.number,
-                      style: theme.textTheme.titleLarge,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: Card(
-                  margin: .all(8),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: theme.colorScheme.outlineVariant),
+        child: Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: .start,
+          spacing: 16,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: .center,
+                children: [
+                  Text(
+                    cell.courseName.isNotEmpty ? cell.courseName : cell.number,
+                    style: theme.textTheme.titleLarge,
                   ),
-                  color: theme.colorScheme.surfaceContainer,
-                  child: Padding(
-                    padding: .all(12),
-                    child: Column(
-                      crossAxisAlignment: .start,
-                      spacing: 6,
-                      children: [
-                        // TODO: replace with course name when available
-                        Text('課號: ${cell.number}'),
-                        Text('教室: ${cell.classroomName ?? '-'}'),
-                        Text('學分: ${cell.credits}'),
-                        Text('時數: ${cell.hours}'),
-                        Text('連續節數: ${cell.span}'),
-                      ],
-                    ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                margin: .all(8),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: theme.colorScheme.outlineVariant),
+                ),
+                color: theme.colorScheme.surfaceContainer,
+                child: Padding(
+                  padding: .all(12),
+                  child: Column(
+                    crossAxisAlignment: .start,
+                    spacing: 6,
+                    children: [
+                      // TODO: replace with course name when available
+                      Text('課號: ${cell.number}'),
+                      Text('教室: ${cell.classroomName ?? '-'}'),
+                      Text('學分: ${cell.credits}'),
+                      Text('時數: ${cell.hours}'),
+                      Text('連續節數: ${cell.span}'),
+                    ],
                   ),
                 ),
               ),
-              SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
-              // TODO: scroll up to show more course query features like classmate, course outline, etc.
-            ],
-          ),
+            ),
+            SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
+            // TODO: scroll up to show more course query features like classmate, course outline, etc.
+          ],
         ),
       ),
     );

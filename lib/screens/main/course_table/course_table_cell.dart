@@ -51,38 +51,34 @@ class CourseTableCell extends StatelessWidget {
             borderRadius: borderRadius,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-              child: SizedBox(
-                height: 64,
-                width: double.infinity,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AutoSizeText(
-                      courseTitle,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      maxLines: 2,
-                      minFontSize: 10,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
+              child: Column(
+                mainAxisAlignment: .center,
+                children: [
+                  AutoSizeText(
+                    courseTitle,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 12,
+                      fontWeight: .w700,
                     ),
-                    if (classroomName case final classroomName?
-                        when classroomName.isNotEmpty)
-                      AutoSizeText(
-                        classroomName,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 8,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        maxLines: 1,
-                        minFontSize: 6,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
+                    maxLines: 2,
+                    minFontSize: 12,
+                    overflow: .ellipsis,
+                    textAlign: .center,
+                  ),
+                  if (classroomName case final classroomName?
+                      when classroomName.isNotEmpty)
+                    AutoSizeText(
+                      classroomName,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 8,
+                        fontWeight: .w400,
                       ),
-                  ],
-                ),
+                      maxLines: 1,
+                      minFontSize: 8,
+                      overflow: .ellipsis,
+                      textAlign: .center,
+                    ),
+                ],
               ),
             ),
           ),
@@ -103,10 +99,10 @@ class CourseTableCellSkeleton extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: borderColor, width: 1),
+        borderRadius: .circular(8),
+        border: .all(color: borderColor, width: 1),
       ),
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: .antiAlias,
       child: Skeletonizer(
         effect: PulseEffect(
           from: baseColor,
@@ -130,12 +126,12 @@ Widget courseTableCellNamedPreview() {
   return WidgetPreviewFrame(
     child: Row(
       spacing: 4,
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: .center,
+      crossAxisAlignment: .start,
       children: [
         SizedBox(
           width: 50,
-          height: 68,
+          height: 52,
           child: CourseTableCell(
             courseTableCellData: _previewNamedCourseTableCell,
             cellColor: Colors.blue,
@@ -143,7 +139,7 @@ Widget courseTableCellNamedPreview() {
         ),
         SizedBox(
           width: 50,
-          height: 136,
+          height: 104,
           child: CourseTableCell(
             courseTableCellData: _previewNamedCourseTableCell,
             cellColor: Colors.red,
@@ -163,17 +159,17 @@ Widget courseTableCellSkeletonPreview() {
   return WidgetPreviewFrame(
     child: Row(
       spacing: 4,
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: .center,
+      crossAxisAlignment: .start,
       children: [
         const SizedBox(
           width: 50,
-          height: 68,
+          height: 52,
           child: CourseTableCellSkeleton(),
         ),
         const SizedBox(
           width: 50,
-          height: 136,
+          height: 104,
           child: CourseTableCellSkeleton(),
         ),
       ],
@@ -181,7 +177,7 @@ Widget courseTableCellSkeletonPreview() {
   );
 }
 
-final CourseTableCellData _previewNamedCourseTableCell = (
+const CourseTableCellData _previewNamedCourseTableCell = (
   id: 1,
   number: 'CSIE3001',
   span: 2,
