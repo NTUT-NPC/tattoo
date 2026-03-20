@@ -53,7 +53,7 @@ class ProfileDangerZone extends ConsumerWidget {
     });
   }
 
-  Future<void> _clearCache(BuildContext context) => _clear(
+  Future<void> _clearCache(BuildContext context, WidgetRef ref) => _clear(
     context,
     t.profile.dangerZone.items.cache,
     () async {
@@ -63,6 +63,7 @@ class ProfileDangerZone extends ConsumerWidget {
           await entity.delete(recursive: true);
         }
       }
+      await ref.read(databaseProvider).deleteCachedData();
     },
   );
 
@@ -129,7 +130,7 @@ class ProfileDangerZone extends ConsumerWidget {
               title: t.profile.dangerZone.clearCache,
               color: dangerColor,
               borderColor: dangerColor,
-              onTap: () => _clearCache(context),
+              onTap: () => _clearCache(context, ref),
             ),
             OptionEntryTile.icon(
               icon: Icons.cookie_outlined,

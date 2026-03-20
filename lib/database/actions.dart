@@ -15,6 +15,28 @@ extension DatabaseActions on AppDatabase {
     });
   }
 
+  /// Clears all cached data while preserving user identity.
+  ///
+  /// Deletes all rows from every table except [Users], and resets the
+  /// cache timestamps on [Users] so data is re-fetched on next access.
+  Future<void> deleteCachedData() async {
+    await transaction(() async {
+      for (final entity in allSchemaEntities.toList().reversed) {
+        if (entity is TableInfo && entity != users) {
+          await delete(entity).go();
+        }
+      }
+
+      await update(users).write(
+        const UsersCompanion(
+          fetchedAt: Value(null),
+          semestersFetchedAt: Value(null),
+          scoreDataFetchedAt: Value(null),
+        ),
+      );
+    });
+  }
+
   /// Returns an existing semester row, or creates one if missing.
   ///
   /// When [inCourseSemesterList] is `true`, marks the semester as having
