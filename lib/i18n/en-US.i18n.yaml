@@ -5,6 +5,8 @@ general:
   student: Student
   unknown: Unknown
   notLoggedIn: Not logged in
+  copy: Copy
+  copied: Copied
   ok: OK
 errors:
   occurred: An error occurred

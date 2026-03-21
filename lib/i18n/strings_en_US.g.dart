@@ -63,6 +63,8 @@ class _TranslationsGeneralEnUs extends TranslationsGeneralZhTw {
 	@override String get student => 'Student';
 	@override String get unknown => 'Unknown';
 	@override String get notLoggedIn => 'Not logged in';
+	@override String get copy => 'Copy';
+	@override String get copied => 'Copied';
 	@override String get ok => 'OK';
 }
 
@@ -356,6 +358,8 @@ extension on TranslationsEnUs {
 			'general.student' => 'Student',
 			'general.unknown' => 'Unknown',
 			'general.notLoggedIn' => 'Not logged in',
+			'general.copy' => 'Copy',
+			'general.copied' => 'Copied',
 			'general.ok' => 'OK',
 			'errors.occurred' => 'An error occurred',
 			'errors.flutterError' => 'A Flutter error occurred',

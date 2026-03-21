@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -39,6 +40,7 @@ Future<void> main() async {
   void showErrorDialog(Object error, {ErrorType type = ErrorType.unknown}) {
     final context = rootNavigatorKey.currentContext;
     if (context == null) return;
+    final errorText = error.toString();
     final errorTitle = switch (type) {
       ErrorType.flutter => t.errors.flutterError,
       ErrorType.async => t.errors.asyncError,
@@ -50,8 +52,18 @@ Future<void> main() async {
       builder: (context) => AlertDialog(
         title: Text(errorTitle),
         // TODO: Remove technical details from user-facing error messages
-        content: Text(error.toString()),
+        content: SelectableText(errorText),
         actions: [
+          TextButton(
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: errorText));
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(t.general.copied)),
+              );
+            },
+            child: Text(t.general.copy),
+          ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(t.general.ok),

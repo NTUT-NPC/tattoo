@@ -77,6 +77,12 @@ class TranslationsGeneralZhTw {
 	/// zh-TW: '未登入'
 	String get notLoggedIn => '未登入';
 
+	/// zh-TW: '複製'
+	String get copy => '複製';
+
+	/// zh-TW: '已複製'
+	String get copied => '已複製';
+
 	/// zh-TW: '確定'
 	String get ok => '確定';
 }
@@ -531,6 +537,8 @@ extension on Translations {
 			'general.student' => '學生',
 			'general.unknown' => '未知',
 			'general.notLoggedIn' => '未登入',
+			'general.copy' => '複製',
+			'general.copied' => '已複製',
 			'general.ok' => '確定',
 			'errors.occurred' => '發生錯誤',
 			'errors.flutterError' => '發生Flutter錯誤',

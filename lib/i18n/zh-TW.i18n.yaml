@@ -5,6 +5,8 @@ general:
   student: 學生
   unknown: 未知
   notLoggedIn: 未登入
+  copy: 複製
+  copied: 已複製
   ok: 確定
 errors:
   occurred: 發生錯誤
