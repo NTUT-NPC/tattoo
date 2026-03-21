@@ -8,7 +8,9 @@ import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
+import 'package:tattoo/screens/main/user_providers.dart';
 import 'package:tattoo/utils/http.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
 
@@ -64,6 +66,11 @@ class ProfileDangerZone extends ConsumerWidget {
         }
       }
       await ref.read(databaseProvider).deleteCachedData();
+      ref.invalidate(userProfileProvider);
+      ref.invalidate(userAvatarProvider);
+      ref.invalidate(activeRegistrationProvider);
+      ref.invalidate(courseTableSemestersProvider);
+      ref.invalidate(courseTableProvider);
     },
   );
 
