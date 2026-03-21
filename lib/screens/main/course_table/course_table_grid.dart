@@ -26,10 +26,12 @@ class CourseTableGrid extends StatelessWidget {
     required this.viewportWidth,
     required this.viewportHeight,
     this.loading = false,
+    this.onRefresh,
   });
 
   final CourseTableData courseTableData;
   final bool loading;
+  final RefreshCallback? onRefresh;
 
   /// Initial visible width of the grid viewport (before user scrolls).
   final double viewportWidth;
@@ -109,7 +111,10 @@ class CourseTableGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
+    final scrollView = CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics().applyTo(
+        ScrollConfiguration.of(context).getScrollPhysics(context),
+      ),
       slivers: [
         // table header with weekday labels, pinned to top when scrolling
         SliverAppBar(
@@ -143,6 +148,14 @@ class CourseTableGrid extends StatelessWidget {
         ),
       ],
     );
+
+    return switch (onRefresh) {
+      final onRefresh? => RefreshIndicator(
+        onRefresh: onRefresh,
+        child: scrollView,
+      ),
+      null => scrollView,
+    };
   }
 
   _GridRange _visibleGridRange() {

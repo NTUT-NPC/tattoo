@@ -19,6 +19,29 @@ const _semesterTabsHeight = 48.0;
 class CourseTableScreen extends ConsumerWidget {
   const CourseTableScreen({super.key});
 
+  Future<void> _refreshCourseTable(WidgetRef ref, Semester semester) async {
+    final user = await ref.read(userProfileProvider.future);
+    if (user == null) {
+      ref.invalidate(courseTableSemestersProvider);
+      ref.invalidate(courseTableProvider(semester));
+      return;
+    }
+
+    final courseRepository = ref.read(courseRepositoryProvider);
+
+    await Future.wait([
+      courseRepository.getSemesters(refresh: true),
+      courseRepository.getCourseTable(
+        user: user,
+        semester: semester,
+        refresh: true,
+      ),
+    ]);
+
+    ref.invalidate(courseTableSemestersProvider);
+    ref.invalidate(courseTableProvider(semester));
+  }
+
   void _showDemoTap(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(t.general.notImplemented)),
@@ -165,6 +188,8 @@ class CourseTableScreen extends ConsumerWidget {
                               loading:
                                   courseTableAsync.isLoading &&
                                   !courseTableAsync.hasValue,
+                              onRefresh: () =>
+                                  _refreshCourseTable(ref, semester),
                               viewportWidth: gridViewportSize.width,
                               viewportHeight: gridViewportSize.height,
                             ),
