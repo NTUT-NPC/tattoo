@@ -21,12 +21,13 @@ class CourseTableScreen extends ConsumerWidget {
 
   void _showDemoTap(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(t.general.notImplemented)),
+      SnackBar(content: Text(context.t.general.notImplemented)),
     );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.t;
     final profileAsync = ref.watch(userProfileProvider);
     final semestersAsync = ref.watch(courseTableSemestersProvider);
     final displayedSemesterTabLabels = switch (semestersAsync) {
@@ -197,6 +198,7 @@ class _TableOwnerIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.t;
     final profileAsync = ref.watch(userProfileProvider);
     final avatarAsync = ref.watch(userAvatarProvider);
     final profile = profileAsync.asData?.value;
