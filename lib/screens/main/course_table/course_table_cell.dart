@@ -67,37 +67,46 @@ class CourseTableCell extends StatelessWidget {
           child: InkWell(
             onTap: onTap,
             borderRadius: borderRadius,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-              child: Column(
-                mainAxisAlignment: .center,
-                children: [
-                  AutoSizeText(
-                    courseTitle,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontSize: 12,
-                      fontWeight: .w700,
-                    ),
-                    maxLines: 2,
-                    minFontSize: 12,
-                    overflow: .ellipsis,
-                    textAlign: .center,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final titleMaxLines = constraints.maxHeight > 100 ? 3 : 2;
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 2,
+                    vertical: 2,
                   ),
-                  if (classroomName case final classroomName?
-                      when classroomName.isNotEmpty)
-                    AutoSizeText(
-                      classroomName,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontSize: 8,
-                        fontWeight: .w400,
+                  child: Column(
+                    mainAxisAlignment: .center,
+                    children: [
+                      AutoSizeText(
+                        courseTitle,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 12,
+                          fontWeight: .w700,
+                        ),
+                        maxLines: titleMaxLines,
+                        minFontSize: 8,
+                        overflow: .ellipsis,
+                        textAlign: .center,
                       ),
-                      maxLines: 1,
-                      minFontSize: 8,
-                      overflow: .ellipsis,
-                      textAlign: .center,
-                    ),
-                ],
-              ),
+                      if (classroomName case final classroomName?
+                          when classroomName.isNotEmpty)
+                        AutoSizeText(
+                          classroomName,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 8,
+                            fontWeight: .w400,
+                          ),
+                          maxLines: 1,
+                          minFontSize: 6,
+                          overflow: .ellipsis,
+                          textAlign: .center,
+                        ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ),
