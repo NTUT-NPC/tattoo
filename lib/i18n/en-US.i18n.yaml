@@ -46,6 +46,16 @@ nav:
   courseTable: Courses
   scores: Scores
   profile: Me
+courseTable:
+  notFound: Course table not found
+  dayOfWeek(map):
+    sunday: Sun
+    monday: Mon
+    tuesday: Tue
+    wednesday: Wed
+    thursday: Thu
+    friday: Fri
+    saturday: Sat
 profile:
   dataDisclaimer: For reference only. Not valid as official documentation.
   sections:
