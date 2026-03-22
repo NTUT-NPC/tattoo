@@ -7,105 +7,109 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
-typedef _PortalService = ({String title, String serviceCode});
-typedef _PortalSection = ({String title, List<_PortalService> services});
-
 // TODO: Fetch portal services from backend instead of hardcoding.
-final _portalSections = <_PortalSection>[
-  (
-    title: '學務系統',
-    services: [
+final _portalSections =
+    <
+      ({
+        String title,
+        List<({String title, String serviceCode})> services,
+      })
+    >[
       (
-        title: '學生查詢系統',
-        serviceCode: PortalServiceCode.studentQueryService.code,
+        title: '學務系統',
+        services: [
+          (
+            title: '學生查詢系統',
+            serviceCode: PortalServiceCode.studentQueryService.code,
+          ),
+          (
+            title: '學生請假系統',
+            serviceCode: PortalServiceCode.studentLeaveSystem.code,
+          ),
+          (
+            title: '學雜費減免及弱勢助學申請系統',
+            serviceCode:
+                PortalServiceCode.tuitionExemptionAndWeakStudentAidSystem.code,
+          ),
+          (
+            title: '諮商預約系統',
+            serviceCode: PortalServiceCode.counselingAppointmentSystem.code,
+          ),
+        ],
       ),
       (
-        title: '學生請假系統',
-        serviceCode: PortalServiceCode.studentLeaveSystem.code,
+        title: '教務系統',
+        services: [
+          (
+            title: '課程系統',
+            serviceCode: PortalServiceCode.courseService.code,
+          ),
+          (
+            title: '期末網路教學評量系統',
+            serviceCode: PortalServiceCode.teachingEvaluationSystem.code,
+          ),
+          (
+            title: '期末網路預選系統',
+            serviceCode: PortalServiceCode.preSelectionSystem.code,
+          ),
+          (
+            title: '暑修需求登錄',
+            serviceCode: PortalServiceCode.summerCourseDemandRegistration.code,
+          ),
+          (
+            title: '期中網路撤選系統（學生）',
+            serviceCode:
+                PortalServiceCode.midtermCourseWithdrawalSystemStudent.code,
+          ),
+        ],
       ),
       (
-        title: '學雜費減免及弱勢助學申請系統',
-        serviceCode:
-            PortalServiceCode.tuitionExemptionAndWeakStudentAidSystem.code,
+        title: '總務系統',
+        services: [
+          (
+            title: '建物與設備維修通報單錄案系統',
+            serviceCode: PortalServiceCode
+                .facilityAndEquipmentMaintenanceReportSystem
+                .code,
+          ),
+          (
+            title: '化學物質GHS管理系統',
+            serviceCode: PortalServiceCode.chemicalGhsManagementSystem.code,
+          ),
+          (
+            title: '線上繳費系統',
+            serviceCode: PortalServiceCode.onlinePaymentSystem.code,
+          ),
+        ],
       ),
       (
-        title: '諮商預約系統',
-        serviceCode: PortalServiceCode.counselingAppointmentSystem.code,
-      ),
-    ],
-  ),
-  (
-    title: '教務系統',
-    services: [
-      (
-        title: '課程系統',
-        serviceCode: PortalServiceCode.courseService.code,
-      ),
-      (
-        title: '期末網路教學評量系統',
-        serviceCode: PortalServiceCode.teachingEvaluationSystem.code,
+        title: '資訊服務',
+        services: [
+          (
+            title: '網路與資訊安全管理系統',
+            serviceCode:
+                PortalServiceCode.networkAndInfoSecurityManagementSystem.code,
+          ),
+          (
+            title: '校園授權軟體',
+            serviceCode: PortalServiceCode.campusLicensedSoftware.code,
+          ),
+        ],
       ),
       (
-        title: '期末網路預選系統',
-        serviceCode: PortalServiceCode.preSelectionSystem.code,
+        title: '其他',
+        services: [
+          (
+            title: '電子郵件/網路郵局WebMail',
+            serviceCode: PortalServiceCode.webmail.code,
+          ),
+          (
+            title: '臺北科大小郵差',
+            serviceCode: PortalServiceCode.ntutPostman.code,
+          ),
+        ],
       ),
-      (
-        title: '暑修需求登錄',
-        serviceCode: PortalServiceCode.summerCourseDemandRegistration.code,
-      ),
-      (
-        title: '期中網路撤選系統（學生）',
-        serviceCode:
-            PortalServiceCode.midtermCourseWithdrawalSystemStudent.code,
-      ),
-    ],
-  ),
-  (
-    title: '總務系統',
-    services: [
-      (
-        title: '建物與設備維修通報單錄案系統',
-        serviceCode:
-            PortalServiceCode.facilityAndEquipmentMaintenanceReportSystem.code,
-      ),
-      (
-        title: '化學物質GHS管理系統',
-        serviceCode: PortalServiceCode.chemicalGhsManagementSystem.code,
-      ),
-      (
-        title: '線上繳費系統',
-        serviceCode: PortalServiceCode.onlinePaymentSystem.code,
-      ),
-    ],
-  ),
-  (
-    title: '資訊服務',
-    services: [
-      (
-        title: '網路與資訊安全管理系統',
-        serviceCode:
-            PortalServiceCode.networkAndInfoSecurityManagementSystem.code,
-      ),
-      (
-        title: '校園授權軟體',
-        serviceCode: PortalServiceCode.campusLicensedSoftware.code,
-      ),
-    ],
-  ),
-  (
-    title: '其他',
-    services: [
-      (
-        title: '電子郵件/網路郵局WebMail',
-        serviceCode: PortalServiceCode.webmail.code,
-      ),
-      (
-        title: '臺北科大小郵差',
-        serviceCode: PortalServiceCode.ntutPostman.code,
-      ),
-    ],
-  ),
-];
+    ];
 
 class PortalScreen extends ConsumerWidget {
   const PortalScreen({super.key});
