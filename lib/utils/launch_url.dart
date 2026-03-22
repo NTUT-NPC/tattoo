@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:url_launcher/url_launcher.dart' as ul;
 
 export 'package:url_launcher/url_launcher.dart' hide launchUrl;
@@ -20,4 +23,13 @@ Future<void> launchUrl(Uri url, {bool inExternalApplication = false}) async {
   } on PlatformException {
     await ul.launchUrl(url, mode: .externalApplication);
   }
+}
+
+/// Launches [serviceCode] in a browser with an authenticated NTUT SSO URL.
+Future<void> launchNtutService(
+  AuthRepository authRepository,
+  String serviceCode,
+) async {
+  final url = await authRepository.getSsoUrl(serviceCode);
+  await launchUrl(url, inExternalApplication: Platform.isIOS);
 }

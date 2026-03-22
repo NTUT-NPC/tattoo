@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -96,17 +94,13 @@ class ProfileScreen extends ConsumerWidget {
   Future<void> _openInBrowser(
     BuildContext context,
     WidgetRef ref,
-    PortalServiceCode serviceCode,
+    String serviceCode,
   ) async {
     try {
-      final url = await ref
-          .read(authRepositoryProvider)
-          .withAuth(
-            () => ref.read(portalServiceProvider).getSsoUrl(serviceCode),
-          );
-      // iOS doesn't preserve the in-app browser's session, so we have to
-      // open externally to maintain login state.
-      await launchUrl(url, inExternalApplication: Platform.isIOS);
+      await launchNtutService(
+        ref.read(authRepositoryProvider),
+        serviceCode,
+      );
     } on DioException {
       if (context.mounted) _showMessage(context, t.errors.connectionFailed);
     }
@@ -138,8 +132,11 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile.icon(
         icon: Icons.open_in_browser,
         title: t.$wip('學生查詢專區'),
-        onTap: () =>
-            _openInBrowser(context, ref, PortalServiceCode.studentQueryService),
+        onTap: () => _openInBrowser(
+          context,
+          ref,
+          PortalServiceCode.studentQueryService.code,
+        ),
       ),
 
       SectionHeader(title: 'TAT'),

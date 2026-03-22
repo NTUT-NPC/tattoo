@@ -39,10 +39,10 @@ class MockPortalService implements PortalService {
   }
 
   @override
-  Future<void> sso(PortalServiceCode serviceCode) async {}
+  Future<void> sso(String serviceCode) async {}
 
   @override
-  Future<Uri> getSsoUrl(PortalServiceCode serviceCode) async {
+  Future<Uri> getSsoUrl(String serviceCode) async {
     return ssoUrlResult ??
         Uri.parse('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
   }
