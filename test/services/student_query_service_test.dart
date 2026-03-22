@@ -26,7 +26,7 @@ void main() {
         TestCredentials.username,
         TestCredentials.password,
       );
-      await portalService.sso(PortalServiceCode.studentQueryService);
+      await portalService.sso(PortalServiceCode.studentQueryService.code);
 
       await respectfulDelay();
     });
