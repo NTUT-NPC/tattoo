@@ -37,10 +37,18 @@ Future<void> main() async {
 
   firebase.log('App starting...');
 
-  void showErrorDialog(Object error, {ErrorType type = ErrorType.unknown}) {
+  void showErrorDialog(
+    Object error, {
+    ErrorType type = ErrorType.unknown,
+    StackTrace? stackTrace,
+  }) {
     final rootContext = rootNavigatorKey.currentContext;
     if (rootContext == null) return;
-    final errorText = error.toString();
+    final errorMessage = error.toString();
+    final copyText = [
+      errorMessage,
+      if (stackTrace != null) stackTrace.toString(),
+    ].join('\n');
     final errorTitle = switch (type) {
       ErrorType.flutter => t.errors.flutterError,
       ErrorType.async => t.errors.asyncError,
@@ -52,11 +60,11 @@ Future<void> main() async {
       builder: (dialogContext) => AlertDialog(
         title: Text(errorTitle),
         // TODO: Remove technical details from user-facing error messages
-        content: SelectableText(errorText),
+        content: SelectableText(errorMessage),
         actions: [
           TextButton(
             onPressed: () async {
-              await Clipboard.setData(ClipboardData(text: errorText));
+              await Clipboard.setData(ClipboardData(text: copyText));
               if (!rootContext.mounted) return;
               ScaffoldMessenger.of(rootContext).showSnackBar(
                 SnackBar(content: Text(t.general.copied)),
@@ -78,14 +86,18 @@ Future<void> main() async {
     firebase.crashlytics?.recordFlutterFatalError(details);
     FlutterError.dumpErrorToConsole(details);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      showErrorDialog(details.exception, type: ErrorType.flutter);
+      showErrorDialog(
+        details.exception,
+        type: ErrorType.flutter,
+        stackTrace: details.stack,
+      );
     });
   };
 
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
     firebase.crashlytics?.recordError(error, stack, fatal: true);
-    showErrorDialog(error, type: ErrorType.async);
+    showErrorDialog(error, type: ErrorType.async, stackTrace: stack);
     log('Uncaught asynchronous error: $error', stackTrace: stack);
     return true;
   };
