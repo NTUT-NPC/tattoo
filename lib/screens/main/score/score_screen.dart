@@ -110,12 +110,12 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
       await refreshSemesterRecords(ref);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('成績資料已更新')),
+        SnackBar(content: Text(t.score.refreshSuccess)),
       );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('成績更新失敗')),
+        SnackBar(content: Text(t.score.refreshFailed)),
       );
     }
   }
@@ -148,7 +148,7 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
             ),
             SliverFillRemaining(
               hasScrollBody: false,
-              child: Center(child: Text('成績載入失敗\n$err')),
+              child: Center(child: Text('${t.score.loadFailed}\n$err')),
             ),
           ],
         ),
@@ -193,9 +193,9 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                       : null,
                 ),
                 if (!hasRecords)
-                  const SliverFillRemaining(
+                  SliverFillRemaining(
                     hasScrollBody: false,
-                    child: Center(child: Text('目前沒有任何成績紀錄')),
+                    child: Center(child: Text(t.score.noRecords)),
                   )
                 else ...[
                   SliverFillRemaining(
@@ -243,9 +243,9 @@ class _SemesterScoreList extends StatelessWidget {
           }
           if (index == 1) {
             if (record.scores.isNotEmpty) return const SizedBox(height: 8);
-            return const Padding(
-              padding: EdgeInsets.only(top: 12),
-              child: Center(child: Text('本學期尚無成績')),
+            return Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Center(child: Text(t.score.noScoresThisSemester)),
             );
           }
 
@@ -290,31 +290,31 @@ class _SemesterSummaryCard extends StatelessWidget {
               children: [
                 _buildStat(
                   context,
-                  '歷年 GPA',
+                  t.score.summary.cumulativeGpa,
                   _formatDouble(summary.gpa),
                 ),
                 const SizedBox(width: 24),
                 _buildStat(
                   context,
-                  '操行成績',
+                  t.score.summary.conduct,
                   summary.conduct?.toString() ?? '-',
                 ),
                 const SizedBox(width: 24),
                 _buildStat(
                   context,
-                  '學期平均',
+                  t.score.summary.semesterAverage,
                   summary.average?.toString() ?? '-',
                 ),
                 const SizedBox(width: 24),
                 _buildStat(
                   context,
-                  '實得學分',
+                  t.score.summary.creditsPassed,
                   summary.creditsPassed?.toString() ?? '-',
                 ),
                 const SizedBox(width: 24),
                 _buildStat(
                   context,
-                  '修課總學分',
+                  t.score.summary.totalCredits,
                   summary.totalCredits?.toString() ?? '-',
                 ),
               ],
@@ -364,7 +364,10 @@ class _ScoreTile extends StatelessWidget {
         style: const TextStyle(fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
-        '課號: ${score.number ?? "無"}  編碼: ${score.code}',
+        t.score.courseNumber(
+          number: score.number ?? t.score.none,
+          code: score.code,
+        ),
       ),
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

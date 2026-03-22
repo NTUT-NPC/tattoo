@@ -45,6 +45,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsIntroZhTw intro = TranslationsIntroZhTw.internal(_root);
 	late final TranslationsLoginZhTw login = TranslationsLoginZhTw.internal(_root);
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
+	late final TranslationsScoreZhTw score = TranslationsScoreZhTw.internal(_root);
 	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
@@ -187,6 +188,39 @@ class TranslationsNavZhTw {
 	String get profile => '我';
 }
 
+// Path: score
+class TranslationsScoreZhTw {
+	TranslationsScoreZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '成績載入失敗'
+	String get loadFailed => '成績載入失敗';
+
+	/// zh-TW: '成績資料已更新'
+	String get refreshSuccess => '成績資料已更新';
+
+	/// zh-TW: '成績更新失敗'
+	String get refreshFailed => '成績更新失敗';
+
+	/// zh-TW: '目前沒有任何成績紀錄'
+	String get noRecords => '目前沒有任何成績紀錄';
+
+	/// zh-TW: '本學期尚無成績'
+	String get noScoresThisSemester => '本學期尚無成績';
+
+	/// zh-TW: '課號: ${number} 編碼: ${code}'
+	String courseNumber({required Object number, required Object code}) => '課號: ${number}  編碼: ${code}';
+
+	/// zh-TW: '無'
+	String get none => '無';
+
+	late final TranslationsScoreSummaryZhTw summary = TranslationsScoreSummaryZhTw.internal(_root);
+	late final TranslationsScoreStatusZhTw status = TranslationsScoreStatusZhTw.internal(_root);
+}
+
 // Path: courseTable
 class TranslationsCourseTableZhTw {
 	TranslationsCourseTableZhTw.internal(this._root);
@@ -320,6 +354,57 @@ class TranslationsLoginErrorsZhTw {
 
 	/// zh-TW: '需要進行手機驗證，請至校園入口網站完成驗證'
 	String get mobileVerificationRequired => '需要進行手機驗證，請至校園入口網站完成驗證';
+}
+
+// Path: score.summary
+class TranslationsScoreSummaryZhTw {
+	TranslationsScoreSummaryZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '歷年GPA'
+	String get cumulativeGpa => '歷年GPA';
+
+	/// zh-TW: '操行成績'
+	String get conduct => '操行成績';
+
+	/// zh-TW: '學期平均'
+	String get semesterAverage => '學期平均';
+
+	/// zh-TW: '實得學分'
+	String get creditsPassed => '實得學分';
+
+	/// zh-TW: '修課總學分'
+	String get totalCredits => '修課總學分';
+}
+
+// Path: score.status
+class TranslationsScoreStatusZhTw {
+	TranslationsScoreStatusZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '未輸入'
+	String get notEntered => '未輸入';
+
+	/// zh-TW: '撤選'
+	String get withdraw => '撤選';
+
+	/// zh-TW: '未送成績'
+	String get undelivered => '未送成績';
+
+	/// zh-TW: '通過'
+	String get pass => '通過';
+
+	/// zh-TW: '不通過'
+	String get fail => '不通過';
+
+	/// zh-TW: '抵免'
+	String get creditTransfer => '抵免';
 }
 
 // Path: profile.sections
@@ -571,6 +656,24 @@ extension on Translations {
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.profile' => '我',
+			'score.loadFailed' => '成績載入失敗',
+			'score.refreshSuccess' => '成績資料已更新',
+			'score.refreshFailed' => '成績更新失敗',
+			'score.noRecords' => '目前沒有任何成績紀錄',
+			'score.noScoresThisSemester' => '本學期尚無成績',
+			'score.courseNumber' => ({required Object number, required Object code}) => '課號: ${number}  編碼: ${code}',
+			'score.none' => '無',
+			'score.summary.cumulativeGpa' => '歷年GPA',
+			'score.summary.conduct' => '操行成績',
+			'score.summary.semesterAverage' => '學期平均',
+			'score.summary.creditsPassed' => '實得學分',
+			'score.summary.totalCredits' => '修課總學分',
+			'score.status.notEntered' => '未輸入',
+			'score.status.withdraw' => '撤選',
+			'score.status.undelivered' => '未送成績',
+			'score.status.pass' => '通過',
+			'score.status.fail' => '不通過',
+			'score.status.creditTransfer' => '抵免',
 			'courseTable.notFound' => '找不到課表',
 			'courseTable.dayOfWeek.sunday' => '日',
 			'courseTable.dayOfWeek.monday' => '一',

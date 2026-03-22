@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/score.dart';
 import 'package:tattoo/repositories/student_repository.dart';
 
@@ -32,12 +33,12 @@ Color getScoreColor(BuildContext context, ScoreDetail score) {
 
 String getScoreStatusText(ScoreStatus? status) {
   return switch (status) {
-    ScoreStatus.notEntered => '未輸入',
-    ScoreStatus.withdraw => '撤選',
-    ScoreStatus.undelivered => '未送成績',
-    ScoreStatus.pass => '通過',
-    ScoreStatus.fail => '不通過',
-    ScoreStatus.creditTransfer => '抵免',
+    ScoreStatus.notEntered => t.score.status.notEntered,
+    ScoreStatus.withdraw => t.score.status.withdraw,
+    ScoreStatus.undelivered => t.score.status.undelivered,
+    ScoreStatus.pass => t.score.status.pass,
+    ScoreStatus.fail => t.score.status.fail,
+    ScoreStatus.creditTransfer => t.score.status.creditTransfer,
     _ => '-',
   };
 }

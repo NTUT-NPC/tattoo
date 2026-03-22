@@ -48,6 +48,27 @@ nav:
   courseTable: 課表
   scores: 成績
   profile: 我
+score:
+  loadFailed: 成績載入失敗
+  refreshSuccess: 成績資料已更新
+  refreshFailed: 成績更新失敗
+  noRecords: 目前沒有任何成績紀錄
+  noScoresThisSemester: 本學期尚無成績
+  courseNumber: "課號: ${number}  編碼: ${code}"
+  none: 無
+  summary:
+    cumulativeGpa: 歷年GPA
+    conduct: 操行成績
+    semesterAverage: 學期平均
+    creditsPassed: 實得學分
+    totalCredits: 修課總學分
+  status:
+    notEntered: 未輸入
+    withdraw: 撤選
+    undelivered: 未送成績
+    pass: 通過
+    fail: 不通過
+    creditTransfer: 抵免
 courseTable:
   notFound: 找不到課表
   dayOfWeek(map):
