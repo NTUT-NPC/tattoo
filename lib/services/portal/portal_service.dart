@@ -64,7 +64,27 @@ typedef CalendarEventDto = ({
 enum PortalServiceCode {
   studentQueryService('sa_003_oauth'),
   courseService('aa_0010-oauth'),
-  iSchoolPlusService('ischool_plus_oauth');
+  iSchoolPlusService('ischool_plus_oauth'),
+
+  // TODO: --- for portal screen demo, delete after migration ---
+  teachingEvaluationSystem('aa_009_oauth'),
+  preSelectionSystem('aa_011_oauth'),
+  summerCourseDemandRegistration('aa_015_oauth'),
+  midtermCourseWithdrawalSystemStudent(
+    'aa_Online+Course+Withdrawal+System_stu_oauth',
+  ),
+  studentLeaveSystem('sa_010_oauth'),
+  tuitionExemptionAndWeakStudentAidSystem('NTUT_exemption_oauth'),
+  counselingAppointmentSystem('counseling_oauth'),
+  facilityAndEquipmentMaintenanceReportSystem('ga_008_oauth'),
+  chemicalGhsManagementSystem('ga_ghs_oauth'),
+  onlinePaymentSystem('OnlinePayment_oauth'),
+  networkAndInfoSecurityManagementSystem('ipmac_oauth'),
+  campusLicensedSoftware('inf001_oauth'),
+  webmail('zimbrasso_oauth'),
+  ntutPostman('test_postman');
+  // TODO: --- for portal screen demo, delete after migration ---
+
 
   final String code;
   const PortalServiceCode(this.code);
