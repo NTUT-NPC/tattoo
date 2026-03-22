@@ -6,15 +6,13 @@ import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:tattoo/models/login_exception.dart';
-import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
 
 class NtutPortalService implements PortalService {
   late final Dio _portalDio;
-  final FirebaseService _firebase;
 
-  NtutPortalService(this._firebase) {
+  NtutPortalService() {
     // Emulate the NTUT iOS app's HTTP client
     _portalDio = createDio()
       ..options.baseUrl = 'https://app.ntut.edu.tw/'
@@ -28,7 +26,6 @@ class NtutPortalService implements PortalService {
 
   @override
   Future<UserDto> login(String username, String password) async {
-    _firebase.log('Attempting login');
     final response = await _portalDio.post(
       'login.do',
       queryParameters: {'muid': username, 'mpassword': password},
@@ -36,7 +33,6 @@ class NtutPortalService implements PortalService {
 
     final body = jsonDecode(response.data);
     if (!body['success']) {
-      _firebase.log('Login failed');
       final String? errorMsg = body['errorMsg'];
       final bool resetPwd = body['resetPwd'] ?? false;
       throw switch (errorMsg) {
@@ -50,8 +46,6 @@ class NtutPortalService implements PortalService {
         _ => UnknownLoginException(errorMsg),
       };
     }
-
-    _firebase.log('Login successful');
 
     final String? passwordExpiredRemind = body['passwordExpiredRemind'];
 

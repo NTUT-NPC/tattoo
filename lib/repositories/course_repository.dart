@@ -130,7 +130,7 @@ final courseRepositoryProvider = Provider<CourseRepository>((ref) {
     iSchoolPlusService: ref.watch(iSchoolPlusServiceProvider),
     database: ref.watch(databaseProvider),
     authRepository: ref.watch(authRepositoryProvider),
-    firebaseService: ref.watch(firebaseServiceProvider),
+    firebaseService: firebaseService,
   );
 });
 

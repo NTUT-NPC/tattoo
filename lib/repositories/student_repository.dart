@@ -23,7 +23,7 @@ final studentRepositoryProvider = Provider<StudentRepository>((ref) {
     database: ref.watch(databaseProvider),
     authRepository: ref.watch(authRepositoryProvider),
     courseRepository: ref.watch(courseRepositoryProvider),
-    firebaseService: ref.watch(firebaseServiceProvider),
+    firebaseService: firebaseService,
     studentQueryService: ref.watch(studentQueryServiceProvider),
   );
 });
