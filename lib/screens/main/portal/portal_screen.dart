@@ -33,6 +33,10 @@ final _portalSections =
                 PortalServiceCode.tuitionExemptionAndWeakStudentAidSystem.code,
           ),
           (
+            title: '就學貸款申請系統',
+            serviceCode: PortalServiceCode.studentLoanSystem.code,
+          ),
+          (
             title: '諮商預約系統',
             serviceCode: PortalServiceCode.counselingAppointmentSystem.code,
           ),
@@ -95,11 +99,6 @@ final _portalSections =
             title: '校園授權軟體',
             serviceCode: PortalServiceCode.campusLicensedSoftware.code,
           ),
-        ],
-      ),
-      (
-        title: '其他',
-        services: [
           (
             title: '電子郵件/網路郵局WebMail',
             serviceCode: PortalServiceCode.webmail.code,
@@ -107,6 +106,15 @@ final _portalSections =
           (
             title: '臺北科大小郵差',
             serviceCode: PortalServiceCode.ntutPostman.code,
+          ),
+        ],
+      ),
+      (
+        title: '圖書館系統',
+        services: [
+          (
+            title: '圖書館系統',
+            serviceCode: PortalServiceCode.librarySystem.code,
           ),
         ],
       ),
