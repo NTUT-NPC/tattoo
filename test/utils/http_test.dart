@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/utils/http.dart';
 
 void main() {
@@ -86,4 +87,13 @@ class _MockAdapter implements HttpClientAdapter {
 
   @override
   void close({bool force = false}) {}
+}
+
+class MockFirebaseService extends FirebaseService {
+  final List<String> logs = [];
+
+  @override
+  void log(String message) {
+    logs.add(message);
+  }
 }

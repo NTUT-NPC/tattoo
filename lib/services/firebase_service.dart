@@ -45,4 +45,4 @@ class FirebaseService {
 }
 
 /// Global [FirebaseService] instance.
-const firebase = FirebaseService();
+var firebase = const FirebaseService();
