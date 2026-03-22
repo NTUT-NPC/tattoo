@@ -65,8 +65,10 @@ Future<void> main() async {
           TextButton(
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: copyText));
+              if (!dialogContext.mounted) return;
+              Navigator.of(dialogContext).pop();
               if (!rootContext.mounted) return;
-              ScaffoldMessenger.of(rootContext).showSnackBar(
+              ScaffoldMessenger.maybeOf(rootContext)?.showSnackBar(
                 SnackBar(content: Text(t.general.copied)),
               );
             },
