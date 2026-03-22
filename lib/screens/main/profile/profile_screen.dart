@@ -102,6 +102,8 @@ class ProfileScreen extends ConsumerWidget {
         ref.read(authRepositoryProvider),
         serviceCode,
       );
+    } on ArgumentError {
+      if (context.mounted) _showMessage(context, t.errors.occurred);
     } on DioException {
       if (context.mounted) _showMessage(context, t.errors.connectionFailed);
     }

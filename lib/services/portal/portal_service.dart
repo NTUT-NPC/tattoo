@@ -67,6 +67,15 @@ enum PortalServiceCode {
 
   final String code;
   const PortalServiceCode(this.code);
+
+  // TODO: Let downstream SSO APIs accept raw service-code strings directly.
+  // TODO: Delete this helper after that migration is complete.
+  static PortalServiceCode? fromCode(String code) {
+    for (final serviceCode in values) {
+      if (serviceCode.code == code) return serviceCode;
+    }
+    return null;
+  }
 }
 // dart format on
 

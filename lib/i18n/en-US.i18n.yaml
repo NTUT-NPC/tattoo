@@ -47,6 +47,7 @@ login:
 nav:
   courseTable: Courses
   scores: Scores
+  portal: Portals
   profile: Me
 courseTable:
   notFound: Course table not found
