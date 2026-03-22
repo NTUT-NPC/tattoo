@@ -153,7 +153,7 @@ class PortalScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               sliver: SliverToBoxAdapter(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: .center,
                   spacing: 12,
                   children: [
                     ClearNotice(text: "此功能尚在實驗階段，未讀取可用功能，與實際系統可能有差異"),
@@ -166,7 +166,7 @@ class PortalScreen extends ConsumerWidget {
                     ),
                     for (final section in _portalSections)
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        crossAxisAlignment: .center,
                         spacing: 4,
                         children: [
                           SectionHeader(title: section.title),
@@ -206,7 +206,7 @@ class _PortalCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: .antiAlias,
       child: InkWell(
         onTap: onTap,
         child: SizedBox(
