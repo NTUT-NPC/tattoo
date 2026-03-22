@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -73,10 +74,13 @@ class ProfileCard extends ConsumerWidget {
           AsyncValue(value: final registration, hasValue: true),
         )
             when profile != null =>
-          ProfileContent(
-            profile: profile,
-            registration: registration,
-            avatarFile: avatarAsync.value,
+          _FlippableProfileCard(
+            front: ProfileContent(
+              profile: profile,
+              registration: registration,
+              avatarFile: avatarAsync.value,
+            ),
+            back: ProfileBackContent(profile: profile),
           ),
 
         // LOADING state: show skeleton
@@ -87,6 +91,80 @@ class ProfileCard extends ConsumerWidget {
           ),
         ),
       },
+    );
+  }
+}
+
+class _FlippableProfileCard extends StatefulWidget {
+  const _FlippableProfileCard({required this.front, required this.back});
+
+  final Widget front;
+  final Widget back;
+
+  @override
+  State<_FlippableProfileCard> createState() => _FlippableProfileCardState();
+}
+
+class _FlippableProfileCardState extends State<_FlippableProfileCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _animation = _controller.drive(
+      Tween<double>(begin: 0.0, end: math.pi).chain(
+        CurveTween(curve: Curves.easeInOut),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _toggleFlip() {
+    if (_controller.status == AnimationStatus.forward ||
+        _controller.status == AnimationStatus.completed) {
+      _controller.reverse();
+    } else {
+      _controller.forward();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _toggleFlip,
+      child: AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) {
+          final angle = _animation.value;
+          // Since we only rotate from 0 to pi, back side is visible after pi/2
+          final isBack = angle > math.pi / 2;
+
+          return Transform(
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.001) // Perspective
+              ..rotateY(angle),
+            alignment: Alignment.center,
+            child: isBack
+                ? Transform(
+                    transform: Matrix4.identity()..rotateY(math.pi),
+                    alignment: Alignment.center,
+                    child: widget.back,
+                  )
+                : widget.front,
+          );
+        },
+      ),
     );
   }
 }
@@ -232,6 +310,108 @@ class ProfileContent extends StatelessWidget {
                         ),
                       },
                     ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class ProfileBackContent extends StatelessWidget {
+  const ProfileBackContent({super.key, required this.profile});
+
+  final User profile;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = GoogleFonts.notoSansTcTextTheme(theme.textTheme);
+
+    return _ProfileCardFrame(
+      childBuilder: (context, constraints, borderRadius) {
+        final height = constraints.maxHeight;
+        final width = constraints.maxWidth;
+
+        //TODO: design is not determind yet, just put some info here for now and will polish later when design is ready
+        return ClipRRect(
+          borderRadius: borderRadius,
+          child: Stack(
+            children: [
+              // Faint T logo in bottom right
+              Positioned(
+                right: height * 0.08,
+                bottom: height * 0.08,
+                child: Opacity(
+                  opacity: 0.2,
+                  child: SvgPicture.asset(
+                    'assets/tat_icon.svg',
+                    height: height * 0.25,
+                    colorFilter: const ColorFilter.mode(
+                      Colors.black,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
+              ),
+
+              // Centered Information
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: width * 0.06),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        (profile.nameEn?.isNotEmpty == true
+                                ? profile.nameEn!
+                                : profile.nameZh)
+                            .toUpperCase(),
+                        textAlign: TextAlign.center,
+                        style: textTheme.titleLarge?.copyWith(
+                          color: const Color(0xFF222222),
+                          fontSize: height * 0.085,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      SizedBox(height: height * 0.03),
+                      Text(
+                        profile.departmentEn ?? profile.departmentZh ?? '',
+                        textAlign: TextAlign.center,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: const Color(0xFF777777),
+                          fontSize: height * 0.045,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: height * 0.08),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: width * 0.04,
+                          vertical: height * 0.02,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: const Color(0xFFB0B0B0),
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(height * 0.025),
+                        ),
+                        child: Text(
+                          profile.email,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: const Color(0xFF5A758E),
+                            fontSize: height * 0.05,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
