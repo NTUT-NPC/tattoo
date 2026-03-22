@@ -90,10 +90,14 @@ class Users extends Table with AutoIncrementId, Fetchable {
   /// Number of days until the user's password expires.
   ///
   /// Null if password expiration is not enforced or unknown.
+  /// Not a [Fetchable] field.
   late final passwordExpiresInDays = integer().nullable()();
 
   /// When the semester list was last fetched from the course system.
   late final semestersFetchedAt = dateTime().nullable()();
+
+  /// When score-related academic data was last fetched from student query.
+  late final scoreDataFetchedAt = dateTime().nullable()();
 }
 
 /// Student seen in an I-School Plus course roster.
@@ -118,6 +122,15 @@ class Semesters extends Table with AutoIncrementId {
   /// Term number within the year (0=Pre-study, 1=Fall, 2=Spring, 3=Summer).
   late final term = integer()();
 
+  /// Whether this semester appeared in the course semester list API response.
+  ///
+  /// Distinguishes semesters fetched by [CourseRepository.getSemesters] from
+  /// those created as side effects by other flows (e.g., auth, scores).
+  late final inCourseSemesterList = boolean().withDefault(Constant(false))();
+
+  /// When the course table was last fetched from the server for this semester.
+  late final courseTableFetchedAt = dateTime().nullable()();
+
   @override
   List<Set<Column>> get uniqueKeys => [
     {year, term},
@@ -138,17 +151,20 @@ class Courses extends Table with AutoIncrementId, Fetchable {
   /// Number of class hours per week.
   late final hours = integer()();
 
-  /// Course name in English.
-  late final nameEn = text().nullable()();
-
   /// Course name in Traditional Chinese.
-  late final nameZh = text().nullable()();
+  late final nameZh = text()();
 
-  /// Course description in English.
-  late final descriptionEn = text().nullable()();
+  /// Course name in English.
+  ///
+  /// Not a [Fetchable] field — populated from the English course page,
+  /// which is fetched alongside the Chinese page and may gracefully fail.
+  late final nameEn = text().nullable()();
 
   /// Course description in Traditional Chinese.
   late final descriptionZh = text().nullable()();
+
+  /// Course description in English.
+  late final descriptionEn = text().nullable()();
 }
 
 /// Academic department information.
@@ -162,23 +178,31 @@ class Departments extends Table with AutoIncrementId, Fetchable {
   late final nameZh = text()();
 }
 
-/// Teacher/instructor information for a particular semester.
+/// Static teacher/instructor information.
 ///
-/// Each row represents a teacher's profile snapshot for a specific semester.
-/// The same teacher will have multiple rows across different semesters.
-@TableIndex(name: 'teacher_semester', columns: {#semester})
-class Teachers extends Table with AutoIncrementId, Fetchable {
+/// Represents a teacher's identity across all semesters.
+class Teachers extends Table with AutoIncrementId {
   /// Teacher code/ID in the NTUT system.
-  late final code = text()();
-
-  /// Reference to the semester this profile is for.
-  late final semester = integer().references(Semesters, #id)();
+  late final code = text().unique()();
 
   /// Teacher's name in Traditional Chinese.
   late final nameZh = text()();
 
   /// Teacher's name in English.
   late final nameEn = text().nullable()();
+}
+
+/// Teacher/instructor profile for a particular semester.
+///
+/// Each row represents a teacher's profile snapshot for a specific semester.
+/// The same teacher will have multiple rows across different semesters.
+@TableIndex(name: 'teacher_semester_semester', columns: {#semester})
+class TeacherSemesters extends Table with AutoIncrementId, Fetchable {
+  /// Reference to the teacher.
+  late final teacher = integer().references(Teachers, #id)();
+
+  /// Reference to the semester this profile is for.
+  late final semester = integer().references(Semesters, #id)();
 
   /// Teacher's email address.
   ///
@@ -199,7 +223,7 @@ class Teachers extends Table with AutoIncrementId, Fetchable {
 
   @override
   List<Set<Column>> get uniqueKeys => [
-    {code, semester},
+    {teacher, semester},
   ];
 }
 
@@ -207,10 +231,13 @@ class Teachers extends Table with AutoIncrementId, Fetchable {
 ///
 /// Each row represents one office hour time slot for a teacher.
 /// A teacher may have multiple office hour slots per week.
-@TableIndex(name: 'teacher_office_hour_teacher', columns: {#teacher})
+@TableIndex(
+  name: 'teacher_office_hour_teacher_semester',
+  columns: {#teacherSemester},
+)
 class TeacherOfficeHours extends Table with AutoIncrementId {
-  /// Reference to the teacher (semester-specific).
-  late final teacher = integer().references(Teachers, #id)();
+  /// Reference to the teacher profile (semester-specific).
+  late final teacherSemester = integer().references(TeacherSemesters, #id)();
 
   /// Day of the week for this office hour slot.
   late final dayOfWeek = intEnum<DayOfWeek>()();
@@ -229,19 +256,35 @@ class TeacherOfficeHours extends Table with AutoIncrementId {
 
   @override
   List<Set<Column>> get uniqueKeys => [
-    {teacher, dayOfWeek, startHour, startMinute},
+    {teacherSemester, dayOfWeek, startHour, startMinute},
   ];
 }
 
-/// Student class/major (系級) in a particular semester.
+/// Student class/major (系級) for a particular semester.
 ///
-/// Represents academic departments and year levels (e.g., "電子四甲").
+/// Each row represents a class snapshot for a specific semester.
+/// The same class code maps to different names across academic years
+/// (e.g., code 2905 = "電子二甲" in year 113, "電子三甲" in year 114).
+@TableIndex(name: 'class_semester', columns: {#semester})
 class Classes extends Table with AutoIncrementId, Fetchable {
-  /// Unique class code in the NTUT system.
-  late final code = text().unique()();
+  /// Class code/ID in the NTUT system.
+  late final code = text()();
+
+  /// Reference to the semester this snapshot is for.
+  late final semester = integer().references(Semesters, #id)();
 
   /// Class name in Traditional Chinese (e.g., "電子四甲").
-  late final nameZh = text().unique()();
+  late final nameZh = text()();
+
+  /// Class name in English (e.g., "4EN4A").
+  ///
+  /// Not a [Fetchable] field — populated from the English course page.
+  late final nameEn = text().nullable()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {code, semester},
+  ];
 }
 
 /// Classroom/location information in a particular semester.
@@ -251,11 +294,14 @@ class Classrooms extends Table with AutoIncrementId, Fetchable {
   /// Unique classroom code in the NTUT system.
   late final code = text().unique()();
 
-  /// Classroom name/location in Traditional Chinese (e.g., "共同大樓 101").
+  /// Classroom name/location in Traditional Chinese (e.g., "共同312").
   late final nameZh = text()();
 
-  // TODO: Add nameEn (full English name parsed from building legend table),
-  // and fields for floor, capacity, usage
+  /// Abbreviated English classroom name (e.g., "GSB 312").
+  ///
+  /// Translated from the Chinese name using a building prefix dictionary.
+  /// Null when the building prefix is unrecognized.
+  late final nameEn = text().nullable()();
 }
 
 // Tables with foreign keys to base tables
@@ -281,38 +327,47 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   ///
   /// For multi-part courses like 物理 with the same name. Some courses
   /// encode the sequence in the name instead (e.g., 英文溝通與應用(一)).
-  late final phase = integer()();
+  ///
+  /// Not a [Fetchable] field.
+  late final phase = integer().nullable()();
 
   /// Course type for graduation credit requirements (課程標準).
   ///
   /// Uses symbols from syllabus page: ○, △, ☆, ●, ▲, ★
   /// See [CourseType] enum for mapping.
-  late final courseType = textEnum<CourseType>()();
+  late final courseType = textEnum<CourseType>().nullable()();
 
   /// Enrollment status for special cases (e.g., "撤選" for withdrawal).
   ///
   /// Normally null for regular enrolled courses.
+  /// Not a [Fetchable] field.
   late final status = text().nullable()();
 
   /// Language of instruction (e.g., "英語").
+  ///
+  /// Not a [Fetchable] field.
   late final language = text().nullable()();
 
-  /// Additional remarks or notes about this offering.
+  /// System-generated remarks about this offering (備註).
+  ///
+  /// Not a [Fetchable] field.
   late final remarks = text().nullable()();
+
+  /// Syllabus ID for fetching detailed syllabus information.
+  ///
+  /// Not a [Fetchable] field.
+  late final syllabusId = text().nullable()();
+
+  // Syllabus fields (教學大綱與進度)
+
+  /// When the syllabus was last updated (最後更新時間).
+  late final syllabusUpdatedAt = dateTime().nullable()();
 
   /// Number of enrolled students (人).
   late final enrolled = integer().nullable()();
 
   /// Number of withdrawn students (撤).
   late final withdrawn = integer().nullable()();
-
-  // Syllabus fields (教學大綱與進度)
-
-  /// Syllabus ID for fetching detailed syllabus information.
-  late final syllabusId = text().nullable()();
-
-  /// When the syllabus was last updated (最後更新時間).
-  late final syllabusUpdatedAt = dateTime().nullable()();
 
   /// Course objective/outline (課程大綱).
   late final objective = text().nullable()();
@@ -328,6 +383,9 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
 
   /// Textbooks and reference materials (使用教材、參考書目或其他).
   late final textbooks = text().nullable()();
+
+  /// Teacher-authored remarks from the syllabus page (備註).
+  late final syllabusRemarks = text().nullable()();
 }
 
 // Junction tables and dependent tables
@@ -338,13 +396,17 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
 /// Supports multiple teachers per course offering (team teaching).
 class CourseOfferingTeachers extends Table {
   /// Reference to the course offering.
-  late final courseOffering = integer().references(CourseOfferings, #id)();
+  late final courseOffering = integer().references(
+    CourseOfferings,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
-  /// Reference to the teacher.
-  late final teacher = integer().references(Teachers, #id)();
+  /// Reference to the teacher profile.
+  late final teacherSemester = integer().references(TeacherSemesters, #id)();
 
   @override
-  Set<Column> get primaryKey => {courseOffering, teacher};
+  Set<Column> get primaryKey => {courseOffering, teacherSemester};
 }
 
 /// Junction table linking course offerings to the classes they're intended for.
@@ -352,7 +414,11 @@ class CourseOfferingTeachers extends Table {
 /// A course offering may target multiple classes (e.g., shared courses).
 class CourseOfferingClasses extends Table {
   /// Reference to the course offering.
-  late final courseOffering = integer().references(CourseOfferings, #id)();
+  late final courseOffering = integer().references(
+    CourseOfferings,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Reference to the class/major.
   late final classEntity = integer().references(Classes, #id)();
@@ -366,7 +432,11 @@ class CourseOfferingClasses extends Table {
 /// Represents the enrollment/roster for each course section.
 class CourseOfferingStudents extends Table {
   /// Reference to the course offering.
-  late final courseOffering = integer().references(CourseOfferings, #id)();
+  late final courseOffering = integer().references(
+    CourseOfferings,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Reference to the student.
   late final student = integer().references(Students, #id)();
@@ -382,7 +452,11 @@ class CourseOfferingStudents extends Table {
 @TableIndex(name: 'schedule_course_offering', columns: {#courseOffering})
 class Schedules extends Table with AutoIncrementId {
   /// Reference to the course offering.
-  late final courseOffering = integer().references(CourseOfferings, #id)();
+  late final courseOffering = integer().references(
+    CourseOfferings,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Day of the week for this class session.
   late final dayOfWeek = intEnum<DayOfWeek>()();
@@ -434,11 +508,6 @@ class Scores extends Table with AutoIncrementId {
 
   /// Special score status (null when [score] is numeric).
   late final status = textEnum<ScoreStatus>().nullable()();
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-    {user, course, semester},
-  ];
 }
 
 /// Per-user per-semester academic summary from the student query system.
@@ -448,6 +517,7 @@ class Scores extends Table with AutoIncrementId {
 ///
 /// Data sources:
 /// - StudentQueryService.getAcademicPerformance() — scores and averages
+/// - StudentQueryService.getGpa() — cumulative GPA
 /// - StudentQueryService.getRegistrationRecords() — registration status
 /// - StudentQueryService.getGradeRanking() — rankings (via [UserSemesterRankings])
 @TableIndex(name: 'user_semester_summary_user', columns: {#user})
@@ -476,6 +546,9 @@ class UserSemesterSummaries extends Table with AutoIncrementId {
 
   /// Additional note.
   late final note = text().nullable()();
+
+  /// Historical cumulative GPA (歷年 GPA).
+  late final gpa = real().nullable()();
 
   /// Student's assigned class name (e.g., "電子四甲").
   /// Plain text — no class code available from this page.
@@ -508,11 +581,11 @@ class UserSemesterSummaryTutors extends Table {
     onDelete: KeyAction.cascade,
   )();
 
-  /// Reference to the teacher serving as tutor.
-  late final teacher = integer().references(Teachers, #id)();
+  /// Reference to the teacher profile serving as tutor.
+  late final teacherSemester = integer().references(TeacherSemesters, #id)();
 
   @override
-  Set<Column> get primaryKey => {summary, teacher};
+  Set<Column> get primaryKey => {summary, teacherSemester};
 }
 
 /// Class cadre roles held by the user in a semester.
@@ -573,10 +646,15 @@ class UserSemesterRankings extends Table {
 /// Represents files, recordings, and other materials posted to I-School Plus.
 ///
 /// Data source: I-School Plus materials and recordings page
+@DataClassName('CourseMaterial')
 @TableIndex(name: 'material_course_offering', columns: {#courseOffering})
 class Materials extends Table with AutoIncrementId {
   /// Reference to the course offering this material belongs to.
-  late final courseOffering = integer().references(CourseOfferings, #id)();
+  late final courseOffering = integer().references(
+    CourseOfferings,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   /// Title/name of the material or resource.
   late final title = text().nullable()();

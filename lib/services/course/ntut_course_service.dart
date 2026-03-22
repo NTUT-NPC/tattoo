@@ -17,7 +17,8 @@ class NtutCourseService implements CourseService {
 
   NtutCourseService() {
     _courseDio = createDio()
-      ..options.baseUrl = 'https://aps.ntut.edu.tw/course/';
+      ..options.baseUrl = 'https://aps.ntut.edu.tw/course/'
+      ..interceptors.add(_SessionCheckInterceptor());
   }
 
   @override
@@ -153,6 +154,7 @@ class NtutCourseService implements CourseService {
 
     // Build schedule map keyed by course name from the grid
     final periodRegex = RegExp(r'第 (\S) 節');
+    final eClassroomRegex = RegExp(r'\s*\(?e\)?\s*$');
     final scheduleMap =
         <
           String,
@@ -183,9 +185,16 @@ class NtutCourseService implements CourseService {
             : cells[colIndex].text.trim();
         if (courseName.isEmpty) continue;
 
-        final classroomRef = anchors.length >= 3
+        var classroomRef = anchors.length >= 3
             ? _parseAnchorRef(anchors[2])
             : null;
+        // Strip e化教室 marker "(e)" from classroom names
+        if (classroomRef?.name case final name?) {
+          classroomRef = (
+            id: classroomRef!.id,
+            name: name.replaceFirst(eClassroomRegex, ''),
+          );
+        }
 
         scheduleMap.putIfAbsent(courseName, () => []);
         scheduleMap[courseName]!.add((
@@ -571,5 +580,24 @@ class NtutCourseService implements CourseService {
 
     final refs = anchors.map(toReference).toList();
     return refs.isNotEmpty ? refs : null;
+  }
+}
+
+/// Detects expired sessions in CourseService responses.
+///
+/// NTUT returns HTTP 200 with a short error message instead of a proper 401
+/// when the SSO session has expired.
+class _SessionCheckInterceptor extends Interceptor {
+  static const _markers = ['尚未登錄入口網站', '應用系統連線已逾時'];
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    final data = response.data;
+    if (data is String && _markers.any(data.contains)) {
+      throw const SessionExpiredException(
+        'CourseService session expired',
+      );
+    }
+    handler.next(response);
   }
 }

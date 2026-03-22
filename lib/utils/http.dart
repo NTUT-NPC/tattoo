@@ -14,6 +14,19 @@ import 'package:tattoo/services/firebase_service.dart';
 
 export 'package:dio/dio.dart';
 
+/// Thrown when an NTUT service returns a success response but the content
+/// indicates the session has expired (e.g., a redirect page instead of data).
+///
+/// This is a non-[DioException] so that [AuthRepository.withAuth] catches it
+/// and retries with re-authentication.
+class SessionExpiredException implements Exception {
+  final String message;
+  const SessionExpiredException(this.message);
+
+  @override
+  String toString() => 'SessionExpiredException: $message';
+}
+
 /// [Interceptor] to convert HTTP requests to HTTPS.
 class HttpsInterceptor extends Interceptor {
   HttpsInterceptor();

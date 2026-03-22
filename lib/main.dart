@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -33,11 +34,18 @@ Future<void> main() async {
 
   final container = ProviderContainer();
 
-  firebase.log('App starting...');
-
-  void showErrorDialog(Object error, {ErrorType type = ErrorType.unknown}) {
-    final context = rootNavigatorKey.currentContext;
-    if (context == null) return;
+  void showErrorDialog(
+    Object error, {
+    ErrorType type = ErrorType.unknown,
+    StackTrace? stackTrace,
+  }) {
+    final rootContext = rootNavigatorKey.currentContext;
+    if (rootContext == null) return;
+    final errorMessage = error.toString();
+    final copyText = [
+      errorMessage,
+      if (stackTrace != null) stackTrace.toString(),
+    ].join('\n');
     final errorTitle = switch (type) {
       ErrorType.flutter => t.errors.flutterError,
       ErrorType.async => t.errors.asyncError,
@@ -45,14 +53,26 @@ Future<void> main() async {
     };
 
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context: rootContext,
+      builder: (dialogContext) => AlertDialog(
         title: Text(errorTitle),
         // TODO: Remove technical details from user-facing error messages
-        content: Text(error.toString()),
+        content: SelectableText(errorMessage),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: copyText));
+              if (!dialogContext.mounted) return;
+              Navigator.of(dialogContext).pop();
+              if (!rootContext.mounted) return;
+              ScaffoldMessenger.maybeOf(rootContext)?.showSnackBar(
+                SnackBar(content: Text(t.general.copied)),
+              );
+            },
+            child: Text(t.general.copy),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(t.general.ok),
           ),
         ],
@@ -65,14 +85,18 @@ Future<void> main() async {
     firebase.crashlytics?.recordFlutterFatalError(details);
     FlutterError.dumpErrorToConsole(details);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      showErrorDialog(details.exception, type: ErrorType.flutter);
+      showErrorDialog(
+        details.exception,
+        type: ErrorType.flutter,
+        stackTrace: details.stack,
+      );
     });
   };
 
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
     firebase.crashlytics?.recordError(error, stack, fatal: true);
-    showErrorDialog(error, type: ErrorType.async);
+    showErrorDialog(error, type: ErrorType.async, stackTrace: stack);
     log('Uncaught asynchronous error: $error', stackTrace: stack);
     return true;
   };

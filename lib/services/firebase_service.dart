@@ -10,6 +10,9 @@ const bool useFirebase = bool.fromEnvironment(
   defaultValue: false,
 );
 
+/// Global [FirebaseService] instance.
+var firebase = const FirebaseService();
+
 /// Unified service for Firebase Analytics and Crashlytics.
 ///
 /// Exposes nullable getters that return real instances when [useFirebase] is
@@ -42,7 +45,13 @@ class FirebaseService {
   void log(String message) {
     crashlytics?.log(message);
   }
-}
 
-/// Global [FirebaseService] instance.
-var firebase = const FirebaseService();
+  /// Records a non-fatal error to Firebase Crashlytics if enabled.
+  void recordNonFatal(String message) {
+    crashlytics?.recordError(
+      Exception(message),
+      StackTrace.current,
+      fatal: false,
+    );
+  }
+}

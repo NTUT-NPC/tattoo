@@ -4,29 +4,31 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-03-11. If stale (>7 days), verify Status section against codebase.
+**Last updated:** 2026-03-21. If stale (>7 days), verify Status section against codebase.
 
 ## Status
 
 **Done:**
 
-- PortalService (auth+SSO, getSsoUrl for system browser auth, changePassword, getAvatar, uploadAvatar, getCalendar), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial), StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile), GitHubService
+- PortalService (auth+SSO, getSsoUrl for system browser auth, changePassword, getAvatar, uploadAvatar, getCalendar), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial), StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile, getGpa), GitHubService
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`)
-- Drift database schema with all tables
+- Drift database schema with all tables, views (ScoreDetails, UserAcademicSummaries)
 - Service DTOs migrated to Dart 3 records
-- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage), PreferencesRepository, CourseRepository (stubs)
+- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage, SSO coalescing via Completer), PreferencesRepository, CourseRepository: getSemesters, getCourseTable (with TTL caching), getCourse (single course lookup with TTL)
+- StudentRepository: getSemesterRecords (scores, GPA, rankings with TTL caching, parallel course code resolution)
+- Session expiry detection: per-service Dio interceptors detect NTUT fake-200 expired sessions, throw `SessionExpiredException` for `withAuth` retry
 - Riverpod setup (manual providers, no codegen — riverpod_generator incompatible with Drift-generated types)
 - go_router navigation setup
 - UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile), about, easter egg, ShowcaseShell. Home uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
 - i18n (zh_TW, en_US) via slang
+- Mock NTUT service implementations (MockPortalService, MockCourseService, MockISchoolPlusService, MockStudentQueryService) for repository unit tests and future demo/offline mode
 
 **Todo - Service Layer:**
 
 - ISchoolPlusService: getCourseAnnouncement, getCourseAnnouncementDetail, courseSubscribe, getCourseSubscribe, getSubscribeNotice
 - CourseService: getDepartmentMap, getCourseCategory
-- CourseService (English): Parse English Course System (`/course/en/`) for English names (courses, teachers, syllabus)
+- CourseService (English): Parse English Course System (`/course/en/`) for English names (syllabus, teacher profiles)
 - StudentQueryService (sa_003_oauth - 學生查詢專區):
-  - getGPA (學期及歷年GPA查詢)
   - getMidtermWarnings (期中預警查詢)
   - getStudentAffairs (獎懲、缺曠課、請假查詢)
   - getStudentLoan (就學貸款資料查詢)
@@ -39,8 +41,8 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 **Todo - Repository Layer:**
 
-- Implement CourseRepository methods (schedules, materials, rosters, caching)
-- StudentRepository stub and implementation (grades, GPA, rankings)
+- Implement remaining CourseRepository methods (materials, rosters, announcements)
+- Implement remaining StudentRepository methods (midterm warnings, student affairs, graduation status)
 
 **Todo - App:**
 
@@ -94,11 +96,11 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Services:**
 
-- **Architecture:** NTUT services (Portal, Course, ISchoolPlus, StudentQuery) use `abstract interface class` with concrete implementations (e.g., `NtutPortalService`) to enable mocking and demo modes. Files are grouped by subdirectory (e.g., `lib/services/portal/`). Interfaces, DTOs, and providers live in the interface file, while logic lives in the implementation file. Consumers only import the interface file.
+- **Architecture:** NTUT services (Portal, Course, ISchoolPlus, StudentQuery) use `abstract interface class` with concrete implementations (e.g., `NtutPortalService`) to enable mock implementations for repository unit tests and future demo/offline mode. Files are grouped by subdirectory (e.g., `lib/services/portal/`). Interfaces, DTOs, and providers live in the interface file, while logic lives in the implementation file. Consumers only import the interface file.
 - PortalService - Portal auth, SSO (auth+SSO, getSsoUrl, changePassword, getAvatar, uploadAvatar, getCalendar - academic calendar events via calModeApp.do JSON API)
 - CourseService - 課程系統 (`aa_0010-oauth`) — HTML parsing
 - ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`) — getStudents, getMaterials, getMaterial
-- StudentQueryService - 學生查詢專區 (`sa_003_oauth`) — getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile
+- StudentQueryService - 學生查詢專區 (`sa_003_oauth`) — getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile, getGpa
 - GitHubService - fetches repo contributors, filters bots
 - FirebaseService - Unified wrapper for Firebase Analytics and Crashlytics. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`)
 - NTUT services share single cookie jar (NTUT session state)
@@ -110,8 +112,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 - AuthRepository - User identity, session, profile. Implemented: login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage
 - PreferencesRepository - Typed `PrefKey<T>` enum with SharedPreferencesAsync
-- CourseRepository - Course schedules, catalog, materials, rosters, announcements (stubs only)
-- StudentRepository (TODO) - Grades, GPA, rankings, warnings, graduation status
+- CourseRepository - Implemented: getSemesters, getCourseTable (with TTL caching, DB persistence, bilingual names), getCourse (single course lookup with TTL). Stubs: getCourseOffering, getCourseDetails, getMaterials, getStudents
+- StudentRepository - Implemented: getSemesterRecords (scores, GPA, rankings with TTL caching, parallel course code resolution via CourseRepository.getCourse). Uses Drift views (ScoreDetails, UserAcademicSummaries) as domain models.
 - Transform DTOs into relational DB tables
 - Return DTOs or domain models to UI
 - Handle data persistence and caching strategies
@@ -135,6 +137,20 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - Monitor storage/performance before adding more indexes
 - **Single-user assumption:** `UserRegistrations` view omits the `user` column — add it and update `getActiveRegistration` filter if multi-user support is introduced
 
+## Testing Strategy
+
+| Layer | Test type | Mock strategy | Runs in CI |
+|---|---|---|---|
+| NTUT services | Integration (real server) | None — tests hit real NTUT | Only with credentials |
+| Repositories | Unit | Mock NTUT service interfaces (return canned DTOs) | Always |
+| Utils | Unit | None needed (pure functions) | Always |
+| Database views | Unit (in-memory SQLite) | None needed (Drift test utilities) | Always |
+| Widgets | Widget tests | Low priority | Always |
+
+- **NTUT services** (Portal, Course, ISchoolPlus, StudentQuery) have `abstract interface class` — mock implementations return canned DTOs for repository unit tests and future demo/offline mode
+- **Non-NTUT services** (GitHubService, FirebaseService) do not need mock implementations — they have stable API contracts
+- **No fixtures:** Service-layer tests stay integration-only against real NTUT servers. Fixtures (HTML snapshots) would go stale silently; integration tests are the source of truth for parsing correctness.
+
 ## NTUT-Specific Patterns
 
 **HTML Parsing:** NTUT has no REST APIs. Parse HTML responses with `html` package.
@@ -146,6 +162,10 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 **User-Agent:** PortalService uses `app.ntut.edu.tw` endpoints designed for the official NTUT iOS app (`User-Agent: Direk ios App`). This bypasses login captcha that the web portal (`nportal.ntut.edu.tw`) requires. Without the correct User-Agent, the server will refuse requests. Browser-based testing of these endpoints won't work.
 
 **Localized String Helper:** `localized(zh, en)` in `lib/utils/localized.dart` picks the appropriate string based on device locale — Chinese (zh_TW) prefers `zh` with `en` fallback, all other locales prefer `en` with `zh` fallback. Use this when NTUT services return both Chinese and English data.
+
+**Session Expiry Detection:** NTUT services return HTTP 200 with error pages instead of 401/403 when sessions expire. Per-service Dio interceptors detect known markers (e.g., "應用系統已中斷連線" for StudentQuery, "尚未登錄入口網站" for Course) and throw `SessionExpiredException`. This is a non-DioException so `withAuth` catches it and triggers re-authentication. iSchool+ returns HTTP 403 when unauthenticated, handled via `onError` interceptor.
+
+**SSO Coalescing:** `AuthRepository._ensureSso` uses `Completer`-based coalescing — first caller creates a Completer and fires SSO, concurrent callers await the same future. Prevents redundant SSO calls during parallel repository fetches.
 
 **InvalidCookieFilter:** iSchool+ returns malformed cookies; custom interceptor filters them.
 

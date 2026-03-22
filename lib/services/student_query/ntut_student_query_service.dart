@@ -12,7 +12,8 @@ class NtutStudentQueryService implements StudentQueryService {
 
   NtutStudentQueryService() {
     _studentQueryDio = createDio()
-      ..options.baseUrl = 'https://aps-stu.ntut.edu.tw/StuQuery/';
+      ..options.baseUrl = 'https://aps-stu.ntut.edu.tw/StuQuery/'
+      ..interceptors.add(_SessionCheckInterceptor());
   }
 
   @override
@@ -160,6 +161,56 @@ class NtutStudentQueryService implements StudentQueryService {
       ));
     }
 
+    return results;
+  }
+
+  @override
+  Future<List<GpaDto>> getGpa() async {
+    final response = await _studentQueryDio.get('QryGPA.jsp');
+    final document = parse(response.data);
+
+    final semesterPattern = RegExp(r'(\d{2,4})\s*[-－–—]\s*([12])');
+    final gpaPattern = RegExp(r'\d+(?:\.\d+)?');
+
+    final results = <GpaDto>[];
+    final seen = <String>{};
+
+    for (final row in document.querySelectorAll('tr').skip(1)) {
+      final cells = row.querySelectorAll('td');
+      if (cells.length < 2) continue;
+
+      final semesterContainer = cells[0].querySelector('div') ?? cells[0];
+      final semesterText = semesterContainer.nodes
+          .where((node) => node.nodeType == Node.TEXT_NODE)
+          .map((node) => node.text?.trim() ?? '')
+          .firstWhere((text) => text.isNotEmpty, orElse: () => '');
+      final semesterMatch = semesterPattern.firstMatch(semesterText);
+      if (semesterMatch == null) continue;
+
+      final year = int.parse(semesterMatch.group(1)!);
+      final term = int.parse(semesterMatch.group(2)!);
+
+      final gpaText = cells[1].text.trim();
+      final gpaMatch = gpaPattern.firstMatch(gpaText);
+      final grandTotalGpa = gpaMatch != null
+          ? double.tryParse(gpaMatch.group(0)!)
+          : null;
+      if (grandTotalGpa == null) continue;
+
+      final key = '$year-$term';
+      if (!seen.add(key)) continue;
+
+      results.add((
+        semester: (year: year, term: term),
+        grandTotalGpa: grandTotalGpa,
+      ));
+    }
+
+    results.sort((a, b) {
+      final yearCompare = b.semester.year!.compareTo(a.semester.year!);
+      if (yearCompare != 0) return yearCompare;
+      return b.semester.term!.compareTo(a.semester.term!);
+    });
     return results;
   }
 
@@ -347,5 +398,24 @@ class NtutStudentQueryService implements StudentQueryService {
     };
 
     return (null, status);
+  }
+}
+
+/// Detects expired sessions in StudentQuery responses.
+///
+/// NTUT returns HTTP 200 with a short error message instead of a proper 401
+/// when the SSO session has expired.
+class _SessionCheckInterceptor extends Interceptor {
+  static const _marker = '應用系統已中斷連線';
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    final data = response.data;
+    if (data is String && data.contains(_marker)) {
+      throw const SessionExpiredException(
+        'StudentQuery session expired',
+      );
+    }
+    handler.next(response);
   }
 }

@@ -44,6 +44,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsIntroEnUs intro = _TranslationsIntroEnUs._(_root);
 	@override late final _TranslationsLoginEnUs login = _TranslationsLoginEnUs._(_root);
 	@override late final _TranslationsNavEnUs nav = _TranslationsNavEnUs._(_root);
+	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
 	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
 	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
@@ -62,6 +63,8 @@ class _TranslationsGeneralEnUs extends TranslationsGeneralZhTw {
 	@override String get student => 'Student';
 	@override String get unknown => 'Unknown';
 	@override String get notLoggedIn => 'Not logged in';
+	@override String get copy => 'Copy';
+	@override String get copied => 'Copied';
 	@override String get ok => 'OK';
 }
 
@@ -127,6 +130,25 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	@override String get courseTable => 'Courses';
 	@override String get scores => 'Scores';
 	@override String get profile => 'Me';
+}
+
+// Path: courseTable
+class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
+	_TranslationsCourseTableEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get notFound => 'Course table not found';
+	@override Map<String, String> get dayOfWeek => {
+		'sunday': 'Sun',
+		'monday': 'Mon',
+		'tuesday': 'Tue',
+		'wednesday': 'Wed',
+		'thursday': 'Thu',
+		'friday': 'Fri',
+		'saturday': 'Sat',
+	};
 }
 
 // Path: profile
@@ -336,6 +358,8 @@ extension on TranslationsEnUs {
 			'general.student' => 'Student',
 			'general.unknown' => 'Unknown',
 			'general.notLoggedIn' => 'Not logged in',
+			'general.copy' => 'Copy',
+			'general.copied' => 'Copied',
 			'general.ok' => 'OK',
 			'errors.occurred' => 'An error occurred',
 			'errors.flutterError' => 'A Flutter error occurred',
@@ -368,6 +392,14 @@ extension on TranslationsEnUs {
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.profile' => 'Me',
+			'courseTable.notFound' => 'Course table not found',
+			'courseTable.dayOfWeek.sunday' => 'Sun',
+			'courseTable.dayOfWeek.monday' => 'Mon',
+			'courseTable.dayOfWeek.tuesday' => 'Tue',
+			'courseTable.dayOfWeek.wednesday' => 'Wed',
+			'courseTable.dayOfWeek.thursday' => 'Thu',
+			'courseTable.dayOfWeek.friday' => 'Fri',
+			'courseTable.dayOfWeek.saturday' => 'Sat',
 			'profile.dataDisclaimer' => 'For reference only. Not valid as official documentation.',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',

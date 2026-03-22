@@ -100,6 +100,15 @@ typedef GradeRankingDto = ({
   List<GradeRankingEntryDto> entries,
 });
 
+/// GPA data for a single semester.
+typedef GpaDto = ({
+  /// Semester identifier.
+  SemesterDto semester,
+
+  /// Grand total (historical cumulative) GPA.
+  double grandTotalGpa,
+});
+
 /// Student status (學籍基本資料) from the basis data page.
 typedef StudentProfileDto = ({
   String? chineseName,
@@ -136,6 +145,9 @@ abstract interface class StudentQueryService {
   /// Returns a list of [SemesterScoreDto] ordered from most recent to oldest,
   /// each containing individual course scores and semester summary statistics.
   Future<List<SemesterScoreDto>> getAcademicPerformance();
+
+  /// Fetches grand total GPA records by semester.
+  Future<List<GpaDto>> getGpa();
 
   /// Fetches grade ranking data for all semesters.
   ///

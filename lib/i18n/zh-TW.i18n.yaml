@@ -5,6 +5,8 @@ general:
   student: 學生
   unknown: 未知
   notLoggedIn: 未登入
+  copy: 複製
+  copied: 已複製
   ok: 確定
 errors:
   occurred: 發生錯誤
@@ -46,6 +48,16 @@ nav:
   courseTable: 課表
   scores: 成績
   profile: 我
+courseTable:
+  notFound: 找不到課表
+  dayOfWeek(map):
+    sunday: 日
+    monday: 一
+    tuesday: 二
+    wednesday: 三
+    thursday: 四
+    friday: 五
+    saturday: 六
 profile:
   dataDisclaimer: 本資料僅供參考，不做其他證明用途
   sections:
