@@ -129,11 +129,11 @@ class NtutPortalService implements PortalService {
   }
 
   @override
-  Future<void> sso(PortalServiceCode serviceCode) async {
-    final (actionUrl, formData) = await _fetchSsoForm(serviceCode.code);
+  Future<void> sso(String serviceCode) async {
+    final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
 
     // Prepend the invalid cookie filter interceptor for i-School Plus SSO
-    if (serviceCode == PortalServiceCode.iSchoolPlusService) {
+    if (serviceCode == PortalServiceCode.iSchoolPlusService.code) {
       _portalDio.interceptors.insert(0, InvalidCookieFilter());
       _portalDio.transformer = PlainTextTransformer();
     }
@@ -148,9 +148,8 @@ class NtutPortalService implements PortalService {
   }
 
   @override
-  Future<Uri> getSsoUrl(PortalServiceCode serviceCode) async {
-    final apOu = serviceCode.code;
-    final (actionUrl, formData) = await _fetchSsoForm(apOu);
+  Future<Uri> getSsoUrl(String serviceCode) async {
+    final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
 
     // Clone and strip RedirectInterceptor so we can capture the 302 Location
     // instead of following it.

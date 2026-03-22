@@ -22,7 +22,7 @@ void main() {
         TestCredentials.username,
         TestCredentials.password,
       );
-      await portalService.sso(PortalServiceCode.iSchoolPlusService);
+      await portalService.sso(PortalServiceCode.iSchoolPlusService.code);
 
       final courses = await iSchoolPlusService.getCourseList();
 
@@ -41,7 +41,7 @@ void main() {
         TestCredentials.username,
         TestCredentials.password,
       );
-      await portalService.sso(PortalServiceCode.iSchoolPlusService);
+      await portalService.sso(PortalServiceCode.iSchoolPlusService.code);
 
       await respectfulDelay();
     });

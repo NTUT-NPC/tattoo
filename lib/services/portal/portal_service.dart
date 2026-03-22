@@ -137,7 +137,7 @@ abstract interface class PortalService {
   /// per service during a session.
   ///
   /// Throws an [Exception] if the SSO form is not found (user may not be logged in).
-  Future<void> sso(PortalServiceCode serviceCode);
+  Future<void> sso(String serviceCode);
 
   /// Returns a URL that authenticates the user with a target NTUT service
   /// via OAuth2 authorization code.
@@ -152,7 +152,7 @@ abstract interface class PortalService {
   /// Requires an active portal session (call [login] first).
   ///
   /// Throws an [Exception] if the SSO form is not found (user may not be logged in).
-  Future<Uri> getSsoUrl(PortalServiceCode serviceCode);
+  Future<Uri> getSsoUrl(String serviceCode);
 
   /// Fetches academic calendar events within a date range.
   ///
