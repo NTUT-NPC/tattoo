@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/components/section_header.dart';
+import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
@@ -155,6 +156,14 @@ class PortalScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   spacing: 12,
                   children: [
+                    ClearNotice(text: "此功能尚在實驗階段，未讀取可用功能，與實際系統可能有差異"),
+                    // TODO: auto-login to nportal
+                    _PortalCard(
+                      title: "打開校園入口網站",
+                      onTap: () => launchUrl(
+                        Uri.parse('https://nportal.ntut.edu.tw'),
+                      ),
+                    ),
                     for (final section in _portalSections)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
