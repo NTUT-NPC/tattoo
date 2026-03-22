@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
 import 'package:tattoo/models/user.dart';
-import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
@@ -20,7 +19,7 @@ void main() {
     });
 
     setUp(() async {
-      portalService = NtutPortalService(FirebaseService());
+      portalService = NtutPortalService();
       studentQueryService = NtutStudentQueryService();
 
       await portalService.login(
@@ -147,11 +146,7 @@ void main() {
               isNotNull,
               reason: 'Tutor ${tutor.name} should have an ID from the link',
             );
-            expect(
-              tutor.name,
-              isNotNull,
-              reason: 'Tutor should have a name',
-            );
+            expect(tutor.name, isNotNull, reason: 'Tutor should have a name');
           }
         }
       });
@@ -234,6 +229,40 @@ void main() {
             currentValue,
             greaterThan(nextValue),
             reason: 'Rankings should be ordered most recent first',
+          );
+        }
+      });
+    });
+
+    group('getGpa', () {
+      test('should return GPA rows with valid semesters', () async {
+        final gpas = await studentQueryService.getGpa();
+
+        expect(
+          gpas,
+          isNotEmpty,
+          reason: 'Should have at least one semester of GPA data',
+        );
+
+        for (final gpa in gpas) {
+          expect(gpa.semester.year, greaterThan(80));
+          expect(gpa.semester.term, isIn([1, 2]));
+          expect(gpa.grandTotalGpa, greaterThanOrEqualTo(0));
+        }
+      });
+
+      test('should return GPA rows in descending order', () async {
+        final gpas = await studentQueryService.getGpa();
+
+        for (var i = 0; i < gpas.length - 1; i++) {
+          final current = gpas[i].semester;
+          final next = gpas[i + 1].semester;
+          final currentValue = current.year! * 10 + current.term!;
+          final nextValue = next.year! * 10 + next.term!;
+          expect(
+            currentValue,
+            greaterThan(nextValue),
+            reason: 'GPA rows should be ordered most recent first',
           );
         }
       });

@@ -39,11 +39,13 @@ dependencies:
   slang_flutter: ^4.12.1
   http_parser: ^4.1.2
   shared_preferences: ^2.5.4
+  drift_dev: ^2.32.0 # TODO: move back to dev_dependencies after first release
   flutter_image_compress: ^2.4.0
   msgpack_dart: ^1.0.1
   firebase_core: ^4.4.0
   firebase_crashlytics: ^5.0.7
   firebase_analytics: ^12.1.2
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -51,7 +53,6 @@ dev_dependencies:
 
   flutter_lints: ^6.0.0
   build_runner: ^2.11.1
-  drift_dev: ^2.32.0
   pointycastle: ^4.0.0
   slang_mcp: ^0.1.2
 

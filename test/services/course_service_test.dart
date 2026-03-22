@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/services/course/course_service.dart';
 import 'package:tattoo/services/course/ntut_course_service.dart';
-import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
 
@@ -18,7 +17,7 @@ void main() {
     });
 
     setUp(() async {
-      portalService = NtutPortalService(FirebaseService());
+      portalService = NtutPortalService();
       courseService = NtutCourseService();
 
       await portalService.login(

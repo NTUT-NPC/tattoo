@@ -147,7 +147,7 @@ abstract interface class StudentQueryService {
   Future<List<SemesterScoreDto>> getAcademicPerformance();
 
   /// Fetches grand total GPA records by semester.
-  Future<List<GpaDto>> getGPA();
+  Future<List<GpaDto>> getGpa();
 
   /// Fetches grade ranking data for all semesters.
   ///

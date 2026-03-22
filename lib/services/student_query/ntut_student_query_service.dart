@@ -12,7 +12,8 @@ class NtutStudentQueryService implements StudentQueryService {
 
   NtutStudentQueryService() {
     _studentQueryDio = createDio()
-      ..options.baseUrl = 'https://aps-stu.ntut.edu.tw/StuQuery/';
+      ..options.baseUrl = 'https://aps-stu.ntut.edu.tw/StuQuery/'
+      ..interceptors.add(_SessionCheckInterceptor());
   }
 
   @override
@@ -164,14 +165,53 @@ class NtutStudentQueryService implements StudentQueryService {
   }
 
   @override
-  Future<List<GpaDto>> getGPA() async {
+  Future<List<GpaDto>> getGpa() async {
     final response = await _studentQueryDio.get('QryGPA.jsp');
+    final document = parse(response.data);
 
-    if (response.data.toString().contains('應用系統已中斷連線')) {
-      throw Exception('SessionExpired');
+    final semesterPattern = RegExp(r'(\d{2,4})\s*[-－–—]\s*([12])');
+    final gpaPattern = RegExp(r'\d+(?:\.\d+)?');
+
+    final results = <GpaDto>[];
+    final seen = <String>{};
+
+    for (final row in document.querySelectorAll('tr').skip(1)) {
+      final cells = row.querySelectorAll('td');
+      if (cells.length < 2) continue;
+
+      final semesterContainer = cells[0].querySelector('div') ?? cells[0];
+      final semesterText = semesterContainer.nodes
+          .where((node) => node.nodeType == Node.TEXT_NODE)
+          .map((node) => node.text?.trim() ?? '')
+          .firstWhere((text) => text.isNotEmpty, orElse: () => '');
+      final semesterMatch = semesterPattern.firstMatch(semesterText);
+      if (semesterMatch == null) continue;
+
+      final year = int.parse(semesterMatch.group(1)!);
+      final term = int.parse(semesterMatch.group(2)!);
+
+      final gpaText = cells[1].text.trim();
+      final gpaMatch = gpaPattern.firstMatch(gpaText);
+      final grandTotalGpa = gpaMatch != null
+          ? double.tryParse(gpaMatch.group(0)!)
+          : null;
+      if (grandTotalGpa == null) continue;
+
+      final key = '$year-$term';
+      if (!seen.add(key)) continue;
+
+      results.add((
+        semester: (year: year, term: term),
+        grandTotalGpa: grandTotalGpa,
+      ));
     }
 
-    return _parseGpaFromDocument(parse(response.data));
+    results.sort((a, b) {
+      final yearCompare = b.semester.year!.compareTo(a.semester.year!);
+      if (yearCompare != 0) return yearCompare;
+      return b.semester.term!.compareTo(a.semester.term!);
+    });
+    return results;
   }
 
   @override
@@ -359,55 +399,23 @@ class NtutStudentQueryService implements StudentQueryService {
 
     return (null, status);
   }
+}
 
-  List<GpaDto> _parseGpaFromDocument(Document document) {
-    final semesterPattern = RegExp(r'(\d{2,4})\s*[-－–—]\s*([12])');
-    final gpaPattern = RegExp(r'\d+(?:\.\d+)?');
+/// Detects expired sessions in StudentQuery responses.
+///
+/// NTUT returns HTTP 200 with a short error message instead of a proper 401
+/// when the SSO session has expired.
+class _SessionCheckInterceptor extends Interceptor {
+  static const _marker = '應用系統已中斷連線';
 
-    final results = <GpaDto>[];
-    final seen = <String>{};
-
-    for (final row in document.querySelectorAll('tr')) {
-      final cells = row.querySelectorAll('td');
-      if (cells.length < 2) continue;
-
-      final semesterContainer = cells[0].querySelector('div') ?? cells[0];
-      final semesterText = semesterContainer.nodes
-          .where((node) => node.nodeType == Node.TEXT_NODE)
-          .map((node) => node.text?.trim() ?? '')
-          .firstWhere((text) => text.isNotEmpty, orElse: () => '');
-      final semesterMatch = semesterPattern.firstMatch(semesterText);
-      if (semesterMatch == null) continue;
-
-      final year = int.tryParse(semesterMatch.group(1)!);
-      final term = int.tryParse(semesterMatch.group(2)!);
-      if (year == null || term == null) continue;
-
-      final gpaText = cells[1].text.trim();
-      final gpaMatch = gpaPattern.firstMatch(gpaText);
-      final grandTotalGpa = gpaMatch != null
-          ? double.tryParse(gpaMatch.group(0)!)
-          : null;
-      if (grandTotalGpa == null) continue;
-
-      final key = '$year-$term';
-      if (seen.contains(key)) continue;
-
-      seen.add(key);
-      results.add((
-        semester: (year: year, term: term),
-        grandTotalGpa: grandTotalGpa,
-      ));
-    }
-
-    results.sort((a, b) {
-      final yearCompare = (b.semester.year ?? -1).compareTo(
-        a.semester.year ?? -1,
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    final data = response.data;
+    if (data is String && data.contains(_marker)) {
+      throw const SessionExpiredException(
+        'StudentQuery session expired',
       );
-      if (yearCompare != 0) return yearCompare;
-      return (b.semester.term ?? -1).compareTo(a.semester.term ?? -1);
-    });
-
-    return results;
+    }
+    handler.next(response);
   }
 }

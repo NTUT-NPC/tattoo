@@ -45,6 +45,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsIntroZhTw intro = TranslationsIntroZhTw.internal(_root);
 	late final TranslationsLoginZhTw login = TranslationsLoginZhTw.internal(_root);
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
+	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
@@ -75,6 +76,12 @@ class TranslationsGeneralZhTw {
 
 	/// zh-TW: '未登入'
 	String get notLoggedIn => '未登入';
+
+	/// zh-TW: '複製'
+	String get copy => '複製';
+
+	/// zh-TW: '已複製'
+	String get copied => '已複製';
 
 	/// zh-TW: '確定'
 	String get ok => '確定';
@@ -178,6 +185,28 @@ class TranslationsNavZhTw {
 
 	/// zh-TW: '我'
 	String get profile => '我';
+}
+
+// Path: courseTable
+class TranslationsCourseTableZhTw {
+	TranslationsCourseTableZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '找不到課表'
+	String get notFound => '找不到課表';
+
+	Map<String, String> get dayOfWeek => {
+		'sunday': '日',
+		'monday': '一',
+		'tuesday': '二',
+		'wednesday': '三',
+		'thursday': '四',
+		'friday': '五',
+		'saturday': '六',
+	};
 }
 
 // Path: profile
@@ -508,6 +537,8 @@ extension on Translations {
 			'general.student' => '學生',
 			'general.unknown' => '未知',
 			'general.notLoggedIn' => '未登入',
+			'general.copy' => '複製',
+			'general.copied' => '已複製',
 			'general.ok' => '確定',
 			'errors.occurred' => '發生錯誤',
 			'errors.flutterError' => '發生Flutter錯誤',
@@ -540,6 +571,14 @@ extension on Translations {
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.profile' => '我',
+			'courseTable.notFound' => '找不到課表',
+			'courseTable.dayOfWeek.sunday' => '日',
+			'courseTable.dayOfWeek.monday' => '一',
+			'courseTable.dayOfWeek.tuesday' => '二',
+			'courseTable.dayOfWeek.wednesday' => '三',
+			'courseTable.dayOfWeek.thursday' => '四',
+			'courseTable.dayOfWeek.friday' => '五',
+			'courseTable.dayOfWeek.saturday' => '六',
 			'profile.dataDisclaimer' => '本資料僅供參考，不做其他證明用途',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',

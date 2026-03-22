@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:riverpod/riverpod.dart';
-import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
 
 /// Represents a logged-in NTUT Portal user.
@@ -73,7 +72,7 @@ enum PortalServiceCode {
 
 /// Provides the singleton [PortalService] instance.
 final portalServiceProvider = Provider<PortalService>((ref) {
-  return NtutPortalService(ref.read(firebaseServiceProvider));
+  return NtutPortalService();
 });
 
 /// Service for authenticating with NTUT Portal and performing SSO.

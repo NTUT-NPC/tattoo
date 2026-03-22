@@ -16,6 +16,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     _iSchoolPlusDio = createDio()
       ..options.baseUrl = 'https://istudy.ntut.edu.tw/learn/'
       ..interceptors.insert(0, InvalidCookieFilter()) // Prepend cookie filter
+      ..interceptors.add(_SessionCheckInterceptor())
       ..transformer = PlainTextTransformer();
   }
 
@@ -256,5 +257,23 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       referer: null,
       streamable: false,
     );
+  }
+}
+
+/// Detects expired sessions in ISchoolPlus responses.
+///
+/// iSchool+ returns HTTP 403 when the session has expired, which Dio would
+/// normally surface as a [DioException]. This interceptor converts it to a
+/// [SessionExpiredException] so that [AuthRepository.withAuth] retries with
+/// re-authentication instead of treating it as a network error.
+class _SessionCheckInterceptor extends Interceptor {
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (err.response?.statusCode == 403) {
+      throw const SessionExpiredException(
+        'ISchoolPlus session expired',
+      );
+    }
+    handler.next(err);
   }
 }

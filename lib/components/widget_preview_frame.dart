@@ -14,7 +14,7 @@ class WidgetPreviewFrame extends StatelessWidget {
       home: Scaffold(
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const .all(4.0),
             child: Center(child: child),
           ),
         ),
