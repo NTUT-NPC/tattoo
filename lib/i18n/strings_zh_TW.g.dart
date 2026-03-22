@@ -183,6 +183,9 @@ class TranslationsNavZhTw {
 	/// zh-TW: '成績'
 	String get scores => '成績';
 
+	/// zh-TW: '傳送門'
+	String get portal => '傳送門';
+
 	/// zh-TW: '我'
 	String get profile => '我';
 }
@@ -570,6 +573,7 @@ extension on Translations {
 			'login.errors.mobileVerificationRequired' => '需要進行手機驗證，請至校園入口網站完成驗證',
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
+			'nav.portal' => '傳送門',
 			'nav.profile' => '我',
 			'courseTable.notFound' => '找不到課表',
 			'courseTable.dayOfWeek.sunday' => '日',

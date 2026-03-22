@@ -97,13 +97,15 @@ class ProfileScreen extends ConsumerWidget {
   Future<void> _openNtutService(
     BuildContext context,
     WidgetRef ref,
-    PortalServiceCode serviceCode,
+    String serviceCode,
   ) async {
     try {
       await launchNtutService(
         ref.read(authRepositoryProvider),
         serviceCode,
       );
+    } on ArgumentError {
+      if (context.mounted) _showMessage(context, t.errors.occurred);
     } on DioException {
       if (context.mounted) _showMessage(context, t.errors.connectionFailed);
     }
@@ -138,7 +140,7 @@ class ProfileScreen extends ConsumerWidget {
         onTap: () => _openNtutService(
           context,
           ref,
-          PortalServiceCode.studentQueryService,
+          PortalServiceCode.studentQueryService.code,
         ),
       ),
 
