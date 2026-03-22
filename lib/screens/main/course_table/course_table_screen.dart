@@ -69,10 +69,13 @@ class CourseTableScreen extends ConsumerWidget {
         semestersAsync is AsyncLoading<List<Semester>> &&
         semestersAsync.asData?.value == null;
 
+    final tabLength = displayedSemesterTabLabels.isEmpty
+        ? 1
+        : displayedSemesterTabLabels.length;
+
     return DefaultTabController(
-      length: displayedSemesterTabLabels.isEmpty
-          ? 1
-          : displayedSemesterTabLabels.length,
+      key: ValueKey(tabLength),
+      length: tabLength,
       child: Scaffold(
         // A scaffold AppBar to handle status bar height.
         appBar: AppBar(
