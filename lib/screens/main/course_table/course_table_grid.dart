@@ -109,6 +109,8 @@ class CourseTableGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
+    
     return CustomScrollView(
       slivers: [
         // table header with weekday labels, pinned to top when scrolling
@@ -122,7 +124,7 @@ class CourseTableGrid extends StatelessWidget {
           scrolledUnderElevation: 0,
           elevation: 0,
           titleSpacing: 0,
-          title: _buildHeader(_visibleDaysOfWeek),
+          title: _buildHeader(t, _visibleDaysOfWeek),
         ),
 
         // table body with period labels and course cells
@@ -251,7 +253,7 @@ class CourseTableGrid extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(List<DayOfWeek> visibleDaysOfWeek) {
+  Widget _buildHeader(Translations t, List<DayOfWeek> visibleDaysOfWeek) {
     return Row(
       children: [
         SizedBox(width: _stubWidth),

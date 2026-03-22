@@ -1,8 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+
+/// Tracks app locale changes so localized course-table data can rebuild.
+final courseTableLocaleProvider = StreamProvider.autoDispose<AppLocale>((ref) {
+  return LocaleSettings.getLocaleStream();
+});
 
 /// Provides the available semesters for the current user.
 ///
@@ -28,6 +34,8 @@ final courseTableProvider = FutureProvider.autoDispose
       ref,
       semester,
     ) async {
+      ref.watch(courseTableLocaleProvider);
+
       final user = await ref.watch(userProfileProvider.future);
       if (user == null) return CourseTableData();
 

@@ -26,6 +26,8 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.t;
+    
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
