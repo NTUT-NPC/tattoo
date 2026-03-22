@@ -84,7 +84,7 @@ enum PortalServiceCode {
   webmail('zimbrasso_oauth'),
   ntutPostman('test_postman'),
   librarySystem('lib_002_oauth'),
-  studentLoanSystem('sa_SLAS_oauth'); 
+  studentLoanSystem('sa_SLAS_oauth');
 
   // TODO: --- for portal screen demo, delete after migration ---
 
