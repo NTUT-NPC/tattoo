@@ -1,20 +1,109 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
+typedef _PortalService = ({String title, String serviceCode});
+typedef _PortalSection = ({String title, List<_PortalService> services});
+
 // TODO: Fetch portal services from backend instead of hardcoding.
-final _portalServices = <({String title, String serviceCode})>[
+final _portalSections = <_PortalSection>[
   (
-    title: '學生查詢系統',
-    serviceCode: PortalServiceCode.studentQueryService.code,
+    title: '學務系統',
+    services: [
+      (
+        title: '學生查詢系統',
+        serviceCode: PortalServiceCode.studentQueryService.code,
+      ),
+      (
+        title: '學生請假系統',
+        serviceCode: PortalServiceCode.studentLeaveSystem.code,
+      ),
+      (
+        title: '學雜費減免及弱勢助學申請系統',
+        serviceCode:
+            PortalServiceCode.tuitionExemptionAndWeakStudentAidSystem.code,
+      ),
+      (
+        title: '諮商預約系統',
+        serviceCode: PortalServiceCode.counselingAppointmentSystem.code,
+      ),
+    ],
   ),
   (
-    title: '課程系統',
-    serviceCode: PortalServiceCode.courseService.code,
+    title: '教務系統',
+    services: [
+      (
+        title: '課程系統',
+        serviceCode: PortalServiceCode.courseService.code,
+      ),
+      (
+        title: '期末網路教學評量系統',
+        serviceCode: PortalServiceCode.teachingEvaluationSystem.code,
+      ),
+      (
+        title: '期末網路預選系統',
+        serviceCode: PortalServiceCode.preSelectionSystem.code,
+      ),
+      (
+        title: '暑修需求登錄',
+        serviceCode: PortalServiceCode.summerCourseDemandRegistration.code,
+      ),
+      (
+        title: '期中網路撤選系統（學生）',
+        serviceCode:
+            PortalServiceCode.midtermCourseWithdrawalSystemStudent.code,
+      ),
+    ],
+  ),
+  (
+    title: '總務系統',
+    services: [
+      (
+        title: '建物與設備維修通報單錄案系統',
+        serviceCode:
+            PortalServiceCode.facilityAndEquipmentMaintenanceReportSystem.code,
+      ),
+      (
+        title: '化學物質GHS管理系統',
+        serviceCode: PortalServiceCode.chemicalGhsManagementSystem.code,
+      ),
+      (
+        title: '線上繳費系統',
+        serviceCode: PortalServiceCode.onlinePaymentSystem.code,
+      ),
+    ],
+  ),
+  (
+    title: '資訊服務',
+    services: [
+      (
+        title: '網路與資訊安全管理系統',
+        serviceCode:
+            PortalServiceCode.networkAndInfoSecurityManagementSystem.code,
+      ),
+      (
+        title: '校園授權軟體',
+        serviceCode: PortalServiceCode.campusLicensedSoftware.code,
+      ),
+    ],
+  ),
+  (
+    title: '其他',
+    services: [
+      (
+        title: '電子郵件/網路郵局WebMail',
+        serviceCode: PortalServiceCode.webmail.code,
+      ),
+      (
+        title: '臺北科大小郵差',
+        serviceCode: PortalServiceCode.ntutPostman.code,
+      ),
+    ],
   ),
 ];
 
@@ -57,24 +146,30 @@ class PortalScreen extends ConsumerWidget {
           slivers: [
             SliverPadding(
               padding: const EdgeInsets.all(16),
-              sliver: SliverList.builder(
-                itemCount: _portalServices.isEmpty
-                    ? 0
-                    : _portalServices.length * 2 - 1,
-                itemBuilder: (context, index) {
-                  if (index.isOdd) return const SizedBox(height: 16);
-
-                  final service = _portalServices[index ~/ 2];
-
-                  return _PortalCard(
-                    title: service.title,
-                    onTap: () => _openNtutService(
-                      context,
-                      ref,
-                      service.serviceCode,
-                    ),
-                  );
-                },
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 12,
+                  children: [
+                    for (final section in _portalSections)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        spacing: 4,
+                        children: [
+                          SectionHeader(title: section.title),
+                          for (final service in section.services)
+                            _PortalCard(
+                              title: service.title,
+                              onTap: () => _openNtutService(
+                                context,
+                                ref,
+                                service.serviceCode,
+                              ),
+                            ),
+                        ],
+                      ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -101,15 +196,16 @@ class _PortalCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text(
-            title,
-            textAlign: .start,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: .w600,
+        child: SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const .symmetric(horizontal: 16, vertical: 12),
+            child: Text(
+              title,
+              textAlign: .start,
+              maxLines: 2,
+              overflow: .ellipsis,
+              style: theme.textTheme.titleMedium,
             ),
           ),
         ),
