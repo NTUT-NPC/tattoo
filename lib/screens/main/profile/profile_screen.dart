@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,15 +12,16 @@ import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
-import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/utils/launch_url.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
   static final _imagePicker = ImagePicker();
+
   Future<void> _refresh(WidgetRef ref) async {
     await ref.read(authRepositoryProvider).getUser(refresh: true);
     await Future.wait([
@@ -95,20 +94,16 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _openInBrowser(
+  Future<void> _openNtutService(
     BuildContext context,
     WidgetRef ref,
     PortalServiceCode serviceCode,
   ) async {
     try {
-      final url = await ref
-          .read(authRepositoryProvider)
-          .withAuth(
-            () => ref.read(portalServiceProvider).getSsoUrl(serviceCode),
-          );
-      // iOS doesn't preserve the in-app browser's session, so we have to
-      // open externally to maintain login state.
-      await launchUrl(url, inExternalApplication: Platform.isIOS);
+      await launchNtutService(
+        ref.read(authRepositoryProvider),
+        serviceCode,
+      );
     } on DioException {
       if (context.mounted) _showMessage(context, t.errors.connectionFailed);
     }
@@ -140,8 +135,11 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile.icon(
         icon: Icons.open_in_browser,
         title: t.$wip('學生查詢專區'),
-        onTap: () =>
-            _openInBrowser(context, ref, PortalServiceCode.studentQueryService),
+        onTap: () => _openNtutService(
+          context,
+          ref,
+          PortalServiceCode.studentQueryService,
+        ),
       ),
 
       SectionHeader(title: 'TAT'),
