@@ -295,6 +295,18 @@ class AuthRepository {
     }).wait;
   }
 
+  /// Gets a browser-openable SSO URL for [serviceCode].
+  ///
+  /// Returns a URL containing an authorization code. Opening it in a system
+  /// browser or any other HTTP client establishes an authenticated session for
+  /// the target service without reusing this app's cookies.
+  ///
+  /// Uses [withAuth] to automatically re-authenticate if the portal session
+  /// has expired.
+  Future<Uri> getSsoUrl(PortalServiceCode serviceCode) async {
+    return await withAuth(() => _portalService.getSsoUrl(serviceCode));
+  }
+
   /// Gets the current user with automatic cache refresh.
   ///
   /// Returns `null` if not logged in. Returns cached data if fresh (within TTL),
