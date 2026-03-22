@@ -1,26 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/score.dart';
-import 'package:tattoo/services/student_query/student_query_service.dart';
+import 'package:tattoo/repositories/student_repository.dart';
 
-String semesterKey(SemesterScoreDto semester) {
-  final year = semester.semester.year;
-  final term = semester.semester.term;
-  return '$year-$term';
-}
-
-int findPreferredSemesterIndex(
-  List<SemesterScoreDto> semesters,
-  String? selectedSemesterKey,
-) {
-  if (selectedSemesterKey == null) return -1;
-  return semesters.indexWhere((semester) {
-    return semesterKey(semester) == selectedSemesterKey;
-  });
-}
-
-int findDefaultSemesterIndex(List<SemesterScoreDto> semesters) {
-  final index = semesters.indexWhere((semester) => semester.scores.isNotEmpty);
-  return index >= 0 ? index : 0;
+String semesterKey(SemesterRecordData record) {
+  return '${record.summary.year}-${record.summary.term}';
 }
 
 String formatLastUpdated(DateTime dateTime) {
@@ -33,7 +17,7 @@ String formatLastUpdated(DateTime dateTime) {
   return '$year/$month/$day $hour:$minute';
 }
 
-Color getScoreColor(BuildContext context, ScoreDto score) {
+Color getScoreColor(BuildContext context, ScoreDetail score) {
   if (score.score != null) {
     return score.score! >= 60
         ? Colors.green.shade600

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
+import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/student_repository.dart';
+import 'package:tattoo/screens/main/score/score_providers.dart';
 import 'package:tattoo/screens/main/score/score_screen_actions.dart';
 import 'package:tattoo/screens/main/score/score_view_helpers.dart';
-import 'package:tattoo/services/student_query/student_query_service.dart';
-import 'package:tattoo/screens/main/score/score_providers.dart';
 
 class ScoreScreen extends ConsumerStatefulWidget {
   const ScoreScreen({super.key});
@@ -18,26 +19,19 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
     with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   String? _selectedSemesterKey;
-  DateTime? _lastUpdatedAt;
   TabController? _semesterTabController;
   int _semesterTabLength = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadLastUpdatedFromCache();
-  }
-
-  void _dismissRefreshSnackBar() {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-  }
 
   @override
   void dispose() {
     _semesterTabController?.removeListener(_handleSemesterTabChanged);
     _semesterTabController?.dispose();
     super.dispose();
+  }
+
+  void _dismissRefreshSnackBar() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }
 
   bool _handleScrollNotification(ScrollNotification notification) {
@@ -48,26 +42,15 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
     return false;
   }
 
-  Future<void> _loadLastUpdatedFromCache() async {
-    final parsed = await loadScoreLastUpdatedFromCache(ref);
-    if (!mounted || parsed == null) return;
-
-    setState(() {
-      _lastUpdatedAt = parsed;
-    });
-  }
-
-  int _findPreferredSemesterIndex(List<SemesterScoreDto> semesters) {
+  int _findPreferredSemesterIndex(List<SemesterRecordData> records) {
     if (_selectedSemesterKey == null) return -1;
-    return semesters.indexWhere(
-      (semester) => semesterKey(semester) == _selectedSemesterKey,
+    return records.indexWhere(
+      (record) => semesterKey(record) == _selectedSemesterKey,
     );
   }
 
-  int _findDefaultSemesterIndex(List<SemesterScoreDto> semesters) {
-    final index = semesters.indexWhere(
-      (semester) => semester.scores.isNotEmpty,
-    );
+  int _findDefaultSemesterIndex(List<SemesterRecordData> records) {
+    final index = records.indexWhere((record) => record.scores.isNotEmpty);
     return index >= 0 ? index : 0;
   }
 
@@ -83,8 +66,8 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
     });
   }
 
-  void _syncSemesterTabController(List<SemesterScoreDto> semesters) {
-    if (semesters.isEmpty) {
+  void _syncSemesterTabController(List<SemesterRecordData> records) {
+    if (records.isEmpty) {
       _semesterTabController?.removeListener(_handleSemesterTabChanged);
       _semesterTabController?.dispose();
       _semesterTabController = null;
@@ -94,26 +77,26 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
       return;
     }
 
-    final preferredIndex = _findPreferredSemesterIndex(semesters);
+    final preferredIndex = _findPreferredSemesterIndex(records);
     final initialIndex = preferredIndex >= 0
         ? preferredIndex
-        : _findDefaultSemesterIndex(semesters);
+        : _findDefaultSemesterIndex(records);
 
     if (_semesterTabController == null ||
-        _semesterTabLength != semesters.length) {
+        _semesterTabLength != records.length) {
       _semesterTabController?.removeListener(_handleSemesterTabChanged);
       _semesterTabController?.dispose();
       _semesterTabController = TabController(
-        length: semesters.length,
+        length: records.length,
         initialIndex: initialIndex,
         vsync: this,
       )..addListener(_handleSemesterTabChanged);
-      _semesterTabLength = semesters.length;
+      _semesterTabLength = records.length;
       _selectedIndex = initialIndex;
       return;
     }
 
-    final targetIndex = _selectedIndex >= semesters.length
+    final targetIndex = _selectedIndex >= records.length
         ? initialIndex
         : _selectedIndex;
     if (_semesterTabController!.index != targetIndex) {
@@ -122,46 +105,27 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
     _selectedIndex = targetIndex;
   }
 
-  /// Executes pull-to-refresh and reports the actual refresh outcome to users.
-  ///
-  /// This method invalidates the provider, awaits the next resolved state, and
-  /// then maps provider semantics into user-facing feedback. A successful await
-  /// does not always mean remote data was refreshed, because offline fallback
-  /// may still resolve with cached data. Therefore the method checks
-  /// `refreshedFromNetwork` to decide whether to (1) persist a new last-updated
-  /// timestamp and show a true "updated" message, or (2) keep the previous
-  /// timestamp and show an offline-cache message. Hard failures that produce no
-  /// valid state are surfaced as an explicit refresh failure snackbar.
   Future<void> _reloadScores() async {
     try {
-      final result = await reloadScoresAndPersistTimestamp(ref);
-      if (result.updatedAt != null) {
-        _lastUpdatedAt = result.updatedAt;
-      }
+      await refreshSemesterRecords(ref);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
-        SnackBar(
-          content: Text(
-            result.refreshedFromNetwork ? '成績資料已更新' : '目前離線，顯示快取資料',
-          ),
-        ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('成績資料已更新')),
       );
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('成績更新失敗')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('成績更新失敗')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final performanceAsync = ref.watch(academicPerformanceProvider);
+    final recordsAsync = ref.watch(semesterRecordsProvider);
 
     return Scaffold(
-      body: performanceAsync.when(
+      body: recordsAsync.when(
         loading: () => CustomScrollView(
           slivers: [
             SliverAppBar(
@@ -188,15 +152,14 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
             ),
           ],
         ),
-        data: (data) {
-          final semesters = data.semesters;
-          _syncSemesterTabController(semesters);
+        data: (records) {
+          _syncSemesterTabController(records);
 
-          final hasSemesters = semesters.isNotEmpty;
-          if (hasSemesters) {
+          final hasRecords = records.isNotEmpty;
+          if (hasRecords) {
             final activeIndex = _semesterTabController?.index ?? _selectedIndex;
-            _selectedIndex = activeIndex >= semesters.length ? 0 : activeIndex;
-            _selectedSemesterKey = semesterKey(semesters[_selectedIndex]);
+            _selectedIndex = activeIndex >= records.length ? 0 : activeIndex;
+            _selectedSemesterKey = semesterKey(records[_selectedIndex]);
           }
 
           return NotificationListener<ScrollNotification>(
@@ -208,7 +171,7 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                   pinned: true,
                   title: Text(t.nav.scores),
                   centerTitle: true,
-                  bottom: _semesterTabController != null && semesters.isNotEmpty
+                  bottom: _semesterTabController != null && records.isNotEmpty
                       ? PreferredSize(
                           preferredSize: const Size.fromHeight(52),
                           child: Padding(
@@ -217,8 +180,8 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                               height: 40,
                               child: ChipTabSwitcher(
                                 tabs: [
-                                  for (final semester in semesters)
-                                    '${semester.semester.year}-${semester.semester.term}',
+                                  for (final record in records)
+                                    '${record.summary.year}-${record.summary.term}',
                                 ],
                                 controller: _semesterTabController,
                                 padding: EdgeInsets.zero,
@@ -229,7 +192,7 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                         )
                       : null,
                 ),
-                if (!hasSemesters)
+                if (!hasRecords)
                   const SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(child: Text('目前沒有任何成績紀錄')),
@@ -239,12 +202,9 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                     child: TabBarView(
                       controller: _semesterTabController,
                       children: [
-                        for (final semester in semesters)
+                        for (final record in records)
                           _SemesterScoreList(
-                            data: semester,
-                            gpa: data.gpaBySemester[semesterKey(semester)],
-                            names: data.names,
-                            lastUpdatedAt: _lastUpdatedAt,
+                            record: record,
                             onRefresh: _reloadScores,
                           ),
                       ],
@@ -261,17 +221,11 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
 }
 
 class _SemesterScoreList extends StatelessWidget {
-  final SemesterScoreDto data;
-  final GpaDto? gpa;
-  final Map<String, String> names;
-  final DateTime? lastUpdatedAt;
+  final SemesterRecordData record;
   final Future<void> Function() onRefresh;
 
   const _SemesterScoreList({
-    required this.data,
-    required this.gpa,
-    required this.names,
-    required this.lastUpdatedAt,
+    required this.record,
     required this.onRefresh,
   });
 
@@ -282,43 +236,25 @@ class _SemesterScoreList extends StatelessWidget {
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.only(top: 8, bottom: 12),
-        itemCount: data.scores.length + 3,
+        itemCount: record.scores.length + 2,
         itemBuilder: (context, index) {
           if (index == 0) {
-            return _SemesterSummaryCard(data: data, gpa: gpa);
+            return _SemesterSummaryCard(summary: record.summary);
           }
           if (index == 1) {
-            if (data.scores.isNotEmpty) return const SizedBox(height: 8);
+            if (record.scores.isNotEmpty) return const SizedBox(height: 8);
             return const Padding(
               padding: EdgeInsets.only(top: 12),
               child: Center(child: Text('本學期尚無成績')),
             );
           }
-          if (index == data.scores.length + 2) {
-            if (lastUpdatedAt == null) {
-              return const SizedBox.shrink();
-            }
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '最後更新：${formatLastUpdated(lastUpdatedAt!)}',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            );
-          }
 
           final scoreIndex = index - 2;
-          final score = data.scores[scoreIndex];
-          final name = names[score.courseCode] ?? score.courseCode ?? '未知課程';
+          final score = record.scores[scoreIndex];
           return Column(
             children: [
-              _ScoreTile(score: score, courseName: name),
-              if (scoreIndex != data.scores.length - 1)
+              _ScoreTile(score: score),
+              if (scoreIndex != record.scores.length - 1)
                 const Divider(height: 1, indent: 16),
             ],
           );
@@ -329,13 +265,9 @@ class _SemesterScoreList extends StatelessWidget {
 }
 
 class _SemesterSummaryCard extends StatelessWidget {
-  final SemesterScoreDto data;
-  final GpaDto? gpa;
+  final UserAcademicSummary summary;
 
-  const _SemesterSummaryCard({
-    required this.data,
-    required this.gpa,
-  });
+  const _SemesterSummaryCard({required this.summary});
 
   @override
   Widget build(BuildContext context) {
@@ -359,23 +291,31 @@ class _SemesterSummaryCard extends StatelessWidget {
                 _buildStat(
                   context,
                   '歷年 GPA',
-                  _formatDouble(gpa?.grandTotalGpa),
+                  _formatDouble(summary.gpa),
                 ),
                 const SizedBox(width: 24),
-                _buildStat(context, '操行成績', data.conduct?.toString() ?? '-'),
+                _buildStat(
+                  context,
+                  '操行成績',
+                  summary.conduct?.toString() ?? '-',
+                ),
                 const SizedBox(width: 24),
-                _buildStat(context, '學期平均', data.average?.toString() ?? '-'),
+                _buildStat(
+                  context,
+                  '學期平均',
+                  summary.average?.toString() ?? '-',
+                ),
                 const SizedBox(width: 24),
                 _buildStat(
                   context,
                   '實得學分',
-                  data.creditsPassed?.toString() ?? '-',
+                  summary.creditsPassed?.toString() ?? '-',
                 ),
                 const SizedBox(width: 24),
                 _buildStat(
                   context,
                   '修課總學分',
-                  data.totalCredits?.toString() ?? '-',
+                  summary.totalCredits?.toString() ?? '-',
                 ),
               ],
             ),
@@ -409,10 +349,9 @@ class _SemesterSummaryCard extends StatelessWidget {
 }
 
 class _ScoreTile extends StatelessWidget {
-  final ScoreDto score;
-  final String courseName;
+  final ScoreDetail score;
 
-  const _ScoreTile({required this.score, required this.courseName});
+  const _ScoreTile({required this.score});
 
   @override
   Widget build(BuildContext context) {
@@ -421,11 +360,11 @@ class _ScoreTile extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       title: Text(
-        courseName,
+        score.nameZh,
         style: const TextStyle(fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
-        '課號: ${score.number ?? "無"}  編碼: ${score.courseCode ?? "無"}',
+        '課號: ${score.number ?? "無"}  編碼: ${score.code}',
       ),
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
