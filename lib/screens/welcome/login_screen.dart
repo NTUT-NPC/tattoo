@@ -37,6 +37,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final exception = ref.read(loginExceptionProvider);
     if (exception == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       ref.read(loginExceptionProvider.notifier).set(null);
     });
     final message = switch (exception.failure) {
