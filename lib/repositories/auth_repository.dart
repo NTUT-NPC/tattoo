@@ -215,8 +215,6 @@ class AuthRepository {
         return Completer<T>().future;
       }
 
-      _ssoCache.clear();
-      _ssoInFlight.clear();
       await _ensureSso(sso);
       return await call();
     }
@@ -244,6 +242,8 @@ class AuthRepository {
       }
 
       final userDto = await _portalService.login(username, password);
+      _ssoCache.clear();
+      _ssoInFlight.clear();
       completer.complete(userDto);
       return userDto;
     } on DioException catch (e, st) {
