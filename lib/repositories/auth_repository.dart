@@ -239,7 +239,7 @@ class AuthRepository {
       final username = await _secureStorage.read(key: _usernameKey);
       final password = await _secureStorage.read(key: _passwordKey);
       if (username == null || password == null) {
-        _onSessionDestroyed(const CredentialsMissingException());
+        _onSessionDestroyed(const LoginException(.credentialsMissing));
         throw const _AuthFailedException();
       }
 

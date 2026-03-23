@@ -1,39 +1,32 @@
-/// Thrown when NTUT Portal login fails.
-///
-/// The specific subtype indicates the failure reason, parsed from the API's
-/// `errorMsg` field.
-sealed class LoginException implements Exception {
-  const LoginException();
+/// Why a login attempt failed.
+enum LoginFailure {
+  /// Wrong student ID or password (`密碼錯誤`).
+  wrongCredentials,
+
+  /// Account locked after too many failed attempts (`已被鎖住`).
+  accountLocked,
+
+  /// Password has expired and must be changed (`密碼已過期` + `resetPwd: true`).
+  passwordExpired,
+
+  /// Mobile phone verification is required (`驗證手機`).
+  mobileVerificationRequired,
+
+  /// Stored credentials were cleared or lost while the user still has local data.
+  credentialsMissing,
+
+  /// Login failed with an unrecognized error message.
+  unknown,
 }
 
-/// Wrong student ID or password (`密碼錯誤`).
-class WrongCredentialsException extends LoginException {
-  const WrongCredentialsException();
-}
-
-/// Account locked after too many failed attempts (`已被鎖住`).
-/// Typically a 15-minute cooldown.
-class AccountLockedException extends LoginException {
-  const AccountLockedException();
-}
-
-/// Password has expired and must be changed (`密碼已過期` + `resetPwd: true`).
-class PasswordExpiredException extends LoginException {
-  const PasswordExpiredException();
-}
-
-/// Mobile phone verification is required (`驗證手機`).
-class MobileVerificationRequiredException extends LoginException {
-  const MobileVerificationRequiredException();
-}
-
-/// Stored credentials were cleared or lost while the user still has local data.
-class CredentialsMissingException extends LoginException {
-  const CredentialsMissingException();
-}
-
-/// Login failed with an unrecognized error message.
-class UnknownLoginException extends LoginException {
+/// Thrown when NTUT Portal login fails, or passed as data through
+/// [loginExceptionProvider] when the session is destroyed due to auth failure.
+class LoginException implements Exception {
+  final LoginFailure failure;
   final String? message;
-  const UnknownLoginException(this.message);
+  const LoginException(this.failure, {this.message});
+
+  @override
+  String toString() =>
+      'LoginException($failure${message != null ? ': $message' : ''})';
 }

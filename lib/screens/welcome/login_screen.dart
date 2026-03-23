@@ -39,11 +39,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(loginExceptionProvider.notifier).set(null);
     });
-    final message = switch (exception) {
-      PasswordExpiredException() => t.login.errors.passwordExpired,
-      CredentialsMissingException() => t.errors.credentialsInvalid,
-      WrongCredentialsException() ||
-      UnknownLoginException() => t.errors.credentialsInvalid,
+    final message = switch (exception.failure) {
+      .passwordExpired => t.login.errors.passwordExpired,
+      .credentialsMissing ||
+      .wrongCredentials ||
+      .unknown => t.errors.credentialsInvalid,
       _ => t.errors.sessionExpired,
     };
     _setError(message);
@@ -124,18 +124,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) _setError(t.errors.connectionFailed);
     } on LoginException catch (e) {
       if (mounted) {
-        switch (e) {
-          case WrongCredentialsException():
+        switch (e.failure) {
+          case .wrongCredentials:
             _setError(
               t.login.errors.wrongCredentials,
               username: true,
               password: true,
             );
-          case AccountLockedException():
+          case .accountLocked:
             _setError(t.login.errors.accountLocked);
-          case PasswordExpiredException():
+          case .passwordExpired:
             _setError(t.login.errors.passwordExpired);
-          case MobileVerificationRequiredException():
+          case .mobileVerificationRequired:
             _setError(t.login.errors.mobileVerificationRequired);
           case _:
             _setError(
