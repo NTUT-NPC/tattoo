@@ -98,6 +98,7 @@ profile:
     clearCache: 清除快取
     clearCookies: 清除Cookies
     clearPreferences: 清除偏好設定
+    clearCredentials: 清除登入憑證
     clearUserData: 清除使用者資料
     cleared: 已清除${item}
     clearFailed: 清除${item}失敗
@@ -105,6 +106,7 @@ profile:
       cache: 快取
       cookies: Cookies
       preferences: 偏好設定
+      credentials: 登入憑證
       userData: 使用者資料
 enrollmentStatus:
   learning: 在學

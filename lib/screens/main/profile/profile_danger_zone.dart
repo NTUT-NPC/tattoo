@@ -98,7 +98,7 @@ class ProfileDangerZone extends ConsumerWidget {
       await ref.read(databaseProvider).deleteEverything();
       await cookieJar.deleteAll();
       await const FlutterSecureStorage().deleteAll();
-      ref.read(authStatusProvider.notifier).update(.unauthenticated);
+      ref.read(sessionProvider.notifier).destroy();
     },
   );
 

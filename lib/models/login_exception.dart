@@ -27,6 +27,11 @@ class MobileVerificationRequiredException extends LoginException {
   const MobileVerificationRequiredException();
 }
 
+/// Stored credentials were cleared or lost while the user still has local data.
+class CredentialsMissingException extends LoginException {
+  const CredentialsMissingException();
+}
+
 /// Login failed with an unrecognized error message.
 class UnknownLoginException extends LoginException {
   final String? message;

@@ -107,6 +107,7 @@ Future<void> main() async {
 
   final authRepository = container.read(authRepositoryProvider);
   final user = await authRepository.getUser();
+  if (user != null) container.read(sessionProvider.notifier).create();
   final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
   final router = createAppRouter(
     initialLocation: initialLocation,

@@ -124,6 +124,7 @@ extension CourseTableMeta on CourseTableData {
 
 /// Provides the [CourseRepository] instance.
 final courseRepositoryProvider = Provider<CourseRepository>((ref) {
+  ref.watch(sessionProvider);
   return CourseRepository(
     portalService: ref.watch(portalServiceProvider),
     courseService: ref.watch(courseServiceProvider),

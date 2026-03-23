@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/database/database.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 
@@ -12,11 +11,7 @@ final courseTableSemestersProvider = FutureProvider.autoDispose<List<Semester>>(
     final user = await ref.watch(userProfileProvider.future);
     if (user == null) return [];
 
-    try {
-      return await ref.watch(courseRepositoryProvider).getSemesters();
-    } on NotLoggedInException {
-      return [];
-    }
+    return await ref.watch(courseRepositoryProvider).getSemesters();
   },
 );
 
@@ -31,11 +26,7 @@ final courseTableProvider = FutureProvider.autoDispose
       final user = await ref.watch(userProfileProvider.future);
       if (user == null) return CourseTableData();
 
-      try {
-        return await ref
-            .watch(courseRepositoryProvider)
-            .getCourseTable(user: user, semester: semester);
-      } on NotLoggedInException {
-        return CourseTableData();
-      }
+      return await ref
+          .watch(courseRepositoryProvider)
+          .getCourseTable(user: user, semester: semester);
     });

@@ -33,11 +33,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.initState();
 
     // Show an inline error if the user was redirected here due to auth failure.
+    // Clear after reading — deferred to avoid modifying providers during build.
     final exception = ref.read(loginExceptionProvider);
     if (exception == null) return;
-    ref.read(loginExceptionProvider.notifier).set(null);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(loginExceptionProvider.notifier).set(null);
+    });
     final message = switch (exception) {
       PasswordExpiredException() => t.login.errors.passwordExpired,
+      CredentialsMissingException() => t.errors.credentialsInvalid,
       WrongCredentialsException() ||
       UnknownLoginException() => t.errors.credentialsInvalid,
       _ => t.errors.sessionExpired,
@@ -133,7 +137,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             _setError(t.login.errors.passwordExpired);
           case MobileVerificationRequiredException():
             _setError(t.login.errors.mobileVerificationRequired);
-          case UnknownLoginException():
+          case _:
             _setError(
               t.login.errors.loginFailed,
               username: true,
