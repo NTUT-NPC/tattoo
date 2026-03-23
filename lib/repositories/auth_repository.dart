@@ -155,6 +155,15 @@ class AuthRepository {
     await _secureStorage.write(key: _passwordKey, value: password);
     _onAuthStatusChanged(.authenticated);
 
+    // When switching to a different account, clear all cached data before
+    // inserting the new user to avoid showing stale data from the previous
+    // account.
+    final existingUser =
+        await _database.select(_database.users).getSingleOrNull();
+    if (existingUser != null && existingUser.studentId != username) {
+      await _database.deleteCachedData();
+    }
+
     return _database.transaction(() async {
       await _database.delete(_database.users).go();
       return _database
