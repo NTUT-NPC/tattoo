@@ -115,9 +115,16 @@ scanner:
   loginIStudy: 掃碼登入i學園
   success: 登入成功
   failed: 登入失敗
-  invalidUrl: 無效的網址
   processing: 正在處理...
   howTo: "在電腦開啟i.ntut.club並點選QR code登入"
+  guide:
+    title: 如何掃碼登入？
+    step1: "1. 電腦前往下列網址"
+    url: https://i.ntut.club
+    step2: "2. 點擊導覽列的「外校人士登入」"
+    step3: "3. 點擊「QR Code 登入」"
+    button: 開始掃描
+  invalidUrl: 無效的網址
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學

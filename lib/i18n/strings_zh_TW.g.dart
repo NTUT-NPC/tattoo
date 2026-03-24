@@ -253,14 +253,16 @@ class TranslationsScannerZhTw {
 	/// zh-TW: '登入失敗'
 	String get failed => '登入失敗';
 
-	/// zh-TW: '無效的網址'
-	String get invalidUrl => '無效的網址';
-
 	/// zh-TW: '正在處理...'
 	String get processing => '正在處理...';
 
 	/// zh-TW: '在電腦開啟i.ntut.club並點選QR code登入'
 	String get howTo => '在電腦開啟i.ntut.club並點選QR code登入';
+
+	late final TranslationsScannerGuideZhTw guide = TranslationsScannerGuideZhTw.internal(_root);
+
+	/// zh-TW: '無效的網址'
+	String get invalidUrl => '無效的網址';
 }
 
 // Path: enrollmentStatus
@@ -497,6 +499,33 @@ class TranslationsProfileDangerZoneZhTw {
 	late final TranslationsProfileDangerZoneItemsZhTw items = TranslationsProfileDangerZoneItemsZhTw.internal(_root);
 }
 
+// Path: scanner.guide
+class TranslationsScannerGuideZhTw {
+	TranslationsScannerGuideZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '如何掃碼登入？'
+	String get title => '如何掃碼登入？';
+
+	/// zh-TW: '1. 電腦前往下列網址'
+	String get step1 => '1. 電腦前往下列網址';
+
+	/// zh-TW: 'https://i.ntut.club'
+	String get url => 'https://i.ntut.club';
+
+	/// zh-TW: '2. 點擊導覽列的「外校人士登入」'
+	String get step2 => '2. 點擊導覽列的「外校人士登入」';
+
+	/// zh-TW: '3. 點擊「QR Code 登入」'
+	String get step3 => '3. 點擊「QR Code 登入」';
+
+	/// zh-TW: '開始掃描'
+	String get button => '開始掃描';
+}
+
 // Path: intro.features.courseTable
 class TranslationsIntroFeaturesCourseTableZhTw {
 	TranslationsIntroFeaturesCourseTableZhTw.internal(this._root);
@@ -671,9 +700,15 @@ extension on Translations {
 			'scanner.loginIStudy' => '掃碼登入i學園',
 			'scanner.success' => '登入成功',
 			'scanner.failed' => '登入失敗',
-			'scanner.invalidUrl' => '無效的網址',
 			'scanner.processing' => '正在處理...',
 			'scanner.howTo' => '在電腦開啟i.ntut.club並點選QR code登入',
+			'scanner.guide.title' => '如何掃碼登入？',
+			'scanner.guide.step1' => '1. 電腦前往下列網址',
+			'scanner.guide.url' => 'https://i.ntut.club',
+			'scanner.guide.step2' => '2. 點擊導覽列的「外校人士登入」',
+			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
+			'scanner.guide.button' => '開始掃描',
+			'scanner.invalidUrl' => '無效的網址',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',

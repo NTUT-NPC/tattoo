@@ -101,7 +101,7 @@ profile:
     clearPreferences: Clear Preferences
     clearCredentials: Clear Credentials
     clearUserData: Clear User Data
-    cleared: '${item} cleared'
+    cleared: "${item} cleared"
     clearFailed: Failed to clear ${item}
     items:
       cache: Cache
@@ -115,9 +115,16 @@ scanner:
   loginIStudy: Login to iSchool Plus
   success: Login successful
   failed: Login failed
-  invalidUrl: Invalid URL
   processing: Processing...
   howTo: "Open i.ntut.club on your computer and select QR code login"
+  guide:
+    title: How to login?
+    step1: "1. Go to the following URL on your computer"
+    url: https://i.ntut.club
+    step2: '2. Click "Outside school login" in the navigation bar'
+    step3: '3. Click "Scan QR code"'
+    button: Start Scanning
+  invalidUrl: Invalid URL
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence

@@ -8,6 +8,8 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
 
+import 'scanner_guide_bottom_sheet.dart';
+
 class ScannerScreen extends ConsumerStatefulWidget {
   const ScannerScreen({super.key});
 
@@ -17,7 +19,31 @@ class ScannerScreen extends ConsumerStatefulWidget {
 
 class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   final MobileScannerController _controller = MobileScannerController();
+  final DraggableScrollableController _sheetController =
+      DraggableScrollableController();
   bool _isProcessing = false;
+
+  static const _scannerSuccessCodes = {'221', '222', '223'};
+  static const _scannerErrorMessages = {
+    '201': '手機未登入',
+    '202': '操作錯誤，請先至「首頁」，再點擊「校外人士登入」',
+    '203': '已經是登入成功狀態',
+    '204': 'QR code 已經登出，請重新整理頁面及刷新',
+    '205': '已登入，要切換使用者必須先登出網頁',
+    '206': 'QR code 已過期，請重複從電腦頁面刷新',
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _sheetController.animateTo(
+        0.53,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeOutCubic,
+      );
+    });
+  }
 
   @override
   void dispose() {
@@ -43,18 +69,14 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     final uri = Uri.tryParse(code);
     if (uri == null) return;
 
-    // Correct iStudy login QR code pattern: https://istudy.ntut.edu.tw/login.php?spotlight=*
+    // Correct iStudy login QR code pattern: https://istudy.ntut.edu.tw/mooc/login.php?spotlight=*
+    final isIStudyHost = uri.host == 'istudy.ntut.edu.tw';
     final isIStudyLogin =
-        uri.host == 'istudy.ntut.edu.tw' &&
-        uri.path == '/login.php' &&
+        isIStudyHost &&
+        (uri.path == '/login.php' || uri.path == '/mooc/login.php') &&
         uri.queryParameters.containsKey('spotlight');
 
     if (!isIStudyLogin) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(t.scanner.invalidUrl)));
-      }
       return;
     }
 
@@ -88,35 +110,19 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       }
 
       final response = await dio.get(code);
-
-      final responseBody = response.data.toString();
       final finalUri = response.requestOptions.uri;
+      final String? type = finalUri.queryParameters['type'];
 
-      // Specific markers from user's provided HTML
-      final bool hasSuccessMarker =
-          responseBody.contains('登入成功') ||
-          responseBody.contains('已正確使其登入成功') ||
-          responseBody.contains('授權成功') ||
-          responseBody.contains('已完成登入');
-
-      // Success URL patterns provided by user (type 221, 222, 223)
-      final bool isSuccessUrl =
-          finalUri.path.contains('message.php') &&
-          ([
-            '221',
-            '222',
-            '223',
-          ].any((t) => finalUri.queryParameters['type'] == t));
-
-      // Check for explicit failure markers
-      if (responseBody.contains('請先登入再進行掃描')) {
-        throw NotLoggedInException();
+      if (_scannerErrorMessages.containsKey(type)) {
+        throw _ScannerTypeException(type!);
       }
 
-      final bool isSuccess = isSuccessUrl || hasSuccessMarker;
+      final bool isSuccess =
+          finalUri.path.contains('message.php') &&
+          (_scannerSuccessCodes.contains(type));
 
       if (!isSuccess) {
-        throw Exception('Login markers not found in response');
+        throw _ScannerTypeException(type ?? 'unknown');
       }
 
       if (mounted) {
@@ -137,6 +143,13 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   }
 
   String _mapScanError(Object error) {
+    if (error is _ScannerTypeException) {
+      final msg = _scannerErrorMessages[error.type];
+      if (msg != null) {
+        return '[${error.type}] $msg';
+      }
+      return '[${error.type}] 登入失敗，請確認 QR code 是否正確或從電腦頁面刷新';
+    }
     return switch (error) {
       NotLoggedInException() => t.errors.sessionExpired,
       LoginException() => t.errors.credentialsInvalid,
@@ -162,6 +175,10 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             onDetect: _onDetect,
           ),
           _buildOverlay(context),
+          ScannerGuideSheet(
+            controller: _sheetController,
+            isProcessing: _isProcessing,
+          ),
           if (_isProcessing) _buildLoadingOverlay(),
         ],
       ),
@@ -199,7 +216,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             ],
           ),
         ),
-        // Scan window border
         Center(
           child: Container(
             height: scanWindowSize,
@@ -210,66 +226,21 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             ),
           ),
         ),
-        // Instruction bottom bar
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: EdgeInsets.fromLTRB(
-              24,
-              20,
-              24,
-              MediaQuery.of(context).padding.bottom + 24,
-            ),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(30),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(40),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Text(
-              t.scanner.howTo,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }
 
   Widget _buildLoadingOverlay() {
-    return Container(
-      color: Colors.black87,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 24),
-            Text(
-              t.scanner.processing,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return const Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: LinearProgressIndicator(),
     );
   }
+}
+
+class _ScannerTypeException implements Exception {
+  final String type;
+  _ScannerTypeException(this.type);
 }

@@ -179,9 +179,10 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 	@override String get loginIStudy => 'Login to iSchool Plus';
 	@override String get success => 'Login successful';
 	@override String get failed => 'Login failed';
-	@override String get invalidUrl => 'Invalid URL';
 	@override String get processing => 'Processing...';
 	@override String get howTo => 'Open i.ntut.club on your computer and select QR code login';
+	@override late final _TranslationsScannerGuideEnUs guide = _TranslationsScannerGuideEnUs._(_root);
+	@override String get invalidUrl => 'Invalid URL';
 }
 
 // Path: enrollmentStatus
@@ -316,6 +317,21 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 	@override String cleared({required Object item}) => '${item} cleared';
 	@override String clearFailed({required Object item}) => 'Failed to clear ${item}';
 	@override late final _TranslationsProfileDangerZoneItemsEnUs items = _TranslationsProfileDangerZoneItemsEnUs._(_root);
+}
+
+// Path: scanner.guide
+class _TranslationsScannerGuideEnUs extends TranslationsScannerGuideZhTw {
+	_TranslationsScannerGuideEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'How to login?';
+	@override String get step1 => '1. Go to the following URL on your computer';
+	@override String get url => 'https://i.ntut.club';
+	@override String get step2 => '2. Click "Outside school login" in the navigation bar';
+	@override String get step3 => '3. Click "Scan QR code"';
+	@override String get button => 'Start Scanning';
 }
 
 // Path: intro.features.courseTable
@@ -470,9 +486,15 @@ extension on TranslationsEnUs {
 			'scanner.loginIStudy' => 'Login to iSchool Plus',
 			'scanner.success' => 'Login successful',
 			'scanner.failed' => 'Login failed',
-			'scanner.invalidUrl' => 'Invalid URL',
 			'scanner.processing' => 'Processing...',
 			'scanner.howTo' => 'Open i.ntut.club on your computer and select QR code login',
+			'scanner.guide.title' => 'How to login?',
+			'scanner.guide.step1' => '1. Go to the following URL on your computer',
+			'scanner.guide.url' => 'https://i.ntut.club',
+			'scanner.guide.step2' => '2. Click "Outside school login" in the navigation bar',
+			'scanner.guide.step3' => '3. Click "Scan QR code"',
+			'scanner.guide.button' => 'Start Scanning',
+			'scanner.invalidUrl' => 'Invalid URL',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',
