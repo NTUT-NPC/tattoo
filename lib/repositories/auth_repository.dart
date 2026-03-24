@@ -166,7 +166,7 @@ class AuthRepository {
 
   /// Logs out and clears all local user data and stored credentials.
   Future<void> logout() async {
-    await _database.delete(_database.users).go();
+    await _database.deleteEverything();
     await cookieJar.deleteAll();
     await _clearCredentials();
     await _clearAvatarCache();
