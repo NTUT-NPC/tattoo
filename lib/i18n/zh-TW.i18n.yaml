@@ -72,6 +72,7 @@ profile:
     about: 關於TAT
     npcClub: 北科程式設計研究社
     preferences: 偏好設定
+    dummyFeature: 虛擬功能 (測試用)
     logout: 登出帳號
   avatar:
     uploading: 正在更新個人圖片...
@@ -80,6 +81,7 @@ profile:
     invalidFormat: 無法辨識的圖片格式
     uploadFailed: 更改個人圖片失敗，請稍後再試
   dangerZone:
+    featureFlags: 功能開關
     nonFlutterCrash: 非Flutter框架崩潰
     nonFlutterCrashException: 模擬非同步錯誤
     closedTitle: 酒吧暫未營業
@@ -123,3 +125,6 @@ about:
   privacyPolicyUrl: https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md
   viewPrivacyPolicy: 查看隱私權政策
   copyright: © 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出
+featureFlags:
+  title: 功能開關
+  reset: 恢復預設值

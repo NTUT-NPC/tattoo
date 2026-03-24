@@ -96,6 +96,10 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDummyFeatureEnabled = ref.watch(isDummyFeatureEnabledProvider).value == true;
+    final dummyString = ref.watch(dummyStringValueProvider).value ?? 'Hello World';
+    final dummyInt = ref.watch(dummyIntValueProvider).value ?? 42;
+
     // settings options for the profile tab
     final options = [
       SectionHeader(title: t.profile.sections.accountSettings),
@@ -128,6 +132,13 @@ class ProfileScreen extends ConsumerWidget {
       ),
 
       SectionHeader(title: t.profile.sections.appSettings),
+      if (isDummyFeatureEnabled)
+        OptionEntryTile.icon(
+          icon: Icons.science_outlined,
+          title: t.profile.options.dummyFeature,
+          description: 'String: $dummyString | Int: $dummyInt',
+          onTap: () => _showDemoTap(context),
+        ),
       OptionEntryTile.icon(
         icon: Icons.settings_outlined,
         title: t.profile.options.preferences,

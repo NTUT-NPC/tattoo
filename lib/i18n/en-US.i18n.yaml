@@ -72,6 +72,7 @@ profile:
     about: About TAT
     npcClub: NTUT NPC Club
     preferences: Preferences
+    dummyFeature: Dummy Feature (Test)
     logout: Sign Out
   avatar:
     uploading: Updating avatar...
@@ -80,6 +81,7 @@ profile:
     invalidFormat: Unrecognized image format
     uploadFailed: Failed to change avatar. Please try again later.
   dangerZone:
+    featureFlags: Feature Flags
     nonFlutterCrash: Non-Flutter Framework Crash
     nonFlutterCrashException: Simulation of asynchronous error
     closedTitle: Bar is currently closed
@@ -123,3 +125,6 @@ about:
   privacyPolicyUrl: https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md
   viewPrivacyPolicy: View our privacy policy
   copyright: "© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0"
+featureFlags:
+  title: Feature Flags
+  reset: Reset to default

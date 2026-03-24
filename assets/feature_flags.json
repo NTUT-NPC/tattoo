@@ -1,0 +1,5 @@
+{
+  "enable_dummy_feature": false,
+  "dummy_string_value": "Hello World",
+  "dummy_int_value": 42
+}

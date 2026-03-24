@@ -48,6 +48,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
 	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
 	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
+	@override late final _TranslationsFeatureFlagsEnUs featureFlags = _TranslationsFeatureFlagsEnUs._(_root);
 }
 
 // Path: general
@@ -196,6 +197,17 @@ class _TranslationsAboutEnUs extends TranslationsAboutZhTw {
 	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
 }
 
+// Path: featureFlags
+class _TranslationsFeatureFlagsEnUs extends TranslationsFeatureFlagsZhTw {
+	_TranslationsFeatureFlagsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Feature Flags';
+	@override String get reset => 'Reset to default';
+}
+
 // Path: intro.features
 class _TranslationsIntroFeaturesEnUs extends TranslationsIntroFeaturesZhTw {
 	_TranslationsIntroFeaturesEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -249,6 +261,7 @@ class _TranslationsProfileOptionsEnUs extends TranslationsProfileOptionsZhTw {
 	@override String get about => 'About TAT';
 	@override String get npcClub => 'NTUT NPC Club';
 	@override String get preferences => 'Preferences';
+	@override String get dummyFeature => 'Dummy Feature (Test)';
 	@override String get logout => 'Sign Out';
 }
 
@@ -273,6 +286,7 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get featureFlags => 'Feature Flags';
 	@override String get nonFlutterCrash => 'Non-Flutter Framework Crash';
 	@override String get nonFlutterCrashException => 'Simulation of asynchronous error';
 	@override String get closedTitle => 'Bar is currently closed';
@@ -414,12 +428,14 @@ extension on TranslationsEnUs {
 			'profile.options.about' => 'About TAT',
 			'profile.options.npcClub' => 'NTUT NPC Club',
 			'profile.options.preferences' => 'Preferences',
+			'profile.options.dummyFeature' => 'Dummy Feature (Test)',
 			'profile.options.logout' => 'Sign Out',
 			'profile.avatar.uploading' => 'Updating avatar...',
 			'profile.avatar.uploadSuccess' => 'Avatar updated',
 			'profile.avatar.tooLarge' => 'Image exceeds the 20 MB size limit',
 			'profile.avatar.invalidFormat' => 'Unrecognized image format',
 			'profile.avatar.uploadFailed' => 'Failed to change avatar. Please try again later.',
+			'profile.dangerZone.featureFlags' => 'Feature Flags',
 			'profile.dangerZone.nonFlutterCrash' => 'Non-Flutter Framework Crash',
 			'profile.dangerZone.nonFlutterCrashException' => 'Simulation of asynchronous error',
 			'profile.dangerZone.closedTitle' => 'Bar is currently closed',
@@ -459,6 +475,8 @@ extension on TranslationsEnUs {
 			'about.privacyPolicyUrl' => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md',
 			'about.viewPrivacyPolicy' => 'View our privacy policy',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
+			'featureFlags.title' => 'Feature Flags',
+			'featureFlags.reset' => 'Reset to default',
 			_ => null,
 		};
 	}
