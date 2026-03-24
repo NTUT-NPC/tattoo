@@ -8,11 +8,13 @@ class FeatureFlag {
   final String key;
   final dynamic defaultValue;
   final dynamic overrideValue;
+  final List<dynamic>? options;
 
   const FeatureFlag({
     required this.key,
     required this.defaultValue,
     this.overrideValue,
+    this.options,
   });
 
   dynamic get value => overrideValue ?? defaultValue;
@@ -33,8 +35,6 @@ final featureFlagRepositoryProvider = Provider<FeatureFlagRepository>((ref) {
   );
 });
 
-
-
 class FeatureFlagRepository {
   final FeatureFlagService _service;
   final SharedPreferencesAsync _prefs;
@@ -43,8 +43,8 @@ class FeatureFlagRepository {
   FeatureFlagRepository({
     required FeatureFlagService service,
     required SharedPreferencesAsync prefs,
-  })  : _service = service,
-        _prefs = prefs;
+  }) : _service = service,
+       _prefs = prefs;
 
   Future<Map<String, dynamic>> _getDefaults() async {
     return _defaultsCache ??= await _service.fetchDefaultFlags();
@@ -56,13 +56,26 @@ class FeatureFlagRepository {
 
     for (final entry in defaults.entries) {
       final key = entry.key;
-      final defVal = entry.value;
+      dynamic defVal = entry.value;
+      List<dynamic>? options;
+
+      if (defVal is Map<String, dynamic> &&
+          defVal.containsKey('value') &&
+          defVal.containsKey('options')) {
+        options = defVal['options'] as List;
+        defVal = defVal['value'];
+      }
+
       dynamic overrideVal;
       switch (defVal) {
-        case bool _: overrideVal = await _prefs.getBool('ff_$key');
-        case int _: overrideVal = await _prefs.getInt('ff_$key');
-        case double _: overrideVal = await _prefs.getDouble('ff_$key');
-        case String _: overrideVal = await _prefs.getString('ff_$key');
+        case bool _:
+          overrideVal = await _prefs.getBool('ff_$key');
+        case int _:
+          overrideVal = await _prefs.getInt('ff_$key');
+        case double _:
+          overrideVal = await _prefs.getDouble('ff_$key');
+        case String _:
+          overrideVal = await _prefs.getString('ff_$key');
       }
 
       list.add(
@@ -70,6 +83,7 @@ class FeatureFlagRepository {
           key: key,
           defaultValue: defVal,
           overrideValue: overrideVal,
+          options: options,
         ),
       );
     }
@@ -83,11 +97,16 @@ class FeatureFlagRepository {
     }
 
     switch (value) {
-      case bool v: await _prefs.setBool('ff_$key', v);
-      case int v: await _prefs.setInt('ff_$key', v);
-      case double v: await _prefs.setDouble('ff_$key', v);
-      case String v: await _prefs.setString('ff_$key', v);
-      default: throw ArgumentError('Unsupported flag type: ${value.runtimeType}');
+      case bool v:
+        await _prefs.setBool('ff_$key', v);
+      case int v:
+        await _prefs.setInt('ff_$key', v);
+      case double v:
+        await _prefs.setDouble('ff_$key', v);
+      case String v:
+        await _prefs.setString('ff_$key', v);
+      default:
+        throw ArgumentError('Unsupported flag type: ${value.runtimeType}');
     }
   }
 

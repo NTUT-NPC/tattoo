@@ -24,18 +24,38 @@ final dangerZoneActionProvider = Provider.autoDispose<String>((ref) {
 });
 
 /// Indicates whether the dummy feature is enabled.
-final isDummyFeatureEnabledProvider = FutureProvider.autoDispose<bool>((ref) async {
-  final val = await ref.watch(featureFlagValueProvider('enable_dummy_feature').future);
+final isDummyFeatureEnabledProvider = FutureProvider.autoDispose<bool>((
+  ref,
+) async {
+  final val = await ref.watch(
+    featureFlagValueProvider('enable_dummy_feature').future,
+  );
   return val == true;
 });
 
-final dummyStringValueProvider = FutureProvider.autoDispose<String>((ref) async {
-  final val = await ref.watch(featureFlagValueProvider('dummy_string_value').future);
+final dummyStringValueProvider = FutureProvider.autoDispose<String>((
+  ref,
+) async {
+  final val = await ref.watch(
+    featureFlagValueProvider('dummy_string_value').future,
+  );
   return val as String? ?? 'Hello World';
 });
 
 final dummyIntValueProvider = FutureProvider.autoDispose<int>((ref) async {
-  final val = await ref.watch(featureFlagValueProvider('dummy_int_value').future);
+  final val = await ref.watch(
+    featureFlagValueProvider('dummy_int_value').future,
+  );
   return val as int? ?? 42;
 });
 
+enum ThemeOption { light, dark, system }
+
+final dummyThemeProvider = FutureProvider.autoDispose<ThemeOption>((ref) async {
+  final val = await ref.watch(featureFlagValueProvider('dummy_theme').future);
+  return switch (val) {
+    'light' => ThemeOption.light,
+    'dark' => ThemeOption.dark,
+    _ => ThemeOption.system,
+  };
+});

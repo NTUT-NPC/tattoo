@@ -29,7 +29,9 @@ class FeatureFlagScreen extends ConsumerWidget {
               if (flag.type == bool) {
                 return ListTile(
                   title: Text(flag.key),
-                  subtitle: isOverridden ? Text('Override: ${flag.value}') : Text('Default: ${flag.value}'),
+                  subtitle: isOverridden
+                      ? Text('Override: ${flag.value}')
+                      : Text('Default: ${flag.value}'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -37,25 +39,33 @@ class FeatureFlagScreen extends ConsumerWidget {
                         IconButton(
                           icon: const Icon(Icons.refresh),
                           tooltip: t.featureFlags.reset,
-                          onPressed: () => ref.read(featureFlagsProvider.notifier).resetFlag(flag.key),
+                          onPressed: () => ref
+                              .read(featureFlagsProvider.notifier)
+                              .resetFlag(flag.key),
                         ),
                       Switch(
                         value: flag.value as bool,
                         onChanged: (val) {
-                          ref.read(featureFlagsProvider.notifier).setFlag(flag.key, val);
+                          ref
+                              .read(featureFlagsProvider.notifier)
+                              .setFlag(flag.key, val);
                         },
                       ),
                     ],
                   ),
                   onTap: () {
-                    ref.read(featureFlagsProvider.notifier).setFlag(flag.key, !(flag.value as bool));
+                    ref
+                        .read(featureFlagsProvider.notifier)
+                        .setFlag(flag.key, !(flag.value as bool));
                   },
                 );
               }
 
               return ListTile(
                 title: Text(flag.key),
-                subtitle: isOverridden ? Text('Override: ${flag.value}') : Text('Default: ${flag.value}'),
+                subtitle: isOverridden
+                    ? Text('Override: ${flag.value}')
+                    : Text('Default: ${flag.value}'),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -63,7 +73,9 @@ class FeatureFlagScreen extends ConsumerWidget {
                       IconButton(
                         icon: const Icon(Icons.refresh),
                         tooltip: t.featureFlags.reset,
-                        onPressed: () => ref.read(featureFlagsProvider.notifier).resetFlag(flag.key),
+                        onPressed: () => ref
+                            .read(featureFlagsProvider.notifier)
+                            .resetFlag(flag.key),
                       ),
                     const Icon(Icons.edit),
                   ],
@@ -80,6 +92,16 @@ class FeatureFlagScreen extends ConsumerWidget {
   }
 
   void _editValue(BuildContext context, WidgetRef ref, FeatureFlag flag) {
+    if (flag.options != null) {
+      _showDropdownDialog(
+        context,
+        ref,
+        flag,
+        flag.options!.map((e) => e.toString()).toList(),
+      );
+      return;
+    }
+
     final controller = TextEditingController(text: flag.value.toString());
     showDialog(
       context: context,
@@ -88,7 +110,9 @@ class FeatureFlagScreen extends ConsumerWidget {
           title: Text(flag.key),
           content: TextField(
             controller: controller,
-            keyboardType: flag.type == int || flag.type == double ? TextInputType.number : TextInputType.text,
+            keyboardType: flag.type == int || flag.type == double
+                ? TextInputType.number
+                : TextInputType.text,
           ),
           actions: [
             TextButton(
@@ -106,11 +130,53 @@ class FeatureFlagScreen extends ConsumerWidget {
                   newValue = controller.text;
                 }
                 if (newValue != null) {
-                  ref.read(featureFlagsProvider.notifier).setFlag(flag.key, newValue);
+                  ref
+                      .read(featureFlagsProvider.notifier)
+                      .setFlag(flag.key, newValue);
                 }
                 Navigator.of(context).pop();
               },
               child: Text(t.general.ok),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDropdownDialog(
+    BuildContext context,
+    WidgetRef ref,
+    FeatureFlag flag,
+    List<String> options,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(flag.key),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: options.map((option) {
+              return RadioListTile<String>(
+                title: Text(option),
+                value: option,
+                groupValue: flag.value as String,
+                onChanged: (newValue) {
+                  if (newValue != null) {
+                    ref
+                        .read(featureFlagsProvider.notifier)
+                        .setFlag(flag.key, newValue);
+                  }
+                  Navigator.of(context).pop();
+                },
+              );
+            }).toList(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
             ),
           ],
         );

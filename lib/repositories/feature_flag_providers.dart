@@ -2,9 +2,10 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/repositories/feature_flag_repository.dart';
 
 /// State notifier provider for feature flags, which is the main UI entry point mapping.
-final featureFlagsProvider = AsyncNotifierProvider<FeatureFlagsNotifier, List<FeatureFlag>>(
-  FeatureFlagsNotifier.new,
-);
+final featureFlagsProvider =
+    AsyncNotifierProvider<FeatureFlagsNotifier, List<FeatureFlag>>(
+      FeatureFlagsNotifier.new,
+    );
 
 class FeatureFlagsNotifier extends AsyncNotifier<List<FeatureFlag>> {
   @override
@@ -24,8 +25,14 @@ class FeatureFlagsNotifier extends AsyncNotifier<List<FeatureFlag>> {
 }
 
 /// Syntactic sugar to get a specific flag's value easily in the UI.
-final featureFlagValueProvider = FutureProvider.family<dynamic, String>((ref, key) async {
+final featureFlagValueProvider = FutureProvider.family<dynamic, String>((
+  ref,
+  key,
+) async {
   final flags = await ref.watch(featureFlagsProvider.future);
-  final flag = flags.firstWhere((f) => f.key == key, orElse: () => throw ArgumentError('Flag $key not found'));
+  final flag = flags.firstWhere(
+    (f) => f.key == key,
+    orElse: () => throw ArgumentError('Flag $key not found'),
+  );
   return flag.value;
 });

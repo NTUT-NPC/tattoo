@@ -1,5 +1,9 @@
 {
   "enable_dummy_feature": false,
   "dummy_string_value": "Hello World",
-  "dummy_int_value": 42
+  "dummy_int_value": 42,
+  "dummy_theme": {
+    "value": "system",
+    "options": ["light", "dark", "system"]
+  }
 }
