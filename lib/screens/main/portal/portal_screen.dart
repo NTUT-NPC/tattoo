@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 // TODO: Fetch portal services from backend instead of hardcoding.
@@ -158,6 +160,10 @@ class PortalScreen extends ConsumerWidget {
                       onTap: () => launchUrl(
                         Uri.parse('https://nportal.ntut.edu.tw'),
                       ),
+                    ),
+                    _PortalCard(
+                      title: t.scanner.loginIStudy,
+                      onTap: () => context.push(AppRoutes.scanner),
                     ),
                     for (final section in _portalSections)
                       Column(
