@@ -12,7 +12,6 @@ import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/models/user.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
-import 'package:tattoo/utils/fetch_with_ttl.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// Thrown when the avatar image exceeds [AuthRepository.maxAvatarSize].
@@ -100,11 +99,11 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 /// // Login
 /// final user = await auth.login('111360109', 'password');
 ///
-/// // Get user profile (with automatic cache refresh)
-/// final user = await auth.getUser();
+/// // Observe user profile (auto-refreshes when stale)
+/// final stream = auth.watchUser();
 ///
 /// // Force refresh (for pull-to-refresh)
-/// final user = await auth.getUser(refresh: true);
+/// await auth.refreshUser();
 /// ```
 class AuthRepository {
   final PortalService _portalService;
@@ -300,34 +299,36 @@ class AuthRepository {
   }
 
   /// Gets the current user with automatic cache refresh.
+  /// Watches the current user with automatic background refresh.
   ///
-  /// Returns `null` if not logged in. Returns cached data if fresh (within TTL),
-  /// fetches full profile from network if stale or missing. Falls back to stale
-  /// cached data when offline (network errors are absorbed).
+  /// Emits `null` when not logged in. Emits stale data immediately, then
+  /// triggers a background network fetch if stale.
+  /// The stream re-emits automatically when the DB is updated.
   ///
-  /// The returned user may have partial data ([User.fetchedAt] is null) if only
-  /// login has been performed. Full profile data is fetched automatically when
-  /// [User.fetchedAt] is null or stale.
-  ///
-  /// Set [refresh] to `true` to bypass TTL and always refetch (for pull-to-refresh).
-  Future<User?> getUser({bool refresh = false}) async {
-    final user = await _database.select(_database.users).getSingleOrNull();
-    if (user == null) return null; // Not logged in, can't fetch
+  /// Network errors during background refresh are absorbed — the stream
+  /// continues showing stale data rather than erroring.
+  Stream<User?> watchUser() async* {
+    const ttl = Duration(days: 3);
 
-    try {
-      return await fetchWithTtl<User>(
-        cached: user,
-        getFetchedAt: (u) => u.fetchedAt,
-        fetchFromNetwork: _fetchUserFromNetwork,
-        refresh: refresh,
-      );
-    } on DioException {
-      return user;
+    await for (final user
+        in _database.select(_database.users).watchSingleOrNull()) {
+      yield user;
+      if (user == null) continue;
+
+      final age = switch (user.fetchedAt) {
+        final t? => DateTime.now().difference(t),
+        null => ttl,
+      };
+      if (age >= ttl) {
+        try {
+          await refreshUser();
+        } catch (_) {
+          // Absorb: stale data is shown via stream
+        }
+      }
     }
   }
 
-  /// Fetches all user data from network.
-  ///
   /// Refreshes login-level fields (avatar, name, email) via Portal login,
   /// and academic data (profile, registrations) via the student query service.
   /// The login call also establishes a fresh session for the subsequent SSO
@@ -335,7 +336,7 @@ class AuthRepository {
   ///
   /// On missing or rejected credentials, destroys the session and returns a
   /// never-completing future (router guard handles redirect).
-  Future<User> _fetchUserFromNetwork() async {
+  Future<void> refreshUser() async {
     final user = await _database.select(_database.users).getSingleOrNull();
     if (user == null) {
       throw StateError('Cannot fetch user profile when not logged in');
@@ -348,7 +349,7 @@ class AuthRepository {
     try {
       userDto = await _reauthenticate();
     } on _AuthFailedException {
-      return Completer<User>().future;
+      return Completer<void>().future;
     }
 
     final (profile, records) = await withAuth(
@@ -360,7 +361,7 @@ class AuthRepository {
       sso: [.studentQueryService],
     );
 
-    return _database.transaction(() async {
+    await _database.transaction(() async {
       await (_database.update(
         _database.users,
       )..where((t) => t.id.equals(user.id))).write(
@@ -411,8 +412,6 @@ class AuthRepository {
               ),
             );
       }
-
-      return _database.select(_database.users).getSingle();
     });
   }
 
@@ -525,12 +524,13 @@ class AuthRepository {
     } catch (_) {}
   }
 
-  /// Gets the user's active registration (where enrollment status is "在學").
+  /// Watches the user's active registration (where enrollment status is "在學").
   ///
-  /// Returns the most recent semester where the user is actively enrolled,
-  /// or `null` if no active registration exists.
-  /// Pure DB read — call [getUser] first to populate registration data.
-  Future<UserRegistration?> getActiveRegistration() async {
+  /// Emits the most recent semester where the user is actively enrolled,
+  /// or `null` if no active registration exists. Automatically re-emits
+  /// when the underlying data changes (e.g., after [getUser] populates
+  /// registration data or after cache clear).
+  Stream<UserRegistration?> watchActiveRegistration() {
     return (_database.select(_database.userRegistrations)
           ..where(
             (r) => r.enrollmentStatus.equalsValue(EnrollmentStatus.learning),
@@ -540,7 +540,7 @@ class AuthRepository {
             (r) => OrderingTerm.desc(r.term),
           ])
           ..limit(1))
-        .getSingleOrNull();
+        .watchSingleOrNull();
   }
 
   /// Converts the image to JPEG, normalizes EXIF orientation, and compresses.

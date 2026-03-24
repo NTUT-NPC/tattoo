@@ -12,7 +12,6 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
-import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
@@ -21,12 +20,7 @@ class ProfileScreen extends ConsumerWidget {
   static final _imagePicker = ImagePicker();
 
   Future<void> _refresh(WidgetRef ref) async {
-    await ref.read(authRepositoryProvider).getUser(refresh: true);
-    await Future.wait([
-      ref.refresh(userProfileProvider.future),
-      ref.refresh(userAvatarProvider.future),
-      ref.refresh(activeRegistrationProvider.future),
-    ]);
+    await ref.read(authRepositoryProvider).refreshUser();
   }
 
   Future<void> _logout(WidgetRef ref) async {
@@ -50,7 +44,6 @@ class ProfileScreen extends ConsumerWidget {
 
       final imageBytes = await imageFile.readAsBytes();
       await ref.read(authRepositoryProvider).uploadAvatar(imageBytes);
-      ref.invalidate(userAvatarProvider);
 
       if (!context.mounted) return;
       _showMessage(context, t.profile.avatar.uploadSuccess);
