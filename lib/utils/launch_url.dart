@@ -30,15 +30,6 @@ Future<void> launchNtutService(
   AuthRepository authRepository,
   String serviceCode,
 ) async {
-  final portalServiceCode = PortalServiceCode.fromCode(serviceCode);
-  if (portalServiceCode == null) {
-    throw ArgumentError.value(
-      serviceCode,
-      'serviceCode',
-      'Unknown NTUT service code',
-    );
-  }
-
-  final url = await authRepository.getSsoUrl(portalServiceCode);
+  final url = await authRepository.getSsoUrl(serviceCode);
   await launchUrl(url, inExternalApplication: Platform.isIOS);
 }
