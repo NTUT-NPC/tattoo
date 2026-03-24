@@ -109,6 +109,14 @@ profile:
       preferences: Preferences
       credentials: Credentials
       userData: User data
+scanner:
+  title: Scan QR Code
+  scanInstruction: Place the QR code in the box
+  loginIStudy: Login to iSchool Plus
+  success: Login successful
+  failed: Login failed
+  invalidUrl: Invalid URL
+  processing: Processing...
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence

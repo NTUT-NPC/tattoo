@@ -46,6 +46,7 @@ dependencies:
   firebase_crashlytics: ^5.0.7
   firebase_analytics: ^12.1.2
   auto_size_text: ^3.0.0
+  mobile_scanner: ^7.2.0
 
 dev_dependencies:
   flutter_test:

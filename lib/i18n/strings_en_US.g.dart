@@ -46,6 +46,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsNavEnUs nav = _TranslationsNavEnUs._(_root);
 	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
+	@override late final _TranslationsScannerEnUs scanner = _TranslationsScannerEnUs._(_root);
 	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
 	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
 }
@@ -164,6 +165,22 @@ class _TranslationsProfileEnUs extends TranslationsProfileZhTw {
 	@override late final _TranslationsProfileOptionsEnUs options = _TranslationsProfileOptionsEnUs._(_root);
 	@override late final _TranslationsProfileAvatarEnUs avatar = _TranslationsProfileAvatarEnUs._(_root);
 	@override late final _TranslationsProfileDangerZoneEnUs dangerZone = _TranslationsProfileDangerZoneEnUs._(_root);
+}
+
+// Path: scanner
+class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
+	_TranslationsScannerEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Scan QR Code';
+	@override String get scanInstruction => 'Place the QR code in the box';
+	@override String get loginIStudy => 'Login to iSchool Plus';
+	@override String get success => 'Login successful';
+	@override String get failed => 'Login failed';
+	@override String get invalidUrl => 'Invalid URL';
+	@override String get processing => 'Processing...';
 }
 
 // Path: enrollmentStatus
@@ -447,6 +464,13 @@ extension on TranslationsEnUs {
 			'profile.dangerZone.items.preferences' => 'Preferences',
 			'profile.dangerZone.items.credentials' => 'Credentials',
 			'profile.dangerZone.items.userData' => 'User data',
+			'scanner.title' => 'Scan QR Code',
+			'scanner.scanInstruction' => 'Place the QR code in the box',
+			'scanner.loginIStudy' => 'Login to iSchool Plus',
+			'scanner.success' => 'Login successful',
+			'scanner.failed' => 'Login failed',
+			'scanner.invalidUrl' => 'Invalid URL',
+			'scanner.processing' => 'Processing...',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',

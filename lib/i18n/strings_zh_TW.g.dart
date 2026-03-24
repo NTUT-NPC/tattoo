@@ -47,6 +47,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
 	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
+	late final TranslationsScannerZhTw scanner = TranslationsScannerZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
 }
@@ -227,6 +228,36 @@ class TranslationsProfileZhTw {
 	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
 	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
 	late final TranslationsProfileDangerZoneZhTw dangerZone = TranslationsProfileDangerZoneZhTw.internal(_root);
+}
+
+// Path: scanner
+class TranslationsScannerZhTw {
+	TranslationsScannerZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '掃描二維碼'
+	String get title => '掃描二維碼';
+
+	/// zh-TW: '請將二維碼放入框內'
+	String get scanInstruction => '請將二維碼放入框內';
+
+	/// zh-TW: '登入北科i學園PLUS'
+	String get loginIStudy => '登入北科i學園PLUS';
+
+	/// zh-TW: '登入成功'
+	String get success => '登入成功';
+
+	/// zh-TW: '登入失敗'
+	String get failed => '登入失敗';
+
+	/// zh-TW: '無效的網址'
+	String get invalidUrl => '無效的網址';
+
+	/// zh-TW: '正在處理...'
+	String get processing => '正在處理...';
 }
 
 // Path: enrollmentStatus
@@ -632,6 +663,13 @@ extension on Translations {
 			'profile.dangerZone.items.preferences' => '偏好設定',
 			'profile.dangerZone.items.credentials' => '登入憑證',
 			'profile.dangerZone.items.userData' => '使用者資料',
+			'scanner.title' => '掃描二維碼',
+			'scanner.scanInstruction' => '請將二維碼放入框內',
+			'scanner.loginIStudy' => '登入北科i學園PLUS',
+			'scanner.success' => '登入成功',
+			'scanner.failed' => '登入失敗',
+			'scanner.invalidUrl' => '無效的網址',
+			'scanner.processing' => '正在處理...',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
