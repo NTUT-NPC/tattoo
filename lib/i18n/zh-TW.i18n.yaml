@@ -117,7 +117,7 @@ scanner:
   failed: 登入失敗
   invalidUrl: 無效的網址
   processing: 正在處理...
-  howTo: "在電腦開啟 i.ntut.club 並點選 QR code 登入"
+  howTo: "在電腦開啟i.ntut.club並點選QR code登入"
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學
