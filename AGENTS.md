@@ -171,7 +171,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Re-auth Coalescing:** `AuthRepository._reauthenticate` uses the same `Completer` pattern — first caller triggers login, concurrent callers await the same future. Prevents redundant login attempts when multiple `withAuth` calls detect session expiry simultaneously.
 
-**Session Lifecycle:** `sessionProvider` (`Notifier<bool>`) drives auth state. `true` = authenticated, `false` = unauthenticated. Router guard watches it for redirect. Repository providers `ref.watch(sessionProvider)` to be recreated with fresh state when the session ends. On auth failure, `withAuth` destroys the session and returns a never-completing `Completer<T>().future` — callers never see auth errors, only `DioException` for network failures.
+**Session Lifecycle:** `sessionProvider` (`Notifier<bool>`) drives auth state. `true` = authenticated, `false` = unauthenticated. Router guard watches it for redirect. Repository providers `ref.watch(sessionProvider)` to be recreated with fresh state when the session ends. On auth failure, `withAuth` destroys the session and returns a never-completing `Completer<T>().future` — session-scoped providers are already being disposed by the time callers would stall, so the hanging future is harmless. Callers only need to handle `DioException` for network failures.
 
 **InvalidCookieFilter:** iSchool+ returns malformed cookies; custom interceptor filters them.
 

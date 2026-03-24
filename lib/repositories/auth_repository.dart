@@ -528,7 +528,7 @@ class AuthRepository {
   ///
   /// Emits the most recent semester where the user is actively enrolled,
   /// or `null` if no active registration exists. Automatically re-emits
-  /// when the underlying data changes (e.g., after [getUser] populates
+  /// when the underlying data changes (e.g., after [refreshUser] populates
   /// registration data or after cache clear).
   Stream<UserRegistration?> watchActiveRegistration() {
     return (_database.select(_database.userRegistrations)
