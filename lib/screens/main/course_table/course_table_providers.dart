@@ -16,12 +16,12 @@ final courseTableSemestersProvider = StreamProvider.autoDispose<List<Semester>>(
 ///
 /// Watches the DB directly — automatically updates when course table data
 /// changes. Background-refreshes stale data automatically.
+///
+/// Keyed by [Semester.id] (not the full object) so that timestamp updates
+/// on the semester row don't recreate the provider.
 final courseTableProvider = StreamProvider.autoDispose
-    .family<CourseTableData, Semester>((
-      ref,
-      semester,
-    ) {
+    .family<CourseTableData, int>((ref, semesterId) {
       return ref
           .watch(courseRepositoryProvider)
-          .watchCourseTable(semester: semester);
+          .watchCourseTable(semesterId: semesterId);
     });

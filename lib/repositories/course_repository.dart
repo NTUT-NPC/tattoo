@@ -248,20 +248,18 @@ class CourseRepository {
   /// DB is updated.
   ///
   /// Use [getCourseOffering] for related data (teachers, classrooms, schedules).
-  Stream<CourseTableData> watchCourseTable({
-    required Semester semester,
-  }) async* {
+  Stream<CourseTableData> watchCourseTable({required int semesterId}) async* {
     const ttl = Duration(days: 3);
 
     final query = _database.select(_database.courseTableSlots)
-      ..where((s) => s.semester.equals(semester.id));
+      ..where((s) => s.semester.equals(semesterId));
 
     await for (final rows in query.watch()) {
       final data = _buildCourseTableData(rows);
 
       if (data.isEmpty) {
         try {
-          await refreshCourseTable(semester: semester);
+          await refreshCourseTable(semesterId: semesterId);
         } catch (_) {
           // Absorb: yield empty below so UI exits loading state
         }
@@ -271,14 +269,15 @@ class CourseRepository {
 
       final semesterRow = await (_database.select(
         _database.semesters,
-      )..where((s) => s.id.equals(semester.id))).getSingle();
+      )..where((s) => s.id.equals(semesterId))).getSingle();
       final age = switch (semesterRow.courseTableFetchedAt) {
         final t? => DateTime.now().difference(t),
         null => ttl,
       };
+
       if (age >= ttl) {
         try {
-          await refreshCourseTable(semester: semester);
+          await refreshCourseTable(semesterId: semesterId);
         } catch (_) {
           // Absorb: stale data is shown via stream
         }
@@ -290,10 +289,11 @@ class CourseRepository {
   ///
   /// The [watchCourseTable] stream automatically emits the updated value.
   /// Network errors propagate to the caller.
-  Future<void> refreshCourseTable({
-    required Semester semester,
-  }) async {
+  Future<void> refreshCourseTable({required int semesterId}) async {
     final user = await _database.select(_database.users).getSingle();
+    final semester = await (_database.select(
+      _database.semesters,
+    )..where((s) => s.id.equals(semesterId))).getSingle();
 
     final dtos = await _authRepository.withAuth(
       () => _courseService.getCourseTable(

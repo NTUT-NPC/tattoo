@@ -24,10 +24,10 @@ class CourseTableScreen extends ConsumerWidget {
     Semester semester,
   ) async {
     final courseRepository = ref.read(courseRepositoryProvider);
-    await Future.wait([
+    await [
       courseRepository.refreshSemesters(),
-      courseRepository.refreshCourseTable(semester: semester),
-    ]);
+      courseRepository.refreshCourseTable(semesterId: semester.id),
+    ].wait;
   }
 
   void _showDemoTap(BuildContext context) {
@@ -164,7 +164,7 @@ class CourseTableScreen extends ConsumerWidget {
                       Consumer(
                         builder: (context, tabRef, child) {
                           final courseTableAsync = tabRef.watch(
-                            courseTableProvider(semester),
+                            courseTableProvider(semester.id),
                           );
 
                           return switch (courseTableAsync) {
