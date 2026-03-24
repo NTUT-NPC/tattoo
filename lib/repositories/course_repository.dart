@@ -556,10 +556,6 @@ class CourseRepository {
       }
     }
 
-    return _fetchCourseFromNetwork(code);
-  }
-
-  Future<Course> _fetchCourseFromNetwork(String code) async {
     final dto = await _authRepository.withAuth(
       () => _courseService.getCourse(code),
       sso: [.courseService],
