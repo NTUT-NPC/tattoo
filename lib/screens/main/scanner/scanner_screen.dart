@@ -28,7 +28,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
   Future<void> _onDetect(BarcodeCapture capture) async {
     if (_isProcessing) return;
-    
+
     final barcodes = capture.barcodes;
     if (barcodes.isEmpty) return;
 
@@ -38,14 +38,15 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     // Sanitize the code (remove trailing null bytes or garbage characters like )
     final code = rawCode.trim().replaceAll('\x00', '').replaceAll('\uFFFD', '');
     if (!code.startsWith('http')) {
-      return; 
+      return;
     }
 
     final uri = Uri.tryParse(code);
     if (uri == null) return;
 
     // Correct iStudy login QR code pattern: https://istudy.ntut.edu.tw/login.php?spotlight=*
-    final isIStudyLogin = uri.host == 'istudy.ntut.edu.tw' &&
+    final isIStudyLogin =
+        uri.host == 'istudy.ntut.edu.tw' &&
         uri.path == '/login.php' &&
         uri.queryParameters.containsKey('spotlight');
 
@@ -73,7 +74,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
       // 2. Fetch the QR code URL in the background
       final dio = createDio();
-      
+
       if (uri.host.contains('ntut.edu.tw')) {
         dio.interceptors.insert(0, InvalidCookieFilter());
         dio.transformer = PlainTextTransformer();
@@ -91,16 +92,22 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
       final responseBody = response.data.toString();
       final finalUri = response.requestOptions.uri;
-      
+
       // Specific markers from user's provided HTML
-      final bool hasSuccessMarker = responseBody.contains('登入成功') ||
+      final bool hasSuccessMarker =
+          responseBody.contains('登入成功') ||
           responseBody.contains('已正確使其登入成功') ||
           responseBody.contains('授權成功') ||
           responseBody.contains('已完成登入');
-          
+
       // Success URL patterns provided by user (type 221, 222, 223)
-      final bool isSuccessUrl = finalUri.path.contains('message.php') &&
-          (['221', '222', '223'].any((t) => finalUri.queryParameters['type'] == t));
+      final bool isSuccessUrl =
+          finalUri.path.contains('message.php') &&
+          ([
+            '221',
+            '222',
+            '223',
+          ].any((t) => finalUri.queryParameters['type'] == t));
 
       // Check for explicit failure markers
       if (responseBody.contains('請先登入再進行掃描')) {
