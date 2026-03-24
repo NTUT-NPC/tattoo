@@ -259,8 +259,8 @@ class TranslationsScannerZhTw {
 	/// zh-TW: '正在處理...'
 	String get processing => '正在處理...';
 
-	/// zh-TW: '在電腦開啟 i.ntut.club 並點選 QR code 登入'
-	String get howTo => '在電腦開啟 i.ntut.club 並點選 QR code 登入';
+	/// zh-TW: '在電腦開啟i.ntut.club並點選QR code登入'
+	String get howTo => '在電腦開啟i.ntut.club並點選QR code登入';
 }
 
 // Path: enrollmentStatus
@@ -673,7 +673,7 @@ extension on Translations {
 			'scanner.failed' => '登入失敗',
 			'scanner.invalidUrl' => '無效的網址',
 			'scanner.processing' => '正在處理...',
-			'scanner.howTo' => '在電腦開啟 i.ntut.club 並點選 QR code 登入',
+			'scanner.howTo' => '在電腦開啟i.ntut.club並點選QR code登入',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
