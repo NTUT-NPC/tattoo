@@ -174,13 +174,14 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Scan QR Code';
+	@override String get title => 'QR Code Login';
 	@override String get scanInstruction => 'Place the QR code in the box';
 	@override String get loginIStudy => 'Login to iSchool Plus';
 	@override String get success => 'Login successful';
 	@override String get failed => 'Login failed';
 	@override String get invalidUrl => 'Invalid URL';
 	@override String get processing => 'Processing...';
+	@override String get howTo => 'Open i.ntut.club on your computer and select QR code login';
 }
 
 // Path: enrollmentStatus
@@ -464,13 +465,14 @@ extension on TranslationsEnUs {
 			'profile.dangerZone.items.preferences' => 'Preferences',
 			'profile.dangerZone.items.credentials' => 'Credentials',
 			'profile.dangerZone.items.userData' => 'User data',
-			'scanner.title' => 'Scan QR Code',
+			'scanner.title' => 'QR Code Login',
 			'scanner.scanInstruction' => 'Place the QR code in the box',
 			'scanner.loginIStudy' => 'Login to iSchool Plus',
 			'scanner.success' => 'Login successful',
 			'scanner.failed' => 'Login failed',
 			'scanner.invalidUrl' => 'Invalid URL',
 			'scanner.processing' => 'Processing...',
+			'scanner.howTo' => 'Open i.ntut.club on your computer and select QR code login',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',

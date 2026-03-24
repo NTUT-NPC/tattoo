@@ -210,21 +210,36 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             ),
           ),
         ),
-        // Instruction text
+        // Instruction bottom bar
         Positioned(
-          bottom: 100,
+          bottom: 0,
           left: 0,
           right: 0,
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Text(
-                t.scanner.scanInstruction,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
+          child: Container(
+            padding: EdgeInsets.fromLTRB(
+              24,
+              20,
+              24,
+              MediaQuery.of(context).padding.bottom + 24,
+            ),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(40),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Text(
+              t.scanner.howTo,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),

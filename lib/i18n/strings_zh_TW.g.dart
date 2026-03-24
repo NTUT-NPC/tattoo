@@ -238,14 +238,14 @@ class TranslationsScannerZhTw {
 
 	// Translations
 
-	/// zh-TW: '掃描二維碼'
-	String get title => '掃描二維碼';
+	/// zh-TW: '掃碼登入'
+	String get title => '掃碼登入';
 
 	/// zh-TW: '請將二維碼放入框內'
 	String get scanInstruction => '請將二維碼放入框內';
 
-	/// zh-TW: '登入北科i學園PLUS'
-	String get loginIStudy => '登入北科i學園PLUS';
+	/// zh-TW: '掃碼登入i學園'
+	String get loginIStudy => '掃碼登入i學園';
 
 	/// zh-TW: '登入成功'
 	String get success => '登入成功';
@@ -258,6 +258,9 @@ class TranslationsScannerZhTw {
 
 	/// zh-TW: '正在處理...'
 	String get processing => '正在處理...';
+
+	/// zh-TW: '在電腦開啟 i.ntut.club 並點選 QR code 登入'
+	String get howTo => '在電腦開啟 i.ntut.club 並點選 QR code 登入';
 }
 
 // Path: enrollmentStatus
@@ -663,13 +666,14 @@ extension on Translations {
 			'profile.dangerZone.items.preferences' => '偏好設定',
 			'profile.dangerZone.items.credentials' => '登入憑證',
 			'profile.dangerZone.items.userData' => '使用者資料',
-			'scanner.title' => '掃描二維碼',
+			'scanner.title' => '掃碼登入',
 			'scanner.scanInstruction' => '請將二維碼放入框內',
-			'scanner.loginIStudy' => '登入北科i學園PLUS',
+			'scanner.loginIStudy' => '掃碼登入i學園',
 			'scanner.success' => '登入成功',
 			'scanner.failed' => '登入失敗',
 			'scanner.invalidUrl' => '無效的網址',
 			'scanner.processing' => '正在處理...',
+			'scanner.howTo' => '在電腦開啟 i.ntut.club 並點選 QR code 登入',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
