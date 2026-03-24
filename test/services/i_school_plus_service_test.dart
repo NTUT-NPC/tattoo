@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/i_school_plus/ntut_i_school_plus_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
@@ -16,14 +15,14 @@ void main() {
     setUpAll(() async {
       TestCredentials.validate();
 
-      portalService = NtutPortalService(FirebaseService());
+      portalService = NtutPortalService();
       iSchoolPlusService = NtutISchoolPlusService();
 
       await portalService.login(
         TestCredentials.username,
         TestCredentials.password,
       );
-      await portalService.sso(PortalServiceCode.iSchoolPlusService);
+      await portalService.sso(PortalServiceCode.iSchoolPlusService.code);
 
       final courses = await iSchoolPlusService.getCourseList();
 
@@ -35,14 +34,14 @@ void main() {
     });
 
     setUp(() async {
-      portalService = NtutPortalService(FirebaseService());
+      portalService = NtutPortalService();
       iSchoolPlusService = NtutISchoolPlusService();
 
       await portalService.login(
         TestCredentials.username,
         TestCredentials.password,
       );
-      await portalService.sso(PortalServiceCode.iSchoolPlusService);
+      await portalService.sso(PortalServiceCode.iSchoolPlusService.code);
 
       await respectfulDelay();
     });

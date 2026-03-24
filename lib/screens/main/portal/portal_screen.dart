@@ -140,13 +140,6 @@ class PortalScreen extends ConsumerWidget {
         ..showSnackBar(
           SnackBar(content: Text(t.errors.connectionFailed)),
         );
-    } on ArgumentError {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(content: Text(t.errors.occurred)),
-        );
     }
   }
 

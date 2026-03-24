@@ -7,6 +7,7 @@ import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
@@ -97,6 +98,7 @@ class ProfileDangerZone extends ConsumerWidget {
       await ref.read(databaseProvider).deleteEverything();
       await cookieJar.deleteAll();
       await const FlutterSecureStorage().deleteAll();
+      ref.read(authStatusProvider.notifier).update(.unauthenticated);
     },
   );
 

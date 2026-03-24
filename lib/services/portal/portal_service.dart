@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:riverpod/riverpod.dart';
-import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
 
 /// Represents a logged-in NTUT Portal user.
@@ -65,8 +64,6 @@ enum PortalServiceCode {
   studentQueryService('sa_003_oauth'),
   courseService('aa_0010-oauth'),
   iSchoolPlusService('ischool_plus_oauth'),
-
-  // TODO: --- for portal screen demo, delete after migration ---
   teachingEvaluationSystem('aa_009_oauth'),
   preSelectionSystem('aa_011_oauth'),
   summerCourseDemandRegistration('aa_015_oauth'),
@@ -86,26 +83,14 @@ enum PortalServiceCode {
   librarySystem('lib_002_oauth'),
   studentLoanSystem('sa_SLAS_oauth');
 
-  // TODO: --- for portal screen demo, delete after migration ---
-
-
   final String code;
   const PortalServiceCode(this.code);
-
-  // TODO: Let downstream SSO APIs accept raw service-code strings directly.
-  // TODO: Delete this helper after that migration is complete.
-  static PortalServiceCode? fromCode(String code) {
-    for (final serviceCode in values) {
-      if (serviceCode.code == code) return serviceCode;
-    }
-    return null;
-  }
 }
 // dart format on
 
 /// Provides the singleton [PortalService] instance.
 final portalServiceProvider = Provider<PortalService>((ref) {
-  return NtutPortalService(ref.read(firebaseServiceProvider));
+  return NtutPortalService();
 });
 
 /// Service for authenticating with NTUT Portal and performing SSO.
@@ -170,7 +155,7 @@ abstract interface class PortalService {
   /// per service during a session.
   ///
   /// Throws an [Exception] if the SSO form is not found (user may not be logged in).
-  Future<void> sso(PortalServiceCode serviceCode);
+  Future<void> sso(String serviceCode);
 
   /// Returns a URL that authenticates the user with a target NTUT service
   /// via OAuth2 authorization code.
@@ -185,7 +170,7 @@ abstract interface class PortalService {
   /// Requires an active portal session (call [login] first).
   ///
   /// Throws an [Exception] if the SSO form is not found (user may not be logged in).
-  Future<Uri> getSsoUrl(PortalServiceCode serviceCode);
+  Future<Uri> getSsoUrl(String serviceCode);
 
   /// Fetches academic calendar events within a date range.
   ///

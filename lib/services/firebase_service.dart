@@ -1,6 +1,5 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Global toggle for Firebase features.
 ///
@@ -11,10 +10,8 @@ const bool useFirebase = bool.fromEnvironment(
   defaultValue: false,
 );
 
-/// Provider for the [FirebaseService].
-final firebaseServiceProvider = Provider<FirebaseService>((ref) {
-  return FirebaseService();
-});
+/// Global [FirebaseService] instance.
+var firebaseService = const FirebaseService();
 
 /// Unified service for Firebase Analytics and Crashlytics.
 ///
@@ -22,10 +19,12 @@ final firebaseServiceProvider = Provider<FirebaseService>((ref) {
 /// true, or `null` when disabled. Callers use null-aware access:
 ///
 /// ```dart
-/// ref.read(firebaseServiceProvider).analytics?.logAppOpen();
-/// ref.read(firebaseServiceProvider).recordNonFatal('...');
+/// firebase.analytics?.logAppOpen();
+/// firebase.crashlytics?.recordError(e, stack);
 /// ```
 class FirebaseService {
+  const FirebaseService();
+
   /// The [FirebaseAnalytics] instance, or `null` if Firebase is disabled.
   FirebaseAnalytics? get analytics =>
       useFirebase ? FirebaseAnalytics.instance : null;

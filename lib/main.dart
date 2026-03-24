@@ -33,9 +33,6 @@ Future<void> main() async {
   }
 
   final container = ProviderContainer();
-  final firebase = container.read(firebaseServiceProvider);
-
-  firebase.log('App starting...');
 
   void showErrorDialog(
     Object error, {
@@ -85,7 +82,7 @@ Future<void> main() async {
 
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = (details) {
-    firebase.crashlytics?.recordFlutterFatalError(details);
+    firebaseService.crashlytics?.recordFlutterFatalError(details);
     FlutterError.dumpErrorToConsole(details);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showErrorDialog(
@@ -98,20 +95,23 @@ Future<void> main() async {
 
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
-    firebase.crashlytics?.recordError(error, stack, fatal: true);
+    firebaseService.crashlytics?.recordError(error, stack, fatal: true);
     showErrorDialog(error, type: ErrorType.async, stackTrace: stack);
     log('Uncaught asynchronous error: $error', stackTrace: stack);
     return true;
   };
 
-  firebase.analytics?.logAppOpen();
+  firebaseService.analytics?.logAppOpen();
 
   await LocaleSettings.useDeviceLocale();
 
   final authRepository = container.read(authRepositoryProvider);
   final user = await authRepository.getUser();
   final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
-  final router = createAppRouter(firebase, initialLocation: initialLocation);
+  final router = createAppRouter(
+    initialLocation: initialLocation,
+    container: container,
+  );
 
   runApp(
     UncontrolledProviderScope(

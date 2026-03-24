@@ -30,10 +30,8 @@ class ProfileScreen extends ConsumerWidget {
     ]);
   }
 
-  Future<void> _logout(BuildContext context, WidgetRef ref) async {
-    final authRepository = ref.read(authRepositoryProvider);
-    await authRepository.logout();
-    if (context.mounted) context.go(AppRoutes.intro);
+  Future<void> _logout(WidgetRef ref) async {
+    await ref.read(authRepositoryProvider).logout();
   }
 
   Future<XFile?> _pickAvatarImage() {
@@ -141,7 +139,7 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile.icon(
         icon: Icons.logout,
         title: t.profile.options.logout,
-        onTap: () => _logout(context, ref),
+        onTap: () => _logout(ref),
       ),
       const ProfileDangerZone(),
     ];

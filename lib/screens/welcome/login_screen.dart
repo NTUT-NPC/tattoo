@@ -29,6 +29,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    // Show an inline error if the user was redirected here due to auth failure.
+    final exception = ref.read(loginExceptionProvider);
+    if (exception == null) return;
+    ref.read(loginExceptionProvider.notifier).set(null);
+    final message = switch (exception) {
+      PasswordExpiredException() => t.login.errors.passwordExpired,
+      WrongCredentialsException() ||
+      UnknownLoginException() => t.errors.credentialsInvalid,
+      _ => t.errors.sessionExpired,
+    };
+    _setError(message);
+  }
+
+  @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
