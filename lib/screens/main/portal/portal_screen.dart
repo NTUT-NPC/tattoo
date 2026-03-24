@@ -1,11 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/components/notices.dart';
+import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 // TODO: Fetch portal services from backend instead of hardcoding.
@@ -21,24 +20,23 @@ final _portalSections =
         services: [
           (
             title: '學生查詢系統',
-            serviceCode: PortalServiceCode.studentQueryService.code,
+            serviceCode: 'sa_003_oauth',
           ),
           (
             title: '學生請假系統',
-            serviceCode: PortalServiceCode.studentLeaveSystem.code,
+            serviceCode: 'sa_010_oauth',
           ),
           (
             title: '學雜費減免及弱勢助學申請系統',
-            serviceCode:
-                PortalServiceCode.tuitionExemptionAndWeakStudentAidSystem.code,
+            serviceCode: 'NTUT_exemption_oauth',
           ),
           (
             title: '就學貸款申請系統',
-            serviceCode: PortalServiceCode.studentLoanSystem.code,
+            serviceCode: 'sa_SLAS_oauth',
           ),
           (
             title: '諮商預約系統',
-            serviceCode: PortalServiceCode.counselingAppointmentSystem.code,
+            serviceCode: 'counseling_oauth',
           ),
         ],
       ),
@@ -47,24 +45,23 @@ final _portalSections =
         services: [
           (
             title: '課程系統',
-            serviceCode: PortalServiceCode.courseService.code,
+            serviceCode: 'aa_0010-oauth',
           ),
           (
             title: '期末網路教學評量系統',
-            serviceCode: PortalServiceCode.teachingEvaluationSystem.code,
+            serviceCode: 'aa_009_oauth',
           ),
           (
             title: '期末網路預選系統',
-            serviceCode: PortalServiceCode.preSelectionSystem.code,
+            serviceCode: 'aa_011_oauth',
           ),
           (
             title: '暑修需求登錄',
-            serviceCode: PortalServiceCode.summerCourseDemandRegistration.code,
+            serviceCode: 'aa_015_oauth',
           ),
           (
             title: '期中網路撤選系統（學生）',
-            serviceCode:
-                PortalServiceCode.midtermCourseWithdrawalSystemStudent.code,
+            serviceCode: 'aa_Online+Course+Withdrawal+System_stu_oauth',
           ),
         ],
       ),
@@ -73,17 +70,15 @@ final _portalSections =
         services: [
           (
             title: '建物與設備維修通報單錄案系統',
-            serviceCode: PortalServiceCode
-                .facilityAndEquipmentMaintenanceReportSystem
-                .code,
+            serviceCode: 'ga_008_oauth',
           ),
           (
             title: '化學物質GHS管理系統',
-            serviceCode: PortalServiceCode.chemicalGhsManagementSystem.code,
+            serviceCode: 'ga_ghs_oauth',
           ),
           (
             title: '線上繳費系統',
-            serviceCode: PortalServiceCode.onlinePaymentSystem.code,
+            serviceCode: 'OnlinePayment_oauth',
           ),
         ],
       ),
@@ -92,20 +87,19 @@ final _portalSections =
         services: [
           (
             title: '網路與資訊安全管理系統',
-            serviceCode:
-                PortalServiceCode.networkAndInfoSecurityManagementSystem.code,
+            serviceCode: 'ipmac_oauth',
           ),
           (
             title: '校園授權軟體',
-            serviceCode: PortalServiceCode.campusLicensedSoftware.code,
+            serviceCode: 'inf001_oauth',
           ),
           (
             title: '電子郵件/網路郵局WebMail',
-            serviceCode: PortalServiceCode.webmail.code,
+            serviceCode: 'zimbrasso_oauth',
           ),
           (
             title: '臺北科大小郵差',
-            serviceCode: PortalServiceCode.ntutPostman.code,
+            serviceCode: 'test_postman',
           ),
         ],
       ),
@@ -114,7 +108,7 @@ final _portalSections =
         services: [
           (
             title: '圖書館系統',
-            serviceCode: PortalServiceCode.librarySystem.code,
+            serviceCode: 'lib_002_oauth',
           ),
         ],
       ),
@@ -139,13 +133,6 @@ class PortalScreen extends ConsumerWidget {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(content: Text(t.errors.connectionFailed)),
-        );
-    } on ArgumentError {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(content: Text(t.errors.occurred)),
         );
     }
   }
