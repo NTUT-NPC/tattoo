@@ -91,6 +91,12 @@ class ProfileDangerZone extends ConsumerWidget {
     },
   );
 
+  Future<void> _clearCredentials(BuildContext context) => _clear(
+    context,
+    t.profile.dangerZone.items.credentials,
+    () => const FlutterSecureStorage().deleteAll(),
+  );
+
   Future<void> _clearUserData(BuildContext context, WidgetRef ref) => _clear(
     context,
     t.profile.dangerZone.items.userData,
@@ -98,7 +104,7 @@ class ProfileDangerZone extends ConsumerWidget {
       await ref.read(databaseProvider).deleteEverything();
       await cookieJar.deleteAll();
       await const FlutterSecureStorage().deleteAll();
-      ref.read(authStatusProvider.notifier).update(.unauthenticated);
+      ref.read(sessionProvider.notifier).destroy();
     },
   );
 
@@ -154,6 +160,13 @@ class ProfileDangerZone extends ConsumerWidget {
               color: dangerColor,
               borderColor: dangerColor,
               onTap: () => _clearPreferences(context, ref),
+            ),
+            OptionEntryTile.icon(
+              icon: Icons.key_off_outlined,
+              title: t.profile.dangerZone.clearCredentials,
+              color: dangerColor,
+              borderColor: dangerColor,
+              onTap: () => _clearCredentials(context),
             ),
             OptionEntryTile.icon(
               icon: Icons.delete_forever_outlined,

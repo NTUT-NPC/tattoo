@@ -23,10 +23,10 @@ abstract class AppRoutes {
   static const about = '/about';
 }
 
-/// Bridges [authStatusProvider] to a [Listenable] for [GoRouter.refreshListenable].
-class _AuthRefreshListenable extends ChangeNotifier {
-  _AuthRefreshListenable(ProviderContainer container) {
-    container.listen(authStatusProvider, (_, _) => notifyListeners());
+/// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
+class _SessionRefreshListenable extends ChangeNotifier {
+  _SessionRefreshListenable(ProviderContainer container) {
+    container.listen(sessionProvider, (_, _) => notifyListeners());
   }
 }
 
@@ -35,18 +35,18 @@ const _publicRoutes = {AppRoutes.intro, AppRoutes.login, AppRoutes.about};
 
 /// Creates a configured [GoRouter] starting at [initialLocation].
 ///
-/// Watches [authStatusProvider] via [refreshListenable] and redirects to
-/// [AppRoutes.login] when auth status becomes [AuthStatus.unauthenticated].
+/// Watches [sessionProvider] via [refreshListenable] and redirects to
+/// [AppRoutes.login] when the session becomes inactive.
 GoRouter createAppRouter({
   required String initialLocation,
   required ProviderContainer container,
 }) => GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: initialLocation,
-  refreshListenable: _AuthRefreshListenable(container),
+  refreshListenable: _SessionRefreshListenable(container),
   redirect: (context, state) {
-    final authStatus = container.read(authStatusProvider);
-    if (authStatus != .unauthenticated) return null;
+    final hasSession = container.read(sessionProvider);
+    if (hasSession) return null;
     if (_publicRoutes.contains(state.matchedLocation)) return null;
     return AppRoutes.login;
   },

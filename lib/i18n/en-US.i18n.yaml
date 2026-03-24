@@ -98,6 +98,7 @@ profile:
     clearCache: Clear Cache
     clearCookies: Clear Cookies
     clearPreferences: Clear Preferences
+    clearCredentials: Clear Credentials
     clearUserData: Clear User Data
     cleared: '${item} cleared'
     clearFailed: Failed to clear ${item}
@@ -105,6 +106,7 @@ profile:
       cache: Cache
       cookies: Cookies
       preferences: Preferences
+      credentials: Credentials
       userData: User data
 enrollmentStatus:
   learning: Enrolled

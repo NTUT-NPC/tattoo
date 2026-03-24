@@ -8,7 +8,6 @@ import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
@@ -67,8 +66,6 @@ class ProfileScreen extends ConsumerWidget {
     return switch (error) {
       AvatarTooLargeException() => t.profile.avatar.tooLarge,
       FormatException() => t.profile.avatar.invalidFormat,
-      NotLoggedInException() => t.errors.sessionExpired,
-      LoginException() => t.errors.credentialsInvalid,
       DioException() => t.errors.connectionFailed,
       _ => t.profile.avatar.uploadFailed,
     };
