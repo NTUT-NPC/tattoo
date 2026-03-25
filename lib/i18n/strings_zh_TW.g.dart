@@ -448,6 +448,9 @@ class TranslationsProfileDangerZoneZhTw {
 	/// zh-TW: '清除偏好設定'
 	String get clearPreferences => '清除偏好設定';
 
+	/// zh-TW: '清除登入憑證'
+	String get clearCredentials => '清除登入憑證';
+
 	/// zh-TW: '清除使用者資料'
 	String get clearUserData => '清除使用者資料';
 
@@ -521,6 +524,9 @@ class TranslationsProfileDangerZoneItemsZhTw {
 
 	/// zh-TW: '偏好設定'
 	String get preferences => '偏好設定';
+
+	/// zh-TW: '登入憑證'
+	String get credentials => '登入憑證';
 
 	/// zh-TW: '使用者資料'
 	String get userData => '使用者資料';
@@ -617,12 +623,14 @@ extension on Translations {
 			'profile.dangerZone.clearCache' => '清除快取',
 			'profile.dangerZone.clearCookies' => '清除Cookies',
 			'profile.dangerZone.clearPreferences' => '清除偏好設定',
+			'profile.dangerZone.clearCredentials' => '清除登入憑證',
 			'profile.dangerZone.clearUserData' => '清除使用者資料',
 			'profile.dangerZone.cleared' => ({required Object item}) => '已清除${item}',
 			'profile.dangerZone.clearFailed' => ({required Object item}) => '清除${item}失敗',
 			'profile.dangerZone.items.cache' => '快取',
 			'profile.dangerZone.items.cookies' => 'Cookies',
 			'profile.dangerZone.items.preferences' => '偏好設定',
+			'profile.dangerZone.items.credentials' => '登入憑證',
 			'profile.dangerZone.items.userData' => '使用者資料',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',

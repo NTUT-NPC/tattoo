@@ -293,6 +293,7 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 	@override String get clearCache => 'Clear Cache';
 	@override String get clearCookies => 'Clear Cookies';
 	@override String get clearPreferences => 'Clear Preferences';
+	@override String get clearCredentials => 'Clear Credentials';
 	@override String get clearUserData => 'Clear User Data';
 	@override String cleared({required Object item}) => '${item} cleared';
 	@override String clearFailed({required Object item}) => 'Failed to clear ${item}';
@@ -342,6 +343,7 @@ class _TranslationsProfileDangerZoneItemsEnUs extends TranslationsProfileDangerZ
 	@override String get cache => 'Cache';
 	@override String get cookies => 'Cookies';
 	@override String get preferences => 'Preferences';
+	@override String get credentials => 'Credentials';
 	@override String get userData => 'User data';
 }
 
@@ -436,12 +438,14 @@ extension on TranslationsEnUs {
 			'profile.dangerZone.clearCache' => 'Clear Cache',
 			'profile.dangerZone.clearCookies' => 'Clear Cookies',
 			'profile.dangerZone.clearPreferences' => 'Clear Preferences',
+			'profile.dangerZone.clearCredentials' => 'Clear Credentials',
 			'profile.dangerZone.clearUserData' => 'Clear User Data',
 			'profile.dangerZone.cleared' => ({required Object item}) => '${item} cleared',
 			'profile.dangerZone.clearFailed' => ({required Object item}) => 'Failed to clear ${item}',
 			'profile.dangerZone.items.cache' => 'Cache',
 			'profile.dangerZone.items.cookies' => 'Cookies',
 			'profile.dangerZone.items.preferences' => 'Preferences',
+			'profile.dangerZone.items.credentials' => 'Credentials',
 			'profile.dangerZone.items.userData' => 'User data',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',

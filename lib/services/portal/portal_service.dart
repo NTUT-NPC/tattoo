@@ -94,9 +94,8 @@ abstract interface class PortalService {
   ///
   /// Returns user profile information including name, email, and avatar filename.
   ///
-  /// Throws a [LoginException] subtype on failure — see [WrongCredentialsException],
-  /// [AccountLockedException], [PasswordExpiredException],
-  /// [MobileVerificationRequiredException], [UnknownLoginException].
+  /// Throws [LoginException] on failure with a [LoginFailure] indicating the
+  /// reason (wrong credentials, account locked, password expired, etc.).
   Future<UserDto> login(String username, String password);
 
   /// Changes the user's NTUT Portal password.

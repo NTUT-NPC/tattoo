@@ -19,6 +19,7 @@ typedef SemesterRecordData = ({
 
 /// Provides the [StudentRepository] instance.
 final studentRepositoryProvider = Provider<StudentRepository>((ref) {
+  ref.watch(sessionProvider);
   return StudentRepository(
     database: ref.watch(databaseProvider),
     authRepository: ref.watch(authRepositoryProvider),
@@ -55,8 +56,7 @@ class StudentRepository {
   Future<List<SemesterRecordData>> getSemesterRecords({
     bool refresh = false,
   }) async {
-    final user = await _database.select(_database.users).getSingleOrNull();
-    if (user == null) throw NotLoggedInException();
+    final user = await _database.select(_database.users).getSingle();
 
     final cached = await _buildSemesterRecordData(user.id);
 

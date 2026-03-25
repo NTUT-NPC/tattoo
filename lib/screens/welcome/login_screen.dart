@@ -33,13 +33,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.initState();
 
     // Show an inline error if the user was redirected here due to auth failure.
+    // Clear after reading — deferred to avoid modifying providers during build.
     final exception = ref.read(loginExceptionProvider);
     if (exception == null) return;
-    ref.read(loginExceptionProvider.notifier).set(null);
-    final message = switch (exception) {
-      PasswordExpiredException() => t.login.errors.passwordExpired,
-      WrongCredentialsException() ||
-      UnknownLoginException() => t.errors.credentialsInvalid,
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(loginExceptionProvider.notifier).set(null);
+    });
+    final message = switch (exception.failure) {
+      .passwordExpired => t.login.errors.passwordExpired,
+      .credentialsMissing ||
+      .wrongCredentials ||
+      .unknown => t.errors.credentialsInvalid,
       _ => t.errors.sessionExpired,
     };
     _setError(message);
@@ -120,20 +125,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) _setError(t.errors.connectionFailed);
     } on LoginException catch (e) {
       if (mounted) {
-        switch (e) {
-          case WrongCredentialsException():
+        switch (e.failure) {
+          case .wrongCredentials:
             _setError(
               t.login.errors.wrongCredentials,
               username: true,
               password: true,
             );
-          case AccountLockedException():
+          case .accountLocked:
             _setError(t.login.errors.accountLocked);
-          case PasswordExpiredException():
+          case .passwordExpired:
             _setError(t.login.errors.passwordExpired);
-          case MobileVerificationRequiredException():
+          case .mobileVerificationRequired:
             _setError(t.login.errors.mobileVerificationRequired);
-          case UnknownLoginException():
+          case _:
             _setError(
               t.login.errors.loginFailed,
               username: true,

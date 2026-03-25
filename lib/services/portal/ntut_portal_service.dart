@@ -35,16 +35,16 @@ class NtutPortalService implements PortalService {
     if (!body['success']) {
       final String? errorMsg = body['errorMsg'];
       final bool resetPwd = body['resetPwd'] ?? false;
-      throw switch (errorMsg) {
-        final msg? when msg.contains('密碼錯誤') =>
-          const WrongCredentialsException(),
-        final msg? when msg.contains('已被鎖住') => const AccountLockedException(),
-        final msg? when msg.contains('密碼已過期') && resetPwd =>
-          const PasswordExpiredException(),
-        final msg? when msg.contains('驗證手機') =>
-          const MobileVerificationRequiredException(),
-        _ => UnknownLoginException(errorMsg),
-      };
+      throw LoginException(
+        switch (errorMsg) {
+          final msg? when msg.contains('密碼錯誤') => .wrongCredentials,
+          final msg? when msg.contains('已被鎖住') => .accountLocked,
+          final msg? when msg.contains('密碼已過期') && resetPwd => .passwordExpired,
+          final msg? when msg.contains('驗證手機') => .mobileVerificationRequired,
+          _ => .unknown,
+        },
+        message: errorMsg?.isNotEmpty == true ? errorMsg : null,
+      );
     }
 
     final String? passwordExpiredRemind = body['passwordExpiredRemind'];

@@ -14,7 +14,8 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`)
 - Drift database schema with all tables, views (ScoreDetails, UserAcademicSummaries)
 - Service DTOs migrated to Dart 3 records
-- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage, SSO coalescing via Completer), PreferencesRepository, CourseRepository: getSemesters, getCourseTable (with TTL caching), getCourse (single course lookup with TTL)
+- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage, SSO coalescing via Completer, re-auth coalescing via Completer), PreferencesRepository, CourseRepository: getSemesters, getCourseTable (with TTL caching), getCourse (single course lookup with TTL)
+- Session-scoped providers: `sessionProvider` (bool) drives router guard and repository lifecycle. Auth failure destroys session → router redirects to login → session-scoped repositories are recreated with fresh state
 - StudentRepository: getSemesterRecords (scores, GPA, rankings with TTL caching, parallel course code resolution)
 - Session expiry detection: per-service Dio interceptors detect NTUT fake-200 expired sessions, throw `SessionExpiredException` for `withAuth` retry
 - Riverpod setup (manual providers, no codegen — riverpod_generator incompatible with Drift-generated types)
@@ -48,6 +49,7 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 - UI: course table, course detail, scores
 - File downloads (progress tracking, notifications, cancellation)
+- Global `connectivityProvider` for offline state (e.g., connectivity banner) — separate from auth
 
 ## Architecture
 
@@ -110,7 +112,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Repositories:**
 
-- AuthRepository - User identity, session, profile. Implemented: login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage
+- AuthRepository - User identity, session, profile. Implemented: login, logout, `withAuth<T>()` (lazy auth with re-auth coalescing, never-completing future on auth failure), session persistence via flutter_secure_storage
 - PreferencesRepository - Typed `PrefKey<T>` enum with SharedPreferencesAsync
 - CourseRepository - Implemented: getSemesters, getCourseTable (with TTL caching, DB persistence, bilingual names), getCourse (single course lookup with TTL). Stubs: getCourseOffering, getCourseDetails, getMaterials, getStudents
 - StudentRepository - Implemented: getSemesterRecords (scores, GPA, rankings with TTL caching, parallel course code resolution via CourseRepository.getCourse). Uses Drift views (ScoreDetails, UserAcademicSummaries) as domain models.
@@ -166,6 +168,10 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 **Session Expiry Detection:** NTUT services return HTTP 200 with error pages instead of 401/403 when sessions expire. Per-service Dio interceptors detect known markers (e.g., "應用系統已中斷連線" for StudentQuery, "尚未登錄入口網站" for Course) and throw `SessionExpiredException`. This is a non-DioException so `withAuth` catches it and triggers re-authentication. iSchool+ returns HTTP 403 when unauthenticated, handled via `onError` interceptor.
 
 **SSO Coalescing:** `AuthRepository._ensureSso` uses `Completer`-based coalescing — first caller creates a Completer and fires SSO, concurrent callers await the same future. Prevents redundant SSO calls during parallel repository fetches.
+
+**Re-auth Coalescing:** `AuthRepository._reauthenticate` uses the same `Completer` pattern — first caller triggers login, concurrent callers await the same future. Prevents redundant login attempts when multiple `withAuth` calls detect session expiry simultaneously.
+
+**Session Lifecycle:** `sessionProvider` (`Notifier<bool>`) drives auth state. `true` = authenticated, `false` = unauthenticated. Router guard watches it for redirect. Repository providers `ref.watch(sessionProvider)` to be recreated with fresh state when the session ends. On auth failure, `withAuth` destroys the session and returns a never-completing `Completer<T>().future` — callers never see auth errors, only `DioException` for network failures.
 
 **InvalidCookieFilter:** iSchool+ returns malformed cookies; custom interceptor filters them.
 

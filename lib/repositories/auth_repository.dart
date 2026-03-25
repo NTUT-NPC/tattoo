@@ -15,21 +15,6 @@ import 'package:tattoo/services/student_query/student_query_service.dart';
 import 'package:tattoo/utils/fetch_with_ttl.dart';
 import 'package:tattoo/utils/http.dart';
 
-/// Thrown when [AuthRepository.withAuth] is called but no stored credentials
-/// are available (user has never logged in, or has logged out).
-class NotLoggedInException implements Exception {
-  @override
-  String toString() => 'NotLoggedInException: No stored credentials available.';
-}
-
-/// Thrown when stored credentials are rejected by the server
-/// (e.g., password was changed). Stored credentials are cleared automatically.
-class InvalidCredentialsException implements Exception {
-  @override
-  String toString() =>
-      'InvalidCredentialsException: Stored credentials are no longer valid.';
-}
-
 /// Thrown when the avatar image exceeds [AuthRepository.maxAvatarSize].
 class AvatarTooLargeException implements Exception {
   final int size;
@@ -44,37 +29,39 @@ class AvatarTooLargeException implements Exception {
       'limit of ${limit ~/ 1024 ~/ 1024} MB.';
 }
 
-/// Auth session status, updated by [AuthRepository.withAuth].
-enum AuthStatus {
-  /// Session is valid or has not been tested yet.
-  authenticated,
-
-  /// Network is unreachable.
-  offline,
-
-  /// Stored credentials were rejected or are missing.
-  unauthenticated,
+/// Internal signal used by [AuthRepository._reauthenticate] to indicate that
+/// re-authentication failed due to missing or rejected credentials.
+/// The session is already destroyed before this is thrown.
+class _AuthFailedException implements Exception {
+  const _AuthFailedException();
 }
 
 const _secureStorage = FlutterSecureStorage();
 
-/// Provides the current [AuthStatus].
+/// Whether the user has an active authenticated session.
 ///
-/// Updated automatically by [AuthRepository.withAuth] on success or failure.
-class AuthStatusNotifier extends Notifier<AuthStatus> {
+/// `true` after login, `false` after logout or auth failure. The router guard
+/// watches this to redirect unauthenticated users to the login screen.
+/// Session-scoped providers `ref.watch(sessionProvider)` to be recreated with
+/// fresh state when the session ends.
+class SessionNotifier extends Notifier<bool> {
   @override
-  AuthStatus build() => .authenticated;
+  bool build() => false;
 
-  void update(AuthStatus status) => state = status;
+  void create() => state = true;
+
+  void destroy([LoginException? exception]) {
+    ref.read(loginExceptionProvider.notifier).set(exception);
+    state = false;
+  }
 }
 
-/// Provides the current [AuthStatus].
-final authStatusProvider = NotifierProvider<AuthStatusNotifier, AuthStatus>(
-  AuthStatusNotifier.new,
+final sessionProvider = NotifierProvider<SessionNotifier, bool>(
+  SessionNotifier.new,
 );
 
-/// Holds the [LoginException] that caused the most recent transition to
-/// [AuthStatus.unauthenticated], or `null` for voluntary logout.
+/// Holds the [LoginException] that caused the most recent session destruction,
+/// or `null` for voluntary logout.
 ///
 /// Read once by the login screen to show a contextual message, then cleared.
 class LoginExceptionNotifier extends Notifier<LoginException?> {
@@ -96,9 +83,11 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     studentQueryService: ref.watch(studentQueryServiceProvider),
     database: ref.watch(databaseProvider),
     secureStorage: _secureStorage,
-    onAuthStatusChanged: (status, [exception]) {
-      ref.read(loginExceptionProvider.notifier).set(exception);
-      ref.read(authStatusProvider.notifier).update(status);
+    onSessionCreated: () {
+      ref.read(sessionProvider.notifier).create();
+    },
+    onSessionDestroyed: ([exception]) {
+      ref.read(sessionProvider.notifier).destroy(exception);
     },
   );
 });
@@ -122,10 +111,12 @@ class AuthRepository {
   final StudentQueryService _studentQueryService;
   final AppDatabase _database;
   final FlutterSecureStorage _secureStorage;
-  final void Function(AuthStatus, [LoginException?]) _onAuthStatusChanged;
+  final void Function() _onSessionCreated;
+  final void Function([LoginException?]) _onSessionDestroyed;
 
   final _ssoCache = <PortalServiceCode>{};
   final _ssoInFlight = <PortalServiceCode, Completer<void>>{};
+  Completer<UserDto>? _reauthenticateInFlight;
 
   static const _usernameKey = 'username';
   static const _passwordKey = 'password';
@@ -135,12 +126,14 @@ class AuthRepository {
     required StudentQueryService studentQueryService,
     required AppDatabase database,
     required FlutterSecureStorage secureStorage,
-    required void Function(AuthStatus, [LoginException?]) onAuthStatusChanged,
+    required void Function() onSessionCreated,
+    required void Function([LoginException?]) onSessionDestroyed,
   }) : _portalService = portalService,
        _studentQueryService = studentQueryService,
        _database = database,
        _secureStorage = secureStorage,
-       _onAuthStatusChanged = onAuthStatusChanged;
+       _onSessionCreated = onSessionCreated,
+       _onSessionDestroyed = onSessionDestroyed;
 
   /// Authenticates with NTUT Portal and saves the user profile.
   ///
@@ -153,7 +146,7 @@ class AuthRepository {
     // Save credentials for auto-login
     await _secureStorage.write(key: _usernameKey, value: username);
     await _secureStorage.write(key: _passwordKey, value: password);
-    _onAuthStatusChanged(.authenticated);
+    _onSessionCreated();
 
     return _database.transaction(() async {
       await _database.delete(_database.users).go();
@@ -173,38 +166,13 @@ class AuthRepository {
 
   /// Logs out and clears all local user data and stored credentials.
   Future<void> logout() async {
-    await _database.delete(_database.users).go();
+    await _database.deleteEverything();
     await cookieJar.deleteAll();
     await _clearCredentials();
     await _clearAvatarCache();
     _ssoCache.clear();
     _ssoInFlight.clear();
-    _onAuthStatusChanged(.unauthenticated);
-  }
-
-  /// Re-authenticates with stored credentials to refresh the session and
-  /// update login-level fields (avatar filename, password expiry) in the DB.
-  ///
-  /// Throws [NotLoggedInException] if no stored credentials are available.
-  /// Throws [DioException] on network failure.
-  Future<UserDto> refreshLogin() async {
-    final username = await _secureStorage.read(key: _usernameKey);
-    final password = await _secureStorage.read(key: _passwordKey);
-    if (username == null || password == null) throw NotLoggedInException();
-
-    final userDto = await _portalService.login(username, password);
-    _onAuthStatusChanged(.authenticated);
-
-    await (_database.update(
-      _database.users,
-    )..where((u) => u.studentId.equals(username))).write(
-      UsersCompanion(
-        avatarFilename: Value(userDto.avatarFilename ?? ''),
-        passwordExpiresInDays: Value(userDto.passwordExpiresInDays),
-      ),
-    );
-
-    return userDto;
+    _onSessionDestroyed();
   }
 
   /// Executes [call] with automatic re-authentication on session expiry.
@@ -216,58 +184,82 @@ class AuthRepository {
   /// If [call] fails with a non-[DioException] error (indicating session
   /// expiry or auth failure), this method re-authenticates using stored
   /// credentials, re-establishes SSO sessions, and retries [call] once.
+  /// Concurrent re-authentication attempts coalesce — only the first caller
+  /// triggers the actual login; subsequent callers await the same result.
   ///
-  /// Throws [NotLoggedInException] if no stored credentials are available.
-  /// Rethrows [LoginException] if re-authentication is rejected (wrong
-  /// credentials, account locked, password expired, etc.).
-  /// Rethrows [DioException] from [call] or re-auth (network errors).
+  /// On auth failure (missing or rejected credentials), destroys the session
+  /// (triggering router guard redirect) and returns a never-completing future.
+  /// Callers only need to handle [DioException] for network errors.
   Future<T> withAuth<T>(
     Future<T> Function() call, {
     List<PortalServiceCode> sso = const [],
   }) async {
     try {
-      await _ensureSso(sso);
-      final result = await call();
-      _onAuthStatusChanged(.authenticated);
-      return result;
-    } on DioException catch (e) {
-      // Dio wraps all interceptor exceptions; unwrap SessionExpiredException
-      // so the catch-all block below triggers re-authentication.
-      if (e.error is SessionExpiredException) {
-        Error.throwWithStackTrace(e.error!, e.stackTrace);
+      try {
+        await _ensureSso(sso);
+        return await call();
+      } on DioException catch (e) {
+        // Dio wraps all interceptor exceptions; unwrap SessionExpiredException
+        // so the outer catch-all triggers re-authentication.
+        if (e.error is SessionExpiredException) {
+          Error.throwWithStackTrace(e.error!, e.stackTrace);
+        }
+        rethrow;
       }
-      _onAuthStatusChanged(.offline);
+    } on DioException {
       rethrow;
     } catch (_) {
+      try {
+        await _reauthenticate();
+      } on _AuthFailedException {
+        return Completer<T>().future;
+      }
+
+      await _ensureSso(sso);
+      return await call();
+    }
+  }
+
+  /// Re-authenticates using stored credentials, coalescing concurrent calls.
+  ///
+  /// Returns the [UserDto] from the login response. Concurrent callers
+  /// receive the same result.
+  ///
+  /// Throws [_AuthFailedException] if credentials are missing or rejected
+  /// (session is already destroyed). Rethrows [DioException] on network
+  /// failure.
+  Future<UserDto> _reauthenticate() async {
+    if (_reauthenticateInFlight case final existing?) return existing.future;
+
+    final completer = Completer<UserDto>();
+    _reauthenticateInFlight = completer;
+    try {
       final username = await _secureStorage.read(key: _usernameKey);
       final password = await _secureStorage.read(key: _passwordKey);
       if (username == null || password == null) {
-        _onAuthStatusChanged(.unauthenticated);
-        throw NotLoggedInException();
+        _onSessionDestroyed(const LoginException(.credentialsMissing));
+        throw const _AuthFailedException();
       }
 
-      try {
-        await _portalService.login(username, password);
-      } on DioException {
-        _onAuthStatusChanged(.offline);
-        rethrow;
-      } on LoginException catch (e) {
-        await _clearCredentials();
-        _onAuthStatusChanged(.unauthenticated, e);
-        rethrow;
-      }
-
+      final userDto = await _portalService.login(username, password);
       _ssoCache.clear();
       _ssoInFlight.clear();
-      try {
-        await _ensureSso(sso);
-        final result = await call();
-        _onAuthStatusChanged(.authenticated);
-        return result;
-      } on DioException {
-        _onAuthStatusChanged(.offline);
-        rethrow;
-      }
+      completer.complete(userDto);
+      return userDto;
+    } on DioException catch (e, st) {
+      completer.completeError(e, st);
+      rethrow;
+    } on LoginException catch (e) {
+      await _clearCredentials();
+      _onSessionDestroyed(e);
+      throw const _AuthFailedException();
+    } on _AuthFailedException {
+      rethrow;
+    } catch (e, st) {
+      completer.completeError(e, st);
+      rethrow;
+    } finally {
+      _reauthenticateInFlight = null;
     }
   }
 
@@ -340,17 +332,13 @@ class AuthRepository {
   /// and academic data (profile, registrations) via the student query service.
   /// The login call also establishes a fresh session for the subsequent SSO
   /// calls.
+  ///
+  /// On missing or rejected credentials, destroys the session and returns a
+  /// never-completing future (router guard handles redirect).
   Future<User> _fetchUserFromNetwork() async {
     final user = await _database.select(_database.users).getSingleOrNull();
     if (user == null) {
       throw StateError('Cannot fetch user profile when not logged in');
-    }
-
-    final username = await _secureStorage.read(key: _usernameKey);
-    final password = await _secureStorage.read(key: _passwordKey);
-    if (username == null || password == null) {
-      _onAuthStatusChanged(.unauthenticated);
-      throw NotLoggedInException();
     }
 
     // Re-login to refresh login-level fields and establish a fresh session.
@@ -358,16 +346,10 @@ class AuthRepository {
     // re-authentication, since the session was just established.
     final UserDto userDto;
     try {
-      userDto = await _portalService.login(username, password);
-    } on DioException {
-      _onAuthStatusChanged(.offline);
-      rethrow;
-    } on LoginException catch (e) {
-      await _clearCredentials();
-      _onAuthStatusChanged(.unauthenticated, e);
-      rethrow;
+      userDto = await _reauthenticate();
+    } on _AuthFailedException {
+      return Completer<User>().future;
     }
-    _onAuthStatusChanged(.authenticated);
 
     final (profile, records) = await withAuth(
       () async {
@@ -478,13 +460,12 @@ class AuthRepository {
   /// Updates the stored avatar filename in the database and clears the
   /// local avatar cache so the next [getAvatar] call fetches the new image.
   ///
-  /// Throws [NotLoggedInException] if not logged in.
   /// Throws [AvatarTooLargeException] if processed image exceeds [maxAvatarSize].
   /// Throws [FormatException] if the image cannot be decoded.
   Future<void> uploadAvatar(Uint8List imageBytes) async {
     final user = await _database.select(_database.users).getSingleOrNull();
     if (user == null) {
-      throw NotLoggedInException();
+      throw StateError('Cannot upload avatar when not logged in');
     }
 
     imageBytes = await _preprocessAvatar(imageBytes);
@@ -513,13 +494,14 @@ class AuthRepository {
   /// continues to work, then re-logins to refresh the session and clear
   /// the password expiry warning.
   ///
-  /// Throws [NotLoggedInException] if no stored credentials are available.
   Future<void> changePassword(
     String currentPassword,
     String newPassword,
   ) async {
     final user = await _database.select(_database.users).getSingleOrNull();
-    if (user == null) throw NotLoggedInException();
+    if (user == null) {
+      throw StateError('Cannot change password when not logged in');
+    }
 
     await withAuth(
       () => _portalService.changePassword(currentPassword, newPassword),
