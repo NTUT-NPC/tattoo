@@ -24,14 +24,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   bool _isProcessing = false;
 
   static const _scannerSuccessCodes = {'221', '222', '223'};
-  static const _scannerErrorMessages = {
-    '201': '手機未登入',
-    '202': '操作錯誤，請先至「首頁」，再點擊「校外人士登入」',
-    '203': '已經是登入成功狀態',
-    '204': 'QR code 已經登出，請重新整理頁面及刷新',
-    '205': '已登入，要切換使用者必須先登出網頁',
-    '206': 'QR code 已過期，請重複從電腦頁面刷新',
-  };
 
   @override
   void initState() {
@@ -118,7 +110,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       final finalUri = response.requestOptions.uri;
       final String? type = finalUri.queryParameters['type'];
 
-      if (_scannerErrorMessages.containsKey(type)) {
+      if (t.scanner.errors.containsKey(type)) {
         throw _ScannerTypeException(type!);
       }
 
@@ -189,11 +181,11 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
   String _mapScanError(Object error) {
     if (error is _ScannerTypeException) {
-      final msg = _scannerErrorMessages[error.type];
+      final msg = t.scanner.errors[error.type];
       if (msg != null) {
         return '[${error.type}] $msg';
       }
-      return '[${error.type}] 登入失敗，請確認 QR code 是否正確或從電腦頁面刷新';
+      return '[${error.type}] ${t.scanner.errors['unknown']}';
     }
     return switch (error) {
       SessionExpiredException() => t.errors.sessionExpired,

@@ -180,6 +180,15 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 	@override String get success => 'Login successful';
 	@override String get failed => 'Login failed';
 	@override String get processing => 'Processing...';
+	@override Map<String, String> get errors => {
+		'201': 'Mobile login required',
+		'202': 'Error occurred. Please go to "Home" and click "Outside school login"',
+		'203': 'You are already logged in',
+		'204': 'The QR code session has ended. Please refresh the page.',
+		'205': 'Already logged in. Log out from the portal first to switch users.',
+		'206': 'The QR code has expired. Please refresh the page on your computer.',
+		'unknown': 'Login failed. Please check the QR code or refresh the page.',
+	};
 	@override String get howTo => 'Open i.ntut.club on your computer and select QR code login';
 	@override late final _TranslationsScannerGuideEnUs guide = _TranslationsScannerGuideEnUs._(_root);
 	@override String get invalidUrl => 'Invalid URL';
@@ -487,6 +496,13 @@ extension on TranslationsEnUs {
 			'scanner.success' => 'Login successful',
 			'scanner.failed' => 'Login failed',
 			'scanner.processing' => 'Processing...',
+			'scanner.errors."201"' => 'Mobile login required',
+			'scanner.errors."202"' => 'Error occurred. Please go to "Home" and click "Outside school login"',
+			'scanner.errors."203"' => 'You are already logged in',
+			'scanner.errors."204"' => 'The QR code session has ended. Please refresh the page.',
+			'scanner.errors."205"' => 'Already logged in. Log out from the portal first to switch users.',
+			'scanner.errors."206"' => 'The QR code has expired. Please refresh the page on your computer.',
+			'scanner.errors.unknown' => 'Login failed. Please check the QR code or refresh the page.',
 			'scanner.howTo' => 'Open i.ntut.club on your computer and select QR code login',
 			'scanner.guide.title' => 'How to login?',
 			'scanner.guide.step1' => '1. Go to the following URL on your computer',

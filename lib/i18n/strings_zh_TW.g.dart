@@ -256,6 +256,16 @@ class TranslationsScannerZhTw {
 	/// zh-TW: '正在處理...'
 	String get processing => '正在處理...';
 
+	Map<String, String> get errors => {
+		'201': '手機未登入',
+		'202': '操作錯誤，請先至「首頁」，再點擊「校外人士登入」',
+		'203': '已經是登入成功狀態',
+		'204': 'QR code 已經登出，請重新整理頁面及刷新',
+		'205': '已登入，要切換使用者必須先登出網頁',
+		'206': 'QR code 已過期，請重複從電腦頁面刷新',
+		'unknown': '登入失敗，請確認 QR code 是否正確或從電腦頁面刷新',
+	};
+
 	/// zh-TW: '在電腦開啟i.ntut.club並點選QR code登入'
 	String get howTo => '在電腦開啟i.ntut.club並點選QR code登入';
 
@@ -701,6 +711,13 @@ extension on Translations {
 			'scanner.success' => '登入成功',
 			'scanner.failed' => '登入失敗',
 			'scanner.processing' => '正在處理...',
+			'scanner.errors."201"' => '手機未登入',
+			'scanner.errors."202"' => '操作錯誤，請先至「首頁」，再點擊「校外人士登入」',
+			'scanner.errors."203"' => '已經是登入成功狀態',
+			'scanner.errors."204"' => 'QR code 已經登出，請重新整理頁面及刷新',
+			'scanner.errors."205"' => '已登入，要切換使用者必須先登出網頁',
+			'scanner.errors."206"' => 'QR code 已過期，請重複從電腦頁面刷新',
+			'scanner.errors.unknown' => '登入失敗，請確認 QR code 是否正確或從電腦頁面刷新',
 			'scanner.howTo' => '在電腦開啟i.ntut.club並點選QR code登入',
 			'scanner.guide.title' => '如何掃碼登入？',
 			'scanner.guide.step1' => '1. 電腦前往下列網址',

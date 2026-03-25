@@ -116,6 +116,14 @@ scanner:
   success: Login successful
   failed: Login failed
   processing: Processing...
+  errors(map):
+    '201': Mobile login required
+    '202': Error occurred. Please go to "Home" and click "Outside school login"
+    '203': You are already logged in
+    '204': The QR code session has ended. Please refresh the page.
+    '205': Already logged in. Log out from the portal first to switch users.
+    '206': The QR code has expired. Please refresh the page on your computer.
+    unknown: Login failed. Please check the QR code or refresh the page.
   howTo: "Open i.ntut.club on your computer and select QR code login"
   guide:
     title: How to login?
