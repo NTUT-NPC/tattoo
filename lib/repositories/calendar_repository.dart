@@ -46,7 +46,7 @@ class CalendarRepository {
               ..where((e) {
                 // Include events that overlap with the range
                 return e.start.isSmallerOrEqualValue(endDate) &
-                    e.end.isGreaterOrEqualValue(startDate);
+                    e.end.isBiggerOrEqualValue(startDate);
               })
               ..orderBy([(e) => OrderingTerm.asc(e.start)]))
             .get();
@@ -83,14 +83,15 @@ class CalendarRepository {
 
       for (final dto in dtos) {
         final id = dto.id;
-        if (id == null)
+        if (id == null) {
           continue; // Recommendation 2: Handle non-nullable portalId
+        }
 
         await _database
             .into(_database.calendarEvents)
             .insert(
               CalendarEventsCompanion.insert(
-                portalId: Value(id),
+                portalId: id,
                 start: Value(dto.start),
                 end: Value(dto.end),
                 allDay: Value(dto.allDay),
@@ -119,7 +120,7 @@ class CalendarRepository {
       // Recommendation 3: Sync by deleting events in the fetched range that
       // are no longer present on the portal.
       await (_database.delete(_database.calendarEvents)..where((e) {
-            return e.start.isGreaterOrEqualValue(wideStartDate) &
+            return e.start.isBiggerOrEqualValue(wideStartDate) &
                 e.end.isSmallerOrEqualValue(wideEndDate) &
                 e.portalId.isNotIn(portalIds);
           }))
@@ -137,7 +138,7 @@ class CalendarRepository {
     return (_database.select(_database.calendarEvents)
           ..where((e) {
             return e.start.isSmallerOrEqualValue(endDate) &
-                e.end.isGreaterOrEqualValue(startDate);
+                e.end.isBiggerOrEqualValue(startDate);
           })
           ..orderBy([(e) => OrderingTerm.asc(e.start)]))
         .get();
