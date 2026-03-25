@@ -81,6 +81,11 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     }
 
     setState(() => _isProcessing = true);
+    _sheetController.animateTo(
+      0.53,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
     _controller.stop();
     HapticFeedback.lightImpact();
 
