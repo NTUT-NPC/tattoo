@@ -44,7 +44,7 @@ final dummyStringValueProvider = FutureProvider.autoDispose<String>((
 
 final dummyIntValueProvider = FutureProvider.autoDispose<int>((ref) async {
   final val = await ref.watch(
-    featureFlagValueProvider('dummy_int_value').future,
+    featureFlagValueProvider('dummy_num_lock').future,
   );
   return val as int? ?? 42;
 });
