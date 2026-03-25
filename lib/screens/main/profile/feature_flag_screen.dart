@@ -110,8 +110,8 @@ class FeatureFlagScreen extends ConsumerWidget {
           title: Text('${flag.key} (${flag.type})'),
           content: TextField(
             controller: controller,
-            keyboardType: flag.type == num
-                ? TextInputType.number
+            keyboardType: (flag.type == int || flag.type == double)
+                ? const TextInputType.numberWithOptions(decimal: true)
                 : TextInputType.text,
           ),
           actions: [
@@ -122,10 +122,13 @@ class FeatureFlagScreen extends ConsumerWidget {
             TextButton(
               onPressed: () {
                 dynamic newValue;
-                if (flag.type == num) {
-                  newValue = num.tryParse(controller.text);
-                } else {
-                  newValue = controller.text;
+                switch (flag.type) {
+                  case const (int):
+                    newValue = int.tryParse(controller.text);
+                  case const (double):
+                    newValue = double.tryParse(controller.text);
+                  case const (String):
+                    newValue = controller.text;
                 }
                 if (newValue != null) {
                   ref

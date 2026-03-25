@@ -19,12 +19,12 @@ class FeatureFlag {
   });
 
   dynamic get value => overrideValue ?? defaultValue;
-  Type get type => defaultValue is num ? num : defaultValue.runtimeType;
+  Type get type => defaultValue.runtimeType;
 
   // Type-safe getters
   bool get asBool => value as bool;
-  int get asInt => (value as num).toInt();
-  double get asDouble => (value as num).toDouble();
+  int get asInt => value as int;
+  double get asDouble => value as double;
   String get asString => value as String;
 }
 
@@ -71,11 +71,10 @@ class FeatureFlagRepository {
       switch (defVal) {
         case bool _:
           overrideVal = await _prefs.getBool('ff_$key');
-        case num _:
-          try {
-            overrideVal = await _prefs.getDouble('ff_$key');
-          } catch (_) {}
-          overrideVal ??= (await _prefs.getInt('ff_$key'))?.toDouble();
+        case int _:
+          overrideVal = await _prefs.getInt('ff_$key');
+        case double _:
+          overrideVal = await _prefs.getDouble('ff_$key');
         case String _:
           overrideVal = await _prefs.getString('ff_$key');
       }
@@ -110,8 +109,10 @@ class FeatureFlagRepository {
     switch (value) {
       case bool v:
         await _prefs.setBool('ff_$key', v);
-      case num v:
-        await _prefs.setDouble('ff_$key', v.toDouble());
+      case int v:
+        await _prefs.setInt('ff_$key', v);
+      case double v:
+        await _prefs.setDouble('ff_$key', v);
       case String v:
         await _prefs.setString('ff_$key', v);
       default:
