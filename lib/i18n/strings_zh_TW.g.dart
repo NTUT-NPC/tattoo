@@ -113,6 +113,9 @@ class TranslationsErrorsZhTw {
 
 	/// zh-TW: '無法連線到伺服器，請檢查網路連線'
 	String get connectionFailed => '無法連線到伺服器，請檢查網路連線';
+
+	/// zh-TW: '無效的輸入值'
+	String get invalidInput => '無效的輸入值';
 }
 
 // Path: intro
@@ -577,6 +580,7 @@ extension on Translations {
 			'errors.sessionExpired' => '登入狀態已過期，請重新登入',
 			'errors.credentialsInvalid' => '登入憑證已失效，請重新登入',
 			'errors.connectionFailed' => '無法連線到伺服器，請檢查網路連線',
+			'errors.invalidInput' => '無效的輸入值',
 			'intro.features.courseTable.title' => '查課表',
 			'intro.features.courseTable.description' => '快速查看課表和課程資訊，並可快速切換學期。',
 			'intro.features.scores.title' => '看成績',

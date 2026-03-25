@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tattoo/services/feature_flag/feature_flag_service.dart';
@@ -18,12 +19,12 @@ class FeatureFlag {
   });
 
   dynamic get value => overrideValue ?? defaultValue;
-  Type get type => defaultValue.runtimeType;
+  Type get type => defaultValue is num ? num : defaultValue.runtimeType;
 
   // Type-safe getters
   bool get asBool => value as bool;
-  int get asInt => value as int;
-  double get asDouble => value as double;
+  int get asInt => (value as num).toInt();
+  double get asDouble => (value as num).toDouble();
   String get asString => value as String;
 }
 
@@ -70,10 +71,11 @@ class FeatureFlagRepository {
       switch (defVal) {
         case bool _:
           overrideVal = await _prefs.getBool('ff_$key');
-        case int _:
-          overrideVal = await _prefs.getInt('ff_$key');
-        case double _:
-          overrideVal = await _prefs.getDouble('ff_$key');
+        case num _:
+          try {
+            overrideVal = await _prefs.getDouble('ff_$key');
+          } catch (_) {}
+          overrideVal ??= (await _prefs.getInt('ff_$key'))?.toDouble();
         case String _:
           overrideVal = await _prefs.getString('ff_$key');
       }
@@ -92,17 +94,24 @@ class FeatureFlagRepository {
 
   Future<void> setFlag(String key, dynamic value) async {
     if (value == null) {
+      log(
+        'Feature flag "$key" reset to default',
+        name: 'FeatureFlagRepository',
+      );
       await _prefs.remove('ff_$key');
       return;
     }
 
+    log(
+      'Feature flag "$key" changed to: $value',
+      name: 'FeatureFlagRepository',
+    );
+
     switch (value) {
       case bool v:
         await _prefs.setBool('ff_$key', v);
-      case int v:
-        await _prefs.setInt('ff_$key', v);
-      case double v:
-        await _prefs.setDouble('ff_$key', v);
+      case num v:
+        await _prefs.setDouble('ff_$key', v.toDouble());
       case String v:
         await _prefs.setString('ff_$key', v);
       default:
@@ -111,6 +120,7 @@ class FeatureFlagRepository {
   }
 
   Future<void> resetFlag(String key) async {
+    log('Feature flag "$key" reset to default', name: 'FeatureFlagRepository');
     await _prefs.remove('ff_$key');
   }
 }

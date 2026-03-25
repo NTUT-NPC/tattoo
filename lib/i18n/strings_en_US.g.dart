@@ -82,6 +82,7 @@ class _TranslationsErrorsEnUs extends TranslationsErrorsZhTw {
 	@override String get sessionExpired => 'Session expired. Please sign in again.';
 	@override String get credentialsInvalid => 'Credentials are no longer valid. Please sign in again.';
 	@override String get connectionFailed => 'Cannot connect to the server. Please check your network connection.';
+	@override String get invalidInput => 'Invalid input value';
 }
 
 // Path: intro
@@ -384,6 +385,7 @@ extension on TranslationsEnUs {
 			'errors.sessionExpired' => 'Session expired. Please sign in again.',
 			'errors.credentialsInvalid' => 'Credentials are no longer valid. Please sign in again.',
 			'errors.connectionFailed' => 'Cannot connect to the server. Please check your network connection.',
+			'errors.invalidInput' => 'Invalid input value',
 			'intro.features.courseTable.title' => 'Courses',
 			'intro.features.courseTable.description' => 'Quickly view your course schedule and switch between semesters.',
 			'intro.features.scores.title' => 'Scores',

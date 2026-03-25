@@ -15,6 +15,7 @@ errors:
   sessionExpired: Session expired. Please sign in again.
   credentialsInvalid: Credentials are no longer valid. Please sign in again.
   connectionFailed: Cannot connect to the server. Please check your network connection.
+  invalidInput: Invalid input value
 intro:
   features:
     courseTable:

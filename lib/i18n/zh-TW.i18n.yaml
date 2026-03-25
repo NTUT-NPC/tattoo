@@ -15,6 +15,7 @@ errors:
   sessionExpired: 登入狀態已過期，請重新登入
   credentialsInvalid: 登入憑證已失效，請重新登入
   connectionFailed: 無法連線到伺服器，請檢查網路連線
+  invalidInput: 無效的輸入值
 intro:
   features:
     courseTable:

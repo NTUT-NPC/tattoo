@@ -107,10 +107,10 @@ class FeatureFlagScreen extends ConsumerWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(flag.key),
+          title: Text('${flag.key} (${flag.type})'),
           content: TextField(
             controller: controller,
-            keyboardType: flag.type == int || flag.type == double
+            keyboardType: flag.type == num
                 ? TextInputType.number
                 : TextInputType.text,
           ),
@@ -122,10 +122,8 @@ class FeatureFlagScreen extends ConsumerWidget {
             TextButton(
               onPressed: () {
                 dynamic newValue;
-                if (flag.type == int) {
-                  newValue = int.tryParse(controller.text);
-                } else if (flag.type == double) {
-                  newValue = double.tryParse(controller.text);
+                if (flag.type == num) {
+                  newValue = num.tryParse(controller.text);
                 } else {
                   newValue = controller.text;
                 }
@@ -133,8 +131,22 @@ class FeatureFlagScreen extends ConsumerWidget {
                   ref
                       .read(featureFlagsProvider.notifier)
                       .setFlag(flag.key, newValue);
+                  Navigator.of(context).pop();
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text(t.errors.occurred),
+                      content: Text(t.errors.invalidInput),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(t.general.ok),
+                        ),
+                      ],
+                    ),
+                  );
                 }
-                Navigator.of(context).pop();
               },
               child: Text(t.general.ok),
             ),

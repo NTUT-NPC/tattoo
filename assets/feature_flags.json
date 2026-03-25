@@ -1,9 +1,14 @@
 {
   "enable_dummy_feature": false,
   "dummy_string_value": "Hello World",
-  "dummy_int_value": 42,
+  "dummy_num_lock": 42,
+  "dummy_num_unlock": 3.14159,
   "dummy_theme": {
     "value": "system",
-    "options": ["light", "dark", "system"]
+    "options": [
+      "light",
+      "dark",
+      "system"
+    ]
   }
 }
