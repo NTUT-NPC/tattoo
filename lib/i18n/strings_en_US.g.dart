@@ -129,6 +129,7 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	// Translations
 	@override String get courseTable => 'Courses';
 	@override String get scores => 'Scores';
+	@override String get portal => 'Portals';
 	@override String get profile => 'Me';
 }
 
@@ -393,6 +394,7 @@ extension on TranslationsEnUs {
 			'login.errors.mobileVerificationRequired' => 'Mobile phone verification is required. Please complete it on the NTUT portal.',
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
+			'nav.portal' => 'Portals',
 			'nav.profile' => 'Me',
 			'courseTable.notFound' => 'Course table not found',
 			'courseTable.dayOfWeek.sunday' => 'Sun',

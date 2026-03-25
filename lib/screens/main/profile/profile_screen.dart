@@ -10,16 +10,16 @@ import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/services/portal/portal_service.dart';
-import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/utils/launch_url.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
   static final _imagePicker = ImagePicker();
+
   Future<void> _refresh(WidgetRef ref) async {
     await ref.read(authRepositoryProvider).getUser(refresh: true);
     await Future.wait([
@@ -88,21 +88,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _openInBrowser(
-    BuildContext context,
-    WidgetRef ref,
-    String serviceCode,
-  ) async {
-    try {
-      await launchNtutService(
-        ref.read(authRepositoryProvider),
-        serviceCode,
-      );
-    } on DioException {
-      if (context.mounted) _showMessage(context, t.errors.connectionFailed);
-    }
-  }
-
   void _showDemoTap(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(t.general.notImplemented)),
@@ -123,17 +108,6 @@ class ProfileScreen extends ConsumerWidget {
         icon: Icons.image,
         title: t.profile.options.changeAvatar,
         onTap: () => _changeAvatar(context, ref),
-      ),
-
-      SectionHeader(title: t.$wip('資訊系統')),
-      OptionEntryTile.icon(
-        icon: Icons.open_in_browser,
-        title: t.$wip('學生查詢專區'),
-        onTap: () => _openInBrowser(
-          context,
-          ref,
-          PortalServiceCode.studentQueryService.code,
-        ),
       ),
 
       SectionHeader(title: 'TAT'),

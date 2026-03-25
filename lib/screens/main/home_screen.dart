@@ -36,6 +36,10 @@ class HomeScreen extends ConsumerWidget {
           ),
           NavigationDestination(icon: Icon(Icons.school), label: t.nav.scores),
           NavigationDestination(
+            icon: Icon(Icons.switch_access_shortcut_outlined),
+            label: t.nav.portal,
+          ),
+          NavigationDestination(
             icon: Icon(Icons.account_circle),
             label: t.nav.profile,
           ),
