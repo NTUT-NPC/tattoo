@@ -116,6 +116,9 @@ scanner:
   success: Login successful
   failed: Login failed
   processing: Processing...
+  permissionDenied: Camera permission required
+  permissionDeniedDescription: Please enable camera access in your device settings and try again.
+  cameraError: Unable to start the camera. Please check your hardware or try again later.
   errors(map):
     '201': Mobile login required
     '202': Error occurred. Please go to "Home" and click "Outside school login"

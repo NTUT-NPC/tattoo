@@ -165,6 +165,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
           MobileScanner(
             controller: _controller,
             onDetect: _onDetect,
+            errorBuilder: (context, error) {
+              return _buildErrorWidget(error);
+            },
           ),
           _buildOverlay(context),
           ScannerGuideSheet(
@@ -242,6 +245,58 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
           ),
         ),
       ],
+    );
+  }
+  
+  Widget _buildErrorWidget(MobileScannerException error) {
+    String message;
+    String? description;
+    IconData icon = Icons.error_outline;
+
+    switch (error.errorCode) {
+      case MobileScannerErrorCode.permissionDenied:
+        message = t.scanner.permissionDenied;
+        description = t.scanner.permissionDeniedDescription;
+        icon = Icons.no_photography_outlined;
+      case MobileScannerErrorCode.unsupported:
+        message = t.scanner.cameraError;
+        description = 'Scanning is not supported on this device';
+      default:
+        message = t.scanner.cameraError;
+    }
+
+    return Container(
+      color: Colors.black,
+      width: double.infinity,
+      height: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.white, size: 64),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          if (description != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              description,
+              style: TextStyle(
+                color: Colors.white.withAlpha(200),
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

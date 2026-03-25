@@ -180,6 +180,9 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 	@override String get success => 'Login successful';
 	@override String get failed => 'Login failed';
 	@override String get processing => 'Processing...';
+	@override String get permissionDenied => 'Camera permission required';
+	@override String get permissionDeniedDescription => 'Please enable camera access in your device settings and try again.';
+	@override String get cameraError => 'Unable to start the camera. Please check your hardware or try again later.';
 	@override Map<String, String> get errors => {
 		'201': 'Mobile login required',
 		'202': 'Error occurred. Please go to "Home" and click "Outside school login"',
@@ -496,6 +499,9 @@ extension on TranslationsEnUs {
 			'scanner.success' => 'Login successful',
 			'scanner.failed' => 'Login failed',
 			'scanner.processing' => 'Processing...',
+			'scanner.permissionDenied' => 'Camera permission required',
+			'scanner.permissionDeniedDescription' => 'Please enable camera access in your device settings and try again.',
+			'scanner.cameraError' => 'Unable to start the camera. Please check your hardware or try again later.',
 			'scanner.errors."201"' => 'Mobile login required',
 			'scanner.errors."202"' => 'Error occurred. Please go to "Home" and click "Outside school login"',
 			'scanner.errors."203"' => 'You are already logged in',

@@ -256,6 +256,15 @@ class TranslationsScannerZhTw {
 	/// zh-TW: '正在處理...'
 	String get processing => '正在處理...';
 
+	/// zh-TW: '需要相機權限才能掃描 QR code'
+	String get permissionDenied => '需要相機權限才能掃描 QR code';
+
+	/// zh-TW: '請至設定中開啟相機權限，然後再試一次。'
+	String get permissionDeniedDescription => '請至設定中開啟相機權限，然後再試一次。';
+
+	/// zh-TW: '無法開啟相機，請檢查硬體或稍後再試。'
+	String get cameraError => '無法開啟相機，請檢查硬體或稍後再試。';
+
 	Map<String, String> get errors => {
 		'201': '手機未登入',
 		'202': '操作錯誤，請先至「首頁」，再點擊「校外人士登入」',
@@ -711,6 +720,9 @@ extension on Translations {
 			'scanner.success' => '登入成功',
 			'scanner.failed' => '登入失敗',
 			'scanner.processing' => '正在處理...',
+			'scanner.permissionDenied' => '需要相機權限才能掃描 QR code',
+			'scanner.permissionDeniedDescription' => '請至設定中開啟相機權限，然後再試一次。',
+			'scanner.cameraError' => '無法開啟相機，請檢查硬體或稍後再試。',
 			'scanner.errors."201"' => '手機未登入',
 			'scanner.errors."202"' => '操作錯誤，請先至「首頁」，再點擊「校外人士登入」',
 			'scanner.errors."203"' => '已經是登入成功狀態',

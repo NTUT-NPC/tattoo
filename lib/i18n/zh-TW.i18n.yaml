@@ -116,6 +116,9 @@ scanner:
   success: 登入成功
   failed: 登入失敗
   processing: 正在處理...
+  permissionDenied: 需要相機權限才能掃描 QR code
+  permissionDeniedDescription: 請至設定中開啟相機權限，然後再試一次。
+  cameraError: 無法開啟相機，請檢查硬體或稍後再試。
   errors(map):
     '201': 手機未登入
     '202': 操作錯誤，請先至「首頁」，再點擊「校外人士登入」
