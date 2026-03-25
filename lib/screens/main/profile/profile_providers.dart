@@ -4,15 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/screens/main/user_providers.dart';
 
 /// Provides the user's active registration (current class and semester).
 ///
-/// Depends on [userProfileProvider] to ensure registration data is populated.
+/// Watches the DB view directly — automatically updates when registration
+/// data changes (e.g., after login, profile fetch, or cache clear).
 final activeRegistrationProvider =
-    FutureProvider.autoDispose<UserRegistration?>((ref) async {
-      await ref.watch(userProfileProvider.future);
-      return ref.watch(authRepositoryProvider).getActiveRegistration();
+    StreamProvider.autoDispose<UserRegistration?>((ref) {
+      return ref.watch(authRepositoryProvider).watchActiveRegistration();
     });
 
 /// Random action string from [t.profile.dangerZone.actions] for the easter egg button.
