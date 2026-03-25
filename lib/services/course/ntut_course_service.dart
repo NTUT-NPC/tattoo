@@ -76,8 +76,7 @@ class NtutCourseService implements CourseService {
     // for numbered courses; for numberless rows (e.g. 班週會) fall back to
     // positional matching among the numberless subset.
     final enByNumber = <String, _EnglishCourseNames>{
-      for (final en in englishNames)
-        if (en.number case final number?) number: en,
+      for (final en in englishNames) ?en.number: en,
     };
     final enNumberless = englishNames.where((e) => e.number == null).toList();
     var numberlessIndex = 0;

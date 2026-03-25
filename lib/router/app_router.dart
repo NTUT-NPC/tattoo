@@ -51,7 +51,7 @@ GoRouter createAppRouter({
     return AppRoutes.login;
   },
   observers: [
-    if (firebaseService.analyticsObserver case final observer?) observer,
+    ?firebaseService.analyticsObserver,
   ],
   routes: [
     GoRoute(
