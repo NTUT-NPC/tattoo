@@ -20,11 +20,13 @@ class ScannerGuideSheet extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
     final screenHeight = MediaQuery.sizeOf(context).height;
+    final topPadding = MediaQuery.paddingOf(context).top;
+    final appBarHeight = kToolbarHeight + topPadding;
+    final availableHeight = screenHeight - appBarHeight;
 
-    // Calculate dynamic sizes to avoid system gesture/navbar conflicts
-    // 80 is a safe height to keep the handle clearly separated from the navbar
+    // Calculate dynamic sizes relative to the available body height
     final minChildHeight = bottomPadding + 80;
-    final minChildFraction = minChildHeight / screenHeight;
+    final minChildFraction = (minChildHeight / availableHeight).clamp(0.0, 1.0);
 
     return DraggableScrollableSheet(
       controller: controller,
@@ -98,7 +100,7 @@ class ScannerGuideSheet extends StatelessWidget {
                             ? null
                             : () {
                                 controller.animateTo(
-                                  0.08,
+                                  minChildFraction,
                                   duration: const Duration(milliseconds: 300),
                                   curve: Curves.easeOut,
                                 );

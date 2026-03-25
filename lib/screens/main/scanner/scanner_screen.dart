@@ -26,11 +26,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   static const _scannerSuccessCodes = {'221', '222', '223'};
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _controller.dispose();
     _sheetController.dispose();
@@ -71,13 +66,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     }
     setState(() => _isProcessing = true);
 
-    // We can't easily get maxSheetSize here without repeating calculation
-    // but we can animate to a safe default or use a generic ratio
-    // Calculate a good visible height (around 60% of available height is a safe bet for content)
-    final topPadding = MediaQuery.paddingOf(context).top;
-    final appBarHeight = kToolbarHeight + topPadding;
-    final screenHeight = MediaQuery.sizeOf(context).height;
-    final maxSheetSize = 1.0 - (appBarHeight / screenHeight);
+    // Expand the sheet to show loading state
+    const maxSheetSize = 1.0;
 
     _sheetController.animateTo(
       maxSheetSize,
@@ -125,37 +115,37 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         throw _ScannerTypeException(type ?? 'unknown');
       }
 
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(t.scanner.success)));
-        Navigator.of(context).pop();
-      }
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(t.scanner.success)));
+      Navigator.of(context).pop();
     } catch (e) {
-      if (mounted) {
-        setState(() => _isProcessing = false);
-        try {
-          await _controller.start();
-        } catch (_) {}
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(_mapScanError(e))));
-      }
+      if (!mounted) return;
+
+      setState(() => _isProcessing = false);
+      try {
+        await _controller.start();
+      } catch (_) {}
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(_mapScanError(e))));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = MediaQuery.paddingOf(context).top;
-    final appBarHeight = kToolbarHeight + topPadding;
-    final screenHeight = MediaQuery.sizeOf(context).height;
-    final maxSheetSize = 1.0 - (appBarHeight / screenHeight);
+    const maxSheetSize = 1.0;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
         title: Text(t.scanner.title),
-        backgroundColor: Colors.black.withAlpha(50),
+        backgroundColor: Theme.of(context).colorScheme.primary, // 使用主題主色
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
@@ -177,7 +167,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
           ),
           if (_isProcessing)
             Positioned(
-              top: appBarHeight,
+              top: 0,
               left: 0,
               right: 0,
               child: const LinearProgressIndicator(),
@@ -239,7 +229,10 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             height: scanWindowSize,
             width: scanWindowSize,
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.white, width: 2),
+              border: Border.all(
+                color: Colors.white, // 改回白色
+                width: 2,
+              ),
               borderRadius: BorderRadius.circular(24),
             ),
           ),
@@ -247,7 +240,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       ],
     );
   }
-  
+
   Widget _buildErrorWidget(MobileScannerException error) {
     String message;
     String? description;
