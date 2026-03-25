@@ -14,6 +14,15 @@ class FeatureFlagScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(t.featureFlags.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.cloud_sync),
+            tooltip: t.featureFlags.reset,
+            onPressed: () {
+              ref.read(featureFlagsProvider.notifier).refreshFlags();
+            },
+          ),
+        ],
       ),
       body: flagsAsync.when(
         data: (flags) {
@@ -25,6 +34,14 @@ class FeatureFlagScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final flag = flags[index];
               final isOverridden = flag.overrideValue != null;
+
+              if (flag.isForced) {
+                return ListTile(
+                  title: Text(flag.key),
+                  subtitle: Text('Forced by Remote Config: ${flag.value}'),
+                  trailing: const Icon(Icons.lock),
+                );
+              }
 
               if (flag.type == bool) {
                 return ListTile(

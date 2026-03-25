@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tattoo/services/feature_flag/feature_flag_service.dart';
+import 'package:tattoo/services/firebase_service.dart';
 
 /// The model for a UI-consumable feature flag.
 class FeatureFlag {
@@ -10,12 +11,14 @@ class FeatureFlag {
   final dynamic defaultValue;
   final dynamic overrideValue;
   final List<dynamic>? options;
+  final bool isForced;
 
   const FeatureFlag({
     required this.key,
     required this.defaultValue,
     this.overrideValue,
     this.options,
+    this.isForced = false,
   });
 
   dynamic get value => overrideValue ?? defaultValue;
@@ -47,16 +50,28 @@ class FeatureFlagRepository {
   }) : _service = service,
        _prefs = prefs;
 
-  Future<Map<String, dynamic>> _getDefaults() async {
+  Future<Map<String, dynamic>> _getDefaults({bool forceRefresh = false}) async {
+    if (forceRefresh) _defaultsCache = null;
     return _defaultsCache ??= await _service.fetchDefaultFlags();
   }
 
-  Future<List<FeatureFlag>> getAllFlags() async {
-    final defaults = await _getDefaults();
+  Future<List<FeatureFlag>> getAllFlags({bool forceRefresh = false}) async {
+    final defaults = await _getDefaults(forceRefresh: forceRefresh);
     final list = <FeatureFlag>[];
+
+    final forceOverrideString = defaults['_force_override_flags'] as String?;
+    final forceOverrides =
+        forceOverrideString
+            ?.split(',')
+            .map((s) => s.trim())
+            .where((s) => s.isNotEmpty)
+            .toSet() ??
+        const <String>{};
 
     for (final entry in defaults.entries) {
       final key = entry.key;
+      if (key == '_force_override_flags') continue;
+
       dynamic defVal = entry.value;
       List<dynamic>? options;
 
@@ -68,15 +83,20 @@ class FeatureFlagRepository {
       }
 
       dynamic overrideVal;
-      switch (defVal) {
-        case bool _:
-          overrideVal = await _prefs.getBool('ff_$key');
-        case int _:
-          overrideVal = await _prefs.getInt('ff_$key');
-        case double _:
-          overrideVal = await _prefs.getDouble('ff_$key');
-        case String _:
-          overrideVal = await _prefs.getString('ff_$key');
+
+      final isForced = forceOverrides.contains(key);
+
+      if (!isForced) {
+        switch (defVal) {
+          case bool _:
+            overrideVal = await _prefs.getBool('ff_$key');
+          case int _:
+            overrideVal = await _prefs.getInt('ff_$key');
+          case double _:
+            overrideVal = await _prefs.getDouble('ff_$key');
+          case String _:
+            overrideVal = await _prefs.getString('ff_$key');
+        }
       }
 
       list.add(
@@ -85,6 +105,7 @@ class FeatureFlagRepository {
           defaultValue: defVal,
           overrideValue: overrideVal,
           options: options,
+          isForced: isForced,
         ),
       );
     }
@@ -97,6 +118,7 @@ class FeatureFlagRepository {
         'Feature flag "$key" reset to default',
         name: 'FeatureFlagRepository',
       );
+      firebaseService.log('Feature flag "$key" reset to default');
       await _prefs.remove('ff_$key');
       return;
     }
@@ -105,6 +127,7 @@ class FeatureFlagRepository {
       'Feature flag "$key" changed to: $value',
       name: 'FeatureFlagRepository',
     );
+    firebaseService.log('Feature flag "$key" changed to: $value');
 
     switch (value) {
       case bool v:
@@ -122,6 +145,7 @@ class FeatureFlagRepository {
 
   Future<void> resetFlag(String key) async {
     log('Feature flag "$key" reset to default', name: 'FeatureFlagRepository');
+    firebaseService.log('Feature flag "$key" reset to default');
     await _prefs.remove('ff_$key');
   }
 }

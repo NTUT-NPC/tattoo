@@ -13,6 +13,13 @@ class FeatureFlagsNotifier extends AsyncNotifier<List<FeatureFlag>> {
     return ref.watch(featureFlagRepositoryProvider).getAllFlags();
   }
 
+  Future<void> refreshFlags() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() {
+      return ref.read(featureFlagRepositoryProvider).getAllFlags(forceRefresh: true);
+    });
+  }
+
   Future<void> setFlag(String key, dynamic value) async {
     await ref.read(featureFlagRepositoryProvider).setFlag(key, value);
     ref.invalidateSelf();
