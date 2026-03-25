@@ -46,7 +46,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     final String? rawCode = barcodes.first.rawValue;
     if (rawCode == null) return;
 
-    // Sanitize the code (remove trailing null bytes or garbage characters like )
+    // Sanitize the code (remove trailing null bytes and common garbage characters like '\x00' and '\uFFFD')
     final code = rawCode.trim().replaceAll('\x00', '').replaceAll('\uFFFD', '');
     if (!code.startsWith('http')) {
       return;
@@ -70,7 +70,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
     }
     setState(() => _isProcessing = true);
-    
+
     // We can't easily get maxSheetSize here without repeating calculation
     // but we can animate to a safe default or use a generic ratio
     // Calculate a good visible height (around 60% of available height is a safe bet for content)
@@ -84,7 +84,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
     );
-    _controller.stop();
+    try {
+      await _controller.stop();
+    } catch (_) {}
     HapticFeedback.lightImpact();
 
     try {
@@ -132,7 +134,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isProcessing = false);
-        _controller.start();
+        try {
+          await _controller.start();
+        } catch (_) {}
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(SnackBar(content: Text(_mapScanError(e))));
@@ -240,7 +244,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       ],
     );
   }
-
 }
 
 class _ScannerTypeException implements Exception {
