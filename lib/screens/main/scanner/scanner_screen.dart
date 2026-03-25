@@ -151,7 +151,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       return '[${error.type}] 登入失敗，請確認 QR code 是否正確或從電腦頁面刷新';
     }
     return switch (error) {
-      NotLoggedInException() => t.errors.sessionExpired,
+      SessionExpiredException() => t.errors.sessionExpired,
       LoginException() => t.errors.credentialsInvalid,
       DioException() => t.errors.connectionFailed,
       _ => t.scanner.failed,
