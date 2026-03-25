@@ -99,11 +99,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       if (uri.host.contains('ntut.edu.tw')) {
         dio.interceptors.insert(0, InvalidCookieFilter());
         dio.transformer = PlainTextTransformer();
-        dio.options.headers = {
-          'User-Agent':
-              'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-          'Connection': 'close',
-        };
 
         // Warm up: Visit the iStudy homepage first to ensure session cookies are active on this domain
         await dio.get('https://istudy.ntut.edu.tw/mooc/index.php');
