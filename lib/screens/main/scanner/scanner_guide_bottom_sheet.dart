@@ -5,10 +5,12 @@ import 'package:tattoo/i18n/strings.g.dart';
 class ScannerGuideSheet extends StatelessWidget {
   final DraggableScrollableController controller;
   final bool isProcessing;
+  final double maxChildSize;
 
   const ScannerGuideSheet({
     super.key,
     required this.controller,
+    required this.maxChildSize,
     this.isProcessing = false,
   });
 
@@ -16,16 +18,23 @@ class ScannerGuideSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+
+    // Calculate dynamic sizes to avoid system gesture/navbar conflicts
+    // 80 is a safe height to keep the handle clearly separated from the navbar
+    final minChildHeight = bottomPadding + 80;
+    final minChildFraction = minChildHeight / screenHeight;
 
     return DraggableScrollableSheet(
       controller: controller,
-      initialChildSize: 0.1,
-      minChildSize: 0.08,
-      maxChildSize: 0.53,
+      initialChildSize: minChildFraction,
+      minChildSize: minChildFraction,
+      maxChildSize: maxChildSize,
       snap: true,
       builder: (context, scrollController) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.fromLTRB(24, 0, 24, bottomPadding),
           decoration: BoxDecoration(
             color: colorScheme.surface,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -44,9 +53,9 @@ class ScannerGuideSheet extends StatelessWidget {
                 SliverToBoxAdapter(
                   child: Center(
                     child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 12),
-                      width: 32,
-                      height: 4,
+                      margin: const EdgeInsets.symmetric(vertical: 20),
+                      width: 40,
+                      height: 5,
                       decoration: BoxDecoration(
                         color: colorScheme.onSurfaceVariant.withAlpha(100),
                         borderRadius: BorderRadius.circular(2),
