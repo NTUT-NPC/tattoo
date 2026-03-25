@@ -33,6 +33,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   @override
   void dispose() {
     _controller.dispose();
+    _sheetController.dispose();
     super.dispose();
   }
 
