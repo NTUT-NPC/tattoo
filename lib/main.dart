@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/feature_flag_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
@@ -27,12 +28,16 @@ Future<void> main() async {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+      await firebaseService.init();
     } catch (e) {
       log(e.toString(), name: 'Firebase Initialization');
     }
   }
 
   final container = ProviderContainer();
+
+  // Initialize feature flags early
+  await container.read(featureFlagRepositoryProvider).init();
 
   void showErrorDialog(
     Object error, {

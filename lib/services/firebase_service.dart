@@ -61,44 +61,93 @@ class FirebaseService {
     );
   }
 
-  /// Retrieves a string value from Remote Config.
-  /// Handles initializing the remote config settings and fetching.
-  Future<({String? value, bool isRemote})> fetchRemoteConfigString(
-    String key, {
-    Map<String, dynamic>? defaults,
-  }) async {
+  /// Initializes Firebase Remote Config.
+  ///
+  /// Call this at app start to fetch and activate the latest configuration.
+  Future<void> init() async {
     final rc = remoteConfig;
-    if (rc == null) return (value: null, isRemote: false);
+    if (rc == null) return;
 
+    await _fetchAndActivate(
+      rc,
+      context: 'initialized',
+      setupSettings: true,
+    );
+  }
+
+  /// Forces a fresh fetch and activation of Remote Config.
+  Future<void> fetch() async {
+    final rc = remoteConfig;
+    if (rc == null) return;
+
+    await _fetchAndActivate(
+      rc,
+      context: 'forced fetch',
+      recordFatalOnFailure: true,
+    );
+  }
+
+  Future<void> _fetchAndActivate(
+    FirebaseRemoteConfig rc, {
+    required String context,
+    bool setupSettings = false,
+    bool recordFatalOnFailure = false,
+  }) async {
     try {
-      if (defaults != null) {
-        await rc.setDefaults(defaults);
+      if (setupSettings) {
+        await rc.setConfigSettings(
+          RemoteConfigSettings(
+            fetchTimeout: const Duration(minutes: 1),
+            minimumFetchInterval: const Duration(minutes: 1),
+          ),
+        );
       }
-      await rc.setConfigSettings(
-        RemoteConfigSettings(
-          fetchTimeout: const Duration(minutes: 1),
-          minimumFetchInterval: const Duration(minutes: 1),
-        ),
-      );
+
       await rc.fetchAndActivate();
 
-      final rcValue = rc.getValue(key);
-      final result = rcValue.asString();
-      final isRemote = rcValue.source == ValueSource.valueRemote;
-
-      dev.log(
-        'Fetched Remote Config for "$key" (isRemote: $isRemote):\n$result',
-        name: 'FirebaseService',
-      );
-      firebaseService.log(
-        'Fetched Remote Config for "$key" (isRemote: $isRemote):\n$result',
+      final configData = rc.getAll().map(
+        (key, value) => MapEntry(key, value.asString()),
       );
 
-      return (value: result, isRemote: isRemote);
+      if (rc.lastFetchStatus == RemoteConfigFetchStatus.success) {
+        final message = 'Remote Config $context successful: $configData';
+        dev.log(message, name: 'FirebaseService');
+        firebaseService.log(message);
+      } else {
+        final message =
+            'Remote Config $context failed (status: ${rc.lastFetchStatus}), using cache: $configData';
+        dev.log(message, name: 'FirebaseService');
+        firebaseService.log(message);
+      }
     } catch (e) {
-      dev.log('Remote config fetch failed: $e');
-      firebaseService.recordNonFatal('Remote config fetch failed: $e');
-      return (value: null, isRemote: false);
+      final configData = rc.getAll().map(
+        (key, value) => MapEntry(key, value.asString()),
+      );
+      final message =
+          'Remote Config $context error: $e. Using cache: $configData';
+      dev.log(message, name: 'FirebaseService');
+
+      if (recordFatalOnFailure) {
+        firebaseService.recordNonFatal(message);
+      } else {
+        firebaseService.log(message);
+      }
     }
+  }
+
+  /// Retrieves a summary of a Remote Config string value.
+  ///
+  /// Returns a record containing the string value and whether it came from
+  /// a remote source.
+  ({String value, bool isRemote}) getRemoteConfigString(String key) {
+    final rc = remoteConfig;
+    if (rc == null) {
+      return (value: '', isRemote: false);
+    }
+    final val = rc.getValue(key);
+    return (
+      value: val.asString(),
+      isRemote: val.source == ValueSource.valueRemote,
+    );
   }
 }

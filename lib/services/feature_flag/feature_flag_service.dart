@@ -17,17 +17,16 @@ class FeatureFlagService {
     final jsonString = await rootBundle.loadString('assets/feature_flags.json');
     final localDefaults = jsonDecode(jsonString) as Map<String, dynamic>;
 
-    final result = await firebaseService.fetchRemoteConfigString(
-      'feature_flags',
-      defaults: {'feature_flags': jsonString},
-    );
+    final result = firebaseService.getRemoteConfigString('feature_flags');
+    final remoteString = result.value;
+    final isRemote = result.isRemote;
 
     final finalFlags = <String, FeatureFlagData>{};
 
     Map<String, dynamic> remoteJson = {};
-    if (result.value != null && result.value!.isNotEmpty) {
+    if (remoteString.isNotEmpty) {
       try {
-        remoteJson = jsonDecode(result.value!) as Map<String, dynamic>;
+        remoteJson = jsonDecode(remoteString) as Map<String, dynamic>;
       } catch (e) {
         firebaseService.log('Failed to decode feature_flags remote config: $e');
       }
@@ -37,7 +36,7 @@ class FeatureFlagService {
       final key = entry.key;
       final localValue = entry.value;
 
-      if (result.isRemote && remoteJson.containsKey(key)) {
+      if (isRemote && remoteJson.containsKey(key)) {
         finalFlags[key] = (value: remoteJson[key], isRemote: true);
       } else {
         finalFlags[key] = (value: localValue, isRemote: false);
@@ -45,7 +44,7 @@ class FeatureFlagService {
     }
 
     // Add any keys that are ONLY in remote
-    if (result.isRemote) {
+    if (isRemote) {
       for (final entry in remoteJson.entries) {
         if (!finalFlags.containsKey(entry.key)) {
           finalFlags[entry.key] = (value: entry.value, isRemote: true);

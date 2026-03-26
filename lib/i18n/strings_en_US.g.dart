@@ -67,6 +67,7 @@ class _TranslationsGeneralEnUs extends TranslationsGeneralZhTw {
 	@override String get copy => 'Copy';
 	@override String get copied => 'Copied';
 	@override String get ok => 'OK';
+	@override String get cancel => 'Cancel';
 }
 
 // Path: errors
@@ -207,6 +208,7 @@ class _TranslationsFeatureFlagsEnUs extends TranslationsFeatureFlagsZhTw {
 	// Translations
 	@override String get title => 'Feature Flags';
 	@override String get reset => 'Reset to default';
+	@override String get noflag => 'No featureFlags';
 	@override late final _TranslationsFeatureFlagsStatusEnUs status = _TranslationsFeatureFlagsStatusEnUs._(_root);
 	@override String get refreshed => 'Refreshed from remote';
 }
@@ -324,10 +326,10 @@ class _TranslationsFeatureFlagsStatusEnUs extends TranslationsFeatureFlagsStatus
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get defaultStatus => 'Default';
+	@override String get local => 'Local';
 	@override String get remote => 'Remote';
-	@override String get overrideStatus => 'Override';
-	@override String get forced => 'Forced';
+	@override String get localOverride => 'Override';
+	@override String get remoteOverride => 'Forced';
 }
 
 // Path: intro.features.courseTable
@@ -394,6 +396,7 @@ extension on TranslationsEnUs {
 			'general.copy' => 'Copy',
 			'general.copied' => 'Copied',
 			'general.ok' => 'OK',
+			'general.cancel' => 'Cancel',
 			'errors.occurred' => 'An error occurred',
 			'errors.flutterError' => 'A Flutter error occurred',
 			'errors.asyncError' => 'An async error occurred',
@@ -494,10 +497,11 @@ extension on TranslationsEnUs {
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
 			'featureFlags.title' => 'Feature Flags',
 			'featureFlags.reset' => 'Reset to default',
-			'featureFlags.status.defaultStatus' => 'Default',
+			'featureFlags.noflag' => 'No featureFlags',
+			'featureFlags.status.local' => 'Local',
 			'featureFlags.status.remote' => 'Remote',
-			'featureFlags.status.overrideStatus' => 'Override',
-			'featureFlags.status.forced' => 'Forced',
+			'featureFlags.status.localOverride' => 'Override',
+			'featureFlags.status.remoteOverride' => 'Forced',
 			'featureFlags.refreshed' => 'Refreshed from remote',
 			_ => null,
 		};

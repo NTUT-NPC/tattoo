@@ -86,6 +86,9 @@ class TranslationsGeneralZhTw {
 
 	/// zh-TW: '確定'
 	String get ok => '確定';
+
+	/// zh-TW: '取消'
+	String get cancel => '取消';
 }
 
 // Path: errors
@@ -301,6 +304,9 @@ class TranslationsFeatureFlagsZhTw {
 	/// zh-TW: '恢復預設值'
 	String get reset => '恢復預設值';
 
+	/// zh-TW: '沒有功能開關'
+	String get noflag => '沒有功能開關';
+
 	late final TranslationsFeatureFlagsStatusZhTw status = TranslationsFeatureFlagsStatusZhTw.internal(_root);
 
 	/// zh-TW: '已從遠端截取'
@@ -501,17 +507,17 @@ class TranslationsFeatureFlagsStatusZhTw {
 
 	// Translations
 
-	/// zh-TW: '預設'
-	String get defaultStatus => '預設';
+	/// zh-TW: '本機'
+	String get local => '本機';
 
 	/// zh-TW: '遠端'
 	String get remote => '遠端';
 
 	/// zh-TW: '覆寫'
-	String get overrideStatus => '覆寫';
+	String get localOverride => '覆寫';
 
 	/// zh-TW: '強制'
-	String get forced => '強制';
+	String get remoteOverride => '強制';
 }
 
 // Path: intro.features.courseTable
@@ -600,6 +606,7 @@ extension on Translations {
 			'general.copy' => '複製',
 			'general.copied' => '已複製',
 			'general.ok' => '確定',
+			'general.cancel' => '取消',
 			'errors.occurred' => '發生錯誤',
 			'errors.flutterError' => '發生Flutter錯誤',
 			'errors.asyncError' => '發生非同步錯誤',
@@ -700,10 +707,11 @@ extension on Translations {
 			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
 			'featureFlags.title' => '功能開關',
 			'featureFlags.reset' => '恢復預設值',
-			'featureFlags.status.defaultStatus' => '預設',
+			'featureFlags.noflag' => '沒有功能開關',
+			'featureFlags.status.local' => '本機',
 			'featureFlags.status.remote' => '遠端',
-			'featureFlags.status.overrideStatus' => '覆寫',
-			'featureFlags.status.forced' => '強制',
+			'featureFlags.status.localOverride' => '覆寫',
+			'featureFlags.status.remoteOverride' => '強制',
 			'featureFlags.refreshed' => '已從遠端截取',
 			_ => null,
 		};

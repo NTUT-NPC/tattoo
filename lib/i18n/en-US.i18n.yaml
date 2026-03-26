@@ -8,6 +8,7 @@ general:
   copy: Copy
   copied: Copied
   ok: OK
+  cancel: Cancel
 errors:
   occurred: An error occurred
   flutterError: A Flutter error occurred
@@ -129,9 +130,10 @@ about:
 featureFlags:
   title: Feature Flags
   reset: Reset to default
+  noflag: No featureFlags
   status:
-    defaultStatus: Default
+    local: Local
     remote: Remote
-    overrideStatus: Override
-    forced: Forced
+    localOverride: Override
+    remoteOverride: Forced
   refreshed: Refreshed from remote
