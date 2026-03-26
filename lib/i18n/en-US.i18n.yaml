@@ -116,6 +116,7 @@ scanner:
   success: Login successful
   failed: Login failed
   processing: Processing...
+  loggingIn: Logging in...
   permissionDenied: Camera permission required
   permissionDeniedDescription: Please enable camera access in your device settings and try again.
   cameraError: Unable to start the camera. Please check your hardware or try again later.
@@ -134,7 +135,7 @@ scanner:
     url: https://i.ntut.club
     step2: '2. Click "Outside school login" in the navigation bar'
     step3: '3. Click "Scan QR code"'
-    button: Start Scanning
+    button: Got it
   invalidUrl: Invalid URL
 enrollmentStatus:
   learning: Enrolled

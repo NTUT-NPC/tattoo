@@ -22,6 +22,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   final DraggableScrollableController _sheetController =
       DraggableScrollableController();
   bool _isProcessing = false;
+  bool _isSuccess = false;
+  Object? _error;
 
   static const _scannerSuccessCodes = {'221', '222', '223'};
 
@@ -64,7 +66,11 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
     }
-    setState(() => _isProcessing = true);
+    setState(() {
+      _isProcessing = true;
+      _isSuccess = false;
+      _error = null;
+    });
 
     // Expand the sheet to show loading state
     _sheetController.animateTo(
@@ -115,24 +121,31 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(t.scanner.success)));
+      setState(() {
+        _isProcessing = false;
+        _isSuccess = true;
+      });
+
+      // Wait a bit before closing
+      await Future.delayed(const Duration(seconds: 1));
+      if (!mounted) return;
       Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
 
-      setState(() => _isProcessing = false);
+      setState(() {
+        _isProcessing = false;
+        _isSuccess = false;
+        _error = e;
+      });
       try {
         await _controller.start();
       } catch (_) {}
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(_mapScanError(e))));
     }
+  }
+
+  void _clearError() {
+    setState(() => _error = null);
   }
 
   @override
@@ -159,6 +172,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
           ScannerGuideSheet(
             controller: _sheetController,
             isProcessing: _isProcessing,
+            isSuccess: _isSuccess,
+            error: _error != null ? _mapScanError(_error!) : null,
+            onDismissError: _clearError,
           ),
           if (_isProcessing)
             Positioned(

@@ -116,6 +116,7 @@ scanner:
   success: 登入成功
   failed: 登入失敗
   processing: 正在處理...
+  loggingIn: 正在嘗試登入...
   permissionDenied: 需要相機權限才能掃描 QR code
   permissionDeniedDescription: 請至設定中開啟相機權限，然後再試一次。
   cameraError: 無法開啟相機，請檢查硬體或稍後再試。
@@ -134,7 +135,7 @@ scanner:
     url: https://i.ntut.club
     step2: "2. 點擊導覽列的「外校人士登入」"
     step3: "3. 點擊「QR Code 登入」"
-    button: 開始掃描
+    button: 我知道了
   invalidUrl: 無效的網址
 enrollmentStatus:
   learning: 在學

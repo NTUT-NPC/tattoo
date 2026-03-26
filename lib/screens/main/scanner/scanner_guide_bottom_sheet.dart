@@ -5,6 +5,9 @@ import 'package:tattoo/i18n/strings.g.dart';
 class ScannerGuideSheet extends StatelessWidget {
   final DraggableScrollableController controller;
   final bool isProcessing;
+  final bool isSuccess;
+  final String? error;
+  final VoidCallback? onDismissError;
 
   static const maxSheetSize = 1.0;
 
@@ -12,6 +15,9 @@ class ScannerGuideSheet extends StatelessWidget {
     super.key,
     required this.controller,
     this.isProcessing = false,
+    this.isSuccess = false,
+    this.error,
+    this.onDismissError,
   });
 
   @override
@@ -66,59 +72,9 @@ class ScannerGuideSheet extends StatelessWidget {
               ),
               SliverToBoxAdapter(
                 child: SelectionArea(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: 8),
-                      Text(
-                        t.scanner.guide.title,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        t.scanner.guide.step1,
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildUrlBox(context, t.scanner.guide.url),
-                      const SizedBox(height: 16),
-                      Text(
-                        t.scanner.guide.step2,
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        t.scanner.guide.step3,
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      const SizedBox(height: 32),
-                      SelectionContainer.disabled(
-                        child: FilledButton.tonal(
-                          onPressed: isProcessing
-                              ? null
-                              : () {
-                                  controller.animateTo(
-                                    minChildFraction,
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeOut,
-                                  );
-                                },
-                          child: isProcessing
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(t.scanner.guide.button),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _buildContent(context),
                   ),
                 ),
               ),
@@ -126,6 +82,141 @@ class ScannerGuideSheet extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    if (isSuccess) return _buildSuccessView(context);
+    if (error != null) return _buildErrorView(context, error!);
+    if (isProcessing) return _buildProcessingView(context);
+    return _buildGuideView(context);
+  }
+
+  Widget _buildSuccessView(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      key: const ValueKey('success'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 32),
+        const Icon(Icons.check_circle_outline, color: Colors.green, size: 64),
+        const SizedBox(height: 16),
+        Text(
+          t.scanner.success,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 48),
+      ],
+    );
+  }
+
+  Widget _buildErrorView(BuildContext context, String message) {
+    final theme = Theme.of(context);
+    return Column(
+      key: const ValueKey('error'),
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 32),
+        const Icon(Icons.error_outline, color: Colors.red, size: 64),
+        const SizedBox(height: 16),
+        Text(
+          t.scanner.failed,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyLarge,
+        ),
+        const SizedBox(height: 32),
+        FilledButton.tonal(
+          onPressed: onDismissError,
+          child: Text(t.general.ok),
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildProcessingView(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      key: const ValueKey('processing'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 48),
+        const CircularProgressIndicator(),
+        const SizedBox(height: 24),
+        Text(
+          t.scanner.loggingIn,
+          style: theme.textTheme.titleMedium,
+        ),
+        const SizedBox(height: 64),
+      ],
+    );
+  }
+
+  Widget _buildGuideView(BuildContext context) {
+    final theme = Theme.of(context);
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final topPadding = MediaQuery.paddingOf(context).top;
+    final appBarHeight = kToolbarHeight + topPadding;
+    final availableHeight = screenHeight - appBarHeight;
+    final minChildHeight = bottomPadding + 80;
+    final minChildFraction = (minChildHeight / availableHeight).clamp(0.0, 1.0);
+
+    return Column(
+      key: const ValueKey('guide'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 8),
+        Text(
+          t.scanner.guide.title,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          t.scanner.guide.step1,
+          style: theme.textTheme.bodyLarge,
+        ),
+        const SizedBox(height: 8),
+        _buildUrlBox(context, t.scanner.guide.url),
+        const SizedBox(height: 16),
+        Text(
+          t.scanner.guide.step2,
+          style: theme.textTheme.bodyLarge,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          t.scanner.guide.step3,
+          style: theme.textTheme.bodyLarge,
+        ),
+        const SizedBox(height: 32),
+        SelectionContainer.disabled(
+          child: FilledButton.tonal(
+            onPressed: () {
+              controller.animateTo(
+                minChildFraction,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            },
+            child: Text(t.scanner.guide.button),
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
     );
   }
 

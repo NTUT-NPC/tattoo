@@ -180,6 +180,7 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 	@override String get success => 'Login successful';
 	@override String get failed => 'Login failed';
 	@override String get processing => 'Processing...';
+	@override String get loggingIn => 'Logging in...';
 	@override String get permissionDenied => 'Camera permission required';
 	@override String get permissionDeniedDescription => 'Please enable camera access in your device settings and try again.';
 	@override String get cameraError => 'Unable to start the camera. Please check your hardware or try again later.';
@@ -343,7 +344,7 @@ class _TranslationsScannerGuideEnUs extends TranslationsScannerGuideZhTw {
 	@override String get url => 'https://i.ntut.club';
 	@override String get step2 => '2. Click "Outside school login" in the navigation bar';
 	@override String get step3 => '3. Click "Scan QR code"';
-	@override String get button => 'Start Scanning';
+	@override String get button => 'Got it';
 }
 
 // Path: intro.features.courseTable
@@ -499,6 +500,7 @@ extension on TranslationsEnUs {
 			'scanner.success' => 'Login successful',
 			'scanner.failed' => 'Login failed',
 			'scanner.processing' => 'Processing...',
+			'scanner.loggingIn' => 'Logging in...',
 			'scanner.permissionDenied' => 'Camera permission required',
 			'scanner.permissionDeniedDescription' => 'Please enable camera access in your device settings and try again.',
 			'scanner.cameraError' => 'Unable to start the camera. Please check your hardware or try again later.',
@@ -515,7 +517,7 @@ extension on TranslationsEnUs {
 			'scanner.guide.url' => 'https://i.ntut.club',
 			'scanner.guide.step2' => '2. Click "Outside school login" in the navigation bar',
 			'scanner.guide.step3' => '3. Click "Scan QR code"',
-			'scanner.guide.button' => 'Start Scanning',
+			'scanner.guide.button' => 'Got it',
 			'scanner.invalidUrl' => 'Invalid URL',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',

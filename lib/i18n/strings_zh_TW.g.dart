@@ -256,6 +256,9 @@ class TranslationsScannerZhTw {
 	/// zh-TW: '正在處理...'
 	String get processing => '正在處理...';
 
+	/// zh-TW: '正在嘗試登入...'
+	String get loggingIn => '正在嘗試登入...';
+
 	/// zh-TW: '需要相機權限才能掃描 QR code'
 	String get permissionDenied => '需要相機權限才能掃描 QR code';
 
@@ -541,8 +544,8 @@ class TranslationsScannerGuideZhTw {
 	/// zh-TW: '3. 點擊「QR Code 登入」'
 	String get step3 => '3. 點擊「QR Code 登入」';
 
-	/// zh-TW: '開始掃描'
-	String get button => '開始掃描';
+	/// zh-TW: '我知道了'
+	String get button => '我知道了';
 }
 
 // Path: intro.features.courseTable
@@ -720,6 +723,7 @@ extension on Translations {
 			'scanner.success' => '登入成功',
 			'scanner.failed' => '登入失敗',
 			'scanner.processing' => '正在處理...',
+			'scanner.loggingIn' => '正在嘗試登入...',
 			'scanner.permissionDenied' => '需要相機權限才能掃描 QR code',
 			'scanner.permissionDeniedDescription' => '請至設定中開啟相機權限，然後再試一次。',
 			'scanner.cameraError' => '無法開啟相機，請檢查硬體或稍後再試。',
@@ -736,7 +740,7 @@ extension on Translations {
 			'scanner.guide.url' => 'https://i.ntut.club',
 			'scanner.guide.step2' => '2. 點擊導覽列的「外校人士登入」',
 			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
-			'scanner.guide.button' => '開始掃描',
+			'scanner.guide.button' => '我知道了',
 			'scanner.invalidUrl' => '無效的網址',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
