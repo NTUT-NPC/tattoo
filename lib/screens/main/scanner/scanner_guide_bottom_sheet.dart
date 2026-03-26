@@ -5,12 +5,12 @@ import 'package:tattoo/i18n/strings.g.dart';
 class ScannerGuideSheet extends StatelessWidget {
   final DraggableScrollableController controller;
   final bool isProcessing;
-  final double maxChildSize;
+
+  static const maxSheetSize = 1.0;
 
   const ScannerGuideSheet({
     super.key,
     required this.controller,
-    required this.maxChildSize,
     this.isProcessing = false,
   });
 
@@ -32,7 +32,7 @@ class ScannerGuideSheet extends StatelessWidget {
       controller: controller,
       initialChildSize: minChildFraction,
       minChildSize: minChildFraction,
-      maxChildSize: maxChildSize,
+      maxChildSize: maxSheetSize,
       snap: true,
       builder: (context, scrollController) {
         return Container(

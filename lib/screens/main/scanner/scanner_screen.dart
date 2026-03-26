@@ -67,10 +67,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     setState(() => _isProcessing = true);
 
     // Expand the sheet to show loading state
-    const maxSheetSize = 1.0;
-
     _sheetController.animateTo(
-      maxSheetSize,
+      ScannerGuideSheet.maxSheetSize,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
     );
@@ -139,8 +137,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const maxSheetSize = 1.0;
-
     return Scaffold(
       extendBodyBehindAppBar: false,
       appBar: AppBar(
@@ -163,7 +159,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
           ScannerGuideSheet(
             controller: _sheetController,
             isProcessing: _isProcessing,
-            maxChildSize: maxSheetSize,
           ),
           if (_isProcessing)
             Positioned(
