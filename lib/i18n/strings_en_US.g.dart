@@ -207,6 +207,8 @@ class _TranslationsFeatureFlagsEnUs extends TranslationsFeatureFlagsZhTw {
 	// Translations
 	@override String get title => 'Feature Flags';
 	@override String get reset => 'Reset to default';
+	@override late final _TranslationsFeatureFlagsStatusEnUs status = _TranslationsFeatureFlagsStatusEnUs._(_root);
+	@override String get refreshed => 'Refreshed from remote';
 }
 
 // Path: intro.features
@@ -313,6 +315,19 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 	@override String cleared({required Object item}) => '${item} cleared';
 	@override String clearFailed({required Object item}) => 'Failed to clear ${item}';
 	@override late final _TranslationsProfileDangerZoneItemsEnUs items = _TranslationsProfileDangerZoneItemsEnUs._(_root);
+}
+
+// Path: featureFlags.status
+class _TranslationsFeatureFlagsStatusEnUs extends TranslationsFeatureFlagsStatusZhTw {
+	_TranslationsFeatureFlagsStatusEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get defaultStatus => 'Default';
+	@override String get remote => 'Remote';
+	@override String get overrideStatus => 'Override';
+	@override String get forced => 'Forced';
 }
 
 // Path: intro.features.courseTable
@@ -479,6 +494,11 @@ extension on TranslationsEnUs {
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
 			'featureFlags.title' => 'Feature Flags',
 			'featureFlags.reset' => 'Reset to default',
+			'featureFlags.status.defaultStatus' => 'Default',
+			'featureFlags.status.remote' => 'Remote',
+			'featureFlags.status.overrideStatus' => 'Override',
+			'featureFlags.status.forced' => 'Forced',
+			'featureFlags.refreshed' => 'Refreshed from remote',
 			_ => null,
 		};
 	}

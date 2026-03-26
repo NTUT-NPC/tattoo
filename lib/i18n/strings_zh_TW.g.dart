@@ -300,6 +300,11 @@ class TranslationsFeatureFlagsZhTw {
 
 	/// zh-TW: '恢復預設值'
 	String get reset => '恢復預設值';
+
+	late final TranslationsFeatureFlagsStatusZhTw status = TranslationsFeatureFlagsStatusZhTw.internal(_root);
+
+	/// zh-TW: '已從遠端截取'
+	String get refreshed => '已從遠端截取';
 }
 
 // Path: intro.features
@@ -488,6 +493,27 @@ class TranslationsProfileDangerZoneZhTw {
 	late final TranslationsProfileDangerZoneItemsZhTw items = TranslationsProfileDangerZoneItemsZhTw.internal(_root);
 }
 
+// Path: featureFlags.status
+class TranslationsFeatureFlagsStatusZhTw {
+	TranslationsFeatureFlagsStatusZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '預設'
+	String get defaultStatus => '預設';
+
+	/// zh-TW: '遠端'
+	String get remote => '遠端';
+
+	/// zh-TW: '覆寫'
+	String get overrideStatus => '覆寫';
+
+	/// zh-TW: '強制'
+	String get forced => '強制';
+}
+
 // Path: intro.features.courseTable
 class TranslationsIntroFeaturesCourseTableZhTw {
 	TranslationsIntroFeaturesCourseTableZhTw.internal(this._root);
@@ -674,6 +700,11 @@ extension on Translations {
 			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
 			'featureFlags.title' => '功能開關',
 			'featureFlags.reset' => '恢復預設值',
+			'featureFlags.status.defaultStatus' => '預設',
+			'featureFlags.status.remote' => '遠端',
+			'featureFlags.status.overrideStatus' => '覆寫',
+			'featureFlags.status.forced' => '強制',
+			'featureFlags.refreshed' => '已從遠端截取',
 			_ => null,
 		};
 	}

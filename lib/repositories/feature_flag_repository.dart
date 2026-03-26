@@ -5,6 +5,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tattoo/services/feature_flag/feature_flag_service.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
+enum FeatureFlagSource {
+  local,
+  remote,
+  override,
+  forced,
+}
+
 /// The model for a UI-consumable feature flag.
 class FeatureFlag {
   final String key;
@@ -12,6 +19,7 @@ class FeatureFlag {
   final dynamic overrideValue;
   final List<dynamic>? options;
   final bool isForced;
+  final bool isRemote;
 
   const FeatureFlag({
     required this.key,
@@ -19,10 +27,18 @@ class FeatureFlag {
     this.overrideValue,
     this.options,
     this.isForced = false,
+    this.isRemote = false,
   });
 
   dynamic get value => overrideValue ?? defaultValue;
   Type get type => defaultValue.runtimeType;
+
+  FeatureFlagSource get source {
+    if (isForced) return FeatureFlagSource.forced;
+    if (overrideValue != null) return FeatureFlagSource.override;
+    if (isRemote) return FeatureFlagSource.remote;
+    return FeatureFlagSource.local;
+  }
 
   // Type-safe getters
   bool get asBool => value as bool;
@@ -42,7 +58,7 @@ final featureFlagRepositoryProvider = Provider<FeatureFlagRepository>((ref) {
 class FeatureFlagRepository {
   final FeatureFlagService _service;
   final SharedPreferencesAsync _prefs;
-  Map<String, dynamic>? _defaultsCache;
+  Map<String, FeatureFlagData>? _defaultsCache;
 
   FeatureFlagRepository({
     required FeatureFlagService service,
@@ -50,7 +66,9 @@ class FeatureFlagRepository {
   }) : _service = service,
        _prefs = prefs;
 
-  Future<Map<String, dynamic>> _getDefaults({bool forceRefresh = false}) async {
+  Future<Map<String, FeatureFlagData>> _getDefaults({
+    bool forceRefresh = false,
+  }) async {
     if (forceRefresh) _defaultsCache = null;
     return _defaultsCache ??= await _service.fetchDefaultFlags();
   }
@@ -59,7 +77,8 @@ class FeatureFlagRepository {
     final defaults = await _getDefaults(forceRefresh: forceRefresh);
     final list = <FeatureFlag>[];
 
-    final forceOverrideString = defaults['_force_override_flags'] as String?;
+    final forceOverrideString =
+        defaults['_force_override_flags']?.value as String?;
     final forceOverrides =
         forceOverrideString
             ?.split(',')
@@ -72,7 +91,8 @@ class FeatureFlagRepository {
       final key = entry.key;
       if (key == '_force_override_flags') continue;
 
-      dynamic defVal = entry.value;
+      dynamic defVal = entry.value.value;
+      final isRemote = entry.value.isRemote;
       List<dynamic>? options;
 
       if (defVal is Map<String, dynamic> &&
@@ -106,6 +126,7 @@ class FeatureFlagRepository {
           overrideValue: overrideVal,
           options: options,
           isForced: isForced,
+          isRemote: isRemote,
         ),
       );
     }

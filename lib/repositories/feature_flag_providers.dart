@@ -16,7 +16,9 @@ class FeatureFlagsNotifier extends AsyncNotifier<List<FeatureFlag>> {
   Future<void> refreshFlags() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() {
-      return ref.read(featureFlagRepositoryProvider).getAllFlags(forceRefresh: true);
+      return ref
+          .read(featureFlagRepositoryProvider)
+          .getAllFlags(forceRefresh: true);
     });
   }
 

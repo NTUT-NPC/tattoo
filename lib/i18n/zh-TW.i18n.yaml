@@ -129,3 +129,9 @@ about:
 featureFlags:
   title: 功能開關
   reset: 恢復預設值
+  status:
+    defaultStatus: 預設
+    remote: 遠端
+    overrideStatus: 覆寫
+    forced: 強制
+  refreshed: 已從遠端截取

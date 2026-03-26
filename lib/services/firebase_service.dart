@@ -63,11 +63,17 @@ class FirebaseService {
 
   /// Retrieves a string value from Remote Config.
   /// Handles initializing the remote config settings and fetching.
-  Future<String?> fetchRemoteConfigString(String key) async {
+  Future<({String? value, bool isRemote})> fetchRemoteConfigString(
+    String key, {
+    Map<String, dynamic>? defaults,
+  }) async {
     final rc = remoteConfig;
-    if (rc == null) return null;
+    if (rc == null) return (value: null, isRemote: false);
 
     try {
+      if (defaults != null) {
+        await rc.setDefaults(defaults);
+      }
       await rc.setConfigSettings(
         RemoteConfigSettings(
           fetchTimeout: const Duration(minutes: 1),
@@ -75,17 +81,24 @@ class FirebaseService {
         ),
       );
       await rc.fetchAndActivate();
-      final result = rc.getString(key);
+
+      final rcValue = rc.getValue(key);
+      final result = rcValue.asString();
+      final isRemote = rcValue.source == ValueSource.valueRemote;
+
       dev.log(
-        'Fetched Remote Config for "$key":\n$result',
+        'Fetched Remote Config for "$key" (isRemote: $isRemote):\n$result',
         name: 'FirebaseService',
       );
-      firebaseService.log('Fetched Remote Config for "$key":\n$result');
-      return result;
+      firebaseService.log(
+        'Fetched Remote Config for "$key" (isRemote: $isRemote):\n$result',
+      );
+
+      return (value: result, isRemote: isRemote);
     } catch (e) {
       dev.log('Remote config fetch failed: $e');
       firebaseService.recordNonFatal('Remote config fetch failed: $e');
-      return null;
+      return (value: null, isRemote: false);
     }
   }
 }

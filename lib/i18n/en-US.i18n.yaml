@@ -104,7 +104,7 @@ profile:
     clearPreferences: Clear Preferences
     clearCredentials: Clear Credentials
     clearUserData: Clear User Data
-    cleared: '${item} cleared'
+    cleared: "${item} cleared"
     clearFailed: Failed to clear ${item}
     items:
       cache: Cache
@@ -129,3 +129,9 @@ about:
 featureFlags:
   title: Feature Flags
   reset: Reset to default
+  status:
+    defaultStatus: Default
+    remote: Remote
+    overrideStatus: Override
+    forced: Forced
+  refreshed: Refreshed from remote
