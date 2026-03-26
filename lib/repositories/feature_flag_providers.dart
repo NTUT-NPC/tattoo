@@ -10,7 +10,12 @@ final featureFlagsProvider =
 class FeatureFlagsNotifier extends AsyncNotifier<List<FeatureFlag>> {
   @override
   Future<List<FeatureFlag>> build() async {
-    return ref.watch(featureFlagRepositoryProvider).getAllFlags();
+    final repo = ref.watch(featureFlagRepositoryProvider);
+    // Listen for real-time updates from Remote Config/Repository
+    final subscription = repo.onUpdated.listen((_) => ref.invalidateSelf());
+    ref.onDispose(subscription.cancel);
+
+    return repo.getAllFlags();
   }
 
   Future<void> refreshFlags() async {

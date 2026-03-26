@@ -61,6 +61,7 @@ final featureFlagRepositoryProvider = Provider<FeatureFlagRepository>((ref) {
 class FeatureFlagRepository {
   final FeatureFlagService _service;
   final SharedPreferencesAsync _prefs;
+  final _updateController = StreamController<void>.broadcast();
   Map<String, FeatureFlagData>? _defaultsCache;
   List<FeatureFlag>? _flagsCache;
 
@@ -69,6 +70,9 @@ class FeatureFlagRepository {
     required SharedPreferencesAsync prefs,
   }) : _service = service,
        _prefs = prefs;
+
+  /// A stream that emits whenever feature flags are updated from a remote source.
+  Stream<void> get onUpdated => _updateController.stream;
 
   Future<Map<String, FeatureFlagData>> _getDefaults({
     bool forceRefresh = false,
@@ -79,6 +83,28 @@ class FeatureFlagRepository {
 
   /// Initializes the repository by warming up the cache.
   Future<void> init() async {
+    // Initialize Remote Config with local defaults
+    try {
+      final localJson = await _service.loadLocalJson();
+      await firebaseService.init(defaults: {'feature_flags': localJson});
+
+      // Listen for remote updates
+      firebaseService.onConfigUpdated.listen((_) {
+        log(
+          'Remote Config updated, invalidating feature flag cache',
+          name: 'FeatureFlagRepository',
+        );
+        _defaultsCache = null;
+        _flagsCache = null;
+        _updateController.add(null);
+      });
+    } catch (e) {
+      log(
+        'Failed to initialize Remote Config defaults: $e',
+        name: 'FeatureFlagRepository',
+      );
+    }
+
     await getAllFlags();
     log('FeatureFlagRepository initialized', name: 'FeatureFlagRepository');
   }

@@ -13,8 +13,12 @@ final featureFlagServiceProvider = Provider<FeatureFlagService>((ref) {
 /// Service for fetching default feature flags from the local JSON config.
 /// Extended with Firebase Remote Config to allow remote overrides.
 class FeatureFlagService {
+  Future<String> loadLocalJson() async {
+    return await rootBundle.loadString('assets/feature_flags.json');
+  }
+
   Future<Map<String, FeatureFlagData>> fetchDefaultFlags() async {
-    final jsonString = await rootBundle.loadString('assets/feature_flags.json');
+    final jsonString = await loadLocalJson();
     final localDefaults = jsonDecode(jsonString) as Map<String, dynamic>;
 
     final result = firebaseService.getRemoteConfigString('feature_flags');

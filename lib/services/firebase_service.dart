@@ -1,6 +1,7 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'dart:async';
 import 'dart:developer' as dev;
 
 /// Global toggle for Firebase features.
@@ -25,7 +26,13 @@ var firebaseService = const FirebaseService();
 /// firebase.crashlytics?.recordError(e, stack);
 /// ```
 class FirebaseService {
+  static final _updateController = StreamController<void>.broadcast();
+  static bool _isInitialized = false;
+
   const FirebaseService();
+
+  /// A stream that emits whenever the Remote Config is updated and activated.
+  Stream<void> get onConfigUpdated => _updateController.stream;
 
   /// The [FirebaseAnalytics] instance, or `null` if Firebase is disabled.
   FirebaseAnalytics? get analytics =>
@@ -64,15 +71,44 @@ class FirebaseService {
   /// Initializes Firebase Remote Config.
   ///
   /// Call this at app start to fetch and activate the latest configuration.
-  Future<void> init() async {
+  /// Optionally provide [defaults] for in-app default values.
+  Future<void> init({Map<String, dynamic>? defaults}) async {
     final rc = remoteConfig;
     if (rc == null) return;
+
+    if (_isInitialized) {
+      if (defaults != null) await setDefaults(defaults);
+      return;
+    }
+
+    if (defaults != null) {
+      await rc.setDefaults(defaults);
+    }
+
+    _setupUpdateListener(rc);
 
     await _fetchAndActivate(
       rc,
       context: 'initialized',
       setupSettings: true,
     );
+    _isInitialized = true;
+  }
+
+  /// Updates the in-app default values for Remote Config.
+  Future<void> setDefaults(Map<String, dynamic> defaults) async {
+    await remoteConfig?.setDefaults(defaults);
+  }
+
+  void _setupUpdateListener(FirebaseRemoteConfig rc) {
+    rc.onConfigUpdated.listen((event) async {
+      dev.log(
+        'Remote Config updated: ${event.updatedKeys}',
+        name: 'FirebaseService',
+      );
+      await rc.activate();
+      _updateController.add(null);
+    });
   }
 
   /// Forces a fresh fetch and activation of Remote Config.
