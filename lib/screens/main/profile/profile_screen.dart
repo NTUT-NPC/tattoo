@@ -100,6 +100,11 @@ class ProfileScreen extends ConsumerWidget {
     final options = [
       SectionHeader(title: t.profile.sections.accountSettings),
       OptionEntryTile.icon(
+        icon: Icons.qr_code_scanner,
+        title: t.scanner.loginIStudy,
+        onTap: () => context.push(AppRoutes.scanner),
+      ),
+      OptionEntryTile.icon(
         icon: Icons.password,
         title: t.profile.options.changePassword,
         onTap: () => _showDemoTap(context),

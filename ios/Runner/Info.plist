@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs photo library access to upload your profile avatar.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to scan QR codes.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

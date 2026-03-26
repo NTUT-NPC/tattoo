@@ -47,6 +47,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
 	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
+	late final TranslationsScannerZhTw scanner = TranslationsScannerZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
 }
@@ -227,6 +228,63 @@ class TranslationsProfileZhTw {
 	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
 	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
 	late final TranslationsProfileDangerZoneZhTw dangerZone = TranslationsProfileDangerZoneZhTw.internal(_root);
+}
+
+// Path: scanner
+class TranslationsScannerZhTw {
+	TranslationsScannerZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '掃碼登入'
+	String get title => '掃碼登入';
+
+	/// zh-TW: '請將二維碼放入框內'
+	String get scanInstruction => '請將二維碼放入框內';
+
+	/// zh-TW: '掃碼登入i學園'
+	String get loginIStudy => '掃碼登入i學園';
+
+	/// zh-TW: '登入成功'
+	String get success => '登入成功';
+
+	/// zh-TW: '登入失敗'
+	String get failed => '登入失敗';
+
+	/// zh-TW: '正在處理...'
+	String get processing => '正在處理...';
+
+	/// zh-TW: '正在嘗試登入...'
+	String get loggingIn => '正在嘗試登入...';
+
+	/// zh-TW: '需要相機權限才能掃描 QR code'
+	String get permissionDenied => '需要相機權限才能掃描 QR code';
+
+	/// zh-TW: '請至設定中開啟相機權限，然後再試一次。'
+	String get permissionDeniedDescription => '請至設定中開啟相機權限，然後再試一次。';
+
+	/// zh-TW: '無法開啟相機，請檢查硬體或稍後再試。'
+	String get cameraError => '無法開啟相機，請檢查硬體或稍後再試。';
+
+	Map<String, String> get errors => {
+		'201': '手機未登入',
+		'202': '操作錯誤，請先至「首頁」，再點擊「校外人士登入」',
+		'203': '已經是登入成功狀態',
+		'204': 'QR code 已經登出，請重新整理頁面及刷新',
+		'205': '已登入，要切換使用者必須先登出網頁',
+		'206': 'QR code 已過期，請重複從電腦頁面刷新',
+		'unknown': '登入失敗，請確認 QR code 是否正確或從電腦頁面刷新',
+	};
+
+	/// zh-TW: '在電腦開啟i.ntut.club並點選QR code登入'
+	String get howTo => '在電腦開啟i.ntut.club並點選QR code登入';
+
+	late final TranslationsScannerGuideZhTw guide = TranslationsScannerGuideZhTw.internal(_root);
+
+	/// zh-TW: '無效的網址'
+	String get invalidUrl => '無效的網址';
 }
 
 // Path: enrollmentStatus
@@ -463,6 +521,33 @@ class TranslationsProfileDangerZoneZhTw {
 	late final TranslationsProfileDangerZoneItemsZhTw items = TranslationsProfileDangerZoneItemsZhTw.internal(_root);
 }
 
+// Path: scanner.guide
+class TranslationsScannerGuideZhTw {
+	TranslationsScannerGuideZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '如何掃碼登入？'
+	String get title => '如何掃碼登入？';
+
+	/// zh-TW: '1. 電腦前往下列網址'
+	String get step1 => '1. 電腦前往下列網址';
+
+	/// zh-TW: 'https://i.ntut.club'
+	String get url => 'https://i.ntut.club';
+
+	/// zh-TW: '2. 點擊導覽列的「外校人士登入」'
+	String get step2 => '2. 點擊導覽列的「外校人士登入」';
+
+	/// zh-TW: '3. 點擊「QR Code 登入」'
+	String get step3 => '3. 點擊「QR Code 登入」';
+
+	/// zh-TW: '我知道了'
+	String get button => '我知道了';
+}
+
 // Path: intro.features.courseTable
 class TranslationsIntroFeaturesCourseTableZhTw {
 	TranslationsIntroFeaturesCourseTableZhTw.internal(this._root);
@@ -632,6 +717,31 @@ extension on Translations {
 			'profile.dangerZone.items.preferences' => '偏好設定',
 			'profile.dangerZone.items.credentials' => '登入憑證',
 			'profile.dangerZone.items.userData' => '使用者資料',
+			'scanner.title' => '掃碼登入',
+			'scanner.scanInstruction' => '請將二維碼放入框內',
+			'scanner.loginIStudy' => '掃碼登入i學園',
+			'scanner.success' => '登入成功',
+			'scanner.failed' => '登入失敗',
+			'scanner.processing' => '正在處理...',
+			'scanner.loggingIn' => '正在嘗試登入...',
+			'scanner.permissionDenied' => '需要相機權限才能掃描 QR code',
+			'scanner.permissionDeniedDescription' => '請至設定中開啟相機權限，然後再試一次。',
+			'scanner.cameraError' => '無法開啟相機，請檢查硬體或稍後再試。',
+			'scanner.errors."201"' => '手機未登入',
+			'scanner.errors."202"' => '操作錯誤，請先至「首頁」，再點擊「校外人士登入」',
+			'scanner.errors."203"' => '已經是登入成功狀態',
+			'scanner.errors."204"' => 'QR code 已經登出，請重新整理頁面及刷新',
+			'scanner.errors."205"' => '已登入，要切換使用者必須先登出網頁',
+			'scanner.errors."206"' => 'QR code 已過期，請重複從電腦頁面刷新',
+			'scanner.errors.unknown' => '登入失敗，請確認 QR code 是否正確或從電腦頁面刷新',
+			'scanner.howTo' => '在電腦開啟i.ntut.club並點選QR code登入',
+			'scanner.guide.title' => '如何掃碼登入？',
+			'scanner.guide.step1' => '1. 電腦前往下列網址',
+			'scanner.guide.url' => 'https://i.ntut.club',
+			'scanner.guide.step2' => '2. 點擊導覽列的「外校人士登入」',
+			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
+			'scanner.guide.button' => '我知道了',
+			'scanner.invalidUrl' => '無效的網址',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
