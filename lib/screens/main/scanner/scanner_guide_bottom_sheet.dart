@@ -48,24 +48,24 @@ class ScannerGuideSheet extends StatelessWidget {
               ),
             ],
           ),
-          child: SelectionArea(
-            child: CustomScrollView(
-              controller: scrollController,
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Center(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 20),
-                      width: 40,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: colorScheme.onSurfaceVariant.withAlpha(100),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+          child: CustomScrollView(
+            controller: scrollController,
+            slivers: [
+              SliverToBoxAdapter(
+                child: Center(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 20),
+                    width: 40,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: colorScheme.onSurfaceVariant.withAlpha(100),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
-                SliverToBoxAdapter(
+              ),
+              SliverToBoxAdapter(
+                child: SelectionArea(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -95,32 +95,34 @@ class ScannerGuideSheet extends StatelessWidget {
                         style: theme.textTheme.bodyLarge,
                       ),
                       const SizedBox(height: 32),
-                      FilledButton.tonal(
-                        onPressed: isProcessing
-                            ? null
-                            : () {
-                                controller.animateTo(
-                                  minChildFraction,
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeOut,
-                                );
-                              },
-                        child: isProcessing
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Text(t.scanner.guide.button),
+                      SelectionContainer.disabled(
+                        child: FilledButton.tonal(
+                          onPressed: isProcessing
+                              ? null
+                              : () {
+                                  controller.animateTo(
+                                    minChildFraction,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeOut,
+                                  );
+                                },
+                          child: isProcessing
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(t.scanner.guide.button),
+                        ),
                       ),
                       const SizedBox(height: 24),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
