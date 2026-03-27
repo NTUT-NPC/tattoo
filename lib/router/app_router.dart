@@ -5,6 +5,7 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/shells/animated_shell_container.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
+import 'package:tattoo/screens/main/calendar/calendar_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';
@@ -19,6 +20,7 @@ abstract class AppRoutes {
   static const home = '/';
   static const score = '/score';
   static const portal = '/portal';
+  static const calendar = '/calendar';
   static const profile = '/profile';
   static const intro = '/intro';
   static const login = '/login';
@@ -102,6 +104,15 @@ GoRouter createAppRouter({
               path: AppRoutes.portal,
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: PortalScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.calendar,
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: CalendarScreen()),
             ),
           ],
         ),

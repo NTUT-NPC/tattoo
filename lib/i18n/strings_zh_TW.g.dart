@@ -186,6 +186,9 @@ class TranslationsNavZhTw {
 	/// zh-TW: '傳送門'
 	String get portal => '傳送門';
 
+	/// zh-TW: '行事曆'
+	String get calendar => '行事曆';
+
 	/// zh-TW: '我'
 	String get profile => '我';
 }
@@ -580,6 +583,7 @@ extension on Translations {
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.portal' => '傳送門',
+			'nav.calendar' => '行事曆',
 			'nav.profile' => '我',
 			'courseTable.notFound' => '找不到課表',
 			'courseTable.dayOfWeek.sunday' => '日',

@@ -48,6 +48,7 @@ nav:
   courseTable: Courses
   scores: Scores
   portal: Portals
+  calendar: Calendar
   profile: Me
 courseTable:
   notFound: Course table not found

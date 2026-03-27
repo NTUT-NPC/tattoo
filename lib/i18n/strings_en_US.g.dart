@@ -130,6 +130,7 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	@override String get courseTable => 'Courses';
 	@override String get scores => 'Scores';
 	@override String get portal => 'Portals';
+	@override String get calendar => 'Calendar';
 	@override String get profile => 'Me';
 }
 
@@ -395,6 +396,7 @@ extension on TranslationsEnUs {
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.portal' => 'Portals',
+			'nav.calendar' => 'Calendar',
 			'nav.profile' => 'Me',
 			'courseTable.notFound' => 'Course table not found',
 			'courseTable.dayOfWeek.sunday' => 'Sun',
