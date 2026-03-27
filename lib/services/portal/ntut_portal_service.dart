@@ -234,7 +234,11 @@ class NtutPortalService implements PortalService {
         )
         .map<CalendarEventDto>(
           (e) => (
-            id: e['id'],
+            id: switch (e['id']) {
+              final int i => i,
+              final String s => int.tryParse(s),
+              _ => null,
+            },
             start: fromEpoch(e['calStart']),
             end: fromEpoch(e['calEnd']),
             allDay: e['allDay'] == '1',
