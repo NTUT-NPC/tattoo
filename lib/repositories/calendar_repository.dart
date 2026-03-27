@@ -41,6 +41,11 @@ class CalendarRepository {
     bool refresh = false,
   }) async {
     final user = await _database.getUser();
+    // calendarFetchedAt is authoritative for cache presence. The range-filtered
+    // query below may return an empty list even when the full academic year is
+    // cached (e.g. a future date range), so we must not use cached.isEmpty as
+    // the nil-check — that would cause spurious network fetches.
+    final hasCachedData = user?.calendarFetchedAt != null;
     final cached =
         await (_database.select(_database.calendarEvents)
               ..where((e) {
@@ -52,10 +57,7 @@ class CalendarRepository {
             .get();
 
     return fetchWithTtl<List<CalendarEvent>>(
-      // If we have any cached data for this range, pass it to TTL check.
-      // Wide-range fetching ensures that if we have partial data, we likely
-      // have the full academic year cached.
-      cached: cached.isEmpty ? null : cached,
+      cached: hasCachedData ? cached : null,
       getFetchedAt: (_) => user?.calendarFetchedAt,
       fetchFromNetwork: () => _fetchCalendarFromNetwork(startDate, endDate),
       refresh: refresh,
@@ -66,26 +68,31 @@ class CalendarRepository {
     DateTime startDate,
     DateTime endDate,
   ) async {
-    // Recommendation 1: Fetch a wide range (full academic year) to ensure a
-    // complete cache for the entire year, preventing partial range bugs.
+    // Fetch a wide range (full academic year) to ensure a complete cache for
+    // the entire year, preventing partial range bugs on subsequent calls.
     // NTUT academic years run from Aug 1 to July 31.
     final wideStartDate = startDate.month < 8
         ? DateTime(startDate.year - 1, 8, 1)
         : DateTime(startDate.year, 8, 1);
     final wideEndDate = DateTime(wideStartDate.year + 1, 7, 31);
 
+    // No SSO needed — getCalendar uses the portal session established at login.
     final dtos = await _authRepository.withAuth(
       () => _portalService.getCalendar(wideStartDate, wideEndDate),
     );
+
+    // getUser() is non-null here because this repository is session-scoped
+    // and only reachable after a successful login.
+    final userId = (await _database.getUser())!.id;
 
     await _database.transaction(() async {
       final portalIds = dtos.map((e) => e.id).whereType<int>().toSet();
 
       for (final dto in dtos) {
         final id = dto.id;
-        if (id == null) {
-          continue; // Recommendation 2: Handle non-nullable portalId
-        }
+        // portalId is nullable in the DTO (NTUT servers occasionally omit it).
+        // Skip events without an ID — we can't sync or deduplicate them.
+        if (id == null) continue;
 
         await _database
             .into(_database.calendarEvents)
@@ -117,8 +124,7 @@ class CalendarRepository {
             );
       }
 
-      // Recommendation 3: Sync by deleting events in the fetched range that
-      // are no longer present on the portal.
+      // Sync: delete events in the fetched range that are no longer on the portal.
       await (_database.delete(_database.calendarEvents)..where((e) {
             return e.start.isBiggerOrEqualValue(wideStartDate) &
                 e.end.isSmallerOrEqualValue(wideEndDate) &
@@ -126,12 +132,10 @@ class CalendarRepository {
           }))
           .go();
 
-      // Update the global fetch timestamp for the calendar
-      await _database
-          .update(_database.users)
-          .write(
-            UsersCompanion(calendarFetchedAt: Value(DateTime.now())),
-          );
+      // Update the fetch timestamp for this user only.
+      await (_database.update(_database.users)
+            ..where((u) => u.id.equals(userId)))
+          .write(UsersCompanion(calendarFetchedAt: Value(DateTime.now())));
     });
 
     // Re-fetch from DB to return only the originally requested range
