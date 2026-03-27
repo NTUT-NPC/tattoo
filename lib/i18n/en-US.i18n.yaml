@@ -50,6 +50,8 @@ nav:
   portal: Portals
   calendar: Calendar
   profile: Me
+calendar:
+  month: Month
 courseTable:
   notFound: Course table not found
   dayOfWeek(map):
