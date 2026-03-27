@@ -44,6 +44,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsIntroEnUs intro = _TranslationsIntroEnUs._(_root);
 	@override late final _TranslationsLoginEnUs login = _TranslationsLoginEnUs._(_root);
 	@override late final _TranslationsNavEnUs nav = _TranslationsNavEnUs._(_root);
+	@override late final _TranslationsCalendarEnUs calendar = _TranslationsCalendarEnUs._(_root);
 	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
 	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
@@ -130,7 +131,18 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	@override String get courseTable => 'Courses';
 	@override String get scores => 'Scores';
 	@override String get portal => 'Portals';
+	@override String get calendar => 'Calendar';
 	@override String get profile => 'Me';
+}
+
+// Path: calendar
+class _TranslationsCalendarEnUs extends TranslationsCalendarZhTw {
+	_TranslationsCalendarEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get month => 'Month';
 }
 
 // Path: courseTable
@@ -395,7 +407,9 @@ extension on TranslationsEnUs {
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.portal' => 'Portals',
+			'nav.calendar' => 'Calendar',
 			'nav.profile' => 'Me',
+			'calendar.month' => 'Month',
 			'courseTable.notFound' => 'Course table not found',
 			'courseTable.dayOfWeek.sunday' => 'Sun',
 			'courseTable.dayOfWeek.monday' => 'Mon',

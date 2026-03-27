@@ -45,6 +45,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsIntroZhTw intro = TranslationsIntroZhTw.internal(_root);
 	late final TranslationsLoginZhTw login = TranslationsLoginZhTw.internal(_root);
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
+	late final TranslationsCalendarZhTw calendar = TranslationsCalendarZhTw.internal(_root);
 	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
@@ -186,8 +187,23 @@ class TranslationsNavZhTw {
 	/// zh-TW: '傳送門'
 	String get portal => '傳送門';
 
+	/// zh-TW: '行事曆'
+	String get calendar => '行事曆';
+
 	/// zh-TW: '我'
 	String get profile => '我';
+}
+
+// Path: calendar
+class TranslationsCalendarZhTw {
+	TranslationsCalendarZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '月'
+	String get month => '月';
 }
 
 // Path: courseTable
@@ -580,7 +596,9 @@ extension on Translations {
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.portal' => '傳送門',
+			'nav.calendar' => '行事曆',
 			'nav.profile' => '我',
+			'calendar.month' => '月',
 			'courseTable.notFound' => '找不到課表',
 			'courseTable.dayOfWeek.sunday' => '日',
 			'courseTable.dayOfWeek.monday' => '一',

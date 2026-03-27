@@ -224,8 +224,23 @@ class NtutPortalService implements PortalService {
     final List<dynamic> events = jsonDecode(response.data);
     String? normalizeEmpty(String? value) =>
         value?.isNotEmpty == true ? value : null;
-    DateTime? fromEpoch(int? ms) =>
-        ms != null ? DateTime.fromMillisecondsSinceEpoch(ms) : null;
+    DateTime? fromEpoch(int? ms) {
+      if (ms == null) return null;
+      // NTUT API returns an epoch that exactly corresponds to UTC+8.
+      // By forcing it through UTC and adding 8 hours, we get the exact
+      // year/month/day/hour that the NTUT portal intended, regardless of
+      // the user's local timezone. We then create a device-local DateTime.
+      final utc = DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
+      final taipei = utc.add(const Duration(hours: 8));
+      return DateTime(
+        taipei.year,
+        taipei.month,
+        taipei.day,
+        taipei.hour,
+        taipei.minute,
+        taipei.second,
+      );
+    }
 
     return events
         .where(

@@ -40,6 +40,10 @@ class HomeScreen extends ConsumerWidget {
             label: t.nav.portal,
           ),
           NavigationDestination(
+            icon: Icon(Icons.calendar_month),
+            label: t.nav.calendar,
+          ),
+          NavigationDestination(
             icon: Icon(Icons.account_circle),
             label: t.nav.profile,
           ),
