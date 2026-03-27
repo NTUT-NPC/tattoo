@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
@@ -41,30 +42,39 @@ class CalendarRepository {
     bool refresh = false,
   }) async {
     final user = await _database.getUser();
+    if (user == null) return [];
+
     // calendarFetchedAt is authoritative for cache presence. The range-filtered
     // query below may return an empty list even when the full academic year is
     // cached (e.g. a future date range), so we must not use cached.isEmpty as
     // the nil-check — that would cause spurious network fetches.
-    final hasCachedData = user?.calendarFetchedAt != null;
-    final cached =
-        await (_database.select(_database.calendarEvents)
-              ..where((e) {
-                // Include events that overlap with the range
-                return e.start.isSmallerOrEqualValue(endDate) &
-                    e.end.isBiggerOrEqualValue(startDate);
-              })
-              ..orderBy([(e) => OrderingTerm.asc(e.start)]))
-            .get();
+    final hasCachedData = user.calendarFetchedAt != null;
+    final cached = hasCachedData
+        ? await _eventsOverlapping(startDate, endDate).get()
+        : null;
 
     return fetchWithTtl<List<CalendarEvent>>(
-      cached: hasCachedData ? cached : null,
-      getFetchedAt: (_) => user?.calendarFetchedAt,
-      // user is non-null here: this repo is session-scoped so getUser() always
-      // returns a row while a session is active.
+      cached: cached,
+      getFetchedAt: (_) => user.calendarFetchedAt,
       fetchFromNetwork: () =>
-          _fetchCalendarFromNetwork(user!.id, startDate, endDate),
+          _fetchCalendarFromNetwork(user.id, startDate, endDate),
       refresh: refresh,
     );
+  }
+
+  /// Selects calendar events that overlap with the given date range,
+  /// ordered by start date ascending.
+  SimpleSelectStatement<$CalendarEventsTable, CalendarEvent> _eventsOverlapping(
+    DateTime startDate,
+    DateTime endDate,
+  ) {
+    return _database.select(_database.calendarEvents)
+      ..where(
+        (e) =>
+            e.start.isSmallerOrEqualValue(endDate) &
+            e.end.isBiggerOrEqualValue(startDate),
+      )
+      ..orderBy([(e) => OrderingTerm.asc(e.start)]);
   }
 
   Future<List<CalendarEvent>> _fetchCalendarFromNetwork(
@@ -78,9 +88,9 @@ class CalendarRepository {
     final wideStartDate = startDate.month < 8
         ? DateTime(startDate.year - 1, 8, 1)
         : DateTime(startDate.year, 8, 1);
-    // Use end-of-day so events ending on July 31 after 00:00 are included in
-    // the sync window.
-    final wideEndDate = DateTime(wideStartDate.year + 1, 7, 31, 23, 59, 59);
+    // Use the start of the next day (exclusive upper bound) so events ending
+    // at any time on July 31 are included in the sync window.
+    final wideEndDate = DateTime(wideStartDate.year + 1, 8, 1);
 
     // No SSO needed — getCalendar uses the portal session established at login.
     final dtos = await _authRepository.withAuth(
@@ -90,17 +100,28 @@ class CalendarRepository {
     await _database.transaction(() async {
       final portalIds = dtos.map((e) => e.id).whereType<int>().toSet();
 
-      for (final dto in dtos) {
-        final id = dto.id;
-        // portalId is nullable in the DTO (NTUT servers occasionally omit it).
-        // Skip events without an ID — we can't sync or deduplicate them.
-        if (id == null) continue;
+      await _database.batch((batch) {
+        for (final dto in dtos) {
+          final id = dto.id;
+          // portalId is nullable in the DTO (NTUT servers occasionally omit it).
+          // Skip events without an ID — we can't sync or deduplicate them.
+          if (id == null) continue;
 
-        await _database
-            .into(_database.calendarEvents)
-            .insert(
-              CalendarEventsCompanion.insert(
-                portalId: id,
+          batch.insert(
+            _database.calendarEvents,
+            CalendarEventsCompanion.insert(
+              portalId: id,
+              start: Value(dto.start),
+              end: Value(dto.end),
+              allDay: Value(dto.allDay),
+              title: Value(dto.title),
+              place: Value(dto.place),
+              content: Value(dto.content),
+              ownerName: Value(dto.ownerName),
+              creatorName: Value(dto.creatorName),
+            ),
+            onConflict: DoUpdate(
+              (old) => CalendarEventsCompanion(
                 start: Value(dto.start),
                 end: Value(dto.end),
                 allDay: Value(dto.allDay),
@@ -110,30 +131,34 @@ class CalendarRepository {
                 ownerName: Value(dto.ownerName),
                 creatorName: Value(dto.creatorName),
               ),
-              onConflict: DoUpdate(
-                (old) => CalendarEventsCompanion(
-                  start: Value(dto.start),
-                  end: Value(dto.end),
-                  allDay: Value(dto.allDay),
-                  title: Value(dto.title),
-                  place: Value(dto.place),
-                  content: Value(dto.content),
-                  ownerName: Value(dto.ownerName),
-                  creatorName: Value(dto.creatorName),
-                ),
-                target: [_database.calendarEvents.portalId],
-              ),
-            );
-      }
+              target: [_database.calendarEvents.portalId],
+            ),
+          );
+        }
+      });
 
-      // Sync: delete events in the fetched range that are no longer on the portal.
-      // Guard against an empty set — isNotIn([]) generates "NOT IN ()" which
-      // SQLite treats as always true, wiping all events in the range.
+      // Sync: delete events in the fetched range that are no longer on the
+      // portal. Use overlap semantics (consistent with read queries) so
+      // boundary-spanning events are also cleaned up.
       if (portalIds.isNotEmpty) {
         await (_database.delete(_database.calendarEvents)..where((e) {
-              return e.start.isBiggerOrEqualValue(wideStartDate) &
-                  e.end.isSmallerOrEqualValue(wideEndDate) &
+              return e.start.isSmallerOrEqualValue(wideEndDate) &
+                  e.end.isBiggerOrEqualValue(wideStartDate) &
                   e.portalId.isNotIn(portalIds);
+            }))
+            .go();
+      } else {
+        // Portal returned no events (or none with IDs). This could be a
+        // transient portal error, so log a warning before wiping the cache.
+        log(
+          'Portal returned 0 syncable events for '
+          '${wideStartDate.toIso8601String()}–${wideEndDate.toIso8601String()}, '
+          'clearing cached events in range',
+          name: 'CalendarRepository',
+        );
+        await (_database.delete(_database.calendarEvents)..where((e) {
+              return e.start.isSmallerOrEqualValue(wideEndDate) &
+                  e.end.isBiggerOrEqualValue(wideStartDate);
             }))
             .go();
       }
@@ -145,12 +170,6 @@ class CalendarRepository {
     });
 
     // Re-fetch from DB to return only the originally requested range
-    return (_database.select(_database.calendarEvents)
-          ..where((e) {
-            return e.start.isSmallerOrEqualValue(endDate) &
-                e.end.isBiggerOrEqualValue(startDate);
-          })
-          ..orderBy([(e) => OrderingTerm.asc(e.start)]))
-        .get();
+    return _eventsOverlapping(startDate, endDate).get();
   }
 }
