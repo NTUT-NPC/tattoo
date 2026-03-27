@@ -50,6 +50,8 @@ nav:
   portal: 傳送門
   calendar: 行事曆
   profile: 我
+calendar:
+  month: 月
 courseTable:
   notFound: 找不到課表
   dayOfWeek(map):
