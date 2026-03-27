@@ -59,12 +59,16 @@ class CalendarRepository {
     return fetchWithTtl<List<CalendarEvent>>(
       cached: hasCachedData ? cached : null,
       getFetchedAt: (_) => user?.calendarFetchedAt,
-      fetchFromNetwork: () => _fetchCalendarFromNetwork(startDate, endDate),
+      // user is non-null here: this repo is session-scoped so getUser() always
+      // returns a row while a session is active.
+      fetchFromNetwork: () =>
+          _fetchCalendarFromNetwork(user!.id, startDate, endDate),
       refresh: refresh,
     );
   }
 
   Future<List<CalendarEvent>> _fetchCalendarFromNetwork(
+    int userId,
     DateTime startDate,
     DateTime endDate,
   ) async {
@@ -74,16 +78,14 @@ class CalendarRepository {
     final wideStartDate = startDate.month < 8
         ? DateTime(startDate.year - 1, 8, 1)
         : DateTime(startDate.year, 8, 1);
-    final wideEndDate = DateTime(wideStartDate.year + 1, 7, 31);
+    // Use end-of-day so events ending on July 31 after 00:00 are included in
+    // the sync window.
+    final wideEndDate = DateTime(wideStartDate.year + 1, 7, 31, 23, 59, 59);
 
     // No SSO needed — getCalendar uses the portal session established at login.
     final dtos = await _authRepository.withAuth(
       () => _portalService.getCalendar(wideStartDate, wideEndDate),
     );
-
-    // getUser() is non-null here because this repository is session-scoped
-    // and only reachable after a successful login.
-    final userId = (await _database.getUser())!.id;
 
     await _database.transaction(() async {
       final portalIds = dtos.map((e) => e.id).whereType<int>().toSet();
@@ -125,12 +127,16 @@ class CalendarRepository {
       }
 
       // Sync: delete events in the fetched range that are no longer on the portal.
-      await (_database.delete(_database.calendarEvents)..where((e) {
-            return e.start.isBiggerOrEqualValue(wideStartDate) &
-                e.end.isSmallerOrEqualValue(wideEndDate) &
-                e.portalId.isNotIn(portalIds);
-          }))
-          .go();
+      // Guard against an empty set — isNotIn([]) generates "NOT IN ()" which
+      // SQLite treats as always true, wiping all events in the range.
+      if (portalIds.isNotEmpty) {
+        await (_database.delete(_database.calendarEvents)..where((e) {
+              return e.start.isBiggerOrEqualValue(wideStartDate) &
+                  e.end.isSmallerOrEqualValue(wideEndDate) &
+                  e.portalId.isNotIn(portalIds);
+            }))
+            .go();
+      }
 
       // Update the fetch timestamp for this user only.
       await (_database.update(_database.users)
