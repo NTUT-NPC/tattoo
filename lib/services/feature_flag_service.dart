@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
+/// Represents a raw feature flag value and its remote status.
 typedef FeatureFlagData = ({dynamic value, bool isRemote});
 
 /// Provides the [FeatureFlagService] instance.
@@ -10,13 +11,20 @@ final featureFlagServiceProvider = Provider<FeatureFlagService>((ref) {
   return FeatureFlagService();
 });
 
-/// Service for fetching default feature flags from the local JSON config.
-/// Extended with Firebase Remote Config to allow remote overrides.
+/// A service responsible for loading feature flag definitions from local assets
+/// and merging them with Firebase Remote Config overrides.
 class FeatureFlagService {
+  /// Loads the base feature flag configuration from `assets/feature_flags.json`.
   Future<String> loadLocalJson() async {
     return await rootBundle.loadString('assets/feature_flags.json');
   }
 
+  /// Fetches and merges feature flags from local defaults and Remote Config.
+  ///
+  /// Local defaults from `assets/feature_flags.json` serve as the baseline.
+  /// If Remote Config is available and contains a key present in the defaults,
+  /// the remote value takes precedence. Any keys present only in Remote Config
+  /// are also included.
   Future<Map<String, FeatureFlagData>> fetchDefaultFlags() async {
     final jsonString = await loadLocalJson();
     final localDefaults = jsonDecode(jsonString) as Map<String, dynamic>;

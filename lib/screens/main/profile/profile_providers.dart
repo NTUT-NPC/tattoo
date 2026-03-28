@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/repositories/feature_flag_providers.dart';
+import 'package:tattoo/screens/main/profile/feature_flag_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 
 /// Provides the user's active registration (current class and semester).

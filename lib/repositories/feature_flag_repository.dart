@@ -2,23 +2,43 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tattoo/services/feature_flag/feature_flag_service.dart';
+import 'package:tattoo/services/feature_flag_service.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
+/// Defines the origin of a feature flag value.
 enum FeatureFlagSource {
+  /// Default value defined in the local JSON configuration.
   local,
+
+  /// Value provided by Firebase Remote Config.
   remote,
+
+  /// Value manually set by the user via the debug/profile UI.
   override,
+
+  /// Value forced by the server, ignoring any local overrides.
   forced,
 }
 
-/// The model for a UI-consumable feature flag.
+/// A model representing a feature flag with its state and source information.
 class FeatureFlag {
+  /// The unique identifier for the feature flag.
   final String key;
+
+  /// The fallback value if no remote or local override exists.
   final dynamic defaultValue;
+
+  /// The locally stored value that overrides the default or remote value.
   final dynamic overrideValue;
+
+  /// Optional list of permitted values for this flag (e.g., for selection UI).
   final List<dynamic>? options;
+
+  /// Whether this flag is currently forced by a remote configuration,
+  /// preventing local overrides.
   final bool isForced;
+
+  /// Whether the current effective value (if not overridden) comes from a remote source.
   final bool isRemote;
 
   const FeatureFlag({
@@ -30,21 +50,19 @@ class FeatureFlag {
     this.isRemote = false,
   });
 
+  /// The effective value of the feature flag, prioritizing local overrides.
   dynamic get value => overrideValue ?? defaultValue;
+
+  /// The runtime type of the flag's value.
   Type get type => defaultValue.runtimeType;
 
+  /// Determines the source of the current effective value.
   FeatureFlagSource get source {
     if (isForced) return FeatureFlagSource.forced;
     if (overrideValue != null) return FeatureFlagSource.override;
     if (isRemote) return FeatureFlagSource.remote;
     return FeatureFlagSource.local;
   }
-
-  // Type-safe getters
-  bool get asBool => value as bool;
-  int get asInt => value as int;
-  double get asDouble => value as double;
-  String get asString => value as String;
 
   @override
   String toString() => '$key: $value (${source.name})';
@@ -58,6 +76,10 @@ final featureFlagRepositoryProvider = Provider<FeatureFlagRepository>((ref) {
   );
 });
 
+/// Manages the lifecycle, storage, and retrieval of feature flags.
+///
+/// This repository coordinates between local defaults, remote configurations,
+/// and persistent user overrides.
 class FeatureFlagRepository {
   final FeatureFlagService _service;
   final SharedPreferencesAsync _prefs;
@@ -74,6 +96,7 @@ class FeatureFlagRepository {
   /// A stream that emits whenever feature flags are updated from a remote source.
   Stream<void> get onUpdated => _updateController.stream;
 
+  /// Fetches default values, utilizing an in-memory cache.
   Future<Map<String, FeatureFlagData>> _getDefaults({
     bool forceRefresh = false,
   }) async {
@@ -81,7 +104,8 @@ class FeatureFlagRepository {
     return _defaultsCache ??= await _service.fetchDefaultFlags();
   }
 
-  /// Initializes the repository by warming up the cache.
+  /// Initializes the repository by loading local defaults into Remote Config
+  /// and warming up the flag cache.
   Future<void> init() async {
     // Initialize Remote Config with local defaults
     try {
@@ -109,6 +133,9 @@ class FeatureFlagRepository {
     log('FeatureFlagRepository initialized', name: 'FeatureFlagRepository');
   }
 
+  /// Retrieves all available feature flags, merging defaults with user overrides.
+  ///
+  /// If [forceRefresh] is true, it triggers a fetch from the remote server.
   Future<List<FeatureFlag>> getAllFlags({bool forceRefresh = false}) async {
     if (forceRefresh) {
       log('Forcing fresh load of feature flags', name: 'FeatureFlagRepository');
@@ -137,6 +164,7 @@ class FeatureFlagRepository {
     return _flagsCache = result;
   }
 
+  /// Parses the set of flags that are forced by the remote configuration.
   Set<String> _parseForceOverrides(Map<String, FeatureFlagData> defaults) {
     final forceOverrideString =
         defaults['_force_override_flags']?.value as String?;
@@ -148,6 +176,7 @@ class FeatureFlagRepository {
         const <String>{};
   }
 
+  /// Creates a [FeatureFlag] instance for a specific key by checking for overrides.
   Future<FeatureFlag> _createFeatureFlag(
     String key,
     FeatureFlagData data,
@@ -181,6 +210,7 @@ class FeatureFlagRepository {
     );
   }
 
+  /// Retrieves a persistent local override for a given flag.
   Future<dynamic> _getOverrideValue(String key, dynamic defVal) async {
     final prefKey = 'ff_$key';
     return switch (defVal) {
@@ -192,6 +222,9 @@ class FeatureFlagRepository {
     };
   }
 
+  /// Persistently overrides a feature flag value.
+  ///
+  /// Passing `null` as the [value] will remove the override.
   Future<void> setFlag(String key, dynamic value) async {
     final prefKey = 'ff_$key';
     if (value == null) {
@@ -221,6 +254,7 @@ class FeatureFlagRepository {
     _flagsCache = null;
   }
 
+  /// Resets a feature flag to its default or remote value by removing any local override.
   Future<void> resetFlag(String key) async {
     log('Feature flag "$key" reset to default', name: 'FeatureFlagRepository');
     firebaseService.log('Feature flag "$key" reset to default');
