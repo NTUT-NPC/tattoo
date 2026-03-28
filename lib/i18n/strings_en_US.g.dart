@@ -48,6 +48,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
 	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
 	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
+	@override late final _TranslationsFeatureFlagsEnUs featureFlags = _TranslationsFeatureFlagsEnUs._(_root);
 }
 
 // Path: general
@@ -66,6 +67,7 @@ class _TranslationsGeneralEnUs extends TranslationsGeneralZhTw {
 	@override String get copy => 'Copy';
 	@override String get copied => 'Copied';
 	@override String get ok => 'OK';
+	@override String get cancel => 'Cancel';
 }
 
 // Path: errors
@@ -81,6 +83,7 @@ class _TranslationsErrorsEnUs extends TranslationsErrorsZhTw {
 	@override String get sessionExpired => 'Session expired. Please sign in again.';
 	@override String get credentialsInvalid => 'Credentials are no longer valid. Please sign in again.';
 	@override String get connectionFailed => 'Cannot connect to the server. Please check your network connection.';
+	@override String get invalidInput => 'Invalid input value';
 }
 
 // Path: intro
@@ -196,6 +199,20 @@ class _TranslationsAboutEnUs extends TranslationsAboutZhTw {
 	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
 }
 
+// Path: featureFlags
+class _TranslationsFeatureFlagsEnUs extends TranslationsFeatureFlagsZhTw {
+	_TranslationsFeatureFlagsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Feature Flags';
+	@override String get reset => 'Reset to default';
+	@override String get noflag => 'No featureFlags';
+	@override late final _TranslationsFeatureFlagsStatusEnUs status = _TranslationsFeatureFlagsStatusEnUs._(_root);
+	@override String get refreshed => 'Refreshed from remote';
+}
+
 // Path: intro.features
 class _TranslationsIntroFeaturesEnUs extends TranslationsIntroFeaturesZhTw {
 	_TranslationsIntroFeaturesEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -249,6 +266,7 @@ class _TranslationsProfileOptionsEnUs extends TranslationsProfileOptionsZhTw {
 	@override String get about => 'About TAT';
 	@override String get npcClub => 'NTUT NPC Club';
 	@override String get preferences => 'Preferences';
+	@override String get dummyFeature => 'Dummy Feature (Test)';
 	@override String get logout => 'Sign Out';
 }
 
@@ -273,6 +291,7 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get featureFlags => 'Feature Flags';
 	@override String get nonFlutterCrash => 'Non-Flutter Framework Crash';
 	@override String get nonFlutterCrashException => 'Simulation of asynchronous error';
 	@override String get closedTitle => 'Bar is currently closed';
@@ -298,6 +317,19 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 	@override String cleared({required Object item}) => '${item} cleared';
 	@override String clearFailed({required Object item}) => 'Failed to clear ${item}';
 	@override late final _TranslationsProfileDangerZoneItemsEnUs items = _TranslationsProfileDangerZoneItemsEnUs._(_root);
+}
+
+// Path: featureFlags.status
+class _TranslationsFeatureFlagsStatusEnUs extends TranslationsFeatureFlagsStatusZhTw {
+	_TranslationsFeatureFlagsStatusEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get local => 'Local';
+	@override String get remote => 'Remote';
+	@override String get localOverride => 'Override';
+	@override String get remoteOverride => 'Forced';
 }
 
 // Path: intro.features.courseTable
@@ -364,12 +396,14 @@ extension on TranslationsEnUs {
 			'general.copy' => 'Copy',
 			'general.copied' => 'Copied',
 			'general.ok' => 'OK',
+			'general.cancel' => 'Cancel',
 			'errors.occurred' => 'An error occurred',
 			'errors.flutterError' => 'A Flutter error occurred',
 			'errors.asyncError' => 'An async error occurred',
 			'errors.sessionExpired' => 'Session expired. Please sign in again.',
 			'errors.credentialsInvalid' => 'Credentials are no longer valid. Please sign in again.',
 			'errors.connectionFailed' => 'Cannot connect to the server. Please check your network connection.',
+			'errors.invalidInput' => 'Invalid input value',
 			'intro.features.courseTable.title' => 'Courses',
 			'intro.features.courseTable.description' => 'Quickly view your course schedule and switch between semesters.',
 			'intro.features.scores.title' => 'Scores',
@@ -414,12 +448,14 @@ extension on TranslationsEnUs {
 			'profile.options.about' => 'About TAT',
 			'profile.options.npcClub' => 'NTUT NPC Club',
 			'profile.options.preferences' => 'Preferences',
+			'profile.options.dummyFeature' => 'Dummy Feature (Test)',
 			'profile.options.logout' => 'Sign Out',
 			'profile.avatar.uploading' => 'Updating avatar...',
 			'profile.avatar.uploadSuccess' => 'Avatar updated',
 			'profile.avatar.tooLarge' => 'Image exceeds the 20 MB size limit',
 			'profile.avatar.invalidFormat' => 'Unrecognized image format',
 			'profile.avatar.uploadFailed' => 'Failed to change avatar. Please try again later.',
+			'profile.dangerZone.featureFlags' => 'Feature Flags',
 			'profile.dangerZone.nonFlutterCrash' => 'Non-Flutter Framework Crash',
 			'profile.dangerZone.nonFlutterCrashException' => 'Simulation of asynchronous error',
 			'profile.dangerZone.closedTitle' => 'Bar is currently closed',
@@ -459,6 +495,14 @@ extension on TranslationsEnUs {
 			'about.privacyPolicyUrl' => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md',
 			'about.viewPrivacyPolicy' => 'View our privacy policy',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
+			'featureFlags.title' => 'Feature Flags',
+			'featureFlags.reset' => 'Reset to default',
+			'featureFlags.noflag' => 'No featureFlags',
+			'featureFlags.status.local' => 'Local',
+			'featureFlags.status.remote' => 'Remote',
+			'featureFlags.status.localOverride' => 'Override',
+			'featureFlags.status.remoteOverride' => 'Forced',
+			'featureFlags.refreshed' => 'Refreshed from remote',
 			_ => null,
 		};
 	}

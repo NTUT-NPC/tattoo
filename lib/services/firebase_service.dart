@@ -1,5 +1,8 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'dart:async';
+import 'dart:developer' as dev;
 
 /// Global toggle for Firebase features.
 ///
@@ -23,7 +26,13 @@ var firebaseService = const FirebaseService();
 /// firebase.crashlytics?.recordError(e, stack);
 /// ```
 class FirebaseService {
+  static final _updateController = StreamController<void>.broadcast();
+  static bool _isInitialized = false;
+
   const FirebaseService();
+
+  /// A stream that emits whenever the Remote Config is updated and activated.
+  Stream<void> get onConfigUpdated => _updateController.stream;
 
   /// The [FirebaseAnalytics] instance, or `null` if Firebase is disabled.
   FirebaseAnalytics? get analytics =>
@@ -37,6 +46,10 @@ class FirebaseService {
   /// The [FirebaseCrashlytics] instance, or `null` if Firebase is disabled.
   FirebaseCrashlytics? get crashlytics =>
       useFirebase ? FirebaseCrashlytics.instance : null;
+
+  /// The [FirebaseRemoteConfig] instance, or `null` if Firebase is disabled.
+  FirebaseRemoteConfig? get remoteConfig =>
+      useFirebase ? FirebaseRemoteConfig.instance : null;
 
   /// Logs a custom message to Firebase Crashlytics if enabled.
   ///
@@ -52,6 +65,125 @@ class FirebaseService {
       Exception(message),
       StackTrace.current,
       fatal: false,
+    );
+  }
+
+  /// Initializes Firebase Remote Config.
+  ///
+  /// Call this at app start to fetch and activate the latest configuration.
+  /// Optionally provide [defaults] for in-app default values.
+  Future<void> init({Map<String, dynamic>? defaults}) async {
+    final rc = remoteConfig;
+    if (rc == null) return;
+
+    if (_isInitialized) {
+      if (defaults != null) await setDefaults(defaults);
+      return;
+    }
+
+    if (defaults != null) {
+      await rc.setDefaults(defaults);
+    }
+
+    _setupUpdateListener(rc);
+
+    await _fetchAndActivate(
+      rc,
+      context: 'initialized',
+      setupSettings: true,
+    );
+    _isInitialized = true;
+  }
+
+  /// Updates the in-app default values for Remote Config.
+  Future<void> setDefaults(Map<String, dynamic> defaults) async {
+    await remoteConfig?.setDefaults(defaults);
+  }
+
+  void _setupUpdateListener(FirebaseRemoteConfig rc) {
+    rc.onConfigUpdated.listen((event) async {
+      dev.log(
+        'Remote Config updated: ${event.updatedKeys}',
+        name: 'FirebaseService',
+      );
+      await rc.activate();
+      _updateController.add(null);
+    });
+  }
+
+  /// Forces a fresh fetch and activation of Remote Config.
+  Future<void> fetch() async {
+    final rc = remoteConfig;
+    if (rc == null) return;
+
+    await _fetchAndActivate(
+      rc,
+      context: 'forced fetch',
+      recordFatalOnFailure: true,
+    );
+  }
+
+  Future<void> _fetchAndActivate(
+    FirebaseRemoteConfig rc, {
+    required String context,
+    bool setupSettings = false,
+    bool recordFatalOnFailure = false,
+  }) async {
+    try {
+      if (setupSettings) {
+        await rc.setConfigSettings(
+          RemoteConfigSettings(
+            fetchTimeout: const Duration(minutes: 1),
+            minimumFetchInterval: const Duration(minutes: 1),
+          ),
+        );
+      }
+
+      await rc.fetchAndActivate();
+
+      final configData = rc.getAll().map(
+        (key, value) => MapEntry(key, value.asString()),
+      );
+
+      if (rc.lastFetchStatus == RemoteConfigFetchStatus.success) {
+        final message = 'Remote Config $context successful: $configData';
+        dev.log(message, name: 'FirebaseService');
+        firebaseService.log(message);
+      } else {
+        final message =
+            'Remote Config $context failed (status: ${rc.lastFetchStatus}), using cache: $configData';
+        dev.log(message, name: 'FirebaseService');
+        firebaseService.log(message);
+      }
+    } catch (e) {
+      final configData = rc.getAll().map(
+        (key, value) => MapEntry(key, value.asString()),
+      );
+      final message =
+          'Remote Config $context error: $e. Using cache: $configData';
+      dev.log(message, name: 'FirebaseService');
+
+      if (recordFatalOnFailure) {
+        firebaseService.recordNonFatal(message);
+      } else {
+        firebaseService.log(message);
+      }
+    }
+  }
+
+  /// Retrieves a summary of a Remote Config string value.
+  ///
+  /// Returns a record containing the string value and whether it came from
+  /// a remote source.
+  ({String value, bool isRemote}) getRemoteConfigString(String key) {
+    final rc = remoteConfig;
+    if (rc == null) {
+      return (value: '', isRemote: false);
+    }
+    final val = rc.getValue(key);
+    return (
+      value: val.asString(),
+      isRemote: val.source == ValueSource.valueRemote,
     );
   }
 }

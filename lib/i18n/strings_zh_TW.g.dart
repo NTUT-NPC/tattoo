@@ -49,6 +49,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
+	late final TranslationsFeatureFlagsZhTw featureFlags = TranslationsFeatureFlagsZhTw.internal(_root);
 }
 
 // Path: general
@@ -85,6 +86,9 @@ class TranslationsGeneralZhTw {
 
 	/// zh-TW: '確定'
 	String get ok => '確定';
+
+	/// zh-TW: '取消'
+	String get cancel => '取消';
 }
 
 // Path: errors
@@ -112,6 +116,9 @@ class TranslationsErrorsZhTw {
 
 	/// zh-TW: '無法連線到伺服器，請檢查網路連線'
 	String get connectionFailed => '無法連線到伺服器，請檢查網路連線';
+
+	/// zh-TW: '無效的輸入值'
+	String get invalidInput => '無效的輸入值';
 }
 
 // Path: intro
@@ -283,6 +290,29 @@ class TranslationsAboutZhTw {
 	String get copyright => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
 }
 
+// Path: featureFlags
+class TranslationsFeatureFlagsZhTw {
+	TranslationsFeatureFlagsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '功能開關'
+	String get title => '功能開關';
+
+	/// zh-TW: '恢復預設值'
+	String get reset => '恢復預設值';
+
+	/// zh-TW: '沒有功能開關'
+	String get noflag => '沒有功能開關';
+
+	late final TranslationsFeatureFlagsStatusZhTw status = TranslationsFeatureFlagsStatusZhTw.internal(_root);
+
+	/// zh-TW: '已從遠端截取'
+	String get refreshed => '已從遠端截取';
+}
+
 // Path: intro.features
 class TranslationsIntroFeaturesZhTw {
 	TranslationsIntroFeaturesZhTw.internal(this._root);
@@ -369,6 +399,9 @@ class TranslationsProfileOptionsZhTw {
 	/// zh-TW: '偏好設定'
 	String get preferences => '偏好設定';
 
+	/// zh-TW: '虛擬功能 (測試用)'
+	String get dummyFeature => '虛擬功能 (測試用)';
+
 	/// zh-TW: '登出帳號'
 	String get logout => '登出帳號';
 }
@@ -404,6 +437,9 @@ class TranslationsProfileDangerZoneZhTw {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// zh-TW: '功能開關'
+	String get featureFlags => '功能開關';
 
 	/// zh-TW: '非Flutter框架崩潰'
 	String get nonFlutterCrash => '非Flutter框架崩潰';
@@ -461,6 +497,27 @@ class TranslationsProfileDangerZoneZhTw {
 	String clearFailed({required Object item}) => '清除${item}失敗';
 
 	late final TranslationsProfileDangerZoneItemsZhTw items = TranslationsProfileDangerZoneItemsZhTw.internal(_root);
+}
+
+// Path: featureFlags.status
+class TranslationsFeatureFlagsStatusZhTw {
+	TranslationsFeatureFlagsStatusZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '本機'
+	String get local => '本機';
+
+	/// zh-TW: '遠端'
+	String get remote => '遠端';
+
+	/// zh-TW: '覆寫'
+	String get localOverride => '覆寫';
+
+	/// zh-TW: '強制'
+	String get remoteOverride => '強制';
 }
 
 // Path: intro.features.courseTable
@@ -549,12 +606,14 @@ extension on Translations {
 			'general.copy' => '複製',
 			'general.copied' => '已複製',
 			'general.ok' => '確定',
+			'general.cancel' => '取消',
 			'errors.occurred' => '發生錯誤',
 			'errors.flutterError' => '發生Flutter錯誤',
 			'errors.asyncError' => '發生非同步錯誤',
 			'errors.sessionExpired' => '登入狀態已過期，請重新登入',
 			'errors.credentialsInvalid' => '登入憑證已失效，請重新登入',
 			'errors.connectionFailed' => '無法連線到伺服器，請檢查網路連線',
+			'errors.invalidInput' => '無效的輸入值',
 			'intro.features.courseTable.title' => '查課表',
 			'intro.features.courseTable.description' => '快速查看課表和課程資訊，並可快速切換學期。',
 			'intro.features.scores.title' => '看成績',
@@ -599,12 +658,14 @@ extension on Translations {
 			'profile.options.about' => '關於TAT',
 			'profile.options.npcClub' => '北科程式設計研究社',
 			'profile.options.preferences' => '偏好設定',
+			'profile.options.dummyFeature' => '虛擬功能 (測試用)',
 			'profile.options.logout' => '登出帳號',
 			'profile.avatar.uploading' => '正在更新個人圖片...',
 			'profile.avatar.uploadSuccess' => '個人圖片已更新',
 			'profile.avatar.tooLarge' => '圖片大小超過20 MB限制',
 			'profile.avatar.invalidFormat' => '無法辨識的圖片格式',
 			'profile.avatar.uploadFailed' => '更改個人圖片失敗，請稍後再試',
+			'profile.dangerZone.featureFlags' => '功能開關',
 			'profile.dangerZone.nonFlutterCrash' => '非Flutter框架崩潰',
 			'profile.dangerZone.nonFlutterCrashException' => '模擬非同步錯誤',
 			'profile.dangerZone.closedTitle' => '酒吧暫未營業',
@@ -644,6 +705,14 @@ extension on Translations {
 			'about.privacyPolicyUrl' => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md',
 			'about.viewPrivacyPolicy' => '查看隱私權政策',
 			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
+			'featureFlags.title' => '功能開關',
+			'featureFlags.reset' => '恢復預設值',
+			'featureFlags.noflag' => '沒有功能開關',
+			'featureFlags.status.local' => '本機',
+			'featureFlags.status.remote' => '遠端',
+			'featureFlags.status.localOverride' => '覆寫',
+			'featureFlags.status.remoteOverride' => '強制',
+			'featureFlags.refreshed' => '已從遠端截取',
 			_ => null,
 		};
 	}

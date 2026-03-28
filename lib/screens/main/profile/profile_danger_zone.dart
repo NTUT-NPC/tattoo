@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
@@ -9,6 +10,7 @@ import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
@@ -125,6 +127,13 @@ class ProfileDangerZone extends ConsumerWidget {
             SectionHeader(
               title: t.profile.sections.dangerZone,
               color: dangerColor,
+            ),
+            OptionEntryTile.icon(
+              icon: Icons.flag_outlined,
+              title: t.profile.dangerZone.featureFlags,
+              color: dangerColor,
+              borderColor: dangerColor,
+              onTap: () => context.push(AppRoutes.featureFlags),
             ),
             OptionEntryTile.icon(
               icon: Icons.sports_bar_outlined,
