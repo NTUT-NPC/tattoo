@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/feature_flag_repository.dart';
-import 'package:tattoo/repositories/feature_flag_providers.dart';
+import 'package:tattoo/screens/main/profile/feature_flag_providers.dart';
 
+/// A screen that displays all available feature flags, allowing users (typically
+/// developers or testers) to view and override flag values.
 class FeatureFlagScreen extends ConsumerWidget {
   const FeatureFlagScreen({super.key});
 
@@ -38,6 +40,7 @@ class FeatureFlagScreen extends ConsumerWidget {
   }
 }
 
+/// A scrollable list of feature flag tiles.
 class _FlagList extends StatelessWidget {
   final List<FeatureFlag> flags;
 
@@ -52,6 +55,7 @@ class _FlagList extends StatelessWidget {
   }
 }
 
+/// A single row representing a feature flag, its current value, and its source.
 class _FlagTile extends ConsumerWidget {
   final FeatureFlag flag;
 
@@ -71,6 +75,7 @@ class _FlagTile extends ConsumerWidget {
     );
   }
 
+  /// Toggles boolean flags or opens an editor for other types.
   void _onTap(BuildContext context, WidgetRef ref) {
     if (flag.type == bool) {
       ref
@@ -81,6 +86,7 @@ class _FlagTile extends ConsumerWidget {
     }
   }
 
+  /// Displays an appropriate editor (dialog or option list) for the flag's value.
   void _editValue(BuildContext context, WidgetRef ref, FeatureFlag flag) {
     if (flag.options != null) {
       _showOptionsDialog(
@@ -134,6 +140,7 @@ class _FlagTile extends ConsumerWidget {
     );
   }
 
+  /// Shows a selection dialog when a list of permitted values is available.
   void _showOptionsDialog(
     BuildContext context,
     WidgetRef ref,
@@ -178,6 +185,7 @@ class _FlagTile extends ConsumerWidget {
     );
   }
 
+  /// Shows a generic error message for invalid inputs.
   void _showError(BuildContext context) {
     showDialog(
       context: context,
@@ -195,6 +203,7 @@ class _FlagTile extends ConsumerWidget {
   }
 }
 
+/// Displays the current source (local, remote, override) and effective value of a flag.
 class _FlagSubtitle extends StatelessWidget {
   final FeatureFlag flag;
 
@@ -239,6 +248,7 @@ class _FlagSubtitle extends StatelessWidget {
     );
   }
 
+  /// Returns visual styling and localized text based on the flag's source.
   ({String text, Color bgColor, Color textColor}) _getStatusMetadata() {
     return switch (flag.source) {
       FeatureFlagSource.override => (
@@ -265,6 +275,7 @@ class _FlagSubtitle extends StatelessWidget {
   }
 }
 
+/// Provides interaction elements like switches (for booleans) or reset buttons.
 class _FlagTrailingAction extends ConsumerWidget {
   final FeatureFlag flag;
 
