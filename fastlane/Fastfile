@@ -50,6 +50,8 @@ platform :ios do
       profile_name: "match AppStore #{ENV["FASTLANE_APP_IDENTIFIER"]}",
     )
 
+    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
+    
     # Build and create xcarchive without code signing
     archive_path = flutter_build(
       build: "ipa",
@@ -70,7 +72,6 @@ platform :ios do
 
     next if skip_upload
 
-    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
     upload_symbols_to_crashlytics(
       dsym_path: lane_context[SharedValues::DSYM_OUTPUT_PATH],
