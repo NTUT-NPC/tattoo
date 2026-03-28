@@ -31,7 +31,7 @@ class FeatureFlagScreen extends ConsumerWidget {
       ),
       body: flagsAsync.when(
         data: (flags) => flags.isEmpty
-            ? Center(child: Text(t.featureFlags.noflag))
+            ? Center(child: Text(t.featureFlags.noFlag))
             : _FlagList(flags: flags),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text(t.errors.occurred)),

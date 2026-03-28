@@ -130,7 +130,7 @@ about:
 featureFlags:
   title: Feature Flags
   reset: Reset to default
-  noflag: No featureFlags
+  noFlag: No featureFlags
   status:
     local: Local
     remote: Remote

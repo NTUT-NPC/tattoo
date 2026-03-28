@@ -208,7 +208,7 @@ class _TranslationsFeatureFlagsEnUs extends TranslationsFeatureFlagsZhTw {
 	// Translations
 	@override String get title => 'Feature Flags';
 	@override String get reset => 'Reset to default';
-	@override String get noflag => 'No featureFlags';
+	@override String get noFlag => 'No featureFlags';
 	@override late final _TranslationsFeatureFlagsStatusEnUs status = _TranslationsFeatureFlagsStatusEnUs._(_root);
 	@override String get refreshed => 'Refreshed from remote';
 }
@@ -497,7 +497,7 @@ extension on TranslationsEnUs {
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
 			'featureFlags.title' => 'Feature Flags',
 			'featureFlags.reset' => 'Reset to default',
-			'featureFlags.noflag' => 'No featureFlags',
+			'featureFlags.noFlag' => 'No featureFlags',
 			'featureFlags.status.local' => 'Local',
 			'featureFlags.status.remote' => 'Remote',
 			'featureFlags.status.localOverride' => 'Override',
