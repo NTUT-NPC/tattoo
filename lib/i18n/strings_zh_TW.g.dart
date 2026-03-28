@@ -305,7 +305,7 @@ class TranslationsFeatureFlagsZhTw {
 	String get reset => '恢復預設值';
 
 	/// zh-TW: '沒有功能開關'
-	String get noflag => '沒有功能開關';
+	String get noFlag => '沒有功能開關';
 
 	late final TranslationsFeatureFlagsStatusZhTw status = TranslationsFeatureFlagsStatusZhTw.internal(_root);
 
@@ -707,7 +707,7 @@ extension on Translations {
 			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
 			'featureFlags.title' => '功能開關',
 			'featureFlags.reset' => '恢復預設值',
-			'featureFlags.noflag' => '沒有功能開關',
+			'featureFlags.noFlag' => '沒有功能開關',
 			'featureFlags.status.local' => '本機',
 			'featureFlags.status.remote' => '遠端',
 			'featureFlags.status.localOverride' => '覆寫',
