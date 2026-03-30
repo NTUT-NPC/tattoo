@@ -5,7 +5,6 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
-import 'package:tattoo/utils/fetch_with_ttl.dart';
 
 /// Aggregated academic data for one semester.
 ///
@@ -49,28 +48,63 @@ class StudentRepository {
        _firebaseService = firebaseService,
        _studentQueryService = studentQueryService;
 
-  /// Gets aggregated academic records grouped by semester.
+  /// Watches aggregated academic records grouped by semester.
   ///
-  /// Returns cached data if fresh (within TTL). Set [refresh] to `true` to
-  /// bypass TTL (pull-to-refresh).
-  Future<List<SemesterRecordData>> getSemesterRecords({
-    bool refresh = false,
-  }) async {
-    final user = await _database.select(_database.users).getSingle();
+  /// Emits cached data immediately, then triggers a background network fetch
+  /// if data is empty or stale. The stream re-emits
+  /// automatically when the DB is updated.
+  ///
+  /// Network errors during background refresh are absorbed — the stream
+  /// continues showing stale (or empty) data rather than erroring.
+  Stream<List<SemesterRecordData>> watchSemesterRecords() async* {
+    const ttl = Duration(days: 3);
 
-    final cached = await _buildSemesterRecordData(user.id);
+    // Watch academic summaries as the trigger signal. Score data changes
+    // atomically in a transaction, so this catches all updates.
+    await for (final _
+        in _database.select(_database.userAcademicSummaries).watch()) {
+      final user = await _database.select(_database.users).getSingleOrNull();
+      if (user == null) {
+        yield [];
+        continue;
+      }
 
-    return fetchWithTtl(
-      cached: cached.isEmpty ? null : cached,
-      getFetchedAt: (_) => user.scoreDataFetchedAt,
-      fetchFromNetwork: () => _fetchSemesterRecordsFromNetwork(user.id),
-      refresh: refresh,
-    );
+      final records = await _buildSemesterRecordData(user.id);
+
+      if (records.isEmpty) {
+        try {
+          await refreshSemesterRecords();
+        } catch (_) {
+          // Absorb: yield empty below so UI exits loading state
+        }
+      }
+
+      yield records;
+
+      // Re-read user to get the latest scoreDataFetchedAt
+      final freshUser = await _database
+          .select(_database.users)
+          .getSingleOrNull();
+      final age = switch (freshUser?.scoreDataFetchedAt) {
+        final t? => DateTime.now().difference(t),
+        null => ttl,
+      };
+      if (age >= ttl) {
+        try {
+          await refreshSemesterRecords();
+        } catch (_) {
+          // Absorb: stale data is shown via stream
+        }
+      }
+    }
   }
 
-  Future<List<SemesterRecordData>> _fetchSemesterRecordsFromNetwork(
-    int userId,
-  ) async {
+  /// Fetches fresh semester records from network and writes to DB.
+  ///
+  /// The [watchSemesterRecords] stream automatically emits the updated value.
+  /// Network errors propagate to the caller.
+  Future<void> refreshSemesterRecords() async {
+    final userId = (await _database.select(_database.users).getSingle()).id;
     final (semesters, gpas, rankings) = await _authRepository.withAuth(
       () async {
         final semestersFuture = _studentQueryService.getAcademicPerformance();
@@ -225,8 +259,6 @@ class StudentRepository {
             ..where((u) => u.id.equals(userId)))
           .write(UsersCompanion(scoreDataFetchedAt: Value(DateTime.now())));
     });
-
-    return _buildSemesterRecordData(userId);
   }
 
   Future<List<SemesterRecordData>> _buildSemesterRecordData(

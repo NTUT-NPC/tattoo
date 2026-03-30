@@ -20,33 +20,14 @@ class CourseTableScreen extends ConsumerWidget {
   const CourseTableScreen({super.key});
 
   Future<void> _refreshCourseTable(
-    BuildContext context,
     WidgetRef ref,
     Semester semester,
   ) async {
-    final userFuture = ref.read(userProfileProvider.future);
     final courseRepository = ref.read(courseRepositoryProvider);
-
-    final user = await userFuture;
-    if (user == null) {
-      if (!context.mounted) return;
-      ref.invalidate(courseTableSemestersProvider);
-      ref.invalidate(courseTableProvider(semester));
-      return;
-    }
-
-    await Future.wait([
-      courseRepository.getSemesters(refresh: true),
-      courseRepository.getCourseTable(
-        user: user,
-        semester: semester,
-        refresh: true,
-      ),
-    ]);
-
-    if (!context.mounted) return;
-    ref.invalidate(courseTableSemestersProvider);
-    ref.invalidate(courseTableProvider(semester));
+    await [
+      courseRepository.refreshSemesters(),
+      courseRepository.refreshCourseTable(semesterId: semester.id),
+    ].wait;
   }
 
   void _showDemoTap(BuildContext context) {
@@ -57,7 +38,6 @@ class CourseTableScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenContext = context;
     final profileAsync = ref.watch(userProfileProvider);
     final semestersAsync = ref.watch(courseTableSemestersProvider);
     final displayedSemesterTabLabels = switch (semestersAsync) {
@@ -184,7 +164,7 @@ class CourseTableScreen extends ConsumerWidget {
                       Consumer(
                         builder: (context, tabRef, child) {
                           final courseTableAsync = tabRef.watch(
-                            courseTableProvider(semester),
+                            courseTableProvider(semester.id),
                           );
 
                           return switch (courseTableAsync) {
@@ -200,7 +180,6 @@ class CourseTableScreen extends ConsumerWidget {
                                   courseTableAsync.isLoading &&
                                   !courseTableAsync.hasValue,
                               onRefresh: () => _refreshCourseTable(
-                                screenContext,
                                 ref,
                                 semester,
                               ),
