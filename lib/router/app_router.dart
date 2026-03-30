@@ -11,6 +11,7 @@ import 'package:tattoo/screens/main/score/score_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
+import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -23,6 +24,7 @@ abstract class AppRoutes {
   static const intro = '/intro';
   static const login = '/login';
   static const about = '/about';
+  static const scanner = '/scanner';
 }
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
@@ -67,6 +69,10 @@ GoRouter createAppRouter({
     GoRoute(
       path: AppRoutes.about,
       builder: (context, state) => const AboutScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.scanner,
+      builder: (context, state) => const ScannerScreen(),
     ),
     StatefulShellRoute(
       builder: (context, state, navigationShell) =>
