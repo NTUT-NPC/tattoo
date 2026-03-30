@@ -340,7 +340,7 @@ class _TranslationsScannerGuideEnUs extends TranslationsScannerGuideZhTw {
 
 	// Translations
 	@override String get title => 'How to login?';
-	@override String get step1 => '1. Go to the following URL on your computer';
+	@override String get step1 => '1. Go to the following URL on your computer:';
 	@override String get url => 'https://i.ntut.club';
 	@override String get step2 => '2. Click "Outside school login" in the navigation bar';
 	@override String get step3 => '3. Click "Scan QR code"';
@@ -513,7 +513,7 @@ extension on TranslationsEnUs {
 			'scanner.errors.unknown' => 'Login failed. Please check the QR code or refresh the page.',
 			'scanner.howTo' => 'Open i.ntut.club on your computer and select QR code login',
 			'scanner.guide.title' => 'How to login?',
-			'scanner.guide.step1' => '1. Go to the following URL on your computer',
+			'scanner.guide.step1' => '1. Go to the following URL on your computer:',
 			'scanner.guide.url' => 'https://i.ntut.club',
 			'scanner.guide.step2' => '2. Click "Outside school login" in the navigation bar',
 			'scanner.guide.step3' => '3. Click "Scan QR code"',
