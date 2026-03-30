@@ -160,7 +160,7 @@ class _TranslationsProfileEnUs extends TranslationsProfileZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get dataDisclaimer => 'For reference only. Not valid as official documentation.';
+	@override String get dataDisclaimer => 'Reference only. Not official.';
 	@override late final _TranslationsProfileSectionsEnUs sections = _TranslationsProfileSectionsEnUs._(_root);
 	@override late final _TranslationsProfileOptionsEnUs options = _TranslationsProfileOptionsEnUs._(_root);
 	@override late final _TranslationsProfileAvatarEnUs avatar = _TranslationsProfileAvatarEnUs._(_root);
@@ -279,7 +279,7 @@ class _TranslationsProfileOptionsEnUs extends TranslationsProfileOptionsZhTw {
 	@override String get changeAvatar => 'Change Avatar';
 	@override String get supportUs => 'Support Us';
 	@override String get about => 'About TAT';
-	@override String get npcClub => 'NTUT NPC Club';
+	@override String get npcClub => 'NTUT Programming Club';
 	@override String get preferences => 'Preferences';
 	@override String get logout => 'Sign Out';
 }
@@ -451,7 +451,7 @@ extension on TranslationsEnUs {
 			'courseTable.dayOfWeek.thursday' => 'Thu',
 			'courseTable.dayOfWeek.friday' => 'Fri',
 			'courseTable.dayOfWeek.saturday' => 'Sat',
-			'profile.dataDisclaimer' => 'For reference only. Not valid as official documentation.',
+			'profile.dataDisclaimer' => 'Reference only. Not official.',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
 			'profile.sections.dangerZone' => 'Danger Zone',
@@ -459,7 +459,7 @@ extension on TranslationsEnUs {
 			'profile.options.changeAvatar' => 'Change Avatar',
 			'profile.options.supportUs' => 'Support Us',
 			'profile.options.about' => 'About TAT',
-			'profile.options.npcClub' => 'NTUT NPC Club',
+			'profile.options.npcClub' => 'NTUT Programming Club',
 			'profile.options.preferences' => 'Preferences',
 			'profile.options.logout' => 'Sign Out',
 			'profile.avatar.uploading' => 'Updating avatar...',

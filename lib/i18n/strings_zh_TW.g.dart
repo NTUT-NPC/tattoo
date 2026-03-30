@@ -221,8 +221,8 @@ class TranslationsProfileZhTw {
 
 	// Translations
 
-	/// zh-TW: '本資料僅供參考，不做其他證明用途'
-	String get dataDisclaimer => '本資料僅供參考，不做其他證明用途';
+	/// zh-TW: '僅供參考，非正式文件'
+	String get dataDisclaimer => '僅供參考，非正式文件';
 
 	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
 	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
@@ -674,7 +674,7 @@ extension on Translations {
 			'courseTable.dayOfWeek.thursday' => '四',
 			'courseTable.dayOfWeek.friday' => '五',
 			'courseTable.dayOfWeek.saturday' => '六',
-			'profile.dataDisclaimer' => '本資料僅供參考，不做其他證明用途',
+			'profile.dataDisclaimer' => '僅供參考，非正式文件',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
 			'profile.sections.dangerZone' => '危險區域',
