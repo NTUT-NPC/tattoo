@@ -86,7 +86,8 @@ profile:
     closedMessage: The bar is closed today, come back another time to explore!
     kickedMessage: You were kicked out by the staff. Better head home and rest!
     fireMessage: Bar is on fire
-    alreadyFull: Already full
+    barOpen: The bar is now open
+    barClosed: The bar has closed down
     goAction: "Go to the bar and ${action}"
     actions:
       - order 0 beers

@@ -181,7 +181,7 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 	@override String get failed => 'Login failed';
 	@override String get processing => 'Processing...';
 	@override String get loggingIn => 'Logging in...';
-	@override String get permissionDenied => 'Camera permission required';
+	@override String get permissionDenied => 'Camera permission required to scan QR codes';
 	@override String get permissionDeniedDescription => 'Please enable camera access in your device settings and try again.';
 	@override String get cameraError => 'Unable to start the camera. Please check your hardware or try again later.';
 	@override Map<String, String> get errors => {
@@ -311,7 +311,8 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 	@override String get closedMessage => 'The bar is closed today, come back another time to explore!';
 	@override String get kickedMessage => 'You were kicked out by the staff. Better head home and rest!';
 	@override String get fireMessage => 'Bar is on fire';
-	@override String get alreadyFull => 'Already full';
+	@override String get barOpen => 'The bar is now open';
+	@override String get barClosed => 'The bar has closed down';
 	@override String goAction({required Object action}) => 'Go to the bar and ${action}';
 	@override List<String> get actions => [
 		'order 0 beers',
@@ -473,7 +474,8 @@ extension on TranslationsEnUs {
 			'profile.dangerZone.closedMessage' => 'The bar is closed today, come back another time to explore!',
 			'profile.dangerZone.kickedMessage' => 'You were kicked out by the staff. Better head home and rest!',
 			'profile.dangerZone.fireMessage' => 'Bar is on fire',
-			'profile.dangerZone.alreadyFull' => 'Already full',
+			'profile.dangerZone.barOpen' => 'The bar is now open',
+			'profile.dangerZone.barClosed' => 'The bar has closed down',
 			'profile.dangerZone.goAction' => ({required Object action}) => 'Go to the bar and ${action}',
 			'profile.dangerZone.actions.0' => 'order 0 beers',
 			'profile.dangerZone.actions.1' => 'order 999999999 beers',
@@ -501,7 +503,7 @@ extension on TranslationsEnUs {
 			'scanner.failed' => 'Login failed',
 			'scanner.processing' => 'Processing...',
 			'scanner.loggingIn' => 'Logging in...',
-			'scanner.permissionDenied' => 'Camera permission required',
+			'scanner.permissionDenied' => 'Camera permission required to scan QR codes',
 			'scanner.permissionDeniedDescription' => 'Please enable camera access in your device settings and try again.',
 			'scanner.cameraError' => 'Unable to start the camera. Please check your hardware or try again later.',
 			'scanner.errors."201"' => 'Mobile login required',

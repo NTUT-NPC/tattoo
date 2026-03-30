@@ -86,7 +86,8 @@ profile:
     closedMessage: 酒吧今天打烊了，改天再來探索吧！
     kickedMessage: 你被店員勸退，還是早點回家休息吧～
     fireMessage: 酒吧陷入火海
-    alreadyFull: 已經吃飽了
+    barOpen: 酒吧開門了
+    barClosed: 酒吧倒閉了
     goAction: "去酒吧${action}"
     actions:
       - 點0杯啤酒
