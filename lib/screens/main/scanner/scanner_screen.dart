@@ -176,13 +176,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             error: _error != null ? _mapScanError(_error!) : null,
             onDismissError: _clearError,
           ),
-          if (_isProcessing)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: const LinearProgressIndicator(),
-            ),
         ],
       ),
     );
