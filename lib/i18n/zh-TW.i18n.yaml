@@ -74,7 +74,7 @@ profile:
     preferences: 偏好設定
     logout: 登出帳號
   avatar:
-    uploading: 正在更新個人圖片...
+    uploading: 正在更新個人圖片…
     uploadSuccess: 個人圖片已更新
     tooLarge: 圖片大小超過20 MB限制
     invalidFormat: 無法辨識的圖片格式
@@ -116,8 +116,8 @@ scanner:
   loginIStudy: 掃碼登入i學園
   success: 登入成功
   failed: 登入失敗
-  processing: 正在處理...
-  loggingIn: 正在登入...
+  processing: 正在處理…
+  loggingIn: 正在登入…
   permissionDenied: 需要相機權限才能掃描QR code
   permissionDeniedDescription: 請至設定中開啟相機權限，然後再試一次。
   cameraError: 無法開啟相機，請檢查硬體或稍後再試。

@@ -179,8 +179,8 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 	@override String get loginIStudy => 'Login to iSchool Plus';
 	@override String get success => 'Login successful';
 	@override String get failed => 'Login failed';
-	@override String get processing => 'Processing...';
-	@override String get loggingIn => 'Logging in...';
+	@override String get processing => 'Processing…';
+	@override String get loggingIn => 'Logging in…';
 	@override String get permissionDenied => 'Camera permission required to scan QR codes';
 	@override String get permissionDeniedDescription => 'Please enable camera access in your device settings and try again.';
 	@override String get cameraError => 'Unable to start the camera. Please check your hardware or try again later.';
@@ -291,7 +291,7 @@ class _TranslationsProfileAvatarEnUs extends TranslationsProfileAvatarZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get uploading => 'Updating avatar...';
+	@override String get uploading => 'Updating avatar…';
 	@override String get uploadSuccess => 'Avatar updated';
 	@override String get tooLarge => 'Image exceeds the 20 MB size limit';
 	@override String get invalidFormat => 'Unrecognized image format';
@@ -463,7 +463,7 @@ extension on TranslationsEnUs {
 			'profile.options.npcClub' => 'NTUT Programming Club',
 			'profile.options.preferences' => 'Preferences',
 			'profile.options.logout' => 'Sign Out',
-			'profile.avatar.uploading' => 'Updating avatar...',
+			'profile.avatar.uploading' => 'Updating avatar…',
 			'profile.avatar.uploadSuccess' => 'Avatar updated',
 			'profile.avatar.tooLarge' => 'Image exceeds the 20 MB size limit',
 			'profile.avatar.invalidFormat' => 'Unrecognized image format',
@@ -501,8 +501,8 @@ extension on TranslationsEnUs {
 			'scanner.loginIStudy' => 'Login to iSchool Plus',
 			'scanner.success' => 'Login successful',
 			'scanner.failed' => 'Login failed',
-			'scanner.processing' => 'Processing...',
-			'scanner.loggingIn' => 'Logging in...',
+			'scanner.processing' => 'Processing…',
+			'scanner.loggingIn' => 'Logging in…',
 			'scanner.permissionDenied' => 'Camera permission required to scan QR codes',
 			'scanner.permissionDeniedDescription' => 'Please enable camera access in your device settings and try again.',
 			'scanner.cameraError' => 'Unable to start the camera. Please check your hardware or try again later.',

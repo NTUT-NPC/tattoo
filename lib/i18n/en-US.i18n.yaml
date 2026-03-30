@@ -74,7 +74,7 @@ profile:
     preferences: Preferences
     logout: Sign Out
   avatar:
-    uploading: Updating avatar...
+    uploading: Updating avatar…
     uploadSuccess: Avatar updated
     tooLarge: Image exceeds the 20 MB size limit
     invalidFormat: Unrecognized image format
@@ -116,8 +116,8 @@ scanner:
   loginIStudy: Login to iSchool Plus
   success: Login successful
   failed: Login failed
-  processing: Processing...
-  loggingIn: Logging in...
+  processing: Processing…
+  loggingIn: Logging in…
   permissionDenied: Camera permission required to scan QR codes
   permissionDeniedDescription: Please enable camera access in your device settings and try again.
   cameraError: Unable to start the camera. Please check your hardware or try again later.

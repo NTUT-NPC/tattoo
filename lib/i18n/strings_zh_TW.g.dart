@@ -253,11 +253,11 @@ class TranslationsScannerZhTw {
 	/// zh-TW: '登入失敗'
 	String get failed => '登入失敗';
 
-	/// zh-TW: '正在處理...'
-	String get processing => '正在處理...';
+	/// zh-TW: '正在處理…'
+	String get processing => '正在處理…';
 
-	/// zh-TW: '正在登入...'
-	String get loggingIn => '正在登入...';
+	/// zh-TW: '正在登入…'
+	String get loggingIn => '正在登入…';
 
 	/// zh-TW: '需要相機權限才能掃描QR code'
 	String get permissionDenied => '需要相機權限才能掃描QR code';
@@ -439,8 +439,8 @@ class TranslationsProfileAvatarZhTw {
 
 	// Translations
 
-	/// zh-TW: '正在更新個人圖片...'
-	String get uploading => '正在更新個人圖片...';
+	/// zh-TW: '正在更新個人圖片…'
+	String get uploading => '正在更新個人圖片…';
 
 	/// zh-TW: '個人圖片已更新'
 	String get uploadSuccess => '個人圖片已更新';
@@ -688,7 +688,7 @@ extension on Translations {
 			'profile.options.npcClub' => '北科程式設計研究社',
 			'profile.options.preferences' => '偏好設定',
 			'profile.options.logout' => '登出帳號',
-			'profile.avatar.uploading' => '正在更新個人圖片...',
+			'profile.avatar.uploading' => '正在更新個人圖片…',
 			'profile.avatar.uploadSuccess' => '個人圖片已更新',
 			'profile.avatar.tooLarge' => '圖片大小超過20 MB限制',
 			'profile.avatar.invalidFormat' => '無法辨識的圖片格式',
@@ -726,8 +726,8 @@ extension on Translations {
 			'scanner.loginIStudy' => '掃碼登入i學園',
 			'scanner.success' => '登入成功',
 			'scanner.failed' => '登入失敗',
-			'scanner.processing' => '正在處理...',
-			'scanner.loggingIn' => '正在登入...',
+			'scanner.processing' => '正在處理…',
+			'scanner.loggingIn' => '正在登入…',
 			'scanner.permissionDenied' => '需要相機權限才能掃描QR code',
 			'scanner.permissionDeniedDescription' => '請至設定中開啟相機權限，然後再試一次。',
 			'scanner.cameraError' => '無法開啟相機，請檢查硬體或稍後再試。',
