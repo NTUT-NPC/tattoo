@@ -6,6 +6,7 @@ import 'package:tattoo/shells/animated_shell_container.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
+import 'package:tattoo/screens/main/profile/ntut_wifi_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
@@ -25,6 +26,7 @@ abstract class AppRoutes {
   static const login = '/login';
   static const about = '/about';
   static const scanner = '/scanner';
+  static const ntutWifi = '/ntut-8021x';
 }
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
@@ -73,6 +75,10 @@ GoRouter createAppRouter({
     GoRoute(
       path: AppRoutes.scanner,
       builder: (context, state) => const ScannerScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.ntutWifi,
+      builder: (context, state) => const NtutWifiScreen(),
     ),
     StatefulShellRoute(
       builder: (context, state, navigationShell) =>

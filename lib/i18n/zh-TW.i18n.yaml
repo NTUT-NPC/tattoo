@@ -66,6 +66,7 @@ profile:
     appSettings: 應用程式設定
     dangerZone: 危險區域
   options:
+    ntutWifi: 連接NTUT-802.1X
     changePassword: 更改密碼
     changeAvatar: 更改個人圖片
     supportUs: 支持我們
@@ -138,6 +139,54 @@ scanner:
     step3: "3. 點擊「QR Code 登入」"
     button: 我知道了
   invalidUrl: 無效的網址
+ntutWifi:
+  title: NTUT-802.1X
+  entryDescription: 使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi
+  intro: 使用已登入的校園入口帳號密碼，自動加入NTUT-802.1X並讓Android後續自動嘗試連線。
+  accountHint: 帳號直接使用學號或員編，不要加上@ntut.edu.tw。
+  androidVersion: "Android API ${sdkInt}"
+  unsupportedPlatform: 這個功能目前僅支援Android裝置。
+  notLoggedIn: 請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。
+  credentialsMissing: 找不到已保存的入口網站密碼。若要複製密碼，請先重新登入TAT。
+  olderAndroidWarning: 此助手依Android 12以上介面設計，較舊版本的欄位名稱可能略有不同。
+  copyFailed: 複製失敗
+  openSettingsFailed: 無法開啟Wi‑Fi設定
+  openPanelFailed: 無法開啟Wi‑Fi快捷面板
+  systemCertificatesHint: 自動佈署會固定使用「系統憑證 + 網域ntut.edu.tw + PEAP/GTC」。若系統不允許App安全地下發這組Enterprise設定，請改走下方手動fallback。
+  automaticProvisionUnavailable: 這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。
+  sections:
+    quickActions: 快速操作
+    recommendedSettings: 建議設定
+    fallback: 手動Fallback
+  actions:
+    autoProvision: 自動加入NTUT-802.1X
+    autoProvisioning: 正在加入NTUT-802.1X…
+    openWifiSettings: 開啟Wi‑Fi設定
+    openWifiPanel: 開啟Wi‑Fi快捷面板
+  fields:
+    ssid: 網路名稱
+    eapMethod: EAP方法
+    phase2Auth: 第二階段驗證
+    identity: 身分
+    password: 密碼
+    caCertificate: CA憑證
+    domain: 網域
+  fieldValues:
+    passwordSaved: 已儲存在裝置，可直接複製
+    passwordUnavailable: 需要重新登入才能複製密碼
+    systemCertificates: 使用系統憑證
+  fallbackSteps:
+    openSettings: 1. 開啟Wi‑Fi設定或快捷面板。
+    selectNetwork: 2. 選擇或新增NTUT-802.1X。
+    useDisplayedValues: 3. 將下方顯示的SSID、PEAP、GTC、帳號、密碼與網域填入。
+  provisioning:
+    success: 已將NTUT-802.1X加入Android。只要Wi‑Fi開啟且在校園網路範圍內，系統就會自動嘗試連線。
+    successPendingWifi: 已將NTUT-802.1X加入Android，但目前Wi‑Fi尚未開啟。開啟Wi‑Fi後，系統才會自動嘗試連線。
+    approvalPending: 系統目前不允許TAT直接送出Wi‑Fi建議，請改用下方設定入口完成系統層操作後再試。
+    approvalRejected: 系統已拒絕TAT的Wi‑Fi建議，請到系統設定允許後再試，或直接走下方手動設定。
+    validationUnavailable: 這台裝置無法讓TAT安全地下發「系統憑證 + 網域」Enterprise設定，請改用下方手動設定。
+    unsupportedPlatform: 這台裝置目前不支援自動加入NTUT-802.1X。
+    failed: 自動加入NTUT-802.1X失敗，請改用下方手動設定。
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學

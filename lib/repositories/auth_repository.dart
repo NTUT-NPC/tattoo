@@ -233,14 +233,16 @@ class AuthRepository {
     final completer = Completer<UserDto>();
     _reauthenticateInFlight = completer;
     try {
-      final username = await _secureStorage.read(key: _usernameKey);
-      final password = await _secureStorage.read(key: _passwordKey);
-      if (username == null || password == null) {
+      final credentials = await getStoredCredentials();
+      if (credentials == null) {
         _onSessionDestroyed(const LoginException(.credentialsMissing));
         throw const _AuthFailedException();
       }
 
-      final userDto = await _portalService.login(username, password);
+      final userDto = await _portalService.login(
+        credentials.username,
+        credentials.password,
+      );
       _ssoCache.clear();
       _ssoInFlight.clear();
       completer.complete(userDto);
@@ -296,6 +298,19 @@ class AuthRepository {
   /// has expired.
   Future<Uri> getSsoUrl(String serviceCode) async {
     return withAuth(() => _portalService.getSsoUrl(serviceCode));
+  }
+
+  /// Returns the cached signed-in user without refreshing from the network.
+  Future<User?> getLocalUser() {
+    return _database.select(_database.users).getSingleOrNull();
+  }
+
+  /// Returns the stored portal credentials, or `null` if either value is missing.
+  Future<({String username, String password})?> getStoredCredentials() async {
+    final username = await _secureStorage.read(key: _usernameKey);
+    final password = await _secureStorage.read(key: _passwordKey);
+    if (username == null || password == null) return null;
+    return (username: username, password: password);
   }
 
   /// Gets the current user with automatic cache refresh.

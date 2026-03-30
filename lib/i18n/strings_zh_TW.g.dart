@@ -48,6 +48,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsScannerZhTw scanner = TranslationsScannerZhTw.internal(_root);
+	late final TranslationsNtutWifiZhTw ntutWifi = TranslationsNtutWifiZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
 }
@@ -287,6 +288,64 @@ class TranslationsScannerZhTw {
 	String get invalidUrl => '無效的網址';
 }
 
+// Path: ntutWifi
+class TranslationsNtutWifiZhTw {
+	TranslationsNtutWifiZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: 'NTUT-802.1X'
+	String get title => 'NTUT-802.1X';
+
+	/// zh-TW: '使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi'
+	String get entryDescription => '使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi';
+
+	/// zh-TW: '使用已登入的校園入口帳號密碼，自動加入NTUT-802.1X並讓Android後續自動嘗試連線。'
+	String get intro => '使用已登入的校園入口帳號密碼，自動加入NTUT-802.1X並讓Android後續自動嘗試連線。';
+
+	/// zh-TW: '帳號直接使用學號或員編，不要加上@ntut.edu.tw。'
+	String get accountHint => '帳號直接使用學號或員編，不要加上@ntut.edu.tw。';
+
+	/// zh-TW: 'Android API ${sdkInt}'
+	String androidVersion({required Object sdkInt}) => 'Android API ${sdkInt}';
+
+	/// zh-TW: '這個功能目前僅支援Android裝置。'
+	String get unsupportedPlatform => '這個功能目前僅支援Android裝置。';
+
+	/// zh-TW: '請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。'
+	String get notLoggedIn => '請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。';
+
+	/// zh-TW: '找不到已保存的入口網站密碼。若要複製密碼，請先重新登入TAT。'
+	String get credentialsMissing => '找不到已保存的入口網站密碼。若要複製密碼，請先重新登入TAT。';
+
+	/// zh-TW: '此助手依Android 12以上介面設計，較舊版本的欄位名稱可能略有不同。'
+	String get olderAndroidWarning => '此助手依Android 12以上介面設計，較舊版本的欄位名稱可能略有不同。';
+
+	/// zh-TW: '複製失敗'
+	String get copyFailed => '複製失敗';
+
+	/// zh-TW: '無法開啟Wi‑Fi設定'
+	String get openSettingsFailed => '無法開啟Wi‑Fi設定';
+
+	/// zh-TW: '無法開啟Wi‑Fi快捷面板'
+	String get openPanelFailed => '無法開啟Wi‑Fi快捷面板';
+
+	/// zh-TW: '自動佈署會固定使用「系統憑證 + 網域ntut.edu.tw + PEAP/GTC」。若系統不允許App安全地下發這組Enterprise設定，請改走下方手動fallback。'
+	String get systemCertificatesHint => '自動佈署會固定使用「系統憑證 + 網域ntut.edu.tw + PEAP/GTC」。若系統不允許App安全地下發這組Enterprise設定，請改走下方手動fallback。';
+
+	/// zh-TW: '這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。'
+	String get automaticProvisionUnavailable => '這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。';
+
+	late final TranslationsNtutWifiSectionsZhTw sections = TranslationsNtutWifiSectionsZhTw.internal(_root);
+	late final TranslationsNtutWifiActionsZhTw actions = TranslationsNtutWifiActionsZhTw.internal(_root);
+	late final TranslationsNtutWifiFieldsZhTw fields = TranslationsNtutWifiFieldsZhTw.internal(_root);
+	late final TranslationsNtutWifiFieldValuesZhTw fieldValues = TranslationsNtutWifiFieldValuesZhTw.internal(_root);
+	late final TranslationsNtutWifiFallbackStepsZhTw fallbackSteps = TranslationsNtutWifiFallbackStepsZhTw.internal(_root);
+	late final TranslationsNtutWifiProvisioningZhTw provisioning = TranslationsNtutWifiProvisioningZhTw.internal(_root);
+}
+
 // Path: enrollmentStatus
 class TranslationsEnrollmentStatusZhTw {
 	TranslationsEnrollmentStatusZhTw.internal(this._root);
@@ -408,6 +467,9 @@ class TranslationsProfileOptionsZhTw {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// zh-TW: '連接NTUT-802.1X'
+	String get ntutWifi => '連接NTUT-802.1X';
 
 	/// zh-TW: '更改密碼'
 	String get changePassword => '更改密碼';
@@ -551,6 +613,141 @@ class TranslationsScannerGuideZhTw {
 	String get button => '我知道了';
 }
 
+// Path: ntutWifi.sections
+class TranslationsNtutWifiSectionsZhTw {
+	TranslationsNtutWifiSectionsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '快速操作'
+	String get quickActions => '快速操作';
+
+	/// zh-TW: '建議設定'
+	String get recommendedSettings => '建議設定';
+
+	/// zh-TW: '手動Fallback'
+	String get fallback => '手動Fallback';
+}
+
+// Path: ntutWifi.actions
+class TranslationsNtutWifiActionsZhTw {
+	TranslationsNtutWifiActionsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '自動加入NTUT-802.1X'
+	String get autoProvision => '自動加入NTUT-802.1X';
+
+	/// zh-TW: '正在加入NTUT-802.1X…'
+	String get autoProvisioning => '正在加入NTUT-802.1X…';
+
+	/// zh-TW: '開啟Wi‑Fi設定'
+	String get openWifiSettings => '開啟Wi‑Fi設定';
+
+	/// zh-TW: '開啟Wi‑Fi快捷面板'
+	String get openWifiPanel => '開啟Wi‑Fi快捷面板';
+}
+
+// Path: ntutWifi.fields
+class TranslationsNtutWifiFieldsZhTw {
+	TranslationsNtutWifiFieldsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '網路名稱'
+	String get ssid => '網路名稱';
+
+	/// zh-TW: 'EAP方法'
+	String get eapMethod => 'EAP方法';
+
+	/// zh-TW: '第二階段驗證'
+	String get phase2Auth => '第二階段驗證';
+
+	/// zh-TW: '身分'
+	String get identity => '身分';
+
+	/// zh-TW: '密碼'
+	String get password => '密碼';
+
+	/// zh-TW: 'CA憑證'
+	String get caCertificate => 'CA憑證';
+
+	/// zh-TW: '網域'
+	String get domain => '網域';
+}
+
+// Path: ntutWifi.fieldValues
+class TranslationsNtutWifiFieldValuesZhTw {
+	TranslationsNtutWifiFieldValuesZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '已儲存在裝置，可直接複製'
+	String get passwordSaved => '已儲存在裝置，可直接複製';
+
+	/// zh-TW: '需要重新登入才能複製密碼'
+	String get passwordUnavailable => '需要重新登入才能複製密碼';
+
+	/// zh-TW: '使用系統憑證'
+	String get systemCertificates => '使用系統憑證';
+}
+
+// Path: ntutWifi.fallbackSteps
+class TranslationsNtutWifiFallbackStepsZhTw {
+	TranslationsNtutWifiFallbackStepsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '1. 開啟Wi‑Fi設定或快捷面板。'
+	String get openSettings => '1. 開啟Wi‑Fi設定或快捷面板。';
+
+	/// zh-TW: '2. 選擇或新增NTUT-802.1X。'
+	String get selectNetwork => '2. 選擇或新增NTUT-802.1X。';
+
+	/// zh-TW: '3. 將下方顯示的SSID、PEAP、GTC、帳號、密碼與網域填入。'
+	String get useDisplayedValues => '3. 將下方顯示的SSID、PEAP、GTC、帳號、密碼與網域填入。';
+}
+
+// Path: ntutWifi.provisioning
+class TranslationsNtutWifiProvisioningZhTw {
+	TranslationsNtutWifiProvisioningZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '已將NTUT-802.1X加入Android。只要Wi‑Fi開啟且在校園網路範圍內，系統就會自動嘗試連線。'
+	String get success => '已將NTUT-802.1X加入Android。只要Wi‑Fi開啟且在校園網路範圍內，系統就會自動嘗試連線。';
+
+	/// zh-TW: '已將NTUT-802.1X加入Android，但目前Wi‑Fi尚未開啟。開啟Wi‑Fi後，系統才會自動嘗試連線。'
+	String get successPendingWifi => '已將NTUT-802.1X加入Android，但目前Wi‑Fi尚未開啟。開啟Wi‑Fi後，系統才會自動嘗試連線。';
+
+	/// zh-TW: '系統目前不允許TAT直接送出Wi‑Fi建議，請改用下方設定入口完成系統層操作後再試。'
+	String get approvalPending => '系統目前不允許TAT直接送出Wi‑Fi建議，請改用下方設定入口完成系統層操作後再試。';
+
+	/// zh-TW: '系統已拒絕TAT的Wi‑Fi建議，請到系統設定允許後再試，或直接走下方手動設定。'
+	String get approvalRejected => '系統已拒絕TAT的Wi‑Fi建議，請到系統設定允許後再試，或直接走下方手動設定。';
+
+	/// zh-TW: '這台裝置無法讓TAT安全地下發「系統憑證 + 網域」Enterprise設定，請改用下方手動設定。'
+	String get validationUnavailable => '這台裝置無法讓TAT安全地下發「系統憑證 + 網域」Enterprise設定，請改用下方手動設定。';
+
+	/// zh-TW: '這台裝置目前不支援自動加入NTUT-802.1X。'
+	String get unsupportedPlatform => '這台裝置目前不支援自動加入NTUT-802.1X。';
+
+	/// zh-TW: '自動加入NTUT-802.1X失敗，請改用下方手動設定。'
+	String get failed => '自動加入NTUT-802.1X失敗，請改用下方手動設定。';
+}
+
 // Path: intro.features.courseTable
 class TranslationsIntroFeaturesCourseTableZhTw {
 	TranslationsIntroFeaturesCourseTableZhTw.internal(this._root);
@@ -681,6 +878,7 @@ extension on Translations {
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
 			'profile.sections.dangerZone' => '危險區域',
+			'profile.options.ntutWifi' => '連接NTUT-802.1X',
 			'profile.options.changePassword' => '更改密碼',
 			'profile.options.changeAvatar' => '更改個人圖片',
 			'profile.options.supportUs' => '支持我們',
@@ -746,6 +944,47 @@ extension on Translations {
 			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
 			'scanner.guide.button' => '我知道了',
 			'scanner.invalidUrl' => '無效的網址',
+			'ntutWifi.title' => 'NTUT-802.1X',
+			'ntutWifi.entryDescription' => '使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi',
+			'ntutWifi.intro' => '使用已登入的校園入口帳號密碼，自動加入NTUT-802.1X並讓Android後續自動嘗試連線。',
+			'ntutWifi.accountHint' => '帳號直接使用學號或員編，不要加上@ntut.edu.tw。',
+			'ntutWifi.androidVersion' => ({required Object sdkInt}) => 'Android API ${sdkInt}',
+			'ntutWifi.unsupportedPlatform' => '這個功能目前僅支援Android裝置。',
+			'ntutWifi.notLoggedIn' => '請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。',
+			'ntutWifi.credentialsMissing' => '找不到已保存的入口網站密碼。若要複製密碼，請先重新登入TAT。',
+			'ntutWifi.olderAndroidWarning' => '此助手依Android 12以上介面設計，較舊版本的欄位名稱可能略有不同。',
+			'ntutWifi.copyFailed' => '複製失敗',
+			'ntutWifi.openSettingsFailed' => '無法開啟Wi‑Fi設定',
+			'ntutWifi.openPanelFailed' => '無法開啟Wi‑Fi快捷面板',
+			'ntutWifi.systemCertificatesHint' => '自動佈署會固定使用「系統憑證 + 網域ntut.edu.tw + PEAP/GTC」。若系統不允許App安全地下發這組Enterprise設定，請改走下方手動fallback。',
+			'ntutWifi.automaticProvisionUnavailable' => '這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。',
+			'ntutWifi.sections.quickActions' => '快速操作',
+			'ntutWifi.sections.recommendedSettings' => '建議設定',
+			'ntutWifi.sections.fallback' => '手動Fallback',
+			'ntutWifi.actions.autoProvision' => '自動加入NTUT-802.1X',
+			'ntutWifi.actions.autoProvisioning' => '正在加入NTUT-802.1X…',
+			'ntutWifi.actions.openWifiSettings' => '開啟Wi‑Fi設定',
+			'ntutWifi.actions.openWifiPanel' => '開啟Wi‑Fi快捷面板',
+			'ntutWifi.fields.ssid' => '網路名稱',
+			'ntutWifi.fields.eapMethod' => 'EAP方法',
+			'ntutWifi.fields.phase2Auth' => '第二階段驗證',
+			'ntutWifi.fields.identity' => '身分',
+			'ntutWifi.fields.password' => '密碼',
+			'ntutWifi.fields.caCertificate' => 'CA憑證',
+			'ntutWifi.fields.domain' => '網域',
+			'ntutWifi.fieldValues.passwordSaved' => '已儲存在裝置，可直接複製',
+			'ntutWifi.fieldValues.passwordUnavailable' => '需要重新登入才能複製密碼',
+			'ntutWifi.fieldValues.systemCertificates' => '使用系統憑證',
+			'ntutWifi.fallbackSteps.openSettings' => '1. 開啟Wi‑Fi設定或快捷面板。',
+			'ntutWifi.fallbackSteps.selectNetwork' => '2. 選擇或新增NTUT-802.1X。',
+			'ntutWifi.fallbackSteps.useDisplayedValues' => '3. 將下方顯示的SSID、PEAP、GTC、帳號、密碼與網域填入。',
+			'ntutWifi.provisioning.success' => '已將NTUT-802.1X加入Android。只要Wi‑Fi開啟且在校園網路範圍內，系統就會自動嘗試連線。',
+			'ntutWifi.provisioning.successPendingWifi' => '已將NTUT-802.1X加入Android，但目前Wi‑Fi尚未開啟。開啟Wi‑Fi後，系統才會自動嘗試連線。',
+			'ntutWifi.provisioning.approvalPending' => '系統目前不允許TAT直接送出Wi‑Fi建議，請改用下方設定入口完成系統層操作後再試。',
+			'ntutWifi.provisioning.approvalRejected' => '系統已拒絕TAT的Wi‑Fi建議，請到系統設定允許後再試，或直接走下方手動設定。',
+			'ntutWifi.provisioning.validationUnavailable' => '這台裝置無法讓TAT安全地下發「系統憑證 + 網域」Enterprise設定，請改用下方手動設定。',
+			'ntutWifi.provisioning.unsupportedPlatform' => '這台裝置目前不支援自動加入NTUT-802.1X。',
+			'ntutWifi.provisioning.failed' => '自動加入NTUT-802.1X失敗，請改用下方手動設定。',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',

@@ -47,6 +47,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
 	@override late final _TranslationsScannerEnUs scanner = _TranslationsScannerEnUs._(_root);
+	@override late final _TranslationsNtutWifiEnUs ntutWifi = _TranslationsNtutWifiEnUs._(_root);
 	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
 	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
 }
@@ -198,6 +199,35 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 	@override String get invalidUrl => 'Invalid URL';
 }
 
+// Path: ntutWifi
+class _TranslationsNtutWifiEnUs extends TranslationsNtutWifiZhTw {
+	_TranslationsNtutWifiEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'NTUT-802.1X';
+	@override String get entryDescription => 'Automatically add NTUT-802.1X with your saved portal credentials';
+	@override String get intro => 'Use your saved NTUT portal credentials to add NTUT-802.1X so Android can auto-connect later.';
+	@override String get accountHint => 'Use your student or staff ID directly. Do not append @ntut.edu.tw.';
+	@override String androidVersion({required Object sdkInt}) => 'Android API ${sdkInt}';
+	@override String get unsupportedPlatform => 'This feature is currently available only on Android.';
+	@override String get notLoggedIn => 'Sign in to your NTUT portal account first so the assistant can fill in the NTUT-802.1X identity and password.';
+	@override String get credentialsMissing => 'The saved portal password is missing. Sign in to TAT again if you need to copy the password.';
+	@override String get olderAndroidWarning => 'This assistant follows the Android 12+ UI. Field labels may look different on older versions.';
+	@override String get copyFailed => 'Copy failed';
+	@override String get openSettingsFailed => 'Unable to open Wi-Fi settings';
+	@override String get openPanelFailed => 'Unable to open the Wi-Fi quick panel';
+	@override String get systemCertificatesHint => 'Automatic provisioning always uses "Use system certificates" with domain ntut.edu.tw and PEAP/GTC. If Android refuses to accept that Enterprise profile safely from the app, use the manual fallback below.';
+	@override String get automaticProvisionUnavailable => 'This device cannot let TAT add NTUT-802.1X automatically right now. Use the manual fallback below instead.';
+	@override late final _TranslationsNtutWifiSectionsEnUs sections = _TranslationsNtutWifiSectionsEnUs._(_root);
+	@override late final _TranslationsNtutWifiActionsEnUs actions = _TranslationsNtutWifiActionsEnUs._(_root);
+	@override late final _TranslationsNtutWifiFieldsEnUs fields = _TranslationsNtutWifiFieldsEnUs._(_root);
+	@override late final _TranslationsNtutWifiFieldValuesEnUs fieldValues = _TranslationsNtutWifiFieldValuesEnUs._(_root);
+	@override late final _TranslationsNtutWifiFallbackStepsEnUs fallbackSteps = _TranslationsNtutWifiFallbackStepsEnUs._(_root);
+	@override late final _TranslationsNtutWifiProvisioningEnUs provisioning = _TranslationsNtutWifiProvisioningEnUs._(_root);
+}
+
 // Path: enrollmentStatus
 class _TranslationsEnrollmentStatusEnUs extends TranslationsEnrollmentStatusZhTw {
 	_TranslationsEnrollmentStatusEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -275,6 +305,7 @@ class _TranslationsProfileOptionsEnUs extends TranslationsProfileOptionsZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get ntutWifi => 'Connect to NTUT-802.1X';
 	@override String get changePassword => 'Change Password';
 	@override String get changeAvatar => 'Change Avatar';
 	@override String get supportUs => 'Support Us';
@@ -346,6 +377,87 @@ class _TranslationsScannerGuideEnUs extends TranslationsScannerGuideZhTw {
 	@override String get step2 => '2. Click "Outside school login" in the navigation bar';
 	@override String get step3 => '3. Click "Scan QR code"';
 	@override String get button => 'Got it';
+}
+
+// Path: ntutWifi.sections
+class _TranslationsNtutWifiSectionsEnUs extends TranslationsNtutWifiSectionsZhTw {
+	_TranslationsNtutWifiSectionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get quickActions => 'Quick Actions';
+	@override String get recommendedSettings => 'Recommended Settings';
+	@override String get fallback => 'Manual Fallback';
+}
+
+// Path: ntutWifi.actions
+class _TranslationsNtutWifiActionsEnUs extends TranslationsNtutWifiActionsZhTw {
+	_TranslationsNtutWifiActionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get autoProvision => 'Add NTUT-802.1X Automatically';
+	@override String get autoProvisioning => 'Adding NTUT-802.1X…';
+	@override String get openWifiSettings => 'Open Wi-Fi Settings';
+	@override String get openWifiPanel => 'Open Wi-Fi Panel';
+}
+
+// Path: ntutWifi.fields
+class _TranslationsNtutWifiFieldsEnUs extends TranslationsNtutWifiFieldsZhTw {
+	_TranslationsNtutWifiFieldsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get ssid => 'Network name';
+	@override String get eapMethod => 'EAP method';
+	@override String get phase2Auth => 'Phase 2 authentication';
+	@override String get identity => 'Identity';
+	@override String get password => 'Password';
+	@override String get caCertificate => 'CA certificate';
+	@override String get domain => 'Domain';
+}
+
+// Path: ntutWifi.fieldValues
+class _TranslationsNtutWifiFieldValuesEnUs extends TranslationsNtutWifiFieldValuesZhTw {
+	_TranslationsNtutWifiFieldValuesEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get passwordSaved => 'Saved on this device and ready to copy';
+	@override String get passwordUnavailable => 'Sign in again to copy the password';
+	@override String get systemCertificates => 'Use system certificates';
+}
+
+// Path: ntutWifi.fallbackSteps
+class _TranslationsNtutWifiFallbackStepsEnUs extends TranslationsNtutWifiFallbackStepsZhTw {
+	_TranslationsNtutWifiFallbackStepsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get openSettings => '1. Open Wi-Fi settings or the Wi-Fi quick panel.';
+	@override String get selectNetwork => '2. Choose or add NTUT-802.1X.';
+	@override String get useDisplayedValues => '3. Fill in the SSID, PEAP, GTC, identity, password, and domain shown below.';
+}
+
+// Path: ntutWifi.provisioning
+class _TranslationsNtutWifiProvisioningEnUs extends TranslationsNtutWifiProvisioningZhTw {
+	_TranslationsNtutWifiProvisioningEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get success => 'NTUT-802.1X has been added to Android. As long as Wi-Fi is on and the campus network is in range, the system will try to connect automatically.';
+	@override String get successPendingWifi => 'NTUT-802.1X has been added to Android, but Wi-Fi is currently off. Turn Wi-Fi on and Android will try to connect automatically.';
+	@override String get approvalPending => 'Android is not allowing TAT to submit Wi-Fi suggestions right now. Use the system settings entry below, then try again.';
+	@override String get approvalRejected => 'Android has rejected TAT\'s Wi-Fi suggestion. Allow it in system settings and try again, or use the manual fallback below.';
+	@override String get validationUnavailable => 'This device cannot safely accept the "system certificates + domain" Enterprise profile from TAT. Use the manual fallback below instead.';
+	@override String get unsupportedPlatform => 'This device does not support automatic NTUT-802.1X provisioning right now.';
+	@override String get failed => 'Automatic NTUT-802.1X provisioning failed. Use the manual fallback below instead.';
 }
 
 // Path: intro.features.courseTable
@@ -456,6 +568,7 @@ extension on TranslationsEnUs {
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
 			'profile.sections.dangerZone' => 'Danger Zone',
+			'profile.options.ntutWifi' => 'Connect to NTUT-802.1X',
 			'profile.options.changePassword' => 'Change Password',
 			'profile.options.changeAvatar' => 'Change Avatar',
 			'profile.options.supportUs' => 'Support Us',
@@ -521,6 +634,47 @@ extension on TranslationsEnUs {
 			'scanner.guide.step3' => '3. Click "Scan QR code"',
 			'scanner.guide.button' => 'Got it',
 			'scanner.invalidUrl' => 'Invalid URL',
+			'ntutWifi.title' => 'NTUT-802.1X',
+			'ntutWifi.entryDescription' => 'Automatically add NTUT-802.1X with your saved portal credentials',
+			'ntutWifi.intro' => 'Use your saved NTUT portal credentials to add NTUT-802.1X so Android can auto-connect later.',
+			'ntutWifi.accountHint' => 'Use your student or staff ID directly. Do not append @ntut.edu.tw.',
+			'ntutWifi.androidVersion' => ({required Object sdkInt}) => 'Android API ${sdkInt}',
+			'ntutWifi.unsupportedPlatform' => 'This feature is currently available only on Android.',
+			'ntutWifi.notLoggedIn' => 'Sign in to your NTUT portal account first so the assistant can fill in the NTUT-802.1X identity and password.',
+			'ntutWifi.credentialsMissing' => 'The saved portal password is missing. Sign in to TAT again if you need to copy the password.',
+			'ntutWifi.olderAndroidWarning' => 'This assistant follows the Android 12+ UI. Field labels may look different on older versions.',
+			'ntutWifi.copyFailed' => 'Copy failed',
+			'ntutWifi.openSettingsFailed' => 'Unable to open Wi-Fi settings',
+			'ntutWifi.openPanelFailed' => 'Unable to open the Wi-Fi quick panel',
+			'ntutWifi.systemCertificatesHint' => 'Automatic provisioning always uses "Use system certificates" with domain ntut.edu.tw and PEAP/GTC. If Android refuses to accept that Enterprise profile safely from the app, use the manual fallback below.',
+			'ntutWifi.automaticProvisionUnavailable' => 'This device cannot let TAT add NTUT-802.1X automatically right now. Use the manual fallback below instead.',
+			'ntutWifi.sections.quickActions' => 'Quick Actions',
+			'ntutWifi.sections.recommendedSettings' => 'Recommended Settings',
+			'ntutWifi.sections.fallback' => 'Manual Fallback',
+			'ntutWifi.actions.autoProvision' => 'Add NTUT-802.1X Automatically',
+			'ntutWifi.actions.autoProvisioning' => 'Adding NTUT-802.1X…',
+			'ntutWifi.actions.openWifiSettings' => 'Open Wi-Fi Settings',
+			'ntutWifi.actions.openWifiPanel' => 'Open Wi-Fi Panel',
+			'ntutWifi.fields.ssid' => 'Network name',
+			'ntutWifi.fields.eapMethod' => 'EAP method',
+			'ntutWifi.fields.phase2Auth' => 'Phase 2 authentication',
+			'ntutWifi.fields.identity' => 'Identity',
+			'ntutWifi.fields.password' => 'Password',
+			'ntutWifi.fields.caCertificate' => 'CA certificate',
+			'ntutWifi.fields.domain' => 'Domain',
+			'ntutWifi.fieldValues.passwordSaved' => 'Saved on this device and ready to copy',
+			'ntutWifi.fieldValues.passwordUnavailable' => 'Sign in again to copy the password',
+			'ntutWifi.fieldValues.systemCertificates' => 'Use system certificates',
+			'ntutWifi.fallbackSteps.openSettings' => '1. Open Wi-Fi settings or the Wi-Fi quick panel.',
+			'ntutWifi.fallbackSteps.selectNetwork' => '2. Choose or add NTUT-802.1X.',
+			'ntutWifi.fallbackSteps.useDisplayedValues' => '3. Fill in the SSID, PEAP, GTC, identity, password, and domain shown below.',
+			'ntutWifi.provisioning.success' => 'NTUT-802.1X has been added to Android. As long as Wi-Fi is on and the campus network is in range, the system will try to connect automatically.',
+			'ntutWifi.provisioning.successPendingWifi' => 'NTUT-802.1X has been added to Android, but Wi-Fi is currently off. Turn Wi-Fi on and Android will try to connect automatically.',
+			'ntutWifi.provisioning.approvalPending' => 'Android is not allowing TAT to submit Wi-Fi suggestions right now. Use the system settings entry below, then try again.',
+			'ntutWifi.provisioning.approvalRejected' => 'Android has rejected TAT\'s Wi-Fi suggestion. Allow it in system settings and try again, or use the manual fallback below.',
+			'ntutWifi.provisioning.validationUnavailable' => 'This device cannot safely accept the "system certificates + domain" Enterprise profile from TAT. Use the manual fallback below instead.',
+			'ntutWifi.provisioning.unsupportedPlatform' => 'This device does not support automatic NTUT-802.1X provisioning right now.',
+			'ntutWifi.provisioning.failed' => 'Automatic NTUT-802.1X provisioning failed. Use the manual fallback below instead.',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',

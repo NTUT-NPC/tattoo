@@ -10,6 +10,7 @@ import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/profile/ntut_wifi_entry_tile.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
 import 'package:tattoo/utils/launch_url.dart';
@@ -96,6 +97,7 @@ class ProfileScreen extends ConsumerWidget {
         title: t.scanner.loginIStudy,
         onTap: () => context.push(AppRoutes.scanner),
       ),
+      const NtutWifiEntryTile(),
       OptionEntryTile.icon(
         icon: Icons.password,
         title: t.profile.options.changePassword,

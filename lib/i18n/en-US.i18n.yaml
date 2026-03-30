@@ -66,6 +66,7 @@ profile:
     appSettings: App Settings
     dangerZone: Danger Zone
   options:
+    ntutWifi: Connect to NTUT-802.1X
     changePassword: Change Password
     changeAvatar: Change Avatar
     supportUs: Support Us
@@ -138,6 +139,54 @@ scanner:
     step3: 3. Click "Scan QR code"
     button: Got it
   invalidUrl: Invalid URL
+ntutWifi:
+  title: NTUT-802.1X
+  entryDescription: Automatically add NTUT-802.1X with your saved portal credentials
+  intro: Use your saved NTUT portal credentials to add NTUT-802.1X so Android can auto-connect later.
+  accountHint: Use your student or staff ID directly. Do not append @ntut.edu.tw.
+  androidVersion: "Android API ${sdkInt}"
+  unsupportedPlatform: This feature is currently available only on Android.
+  notLoggedIn: Sign in to your NTUT portal account first so the assistant can fill in the NTUT-802.1X identity and password.
+  credentialsMissing: The saved portal password is missing. Sign in to TAT again if you need to copy the password.
+  olderAndroidWarning: This assistant follows the Android 12+ UI. Field labels may look different on older versions.
+  copyFailed: Copy failed
+  openSettingsFailed: Unable to open Wi-Fi settings
+  openPanelFailed: Unable to open the Wi-Fi quick panel
+  systemCertificatesHint: Automatic provisioning always uses "Use system certificates" with domain ntut.edu.tw and PEAP/GTC. If Android refuses to accept that Enterprise profile safely from the app, use the manual fallback below.
+  automaticProvisionUnavailable: This device cannot let TAT add NTUT-802.1X automatically right now. Use the manual fallback below instead.
+  sections:
+    quickActions: Quick Actions
+    recommendedSettings: Recommended Settings
+    fallback: Manual Fallback
+  actions:
+    autoProvision: Add NTUT-802.1X Automatically
+    autoProvisioning: Adding NTUT-802.1X…
+    openWifiSettings: Open Wi-Fi Settings
+    openWifiPanel: Open Wi-Fi Panel
+  fields:
+    ssid: Network name
+    eapMethod: EAP method
+    phase2Auth: Phase 2 authentication
+    identity: Identity
+    password: Password
+    caCertificate: CA certificate
+    domain: Domain
+  fieldValues:
+    passwordSaved: Saved on this device and ready to copy
+    passwordUnavailable: Sign in again to copy the password
+    systemCertificates: Use system certificates
+  fallbackSteps:
+    openSettings: 1. Open Wi-Fi settings or the Wi-Fi quick panel.
+    selectNetwork: 2. Choose or add NTUT-802.1X.
+    useDisplayedValues: 3. Fill in the SSID, PEAP, GTC, identity, password, and domain shown below.
+  provisioning:
+    success: NTUT-802.1X has been added to Android. As long as Wi-Fi is on and the campus network is in range, the system will try to connect automatically.
+    successPendingWifi: NTUT-802.1X has been added to Android, but Wi-Fi is currently off. Turn Wi-Fi on and Android will try to connect automatically.
+    approvalPending: Android is not allowing TAT to submit Wi-Fi suggestions right now. Use the system settings entry below, then try again.
+    approvalRejected: Android has rejected TAT's Wi-Fi suggestion. Allow it in system settings and try again, or use the manual fallback below.
+    validationUnavailable: This device cannot safely accept the "system certificates + domain" Enterprise profile from TAT. Use the manual fallback below instead.
+    unsupportedPlatform: This device does not support automatic NTUT-802.1X provisioning right now.
+    failed: Automatic NTUT-802.1X provisioning failed. Use the manual fallback below instead.
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence
