@@ -148,19 +148,23 @@ class ProfileScreen extends ConsumerWidget {
           child: RefreshIndicator(
             onRefresh: () => _refresh(ref),
             child: CustomScrollView(
+              clipBehavior: Clip.none,
               slivers: [
+                SliverToBoxAdapter(
+                  child: const ProfileCard(),
+                ),
                 SliverPadding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 16.0,
+                  ),
                   sliver: SliverToBoxAdapter(
                     child: Column(
                       spacing: 16,
                       children: [
-                        ProfileCard(),
-
                         ClearNotice(
                           text: t.profile.dataDisclaimer,
                         ),
-
                         Column(
                           spacing: 8,
                           children: options,
