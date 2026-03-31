@@ -461,10 +461,10 @@ class CourseTableGrid extends StatelessWidget {
     final columnWidth = _dayColumnWidth;
     final random = Random();
     final availableColors = cellColors.reversed.toList(growable: true);
-    final colorByCourseNumber = <String, Color>{};
+    final colorByCourseId = <int, Color>{};
 
-    Color resolveCellColor(String courseNumber) {
-      return colorByCourseNumber.putIfAbsent(courseNumber, () {
+    Color resolveCellColor(int courseId) {
+      return colorByCourseId.putIfAbsent(courseId, () {
         if (availableColors.isEmpty) {
           availableColors.addAll(cellColors.reversed);
         }
@@ -529,7 +529,7 @@ class CourseTableGrid extends StatelessWidget {
                 },
                 child: CourseTableCell(
                   courseTableCellData: cell,
-                  cellColor: resolveCellColor(cell.number),
+                  cellColor: resolveCellColor(cell.id),
                   onTap: () {
                     showCourseTableDetailSheet(context, cell: cell);
                   },
