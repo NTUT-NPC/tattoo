@@ -19,8 +19,8 @@ typedef CourseTableCellData = ({
   /// [CourseOfferings] primary key, for navigating to detail view.
   int id,
 
-  /// [CourseOfferings.number].
-  String number,
+  /// [CourseOfferings.number], null for special entries.
+  String? number,
 
   /// Number of consecutive period rows this cell spans (excluding noon).
   int span,
@@ -243,14 +243,14 @@ class CourseRepository {
           await (_database.select(
             _database.courseOfferings,
           )..where((o) => o.semester.equals(semesterId))).join([
-            innerJoin(
+            leftOuterJoin(
               _database.courses,
               _database.courses.id.equalsExp(_database.courseOfferings.course),
             ),
           ]).get();
       final allOfferings = allOfferingRows.map((row) {
         final offering = row.readTable(_database.courseOfferings);
-        final course = row.readTable(_database.courses);
+        final course = row.readTableOrNull(_database.courses);
         return (offering: offering, course: course);
       }).toList();
       final data = _buildCourseTableData(rows, allOfferings);
@@ -309,46 +309,58 @@ class CourseRepository {
 
     // Persist to database
     await _database.transaction(() async {
-      // Remove offerings no longer in the response (e.g. dropped courses).
-      // Junction/child rows are cascade-deleted by FK constraints.
+      // Remove numbered offerings no longer in the response (e.g. dropped
+      // courses). Junction/child rows are cascade-deleted by FK constraints.
       await (_database.delete(_database.courseOfferings)..where(
             (o) =>
-                o.semester.equals(semester.id) & o.number.isNotIn(freshNumbers),
+                o.semester.equals(semester.id) &
+                o.number.isNotNull() &
+                o.number.isNotIn(freshNumbers),
+          ))
+          .go();
+
+      // Delete all special entries (null number) — they're re-inserted below.
+      await (_database.delete(_database.courseOfferings)..where(
+            (o) => o.semester.equals(semester.id) & o.number.isNull(),
           ))
           .go();
 
       for (final dto in dtos) {
-        if (dto.number == null) continue;
         final courseId = dto.course?.id;
         final courseNameZh = dto.course?.nameZh;
-        if (courseId == null || courseNameZh == null) {
+
+        if (courseNameZh == null) {
           _firebaseService.recordNonFatal(
-            'Skipped offering with incomplete course data: '
-            'number=${dto.number}, courseId=$courseId, '
-            'courseNameZh=$courseNameZh',
+            'Skipped offering with no name: '
+            'number=${dto.number}, courseId=$courseId',
           );
           continue;
         }
 
-        if (dto.credits == null || dto.hours == null) {
-          _firebaseService.recordNonFatal(
-            'Course $courseId missing credits/hours: '
-            'credits=${dto.credits}, hours=${dto.hours}',
+        int? dbCourseId;
+        if (courseId != null) {
+          if (dto.credits == null || dto.hours == null) {
+            _firebaseService.recordNonFatal(
+              'Course $courseId missing credits/hours: '
+              'credits=${dto.credits}, hours=${dto.hours}',
+            );
+          }
+
+          dbCourseId = await _database.upsertCourse(
+            code: courseId,
+            credits: dto.credits ?? 0,
+            hours: dto.hours ?? 0,
+            nameZh: courseNameZh,
+            nameEn: dto.course?.nameEn,
           );
         }
-
-        final dbCourseId = await _database.upsertCourse(
-          code: courseId,
-          credits: dto.credits ?? 0,
-          hours: dto.hours ?? 0,
-          nameZh: courseNameZh,
-          nameEn: dto.course?.nameEn,
-        );
 
         final offeringId = await _database.upsertCourseOffering(
           courseId: dbCourseId,
           semesterId: semester.id,
-          number: dto.number!,
+          number: dto.number,
+          nameZh: courseId == null ? courseNameZh : null,
+          nameEn: courseId == null ? dto.course?.nameEn : null,
           phase: dto.phase,
           status: dto.status,
           language: dto.language,
@@ -458,7 +470,7 @@ class CourseRepository {
   /// the semester, computing multi-period spans and layout metadata.
   static CourseTableData _buildCourseTableData(
     List<CourseTableSlot> rows,
-    List<({CourseOffering offering, Course course})> allOfferings,
+    List<({CourseOffering offering, Course? course})> allOfferings,
   ) {
     final scheduled = <({DayOfWeek day, Period period}), CourseTableCellData>{};
 
@@ -466,18 +478,19 @@ class CourseRepository {
       final key = (day: row.dayOfWeek, period: row.period);
       if (scheduled.containsKey(key)) continue;
 
+      final courseName = localized(row.nameZh, row.nameEn);
       scheduled[key] = (
         id: row.id,
         number: row.number,
         span: 1,
         crossesNoon: false,
-        courseName: localized(row.nameZh, row.nameEn),
+        courseName: courseName,
         classroomName: switch ((row.classroomNameZh, row.classroomNameEn)) {
           (final zh?, final en) => localized(zh, en),
           _ => null,
         },
-        credits: row.credits,
-        hours: row.hours,
+        credits: row.credits ?? 0,
+        hours: row.hours ?? 0,
       );
     }
 
@@ -532,21 +545,25 @@ class CourseRepository {
     scheduled.removeWhere((key, _) => consumed.contains(key));
 
     // Filter offerings not present in the scheduled map.
-    final scheduledNumbers = scheduled.values.map((c) => c.number).toSet();
+    final scheduledIds = scheduled.values.map((c) => c.id).toSet();
     final unscheduled = allOfferings
-        .where((row) => !scheduledNumbers.contains(row.offering.number))
-        .map(
-          (row) => (
+        .where((row) => !scheduledIds.contains(row.offering.id))
+        .map((row) {
+          final courseName = localized(
+            row.course?.nameZh ?? row.offering.nameZh,
+            row.course?.nameEn ?? row.offering.nameEn,
+          );
+          return (
             id: row.offering.id,
             number: row.offering.number,
             span: 0,
             crossesNoon: false,
-            courseName: localized(row.course.nameZh, row.course.nameEn),
+            courseName: courseName,
             classroomName: null,
-            credits: row.course.credits,
-            hours: row.course.hours,
-          ),
-        )
+            credits: row.course?.credits ?? 0.0,
+            hours: row.course?.hours ?? 0,
+          );
+        })
         .toList(growable: false);
 
     // Compute layout metadata from the scheduled map.
@@ -563,11 +580,11 @@ class CourseRepository {
         })
         .toList(growable: false);
 
-    // Unique courses by number for credit/hour aggregation.
-    final seen = <String>{};
+    // Unique courses by ID for credit/hour aggregation.
+    final seen = <int>{};
     final uniqueCourses = [
-      ...scheduled.values.where((c) => seen.add(c.number)),
-      ...unscheduled.where((c) => seen.add(c.number)),
+      ...scheduled.values.where((c) => seen.add(c.id)),
+      ...unscheduled.where((c) => seen.add(c.id)),
     ];
 
     return (
