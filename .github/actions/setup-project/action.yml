@@ -9,7 +9,7 @@ runs:
   using: composite
   steps:
     - name: Install mise
-      uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
+      uses: jdx/mise-action@5228313ee0372e111a38da051671ca30fc5a96db # v3.6.3
       with:
         install_args: >
           ${{ case(
@@ -33,7 +33,7 @@ runs:
 
     - name: Setup Ruby
       if: ${{ inputs.platform == 'android' || inputs.platform == 'ios' }}
-      uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
+      uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64 # v1.299.0
       with:
         bundler-cache: true
       env:
