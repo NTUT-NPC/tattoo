@@ -23,9 +23,6 @@
       "enabled": false
     },
     {
-      "matchManagers": [
-        "mise"
-      ],
       "matchPackageNames": [
         "java",
         "ruby"
