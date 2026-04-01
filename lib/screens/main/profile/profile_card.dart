@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:barcode_widget/barcode_widget.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
@@ -157,6 +158,13 @@ class _ProfileCardPagerState extends State<_ProfileCardPager> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: _spacing / 2),
                 child: _ProfileCardBack(
+                  profile: widget.profile,
+                  isGlassy: true,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: _spacing / 2),
+                child: _ProfileCardBarcode(
                   profile: widget.profile,
                   isGlassy: true,
                 ),
@@ -430,6 +438,63 @@ class _ProfileCardBack extends StatelessWidget {
                         text: dept,
                         height: height,
                       ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ProfileCardBarcode extends StatelessWidget {
+  const _ProfileCardBarcode({required this.profile, this.isGlassy = false});
+
+  final User profile;
+  final bool isGlassy;
+
+  @override
+  Widget build(BuildContext context) {
+    return _ProfileCardFrame(
+      isGlassy: isGlassy,
+      childBuilder: (context, constraints, borderRadius) {
+        final height = constraints.maxHeight;
+        final padding = height * 0.12;
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding, vertical: padding),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(height * 0.04),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(height * 0.03),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: height * 0.02,
+                  children: [
+                    SizedBox(
+                      height: height * 0.18,
+                      child: BarcodeWidget(
+                        barcode: Barcode.code39(),
+                        data: profile.studentId,
+                        width: double.infinity,
+                        drawText: false,
+                      ),
+                    ),
+                    Text(
+                      profile.studentId,
+                      style: GoogleFonts.outfit(
+                        fontSize: height * 0.05,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
                   ],
                 ),
               ),

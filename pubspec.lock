@@ -57,6 +57,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  barcode:
+    dependency: transitive
+    description:
+      name: barcode
+      sha256: "7b6729c37e3b7f34233e2318d866e8c48ddb46c1f7ad01ff7bb2a8de1da2b9f4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.9"
+  barcode_widget:
+    dependency: "direct main"
+    description:
+      name: barcode_widget
+      sha256: "4313960e815162588bfebd862729704c0899d28816cccfc255fc682718f50395"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   boolean_selector:
     dependency: transitive
     description:
