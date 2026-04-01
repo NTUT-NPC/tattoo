@@ -1,14 +1,6 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
-
-const _campusWifiChannel = MethodChannel('club.ntut.tattoo/campus_wifi');
-
-/// Provides the platform bridge used by [CampusWifiRepository].
-final campusWifiPlatformProvider = Provider<CampusWifiPlatform>((_) {
-  return const MethodChannelCampusWifiPlatform(_campusWifiChannel);
-});
+import 'package:tattoo/services/campus_wifi/campus_wifi_platform.dart';
 
 /// Provides the [CampusWifiRepository] instance.
 final campusWifiRepositoryProvider = Provider<CampusWifiRepository>((ref) {
@@ -119,114 +111,6 @@ class Ntut8021xProvisioningResult {
       status == Ntut8021xProvisioningStatus.successPendingWifi;
 }
 
-abstract interface class CampusWifiPlatform {
-  Future<CampusWifiCapabilities> getCapabilities();
-
-  Future<bool> openWifiSettings();
-
-  Future<bool> openWifiPanel();
-
-  Future<Ntut8021xProvisioningResult> provisionNtut8021x({
-    required String identity,
-    required String password,
-  });
-}
-
-class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
-  const MethodChannelCampusWifiPlatform(this._channel);
-
-  final MethodChannel _channel;
-
-  @override
-  Future<CampusWifiCapabilities> getCapabilities() async {
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
-      return const CampusWifiCapabilities.unsupported();
-    }
-
-    try {
-      final result = await _channel.invokeMapMethod<String, Object?>(
-        'getCapabilities',
-      );
-      return CampusWifiCapabilities(
-        isSupported: true,
-        androidSdkInt: result?['sdkInt'] as int?,
-        canOpenWifiSettings: result?['canOpenWifiSettings'] as bool? ?? true,
-        canOpenWifiPanel: result?['canOpenWifiPanel'] as bool? ?? false,
-        canProvisionNtut8021x:
-            result?['canProvisionNtut8021x'] as bool? ?? false,
-      );
-    } on MissingPluginException {
-      return const CampusWifiCapabilities.unsupported();
-    }
-  }
-
-  @override
-  Future<bool> openWifiSettings() async {
-    return _invokeBooleanMethod('openWifiSettings');
-  }
-
-  @override
-  Future<bool> openWifiPanel() async {
-    return _invokeBooleanMethod('openWifiPanel');
-  }
-
-  @override
-  Future<Ntut8021xProvisioningResult> provisionNtut8021x({
-    required String identity,
-    required String password,
-  }) async {
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
-      return const Ntut8021xProvisioningResult.unsupported();
-    }
-
-    try {
-      final result = await _channel.invokeMapMethod<String, Object?>(
-        'provisionNtut8021x',
-        {
-          'identity': identity,
-          'password': password,
-        },
-      );
-      return Ntut8021xProvisioningResult(
-        status: _provisioningStatusFromWire(result?['status'] as String?),
-        androidSdkInt: result?['sdkInt'] as int?,
-        wifiEnabled: result?['wifiEnabled'] as bool?,
-        usedHiddenCaPath: result?['usedHiddenCaPath'] as bool? ?? false,
-        networkSuggestionStatus: result?['networkSuggestionStatus'] as int?,
-        approvalStatus: result?['approvalStatus'] as int?,
-        message: result?['message'] as String?,
-      );
-    } on MissingPluginException {
-      return const Ntut8021xProvisioningResult.unsupported();
-    }
-  }
-
-  Future<bool> _invokeBooleanMethod(String method) async {
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
-      return false;
-    }
-
-    try {
-      return await _channel.invokeMethod<bool>(method) ?? false;
-    } on MissingPluginException {
-      return false;
-    }
-  }
-
-  Ntut8021xProvisioningStatus _provisioningStatusFromWire(String? status) {
-    return switch (status) {
-      'success' => Ntut8021xProvisioningStatus.success,
-      'successPendingWifi' => Ntut8021xProvisioningStatus.successPendingWifi,
-      'approvalPending' => Ntut8021xProvisioningStatus.approvalPending,
-      'approvalRejected' => Ntut8021xProvisioningStatus.approvalRejected,
-      'validationUnavailable' =>
-        Ntut8021xProvisioningStatus.validationUnavailable,
-      'unsupportedPlatform' => Ntut8021xProvisioningStatus.unsupportedPlatform,
-      _ => Ntut8021xProvisioningStatus.failed,
-    };
-  }
-}
-
 /// Coordinates the NTUT-802.1X setup assistant data and platform actions.
 class CampusWifiRepository {
   CampusWifiRepository({
@@ -239,7 +123,7 @@ class CampusWifiRepository {
   final CampusWifiPlatform _platform;
 
   Future<Ntut8021xAssistantData> getNtut8021xAssistantData() async {
-    final capabilities = await _platform.getCapabilities();
+    final capabilities = await _getCapabilities();
     if (!capabilities.isSupported) {
       return Ntut8021xAssistantData(
         status: Ntut8021xAssistantStatus.unsupportedPlatform,
@@ -278,13 +162,52 @@ class CampusWifiRepository {
       return const Ntut8021xProvisioningResult.unsupported();
     }
 
-    return _platform.provisionNtut8021x(
+    final provisioning = await _platform.provisionNtut8021x(
       identity: data.identity!,
       password: data.password!,
     );
+    return _provisioningResultFromDto(provisioning);
   }
 
   Future<bool> openWifiSettings() => _platform.openWifiSettings();
 
   Future<bool> openWifiPanel() => _platform.openWifiPanel();
+
+  Future<CampusWifiCapabilities> _getCapabilities() async {
+    final capabilities = await _platform.getCapabilities();
+    return CampusWifiCapabilities(
+      isSupported: capabilities.isSupported,
+      androidSdkInt: capabilities.androidSdkInt,
+      canOpenWifiSettings: capabilities.canOpenWifiSettings,
+      canOpenWifiPanel: capabilities.canOpenWifiPanel,
+      canProvisionNtut8021x: capabilities.canProvisionNtut8021x,
+    );
+  }
+
+  Ntut8021xProvisioningResult _provisioningResultFromDto(
+    Ntut8021xProvisioningDto provisioning,
+  ) {
+    return Ntut8021xProvisioningResult(
+      status: _provisioningStatusFromWire(provisioning.status),
+      androidSdkInt: provisioning.androidSdkInt,
+      usedHiddenCaPath: provisioning.usedHiddenCaPath,
+      wifiEnabled: provisioning.wifiEnabled,
+      networkSuggestionStatus: provisioning.networkSuggestionStatus,
+      approvalStatus: provisioning.approvalStatus,
+      message: provisioning.message,
+    );
+  }
+
+  Ntut8021xProvisioningStatus _provisioningStatusFromWire(String status) {
+    return switch (status) {
+      'success' => Ntut8021xProvisioningStatus.success,
+      'successPendingWifi' => Ntut8021xProvisioningStatus.successPendingWifi,
+      'approvalPending' => Ntut8021xProvisioningStatus.approvalPending,
+      'approvalRejected' => Ntut8021xProvisioningStatus.approvalRejected,
+      'validationUnavailable' =>
+        Ntut8021xProvisioningStatus.validationUnavailable,
+      'unsupportedPlatform' => Ntut8021xProvisioningStatus.unsupportedPlatform,
+      _ => Ntut8021xProvisioningStatus.failed,
+    };
+  }
 }

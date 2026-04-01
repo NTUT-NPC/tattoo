@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/campus_wifi_repository.dart';
+import 'package:tattoo/services/campus_wifi/campus_wifi_platform.dart';
 import 'package:tattoo/services/portal/mock_portal_service.dart';
 import 'package:tattoo/services/student_query/mock_student_query_service.dart';
 
@@ -141,7 +142,7 @@ class _FakeAuthRepository extends AuthRepository {
 class _FakeCampusWifiPlatform implements CampusWifiPlatform {
   _FakeCampusWifiPlatform();
 
-  static const capabilities = CampusWifiCapabilities(
+  static const capabilities = (
     isSupported: true,
     androidSdkInt: 34,
     canOpenWifiSettings: true,
@@ -153,7 +154,7 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
   String? provisionedPassword;
 
   @override
-  Future<CampusWifiCapabilities> getCapabilities() async => capabilities;
+  Future<CampusWifiCapabilitiesDto> getCapabilities() async => capabilities;
 
   @override
   Future<bool> openWifiPanel() async => capabilities.canOpenWifiPanel;
@@ -162,17 +163,20 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
   Future<bool> openWifiSettings() async => capabilities.canOpenWifiSettings;
 
   @override
-  Future<Ntut8021xProvisioningResult> provisionNtut8021x({
+  Future<Ntut8021xProvisioningDto> provisionNtut8021x({
     required String identity,
     required String password,
   }) async {
     provisionedIdentity = identity;
     provisionedPassword = password;
-    return const Ntut8021xProvisioningResult(
-      status: Ntut8021xProvisioningStatus.success,
+    return const (
+      status: 'success',
       androidSdkInt: 34,
       usedHiddenCaPath: true,
       wifiEnabled: true,
+      networkSuggestionStatus: null,
+      approvalStatus: null,
+      message: null,
     );
   }
 }

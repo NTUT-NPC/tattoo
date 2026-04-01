@@ -5,7 +5,13 @@ import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/campus_wifi_repository.dart';
-import 'package:tattoo/screens/main/profile/ntut_wifi_providers.dart';
+
+final ntutWifiAssistantProvider =
+    FutureProvider.autoDispose<Ntut8021xAssistantData>((ref) async {
+      return ref
+          .watch(campusWifiRepositoryProvider)
+          .getNtut8021xAssistantData();
+    });
 
 class NtutWifiScreen extends ConsumerStatefulWidget {
   const NtutWifiScreen({super.key});
