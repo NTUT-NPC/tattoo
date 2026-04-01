@@ -111,59 +111,56 @@ class _ProfileCardPager extends StatefulWidget {
 }
 
 class _ProfileCardPagerState extends State<_ProfileCardPager> {
-  PageController? _pageController;
-  static const double _spacing = 32.0;
-  double? _lastWidth;
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 1.0);
+  }
 
   @override
   void dispose() {
-    _pageController?.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        // Total horizontal padding is 16 + 16 = 32
-        final cardWidth = width - _spacing;
-        // Height should match the card's aspect ratio based on its actual width
-        final height = cardWidth * (638 / 1016);
-
-        // Re-initialize controller only if width changes
-        if (_pageController == null || _lastWidth != width) {
-          _pageController?.dispose();
-          _pageController = PageController(
-            viewportFraction: 1.0,
-          );
-          _lastWidth = width;
-        }
-
-        return SizedBox(
-          height: height,
+    return Stack(
+      children: [
+        // Dummy to determine height based on aspect ratio
+        const IgnorePointer(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: AspectRatio(
+              aspectRatio: 1016 / 638,
+              child: SizedBox.expand(),
+            ),
+          ),
+        ),
+        // Actual pager (full-width to allow shadow bleed)
+        Positioned.fill(
           child: PageView(
             controller: _pageController,
+            physics: const BouncingScrollPhysics(),
             clipBehavior: Clip.none,
-            allowImplicitScrolling: true,
+            allowImplicitScrolling: false,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: _spacing / 2),
+              RepaintBoundary(
                 child: _ProfileCardFront(
                   profile: widget.profile,
                   registration: widget.registration,
                   avatarFile: widget.avatarFile,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: _spacing / 2),
+              RepaintBoundary(
                 child: _ProfileCardBack(
                   profile: widget.profile,
                   isGlassy: true,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: _spacing / 2),
+              RepaintBoundary(
                 child: _ProfileCardBarcode(
                   profile: widget.profile,
                   isGlassy: true,
@@ -171,8 +168,8 @@ class _ProfileCardPagerState extends State<_ProfileCardPager> {
               ),
             ],
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }
@@ -302,7 +299,19 @@ class _ProfileCardFront extends StatelessWidget {
                     ),
                     child: ClipOval(
                       child: switch (avatarFile) {
-                        final file? => Image.file(file, fit: BoxFit.cover),
+                        final file? => Image.file(
+                          file,
+                          fit: BoxFit.cover,
+                          // 進階優化：限制快取大小以節省記憶體，avatarSize 是邏輯像素
+                          cacheWidth:
+                              (avatarSize *
+                                      MediaQuery.of(context).devicePixelRatio)
+                                  .toInt(),
+                          cacheHeight:
+                              (avatarSize *
+                                      MediaQuery.of(context).devicePixelRatio)
+                                  .toInt(),
+                        ),
                         null => Center(
                           child: Text(
                             avatarInitial,
@@ -553,7 +562,10 @@ class _ProfileCardFrame extends StatefulWidget {
     this.childBuilder,
     this.child,
     this.isGlassy = false,
-  });
+  }) : assert(
+         (child == null) != (childBuilder == null),
+         'Exactly one of child or childBuilder must be provided',
+       );
 
   final Widget Function(
     BuildContext context,
@@ -570,192 +582,241 @@ class _ProfileCardFrame extends StatefulWidget {
 
 class _ProfileCardFrameState extends State<_ProfileCardFrame> {
   // 用於追蹤點光源的位置 (Offset.zero 代表中心)
-  Offset _lightPosition = const Offset(-0.8, -0.8);
-  bool _isTouching = false;
+  late final ValueNotifier<Offset> _lightPositionNotifier = ValueNotifier(
+    const Offset(-0.8, -0.8),
+  );
+  late final ValueNotifier<bool> _isTouchingNotifier = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    _lightPositionNotifier.dispose();
+    _isTouchingNotifier.dispose();
+    super.dispose();
+  }
 
   void _updateLightPosition(PointerEvent event, BoxConstraints constraints) {
     if (!widget.isGlassy) return;
-    setState(() {
-      // 將像素座標轉換為 Alignment 系統 (-1.0 到 1.0)
-      _lightPosition = Offset(
-        (event.localPosition.dx / constraints.maxWidth) * 2 - 1,
-        (event.localPosition.dy / constraints.maxHeight) * 2 - 1,
-      );
-    });
+    // 直接更新 ValueNotifier 而非 setState，避免整張卡片與內容重複建構
+    _lightPositionNotifier.value = Offset(
+      (event.localPosition.dx / constraints.maxWidth) * 2 - 1,
+      (event.localPosition.dy / constraints.maxHeight) * 2 - 1,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     // 身份證標準寬高比
-    return AspectRatio(
-      aspectRatio: 1016 / 638,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final height = constraints.maxHeight;
-          final borderRadius = BorderRadius.circular(
-            height * _profileCardRadiusFactor,
-          );
+    // 使用 Padding(horizontal: 16.0) 確保內容縮放同時留出陰影顯示空間
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: AspectRatio(
+        aspectRatio: 1016 / 638,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final height = constraints.maxHeight;
+            final borderRadius = BorderRadius.circular(
+              height * _profileCardRadiusFactor,
+            );
 
-          return Listener(
-            onPointerDown: (event) {
-              setState(() => _isTouching = true);
-              _updateLightPosition(event, constraints);
-            },
-            onPointerMove: (event) => _updateLightPosition(event, constraints),
-            onPointerUp: (_) => setState(() => _isTouching = false),
-            onPointerCancel: (_) => setState(() => _isTouching = false),
-            child: Stack(
-              children: [
-                if (widget.isGlassy) ...[
-                  // 1. 底層流動色味 (背景)
-                  Positioned.fill(
-                    child: ClipRRect(
-                      borderRadius: borderRadius,
-                      child: ImageFiltered(
-                        imageFilter: ImageFilter.blur(
-                          sigmaX: 20.0,
-                          sigmaY: 20.0,
-                        ),
-                        child: const _FlowingBlobs(),
-                      ),
-                    ),
-                  ),
-                  // 2. 磨砂玻璃基底
-                  ClipRRect(
-                    borderRadius: borderRadius,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: borderRadius,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
-                          width: 0.5,
-                        ),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            const Color(0xFF64748B).withValues(alpha: 0.35),
-                            const Color(0xFF1E293B).withValues(alpha: 0.45),
-                            const Color(0xFF334155).withValues(alpha: 0.25),
-                          ],
-                          stops: const [0.0, 0.6, 1.0],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // 3. 多層級物理邊框 (折射與反射)
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: CustomPaint(
-                        painter: _RefractiveBorderPainter(
+            return Listener(
+              onPointerDown: (event) {
+                _isTouchingNotifier.value = true;
+                _updateLightPosition(event, constraints);
+              },
+              onPointerMove: (event) =>
+                  _updateLightPosition(event, constraints),
+              onPointerUp: (_) => _isTouchingNotifier.value = false,
+              onPointerCancel: (_) => _isTouchingNotifier.value = false,
+              child: Stack(
+                children: [
+                  if (widget.isGlassy) ...[
+                    // 1. 底層流動色味 (背景) - 獨立的動畫圖層，避免觸發上方靜態元件重繪
+                    Positioned.fill(
+                      child: RepaintBoundary(
+                        child: ClipRRect(
                           borderRadius: borderRadius,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // 4. 指尖點光源追蹤層 (動態互動核心)
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeOutCubic,
-                        decoration: BoxDecoration(
-                          borderRadius: borderRadius,
-                          gradient: RadialGradient(
-                            center: Alignment(
-                              _lightPosition.dx,
-                              _lightPosition.dy,
+                          child: ImageFiltered(
+                            imageFilter: ImageFilter.blur(
+                              sigmaX: 20.0,
+                              sigmaY: 20.0,
                             ),
-                            radius: 1.0,
-                            colors: [
-                              Colors.white.withValues(
-                                alpha: _isTouching ? 0.25 : 0.15,
+                            child: const _FlowingBlobs(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // 2 & 3 & 5 & 6. 靜態玻璃質感層 (基底、邊框、角落掃光、頂部反光)
+                    // 將這些不隨時間變化的元件封裝在同一個 RepaintBoundary 中，僅在尺寸改變時重新繪製
+                    Positioned.fill(
+                      child: RepaintBoundary(
+                        child: Stack(
+                          children: [
+                            // 2. 磨砂玻璃基底
+                            ClipRRect(
+                              borderRadius: borderRadius,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: borderRadius,
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                    width: 0.5,
+                                  ),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      const Color(0xFF64748B).withValues(
+                                        alpha: 0.35,
+                                      ),
+                                      const Color(0xFF1E293B).withValues(
+                                        alpha: 0.45,
+                                      ),
+                                      const Color(0xFF334155).withValues(
+                                        alpha: 0.25,
+                                      ),
+                                    ],
+                                    stops: const [0.0, 0.6, 1.0],
+                                  ),
+                                ),
                               ),
-                              Colors.white.withValues(alpha: 0),
-                            ],
-                            stops: const [0.0, 1.0],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  // 5. 靜態角落掃光 (增強材質感)
-                  Positioned.fill(
-                    child: ClipRRect(
-                      borderRadius: borderRadius,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: const Alignment(-1.2, -1.2),
-                            end: const Alignment(1.2, 1.2),
-                            colors: [
-                              Colors.white.withValues(alpha: 0),
-                              Colors.white.withValues(alpha: 0.05),
-                              Colors.white.withValues(alpha: 0.2),
-                              Colors.white.withValues(alpha: 0.05),
-                              Colors.white.withValues(alpha: 0),
-                            ],
-                            stops: const [0.0, 0.2, 0.45, 0.7, 1.0],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  // 6. 卡片頂部反光線
-                  Positioned(
-                    top: 0,
-                    left: height * 0.1,
-                    right: height * 0.1,
-                    child: Container(
-                      height: 1.5,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.white.withValues(alpha: 0),
-                            Colors.white.withValues(alpha: 0.6),
-                            Colors.white.withValues(alpha: 0),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ] else
-                  // 普通卡片樣式
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: _profileCardBackgroundColor,
-                      borderRadius: borderRadius,
-                      boxShadow: const [_profileCardShadow],
-                    ),
-                    child: const SizedBox.expand(),
-                  ),
-
-                // 玻璃版陰影
-                if (widget.isGlassy)
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          borderRadius: borderRadius,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.15),
-                              blurRadius: 20,
-                              spreadRadius: 1,
+                            ),
+                            // 3. 多層級物理邊框 (折射與反射)
+                            Positioned.fill(
+                              child: IgnorePointer(
+                                child: CustomPaint(
+                                  painter: _RefractiveBorderPainter(
+                                    borderRadius: borderRadius,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // 5. 靜態角落掃光 (增強材質感)
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: borderRadius,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: const Alignment(-1.2, -1.2),
+                                      end: const Alignment(1.2, 1.2),
+                                      colors: [
+                                        Colors.white.withValues(alpha: 0),
+                                        Colors.white.withValues(alpha: 0.05),
+                                        Colors.white.withValues(alpha: 0.2),
+                                        Colors.white.withValues(alpha: 0.05),
+                                        Colors.white.withValues(alpha: 0),
+                                      ],
+                                      stops: const [0.0, 0.2, 0.45, 0.7, 1.0],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // 6. 卡片頂部反光線
+                            Positioned(
+                              top: 0,
+                              left: height * 0.1,
+                              right: height * 0.1,
+                              child: Container(
+                                height: 1.5,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0x00FFFFFF),
+                                      Color(0x99FFFFFF),
+                                      Color(0x00FFFFFF),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ),
-                  ),
+                    // 4. 指尖點光源追蹤層 (動態互動核心) - 獨立圖層確保互動流暢
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: RepaintBoundary(
+                          child: ValueListenableBuilder<Offset>(
+                            valueListenable: _lightPositionNotifier,
+                            builder: (context, lightPos, child) {
+                              return ValueListenableBuilder<bool>(
+                                valueListenable: _isTouchingNotifier,
+                                builder: (context, isTouching, child) {
+                                  return AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.easeOutCubic,
+                                    decoration: BoxDecoration(
+                                      borderRadius: borderRadius,
+                                      gradient: RadialGradient(
+                                        center: Alignment(
+                                          lightPos.dx,
+                                          lightPos.dy,
+                                        ),
+                                        radius: 1.0,
+                                        colors: [
+                                          Colors.white.withValues(
+                                            alpha: isTouching ? 0.25 : 0.15,
+                                          ),
+                                          Colors.white.withValues(alpha: 0),
+                                        ],
+                                        stops: const [0.0, 1.0],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ] else
+                    // 普通卡片樣式
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: _profileCardBackgroundColor,
+                        borderRadius: borderRadius,
+                        boxShadow: const [_profileCardShadow],
+                      ),
+                      child: const SizedBox.expand(),
+                    ),
 
-                // 內容區域
-                widget.child ??
-                    widget.childBuilder!(context, constraints, borderRadius),
-              ],
-            ),
-          );
-        },
+                  // 玻璃版陰影
+                  if (widget.isGlassy)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: borderRadius,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                blurRadius: 20,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                  // 內容區域 - 獨立圖層避免背景動畫觸發內容重繪
+                  RepaintBoundary(
+                    child:
+                        widget.child ??
+                        widget.childBuilder!(
+                          context,
+                          constraints,
+                          borderRadius,
+                        ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
