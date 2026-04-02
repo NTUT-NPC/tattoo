@@ -11,28 +11,22 @@
 </p>
 
 <p align="center">
-  <a href="https://ntut.club">
-    <img
-      alt="An NPC Project"
-      src="https://img.shields.io/badge/An_NPC_Project-333?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0iI2ZmZiI%2BPHBhdGggZD0iTTQgNHYyNGw4LTggMTYgOFY0bC04IDh6Ii8%2BPC9zdmc%2B"
-    >
-  </a>
-  <a href="https://flutter.dev">
-    <img
-      alt="Made with Flutter"
-      src="https://img.shields.io/badge/Made_with-Flutter-02569B?logo=flutter"
-    >
-  </a>
+  <a href="https://ntut.club"><img
+    alt="An NPC Project"
+    src="https://img.shields.io/badge/An_NPC_Project-333?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0iI2ZmZiI%2BPHBhdGggZD0iTTQgNHYyNGw4LTggMTYgOFY0bC04IDh6Ii8%2BPC9zdmc%2B"
+  ></a>
+  <a href="https://flutter.dev"><img
+    alt="Made with Flutter"
+    src="https://img.shields.io/badge/made_with-flutter-027DFD?logo=flutter"
+  ></a>
   <img
     alt="Works on my machine"
-    src="https://img.shields.io/badge/Works_on-My_machine-dark_green"
+    src="https://img.shields.io/badge/works_on-my_machine-dark_green"
   >
-  <a href="https://translate.ntut.club">
-    <img
-      alt="Crowdin Translation Progress"
-      src="https://badges.crowdin.net/project-tattoo/localized.svg"
-    >
-  </a>
+  <a href="https://translate.ntut.club"><img
+    alt="Crowdin Translation Progress"
+    src="https://badges.crowdin.net/project-tattoo/localized.svg"
+  ></a>
 </p>
   
 **Help us translate!** We use [Crowdin](https://translate.ntut.club) to manage localizations. Join the project and help us bring Tattoo to your language!
@@ -59,12 +53,8 @@ mise install
 # Install Flutter dependencies
 flutter pub get
 
-# Install Ruby dependencies (fastlane)
+# (Optional) Install Ruby dependencies for fastlane
 bundle install
-
-# Fetch credentials (Firebase configs, keystores)
-# Requires a properly configured .env file
-dart run tool/credentials.dart fetch
 
 # Run the app
 flutter run
