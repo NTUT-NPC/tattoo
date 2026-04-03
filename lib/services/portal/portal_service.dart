@@ -24,16 +24,25 @@ typedef UserDto = ({
 
 /// Represents a calendar event from the NTUT Portal.
 ///
-/// Weekend markers (isHoliday with empty title) are filtered out by
-/// [PortalService.getCalendar].
+/// Weekend markers (`isHoliday == '1'`) are filtered out by
+/// [PortalService.getCalendar] before mapping to this type.
+/// Some non-holiday events may still have a null [id].
 typedef CalendarEventDto = ({
-  /// Event ID.
+  /// Event ID from the portal.
+  ///
+  /// Null for some portal events (not just weekends — those are already
+  /// filtered). Events without an ID are skipped by [CalendarRepository]
+  /// since they cannot be synced or deduplicated.
   int? id,
 
   /// Event start time.
+  ///
+  /// Null when the portal omits timing information for this event.
   DateTime? start,
 
   /// Event end time.
+  ///
+  /// Null when the portal omits timing information for this event.
   DateTime? end,
 
   /// Whether this is an all-day event.
