@@ -220,12 +220,18 @@ class _TranslationsNtutWifiEnUs extends TranslationsNtutWifiZhTw {
 	@override String get openPanelFailed => 'Unable to open the Wi-Fi quick panel';
 	@override String get systemCertificatesHint => 'Automatic provisioning always uses "Use system certificates" with domain ntut.edu.tw and PEAP/GTC. If Android refuses to accept that Enterprise profile safely from the app, use the manual fallback below.';
 	@override String get automaticProvisionUnavailable => 'This device cannot let TAT add NTUT-802.1X automatically right now. Use the manual fallback below instead.';
+	@override String get compatModeSavedHint => 'This network was saved through compat mode. If your portal password changes later, update the system Wi-Fi profile again.';
+	@override String get compatUpdateRequired => 'The NTUT-802.1X profile previously saved through compat mode is out of date. Update the system Wi-Fi profile again.';
+	@override String get suggestionFallbackRequired => 'Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.';
+	@override String get android10PermissionRejected => 'Android 10 has rejected this app\'s Wi-Fi suggestion permission. Follow the manual instructions below instead.';
+	@override String get legacyManualOnly => 'Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.';
 	@override late final _TranslationsNtutWifiSectionsEnUs sections = _TranslationsNtutWifiSectionsEnUs._(_root);
 	@override late final _TranslationsNtutWifiActionsEnUs actions = _TranslationsNtutWifiActionsEnUs._(_root);
 	@override late final _TranslationsNtutWifiFieldsEnUs fields = _TranslationsNtutWifiFieldsEnUs._(_root);
 	@override late final _TranslationsNtutWifiFieldValuesEnUs fieldValues = _TranslationsNtutWifiFieldValuesEnUs._(_root);
 	@override late final _TranslationsNtutWifiFallbackStepsEnUs fallbackSteps = _TranslationsNtutWifiFallbackStepsEnUs._(_root);
 	@override late final _TranslationsNtutWifiProvisioningEnUs provisioning = _TranslationsNtutWifiProvisioningEnUs._(_root);
+	@override late final _TranslationsNtutWifiCompatPromptEnUs compatPrompt = _TranslationsNtutWifiCompatPromptEnUs._(_root);
 }
 
 // Path: enrollmentStatus
@@ -400,6 +406,8 @@ class _TranslationsNtutWifiActionsEnUs extends TranslationsNtutWifiActionsZhTw {
 	// Translations
 	@override String get autoProvision => 'Add NTUT-802.1X Automatically';
 	@override String get autoProvisioning => 'Adding NTUT-802.1X…';
+	@override String get retryCompatProvision => 'Retry with Compat Mode';
+	@override String get updateCompatProvision => 'Update with Compat Mode';
 	@override String get openWifiSettings => 'Open Wi-Fi Settings';
 	@override String get openWifiPanel => 'Open Wi-Fi Panel';
 }
@@ -458,6 +466,25 @@ class _TranslationsNtutWifiProvisioningEnUs extends TranslationsNtutWifiProvisio
 	@override String get validationUnavailable => 'This device cannot safely accept the "system certificates + domain" Enterprise profile from TAT. Use the manual fallback below instead.';
 	@override String get unsupportedPlatform => 'This device does not support automatic NTUT-802.1X provisioning right now.';
 	@override String get failed => 'Automatic NTUT-802.1X provisioning failed. Use the manual fallback below instead.';
+	@override String get compatSuccess => 'NTUT-802.1X was written into system Wi-Fi through compat mode.';
+	@override String get compatFallbackSuccess => 'The suggestion API was rejected, so compat mode wrote NTUT-802.1X into system Wi-Fi instead.';
+	@override String get compatAlreadyExists => 'Android reported that an NTUT-802.1X profile already exists. The saved password may still be outdated, so check the system Wi-Fi entry or remove it and retry compat mode.';
+	@override String get compatCancelled => 'Compat mode was cancelled. You can retry from this page later.';
+	@override String get compatFailed => 'Compat mode failed to update system Wi-Fi. Use the manual instructions below instead.';
+}
+
+// Path: ntutWifi.compatPrompt
+class _TranslationsNtutWifiCompatPromptEnUs extends TranslationsNtutWifiCompatPromptZhTw {
+	_TranslationsNtutWifiCompatPromptEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Update NTUT-802.1X';
+	@override String get updateNow => 'Update now';
+	@override String get later => 'Later';
+	@override String get credentialChanged => 'NTUT-802.1X was previously saved through compat mode. Your portal credentials changed, so the system Wi-Fi profile needs to be updated.';
+	@override String get suggestionFallbackRequired => 'Automatic NTUT-802.1X refresh failed. Do you want to switch to compat mode and update it now?';
 }
 
 // Path: intro.features.courseTable
@@ -648,11 +675,18 @@ extension on TranslationsEnUs {
 			'ntutWifi.openPanelFailed' => 'Unable to open the Wi-Fi quick panel',
 			'ntutWifi.systemCertificatesHint' => 'Automatic provisioning always uses "Use system certificates" with domain ntut.edu.tw and PEAP/GTC. If Android refuses to accept that Enterprise profile safely from the app, use the manual fallback below.',
 			'ntutWifi.automaticProvisionUnavailable' => 'This device cannot let TAT add NTUT-802.1X automatically right now. Use the manual fallback below instead.',
+			'ntutWifi.compatModeSavedHint' => 'This network was saved through compat mode. If your portal password changes later, update the system Wi-Fi profile again.',
+			'ntutWifi.compatUpdateRequired' => 'The NTUT-802.1X profile previously saved through compat mode is out of date. Update the system Wi-Fi profile again.',
+			'ntutWifi.suggestionFallbackRequired' => 'Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.',
+			'ntutWifi.android10PermissionRejected' => 'Android 10 has rejected this app\'s Wi-Fi suggestion permission. Follow the manual instructions below instead.',
+			'ntutWifi.legacyManualOnly' => 'Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.',
 			'ntutWifi.sections.quickActions' => 'Quick Actions',
 			'ntutWifi.sections.recommendedSettings' => 'Recommended Settings',
 			'ntutWifi.sections.fallback' => 'Manual Fallback',
 			'ntutWifi.actions.autoProvision' => 'Add NTUT-802.1X Automatically',
 			'ntutWifi.actions.autoProvisioning' => 'Adding NTUT-802.1X…',
+			'ntutWifi.actions.retryCompatProvision' => 'Retry with Compat Mode',
+			'ntutWifi.actions.updateCompatProvision' => 'Update with Compat Mode',
 			'ntutWifi.actions.openWifiSettings' => 'Open Wi-Fi Settings',
 			'ntutWifi.actions.openWifiPanel' => 'Open Wi-Fi Panel',
 			'ntutWifi.fields.ssid' => 'Network name',
@@ -675,6 +709,16 @@ extension on TranslationsEnUs {
 			'ntutWifi.provisioning.validationUnavailable' => 'This device cannot safely accept the "system certificates + domain" Enterprise profile from TAT. Use the manual fallback below instead.',
 			'ntutWifi.provisioning.unsupportedPlatform' => 'This device does not support automatic NTUT-802.1X provisioning right now.',
 			'ntutWifi.provisioning.failed' => 'Automatic NTUT-802.1X provisioning failed. Use the manual fallback below instead.',
+			'ntutWifi.provisioning.compatSuccess' => 'NTUT-802.1X was written into system Wi-Fi through compat mode.',
+			'ntutWifi.provisioning.compatFallbackSuccess' => 'The suggestion API was rejected, so compat mode wrote NTUT-802.1X into system Wi-Fi instead.',
+			'ntutWifi.provisioning.compatAlreadyExists' => 'Android reported that an NTUT-802.1X profile already exists. The saved password may still be outdated, so check the system Wi-Fi entry or remove it and retry compat mode.',
+			'ntutWifi.provisioning.compatCancelled' => 'Compat mode was cancelled. You can retry from this page later.',
+			'ntutWifi.provisioning.compatFailed' => 'Compat mode failed to update system Wi-Fi. Use the manual instructions below instead.',
+			'ntutWifi.compatPrompt.title' => 'Update NTUT-802.1X',
+			'ntutWifi.compatPrompt.updateNow' => 'Update now',
+			'ntutWifi.compatPrompt.later' => 'Later',
+			'ntutWifi.compatPrompt.credentialChanged' => 'NTUT-802.1X was previously saved through compat mode. Your portal credentials changed, so the system Wi-Fi profile needs to be updated.',
+			'ntutWifi.compatPrompt.suggestionFallbackRequired' => 'Automatic NTUT-802.1X refresh failed. Do you want to switch to compat mode and update it now?',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',

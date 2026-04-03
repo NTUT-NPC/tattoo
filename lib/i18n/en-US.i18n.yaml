@@ -154,6 +154,11 @@ ntutWifi:
   openPanelFailed: Unable to open the Wi-Fi quick panel
   systemCertificatesHint: Automatic provisioning always uses "Use system certificates" with domain ntut.edu.tw and PEAP/GTC. If Android refuses to accept that Enterprise profile safely from the app, use the manual fallback below.
   automaticProvisionUnavailable: This device cannot let TAT add NTUT-802.1X automatically right now. Use the manual fallback below instead.
+  compatModeSavedHint: This network was saved through compat mode. If your portal password changes later, update the system Wi-Fi profile again.
+  compatUpdateRequired: The NTUT-802.1X profile previously saved through compat mode is out of date. Update the system Wi-Fi profile again.
+  suggestionFallbackRequired: Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.
+  android10PermissionRejected: Android 10 has rejected this app's Wi-Fi suggestion permission. Follow the manual instructions below instead.
+  legacyManualOnly: Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.
   sections:
     quickActions: Quick Actions
     recommendedSettings: Recommended Settings
@@ -161,6 +166,8 @@ ntutWifi:
   actions:
     autoProvision: Add NTUT-802.1X Automatically
     autoProvisioning: Adding NTUT-802.1X…
+    retryCompatProvision: Retry with Compat Mode
+    updateCompatProvision: Update with Compat Mode
     openWifiSettings: Open Wi-Fi Settings
     openWifiPanel: Open Wi-Fi Panel
   fields:
@@ -187,6 +194,17 @@ ntutWifi:
     validationUnavailable: This device cannot safely accept the "system certificates + domain" Enterprise profile from TAT. Use the manual fallback below instead.
     unsupportedPlatform: This device does not support automatic NTUT-802.1X provisioning right now.
     failed: Automatic NTUT-802.1X provisioning failed. Use the manual fallback below instead.
+    compatSuccess: NTUT-802.1X was written into system Wi-Fi through compat mode.
+    compatFallbackSuccess: The suggestion API was rejected, so compat mode wrote NTUT-802.1X into system Wi-Fi instead.
+    compatAlreadyExists: Android reported that an NTUT-802.1X profile already exists. The saved password may still be outdated, so check the system Wi-Fi entry or remove it and retry compat mode.
+    compatCancelled: Compat mode was cancelled. You can retry from this page later.
+    compatFailed: Compat mode failed to update system Wi-Fi. Use the manual instructions below instead.
+  compatPrompt:
+    title: Update NTUT-802.1X
+    updateNow: Update now
+    later: Later
+    credentialChanged: NTUT-802.1X was previously saved through compat mode. Your portal credentials changed, so the system Wi-Fi profile needs to be updated.
+    suggestionFallbackRequired: Automatic NTUT-802.1X refresh failed. Do you want to switch to compat mode and update it now?
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence

@@ -5,6 +5,9 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -17,6 +20,20 @@ class CampusWifiChannelHandler(
     }
 
     private val provisioner by lazy { Ntut8021xProvisioner(activity.applicationContext) }
+    private var pendingAddNetworkResult: MethodChannel.Result? = null
+    private val addNetworkLauncher: ActivityResultLauncher<Intent>? =
+        (activity as? ComponentActivity)?.registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult(),
+        ) { activityResult ->
+            val result = pendingAddNetworkResult
+            pendingAddNetworkResult = null
+            result?.success(
+                provisioner.parseAddNetworkResult(
+                    resultCode = activityResult.resultCode,
+                    data = activityResult.data,
+                ),
+            )
+        }
 
     private val wifiSettingsIntent: Intent
         get() = Intent(Settings.ACTION_WIFI_SETTINGS)
@@ -24,6 +41,13 @@ class CampusWifiChannelHandler(
     private val wifiPanelIntent: Intent?
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             Intent(Settings.Panel.ACTION_WIFI)
+        } else {
+            null
+        }
+
+    private val wifiAddNetworksIntent: Intent?
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Intent(Settings.ACTION_WIFI_ADD_NETWORKS)
         } else {
             null
         }
@@ -40,6 +64,7 @@ class CampusWifiChannelHandler(
                 openIntent(wifiPanelIntent ?: wifiSettingsIntent),
             )
             "provisionNtut8021x" -> handleProvisionNtut8021xCall(call, result)
+            "saveNtut8021xToSystem" -> handleSaveNtut8021xToSystemCall(call, result)
             else -> result.notImplemented()
         }
     }
@@ -71,17 +96,96 @@ class CampusWifiChannelHandler(
         )
     }
 
+    private fun handleSaveNtut8021xToSystemCall(
+        call: MethodCall,
+        result: MethodChannel.Result,
+    ) {
+        val identity = call.argument<String>("identity")
+        val password = call.argument<String>("password")
+        if (identity.isNullOrBlank() || password.isNullOrBlank()) {
+            result.error(
+                "invalid_args",
+                "identity and password are required",
+                null,
+            )
+            return
+        }
+
+        if (pendingAddNetworkResult != null) {
+            result.error(
+                "busy",
+                "saveNtut8021xToSystem is already in progress",
+                null,
+            )
+            return
+        }
+
+        val intent = try {
+            provisioner.buildAddNetworkIntent(identity, password)
+        } catch (_: IllegalArgumentException) {
+            result.success(provisioner.buildAddNetworkResult(status = "validationUnavailable"))
+            return
+        } catch (error: RuntimeException) {
+            result.success(
+                provisioner.buildAddNetworkResult(
+                    status = "compatFailed",
+                    message = error.message,
+                ),
+            )
+            return
+        }
+
+        if (intent == null || !canResolve(intent)) {
+            result.success(provisioner.buildAddNetworkResult(status = "unsupportedPlatform"))
+            return
+        }
+
+        val launcher = addNetworkLauncher
+        if (launcher == null) {
+            result.success(
+                provisioner.buildAddNetworkResult(
+                    status = "compatFailed",
+                    message = "activity_result_unavailable",
+                ),
+            )
+            return
+        }
+
+        pendingAddNetworkResult = result
+        try {
+            launcher.launch(intent)
+        } catch (_: ActivityNotFoundException) {
+            pendingAddNetworkResult = null
+            result.success(
+                provisioner.buildAddNetworkResult(
+                    status = "compatFailed",
+                    message = "activity_not_found",
+                ),
+            )
+        }
+    }
+
     private fun buildCapabilities(): Map<String, Any?> {
         return mapOf(
             "sdkInt" to Build.VERSION.SDK_INT,
             "canOpenWifiSettings" to canResolve(wifiSettingsIntent),
             "canOpenWifiPanel" to canResolve(wifiPanelIntent),
-            "canProvisionNtut8021x" to canProvisionNtut8021x(),
+            "canProvisionNtut8021xSuggestion" to canProvisionNtut8021xSuggestion(),
+            "canProvisionNtut8021xCompat" to canProvisionNtut8021xCompat(),
+            "canProvisionNtut8021x" to canProvisionNtut8021xSuggestion(),
+            "suggestionPermissionState" to provisioner.getSuggestionPermissionState(),
         )
     }
 
-    private fun canProvisionNtut8021x(): Boolean {
+    private fun canProvisionNtut8021xSuggestion(): Boolean {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && provisioner.canProvision()
+    }
+
+    private fun canProvisionNtut8021xCompat(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+            provisioner.canCompatProvision() &&
+            addNetworkLauncher != null &&
+            canResolve(wifiAddNetworksIntent)
     }
 
     private fun canResolve(intent: Intent?): Boolean {

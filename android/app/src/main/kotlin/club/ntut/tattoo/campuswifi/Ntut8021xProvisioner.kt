@@ -1,11 +1,16 @@
 package club.ntut.tattoo.campuswifi
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.AppOpsManager
 import android.content.Context
+import android.content.Intent
 import android.net.wifi.WifiEnterpriseConfig
 import android.net.wifi.WifiManager
 import android.net.wifi.WifiNetworkSuggestion
 import android.os.Build
+import android.os.Process
+import android.provider.Settings
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
@@ -20,13 +25,20 @@ class Ntut8021xProvisioner(
         private const val NTUT_DOMAIN_SUFFIX = "ntut.edu.tw"
         private const val SYSTEM_CA_CERT_PATH = "/system/etc/security/cacerts"
         private const val APPROVAL_STATUS_TIMEOUT_MS = 500L
+        private const val CHANGE_WIFI_STATE_APP_OP = "android:change_wifi_state"
     }
 
     private val wifiManager: WifiManager?
         get() = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
 
     fun canProvision(): Boolean {
-        return wifiManager != null
+        return wifiManager != null && supportsSystemCertificateValidation()
+    }
+
+    fun canCompatProvision(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+            wifiManager != null &&
+            supportsSystemCertificateValidation()
     }
 
     @SuppressLint("MissingPermission")
@@ -113,6 +125,7 @@ class Ntut8021xProvisioner(
         }
 
         val approvalStatus = getSuggestionApprovalStatus(wifiManager)
+        val suggestionPermissionState = getSuggestionPermissionState()
         return when (suggestionStatus) {
             WifiManager.STATUS_NETWORK_SUGGESTIONS_SUCCESS,
             WifiManager.STATUS_NETWORK_SUGGESTIONS_ERROR_ADD_DUPLICATE,
@@ -122,17 +135,34 @@ class Ntut8021xProvisioner(
                 usedHiddenCaPath = true,
                 networkSuggestionStatus = suggestionStatus,
                 approvalStatus = approvalStatus,
+                suggestionPermissionState = suggestionPermissionState,
             )
 
             WifiManager.STATUS_NETWORK_SUGGESTIONS_ERROR_APP_DISALLOWED -> buildProvisioningResult(
                 status = when (approvalStatus) {
                     WifiManager.STATUS_SUGGESTION_APPROVAL_REJECTED_BY_USER -> "approvalRejected"
+                    else -> when (suggestionPermissionState) {
+                        "disallowed" -> "approvalRejected"
+                        else -> "approvalPending"
+                    }
+                },
+                wifiEnabled = wifiEnabled,
+                usedHiddenCaPath = true,
+                networkSuggestionStatus = suggestionStatus,
+                approvalStatus = approvalStatus,
+                suggestionPermissionState = suggestionPermissionState,
+            )
+
+            WifiManager.STATUS_NETWORK_SUGGESTIONS_ERROR_ADD_NOT_ALLOWED -> buildProvisioningResult(
+                status = when (suggestionPermissionState) {
+                    "disallowed" -> "approvalRejected"
                     else -> "approvalPending"
                 },
                 wifiEnabled = wifiEnabled,
                 usedHiddenCaPath = true,
                 networkSuggestionStatus = suggestionStatus,
                 approvalStatus = approvalStatus,
+                suggestionPermissionState = suggestionPermissionState,
             )
 
             WifiManager.STATUS_NETWORK_SUGGESTIONS_ERROR_RESTRICTED_BY_ADMIN -> buildProvisioningResult(
@@ -141,6 +171,7 @@ class Ntut8021xProvisioner(
                 usedHiddenCaPath = true,
                 networkSuggestionStatus = suggestionStatus,
                 approvalStatus = approvalStatus,
+                suggestionPermissionState = suggestionPermissionState,
                 message = "restricted_by_admin",
             )
 
@@ -150,6 +181,7 @@ class Ntut8021xProvisioner(
                 usedHiddenCaPath = true,
                 networkSuggestionStatus = suggestionStatus,
                 approvalStatus = approvalStatus,
+                suggestionPermissionState = suggestionPermissionState,
             )
 
             else -> buildProvisioningResult(
@@ -158,6 +190,91 @@ class Ntut8021xProvisioner(
                 usedHiddenCaPath = true,
                 networkSuggestionStatus = suggestionStatus,
                 approvalStatus = approvalStatus,
+                suggestionPermissionState = suggestionPermissionState,
+            )
+        }
+    }
+
+    fun buildAddNetworkIntent(
+        identity: String,
+        password: String,
+    ): Intent? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return null
+        }
+
+        val suggestion = buildSuggestion(identity, password)
+        return Intent(Settings.ACTION_WIFI_ADD_NETWORKS).apply {
+            putParcelableArrayListExtra(
+                Settings.EXTRA_WIFI_NETWORK_LIST,
+                arrayListOf(suggestion),
+            )
+        }
+    }
+
+    fun parseAddNetworkResult(
+        resultCode: Int,
+        data: Intent?,
+    ): Map<String, Any?> {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return buildAddNetworkResult(status = "unsupportedPlatform")
+        }
+
+        val resultCodes = data
+            ?.getIntegerArrayListExtra(Settings.EXTRA_WIFI_NETWORK_RESULT_LIST)
+            ?.toList()
+            .orEmpty()
+        val primaryResultCode = resultCodes.firstOrNull()
+        val wifiEnabled = wifiManager?.isWifiEnabled
+
+        if (resultCode != Activity.RESULT_OK) {
+            return buildAddNetworkResult(
+                status = "compatCancelled",
+                activityResultCode = resultCode,
+                wifiEnabled = wifiEnabled,
+                addNetworkResultCodes = resultCodes,
+                compatResultCode = resultCode,
+                compatNetworkResultCode = primaryResultCode,
+            )
+        }
+
+        val hasFailure = resultCodes.any { it == Settings.ADD_WIFI_RESULT_ADD_OR_UPDATE_FAILED }
+        val hasSuccess = resultCodes.any { it == Settings.ADD_WIFI_RESULT_SUCCESS }
+        val onlyAlreadyExists = resultCodes.isNotEmpty() &&
+            resultCodes.all { it == Settings.ADD_WIFI_RESULT_ALREADY_EXISTS }
+
+        return when {
+            hasFailure -> buildAddNetworkResult(
+                status = "compatFailed",
+                activityResultCode = resultCode,
+                wifiEnabled = wifiEnabled,
+                addNetworkResultCodes = resultCodes,
+                compatResultCode = resultCode,
+                compatNetworkResultCode = primaryResultCode,
+            )
+            onlyAlreadyExists -> buildAddNetworkResult(
+                status = "compatAlreadyExists",
+                activityResultCode = resultCode,
+                wifiEnabled = wifiEnabled,
+                addNetworkResultCodes = resultCodes,
+                compatResultCode = resultCode,
+                compatNetworkResultCode = primaryResultCode,
+            )
+            hasSuccess || resultCodes.isEmpty() -> buildAddNetworkResult(
+                status = "compatSuccess",
+                activityResultCode = resultCode,
+                wifiEnabled = wifiEnabled,
+                addNetworkResultCodes = resultCodes,
+                compatResultCode = resultCode,
+                compatNetworkResultCode = primaryResultCode,
+            )
+            else -> buildAddNetworkResult(
+                status = "compatFailed",
+                activityResultCode = resultCode,
+                wifiEnabled = wifiEnabled,
+                addNetworkResultCodes = resultCodes,
+                compatResultCode = resultCode,
+                compatNetworkResultCode = primaryResultCode,
             )
         }
     }
@@ -214,6 +331,20 @@ class Ntut8021xProvisioner(
         }
     }
 
+    private fun supportsSystemCertificateValidation(): Boolean {
+        return try {
+            WifiEnterpriseConfig::class.java.getMethod(
+                "setCaPath",
+                String::class.java,
+            )
+            true
+        } catch (_: NoSuchMethodException) {
+            false
+        } catch (_: SecurityException) {
+            false
+        }
+    }
+
     @SuppressLint("MissingPermission")
     private fun removeExistingSuggestions(
         wifiManager: WifiManager,
@@ -243,6 +374,10 @@ class Ntut8021xProvisioner(
 
     @SuppressLint("MissingPermission")
     private fun getSuggestionApprovalStatus(wifiManager: WifiManager): Int? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            return null
+        }
+
         val approvalStatus = AtomicInteger(WifiManager.STATUS_SUGGESTION_APPROVAL_UNKNOWN)
         val latch = CountDownLatch(1)
         val listener = WifiManager.SuggestionUserApprovalStatusListener { status ->
@@ -263,12 +398,62 @@ class Ntut8021xProvisioner(
         }
     }
 
+    fun getSuggestionPermissionState(): String {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return "unknown"
+        }
+
+        val appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager
+            ?: return "unknown"
+        val op = CHANGE_WIFI_STATE_APP_OP
+        val uid = Process.myUid()
+        val packageName = context.packageName
+        val mode = try {
+            appOpsManager.unsafeCheckOpNoThrow(op, uid, packageName)
+        } catch (_: SecurityException) {
+            appOpsManager.checkOpNoThrow(op, uid, packageName)
+        }
+        return when (mode) {
+            AppOpsManager.MODE_ALLOWED,
+            AppOpsManager.MODE_DEFAULT,
+            AppOpsManager.MODE_FOREGROUND,
+            -> "allowed"
+            AppOpsManager.MODE_IGNORED,
+            AppOpsManager.MODE_ERRORED,
+            -> "disallowed"
+            else -> "unknown"
+        }
+    }
+
+    fun buildAddNetworkResult(
+        status: String,
+        activityResultCode: Int? = null,
+        wifiEnabled: Boolean? = null,
+        addNetworkResultCodes: List<Int> = emptyList(),
+        compatResultCode: Int? = null,
+        compatNetworkResultCode: Int? = null,
+        message: String? = null,
+    ): Map<String, Any?> {
+        return mapOf(
+            "status" to status,
+            "sdkInt" to Build.VERSION.SDK_INT,
+            "activityResultCode" to activityResultCode,
+            "wifiEnabled" to wifiEnabled,
+            "usedHiddenCaPath" to true,
+            "addNetworkResultCodes" to addNetworkResultCodes,
+            "compatResultCode" to compatResultCode,
+            "compatNetworkResultCode" to compatNetworkResultCode,
+            "message" to message,
+        )
+    }
+
     private fun buildProvisioningResult(
         status: String,
         wifiEnabled: Boolean? = null,
         usedHiddenCaPath: Boolean = false,
         networkSuggestionStatus: Int? = null,
         approvalStatus: Int? = null,
+        suggestionPermissionState: String? = null,
         message: String? = null,
     ): Map<String, Any?> {
         return mapOf(
@@ -278,6 +463,7 @@ class Ntut8021xProvisioner(
             "usedHiddenCaPath" to usedHiddenCaPath,
             "networkSuggestionStatus" to networkSuggestionStatus,
             "approvalStatus" to approvalStatus,
+            "suggestionPermissionState" to suggestionPermissionState,
             "message" to message,
         )
     }

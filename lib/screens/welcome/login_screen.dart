@@ -7,6 +7,7 @@ import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/campus_wifi_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/components/notices.dart';
 
@@ -120,6 +121,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       await ref.read(authRepositoryProvider).login(username, password);
+      if (!mounted) return;
+      await _handlePendingNtutWifiPrompt();
       if (mounted) context.go(AppRoutes.home);
     } on DioException {
       if (mounted) _setError(t.errors.connectionFailed);
@@ -151,6 +154,68 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _setError(t.login.errors.loginFailed, username: true, password: true);
       }
     }
+  }
+
+  Future<void> _handlePendingNtutWifiPrompt() async {
+    final prompt = await ref
+        .read(campusWifiRepositoryProvider)
+        .consumePendingImmediatePrompt();
+    if (!mounted || prompt == null) return;
+
+    final updateNow = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.ntutWifi.compatPrompt.title),
+        content: Text(
+          switch (prompt.reason) {
+            Ntut8021xPendingPromptReason.credentialChanged =>
+              t.ntutWifi.compatPrompt.credentialChanged,
+            Ntut8021xPendingPromptReason.suggestionFallbackRequired =>
+              t.ntutWifi.compatPrompt.suggestionFallbackRequired,
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(t.ntutWifi.compatPrompt.later),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(t.ntutWifi.compatPrompt.updateNow),
+          ),
+        ],
+      ),
+    );
+    if (!mounted || updateNow != true) return;
+
+    final result = await ref
+        .read(campusWifiRepositoryProvider)
+        .saveNtut8021xToSystem(
+          identity: prompt.identity,
+          password: prompt.password,
+        );
+    if (!mounted) return;
+    _showMessage(_compatPromptResultMessage(result));
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  String _compatPromptResultMessage(Ntut8021xProvisioningResult result) {
+    return switch (result.status) {
+      Ntut8021xProvisioningStatus.compatSuccess =>
+        t.ntutWifi.provisioning.compatSuccess,
+      Ntut8021xProvisioningStatus.compatAlreadyExists =>
+        t.ntutWifi.provisioning.compatAlreadyExists,
+      Ntut8021xProvisioningStatus.compatCancelled =>
+        t.ntutWifi.provisioning.compatCancelled,
+      Ntut8021xProvisioningStatus.compatFailed =>
+        t.ntutWifi.provisioning.compatFailed,
+      _ => t.ntutWifi.provisioning.failed,
+    };
   }
 
   // UI helpers

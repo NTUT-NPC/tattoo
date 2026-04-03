@@ -338,12 +338,28 @@ class TranslationsNtutWifiZhTw {
 	/// zh-TW: '這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。'
 	String get automaticProvisionUnavailable => '這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。';
 
+	/// zh-TW: '相容模式已儲存到系統。之後若入口帳密變更，需要再次更新這組 Wi‑Fi 設定。'
+	String get compatModeSavedHint => '相容模式已儲存到系統。之後若入口帳密變更，需要再次更新這組 Wi‑Fi 設定。';
+
+	/// zh-TW: '先前使用相容模式寫入的 NTUT-802.1X 帳密已過期，請重新更新系統 Wi‑Fi。'
+	String get compatUpdateRequired => '先前使用相容模式寫入的 NTUT-802.1X 帳密已過期，請重新更新系統 Wi‑Fi。';
+
+	/// zh-TW: 'suggestion 自動更新失敗，請改用相容模式將最新 NTUT-802.1X 設定寫入系統。'
+	String get suggestionFallbackRequired => 'suggestion 自動更新失敗，請改用相容模式將最新 NTUT-802.1X 設定寫入系統。';
+
+	/// zh-TW: 'Android 10 已拒絕這個 App 的 Wi‑Fi suggestion 權限，請依下方教學手動連線。'
+	String get android10PermissionRejected => 'Android 10 已拒絕這個 App 的 Wi‑Fi suggestion 權限，請依下方教學手動連線。';
+
+	/// zh-TW: 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。'
+	String get legacyManualOnly => 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。';
+
 	late final TranslationsNtutWifiSectionsZhTw sections = TranslationsNtutWifiSectionsZhTw.internal(_root);
 	late final TranslationsNtutWifiActionsZhTw actions = TranslationsNtutWifiActionsZhTw.internal(_root);
 	late final TranslationsNtutWifiFieldsZhTw fields = TranslationsNtutWifiFieldsZhTw.internal(_root);
 	late final TranslationsNtutWifiFieldValuesZhTw fieldValues = TranslationsNtutWifiFieldValuesZhTw.internal(_root);
 	late final TranslationsNtutWifiFallbackStepsZhTw fallbackSteps = TranslationsNtutWifiFallbackStepsZhTw.internal(_root);
 	late final TranslationsNtutWifiProvisioningZhTw provisioning = TranslationsNtutWifiProvisioningZhTw.internal(_root);
+	late final TranslationsNtutWifiCompatPromptZhTw compatPrompt = TranslationsNtutWifiCompatPromptZhTw.internal(_root);
 }
 
 // Path: enrollmentStatus
@@ -645,6 +661,12 @@ class TranslationsNtutWifiActionsZhTw {
 	/// zh-TW: '正在加入NTUT-802.1X…'
 	String get autoProvisioning => '正在加入NTUT-802.1X…';
 
+	/// zh-TW: '使用相容模式重試'
+	String get retryCompatProvision => '使用相容模式重試';
+
+	/// zh-TW: '使用相容模式更新'
+	String get updateCompatProvision => '使用相容模式更新';
+
 	/// zh-TW: '開啟Wi‑Fi設定'
 	String get openWifiSettings => '開啟Wi‑Fi設定';
 
@@ -746,6 +768,45 @@ class TranslationsNtutWifiProvisioningZhTw {
 
 	/// zh-TW: '自動加入NTUT-802.1X失敗，請改用下方手動設定。'
 	String get failed => '自動加入NTUT-802.1X失敗，請改用下方手動設定。';
+
+	/// zh-TW: '已透過相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。'
+	String get compatSuccess => '已透過相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。';
+
+	/// zh-TW: 'suggestion 被拒，已改用相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。'
+	String get compatFallbackSuccess => 'suggestion 被拒，已改用相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。';
+
+	/// zh-TW: 'Android 回報系統內已存在 NTUT-802.1X 設定，但儲存的密碼可能仍是舊的。請先確認系統 Wi‑Fi 項目，或刪除後再重新使用相容模式。'
+	String get compatAlreadyExists => 'Android 回報系統內已存在 NTUT-802.1X 設定，但儲存的密碼可能仍是舊的。請先確認系統 Wi‑Fi 項目，或刪除後再重新使用相容模式。';
+
+	/// zh-TW: '已取消相容模式更新，稍後可在此頁重新嘗試。'
+	String get compatCancelled => '已取消相容模式更新，稍後可在此頁重新嘗試。';
+
+	/// zh-TW: '相容模式更新失敗，請改依下方教學手動連線。'
+	String get compatFailed => '相容模式更新失敗，請改依下方教學手動連線。';
+}
+
+// Path: ntutWifi.compatPrompt
+class TranslationsNtutWifiCompatPromptZhTw {
+	TranslationsNtutWifiCompatPromptZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '更新 NTUT-802.1X'
+	String get title => '更新 NTUT-802.1X';
+
+	/// zh-TW: '立即更新'
+	String get updateNow => '立即更新';
+
+	/// zh-TW: '稍後'
+	String get later => '稍後';
+
+	/// zh-TW: '你先前使用相容模式儲存了 NTUT-802.1X。現在入口帳密已變更，需要重新更新系統 Wi‑Fi。'
+	String get credentialChanged => '你先前使用相容模式儲存了 NTUT-802.1X。現在入口帳密已變更，需要重新更新系統 Wi‑Fi。';
+
+	/// zh-TW: '系統無法自動更新 NTUT-802.1X，是否現在改用相容模式完成更新？'
+	String get suggestionFallbackRequired => '系統無法自動更新 NTUT-802.1X，是否現在改用相容模式完成更新？';
 }
 
 // Path: intro.features.courseTable
@@ -958,11 +1019,18 @@ extension on Translations {
 			'ntutWifi.openPanelFailed' => '無法開啟Wi‑Fi快捷面板',
 			'ntutWifi.systemCertificatesHint' => '自動佈署會固定使用「系統憑證 + 網域ntut.edu.tw + PEAP/GTC」。若系統不允許App安全地下發這組Enterprise設定，請改走下方手動fallback。',
 			'ntutWifi.automaticProvisionUnavailable' => '這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。',
+			'ntutWifi.compatModeSavedHint' => '相容模式已儲存到系統。之後若入口帳密變更，需要再次更新這組 Wi‑Fi 設定。',
+			'ntutWifi.compatUpdateRequired' => '先前使用相容模式寫入的 NTUT-802.1X 帳密已過期，請重新更新系統 Wi‑Fi。',
+			'ntutWifi.suggestionFallbackRequired' => 'suggestion 自動更新失敗，請改用相容模式將最新 NTUT-802.1X 設定寫入系統。',
+			'ntutWifi.android10PermissionRejected' => 'Android 10 已拒絕這個 App 的 Wi‑Fi suggestion 權限，請依下方教學手動連線。',
+			'ntutWifi.legacyManualOnly' => 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。',
 			'ntutWifi.sections.quickActions' => '快速操作',
 			'ntutWifi.sections.recommendedSettings' => '建議設定',
 			'ntutWifi.sections.fallback' => '手動Fallback',
 			'ntutWifi.actions.autoProvision' => '自動加入NTUT-802.1X',
 			'ntutWifi.actions.autoProvisioning' => '正在加入NTUT-802.1X…',
+			'ntutWifi.actions.retryCompatProvision' => '使用相容模式重試',
+			'ntutWifi.actions.updateCompatProvision' => '使用相容模式更新',
 			'ntutWifi.actions.openWifiSettings' => '開啟Wi‑Fi設定',
 			'ntutWifi.actions.openWifiPanel' => '開啟Wi‑Fi快捷面板',
 			'ntutWifi.fields.ssid' => '網路名稱',
@@ -985,6 +1053,16 @@ extension on Translations {
 			'ntutWifi.provisioning.validationUnavailable' => '這台裝置無法讓TAT安全地下發「系統憑證 + 網域」Enterprise設定，請改用下方手動設定。',
 			'ntutWifi.provisioning.unsupportedPlatform' => '這台裝置目前不支援自動加入NTUT-802.1X。',
 			'ntutWifi.provisioning.failed' => '自動加入NTUT-802.1X失敗，請改用下方手動設定。',
+			'ntutWifi.provisioning.compatSuccess' => '已透過相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。',
+			'ntutWifi.provisioning.compatFallbackSuccess' => 'suggestion 被拒，已改用相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。',
+			'ntutWifi.provisioning.compatAlreadyExists' => 'Android 回報系統內已存在 NTUT-802.1X 設定，但儲存的密碼可能仍是舊的。請先確認系統 Wi‑Fi 項目，或刪除後再重新使用相容模式。',
+			'ntutWifi.provisioning.compatCancelled' => '已取消相容模式更新，稍後可在此頁重新嘗試。',
+			'ntutWifi.provisioning.compatFailed' => '相容模式更新失敗，請改依下方教學手動連線。',
+			'ntutWifi.compatPrompt.title' => '更新 NTUT-802.1X',
+			'ntutWifi.compatPrompt.updateNow' => '立即更新',
+			'ntutWifi.compatPrompt.later' => '稍後',
+			'ntutWifi.compatPrompt.credentialChanged' => '你先前使用相容模式儲存了 NTUT-802.1X。現在入口帳密已變更，需要重新更新系統 Wi‑Fi。',
+			'ntutWifi.compatPrompt.suggestionFallbackRequired' => '系統無法自動更新 NTUT-802.1X，是否現在改用相容模式完成更新？',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
