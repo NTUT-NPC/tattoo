@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:riverpod/riverpod.dart';
@@ -9,6 +11,11 @@ const ntut8021xAutoReprovisionPreferenceKey = 'ntut8021xAutoReprovisionEnabled';
 
 bool get _isAndroidPlatform =>
     !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
+void _logCampusWifi(String message) {
+  log(message, name: 'CampusWifi');
+  debugPrint('[CampusWifi] $message');
+}
 
 /// Raw capabilities returned from the platform channel before repository mapping.
 typedef CampusWifiCapabilitiesDto = ({
@@ -176,11 +183,15 @@ class Ntut8021xAutoReprovision {
   final CampusWifiPlatform _platform;
 
   Future<bool> isEnabled() async {
-    return await _prefs.getBool(ntut8021xAutoReprovisionPreferenceKey) ?? false;
+    final enabled =
+        await _prefs.getBool(ntut8021xAutoReprovisionPreferenceKey) ?? false;
+    _logCampusWifi('Read auto reprovision flag: enabled=$enabled');
+    return enabled;
   }
 
   Future<void> enable() async {
     await _prefs.setBool(ntut8021xAutoReprovisionPreferenceKey, true);
+    _logCampusWifi('Updated auto reprovision flag: enabled=true');
   }
 
   Future<void> reprovisionIfEnabled({
@@ -189,7 +200,18 @@ class Ntut8021xAutoReprovision {
     String? previousIdentity,
     String? previousPassword,
   }) async {
-    if (!await isEnabled()) return;
+    final enabled = await isEnabled();
+    if (!enabled) {
+      _logCampusWifi(
+        'Skipped NTUT-802.1X auto reprovision because the flag is disabled',
+      );
+      return;
+    }
+
+    _logCampusWifi(
+      'Starting NTUT-802.1X auto reprovision; '
+      'hasPreviousCredentials=${previousIdentity != null && previousPassword != null}',
+    );
 
     await _platform.provisionNtut8021x(
       identity: identity,
@@ -197,6 +219,8 @@ class Ntut8021xAutoReprovision {
       previousIdentity: previousIdentity,
       previousPassword: previousPassword,
     );
+
+    _logCampusWifi('Finished NTUT-802.1X auto reprovision');
   }
 }
 

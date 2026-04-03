@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
 
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
@@ -37,6 +39,11 @@ class _AuthFailedException implements Exception {
 }
 
 const _secureStorage = FlutterSecureStorage();
+
+void _logCampusWifi(String message) {
+  log(message, name: 'CampusWifi');
+  debugPrint('[CampusWifi] $message');
+}
 
 /// Whether the user has an active authenticated session.
 ///
@@ -662,6 +669,10 @@ class AuthRepository {
     String? previousUsername,
     String? previousPassword,
   }) async {
+    _logCampusWifi(
+      'Credential update detected for NTUT-802.1X refresh; '
+      'hasPreviousCredentials=${previousUsername != null && previousPassword != null}',
+    );
     try {
       await _onCredentialsUpdated?.call(
         username: username,
@@ -669,8 +680,10 @@ class AuthRepository {
         previousUsername: previousUsername,
         previousPassword: previousPassword,
       );
+      _logCampusWifi('Credential-triggered NTUT-802.1X refresh completed');
     } catch (_) {
       // Wi-Fi suggestion refresh is best-effort and must not block auth flows.
+      _logCampusWifi('Credential-triggered NTUT-802.1X refresh failed');
     }
   }
 }
