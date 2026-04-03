@@ -47,6 +47,8 @@ dependencies:
   firebase_analytics: ^12.2.0
   auto_size_text: ^3.0.0
   mobile_scanner: ^7.2.0
+  qr_flutter: ^4.1.0
+  barcode_widget: 2.0.0
 
 dev_dependencies:
   flutter_test:
