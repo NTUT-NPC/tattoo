@@ -96,6 +96,13 @@ class ProfileScreen extends ConsumerWidget {
         title: t.scanner.loginIStudy,
         onTap: () => context.push(AppRoutes.scanner),
       ),
+      if (Theme.of(context).platform == TargetPlatform.android)
+        OptionEntryTile.icon(
+          icon: Icons.wifi,
+          title: t.profile.options.ntutWifi,
+          description: t.ntutWifi.entryDescription,
+          onTap: () => context.push(AppRoutes.ntutWifi),
+        ),
       OptionEntryTile.icon(
         icon: Icons.password,
         title: t.profile.options.changePassword,
