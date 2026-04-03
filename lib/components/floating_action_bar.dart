@@ -41,7 +41,10 @@ class ScrollAwareFloatingActionBar extends StatefulWidget {
 
 class _ScrollAwareFloatingActionBarState
     extends State<ScrollAwareFloatingActionBar> {
+  static const _dragHideThreshold = 12.0;
+
   bool _isVisible = true;
+  double _dragHideDelta = 0;
 
   bool _handleScrollNotification(ScrollNotification notification) {
     if (notification.metrics.axis != Axis.vertical) {
@@ -74,6 +77,31 @@ class _ScrollAwareFloatingActionBarState
     return false;
   }
 
+  void _handleVerticalDragStart(DragStartDetails details) {
+    _dragHideDelta = 0;
+  }
+
+  void _handleVerticalDragUpdate(DragUpdateDetails details) {
+    final delta = details.primaryDelta;
+    if (delta == null || delta <= 0) {
+      return;
+    }
+
+    _dragHideDelta += delta;
+    if (_dragHideDelta < _dragHideThreshold || !_isVisible) {
+      return;
+    }
+
+    setState(() {
+      _isVisible = false;
+    });
+    _dragHideDelta = 0;
+  }
+
+  void _handleVerticalDragEnd(DragEndDetails details) {
+    _dragHideDelta = 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final floatingActionBar = widget.floatingActionBarBuilder(
@@ -96,7 +124,16 @@ class _ScrollAwareFloatingActionBarState
               bottom: resolvedMargin.bottom,
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: floatingActionBar,
+                child: IgnorePointer(
+                  ignoring: !_isVisible,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onVerticalDragStart: _handleVerticalDragStart,
+                    onVerticalDragUpdate: _handleVerticalDragUpdate,
+                    onVerticalDragEnd: _handleVerticalDragEnd,
+                    child: floatingActionBar,
+                  ),
+                ),
               ),
             ),
         ],
