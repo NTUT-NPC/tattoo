@@ -27,11 +27,13 @@ class CourseTableGrid extends StatelessWidget {
     required this.viewportHeight,
     this.loading = false,
     this.onRefresh,
+    this.bottomInset = 0,
   });
 
   final CourseTableData courseTableData;
   final bool loading;
   final RefreshCallback? onRefresh;
+  final double bottomInset;
 
   /// Initial visible width of the grid viewport (before user scrolls).
   final double viewportWidth;
@@ -146,6 +148,10 @@ class CourseTableGrid extends StatelessWidget {
             ],
           ),
         ),
+        if (bottomInset > 0)
+          SliverToBoxAdapter(
+            child: SizedBox(height: bottomInset),
+          ),
       ],
     );
 
