@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -44,9 +46,11 @@ void main() {
           const ProfileScreen(),
           platform: TargetPlatform.android,
           overrides: [
-            userProfileProvider.overrideWith((ref) async => null),
+            userProfileProvider.overrideWith((ref) => Stream.value(null)),
             userAvatarProvider.overrideWith((ref) async => null),
-            activeRegistrationProvider.overrideWith((ref) async => null),
+            activeRegistrationProvider.overrideWith(
+              (ref) => Stream.value(null),
+            ),
             preferencesRepositoryProvider.overrideWith((ref) {
               return preferencesRepository;
             }),
@@ -67,9 +71,11 @@ void main() {
           const ProfileScreen(),
           platform: TargetPlatform.iOS,
           overrides: [
-            userProfileProvider.overrideWith((ref) async => null),
+            userProfileProvider.overrideWith((ref) => Stream.value(null)),
             userAvatarProvider.overrideWith((ref) async => null),
-            activeRegistrationProvider.overrideWith((ref) async => null),
+            activeRegistrationProvider.overrideWith(
+              (ref) => Stream.value(null),
+            ),
             preferencesRepositoryProvider.overrideWith((ref) {
               return preferencesRepository;
             }),
