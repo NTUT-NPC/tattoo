@@ -10,6 +10,7 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/models/user.dart';
+import 'package:tattoo/services/campus_wifi/campus_wifi_platform.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
 import 'package:tattoo/utils/http.dart';
@@ -88,6 +89,22 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     onSessionDestroyed: ([exception]) {
       ref.read(sessionProvider.notifier).destroy(exception);
     },
+    onCredentialsUpdated:
+        ({
+          required username,
+          required password,
+          previousUsername,
+          previousPassword,
+        }) async {
+          await ref
+              .read(ntut8021xAutoReprovisionProvider)
+              .reprovisionIfEnabled(
+                identity: username,
+                password: password,
+                previousIdentity: previousUsername,
+                previousPassword: previousPassword,
+              );
+        },
   );
 });
 
@@ -112,6 +129,13 @@ class AuthRepository {
   final FlutterSecureStorage _secureStorage;
   final void Function() _onSessionCreated;
   final void Function([LoginException?]) _onSessionDestroyed;
+  final Future<void> Function({
+    required String username,
+    required String password,
+    String? previousUsername,
+    String? previousPassword,
+  })?
+  _onCredentialsUpdated;
 
   final _ssoCache = <PortalServiceCode>{};
   final _ssoInFlight = <PortalServiceCode, Completer<void>>{};
@@ -127,12 +151,20 @@ class AuthRepository {
     required FlutterSecureStorage secureStorage,
     required void Function() onSessionCreated,
     required void Function([LoginException?]) onSessionDestroyed,
+    Future<void> Function({
+      required String username,
+      required String password,
+      String? previousUsername,
+      String? previousPassword,
+    })?
+    onCredentialsUpdated,
   }) : _portalService = portalService,
        _studentQueryService = studentQueryService,
        _database = database,
        _secureStorage = secureStorage,
        _onSessionCreated = onSessionCreated,
-       _onSessionDestroyed = onSessionDestroyed;
+       _onSessionDestroyed = onSessionDestroyed,
+       _onCredentialsUpdated = onCredentialsUpdated;
 
   /// Authenticates with NTUT Portal and saves the user profile.
   ///
@@ -140,6 +172,7 @@ class AuthRepository {
   /// locked, password expired, etc.). Throws [DioException] on network failure.
   /// On success, credentials are stored securely for auto-login.
   Future<User> login(String username, String password) async {
+    final previousCredentials = await getStoredCredentials();
     final userDto = await _portalService.login(username, password);
 
     // Save credentials for auto-login
@@ -147,7 +180,7 @@ class AuthRepository {
     await _secureStorage.write(key: _passwordKey, value: password);
     _onSessionCreated();
 
-    return _database.transaction(() async {
+    final user = await _database.transaction(() async {
       await _database.delete(_database.users).go();
       return _database
           .into(_database.users)
@@ -161,6 +194,14 @@ class AuthRepository {
             ),
           );
     });
+
+    await _maybeRefreshNtut8021x(
+      username: username,
+      password: password,
+      previousUsername: previousCredentials?.username,
+      previousPassword: previousCredentials?.password,
+    );
+    return user;
   }
 
   /// Logs out and clears all local user data and stored credentials.
@@ -524,6 +565,13 @@ class AuthRepository {
     // Update stored credentials so auto-login uses the new password
     await _secureStorage.write(key: _passwordKey, value: newPassword);
 
+    await _maybeRefreshNtut8021x(
+      username: user.studentId,
+      password: newPassword,
+      previousUsername: user.studentId,
+      previousPassword: currentPassword,
+    );
+
     // Best-effort re-login to refresh session and passwordExpiresInDays.
     // The password is already changed at this point, so don't fail if
     // the re-login hits a transient error.
@@ -605,6 +653,24 @@ class AuthRepository {
     final avatarDir = Directory('${cacheDir.path}/avatars');
     if (await avatarDir.exists()) {
       await avatarDir.delete(recursive: true);
+    }
+  }
+
+  Future<void> _maybeRefreshNtut8021x({
+    required String username,
+    required String password,
+    String? previousUsername,
+    String? previousPassword,
+  }) async {
+    try {
+      await _onCredentialsUpdated?.call(
+        username: username,
+        password: password,
+        previousUsername: previousUsername,
+        previousPassword: previousPassword,
+      );
+    } catch (_) {
+      // Wi-Fi suggestion refresh is best-effort and must not block auth flows.
     }
   }
 }

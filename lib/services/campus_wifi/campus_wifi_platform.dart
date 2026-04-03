@@ -1,8 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tattoo/utils/shared_preferences.dart';
 
 const _campusWifiChannel = MethodChannel('club.ntut.tattoo/campus_wifi');
+const ntut8021xAutoReprovisionPreferenceKey = 'ntut8021xAutoReprovisionEnabled';
 
 bool get _isAndroidPlatform =>
     !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
@@ -32,6 +35,15 @@ final campusWifiPlatformProvider = Provider<CampusWifiPlatform>((_) {
   return const MethodChannelCampusWifiPlatform(_campusWifiChannel);
 });
 
+final ntut8021xAutoReprovisionProvider = Provider<Ntut8021xAutoReprovision>((
+  ref,
+) {
+  return Ntut8021xAutoReprovision(
+    prefs: ref.watch(sharedPreferencesProvider),
+    platform: ref.watch(campusWifiPlatformProvider),
+  );
+});
+
 /// Native/platform-facing bridge for campus Wi-Fi actions.
 abstract interface class CampusWifiPlatform {
   Future<CampusWifiCapabilitiesDto> getCapabilities();
@@ -43,6 +55,8 @@ abstract interface class CampusWifiPlatform {
   Future<Ntut8021xProvisioningDto> provisionNtut8021x({
     required String identity,
     required String password,
+    String? previousIdentity,
+    String? previousPassword,
   });
 }
 
@@ -92,6 +106,8 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
   Future<Ntut8021xProvisioningDto> provisionNtut8021x({
     required String identity,
     required String password,
+    String? previousIdentity,
+    String? previousPassword,
   }) async {
     return _invokeOnAndroid(
       fallback: (
@@ -109,6 +125,8 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
           {
             'identity': identity,
             'password': password,
+            'previousIdentity': previousIdentity,
+            'previousPassword': previousPassword,
           },
         );
         return (
@@ -142,6 +160,43 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
     } on MissingPluginException {
       return fallback;
     }
+  }
+}
+
+/// Manages whether NTUT-802.1X should be automatically re-provisioned when
+/// credentials change, and performs the refresh when enabled.
+class Ntut8021xAutoReprovision {
+  Ntut8021xAutoReprovision({
+    required SharedPreferencesAsync prefs,
+    required CampusWifiPlatform platform,
+  }) : _prefs = prefs,
+       _platform = platform;
+
+  final SharedPreferencesAsync _prefs;
+  final CampusWifiPlatform _platform;
+
+  Future<bool> isEnabled() async {
+    return await _prefs.getBool(ntut8021xAutoReprovisionPreferenceKey) ?? false;
+  }
+
+  Future<void> enable() async {
+    await _prefs.setBool(ntut8021xAutoReprovisionPreferenceKey, true);
+  }
+
+  Future<void> reprovisionIfEnabled({
+    required String identity,
+    required String password,
+    String? previousIdentity,
+    String? previousPassword,
+  }) async {
+    if (!await isEnabled()) return;
+
+    await _platform.provisionNtut8021x(
+      identity: identity,
+      password: password,
+      previousIdentity: previousIdentity,
+      previousPassword: previousPassword,
+    );
   }
 }
 

@@ -50,6 +50,8 @@ class CampusWifiChannelHandler(
     ) {
         val identity = call.argument<String>("identity")
         val password = call.argument<String>("password")
+        val previousIdentity = call.argument<String>("previousIdentity")
+        val previousPassword = call.argument<String>("previousPassword")
         if (identity.isNullOrBlank() || password.isNullOrBlank()) {
             result.error(
                 "invalid_args",
@@ -59,7 +61,14 @@ class CampusWifiChannelHandler(
             return
         }
 
-        result.success(provisioner.provisionNtut8021x(identity, password))
+        result.success(
+            provisioner.provisionNtut8021x(
+                identity = identity,
+                password = password,
+                previousIdentity = previousIdentity,
+                previousPassword = previousPassword,
+            ),
+        )
     }
 
     private fun buildCapabilities(): Map<String, Any?> {

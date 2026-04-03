@@ -30,7 +30,12 @@ class Ntut8021xProvisioner(
     }
 
     @SuppressLint("MissingPermission")
-    fun provisionNtut8021x(identity: String, password: String): Map<String, Any?> {
+    fun provisionNtut8021x(
+        identity: String,
+        password: String,
+        previousIdentity: String? = null,
+        previousPassword: String? = null,
+    ): Map<String, Any?> {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             return buildProvisioningResult(status = "unsupportedPlatform")
         }
@@ -39,24 +44,8 @@ class Ntut8021xProvisioner(
             ?: return buildProvisioningResult(status = "unsupportedPlatform")
         val wifiEnabled = wifiManager.isWifiEnabled
 
-        val enterpriseConfig = buildEnterpriseConfig(identity, password)
-
-        val usedHiddenCaPath = enableSystemCertificateValidation(enterpriseConfig)
-        if (!usedHiddenCaPath) {
-            return buildProvisioningResult(
-                status = "validationUnavailable",
-                wifiEnabled = wifiEnabled,
-                usedHiddenCaPath = false,
-            )
-        }
-
         val suggestion = try {
-            WifiNetworkSuggestion.Builder()
-                .setSsid(NTUT_8021X_SSID)
-                .setWpa2EnterpriseConfig(enterpriseConfig)
-                .setCredentialSharedWithUser(true)
-                .setIsInitialAutojoinEnabled(true)
-                .build()
+            buildSuggestion(identity, password)
         } catch (_: IllegalArgumentException) {
             return buildProvisioningResult(
                 status = "validationUnavailable",
@@ -69,6 +58,32 @@ class Ntut8021xProvisioner(
                 wifiEnabled = wifiEnabled,
                 usedHiddenCaPath = true,
                 message = error.message,
+            )
+        }
+
+        val previousSuggestion = try {
+            when {
+                previousIdentity.isNullOrBlank() || previousPassword.isNullOrBlank() -> null
+                previousIdentity == identity && previousPassword == password -> null
+                else -> buildSuggestion(previousIdentity, previousPassword)
+            }
+        } catch (_: IllegalArgumentException) {
+            null
+        } catch (_: RuntimeException) {
+            null
+        }
+
+        val removalStatus = removeExistingSuggestions(
+            wifiManager = wifiManager,
+            suggestion = suggestion,
+            previousSuggestion = previousSuggestion,
+        )
+        if (removalStatus != null) {
+            return buildProvisioningResult(
+                status = "failed",
+                wifiEnabled = wifiEnabled,
+                usedHiddenCaPath = true,
+                networkSuggestionStatus = removalStatus,
             )
         }
 
@@ -147,6 +162,23 @@ class Ntut8021xProvisioner(
         }
     }
 
+    private fun buildSuggestion(
+        identity: String,
+        password: String,
+    ): WifiNetworkSuggestion {
+        val enterpriseConfig = buildEnterpriseConfig(identity, password)
+        if (!enableSystemCertificateValidation(enterpriseConfig)) {
+            throw IllegalArgumentException("system_certificate_validation_unavailable")
+        }
+
+        return WifiNetworkSuggestion.Builder()
+            .setSsid(NTUT_8021X_SSID)
+            .setWpa2EnterpriseConfig(enterpriseConfig)
+            .setCredentialSharedWithUser(true)
+            .setIsInitialAutojoinEnabled(true)
+            .build()
+    }
+
     private fun buildEnterpriseConfig(
         identity: String,
         password: String,
@@ -179,6 +211,33 @@ class Ntut8021xProvisioner(
             false
         } catch (_: SecurityException) {
             false
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun removeExistingSuggestions(
+        wifiManager: WifiManager,
+        suggestion: WifiNetworkSuggestion,
+        previousSuggestion: WifiNetworkSuggestion?,
+    ): Int? {
+        val suggestionsToRemove = buildList {
+            add(suggestion)
+            if (previousSuggestion != null) add(previousSuggestion)
+        }
+
+        val removeStatus = try {
+            wifiManager.removeNetworkSuggestions(suggestionsToRemove)
+        } catch (_: SecurityException) {
+            return null
+        } catch (_: RuntimeException) {
+            return WifiManager.STATUS_NETWORK_SUGGESTIONS_ERROR_INTERNAL
+        }
+
+        return when (removeStatus) {
+            WifiManager.STATUS_NETWORK_SUGGESTIONS_SUCCESS,
+            WifiManager.STATUS_NETWORK_SUGGESTIONS_ERROR_REMOVE_INVALID,
+            -> null
+            else -> removeStatus
         }
     }
 

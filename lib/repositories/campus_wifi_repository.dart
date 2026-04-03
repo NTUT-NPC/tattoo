@@ -7,6 +7,7 @@ final campusWifiRepositoryProvider = Provider<CampusWifiRepository>((ref) {
   return CampusWifiRepository(
     authRepository: ref.watch(authRepositoryProvider),
     platform: ref.watch(campusWifiPlatformProvider),
+    autoReprovision: ref.watch(ntut8021xAutoReprovisionProvider),
   );
 });
 
@@ -116,11 +117,14 @@ class CampusWifiRepository {
   CampusWifiRepository({
     required AuthRepository authRepository,
     required CampusWifiPlatform platform,
+    required Ntut8021xAutoReprovision autoReprovision,
   }) : _authRepository = authRepository,
-       _platform = platform;
+       _platform = platform,
+       _autoReprovision = autoReprovision;
 
   final AuthRepository _authRepository;
   final CampusWifiPlatform _platform;
+  final Ntut8021xAutoReprovision _autoReprovision;
 
   Future<Ntut8021xAssistantData> getNtut8021xAssistantData() async {
     final capabilities = await _getCapabilities();
@@ -162,6 +166,7 @@ class CampusWifiRepository {
       return const Ntut8021xProvisioningResult.unsupported();
     }
 
+    await _autoReprovision.enable();
     final provisioning = await _platform.provisionNtut8021x(
       identity: data.identity!,
       password: data.password!,

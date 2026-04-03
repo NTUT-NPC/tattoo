@@ -1,6 +1,9 @@
 import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/types.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/campus_wifi_repository.dart';
@@ -9,6 +12,13 @@ import 'package:tattoo/services/portal/mock_portal_service.dart';
 import 'package:tattoo/services/student_query/mock_student_query_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    SharedPreferencesAsyncPlatform.instance =
+        _InMemorySharedPreferencesAsyncPlatform();
+  });
+
   group('CampusWifiRepository', () {
     test('returns NTUT-802.1X credentials for a signed-in user', () async {
       final authRepository = _FakeAuthRepository(
@@ -20,6 +30,7 @@ void main() {
       final repository = CampusWifiRepository(
         authRepository: authRepository,
         platform: _FakeCampusWifiPlatform(),
+        autoReprovision: _FakeNtut8021xAutoReprovision(),
       );
 
       final data = await repository.getNtut8021xAssistantData();
@@ -43,6 +54,7 @@ void main() {
       final repository = CampusWifiRepository(
         authRepository: authRepository,
         platform: _FakeCampusWifiPlatform(),
+        autoReprovision: _FakeNtut8021xAutoReprovision(),
       );
 
       final data = await repository.getNtut8021xAssistantData();
@@ -59,6 +71,7 @@ void main() {
       final repository = CampusWifiRepository(
         authRepository: authRepository,
         platform: _FakeCampusWifiPlatform(),
+        autoReprovision: _FakeNtut8021xAutoReprovision(),
       );
 
       final data = await repository.getNtut8021xAssistantData();
@@ -70,6 +83,7 @@ void main() {
 
     test('reuses stored credentials when provisioning NTUT-802.1X', () async {
       final platform = _FakeCampusWifiPlatform();
+      final autoReprovision = _FakeNtut8021xAutoReprovision();
       final authRepository = _FakeAuthRepository(
         localUser: _testUser,
         credentials: (username: '111360109', password: 'portal-password'),
@@ -79,11 +93,13 @@ void main() {
       final repository = CampusWifiRepository(
         authRepository: authRepository,
         platform: platform,
+        autoReprovision: autoReprovision,
       );
 
       final result = await repository.provisionNtut8021x();
 
       expect(result.status, Ntut8021xProvisioningStatus.success);
+      expect(autoReprovision.enabled, isTrue);
       expect(platform.provisionedIdentity, '111360109');
       expect(platform.provisionedPassword, 'portal-password');
     });
@@ -152,6 +168,8 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
 
   String? provisionedIdentity;
   String? provisionedPassword;
+  String? provisionedPreviousIdentity;
+  String? provisionedPreviousPassword;
 
   @override
   Future<CampusWifiCapabilitiesDto> getCapabilities() async => capabilities;
@@ -166,9 +184,13 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
   Future<Ntut8021xProvisioningDto> provisionNtut8021x({
     required String identity,
     required String password,
+    String? previousIdentity,
+    String? previousPassword,
   }) async {
     provisionedIdentity = identity;
     provisionedPassword = password;
+    provisionedPreviousIdentity = previousIdentity;
+    provisionedPreviousPassword = previousPassword;
     return const (
       status: 'success',
       androidSdkInt: 34,
@@ -181,6 +203,141 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
   }
 }
 
+class _FakeNtut8021xAutoReprovision extends Ntut8021xAutoReprovision {
+  _FakeNtut8021xAutoReprovision()
+    : super(
+        prefs: SharedPreferencesAsync(),
+        platform: _FakeCampusWifiPlatform(),
+      );
+
+  bool enabled = false;
+
+  @override
+  Future<void> enable() async {
+    enabled = true;
+  }
+}
+
 void _noop() {}
 
 void _noopDestroyed([_]) {}
+
+final class _InMemorySharedPreferencesAsyncPlatform
+    extends SharedPreferencesAsyncPlatform {
+  final _store = <String, Object>{};
+
+  @override
+  Future<void> clear(
+    ClearPreferencesParameters parameters,
+    SharedPreferencesOptions options,
+  ) async {
+    final allowList = parameters.filter.allowList;
+    if (allowList == null) {
+      _store.clear();
+      return;
+    }
+
+    _store.removeWhere((key, _) => allowList.contains(key));
+  }
+
+  @override
+  Future<bool?> getBool(String key, SharedPreferencesOptions options) async {
+    return _store[key] as bool?;
+  }
+
+  @override
+  Future<double?> getDouble(
+    String key,
+    SharedPreferencesOptions options,
+  ) async {
+    return _store[key] as double?;
+  }
+
+  @override
+  Future<int?> getInt(String key, SharedPreferencesOptions options) async {
+    return _store[key] as int?;
+  }
+
+  @override
+  Future<Map<String, Object>> getPreferences(
+    GetPreferencesParameters parameters,
+    SharedPreferencesOptions options,
+  ) async {
+    final allowList = parameters.filter.allowList;
+    if (allowList == null) return Map<String, Object>.from(_store);
+    return Map<String, Object>.fromEntries(
+      _store.entries.where((entry) => allowList.contains(entry.key)),
+    );
+  }
+
+  @override
+  Future<Set<String>> getKeys(
+    GetPreferencesParameters parameters,
+    SharedPreferencesOptions options,
+  ) async {
+    final allowList = parameters.filter.allowList;
+    if (allowList == null) return _store.keys.toSet();
+    return _store.keys.where(allowList.contains).toSet();
+  }
+
+  @override
+  Future<String?> getString(
+    String key,
+    SharedPreferencesOptions options,
+  ) async {
+    return _store[key] as String?;
+  }
+
+  @override
+  Future<List<String>?> getStringList(
+    String key,
+    SharedPreferencesOptions options,
+  ) async {
+    return _store[key] as List<String>?;
+  }
+
+  @override
+  Future<void> setBool(
+    String key,
+    bool value,
+    SharedPreferencesOptions options,
+  ) async {
+    _store[key] = value;
+  }
+
+  @override
+  Future<void> setDouble(
+    String key,
+    double value,
+    SharedPreferencesOptions options,
+  ) async {
+    _store[key] = value;
+  }
+
+  @override
+  Future<void> setInt(
+    String key,
+    int value,
+    SharedPreferencesOptions options,
+  ) async {
+    _store[key] = value;
+  }
+
+  @override
+  Future<void> setString(
+    String key,
+    String value,
+    SharedPreferencesOptions options,
+  ) async {
+    _store[key] = value;
+  }
+
+  @override
+  Future<void> setStringList(
+    String key,
+    List<String> value,
+    SharedPreferencesOptions options,
+  ) async {
+    _store[key] = value;
+  }
+}
