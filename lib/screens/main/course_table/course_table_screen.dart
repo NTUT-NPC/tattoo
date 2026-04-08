@@ -55,7 +55,6 @@ class CourseTableScreen extends ConsumerWidget {
         // A scaffold AppBar to handle status bar height.
         appBar: AppBar(
           toolbarHeight: 0,
-          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
         body: LayoutBuilder(
           builder: (context, constraints) {
