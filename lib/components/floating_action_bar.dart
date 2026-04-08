@@ -102,6 +102,16 @@ class _ScrollAwareFloatingActionBarState
     _dragHideDelta = 0;
   }
 
+  void _showFloatingActionBar() {
+    if (_isVisible) {
+      return;
+    }
+
+    setState(() {
+      _isVisible = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final floatingActionBar = widget.floatingActionBarBuilder(
@@ -115,7 +125,11 @@ class _ScrollAwareFloatingActionBarState
       child: Stack(
         fit: StackFit.expand,
         children: [
-          widget.child,
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: _showFloatingActionBar,
+            child: widget.child,
+          ),
           if (floatingActionBar case final floatingActionBar?)
             Positioned(
               left: resolvedMargin.left,
