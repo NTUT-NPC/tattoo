@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 
 Future<void> showCourseTableDetailSheet(
@@ -47,7 +48,7 @@ class CourseTableDetailSheet extends StatelessWidget {
                   Text(
                     cell.courseName.isNotEmpty
                         ? cell.courseName
-                        : cell.number ?? '',
+                        : cell.number ?? t.general.unknown,
                     style: theme.textTheme.titleLarge,
                   ),
                 ],
