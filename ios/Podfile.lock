@@ -7,14 +7,14 @@ PODS:
   - Firebase/RemoteConfig (12.9.0):
     - Firebase/CoreOnly
     - FirebaseRemoteConfig (~> 12.9.0)
-  - firebase_analytics (12.1.2):
+  - firebase_analytics (12.2.0):
     - firebase_core
     - FirebaseAnalytics (= 12.9.0)
     - Flutter
   - firebase_core (4.6.0):
     - Firebase/CoreOnly (= 12.9.0)
     - Flutter
-  - firebase_crashlytics (5.0.7):
+  - firebase_crashlytics (5.1.0):
     - Firebase/Crashlytics (= 12.9.0)
     - firebase_core
     - Flutter
@@ -166,6 +166,9 @@ PODS:
   - Mantle (2.2.0):
     - Mantle/extobjc (= 2.2.0)
   - Mantle/extobjc (2.2.0)
+  - mobile_scanner (7.0.0):
+    - Flutter
+    - FlutterMacOS
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -173,9 +176,6 @@ PODS:
   - nanopb/encode (3.30910.0)
   - package_info_plus (0.4.5):
     - Flutter
-  - path_provider_foundation (0.0.1):
-    - Flutter
-    - FlutterMacOS
   - PromisesObjC (2.4.0)
   - PromisesSwift (2.4.0):
     - PromisesObjC (= 2.4.0)
@@ -200,8 +200,8 @@ DEPENDENCIES:
   - flutter_image_compress_common (from `.symlinks/plugins/flutter_image_compress_common/ios`)
   - flutter_secure_storage_darwin (from `.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
-  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
@@ -248,10 +248,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage_darwin/darwin"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
+  mobile_scanner:
+    :path: ".symlinks/plugins/mobile_scanner/darwin"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
-  path_provider_foundation:
-    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   url_launcher_ios:
@@ -259,9 +259,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Firebase: 065f2bb395062046623036d8e6dc857bc2521d56
-  firebase_analytics: ee2db99f55715656363e5d7cbed4f4ddac6b9c31
+  firebase_analytics: 42693ebf35c4d330b74abcb46ca80351703644e0
   firebase_core: 98bcc1bd1a097bcb8b1ed6e091de3039802527c4
-  firebase_crashlytics: 0e7f4fc37ad7ce137ca890b208f562baf8f85de5
+  firebase_crashlytics: 2fd6c030ca2f91e8d3b13d2e6e9a08a282c9d259
   firebase_remote_config: 0d060eef0fdfb288ffc41903ba9a60bb963755ea
   FirebaseABTesting: a399ffe546392a39b19a5c2fb28bd8ea178a6f47
   FirebaseAnalytics: cd7d01d352f3c237c9a0e31552c257cd0b0c0352
@@ -284,9 +284,9 @@ SPEC CHECKSUMS:
   image_picker_ios: 4f2f91b01abdb52842a8e277617df877e40f905b
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   Mantle: c5aa8794a29a022dfbbfc9799af95f477a69b62d
+  mobile_scanner: 77265f3dc8d580810e91849d4a0811a90467ed5e
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
-  path_provider_foundation: 0b743cbb62d8e47eab856f09262bb8c1ddcfe6ba
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf

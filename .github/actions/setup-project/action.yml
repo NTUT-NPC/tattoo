@@ -9,7 +9,7 @@ runs:
   using: composite
   steps:
     - name: Install mise
-      uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8 # v3.6.1
+      uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
       with:
         install_args: >
           ${{ case(
@@ -25,7 +25,7 @@ runs:
       shell: bash
       run: |
         FLUTTER_VERSION=$(mise current flutter)
-        if [ "$FLUTTER_VERSION" != "3.41.2" ]; then
+        if [ "$FLUTTER_VERSION" != "3.41.6" ]; then
           echo "::error::Flutter version has changed to $FLUTTER_VERSION. Please update cache paths accordingly."
           exit 1
         fi
@@ -33,14 +33,14 @@ runs:
 
     - name: Setup Ruby
       if: ${{ inputs.platform == 'android' || inputs.platform == 'ios' }}
-      uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
+      uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64 # v1.299.0
       with:
         bundler-cache: true
       env:
         BUNDLE_FROZEN: "true"
 
     - name: Setup Flutter pub cache
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
+      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
       with:
         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
         path: ~/.pub-cache
@@ -56,7 +56,7 @@ runs:
 
     - name: Setup Gradle cache
       if: ${{ inputs.platform == 'android' }}
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
+      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
       with:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         path: |
@@ -67,7 +67,7 @@ runs:
 
     - name: Setup Android SDK cache
       if: ${{ inputs.platform == 'android' }}
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
+      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
       with:
         key: ${{ runner.os }}-android-sdk-${{ steps.flutter-version.outputs.flutter_version }}
         # Update paths when updating Flutter version
@@ -83,7 +83,7 @@ runs:
 
     - name: Setup CocoaPods cache
       if: ${{ inputs.platform == 'ios' }}
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3
+      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
       with:
         key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
         path: ios/Pods

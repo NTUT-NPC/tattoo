@@ -62,7 +62,7 @@ courseTable:
     friday: Fri
     saturday: Sat
 profile:
-  dataDisclaimer: For reference only. Not valid as official documentation.
+  dataDisclaimer: Reference only. Not official.
   sections:
     accountSettings: Account Settings
     appSettings: App Settings
@@ -72,12 +72,12 @@ profile:
     changeAvatar: Change Avatar
     supportUs: Support Us
     about: About TAT
-    npcClub: NTUT NPC Club
+    npcClub: NTUT Programming Club
     preferences: Preferences
     dummyFeature: Dummy Feature (Test)
     logout: Sign Out
   avatar:
-    uploading: Updating avatar...
+    uploading: Updating avatar…
     uploadSuccess: Avatar updated
     tooLarge: Image exceeds the 20 MB size limit
     invalidFormat: Unrecognized image format
@@ -87,10 +87,11 @@ profile:
     nonFlutterCrash: Non-Flutter Framework Crash
     nonFlutterCrashException: Simulation of asynchronous error
     closedTitle: Bar is currently closed
-    closedMessage: "The bar is closed today, come back another time to explore!"
-    kickedMessage: "You were kicked out by the staff. Better head home and rest!"
+    closedMessage: The bar is closed today, come back another time to explore!
+    kickedMessage: You were kicked out by the staff. Better head home and rest!
     fireMessage: Bar is on fire
-    alreadyFull: "Already full"
+    barOpen: The bar is now open
+    barClosed: The bar has closed down
     goAction: "Go to the bar and ${action}"
     actions:
       - order 0 beers
@@ -113,6 +114,34 @@ profile:
       preferences: Preferences
       credentials: Credentials
       userData: User data
+scanner:
+  title: QR Code Login
+  scanInstruction: Place the QR code in the box
+  loginIStudy: Login to iSchool Plus
+  success: Login successful
+  failed: Login failed
+  processing: Processing…
+  loggingIn: Logging in…
+  permissionDenied: Camera permission required to scan QR codes
+  permissionDeniedDescription: Please enable camera access in your device settings and try again.
+  cameraError: Unable to start the camera. Please check your hardware or try again later.
+  errors(map):
+    '201': Mobile login required
+    '202': Error occurred. Please go to "Home" and click "Outside school login"
+    '203': You are already logged in
+    '204': The QR code session has ended. Please refresh the page.
+    '205': Already logged in. Log out from the portal first to switch users.
+    '206': The QR code has expired. Please refresh the page on your computer.
+    unknown: Login failed. Please check the QR code or refresh the page.
+  howTo: "Open i.ntut.club on your computer and select QR code login"
+  guide:
+    title: How to login?
+    step1: "1. Go to the following URL on your computer:"
+    url: https://i.ntut.club
+    step2: 2. Click "Outside school login" in the navigation bar
+    step3: 3. Click "Scan QR code"
+    button: Got it
+  invalidUrl: Invalid URL
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence

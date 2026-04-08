@@ -43,7 +43,7 @@ login:
     useStudentId: 請直接使用學號登入，不要使用電子郵件
     loginFailed: 登入失敗，請確認帳號密碼
     wrongCredentials: 學號或密碼錯誤
-    accountLocked: 帳號已被鎖定，請稍後再試
+    accountLocked: 登入失敗次數過多，帳號已被鎖定，請稍後再試
     passwordExpired: 密碼已過期，請至校園入口網站變更密碼
     mobileVerificationRequired: 需要進行手機驗證，請至校園入口網站完成驗證
 nav:
@@ -62,7 +62,7 @@ courseTable:
     friday: 五
     saturday: 六
 profile:
-  dataDisclaimer: 本資料僅供參考，不做其他證明用途
+  dataDisclaimer: 僅供參考，非正式文件
   sections:
     accountSettings: 帳號設定
     appSettings: 應用程式設定
@@ -77,7 +77,7 @@ profile:
     dummyFeature: 虛擬功能 (測試用)
     logout: 登出帳號
   avatar:
-    uploading: 正在更新個人圖片...
+    uploading: 正在更新個人圖片…
     uploadSuccess: 個人圖片已更新
     tooLarge: 圖片大小超過20 MB限制
     invalidFormat: 無法辨識的圖片格式
@@ -87,10 +87,11 @@ profile:
     nonFlutterCrash: 非Flutter框架崩潰
     nonFlutterCrashException: 模擬非同步錯誤
     closedTitle: 酒吧暫未營業
-    closedMessage: "酒吧今天打烊了，改天再來探索吧！"
-    kickedMessage: "你被店員勸退，還是早點回家休息吧～"
+    closedMessage: 酒吧今天打烊了，改天再來探索吧！
+    kickedMessage: 你被店員勸退，還是早點回家休息吧～
     fireMessage: 酒吧陷入火海
-    alreadyFull: "已經吃飽了"
+    barOpen: 酒吧開門了
+    barClosed: 酒吧倒閉了
     goAction: "去酒吧${action}"
     actions:
       - 點0杯啤酒
@@ -113,6 +114,34 @@ profile:
       preferences: 偏好設定
       credentials: 登入憑證
       userData: 使用者資料
+scanner:
+  title: 掃碼登入
+  scanInstruction: 請將二維碼放入框內
+  loginIStudy: 掃碼登入i學園
+  success: 登入成功
+  failed: 登入失敗
+  processing: 正在處理…
+  loggingIn: 正在登入…
+  permissionDenied: 需要相機權限才能掃描QR code
+  permissionDeniedDescription: 請至設定中開啟相機權限，然後再試一次。
+  cameraError: 無法開啟相機，請檢查硬體或稍後再試。
+  errors(map):
+    '201': 手機未登入
+    '202': 操作錯誤，請先至「首頁」，再點擊「校外人士登入」
+    '203': 已經是登入成功狀態
+    '204': QR code已失效，請重新整理頁面
+    '205': 已登入，要切換使用者必須先登出網頁
+    '206': QR code已過期，請在電腦上重新整理頁面
+    unknown: 登入失敗，請確認 QR code 是否正確或從電腦頁面刷新
+  howTo: "在電腦開啟i.ntut.club並點選QR code登入"
+  guide:
+    title: 如何掃碼登入？
+    step1: "1. 電腦前往下列網址："
+    url: https://i.ntut.club
+    step2: "2. 點擊導覽列的「外校人士登入」"
+    step3: "3. 點擊「QR Code 登入」"
+    button: 我知道了
+  invalidUrl: 無效的網址
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學

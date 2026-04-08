@@ -11,7 +11,6 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 import 'package:tattoo/utils/http.dart';
@@ -69,11 +68,8 @@ class ProfileDangerZone extends ConsumerWidget {
         }
       }
       await ref.read(databaseProvider).deleteCachedData();
-      ref.invalidate(userProfileProvider);
+      // Stream-based providers auto-update via Drift .watch().
       ref.invalidate(userAvatarProvider);
-      ref.invalidate(activeRegistrationProvider);
-      ref.invalidate(courseTableSemestersProvider);
-      ref.invalidate(courseTableProvider);
     },
   );
 
