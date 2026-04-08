@@ -315,13 +315,28 @@ class Classrooms extends Table with AutoIncrementId, Fetchable {
 @TableIndex(name: 'course_offering_semester', columns: {#semester})
 class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   /// Reference to the course definition.
-  late final course = integer().references(Courses, #id)();
+  ///
+  /// Null for special entries (e.g., "班週會及導師時間") that have schedule
+  /// slots but no course catalog entry.
+  late final course = integer().nullable().references(Courses, #id)();
 
   /// Reference to the semester when this course is offered.
   late final semester = integer().references(Semesters, #id)();
 
-  /// Unique course offering number (e.g., "313146", "352902").
-  late final number = text().unique()();
+  /// Course offering number (e.g., "313146", "352902").
+  ///
+  /// Null for special entries that have no assigned number.
+  late final number = text().nullable()();
+
+  /// Display name in Chinese, for entries without a [course] reference.
+  ///
+  /// When [course] is non-null, the name comes from [Courses.nameZh] instead.
+  late final nameZh = text().nullable()();
+
+  /// Display name in English, for entries without a [course] reference.
+  ///
+  /// When [course] is non-null, the name comes from [Courses.nameEn] instead.
+  late final nameEn = text().nullable()();
 
   /// Course sequence phase/stage number (階段, e.g., "1", "2").
   ///
@@ -386,6 +401,11 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
 
   /// Teacher-authored remarks from the syllabus page (備註).
   late final syllabusRemarks = text().nullable()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {semester, number},
+  ];
 }
 
 // Junction tables and dependent tables
