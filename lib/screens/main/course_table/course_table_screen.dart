@@ -121,14 +121,6 @@ class CourseTableScreen extends ConsumerWidget {
                           icon: Icons.more_vert_outlined,
                           items: [
                             PopupMenuItem(
-                              value: _CourseTableMenuAction.refresh,
-                              enabled: selectedSemester != null,
-                              child: ListTile(
-                                leading: const Icon(Icons.refresh_outlined),
-                                title: Text(t.courseTable.actions.refresh),
-                              ),
-                            ),
-                            PopupMenuItem(
                               value: _CourseTableMenuAction.displayOptions,
                               child: ListTile(
                                 leading: const Icon(Icons.tune_outlined),
