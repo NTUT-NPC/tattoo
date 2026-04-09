@@ -473,14 +473,14 @@ Widget previewFloatingActionBar() {
               items: const [
                 PopupMenuItem(
                   value: 'refresh',
-                  child: const ListTile(
+                  child: ListTile(
                     leading: Icon(Icons.refresh_outlined),
                     title: Text('Refresh'),
                   ),
                 ),
                 PopupMenuItem(
                   value: 'display',
-                  child: const ListTile(
+                  child: ListTile(
                     leading: Icon(Icons.tune_outlined),
                     title: Text('Display options'),
                   ),
@@ -522,14 +522,14 @@ Widget previewScrollAwareFloatingActionBar() {
                 items: const [
                   PopupMenuItem(
                     value: 'refresh',
-                    child: const ListTile(
+                    child: ListTile(
                       leading: Icon(Icons.refresh_outlined),
                       title: Text('Refresh'),
                     ),
                   ),
                   PopupMenuItem(
                     value: 'display',
-                    child: const ListTile(
+                    child: ListTile(
                       leading: Icon(Icons.tune_outlined),
                       title: Text('Display options'),
                     ),
