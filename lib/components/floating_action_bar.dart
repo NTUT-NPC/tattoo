@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:tattoo/components/anchored_popup_menu.dart';
@@ -147,6 +149,11 @@ class _ScrollAwareFloatingActionBarState
       _isVisible,
     );
     final resolvedMargin = widget.margin.resolve(Directionality.of(context));
+    final mediaQuery = MediaQuery.of(context);
+    final bottomInset = math.max(
+      mediaQuery.padding.bottom,
+      mediaQuery.viewInsets.bottom,
+    );
 
     return NotificationListener<ScrollNotification>(
       onNotification: _handleScrollNotification,
@@ -163,7 +170,7 @@ class _ScrollAwareFloatingActionBarState
               left: resolvedMargin.left,
               top: resolvedMargin.top,
               right: resolvedMargin.right,
-              bottom: resolvedMargin.bottom,
+              bottom: resolvedMargin.bottom + bottomInset,
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: IgnorePointer(

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/components/app_skeleton.dart';
@@ -83,6 +85,11 @@ class CourseTableScreen extends ConsumerWidget {
         body: LayoutBuilder(
           builder: (context, constraints) {
             final gridViewportSize = constraints.biggest;
+            final mediaQuery = MediaQuery.of(context);
+            final bottomInset = math.max(
+              mediaQuery.padding.bottom,
+              mediaQuery.viewInsets.bottom,
+            );
             final shouldShowFloatingBar = switch (semestersAsync) {
               AsyncError() => false,
               AsyncData(value: final semesters) => semesters.isNotEmpty,
@@ -131,11 +138,24 @@ class CourseTableScreen extends ConsumerWidget {
                               ),
                             ),
                           ],
-                          onSelected: (action) {
+                          onSelected: (action) async {
                             switch (action) {
                               case _CourseTableMenuAction.refresh:
                                 if (selectedSemester != null) {
-                                  _refreshCourseTable(ref, selectedSemester);
+                                  try {
+                                    await _refreshCourseTable(
+                                      ref,
+                                      selectedSemester,
+                                    );
+                                  } catch (error) {
+                                    if (!context.mounted) {
+                                      return;
+                                    }
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Error: $error')),
+                                    );
+                                  }
                                 }
                                 break;
                               case _CourseTableMenuAction.displayOptions:
@@ -202,7 +222,8 @@ class CourseTableScreen extends ConsumerWidget {
                               ),
                               viewportWidth: gridViewportSize.width,
                               viewportHeight: gridViewportSize.height,
-                              bottomInset: _floatingBarBottomInset,
+                              bottomInset:
+                                  _floatingBarBottomInset + bottomInset,
                             ),
                           };
                         },
@@ -216,7 +237,7 @@ class CourseTableScreen extends ConsumerWidget {
                   loading: true,
                   viewportWidth: gridViewportSize.width,
                   viewportHeight: gridViewportSize.height,
-                  bottomInset: _floatingBarBottomInset,
+                  bottomInset: _floatingBarBottomInset + bottomInset,
                 ),
               },
             );
