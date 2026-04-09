@@ -306,6 +306,7 @@ class FloatingActionBarActionButton extends StatelessWidget {
     super.key,
     required this.icon,
     required this.onTap,
+    this.tooltip,
   });
 
   /// The icon shown at the center of the button.
@@ -314,12 +315,16 @@ class FloatingActionBarActionButton extends StatelessWidget {
   /// Called when the button is tapped.
   final VoidCallback onTap;
 
+  /// Optional tooltip shown for long-press and accessibility affordances.
+  final String? tooltip;
+
   @override
   Widget build(BuildContext context) {
     return _FloatingActionBarCircularActionSurface(
       child: _FloatingActionBarIconButton(
         icon: icon,
         onTap: onTap,
+        tooltip: tooltip,
       ),
     );
   }
@@ -369,7 +374,7 @@ class FloatingActionBarMenuButton<T> extends StatelessWidget {
       items: items,
       onSelected: onSelected,
       enabled: enabled,
-      tooltip: tooltip,
+      tooltip: tooltip ?? '更多選項',
       style: style,
       triggerBuilder: (context, onPressed) {
         return _FloatingActionBarCircularActionSurface(
@@ -406,26 +411,32 @@ class _FloatingActionBarIconButton extends StatelessWidget {
   const _FloatingActionBarIconButton({
     required this.icon,
     required this.onTap,
+    this.tooltip,
   });
 
   static const _iconSize = 20.0;
 
   final IconData icon;
   final VoidCallback? onTap;
+  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      shape: const CircleBorder(),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        splashFactory: InkRipple.splashFactory,
-        splashColor: Colors.black12,
-        highlightColor: Colors.black12,
-        onTap: onTap,
-        child: Center(
-          child: Icon(icon, size: _iconSize),
+    return Tooltip(
+      message: tooltip ?? '',
+      showDuration: const Duration(seconds: 3),
+      child: Material(
+        color: Colors.transparent,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          splashFactory: InkRipple.splashFactory,
+          splashColor: Colors.black12,
+          highlightColor: Colors.black12,
+          onTap: onTap,
+          child: Center(
+            child: Icon(icon, size: _iconSize),
+          ),
         ),
       ),
     );
@@ -474,6 +485,7 @@ Widget previewFloatingActionBar() {
             FloatingActionBarActionButton(
               icon: Icons.share_outlined,
               onTap: () {},
+              tooltip: '分享',
             ),
             FloatingActionBarMenuButton<String>(
               icon: Icons.more_vert_outlined,
