@@ -7,7 +7,7 @@
   ],
   "timezone": "Asia/Taipei",
   "constraints": {
-    "flutter": "3.41.2"
+    "flutter": "3.41.6"
   },
   "bundler": {
     "managerFilePatterns": [
@@ -26,7 +26,7 @@
       "matchManagers": [
         "mise"
       ],
-      "matchPackageNames": [
+      "matchDepNames": [
         "java",
         "ruby"
       ],

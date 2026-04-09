@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,32 +8,22 @@ import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/services/portal/portal_service.dart';
-import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
-import 'package:tattoo/screens/main/profile/profile_providers.dart';
-import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/utils/launch_url.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
   static final _imagePicker = ImagePicker();
+
   Future<void> _refresh(WidgetRef ref) async {
-    await ref.read(authRepositoryProvider).getUser(refresh: true);
-    await Future.wait([
-      ref.refresh(userProfileProvider.future),
-      ref.refresh(userAvatarProvider.future),
-      ref.refresh(activeRegistrationProvider.future),
-    ]);
+    await ref.read(authRepositoryProvider).refreshUser();
   }
 
-  Future<void> _logout(BuildContext context, WidgetRef ref) async {
-    final authRepository = ref.read(authRepositoryProvider);
-    await authRepository.logout();
-    if (context.mounted) context.go(AppRoutes.intro);
+  Future<void> _logout(WidgetRef ref) async {
+    await ref.read(authRepositoryProvider).logout();
   }
 
   Future<XFile?> _pickAvatarImage() {
@@ -55,7 +43,6 @@ class ProfileScreen extends ConsumerWidget {
 
       final imageBytes = await imageFile.readAsBytes();
       await ref.read(authRepositoryProvider).uploadAvatar(imageBytes);
-      ref.invalidate(userAvatarProvider);
 
       if (!context.mounted) return;
       _showMessage(context, t.profile.avatar.uploadSuccess);
@@ -71,8 +58,6 @@ class ProfileScreen extends ConsumerWidget {
     return switch (error) {
       AvatarTooLargeException() => t.profile.avatar.tooLarge,
       FormatException() => t.profile.avatar.invalidFormat,
-      NotLoggedInException() => t.errors.sessionExpired,
-      LoginException() => t.errors.credentialsInvalid,
       DioException() => t.errors.connectionFailed,
       _ => t.profile.avatar.uploadFailed,
     };
@@ -95,25 +80,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _openInBrowser(
-    BuildContext context,
-    WidgetRef ref,
-    PortalServiceCode serviceCode,
-  ) async {
-    try {
-      final url = await ref
-          .read(authRepositoryProvider)
-          .withAuth(
-            () => ref.read(portalServiceProvider).getSsoUrl(serviceCode),
-          );
-      // iOS doesn't preserve the in-app browser's session, so we have to
-      // open externally to maintain login state.
-      await launchUrl(url, inExternalApplication: Platform.isIOS);
-    } on DioException {
-      if (context.mounted) _showMessage(context, t.errors.connectionFailed);
-    }
-  }
-
   void _showDemoTap(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(t.general.notImplemented)),
@@ -126,6 +92,11 @@ class ProfileScreen extends ConsumerWidget {
     final options = [
       SectionHeader(title: t.profile.sections.accountSettings),
       OptionEntryTile.icon(
+        icon: Icons.qr_code_scanner,
+        title: t.scanner.loginIStudy,
+        onTap: () => context.push(AppRoutes.scanner),
+      ),
+      OptionEntryTile.icon(
         icon: Icons.password,
         title: t.profile.options.changePassword,
         onTap: () => _showDemoTap(context),
@@ -134,14 +105,6 @@ class ProfileScreen extends ConsumerWidget {
         icon: Icons.image,
         title: t.profile.options.changeAvatar,
         onTap: () => _changeAvatar(context, ref),
-      ),
-
-      SectionHeader(title: t.$wip('資訊系統')),
-      OptionEntryTile.icon(
-        icon: Icons.open_in_browser,
-        title: t.$wip('學生查詢專區'),
-        onTap: () =>
-            _openInBrowser(context, ref, PortalServiceCode.studentQueryService),
       ),
 
       SectionHeader(title: 'TAT'),
@@ -170,7 +133,7 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile.icon(
         icon: Icons.logout,
         title: t.profile.options.logout,
-        onTap: () => _logout(context, ref),
+        onTap: () => _logout(ref),
       ),
       const ProfileDangerZone(),
     ];

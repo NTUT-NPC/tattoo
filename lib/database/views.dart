@@ -88,6 +88,12 @@ abstract class CourseTableSlots extends View {
   Courses get courses;
   Classrooms get classrooms;
 
+  /// Falls back to [CourseOfferings.nameZh] when [Courses.nameZh] is null
+  /// (special entries without a course catalog reference).
+  Expression<String> get nameZh =>
+      coalesce([courses.nameZh, courseOfferings.nameZh]);
+  Expression<String> get nameEn =>
+      coalesce([courses.nameEn, courseOfferings.nameEn]);
   Expression<String> get classroomNameZh => classrooms.nameZh;
   Expression<String> get classroomNameEn => classrooms.nameEn;
 
@@ -97,8 +103,8 @@ abstract class CourseTableSlots extends View {
         courseOfferings.id,
         courseOfferings.number,
         courseOfferings.semester,
-        courses.nameZh,
-        courses.nameEn,
+        nameZh,
+        nameEn,
         courses.credits,
         courses.hours,
         schedules.dayOfWeek,
@@ -110,7 +116,10 @@ abstract class CourseTableSlots extends View {
           courseOfferings,
           courseOfferings.id.equalsExp(schedules.courseOffering),
         ),
-        innerJoin(courses, courses.id.equalsExp(courseOfferings.course)),
+        leftOuterJoin(
+          courses,
+          courses.id.equalsExp(courseOfferings.course),
+        ),
         leftOuterJoin(
           classrooms,
           classrooms.id.equalsExp(schedules.classroom),

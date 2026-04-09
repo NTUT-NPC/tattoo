@@ -7,6 +7,7 @@ import 'package:tattoo/utils/http.dart';
 
 /// English names parsed from the English course system for a single course.
 typedef _EnglishCourseNames = ({
+  String? number,
   String? courseName,
   String? teacherName,
   List<ReferenceDto> classes,
@@ -71,11 +72,19 @@ class NtutCourseService implements CourseService {
       null => <_EnglishCourseNames>[],
     };
 
-    // Merge English names into Chinese-parsed DTOs by index - both tables
-    // list courses in the same order
-    return courses.indexed.map((pair) {
-      final (index, dto) = pair;
-      final en = englishNames.elementAtOrNull(index);
+    // Merge English names into Chinese-parsed DTOs. Match by course number
+    // for numbered courses; for numberless rows (e.g. 班週會) fall back to
+    // positional matching among the numberless subset.
+    final enByNumber = <String, _EnglishCourseNames>{
+      for (final en in englishNames) ?en.number: en,
+    };
+    final enNumberless = englishNames.where((e) => e.number == null).toList();
+    var numberlessIndex = 0;
+
+    return courses.map((dto) {
+      final en = dto.number != null
+          ? enByNumber[dto.number]
+          : enNumberless.elementAtOrNull(numberlessIndex++);
       if (en == null) return dto;
 
       return (
@@ -255,10 +264,10 @@ class NtutCourseService implements CourseService {
     }).toList();
   }
 
-  /// Parses the English course list page into a list matching course order.
+  /// Parses the English course list page for English names.
   ///
-  /// Returns entries in the same order as the Chinese table so they can be
-  /// merged by index.
+  /// Each entry includes the course number so callers can match by number.
+  /// Numberless rows (e.g. Class Meeting) are matched positionally.
   List<_EnglishCourseNames> _parseEnCourseTable(String html) {
     final document = parse(html);
     final tables = document.querySelectorAll('table');
@@ -273,6 +282,7 @@ class NtutCourseService implements CourseService {
     return dataRows.map((row) {
       final cells = row.children;
 
+      final number = cells.isNotEmpty ? _parseCellText(cells[0]) : null;
       final courseName = cells.length > 1 ? _parseCellText(cells[1]) : null;
       final teacherName = cells.length > 4 ? _parseCellText(cells[4]) : null;
       final classes = cells.length > 5
@@ -280,6 +290,7 @@ class NtutCourseService implements CourseService {
           : <ReferenceDto>[];
 
       return (
+        number: number,
         courseName: courseName,
         teacherName: teacherName,
         classes: classes,

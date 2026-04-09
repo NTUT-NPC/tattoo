@@ -35,16 +35,16 @@ class NtutPortalService implements PortalService {
     if (!body['success']) {
       final String? errorMsg = body['errorMsg'];
       final bool resetPwd = body['resetPwd'] ?? false;
-      throw switch (errorMsg) {
-        final msg? when msg.contains('密碼錯誤') =>
-          const WrongCredentialsException(),
-        final msg? when msg.contains('已被鎖住') => const AccountLockedException(),
-        final msg? when msg.contains('密碼已過期') && resetPwd =>
-          const PasswordExpiredException(),
-        final msg? when msg.contains('驗證手機') =>
-          const MobileVerificationRequiredException(),
-        _ => UnknownLoginException(errorMsg),
-      };
+      throw LoginException(
+        switch (errorMsg) {
+          final msg? when msg.contains('密碼錯誤') => .wrongCredentials,
+          final msg? when msg.contains('已被鎖住') => .accountLocked,
+          final msg? when msg.contains('密碼已過期') && resetPwd => .passwordExpired,
+          final msg? when msg.contains('驗證手機') => .mobileVerificationRequired,
+          _ => .unknown,
+        },
+        message: errorMsg?.isNotEmpty == true ? errorMsg : null,
+      );
     }
 
     final String? passwordExpiredRemind = body['passwordExpiredRemind'];
@@ -129,11 +129,11 @@ class NtutPortalService implements PortalService {
   }
 
   @override
-  Future<void> sso(PortalServiceCode serviceCode) async {
-    final (actionUrl, formData) = await _fetchSsoForm(serviceCode.code);
+  Future<void> sso(String serviceCode) async {
+    final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
 
     // Prepend the invalid cookie filter interceptor for i-School Plus SSO
-    if (serviceCode == PortalServiceCode.iSchoolPlusService) {
+    if (serviceCode == PortalServiceCode.iSchoolPlusService.code) {
       _portalDio.interceptors.insert(0, InvalidCookieFilter());
       _portalDio.transformer = PlainTextTransformer();
     }
@@ -148,9 +148,8 @@ class NtutPortalService implements PortalService {
   }
 
   @override
-  Future<Uri> getSsoUrl(PortalServiceCode serviceCode) async {
-    final apOu = serviceCode.code;
-    final (actionUrl, formData) = await _fetchSsoForm(apOu);
+  Future<Uri> getSsoUrl(String serviceCode) async {
+    final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
 
     // Clone and strip RedirectInterceptor so we can capture the 302 Location
     // instead of following it.

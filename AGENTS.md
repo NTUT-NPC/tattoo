@@ -14,10 +14,11 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 - Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`)
 - Drift database schema with all tables, views (ScoreDetails, UserAcademicSummaries)
 - Service DTOs migrated to Dart 3 records
-- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage, SSO coalescing via Completer), PreferencesRepository, CourseRepository: getSemesters, getCourseTable (with TTL caching), getCourse (single course lookup with TTL)
-- StudentRepository: getSemesterRecords (scores, GPA, rankings with TTL caching, parallel course code resolution)
+- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage, SSO coalescing via Completer, re-auth coalescing via Completer), PreferencesRepository, CourseRepository: watchSemesters, watchCourseTable (stream-based with TTL), getCourse (single course lookup with TTL)
+- Session-scoped providers: `sessionProvider` (bool) drives router guard and repository lifecycle. Auth failure destroys session → router redirects to login → session-scoped repositories are recreated with fresh state
+- StudentRepository: watchSemesterRecords (stream-based with TTL, parallel course code resolution)
 - Session expiry detection: per-service Dio interceptors detect NTUT fake-200 expired sessions, throw `SessionExpiredException` for `withAuth` retry
-- Riverpod setup (manual providers, no codegen — riverpod_generator incompatible with Drift-generated types)
+- Riverpod setup (manual providers, no codegen)
 - go_router navigation setup
 - UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile), about, easter egg, ShowcaseShell. Home uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
 - i18n (zh_TW, en_US) via slang
@@ -48,16 +49,17 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 - UI: course table, course detail, scores
 - File downloads (progress tracking, notifications, cancellation)
+- Global `connectivityProvider` for offline state (e.g., connectivity banner) — separate from auth
 
 ## Architecture
 
-MVVM pattern with Riverpod for DI and reactive state (manual providers, no codegen — riverpod_generator incompatible with Drift-generated types):
+MVVM pattern with Riverpod for DI and reactive state (manual providers, no codegen):
 
 - UI calls repository actions directly via constructor providers (`ref.read`)
-- UI observes data through screen-level FutureProviders (`ref.watch`)
+- UI observes data through screen-level StreamProviders backed by Drift `.watch()` queries (`ref.watch`)
 - Repositories encapsulate business logic, coordinate Services (HTTP) and Database (Drift)
 
-**Code generation:** Run `dart run build_runner build` (Drift, Riverpod) and `dart run slang` (i18n) after modifying annotated source files or i18n YAMLs. Commit generated files (`.g.dart`) alongside source changes.
+**Code generation:** Run `dart run build_runner build` (Drift) and `dart run slang` (i18n) after modifying annotated source files or i18n YAMLs. Commit generated files (`.g.dart`) alongside source changes.
 
 **Credentials:** `tool/credentials.dart` manages encrypted credentials from the `tattoo-credentials` Git repo. Run `dart run tool/credentials.dart fetch` to decrypt and place Firebase configs, Android keystore, and service account. Config from env vars or `.env` file.
 
@@ -110,14 +112,14 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Repositories:**
 
-- AuthRepository - User identity, session, profile. Implemented: login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage
+- AuthRepository - User identity, session, profile. Implemented: login, logout, `withAuth<T>()` (lazy auth with re-auth coalescing, never-completing future on auth failure), session persistence via flutter_secure_storage
 - PreferencesRepository - Typed `PrefKey<T>` enum with SharedPreferencesAsync
-- CourseRepository - Implemented: getSemesters, getCourseTable (with TTL caching, DB persistence, bilingual names), getCourse (single course lookup with TTL). Stubs: getCourseOffering, getCourseDetails, getMaterials, getStudents
-- StudentRepository - Implemented: getSemesterRecords (scores, GPA, rankings with TTL caching, parallel course code resolution via CourseRepository.getCourse). Uses Drift views (ScoreDetails, UserAcademicSummaries) as domain models.
+- CourseRepository - Implemented: watchSemesters/refreshSemesters, watchCourseTable/refreshCourseTable (stream-based with TTL, DB persistence, bilingual names), getCourse (single course lookup with inline TTL). Stubs: getCourseOffering, getCourseDetails, getMaterials, getStudents
+- StudentRepository - Implemented: watchSemesterRecords/refreshSemesterRecords (stream-based with TTL, parallel course code resolution via CourseRepository.getCourse). Uses Drift views (ScoreDetails, UserAcademicSummaries) as domain models.
 - Transform DTOs into relational DB tables
 - Return DTOs or domain models to UI
 - Handle data persistence and caching strategies
-- **Method pattern (AuthRepository):** `getX({refresh})` methods use `fetchWithTtl` helper for smart caching - returns cached data if fresh (within TTL), fetches from network if stale. Set `refresh: true` to bypass TTL (pull-to-refresh). Internal `_fetchXFromNetwork()` methods handle network fetch logic. Special cases that only need partial data (e.g., `getAvatar()` only needs `avatarFilename`) query DB directly. Follow this pattern when implementing other repositories.
+- **Method pattern:** `watchX()` returns a `Stream` backed by Drift `.watch()` — emits cached data immediately, then background-fetches if empty or stale (each method has its own hard-coded TTL `const`). Network errors are absorbed (stale data preferred over errors). `refreshX()` is the imperative counterpart for pull-to-refresh — fetches from network, writes to DB, and lets the stream re-emit. Special cases that only need partial data (e.g., `getAvatar()` only needs `avatarFilename`) query DB directly. `getCourse()` is an exception — it's a Future-based per-code lookup with inline TTL, used internally for batch resolution.
 
 ## Database
 
@@ -166,6 +168,10 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 **Session Expiry Detection:** NTUT services return HTTP 200 with error pages instead of 401/403 when sessions expire. Per-service Dio interceptors detect known markers (e.g., "應用系統已中斷連線" for StudentQuery, "尚未登錄入口網站" for Course) and throw `SessionExpiredException`. This is a non-DioException so `withAuth` catches it and triggers re-authentication. iSchool+ returns HTTP 403 when unauthenticated, handled via `onError` interceptor.
 
 **SSO Coalescing:** `AuthRepository._ensureSso` uses `Completer`-based coalescing — first caller creates a Completer and fires SSO, concurrent callers await the same future. Prevents redundant SSO calls during parallel repository fetches.
+
+**Re-auth Coalescing:** `AuthRepository._reauthenticate` uses the same `Completer` pattern — first caller triggers login, concurrent callers await the same future. Prevents redundant login attempts when multiple `withAuth` calls detect session expiry simultaneously.
+
+**Session Lifecycle:** `sessionProvider` (`Notifier<bool>`) drives auth state. `true` = authenticated, `false` = unauthenticated. Router guard watches it for redirect. Repository providers `ref.watch(sessionProvider)` to be recreated with fresh state when the session ends. On auth failure, `withAuth` destroys the session and returns a never-completing `Completer<T>().future` — session-scoped providers are already being disposed by the time callers would stall, so the hanging future is harmless. Callers only need to handle `DioException` for network failures.
 
 **InvalidCookieFilter:** iSchool+ returns malformed cookies; custom interceptor filters them.
 

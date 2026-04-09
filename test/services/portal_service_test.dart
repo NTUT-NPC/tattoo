@@ -153,7 +153,7 @@ void main() {
         );
 
         // Should not throw
-        await portalService.sso(PortalServiceCode.courseService);
+        await portalService.sso(PortalServiceCode.courseService.code);
       });
 
       test(
@@ -165,7 +165,7 @@ void main() {
           );
 
           // Should not throw
-          await portalService.sso(PortalServiceCode.iSchoolPlusService);
+          await portalService.sso(PortalServiceCode.iSchoolPlusService.code);
         },
       );
 
@@ -178,7 +178,7 @@ void main() {
           );
 
           // Should not throw
-          await portalService.sso(PortalServiceCode.studentQueryService);
+          await portalService.sso(PortalServiceCode.studentQueryService.code);
         },
       );
 
@@ -187,7 +187,7 @@ void main() {
         await cookieJar.deleteAll();
 
         expect(
-          () => portalService.sso(PortalServiceCode.courseService),
+          () => portalService.sso(PortalServiceCode.courseService.code),
           throwsException,
         );
       });
@@ -201,7 +201,7 @@ void main() {
         );
 
         final url = await portalService.getSsoUrl(
-          PortalServiceCode.courseService,
+          PortalServiceCode.courseService.code,
         );
 
         expect(url.scheme, 'https');
@@ -215,7 +215,7 @@ void main() {
         );
 
         final url = await portalService.getSsoUrl(
-          PortalServiceCode.studentQueryService,
+          PortalServiceCode.studentQueryService.code,
         );
 
         expect(url.scheme, 'https');
@@ -225,7 +225,7 @@ void main() {
         await cookieJar.deleteAll();
 
         expect(
-          () => portalService.getSsoUrl(PortalServiceCode.courseService),
+          () => portalService.getSsoUrl(PortalServiceCode.courseService.code),
           throwsException,
         );
       });

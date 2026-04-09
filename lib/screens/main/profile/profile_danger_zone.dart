@@ -7,8 +7,8 @@ import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
-import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 import 'package:tattoo/utils/http.dart';
@@ -66,11 +66,8 @@ class ProfileDangerZone extends ConsumerWidget {
         }
       }
       await ref.read(databaseProvider).deleteCachedData();
-      ref.invalidate(userProfileProvider);
+      // Stream-based providers auto-update via Drift .watch().
       ref.invalidate(userAvatarProvider);
-      ref.invalidate(activeRegistrationProvider);
-      ref.invalidate(courseTableSemestersProvider);
-      ref.invalidate(courseTableProvider);
     },
   );
 
@@ -90,6 +87,12 @@ class ProfileDangerZone extends ConsumerWidget {
     },
   );
 
+  Future<void> _clearCredentials(BuildContext context) => _clear(
+    context,
+    t.profile.dangerZone.items.credentials,
+    () => const FlutterSecureStorage().deleteAll(),
+  );
+
   Future<void> _clearUserData(BuildContext context, WidgetRef ref) => _clear(
     context,
     t.profile.dangerZone.items.userData,
@@ -97,6 +100,7 @@ class ProfileDangerZone extends ConsumerWidget {
       await ref.read(databaseProvider).deleteEverything();
       await cookieJar.deleteAll();
       await const FlutterSecureStorage().deleteAll();
+      ref.read(sessionProvider.notifier).destroy();
     },
   );
 
@@ -152,6 +156,13 @@ class ProfileDangerZone extends ConsumerWidget {
               color: dangerColor,
               borderColor: dangerColor,
               onTap: () => _clearPreferences(context, ref),
+            ),
+            OptionEntryTile.icon(
+              icon: Icons.key_off_outlined,
+              title: t.profile.dangerZone.clearCredentials,
+              color: dangerColor,
+              borderColor: dangerColor,
+              onTap: () => _clearCredentials(context),
             ),
             OptionEntryTile.icon(
               icon: Icons.delete_forever_outlined,

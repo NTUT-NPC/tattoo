@@ -1,0 +1,52 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug",
+      "request": "launch",
+      "type": "dart",
+      "toolArgs": [
+        "--dart-define=ALLOW_BAD_CERTIFICATES=true"
+      ],
+    },
+    { 
+      "name": "Debug with Firebase",
+      "request": "launch",
+      "type": "dart",
+      "toolArgs": [
+        "--dart-define=ALLOW_BAD_CERTIFICATES=true",
+        "--dart-define=USE_FIREBASE=true"
+      ],
+    },
+    {
+      "name": "Profile",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile",
+    },
+    { 
+      "name": "Profile with Firebase",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile",
+      "toolArgs": [
+        "--dart-define=USE_FIREBASE=true"
+      ],
+    },
+    {
+      "name": "Release",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+    },
+    { 
+      "name": "Release with Firebase",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "toolArgs": [
+        "--dart-define=USE_FIREBASE=true"
+      ],
+    },
+  ]
+}

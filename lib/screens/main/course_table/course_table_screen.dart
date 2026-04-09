@@ -20,33 +20,14 @@ class CourseTableScreen extends ConsumerWidget {
   const CourseTableScreen({super.key});
 
   Future<void> _refreshCourseTable(
-    BuildContext context,
     WidgetRef ref,
     Semester semester,
   ) async {
-    final userFuture = ref.read(userProfileProvider.future);
     final courseRepository = ref.read(courseRepositoryProvider);
-
-    final user = await userFuture;
-    if (user == null) {
-      if (!context.mounted) return;
-      ref.invalidate(courseTableSemestersProvider);
-      ref.invalidate(courseTableProvider(semester));
-      return;
-    }
-
-    await Future.wait([
-      courseRepository.getSemesters(refresh: true),
-      courseRepository.getCourseTable(
-        user: user,
-        semester: semester,
-        refresh: true,
-      ),
-    ]);
-
-    if (!context.mounted) return;
-    ref.invalidate(courseTableSemestersProvider);
-    ref.invalidate(courseTableProvider(semester));
+    await [
+      courseRepository.refreshSemesters(),
+      courseRepository.refreshCourseTable(semesterId: semester.id),
+    ].wait;
   }
 
   void _showDemoTap(BuildContext context) {
@@ -57,7 +38,6 @@ class CourseTableScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenContext = context;
     final profileAsync = ref.watch(userProfileProvider);
     final semestersAsync = ref.watch(courseTableSemestersProvider);
     final displayedSemesterTabLabels = switch (semestersAsync) {
@@ -69,10 +49,13 @@ class CourseTableScreen extends ConsumerWidget {
         semestersAsync is AsyncLoading<List<Semester>> &&
         semestersAsync.asData?.value == null;
 
+    final tabLength = displayedSemesterTabLabels.isEmpty
+        ? 1
+        : displayedSemesterTabLabels.length;
+
     return DefaultTabController(
-      length: displayedSemesterTabLabels.isEmpty
-          ? 1
-          : displayedSemesterTabLabels.length,
+      key: ValueKey(tabLength),
+      length: tabLength,
       child: Scaffold(
         // A scaffold AppBar to handle status bar height.
         appBar: AppBar(
@@ -181,7 +164,7 @@ class CourseTableScreen extends ConsumerWidget {
                       Consumer(
                         builder: (context, tabRef, child) {
                           final courseTableAsync = tabRef.watch(
-                            courseTableProvider(semester),
+                            courseTableProvider(semester.id),
                           );
 
                           return switch (courseTableAsync) {
@@ -192,12 +175,11 @@ class CourseTableScreen extends ConsumerWidget {
                               key: ValueKey(_semesterLabel(semester)),
                               courseTableData:
                                   courseTableAsync.asData?.value ??
-                                  CourseTableData(),
+                                  emptyCourseTableData,
                               loading:
                                   courseTableAsync.isLoading &&
                                   !courseTableAsync.hasValue,
                               onRefresh: () => _refreshCourseTable(
-                                screenContext,
                                 ref,
                                 semester,
                               ),
@@ -212,7 +194,7 @@ class CourseTableScreen extends ConsumerWidget {
 
                 // LOADING state: show loading skeleton
                 _ => CourseTableGrid(
-                  courseTableData: CourseTableData(),
+                  courseTableData: emptyCourseTableData,
                   loading: true,
                   viewportWidth: gridViewportSize.width,
                   viewportHeight: gridViewportSize.height,
