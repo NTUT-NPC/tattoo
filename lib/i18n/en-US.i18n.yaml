@@ -51,6 +51,9 @@ nav:
   profile: Me
 courseTable:
   notFound: Course table not found
+  actions:
+    refresh: Refresh course table
+    displayOptions: Display options
   dayOfWeek(map):
     sunday: Sun
     monday: Mon

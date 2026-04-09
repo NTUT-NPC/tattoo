@@ -202,6 +202,7 @@ class TranslationsCourseTableZhTw {
 	/// zh-TW: '找不到課表'
 	String get notFound => '找不到課表';
 
+	late final TranslationsCourseTableActionsZhTw actions = TranslationsCourseTableActionsZhTw.internal(_root);
 	Map<String, String> get dayOfWeek => {
 		'sunday': '日',
 		'monday': '一',
@@ -381,6 +382,21 @@ class TranslationsLoginErrorsZhTw {
 
 	/// zh-TW: '需要進行手機驗證，請至校園入口網站完成驗證'
 	String get mobileVerificationRequired => '需要進行手機驗證，請至校園入口網站完成驗證';
+}
+
+// Path: courseTable.actions
+class TranslationsCourseTableActionsZhTw {
+	TranslationsCourseTableActionsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '重新整理課表'
+	String get refresh => '重新整理課表';
+
+	/// zh-TW: '顯示選項'
+	String get displayOptions => '顯示選項';
 }
 
 // Path: profile.sections
@@ -670,6 +686,8 @@ extension on Translations {
 			'nav.portal' => '傳送門',
 			'nav.profile' => '我',
 			'courseTable.notFound' => '找不到課表',
+			'courseTable.actions.refresh' => '重新整理課表',
+			'courseTable.actions.displayOptions' => '顯示選項',
 			'courseTable.dayOfWeek.sunday' => '日',
 			'courseTable.dayOfWeek.monday' => '一',
 			'courseTable.dayOfWeek.tuesday' => '二',

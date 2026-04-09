@@ -15,6 +15,11 @@ const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
 const _floatingBarBottomInset = 80.0;
 const _floatingBarMargin = 16.0;
 
+enum _CourseTableMenuAction {
+  refresh,
+  displayOptions,
+}
+
 class CourseTableScreen extends ConsumerWidget {
   const CourseTableScreen({super.key});
 
@@ -30,6 +35,25 @@ class CourseTableScreen extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(t.general.notImplemented)),
     );
+  }
+
+  Semester? _resolveSelectedSemester(
+    BuildContext context,
+    List<Semester>? semesters,
+  ) {
+    if (semesters == null || semesters.isEmpty) {
+      return null;
+    }
+
+    final controller = DefaultTabController.maybeOf(context);
+    if (controller == null) {
+      return semesters.first;
+    }
+
+    final clampedIndex = controller.index
+        .clamp(0, semesters.length - 1)
+        .toInt();
+    return semesters[clampedIndex];
   }
 
   @override
@@ -76,8 +100,48 @@ class CourseTableScreen extends ConsumerWidget {
                   visible: visible,
                   actions: [
                     FloatingActionBarActionButton(
-                      icon: Icons.more_vert_outlined,
+                      icon: Icons.view_day_outlined,
                       onTap: () => _showDemoTap(context),
+                    ),
+                    Builder(
+                      builder: (context) {
+                        final semesters = semestersAsync.asData?.value;
+                        final selectedSemester = _resolveSelectedSemester(
+                          context,
+                          semesters,
+                        );
+
+                        return FloatingActionBarMenuButton<
+                          _CourseTableMenuAction
+                        >(
+                          icon: Icons.more_vert_outlined,
+                          items: [
+                            FloatingActionBarMenuItem(
+                              value: _CourseTableMenuAction.refresh,
+                              label: t.courseTable.actions.refresh,
+                              icon: Icons.refresh_outlined,
+                              enabled: selectedSemester != null,
+                            ),
+                            FloatingActionBarMenuItem(
+                              value: _CourseTableMenuAction.displayOptions,
+                              label: t.courseTable.actions.displayOptions,
+                              icon: Icons.tune_outlined,
+                            ),
+                          ],
+                          onSelected: (action) {
+                            switch (action) {
+                              case _CourseTableMenuAction.refresh:
+                                if (selectedSemester != null) {
+                                  _refreshCourseTable(ref, selectedSemester);
+                                }
+                                break;
+                              case _CourseTableMenuAction.displayOptions:
+                                _showDemoTap(context);
+                                break;
+                            }
+                          },
+                        );
+                      },
                     ),
                   ],
                   child: AppSkeleton(
