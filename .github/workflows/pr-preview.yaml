@@ -183,7 +183,7 @@ jobs:
           edit-mode: append
 
   ios:
-    runs-on: macos-latest
+    runs-on: macos-26
     needs: [prepare]
     env:
       FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
