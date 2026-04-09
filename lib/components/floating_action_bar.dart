@@ -13,6 +13,24 @@ import 'package:tattoo/components/widget_preview_frame.dart';
 ///
 /// This keeps scroll-aware visibility behavior close to the floating bar
 /// implementation instead of duplicating gesture logic in each screen.
+///
+/// Example:
+/// ```dart
+/// ScrollAwareFloatingActionBar(
+///   floatingActionBarBuilder: (context, visible) => FloatingActionBar(
+///     visible: visible,
+///     child: ChipTabSwitcher(
+///       tabs: const ['114-2', '114-1', '113-2'],
+///     ),
+///   ),
+///   child: ListView.builder(
+///     itemCount: 20,
+///     itemBuilder: (context, index) => ListTile(
+///       title: Text('Row $index'),
+///     ),
+///   ),
+/// )
+/// ```
 class ScrollAwareFloatingActionBar extends StatefulWidget {
   /// Creates a layout with a scroll-aware floating action bar overlay.
   const ScrollAwareFloatingActionBar({
