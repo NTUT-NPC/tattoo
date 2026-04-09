@@ -121,12 +121,8 @@ class _ScrollAwareFloatingActionBarState
   }
 
   void _showFloatingActionBar() {
-    if (_isVisible) {
-      return;
-    }
-
     setState(() {
-      _isVisible = true;
+      _isVisible = !_isVisible;
     });
   }
 
