@@ -99,10 +99,7 @@ class CourseTableScreen extends ConsumerWidget {
                 return FloatingActionBar(
                   visible: visible,
                   actions: [
-                    FloatingActionBarActionButton(
-                      icon: Icons.view_day_outlined,
-                      onTap: () => _showDemoTap(context),
-                    ),
+                    // TODO: add day view and week view toggle when implemented
                     Builder(
                       builder: (context) {
                         final semesters = semestersAsync.asData?.value;

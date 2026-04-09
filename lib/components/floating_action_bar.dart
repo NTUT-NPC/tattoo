@@ -11,7 +11,8 @@ import 'package:tattoo/components/widget_preview_frame.dart';
 /// 1. Scrolling toward larger offsets hides the bar
 /// 2. Scrolling back toward the top shows the bar
 /// 3. Reaching the top always shows the bar
-/// 4. Tapping the body reveals the bar again when it is hidden
+/// 4. Tapping the body toggles the bar visibility
+/// 5. Swiping horizontally to change pages reveals the bar when hidden
 ///
 /// The [floatingActionBarBuilder] receives the resolved visibility state so the
 /// caller can decide whether to render a [FloatingActionBar] or omit the bar
@@ -68,6 +69,16 @@ class _ScrollAwareFloatingActionBarState
   double _dragHideDelta = 0;
 
   bool _handleScrollNotification(ScrollNotification notification) {
+    if (notification.metrics.axis == Axis.horizontal &&
+        !_isVisible &&
+        notification is ScrollUpdateNotification &&
+        notification.dragDetails != null) {
+      setState(() {
+        _isVisible = true;
+      });
+      return false;
+    }
+
     if (notification.metrics.axis != Axis.vertical) {
       return false;
     }
@@ -123,13 +134,9 @@ class _ScrollAwareFloatingActionBarState
     _dragHideDelta = 0;
   }
 
-  void _revealFloatingActionBar() {
-    if (_isVisible) {
-      return;
-    }
-
+  void _toggleFloatingActionBar() {
     setState(() {
-      _isVisible = true;
+      _isVisible = !_isVisible;
     });
   }
 
@@ -148,7 +155,7 @@ class _ScrollAwareFloatingActionBarState
         children: [
           GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: _revealFloatingActionBar,
+            onTap: _toggleFloatingActionBar,
             child: widget.child,
           ),
           if (floatingActionBar case final floatingActionBar?)
