@@ -192,7 +192,7 @@ class CourseTableScreen extends ConsumerWidget {
                               key: ValueKey(_semesterLabel(semester)),
                               courseTableData:
                                   courseTableAsync.asData?.value ??
-                                  CourseTableData(),
+                                  emptyCourseTableData,
                               loading:
                                   courseTableAsync.isLoading &&
                                   !courseTableAsync.hasValue,
@@ -212,7 +212,7 @@ class CourseTableScreen extends ConsumerWidget {
 
                 // LOADING state: show loading skeleton
                 _ => CourseTableGrid(
-                  courseTableData: CourseTableData(),
+                  courseTableData: emptyCourseTableData,
                   loading: true,
                   viewportWidth: gridViewportSize.width,
                   viewportHeight: gridViewportSize.height,
