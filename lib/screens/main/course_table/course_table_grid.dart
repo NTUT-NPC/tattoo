@@ -199,7 +199,7 @@ class CourseTableGrid extends StatelessWidget {
           ),
         if (!loading && !_isEmpty)
           SliverToBoxAdapter(
-            child: _bulidCourseTableSummary(context),
+            child: _buildCourseTableSummary(context),
           ),
 
         if (bottomInset > 0)
@@ -588,7 +588,7 @@ class CourseTableGrid extends StatelessWidget {
     );
   }
 
-  Widget _bulidCourseTableSummary(BuildContext context) {
+  Widget _buildCourseTableSummary(BuildContext context) {
     return Padding(
       padding: const .all(8),
       child: Center(
