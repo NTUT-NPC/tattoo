@@ -54,6 +54,8 @@ class CourseTableCell extends StatelessWidget {
         ? courseTableCellData.courseName
         : courseTableCellData.number ?? '';
     final classroomName = courseTableCellData.classroomName;
+    final splashColor = borderColor.withValues(alpha: 0.22);
+    final highlightColor = borderColor.withValues(alpha: 0.14);
 
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
@@ -68,6 +70,9 @@ class CourseTableCell extends StatelessWidget {
           child: InkWell(
             onTap: onTap,
             borderRadius: borderRadius,
+            splashFactory: InkRipple.splashFactory,
+            splashColor: splashColor,
+            highlightColor: highlightColor,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final titleMaxLines = constraints.maxHeight > 100 ? 3 : 2;
@@ -141,6 +146,8 @@ class CourseTableUnscheduledCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final splashColor = theme.colorScheme.primary.withValues(alpha: 0.18);
+    final highlightColor = theme.colorScheme.primary.withValues(alpha: 0.12);
 
     return Card(
       margin: .zero,
@@ -150,9 +157,13 @@ class CourseTableUnscheduledCell extends StatelessWidget {
         borderRadius: .circular(12),
         side: BorderSide(color: theme.colorScheme.outlineVariant),
       ),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         borderRadius: .circular(12),
         onTap: onTap,
+        splashFactory: InkRipple.splashFactory,
+        splashColor: splashColor,
+        highlightColor: highlightColor,
         child: Padding(
           padding: const .symmetric(
             horizontal: 12,
