@@ -142,6 +142,7 @@ class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
 
 	// Translations
 	@override String get notFound => 'Course table not found';
+	@override String get unscheduled => 'Unscheduled Courses';
 	@override late final _TranslationsCourseTableActionsEnUs actions = _TranslationsCourseTableActionsEnUs._(_root);
 	@override Map<String, String> get dayOfWeek => {
 		'sunday': 'Sun',
@@ -457,6 +458,7 @@ extension on TranslationsEnUs {
 			'nav.portal' => 'Portals',
 			'nav.profile' => 'Me',
 			'courseTable.notFound' => 'Course table not found',
+			'courseTable.unscheduled' => 'Unscheduled Courses',
 			'courseTable.actions.showMoreOptions' => 'Show more options',
 			'courseTable.actions.displayOptions' => 'Display options',
 			'courseTable.dayOfWeek.sunday' => 'Sun',

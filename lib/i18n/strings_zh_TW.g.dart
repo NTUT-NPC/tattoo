@@ -202,6 +202,9 @@ class TranslationsCourseTableZhTw {
 	/// zh-TW: '找不到課表'
 	String get notFound => '找不到課表';
 
+	/// zh-TW: '未安排時間的課程'
+	String get unscheduled => '未安排時間的課程';
+
 	late final TranslationsCourseTableActionsZhTw actions = TranslationsCourseTableActionsZhTw.internal(_root);
 	Map<String, String> get dayOfWeek => {
 		'sunday': '日',
@@ -686,6 +689,7 @@ extension on Translations {
 			'nav.portal' => '傳送門',
 			'nav.profile' => '我',
 			'courseTable.notFound' => '找不到課表',
+			'courseTable.unscheduled' => '未安排時間的課程',
 			'courseTable.actions.showMoreOptions' => '顯示更多選項',
 			'courseTable.actions.displayOptions' => '顯示選項',
 			'courseTable.dayOfWeek.sunday' => '日',
