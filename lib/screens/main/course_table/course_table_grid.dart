@@ -197,6 +197,11 @@ class CourseTableGrid extends StatelessWidget {
           SliverToBoxAdapter(
             child: _buildUnscheduledCourses(context, colorByCourseId),
           ),
+        if (!loading && !_isEmpty)
+          SliverToBoxAdapter(
+            child: _bulidCourseTableSummary(context),
+          ),
+
         if (bottomInset > 0)
           SliverToBoxAdapter(
             child: SizedBox(height: bottomInset),
@@ -579,6 +584,21 @@ class CourseTableGrid extends StatelessWidget {
               },
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _bulidCourseTableSummary(BuildContext context) {
+    return Padding(
+      padding: const .all(8),
+      child: Center(
+        child: Text(
+          ' - '
+          '${t.courseTable.summary.credits}: ${courseTableData.totalCredits} / '
+          '${t.courseTable.summary.hours}: ${courseTableData.totalHours}'
+          ' - ',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
       ),
     );
   }
