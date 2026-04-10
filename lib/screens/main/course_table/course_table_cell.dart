@@ -148,6 +148,17 @@ class CourseTableUnscheduledCell extends StatelessWidget {
     final theme = Theme.of(context);
     final splashColor = theme.colorScheme.primary.withValues(alpha: 0.18);
     final highlightColor = theme.colorScheme.primary.withValues(alpha: 0.12);
+    final courseName = courseTableCellData.courseName.trim();
+    final number = courseTableCellData.number?.trim();
+    final titleText = switch ((courseName, number)) {
+      (final courseName, _) when courseName.isNotEmpty => courseName,
+      (_, final number?) when number.isNotEmpty => number,
+      _ => t.general.unknown,
+    };
+    final subtitleText = switch (number) {
+      final number? when number.isNotEmpty && number != titleText => number,
+      _ => null,
+    };
 
     return Card(
       margin: .zero,
@@ -186,18 +197,16 @@ class CourseTableUnscheduledCell extends StatelessWidget {
                   dense: true,
                   visualDensity: .compact,
                   title: Text(
-                    courseTableCellData.courseName.isNotEmpty
-                        ? courseTableCellData.courseName
-                        : courseTableCellData.number ?? t.general.unknown,
+                    titleText,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: .w600,
                     ),
                     maxLines: 1,
                     overflow: .ellipsis,
                   ),
-                  subtitle: switch (courseTableCellData.number) {
-                    final number? => Text(
-                      number,
+                  subtitle: switch (subtitleText) {
+                    final subtitleText? => Text(
+                      subtitleText,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
