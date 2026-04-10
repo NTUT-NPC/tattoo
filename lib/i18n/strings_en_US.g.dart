@@ -132,6 +132,7 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	@override String get scores => 'Scores';
 	@override String get portal => 'Portals';
 	@override String get profile => 'Me';
+	@override String get map => 'Map';
 }
 
 // Path: courseTable
@@ -444,6 +445,7 @@ extension on TranslationsEnUs {
 			'nav.scores' => 'Scores',
 			'nav.portal' => 'Portals',
 			'nav.profile' => 'Me',
+			'nav.map' => 'Map',
 			'courseTable.notFound' => 'Course table not found',
 			'courseTable.dayOfWeek.sunday' => 'Sun',
 			'courseTable.dayOfWeek.monday' => 'Mon',

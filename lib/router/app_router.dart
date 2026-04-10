@@ -9,6 +9,7 @@ import 'package:tattoo/screens/main/profile/about_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
+import 'package:tattoo/screens/main/map/map_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
 import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
@@ -25,6 +26,7 @@ abstract class AppRoutes {
   static const login = '/login';
   static const about = '/about';
   static const scanner = '/scanner';
+  static const map = '/map';
 }
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
@@ -108,6 +110,15 @@ GoRouter createAppRouter({
               path: AppRoutes.portal,
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: PortalScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.map,
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: MapScreen()),
             ),
           ],
         ),

@@ -189,6 +189,9 @@ class TranslationsNavZhTw {
 
 	/// zh-TW: '我'
 	String get profile => '我';
+
+	/// zh-TW: '地圖'
+	String get map => '地圖';
 }
 
 // Path: courseTable
@@ -669,6 +672,7 @@ extension on Translations {
 			'nav.scores' => '成績',
 			'nav.portal' => '傳送門',
 			'nav.profile' => '我',
+			'nav.map' => '地圖',
 			'courseTable.notFound' => '找不到課表',
 			'courseTable.dayOfWeek.sunday' => '日',
 			'courseTable.dayOfWeek.monday' => '一',

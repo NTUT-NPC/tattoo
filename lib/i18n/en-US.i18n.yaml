@@ -49,6 +49,7 @@ nav:
   scores: Scores
   portal: Portals
   profile: Me
+  map: Map
 courseTable:
   notFound: Course table not found
   dayOfWeek(map):

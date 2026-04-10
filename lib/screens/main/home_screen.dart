@@ -40,6 +40,11 @@ class HomeScreen extends ConsumerWidget {
             label: t.nav.portal,
           ),
           NavigationDestination(
+            icon: Icon(Icons.map_outlined),
+            selectedIcon: Icon(Icons.map),
+            label: t['nav.map'] ?? 'Map',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.account_circle),
             label: t.nav.profile,
           ),
