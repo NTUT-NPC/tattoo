@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
@@ -115,7 +116,107 @@ class CourseTableCell extends StatelessWidget {
   }
 }
 
+/// A card row used by the unscheduled course section under the grid.
+///
+/// It displays the course name/number and credits/hours, with a colored
+/// leading indicator that matches the corresponding scheduled course color.
+class CourseTableUnscheduledCell extends StatelessWidget {
+  /// Creates an unscheduled-course list row.
+  const CourseTableUnscheduledCell({
+    required this.courseTableCellData,
+    required this.indicatorColor,
+    this.onTap,
+    super.key,
+  });
+
+  /// Course data rendered by this list row.
+  final CourseTableCellData courseTableCellData;
+
+  /// Color of the leading indicator stripe.
+  final Color indicatorColor;
+
+  /// Called when the user taps this row.
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      margin: .zero,
+      elevation: 0,
+      color: theme.colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: .circular(12),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
+      ),
+      child: InkWell(
+        borderRadius: .circular(12),
+        onTap: onTap,
+        child: Padding(
+          padding: const .symmetric(
+            horizontal: 12,
+            vertical: 6,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 4,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: indicatorColor,
+                  borderRadius: .circular(999),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ListTile(
+                  contentPadding: .zero,
+                  dense: true,
+                  visualDensity: .compact,
+                  title: Text(
+                    courseTableCellData.courseName.isNotEmpty
+                        ? courseTableCellData.courseName
+                        : courseTableCellData.number ?? t.general.unknown,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: .w600,
+                    ),
+                    maxLines: 1,
+                    overflow: .ellipsis,
+                  ),
+                  subtitle: switch (courseTableCellData.number) {
+                    final number? => Text(
+                      number,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: .ellipsis,
+                    ),
+                    null => null,
+                  },
+                ),
+              ),
+              Text(
+                '${courseTableCellData.credits} / ${courseTableCellData.hours}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: .w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Skeleton placeholder for [CourseTableCell] while loading.
+///
+/// This keeps the same rounded border silhouette as the real cell to reduce
+/// layout shift between loading and loaded states.
 class CourseTableCellSkeleton extends StatelessWidget {
+  /// Creates a loading placeholder for a course table cell.
   const CourseTableCellSkeleton({super.key});
 
   @override

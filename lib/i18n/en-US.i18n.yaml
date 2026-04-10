@@ -51,6 +51,7 @@ nav:
   profile: Me
 courseTable:
   notFound: Course table not found
+  unscheduled: Unscheduled Courses
   actions:
     showMoreOptions: Show more options
     displayOptions: Display options
