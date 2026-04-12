@@ -206,7 +206,7 @@ jobs:
             > Installing the App Distribution app is optional but recommended.
 
   ios:
-    runs-on: macos-latest
+    runs-on: macos-26
     needs: [prepare]
     if: needs.prepare.outputs.skip_build != 'true'
     env:
