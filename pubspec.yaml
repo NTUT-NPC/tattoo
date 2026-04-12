@@ -47,6 +47,9 @@ dependencies:
   firebase_analytics: ^12.2.0
   auto_size_text: ^3.0.0
   mobile_scanner: ^7.2.0
+  cached_network_image: ^3.4.1
+  sqlite3_flutter_libs: ^0.6.0+eol
+  flutter_cache_manager: ^3.4.1
 
 dev_dependencies:
   flutter_test:

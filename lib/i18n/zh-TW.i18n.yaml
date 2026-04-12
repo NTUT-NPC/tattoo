@@ -138,6 +138,12 @@ scanner:
     step3: "3. 點擊「QR Code 登入」"
     button: 我知道了
   invalidUrl: 無效的網址
+map:
+  title: 校園地圖
+  vectorMap: 校園向量地圖 (實驗性)
+  roomInfo: 空間資訊
+  centerAtMe: 中心對準我的位置
+  floor: 樓層
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學

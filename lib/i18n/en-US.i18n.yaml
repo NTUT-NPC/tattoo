@@ -138,6 +138,12 @@ scanner:
     step3: 3. Click "Scan QR code"
     button: Got it
   invalidUrl: Invalid URL
+map:
+  title: Campus Map
+  vectorMap: Vector Campus Map (Experimental)
+  roomInfo: Room Information
+  centerAtMe: Center at my location
+  floor: Floor
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence
