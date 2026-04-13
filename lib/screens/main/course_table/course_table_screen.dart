@@ -18,7 +18,6 @@ const _floatingBarBottomInset = 80.0;
 const _floatingBarMargin = 16.0;
 
 enum _CourseTableMenuAction {
-  refresh,
   displayOptions,
 }
 
@@ -37,25 +36,6 @@ class CourseTableScreen extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(t.general.notImplemented)),
     );
-  }
-
-  Semester? _resolveSelectedSemester(
-    BuildContext context,
-    List<Semester>? semesters,
-  ) {
-    if (semesters == null || semesters.isEmpty) {
-      return null;
-    }
-
-    final controller = DefaultTabController.maybeOf(context);
-    if (controller == null) {
-      return semesters.first;
-    }
-
-    final clampedIndex = controller.index
-        .clamp(0, semesters.length - 1)
-        .toInt();
-    return semesters[clampedIndex];
   }
 
   @override
@@ -109,12 +89,6 @@ class CourseTableScreen extends ConsumerWidget {
                     // TODO: add day view and week view toggle when implemented
                     Builder(
                       builder: (context) {
-                        final semesters = semestersAsync.asData?.value;
-                        final selectedSemester = _resolveSelectedSemester(
-                          context,
-                          semesters,
-                        );
-
                         return FloatingActionBarMenuButton<
                           _CourseTableMenuAction
                         >(
@@ -132,24 +106,6 @@ class CourseTableScreen extends ConsumerWidget {
                           ],
                           onSelected: (action) async {
                             switch (action) {
-                              case _CourseTableMenuAction.refresh:
-                                if (selectedSemester != null) {
-                                  try {
-                                    await _refreshCourseTable(
-                                      ref,
-                                      selectedSemester,
-                                    );
-                                  } catch (error) {
-                                    if (!context.mounted) {
-                                      return;
-                                    }
-
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Error: $error')),
-                                    );
-                                  }
-                                }
-                                break;
                               case _CourseTableMenuAction.displayOptions:
                                 _showDemoTap(context);
                                 break;
