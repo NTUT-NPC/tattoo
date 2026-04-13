@@ -51,6 +51,8 @@ class CourseTableGrid extends StatelessWidget {
 
   // CourseTableCell accepts a minimum height of 52.
   // with padding(2.0), set 56 as the minimum height.
+  // Display about 10 periods in the viewport by default,
+  // but expand if there are fewer to avoid excessive whitespace.
   double get _periodRowHeight =>
       max((viewportHeight - _tableHeaderHeight) / 10, 56.0).toDouble();
   bool get _isEmpty =>
