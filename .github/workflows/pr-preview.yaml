@@ -36,6 +36,14 @@ concurrency:
       && '-noop' || '' }}
   cancel-in-progress: true
 
+env:
+  FASTLANE_SKIP_UPDATE_CHECK: true
+  FASTLANE_HIDE_CHANGELOG: true
+  FASTLANE_HIDE_GITHUB_ISSUES: true
+  FASTLANE_DISABLE_OUTPUT_FORMAT: true
+  FASTLANE_HIDE_PLUGINS_TABLE: true
+  FASTLANE_SKIP_ACTION_SUMMARY: true
+
 jobs:
   prepare:
     if: >-
