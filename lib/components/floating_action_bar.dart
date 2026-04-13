@@ -375,7 +375,7 @@ class FloatingActionBarMenuButton<T> extends StatelessWidget {
       items: items,
       onSelected: onSelected,
       enabled: enabled,
-      tooltip: tooltip ?? t.courseTable.actions.displayOptions,
+      tooltip: tooltip ?? t.courseTable.actions.showMoreOptions,
       style: style,
       triggerBuilder: (context, onPressed) {
         return _FloatingActionBarCircularActionSurface(
@@ -423,30 +423,24 @@ class _FloatingActionBarIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final button = Material(
-      color: Colors.transparent,
-      shape: const CircleBorder(),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        splashFactory: InkRipple.splashFactory,
-        splashColor: Colors.black12,
-        highlightColor: Colors.black12,
-        onTap: onTap,
-        child: Center(
-          child: Icon(icon, size: _iconSize),
+    return Tooltip(
+      message: tooltip ?? '',
+      showDuration: const Duration(seconds: 3),
+      child: Material(
+        color: Colors.transparent,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          splashFactory: InkRipple.splashFactory,
+          splashColor: Colors.black12,
+          highlightColor: Colors.black12,
+          onTap: onTap,
+          child: Center(
+            child: Icon(icon, size: _iconSize),
+          ),
         ),
       ),
     );
-
-    if (tooltip case final tooltip?) {
-      return Tooltip(
-        message: tooltip,
-        showDuration: const Duration(seconds: 3),
-        child: button,
-      );
-    }
-
-    return button;
   }
 }
 

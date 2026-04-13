@@ -18,12 +18,17 @@ const _anchoredPopupMenuShape = RoundedRectangleBorder(
 
 /// Controls how an [AnchoredPopupMenuButton] is sized and positioned.
 enum AnchoredPopupMenuPlacement {
+  /// Choose the side with more available vertical space.
   auto,
+
+  /// Prefer showing the popup menu above the trigger.
   above,
+
+  /// Prefer showing the popup menu below the trigger.
   below,
 }
 
-/// Controls how an [AnchoredPopupMenuButton] is sized and positioned.
+/// Configures sizing and placement behavior for [AnchoredPopupMenuButton].
 @immutable
 class AnchoredPopupMenuLayout {
   /// Creates the layout configuration for an anchored popup menu.
@@ -52,6 +57,10 @@ class AnchoredPopupMenuLayout {
   /// Preferred vertical placement of the popup menu relative to its trigger.
   final AnchoredPopupMenuPlacement placement;
 
+  /// Resolves the final menu placement for the current overlay and anchor.
+  ///
+  /// When [placement] is [AnchoredPopupMenuPlacement.auto], the menu is placed
+  /// on the side with more available vertical space.
   AnchoredPopupMenuPlacement resolvePlacement({
     required Rect anchorRect,
     required Size overlaySize,
@@ -75,6 +84,10 @@ class AnchoredPopupMenuLayout {
     };
   }
 
+  /// Resolves popup menu constraints for the current anchor and viewport.
+  ///
+  /// Width is always constrained by [minWidth] and [maxWidth]. Height is
+  /// additionally constrained when there is vertical room on the chosen side.
   BoxConstraints resolveMenuConstraints({
     required Rect anchorRect,
     required Size overlaySize,
