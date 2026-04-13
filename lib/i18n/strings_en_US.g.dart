@@ -264,7 +264,7 @@ class _TranslationsCourseTableActionsEnUs extends TranslationsCourseTableActions
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get refresh => 'Refresh course table';
+	@override String get showMoreOptions => 'Show more options';
 	@override String get displayOptions => 'Display options';
 }
 
@@ -457,7 +457,7 @@ extension on TranslationsEnUs {
 			'nav.portal' => 'Portals',
 			'nav.profile' => 'Me',
 			'courseTable.notFound' => 'Course table not found',
-			'courseTable.actions.refresh' => 'Refresh course table',
+			'courseTable.actions.showMoreOptions' => 'Show more options',
 			'courseTable.actions.displayOptions' => 'Display options',
 			'courseTable.dayOfWeek.sunday' => 'Sun',
 			'courseTable.dayOfWeek.monday' => 'Mon',

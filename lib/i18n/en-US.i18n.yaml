@@ -52,7 +52,7 @@ nav:
 courseTable:
   notFound: Course table not found
   actions:
-    refresh: Refresh course table
+    showMoreOptions: Show more options
     displayOptions: Display options
   dayOfWeek(map):
     sunday: Sun

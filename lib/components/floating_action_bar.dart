@@ -5,6 +5,7 @@ import 'package:flutter/widget_previews.dart';
 import 'package:tattoo/components/anchored_popup_menu.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 
 /// A layout helper that overlays a floating action bar above a scrollable body.
 ///
@@ -374,7 +375,7 @@ class FloatingActionBarMenuButton<T> extends StatelessWidget {
       items: items,
       onSelected: onSelected,
       enabled: enabled,
-      tooltip: tooltip ?? '更多選項',
+      tooltip: tooltip ?? t.courseTable.actions.displayOptions,
       style: style,
       triggerBuilder: (context, onPressed) {
         return _FloatingActionBarCircularActionSurface(
@@ -422,24 +423,30 @@ class _FloatingActionBarIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip ?? '',
-      showDuration: const Duration(seconds: 3),
-      child: Material(
-        color: Colors.transparent,
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          splashFactory: InkRipple.splashFactory,
-          splashColor: Colors.black12,
-          highlightColor: Colors.black12,
-          onTap: onTap,
-          child: Center(
-            child: Icon(icon, size: _iconSize),
-          ),
+    final button = Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        splashFactory: InkRipple.splashFactory,
+        splashColor: Colors.black12,
+        highlightColor: Colors.black12,
+        onTap: onTap,
+        child: Center(
+          child: Icon(icon, size: _iconSize),
         ),
       ),
     );
+
+    if (tooltip case final tooltip?) {
+      return Tooltip(
+        message: tooltip,
+        showDuration: const Duration(seconds: 3),
+        child: button,
+      );
+    }
+
+    return button;
   }
 }
 

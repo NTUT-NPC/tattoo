@@ -392,8 +392,8 @@ class TranslationsCourseTableActionsZhTw {
 
 	// Translations
 
-	/// zh-TW: '重新整理課表'
-	String get refresh => '重新整理課表';
+	/// zh-TW: '顯示更多選項'
+	String get showMoreOptions => '顯示更多選項';
 
 	/// zh-TW: '顯示選項'
 	String get displayOptions => '顯示選項';
@@ -686,7 +686,7 @@ extension on Translations {
 			'nav.portal' => '傳送門',
 			'nav.profile' => '我',
 			'courseTable.notFound' => '找不到課表',
-			'courseTable.actions.refresh' => '重新整理課表',
+			'courseTable.actions.showMoreOptions' => '顯示更多選項',
 			'courseTable.actions.displayOptions' => '顯示選項',
 			'courseTable.dayOfWeek.sunday' => '日',
 			'courseTable.dayOfWeek.monday' => '一',
