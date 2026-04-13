@@ -58,9 +58,9 @@ class AnchoredPopupMenuLayout {
     required EdgeInsets mediaPadding,
   }) {
     return switch (placement) {
-      AnchoredPopupMenuPlacement.above => AnchoredPopupMenuPlacement.above,
-      AnchoredPopupMenuPlacement.below => AnchoredPopupMenuPlacement.below,
-      AnchoredPopupMenuPlacement.auto =>
+      .above => .above,
+      .below => .below,
+      .auto =>
         _availableHeightAbove(
                   anchorRect: anchorRect,
                   mediaPadding: mediaPadding,
@@ -70,8 +70,8 @@ class AnchoredPopupMenuLayout {
                   overlaySize: overlaySize,
                   mediaPadding: mediaPadding,
                 )
-            ? AnchoredPopupMenuPlacement.above
-            : AnchoredPopupMenuPlacement.below,
+            ? .above
+            : .below,
     };
   }
 
@@ -114,14 +114,14 @@ class AnchoredPopupMenuLayout {
     return math.max(
       0.0,
       switch (placement) {
-        AnchoredPopupMenuPlacement.auto => throw StateError(
+        .auto => throw StateError(
           'AnchoredPopupMenuPlacement.auto must be resolved before layout.',
         ),
-        AnchoredPopupMenuPlacement.above => _availableHeightAbove(
+        .above => _availableHeightAbove(
           anchorRect: anchorRect,
           mediaPadding: mediaPadding,
         ),
-        AnchoredPopupMenuPlacement.below => _availableHeightBelow(
+        .below => _availableHeightBelow(
           anchorRect: anchorRect,
           overlaySize: overlaySize,
           mediaPadding: mediaPadding,
