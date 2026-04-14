@@ -49,6 +49,7 @@ nav:
   scores: 成績
   portal: 傳送門
   profile: 我
+  map: 地圖
 courseTable:
   notFound: 找不到課表
   dayOfWeek(map):

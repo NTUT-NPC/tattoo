@@ -23,6 +23,10 @@ enum ErrorType {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Increase image cache size to 1.5GB to accommodate multiple 16k maps
+  // Each 16k x 9k RGBA image consumes ~550MB in RAM.
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 1500 * 1024 * 1024;
+
   if (useFirebase) {
     try {
       await Firebase.initializeApp(
