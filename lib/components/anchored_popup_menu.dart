@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart' show SemanticsRole;
 import 'package:flutter/widget_previews.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 
@@ -38,7 +37,7 @@ class AnchoredPopupMenuLayout {
     this.maxWidth = _anchoredPopupMenuMaxWidth,
     this.screenPadding = _anchoredPopupMenuScreenPadding,
     this.gap = _anchoredPopupMenuGap,
-    this.placement = AnchoredPopupMenuPlacement.auto,
+    this.placement = .auto,
   }) : assert(minWidth <= maxWidth),
        assert(screenPadding >= 0),
        assert(gap >= 0);
@@ -445,9 +444,9 @@ class _AnchoredPopupMenu<T> extends StatelessWidget {
     final shadowColor =
         style.shadowColor ?? theme.shadowColor.withValues(alpha: 0.08);
     final growAlignment = switch (placement) {
-      AnchoredPopupMenuPlacement.above => AlignmentDirectional.bottomEnd,
-      AnchoredPopupMenuPlacement.below => AlignmentDirectional.topEnd,
-      AnchoredPopupMenuPlacement.auto => AlignmentDirectional.bottomEnd,
+      .above => AlignmentDirectional.bottomEnd,
+      .below => AlignmentDirectional.topEnd,
+      .auto => AlignmentDirectional.bottomEnd,
     };
     final size = CurvedAnimation(
       parent: animation,
@@ -471,8 +470,8 @@ class _AnchoredPopupMenu<T> extends StatelessWidget {
             shadowColor: shadowColor,
             surfaceTintColor: style.surfaceTintColor,
             shape: style.shape,
-            clipBehavior: Clip.antiAlias,
-            type: MaterialType.card,
+            clipBehavior: .antiAlias,
+            type: .card,
             child: Align(
               alignment: growAlignment,
               widthFactor: 1,
@@ -487,7 +486,7 @@ class _AnchoredPopupMenu<T> extends StatelessWidget {
         child: IntrinsicWidth(
           stepWidth: 56,
           child: Semantics(
-            role: SemanticsRole.menu,
+            role: .menu,
             scopesRoute: true,
             namesRoute: true,
             explicitChildNodes: true,
@@ -528,10 +527,9 @@ class _AnchoredPopupMenuRouteLayout extends SingleChildLayoutDelegate {
   @override
   Offset getPositionForChild(Size size, Size childSize) {
     final y = switch (placement) {
-      AnchoredPopupMenuPlacement.above =>
-        anchorRect.top - layout.gap - childSize.height,
-      AnchoredPopupMenuPlacement.below => anchorRect.bottom + layout.gap,
-      AnchoredPopupMenuPlacement.auto => anchorRect.top - layout.gap,
+      .above => anchorRect.top - layout.gap - childSize.height,
+      .below => anchorRect.bottom + layout.gap,
+      .auto => anchorRect.top - layout.gap,
     };
 
     return Offset(
@@ -556,8 +554,8 @@ class _AnchoredPopupMenuRouteLayout extends SingleChildLayoutDelegate {
       > 0 => overlaySize.width - right - childSize.width,
       < 0 => left,
       _ => switch (textDirection) {
-        TextDirection.rtl => overlaySize.width - right - childSize.width,
-        TextDirection.ltr => left,
+        .rtl => overlaySize.width - right - childSize.width,
+        .ltr => left,
       },
     };
   }

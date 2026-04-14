@@ -95,7 +95,7 @@ class CourseTableScreen extends ConsumerWidget {
                           icon: Icons.more_vert_outlined,
                           items: [
                             PopupMenuItem(
-                              value: _CourseTableMenuAction.displayOptions,
+                              value: .displayOptions,
                               child: ListTile(
                                 leading: const Icon(Icons.tune_outlined),
                                 title: Text(
@@ -106,7 +106,7 @@ class CourseTableScreen extends ConsumerWidget {
                           ],
                           onSelected: (action) async {
                             switch (action) {
-                              case _CourseTableMenuAction.displayOptions:
+                              case .displayOptions:
                                 _showDemoTap(context);
                                 break;
                             }

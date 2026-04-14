@@ -72,7 +72,7 @@ class _ScrollAwareFloatingActionBarState
   double _dragHideDelta = 0;
 
   bool _handleScrollNotification(ScrollNotification notification) {
-    if (notification.metrics.axis == Axis.horizontal &&
+    if (notification.metrics.axis == .horizontal &&
         !_isVisible &&
         notification is ScrollUpdateNotification &&
         notification.dragDetails != null) {
@@ -82,7 +82,7 @@ class _ScrollAwareFloatingActionBarState
       return false;
     }
 
-    if (notification.metrics.axis != Axis.vertical) {
+    if (notification.metrics.axis != .vertical) {
       return false;
     }
 
@@ -159,10 +159,10 @@ class _ScrollAwareFloatingActionBarState
     return NotificationListener<ScrollNotification>(
       onNotification: _handleScrollNotification,
       child: Stack(
-        fit: StackFit.expand,
+        fit: .expand,
         children: [
           GestureDetector(
-            behavior: HitTestBehavior.translucent,
+            behavior: .translucent,
             onTap: _toggleFloatingActionBar,
             child: widget.child,
           ),
@@ -177,7 +177,7 @@ class _ScrollAwareFloatingActionBarState
                 child: IgnorePointer(
                   ignoring: !_isVisible,
                   child: GestureDetector(
-                    behavior: HitTestBehavior.translucent,
+                    behavior: .translucent,
                     onVerticalDragStart: _handleVerticalDragStart,
                     onVerticalDragUpdate: _handleVerticalDragUpdate,
                     onVerticalDragEnd: _handleVerticalDragEnd,
@@ -462,7 +462,7 @@ class _FloatingActionBarSurface extends StatelessWidget {
       shadowColor: Colors.black.withValues(alpha: 0.08),
       surfaceTintColor: Colors.transparent,
       shape: shape,
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: .antiAlias,
       child: child,
     );
   }
