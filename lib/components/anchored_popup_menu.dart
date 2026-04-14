@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart' show SemanticsRole;
 import 'package:flutter/widget_previews.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 
 import 'widget_preview_frame.dart';
 
@@ -337,23 +338,13 @@ class AnchoredPopupMenuButton<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final trigger = Builder(
-      builder: (context) {
-        return triggerBuilder(
-          context,
-          _canOpen ? () => _showPopupMenu(context) : null,
-        );
-      },
+    return Tooltip(
+      message: tooltip ?? t.courseTable.actions.showMoreOptions,
+      child: triggerBuilder(
+        context,
+        _canOpen ? () => _showPopupMenu(context) : null,
+      ),
     );
-
-    if (tooltip case final tooltip?) {
-      return Tooltip(
-        message: tooltip,
-        child: trigger,
-      );
-    }
-
-    return trigger;
   }
 }
 
