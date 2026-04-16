@@ -19,7 +19,7 @@ class FeatureFlagScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.cloud_download),
-            tooltip: t.featureFlags.reset,
+            tooltip: t.featureFlags.fetchFlags,
             onPressed: () {
               ref.read(featureFlagsProvider.notifier).refreshFlags();
               ScaffoldMessenger.of(context).showSnackBar(

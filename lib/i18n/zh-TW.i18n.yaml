@@ -162,6 +162,7 @@ about:
 featureFlags:
   title: 功能開關
   reset: 恢復預設值
+  fetchFlags: 從遠端獲取
   noFlag: 沒有功能開關
   status:
     local: 本機
