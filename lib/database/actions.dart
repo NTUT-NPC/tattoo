@@ -194,10 +194,15 @@ extension DatabaseActions on AppDatabase {
   }
 
   /// Returns the ID of an existing course offering, or creates/updates one.
+  ///
+  /// Upserts by `(semester, number)`. Null-number entries always insert
+  /// (SQLite treats NULLs as distinct) — caller must delete stale ones first.
   Future<int> upsertCourseOffering({
-    required int courseId,
+    int? courseId,
     required int semesterId,
-    required String number,
+    String? number,
+    String? nameZh,
+    String? nameEn,
     int? phase,
     String? status,
     String? language,
@@ -206,9 +211,11 @@ extension DatabaseActions on AppDatabase {
   }) async {
     return (await into(courseOfferings).insertReturning(
       CourseOfferingsCompanion.insert(
-        course: courseId,
+        course: Value(courseId),
         semester: semesterId,
-        number: number,
+        number: Value(number),
+        nameZh: Value(nameZh),
+        nameEn: Value(nameEn),
         phase: Value(phase),
         status: Value(status),
         language: Value(language),
@@ -218,13 +225,15 @@ extension DatabaseActions on AppDatabase {
       onConflict: DoUpdate(
         (old) => CourseOfferingsCompanion(
           course: Value(courseId),
+          nameZh: Value(nameZh),
+          nameEn: Value(nameEn),
           phase: Value(phase),
           status: Value(status),
           language: Value(language),
           remarks: Value(remarks),
           syllabusId: Value(syllabusId),
         ),
-        target: [courseOfferings.number],
+        target: [courseOfferings.semester, courseOfferings.number],
       ),
     )).id;
   }
