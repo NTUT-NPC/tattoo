@@ -51,6 +51,10 @@ nav:
   profile: 我
 courseTable:
   notFound: 找不到課表
+  unscheduled: 未安排時間的課程
+  summary:
+    credits: 學分
+    hours: 時數
   actions:
     showMoreOptions: 顯示更多選項
     displayOptions: 顯示選項

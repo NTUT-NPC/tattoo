@@ -51,6 +51,10 @@ nav:
   profile: Me
 courseTable:
   notFound: Course table not found
+  unscheduled: Unscheduled Courses
+  summary:
+    credits: Credits
+    hours: Hours
   actions:
     showMoreOptions: Show more options
     displayOptions: Display options

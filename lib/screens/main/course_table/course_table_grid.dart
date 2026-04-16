@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
+import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
@@ -44,6 +45,43 @@ class CourseTableGrid extends StatelessWidget {
   static const double _tableHeaderHeight = 25;
   static const double _stubWidth = 20;
   static const double _gridLineThickness = 1;
+  static const List<Color> _cellColors = [
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+    Colors.teal,
+    Colors.pink,
+    Colors.indigo,
+    Colors.amber,
+    Colors.cyan,
+    Colors.deepOrange,
+    Colors.lightGreen,
+    Colors.deepPurple,
+    Colors.lightBlue,
+    Colors.lime,
+    Colors.brown,
+    Colors.blueGrey,
+    Colors.redAccent,
+    Colors.blueAccent,
+    Colors.greenAccent,
+    Colors.orangeAccent,
+    Colors.purpleAccent,
+    Colors.tealAccent,
+    Colors.pinkAccent,
+    Colors.indigoAccent,
+    Colors.amberAccent,
+    Colors.cyanAccent,
+    Colors.deepOrangeAccent,
+    Colors.lightGreenAccent,
+    Colors.deepPurpleAccent,
+    Colors.lightBlueAccent,
+    Colors.limeAccent,
+    Colors.yellow,
+    Colors.grey,
+    Colors.yellowAccent,
+  ];
 
   late final _GridRange _gridRange = _visibleGridRange();
   List<DayOfWeek> get _visibleDaysOfWeek => _gridRange.visibleDaysOfWeek;
@@ -118,6 +156,7 @@ class CourseTableGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorByCourseId = _buildColorByCourseId();
     final scrollView = CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics().applyTo(
         ScrollConfiguration.of(context).getScrollPhysics(context),
@@ -147,12 +186,22 @@ class CourseTableGrid extends StatelessWidget {
                   ? _buildSkeleton(_visibleDaysOfWeek, _visiblePeriods)
                   : _buildCourseCells(
                       context,
+                      colorByCourseId,
                       _visibleDaysOfWeek,
                       _visiblePeriods,
                     )),
             ],
           ),
         ),
+        if (!loading && courseTableData.unscheduled.isNotEmpty)
+          SliverToBoxAdapter(
+            child: _buildUnscheduledCourses(context, colorByCourseId),
+          ),
+        if (!loading && !_isEmpty)
+          SliverToBoxAdapter(
+            child: _buildCourseTableSummary(context),
+          ),
+
         if (bottomInset > 0)
           SliverToBoxAdapter(
             child: SizedBox(height: bottomInset),
@@ -166,6 +215,18 @@ class CourseTableGrid extends StatelessWidget {
         child: scrollView,
       ),
       null => scrollView,
+    };
+  }
+
+  Map<int, Color> _buildColorByCourseId() {
+    final courseIds = {
+      ...courseTableData.scheduled.values.map((cell) => cell.id),
+      ...courseTableData.unscheduled.map((cell) => cell.id),
+    }.toList()..sort();
+
+    return {
+      for (var i = 0; i < courseIds.length; i++)
+        courseIds[i]: _cellColors[i % _cellColors.length],
     };
   }
 
@@ -425,61 +486,12 @@ class CourseTableGrid extends StatelessWidget {
 
   List<Widget> _buildCourseCells(
     BuildContext context,
+    Map<int, Color> colorByCourseId,
     List<DayOfWeek> visibleDaysOfWeek,
     List<Period> visiblePeriods,
   ) {
-    const List<Color> cellColors = [
-      Colors.red,
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.purple,
-      Colors.teal,
-      Colors.pink,
-      Colors.indigo,
-      Colors.amber,
-      Colors.cyan,
-      Colors.deepOrange,
-      Colors.lightGreen,
-      Colors.deepPurple,
-      Colors.lightBlue,
-      Colors.lime,
-      Colors.brown,
-      Colors.blueGrey,
-      Colors.redAccent,
-      Colors.blueAccent,
-      Colors.greenAccent,
-      Colors.orangeAccent,
-      Colors.purpleAccent,
-      Colors.tealAccent,
-      Colors.pinkAccent,
-      Colors.indigoAccent,
-      Colors.amberAccent,
-      Colors.cyanAccent,
-      Colors.deepOrangeAccent,
-      Colors.lightGreenAccent,
-      Colors.deepPurpleAccent,
-      Colors.lightBlueAccent,
-      Colors.limeAccent,
-      Colors.yellow,
-      Colors.grey,
-      Colors.yellowAccent,
-    ];
-
     final columnWidth = _dayColumnWidth;
     final random = Random();
-    final availableColors = cellColors.reversed.toList(growable: true);
-    final colorByCourseId = <int, Color>{};
-
-    Color resolveCellColor(int courseId) {
-      return colorByCourseId.putIfAbsent(courseId, () {
-        if (availableColors.isEmpty) {
-          availableColors.addAll(cellColors.reversed);
-        }
-
-        return availableColors.removeLast();
-      });
-    }
 
     final sortedEntries = courseTableData.scheduled.entries.toList()
       ..sort((a, b) {
@@ -537,7 +549,7 @@ class CourseTableGrid extends StatelessWidget {
                 },
                 child: CourseTableCell(
                   courseTableCellData: cell,
-                  cellColor: resolveCellColor(cell.id),
+                  cellColor: colorByCourseId[cell.id] ?? Colors.grey,
                   onTap: () {
                     showCourseTableDetailSheet(context, cell: cell);
                   },
@@ -550,6 +562,45 @@ class CourseTableGrid extends StatelessWidget {
     }
 
     return cells;
+  }
+
+  Widget _buildUnscheduledCourses(
+    BuildContext context,
+    Map<int, Color> colorByCourseId,
+  ) {
+    return Padding(
+      padding: const .all(16),
+      child: Column(
+        crossAxisAlignment: .center,
+        spacing: 8,
+        children: [
+          SectionHeader(title: t.courseTable.unscheduled),
+          for (final cell in courseTableData.unscheduled)
+            CourseTableUnscheduledCell(
+              courseTableCellData: cell,
+              indicatorColor: colorByCourseId[cell.id] ?? Colors.grey,
+              onTap: () {
+                showCourseTableDetailSheet(context, cell: cell);
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCourseTableSummary(BuildContext context) {
+    return Padding(
+      padding: const .all(8),
+      child: Center(
+        child: Text(
+          ' - '
+          '${t.courseTable.summary.credits}: ${courseTableData.totalCredits} / '
+          '${t.courseTable.summary.hours}: ${courseTableData.totalHours}'
+          ' - ',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ),
+    );
   }
 }
 
@@ -605,7 +656,18 @@ final CourseTableData _previewCourseTableData = (
       hours: 3,
     ),
   },
-  unscheduled: <CourseTableCellData>[],
+  unscheduled: [
+    (
+      id: 4,
+      number: 'CSIE4999',
+      span: 0,
+      crossesNoon: false,
+      courseName: '校外實習',
+      classroomName: null,
+      credits: 9.0,
+      hours: 9,
+    ),
+  ],
   hasWeekdayCourse: true,
   hasSaturdayCourse: false,
   hasSundayCourse: false,
@@ -615,6 +677,6 @@ final CourseTableData _previewCourseTableData = (
   hasEveningCourse: false,
   earliestPeriod: .first,
   latestPeriod: .eighth,
-  totalCredits: 9.0,
-  totalHours: 9,
+  totalCredits: 18.0,
+  totalHours: 18,
 );
