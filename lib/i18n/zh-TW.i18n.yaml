@@ -51,6 +51,9 @@ nav:
   profile: 我
 courseTable:
   notFound: 找不到課表
+  actions:
+    showMoreOptions: 顯示更多選項
+    displayOptions: 顯示選項
   dayOfWeek(map):
     sunday: 日
     monday: 一
