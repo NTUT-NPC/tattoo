@@ -62,6 +62,7 @@ class _AnimatedShellContainerState extends State<AnimatedShellContainer>
       animation: _controller,
       builder: (context, _) => Stack(
         fit: StackFit.expand,
+        clipBehavior: Clip.none,
         children: [
           for (var i = 0; i < widget.children.length; i++) _buildBranch(i),
         ],
