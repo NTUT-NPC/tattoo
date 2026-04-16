@@ -1,0 +1,204 @@
+name: Release Preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_track_android:
+        description: 'Google Play Track (internal/beta/production)'
+        required: true
+        default: 'internal'
+        type: choice
+        options:
+          - internal
+          - beta
+          - production
+      distribute_ios_external:
+        description: 'Distribute to external TestFlight groups'
+        required: true
+        default: true
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      build_number: ${{ steps.build-number.outputs.build_number }}
+      version_name: ${{ steps.version.outputs.name }}
+      commit_sha: ${{ steps.summary.outputs.sha }}
+      commit_message: ${{ steps.summary.outputs.message }}
+      target_ref: ${{ steps.set-ref.outputs.ref }}
+    steps:
+      - name: Checkout Actions
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get Version Name
+        id: version
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | sed 's/version: //')
+          VERSION_NAME=$(echo $VERSION | cut -d '+' -f 1)
+          echo "name=$VERSION_NAME" >> $GITHUB_OUTPUT
+
+      - name: Manage Build Number
+        id: build-number
+        uses: ./.github/actions/manage-build-number
+        with:
+          github_token: ${{ secrets.BUILD_NUMBER_PAT }}
+          current_build_number: ${{ vars.build_number }}
+
+      - name: Write Build Summary
+        id: summary
+        uses: ./.github/actions/write-build-summary
+        with:
+          title: "Production Release ${{ steps.version.outputs.name }}"
+          build_number: ${{ steps.build-number.outputs.build_number }}
+
+      - name: Create Production Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION_NAME: ${{ steps.version.outputs.name }}
+          BUILD_NUMBER: ${{ steps.build-number.outputs.build_number }}
+        run: |
+          TAG="v${VERSION_NAME}+${BUILD_NUMBER}"
+          BODY=$(cat <<'BODY_EOF'
+          ## Production Release ${VERSION_NAME}
+          **Build Number:** ${BUILD_NUMBER}
+          **Commit:** ${{ steps.summary.outputs.sha }}
+          **Message:** ${{ steps.summary.outputs.message }}
+
+          <!--android-build-->
+
+          <!--ios-build-->
+          BODY_EOF
+          )
+
+          gh release create "$TAG" \
+            --title "Release ${VERSION_NAME} (${BUILD_NUMBER})" \
+            --notes "$BODY" \
+            --prerelease
+
+  android:
+    runs-on: ubuntu-latest
+    needs: [prepare]
+    env:
+      FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      # No VERSION_SUFFIX for production
+      PR_TITLE: "Production Release"
+      COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+      COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+      PUBLIC_TESTERS: true
+      FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          platform: android
+
+      - name: Build and Upload Android
+        id: build
+        run: |
+          # We pass the track as an option to fastlane
+          bundle exec fastlane android release track:${{ github.event.inputs.target_track_android }}
+          APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" -not -name "*sha1" | head -n 1)
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload Android to Release
+        run: |
+          TAG="v${{ needs.prepare.outputs.version_name }}+${{ needs.prepare.outputs.build_number }}"
+          gh release upload "$TAG" "${{ steps.build.outputs.apk_path }}#tattoo-${{ needs.prepare.outputs.version_name }}-android.apk" --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Write Android Job Summary
+        uses: ./.github/actions/android-summary
+        with:
+          build_number: ${{ needs.prepare.outputs.build_number }}
+          type: release
+
+      - name: Append Android result to release notes
+        uses: ./.github/actions/append-release-notes
+        with:
+          github_token: ${{ github.token }}
+          tag: "<!--android-build-->"
+          body: |
+            ### Android
+            - Track: `${{ github.event.inputs.target_track_android }}`
+            - Build: `${{ needs.prepare.outputs.version_name }}+${{ needs.prepare.outputs.build_number }}`
+
+  ios:
+    runs-on: macos-latest
+    needs: [prepare]
+    env:
+      FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      FASTLANE_APPLE_ID: ${{ secrets.FASTLANE_APPLE_ID }}
+      FASTLANE_TEAM_ID: ${{ secrets.FASTLANE_TEAM_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+      APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+      BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      # No VERSION_SUFFIX for production
+      PR_TITLE: "Production Release"
+      COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+      COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+      PUBLIC_TESTERS: ${{ github.event.inputs.distribute_ios_external }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          platform: ios
+
+      - name: Build iOS
+        id: build
+        run: |
+          bundle exec fastlane ios upload_testflight
+          IPA_PATH=$(find . -maxdepth 2 -name "*.ipa" | head -n 1)
+          echo "ipa_path=$IPA_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload iOS to Release
+        run: |
+          TAG="v${{ needs.prepare.outputs.version_name }}+${{ needs.prepare.outputs.build_number }}"
+          gh release upload "$TAG" "${{ steps.build.outputs.ipa_path }}#tattoo-${{ needs.prepare.outputs.version_name }}-ios.ipa" --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Write iOS Job Summary
+        uses: ./.github/actions/ios-summary
+        with:
+          build_number: ${{ needs.prepare.outputs.build_number }}
+
+      - name: Append iOS result to release notes
+        uses: ./.github/actions/append-release-notes
+        with:
+          github_token: ${{ github.token }}
+          tag: "<!--ios-build-->"
+          body: |
+            ### iOS
+            - Build: `${{ needs.prepare.outputs.version_name }}+${{ needs.prepare.outputs.build_number }}`
+            - External Distribution: `${{ github.event.inputs.distribute_ios_external }}`
