@@ -9974,9 +9974,6 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
   final int id;
 
   /// Unique event ID from NTUT Portal.
-  ///
-  /// Nullable in DTO, but we expect it for syncing. We use our own auto-increment
-  /// ID as the primary key and this as a unique constraint to avoid duplicates.
   final int portalId;
 
   /// Event start time.
