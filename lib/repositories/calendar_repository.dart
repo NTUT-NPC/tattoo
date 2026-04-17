@@ -123,8 +123,8 @@ class CalendarRepository {
           .map(
             (dto) => CalendarEventsCompanion.insert(
               portalId: dto.id!,
-              start: Value(dto.start),
-              end: Value(dto.end),
+              start: dto.start,
+              end: dto.end,
               allDay: Value(dto.allDay),
               title: Value(dto.title),
               place: Value(dto.place),

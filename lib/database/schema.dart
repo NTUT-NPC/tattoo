@@ -702,10 +702,10 @@ class CalendarEvents extends Table with AutoIncrementId {
   late final portalId = integer().unique()();
 
   /// Event start time.
-  late final start = dateTime().nullable()();
+  late final start = dateTime()();
 
   /// Event end time.
-  late final end = dateTime().nullable()();
+  late final end = dateTime()();
 
   /// Whether this is an all-day event.
   late final allDay = boolean().withDefault(const Constant(false))();

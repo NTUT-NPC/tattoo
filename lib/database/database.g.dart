@@ -9747,18 +9747,18 @@ class $CalendarEventsTable extends CalendarEvents
   late final GeneratedColumn<DateTime> start = GeneratedColumn<DateTime>(
     'start',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
   );
   static const VerificationMeta _endMeta = const VerificationMeta('end');
   @override
   late final GeneratedColumn<DateTime> end = GeneratedColumn<DateTime>(
     'end',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
   );
   static const VerificationMeta _allDayMeta = const VerificationMeta('allDay');
   @override
@@ -9865,12 +9865,16 @@ class $CalendarEventsTable extends CalendarEvents
         _startMeta,
         start.isAcceptableOrUnknown(data['start']!, _startMeta),
       );
+    } else if (isInserting) {
+      context.missing(_startMeta);
     }
     if (data.containsKey('end')) {
       context.handle(
         _endMeta,
         end.isAcceptableOrUnknown(data['end']!, _endMeta),
       );
+    } else if (isInserting) {
+      context.missing(_endMeta);
     }
     if (data.containsKey('all_day')) {
       context.handle(
@@ -9931,11 +9935,11 @@ class $CalendarEventsTable extends CalendarEvents
       start: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}start'],
-      ),
+      )!,
       end: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}end'],
-      ),
+      )!,
       allDay: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}all_day'],
@@ -9977,10 +9981,10 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
   final int portalId;
 
   /// Event start time.
-  final DateTime? start;
+  final DateTime start;
 
   /// Event end time.
-  final DateTime? end;
+  final DateTime end;
 
   /// Whether this is an all-day event.
   final bool allDay;
@@ -10002,8 +10006,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
   const CalendarEvent({
     required this.id,
     required this.portalId,
-    this.start,
-    this.end,
+    required this.start,
+    required this.end,
     required this.allDay,
     this.title,
     this.place,
@@ -10016,12 +10020,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['portal_id'] = Variable<int>(portalId);
-    if (!nullToAbsent || start != null) {
-      map['start'] = Variable<DateTime>(start);
-    }
-    if (!nullToAbsent || end != null) {
-      map['end'] = Variable<DateTime>(end);
-    }
+    map['start'] = Variable<DateTime>(start);
+    map['end'] = Variable<DateTime>(end);
     map['all_day'] = Variable<bool>(allDay);
     if (!nullToAbsent || title != null) {
       map['title'] = Variable<String>(title);
@@ -10045,10 +10045,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
     return CalendarEventsCompanion(
       id: Value(id),
       portalId: Value(portalId),
-      start: start == null && nullToAbsent
-          ? const Value.absent()
-          : Value(start),
-      end: end == null && nullToAbsent ? const Value.absent() : Value(end),
+      start: Value(start),
+      end: Value(end),
       allDay: Value(allDay),
       title: title == null && nullToAbsent
           ? const Value.absent()
@@ -10076,8 +10074,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
     return CalendarEvent(
       id: serializer.fromJson<int>(json['id']),
       portalId: serializer.fromJson<int>(json['portalId']),
-      start: serializer.fromJson<DateTime?>(json['start']),
-      end: serializer.fromJson<DateTime?>(json['end']),
+      start: serializer.fromJson<DateTime>(json['start']),
+      end: serializer.fromJson<DateTime>(json['end']),
       allDay: serializer.fromJson<bool>(json['allDay']),
       title: serializer.fromJson<String?>(json['title']),
       place: serializer.fromJson<String?>(json['place']),
@@ -10092,8 +10090,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'portalId': serializer.toJson<int>(portalId),
-      'start': serializer.toJson<DateTime?>(start),
-      'end': serializer.toJson<DateTime?>(end),
+      'start': serializer.toJson<DateTime>(start),
+      'end': serializer.toJson<DateTime>(end),
       'allDay': serializer.toJson<bool>(allDay),
       'title': serializer.toJson<String?>(title),
       'place': serializer.toJson<String?>(place),
@@ -10106,8 +10104,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
   CalendarEvent copyWith({
     int? id,
     int? portalId,
-    Value<DateTime?> start = const Value.absent(),
-    Value<DateTime?> end = const Value.absent(),
+    DateTime? start,
+    DateTime? end,
     bool? allDay,
     Value<String?> title = const Value.absent(),
     Value<String?> place = const Value.absent(),
@@ -10117,8 +10115,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
   }) => CalendarEvent(
     id: id ?? this.id,
     portalId: portalId ?? this.portalId,
-    start: start.present ? start.value : this.start,
-    end: end.present ? end.value : this.end,
+    start: start ?? this.start,
+    end: end ?? this.end,
     allDay: allDay ?? this.allDay,
     title: title.present ? title.value : this.title,
     place: place.present ? place.value : this.place,
@@ -10192,8 +10190,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
 class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
   final Value<int> id;
   final Value<int> portalId;
-  final Value<DateTime?> start;
-  final Value<DateTime?> end;
+  final Value<DateTime> start;
+  final Value<DateTime> end;
   final Value<bool> allDay;
   final Value<String?> title;
   final Value<String?> place;
@@ -10215,15 +10213,17 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
   CalendarEventsCompanion.insert({
     this.id = const Value.absent(),
     required int portalId,
-    this.start = const Value.absent(),
-    this.end = const Value.absent(),
+    required DateTime start,
+    required DateTime end,
     this.allDay = const Value.absent(),
     this.title = const Value.absent(),
     this.place = const Value.absent(),
     this.content = const Value.absent(),
     this.ownerName = const Value.absent(),
     this.creatorName = const Value.absent(),
-  }) : portalId = Value(portalId);
+  }) : portalId = Value(portalId),
+       start = Value(start),
+       end = Value(end);
   static Insertable<CalendarEvent> custom({
     Expression<int>? id,
     Expression<int>? portalId,
@@ -10253,8 +10253,8 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
   CalendarEventsCompanion copyWith({
     Value<int>? id,
     Value<int>? portalId,
-    Value<DateTime?>? start,
-    Value<DateTime?>? end,
+    Value<DateTime>? start,
+    Value<DateTime>? end,
     Value<bool>? allDay,
     Value<String?>? title,
     Value<String?>? place,
@@ -22087,8 +22087,8 @@ typedef $$CalendarEventsTableCreateCompanionBuilder =
     CalendarEventsCompanion Function({
       Value<int> id,
       required int portalId,
-      Value<DateTime?> start,
-      Value<DateTime?> end,
+      required DateTime start,
+      required DateTime end,
       Value<bool> allDay,
       Value<String?> title,
       Value<String?> place,
@@ -22100,8 +22100,8 @@ typedef $$CalendarEventsTableUpdateCompanionBuilder =
     CalendarEventsCompanion Function({
       Value<int> id,
       Value<int> portalId,
-      Value<DateTime?> start,
-      Value<DateTime?> end,
+      Value<DateTime> start,
+      Value<DateTime> end,
       Value<bool> allDay,
       Value<String?> title,
       Value<String?> place,
@@ -22307,8 +22307,8 @@ class $$CalendarEventsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<int> portalId = const Value.absent(),
-                Value<DateTime?> start = const Value.absent(),
-                Value<DateTime?> end = const Value.absent(),
+                Value<DateTime> start = const Value.absent(),
+                Value<DateTime> end = const Value.absent(),
                 Value<bool> allDay = const Value.absent(),
                 Value<String?> title = const Value.absent(),
                 Value<String?> place = const Value.absent(),
@@ -22331,8 +22331,8 @@ class $$CalendarEventsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required int portalId,
-                Value<DateTime?> start = const Value.absent(),
-                Value<DateTime?> end = const Value.absent(),
+                required DateTime start,
+                required DateTime end,
                 Value<bool> allDay = const Value.absent(),
                 Value<String?> title = const Value.absent(),
                 Value<String?> place = const Value.absent(),

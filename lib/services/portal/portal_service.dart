@@ -36,14 +36,10 @@ typedef CalendarEventDto = ({
   int? id,
 
   /// Event start time.
-  ///
-  /// Null when the portal omits timing information for this event.
-  DateTime? start,
+  DateTime start,
 
   /// Event end time.
-  ///
-  /// Null when the portal omits timing information for this event.
-  DateTime? end,
+  DateTime end,
 
   /// Whether this is an all-day event.
   bool allDay,
