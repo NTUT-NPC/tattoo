@@ -3,11 +3,6 @@ import 'package:tattoo/database/database.dart';
 
 /// Reusable database operations shared across repositories.
 extension DatabaseActions on AppDatabase {
-  /// Returns the authenticated user's profile.
-  Future<User?> getUser() {
-    return select(users).getSingleOrNull();
-  }
-
   /// Drops and recreates all tables, fully resetting the database.
   Future<void> deleteEverything() async {
     await transaction(() async {
