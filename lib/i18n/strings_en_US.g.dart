@@ -46,6 +46,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsNavEnUs nav = _TranslationsNavEnUs._(_root);
 	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
+	@override late final _TranslationsScannerEnUs scanner = _TranslationsScannerEnUs._(_root);
 	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
 	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
 }
@@ -141,6 +142,7 @@ class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
 
 	// Translations
 	@override String get notFound => 'Course table not found';
+	@override late final _TranslationsCourseTableActionsEnUs actions = _TranslationsCourseTableActionsEnUs._(_root);
 	@override Map<String, String> get dayOfWeek => {
 		'sunday': 'Sun',
 		'monday': 'Mon',
@@ -159,11 +161,42 @@ class _TranslationsProfileEnUs extends TranslationsProfileZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get dataDisclaimer => 'For reference only. Not valid as official documentation.';
+	@override String get dataDisclaimer => 'Reference only. Not official.';
 	@override late final _TranslationsProfileSectionsEnUs sections = _TranslationsProfileSectionsEnUs._(_root);
 	@override late final _TranslationsProfileOptionsEnUs options = _TranslationsProfileOptionsEnUs._(_root);
 	@override late final _TranslationsProfileAvatarEnUs avatar = _TranslationsProfileAvatarEnUs._(_root);
 	@override late final _TranslationsProfileDangerZoneEnUs dangerZone = _TranslationsProfileDangerZoneEnUs._(_root);
+}
+
+// Path: scanner
+class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
+	_TranslationsScannerEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'QR Code Login';
+	@override String get scanInstruction => 'Place the QR code in the box';
+	@override String get loginIStudy => 'Login to iSchool Plus';
+	@override String get success => 'Login successful';
+	@override String get failed => 'Login failed';
+	@override String get processing => 'Processing…';
+	@override String get loggingIn => 'Logging in…';
+	@override String get permissionDenied => 'Camera permission required to scan QR codes';
+	@override String get permissionDeniedDescription => 'Please enable camera access in your device settings and try again.';
+	@override String get cameraError => 'Unable to start the camera. Please check your hardware or try again later.';
+	@override Map<String, String> get errors => {
+		'201': 'Mobile login required',
+		'202': 'Error occurred. Please go to "Home" and click "Outside school login"',
+		'203': 'You are already logged in',
+		'204': 'The QR code session has ended. Please refresh the page.',
+		'205': 'Already logged in. Log out from the portal first to switch users.',
+		'206': 'The QR code has expired. Please refresh the page on your computer.',
+		'unknown': 'Login failed. Please check the QR code or refresh the page.',
+	};
+	@override String get howTo => 'Open i.ntut.club on your computer and select QR code login';
+	@override late final _TranslationsScannerGuideEnUs guide = _TranslationsScannerGuideEnUs._(_root);
+	@override String get invalidUrl => 'Invalid URL';
 }
 
 // Path: enrollmentStatus
@@ -224,6 +257,17 @@ class _TranslationsLoginErrorsEnUs extends TranslationsLoginErrorsZhTw {
 	@override String get mobileVerificationRequired => 'Mobile phone verification is required. Please complete it on the NTUT portal.';
 }
 
+// Path: courseTable.actions
+class _TranslationsCourseTableActionsEnUs extends TranslationsCourseTableActionsZhTw {
+	_TranslationsCourseTableActionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get showMoreOptions => 'Show more options';
+	@override String get displayOptions => 'Display options';
+}
+
 // Path: profile.sections
 class _TranslationsProfileSectionsEnUs extends TranslationsProfileSectionsZhTw {
 	_TranslationsProfileSectionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -247,7 +291,7 @@ class _TranslationsProfileOptionsEnUs extends TranslationsProfileOptionsZhTw {
 	@override String get changeAvatar => 'Change Avatar';
 	@override String get supportUs => 'Support Us';
 	@override String get about => 'About TAT';
-	@override String get npcClub => 'NTUT NPC Club';
+	@override String get npcClub => 'NTUT Programming Club';
 	@override String get preferences => 'Preferences';
 	@override String get logout => 'Sign Out';
 }
@@ -259,7 +303,7 @@ class _TranslationsProfileAvatarEnUs extends TranslationsProfileAvatarZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get uploading => 'Updating avatar...';
+	@override String get uploading => 'Updating avatar…';
 	@override String get uploadSuccess => 'Avatar updated';
 	@override String get tooLarge => 'Image exceeds the 20 MB size limit';
 	@override String get invalidFormat => 'Unrecognized image format';
@@ -279,7 +323,8 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 	@override String get closedMessage => 'The bar is closed today, come back another time to explore!';
 	@override String get kickedMessage => 'You were kicked out by the staff. Better head home and rest!';
 	@override String get fireMessage => 'Bar is on fire';
-	@override String get alreadyFull => 'Already full';
+	@override String get barOpen => 'The bar is now open';
+	@override String get barClosed => 'The bar has closed down';
 	@override String goAction({required Object action}) => 'Go to the bar and ${action}';
 	@override List<String> get actions => [
 		'order 0 beers',
@@ -298,6 +343,21 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 	@override String cleared({required Object item}) => '${item} cleared';
 	@override String clearFailed({required Object item}) => 'Failed to clear ${item}';
 	@override late final _TranslationsProfileDangerZoneItemsEnUs items = _TranslationsProfileDangerZoneItemsEnUs._(_root);
+}
+
+// Path: scanner.guide
+class _TranslationsScannerGuideEnUs extends TranslationsScannerGuideZhTw {
+	_TranslationsScannerGuideEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'How to login?';
+	@override String get step1 => '1. Go to the following URL on your computer:';
+	@override String get url => 'https://i.ntut.club';
+	@override String get step2 => '2. Click "Outside school login" in the navigation bar';
+	@override String get step3 => '3. Click "Scan QR code"';
+	@override String get button => 'Got it';
 }
 
 // Path: intro.features.courseTable
@@ -397,6 +457,8 @@ extension on TranslationsEnUs {
 			'nav.portal' => 'Portals',
 			'nav.profile' => 'Me',
 			'courseTable.notFound' => 'Course table not found',
+			'courseTable.actions.showMoreOptions' => 'Show more options',
+			'courseTable.actions.displayOptions' => 'Display options',
 			'courseTable.dayOfWeek.sunday' => 'Sun',
 			'courseTable.dayOfWeek.monday' => 'Mon',
 			'courseTable.dayOfWeek.tuesday' => 'Tue',
@@ -404,7 +466,7 @@ extension on TranslationsEnUs {
 			'courseTable.dayOfWeek.thursday' => 'Thu',
 			'courseTable.dayOfWeek.friday' => 'Fri',
 			'courseTable.dayOfWeek.saturday' => 'Sat',
-			'profile.dataDisclaimer' => 'For reference only. Not valid as official documentation.',
+			'profile.dataDisclaimer' => 'Reference only. Not official.',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
 			'profile.sections.dangerZone' => 'Danger Zone',
@@ -412,10 +474,10 @@ extension on TranslationsEnUs {
 			'profile.options.changeAvatar' => 'Change Avatar',
 			'profile.options.supportUs' => 'Support Us',
 			'profile.options.about' => 'About TAT',
-			'profile.options.npcClub' => 'NTUT NPC Club',
+			'profile.options.npcClub' => 'NTUT Programming Club',
 			'profile.options.preferences' => 'Preferences',
 			'profile.options.logout' => 'Sign Out',
-			'profile.avatar.uploading' => 'Updating avatar...',
+			'profile.avatar.uploading' => 'Updating avatar…',
 			'profile.avatar.uploadSuccess' => 'Avatar updated',
 			'profile.avatar.tooLarge' => 'Image exceeds the 20 MB size limit',
 			'profile.avatar.invalidFormat' => 'Unrecognized image format',
@@ -426,7 +488,8 @@ extension on TranslationsEnUs {
 			'profile.dangerZone.closedMessage' => 'The bar is closed today, come back another time to explore!',
 			'profile.dangerZone.kickedMessage' => 'You were kicked out by the staff. Better head home and rest!',
 			'profile.dangerZone.fireMessage' => 'Bar is on fire',
-			'profile.dangerZone.alreadyFull' => 'Already full',
+			'profile.dangerZone.barOpen' => 'The bar is now open',
+			'profile.dangerZone.barClosed' => 'The bar has closed down',
 			'profile.dangerZone.goAction' => ({required Object action}) => 'Go to the bar and ${action}',
 			'profile.dangerZone.actions.0' => 'order 0 beers',
 			'profile.dangerZone.actions.1' => 'order 999999999 beers',
@@ -447,6 +510,31 @@ extension on TranslationsEnUs {
 			'profile.dangerZone.items.preferences' => 'Preferences',
 			'profile.dangerZone.items.credentials' => 'Credentials',
 			'profile.dangerZone.items.userData' => 'User data',
+			'scanner.title' => 'QR Code Login',
+			'scanner.scanInstruction' => 'Place the QR code in the box',
+			'scanner.loginIStudy' => 'Login to iSchool Plus',
+			'scanner.success' => 'Login successful',
+			'scanner.failed' => 'Login failed',
+			'scanner.processing' => 'Processing…',
+			'scanner.loggingIn' => 'Logging in…',
+			'scanner.permissionDenied' => 'Camera permission required to scan QR codes',
+			'scanner.permissionDeniedDescription' => 'Please enable camera access in your device settings and try again.',
+			'scanner.cameraError' => 'Unable to start the camera. Please check your hardware or try again later.',
+			'scanner.errors."201"' => 'Mobile login required',
+			'scanner.errors."202"' => 'Error occurred. Please go to "Home" and click "Outside school login"',
+			'scanner.errors."203"' => 'You are already logged in',
+			'scanner.errors."204"' => 'The QR code session has ended. Please refresh the page.',
+			'scanner.errors."205"' => 'Already logged in. Log out from the portal first to switch users.',
+			'scanner.errors."206"' => 'The QR code has expired. Please refresh the page on your computer.',
+			'scanner.errors.unknown' => 'Login failed. Please check the QR code or refresh the page.',
+			'scanner.howTo' => 'Open i.ntut.club on your computer and select QR code login',
+			'scanner.guide.title' => 'How to login?',
+			'scanner.guide.step1' => '1. Go to the following URL on your computer:',
+			'scanner.guide.url' => 'https://i.ntut.club',
+			'scanner.guide.step2' => '2. Click "Outside school login" in the navigation bar',
+			'scanner.guide.step3' => '3. Click "Scan QR code"',
+			'scanner.guide.button' => 'Got it',
+			'scanner.invalidUrl' => 'Invalid URL',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',

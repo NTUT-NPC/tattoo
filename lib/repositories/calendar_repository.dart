@@ -4,13 +4,10 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
-import 'package:tattoo/utils/fetch_with_ttl.dart';
 
 /// Provides the [CalendarRepository] instance.
 final calendarRepositoryProvider = Provider<CalendarRepository>((ref) {
-  // Clear repository state when the session ends
   ref.watch(sessionProvider);
-
   return CalendarRepository(
     portalService: ref.watch(portalServiceProvider),
     database: ref.watch(databaseProvider),
@@ -19,6 +16,19 @@ final calendarRepositoryProvider = Provider<CalendarRepository>((ref) {
 });
 
 /// Manages academic calendar events from the NTUT portal.
+///
+/// ```dart
+/// final repo = ref.watch(calendarRepositoryProvider);
+///
+/// // Observe events overlapping a range (auto-refreshes when stale)
+/// final stream = repo.watchCalendarEvents(
+///   startDate: start,
+///   endDate: end,
+/// );
+///
+/// // Force refresh for pull-to-refresh; pass any date in the year to refetch.
+/// await repo.refreshCalendarEvents(date: start);
+/// ```
 class CalendarRepository {
   final PortalService _portalService;
   final AppDatabase _database;
@@ -32,79 +42,86 @@ class CalendarRepository {
        _database = database,
        _authRepository = authRepository;
 
-  /// Gets academic calendar events for the given date range.
+  /// Watches calendar events overlapping the given date range.
   ///
-  /// Returns cached data if fresh (within TTL). Set [refresh] to `true` to
-  /// bypass TTL (pull-to-refresh).
-  Future<List<CalendarEvent>> getCalendar({
+  /// Emits cached data immediately, then triggers a background network fetch
+  /// if the cache is empty or stale. The stream re-emits automatically when
+  /// the DB is updated.
+  ///
+  /// Network errors during background refresh are absorbed — the stream
+  /// continues showing stale (or empty) data rather than erroring.
+  Stream<List<CalendarEvent>> watchCalendarEvents({
     required DateTime startDate,
     required DateTime endDate,
-    bool refresh = false,
-  }) async {
-    final user = await _database.getUser();
-    if (user == null) return [];
+  }) async* {
+    const ttl = Duration(days: 1);
 
-    // calendarFetchedAt is authoritative for cache presence. The range-filtered
-    // query below may return an empty list even when the full academic year is
-    // cached (e.g. a future date range), so we must not use cached.isEmpty as
-    // the nil-check — that would cause spurious network fetches.
-    final hasCachedData = user.calendarFetchedAt != null;
-    final cached = hasCachedData
-        ? await _eventsOverlapping(startDate, endDate).get()
-        : null;
+    await for (final events in _eventsOverlapping(startDate, endDate).watch()) {
+      final user = await _database.select(_database.users).getSingleOrNull();
+      if (user == null) {
+        yield [];
+        continue;
+      }
 
-    return fetchWithTtl<List<CalendarEvent>>(
-      cached: cached,
-      getFetchedAt: (_) => user.calendarFetchedAt,
-      fetchFromNetwork: () =>
-          _fetchCalendarFromNetwork(user.id, startDate, endDate),
-      refresh: refresh,
-    );
+      // calendarFetchedAt is authoritative for cache presence. A range query
+      // may return [] when the academic year is cached but the requested
+      // range has no events, so isEmpty isn't a reliable nil-check.
+      if (user.calendarFetchedAt == null) {
+        try {
+          await refreshCalendarEvents(date: startDate);
+        } catch (_) {
+          // Absorb: yield below so UI exits loading state
+        }
+      }
+
+      yield events;
+
+      final freshUser = await _database
+          .select(_database.users)
+          .getSingleOrNull();
+      final age = switch (freshUser?.calendarFetchedAt) {
+        final t? => DateTime.now().difference(t),
+        null => ttl,
+      };
+      if (age >= ttl) {
+        try {
+          await refreshCalendarEvents(date: startDate);
+        } catch (_) {
+          // Absorb: stale data is shown via stream
+        }
+      }
+    }
   }
 
-  /// Selects calendar events that overlap with the given date range,
-  /// ordered by start date ascending.
-  SimpleSelectStatement<$CalendarEventsTable, CalendarEvent> _eventsOverlapping(
-    DateTime startDate,
-    DateTime endDate,
-  ) {
-    return _database.select(_database.calendarEvents)
-      ..where(
-        (e) =>
-            e.start.isSmallerOrEqualValue(endDate) &
-            e.end.isBiggerOrEqualValue(startDate),
-      )
-      ..orderBy([(e) => OrderingTerm.asc(e.start)]);
-  }
+  /// Fetches fresh calendar data for the academic year containing [date] and
+  /// writes it to the DB.
+  ///
+  /// The [watchCalendarEvents] stream automatically emits the updated value.
+  /// Network errors propagate to the caller.
+  Future<void> refreshCalendarEvents({required DateTime date}) async {
+    final user = await _database.select(_database.users).getSingleOrNull();
+    if (user == null) return;
 
-  Future<List<CalendarEvent>> _fetchCalendarFromNetwork(
-    int userId,
-    DateTime startDate,
-    DateTime endDate,
-  ) async {
-    // Fetch a wide range (full academic year) to ensure a complete cache for
-    // the entire year, preventing partial range bugs on subsequent calls.
-    // NTUT academic years run from Aug 1 to July 31.
-    final wideStartDate = startDate.month < 8
-        ? DateTime(startDate.year - 1, 8, 1)
-        : DateTime(startDate.year, 8, 1);
-    // Use the start of the next day (exclusive upper bound) so events ending
-    // at any time on July 31 are included in the sync window.
+    // Fetch the full academic year so subsequent range queries hit the cache.
+    // NTUT academic years run Aug 1 → July 31.
+    final wideStartDate = date.month < 8
+        ? DateTime(date.year - 1, 8, 1)
+        : DateTime(date.year, 8, 1);
+    // Exclusive upper bound: Aug 1 of the next year.
     final wideEndDate = DateTime(wideStartDate.year + 1, 8, 1);
 
-    // No SSO needed — getCalendar uses the portal session established at login.
+    // No SSO needed — getCalendar uses the portal session from login.
     final dtos = await _authRepository.withAuth(
       () => _portalService.getCalendar(wideStartDate, wideEndDate),
     );
 
     await _database.transaction(() async {
-      final portalIds = dtos.map((e) => e.id).whereType<int>().toSet();
+      final portalIds = dtos.map((e) => e.id).nonNulls.toSet();
 
       await _database.batch((batch) {
         for (final dto in dtos) {
           final id = dto.id;
-          // portalId is nullable in the DTO (NTUT servers occasionally omit it).
-          // Skip events without an ID — we can't sync or deduplicate them.
+          // Skip events without an ID — we can't sync or dedupe them.
           if (id == null) continue;
 
           batch.insert(
@@ -137,9 +154,9 @@ class CalendarRepository {
         }
       });
 
-      // Sync: delete events in the fetched range that are no longer on the
-      // portal. Use overlap semantics (consistent with read queries) so
-      // boundary-spanning events are also cleaned up.
+      // Delete events in the fetched window that are no longer on the portal.
+      // Use overlap semantics (consistent with read queries) so
+      // boundary-spanning events are cleaned up too.
       if (portalIds.isNotEmpty) {
         await (_database.delete(_database.calendarEvents)..where((e) {
               return e.start.isSmallerOrEqualValue(wideEndDate) &
@@ -163,13 +180,24 @@ class CalendarRepository {
             .go();
       }
 
-      // Update the fetch timestamp for this user only.
       await (_database.update(_database.users)
-            ..where((u) => u.id.equals(userId)))
+            ..where((u) => u.id.equals(user.id)))
           .write(UsersCompanion(calendarFetchedAt: Value(DateTime.now())));
     });
+  }
 
-    // Re-fetch from DB to return only the originally requested range
-    return _eventsOverlapping(startDate, endDate).get();
+  /// Selects calendar events that overlap with the given date range,
+  /// ordered by start date ascending.
+  SimpleSelectStatement<$CalendarEventsTable, CalendarEvent> _eventsOverlapping(
+    DateTime startDate,
+    DateTime endDate,
+  ) {
+    return _database.select(_database.calendarEvents)
+      ..where(
+        (e) =>
+            e.start.isSmallerOrEqualValue(endDate) &
+            e.end.isBiggerOrEqualValue(startDate),
+      )
+      ..orderBy([(e) => OrderingTerm.asc(e.start)]);
   }
 }

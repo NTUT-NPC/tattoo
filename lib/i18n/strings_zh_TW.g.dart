@@ -47,6 +47,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
 	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
+	late final TranslationsScannerZhTw scanner = TranslationsScannerZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
 }
@@ -201,6 +202,7 @@ class TranslationsCourseTableZhTw {
 	/// zh-TW: '找不到課表'
 	String get notFound => '找不到課表';
 
+	late final TranslationsCourseTableActionsZhTw actions = TranslationsCourseTableActionsZhTw.internal(_root);
 	Map<String, String> get dayOfWeek => {
 		'sunday': '日',
 		'monday': '一',
@@ -220,13 +222,70 @@ class TranslationsProfileZhTw {
 
 	// Translations
 
-	/// zh-TW: '本資料僅供參考，不做其他證明用途'
-	String get dataDisclaimer => '本資料僅供參考，不做其他證明用途';
+	/// zh-TW: '僅供參考，非正式文件'
+	String get dataDisclaimer => '僅供參考，非正式文件';
 
 	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
 	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
 	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
 	late final TranslationsProfileDangerZoneZhTw dangerZone = TranslationsProfileDangerZoneZhTw.internal(_root);
+}
+
+// Path: scanner
+class TranslationsScannerZhTw {
+	TranslationsScannerZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '掃碼登入'
+	String get title => '掃碼登入';
+
+	/// zh-TW: '請將二維碼放入框內'
+	String get scanInstruction => '請將二維碼放入框內';
+
+	/// zh-TW: '掃碼登入i學園'
+	String get loginIStudy => '掃碼登入i學園';
+
+	/// zh-TW: '登入成功'
+	String get success => '登入成功';
+
+	/// zh-TW: '登入失敗'
+	String get failed => '登入失敗';
+
+	/// zh-TW: '正在處理…'
+	String get processing => '正在處理…';
+
+	/// zh-TW: '正在登入…'
+	String get loggingIn => '正在登入…';
+
+	/// zh-TW: '需要相機權限才能掃描QR code'
+	String get permissionDenied => '需要相機權限才能掃描QR code';
+
+	/// zh-TW: '請至設定中開啟相機權限，然後再試一次。'
+	String get permissionDeniedDescription => '請至設定中開啟相機權限，然後再試一次。';
+
+	/// zh-TW: '無法開啟相機，請檢查硬體或稍後再試。'
+	String get cameraError => '無法開啟相機，請檢查硬體或稍後再試。';
+
+	Map<String, String> get errors => {
+		'201': '手機未登入',
+		'202': '操作錯誤，請先至「首頁」，再點擊「校外人士登入」',
+		'203': '已經是登入成功狀態',
+		'204': 'QR code已失效，請重新整理頁面',
+		'205': '已登入，要切換使用者必須先登出網頁',
+		'206': 'QR code已過期，請在電腦上重新整理頁面',
+		'unknown': '登入失敗，請確認 QR code 是否正確或從電腦頁面刷新',
+	};
+
+	/// zh-TW: '在電腦開啟i.ntut.club並點選QR code登入'
+	String get howTo => '在電腦開啟i.ntut.club並點選QR code登入';
+
+	late final TranslationsScannerGuideZhTw guide = TranslationsScannerGuideZhTw.internal(_root);
+
+	/// zh-TW: '無效的網址'
+	String get invalidUrl => '無效的網址';
 }
 
 // Path: enrollmentStatus
@@ -315,14 +374,29 @@ class TranslationsLoginErrorsZhTw {
 	/// zh-TW: '學號或密碼錯誤'
 	String get wrongCredentials => '學號或密碼錯誤';
 
-	/// zh-TW: '帳號已被鎖定，請稍後再試'
-	String get accountLocked => '帳號已被鎖定，請稍後再試';
+	/// zh-TW: '登入失敗次數過多，帳號已被鎖定，請稍後再試'
+	String get accountLocked => '登入失敗次數過多，帳號已被鎖定，請稍後再試';
 
 	/// zh-TW: '密碼已過期，請至校園入口網站變更密碼'
 	String get passwordExpired => '密碼已過期，請至校園入口網站變更密碼';
 
 	/// zh-TW: '需要進行手機驗證，請至校園入口網站完成驗證'
 	String get mobileVerificationRequired => '需要進行手機驗證，請至校園入口網站完成驗證';
+}
+
+// Path: courseTable.actions
+class TranslationsCourseTableActionsZhTw {
+	TranslationsCourseTableActionsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '顯示更多選項'
+	String get showMoreOptions => '顯示更多選項';
+
+	/// zh-TW: '顯示選項'
+	String get displayOptions => '顯示選項';
 }
 
 // Path: profile.sections
@@ -381,8 +455,8 @@ class TranslationsProfileAvatarZhTw {
 
 	// Translations
 
-	/// zh-TW: '正在更新個人圖片...'
-	String get uploading => '正在更新個人圖片...';
+	/// zh-TW: '正在更新個人圖片…'
+	String get uploading => '正在更新個人圖片…';
 
 	/// zh-TW: '個人圖片已更新'
 	String get uploadSuccess => '個人圖片已更新';
@@ -423,8 +497,11 @@ class TranslationsProfileDangerZoneZhTw {
 	/// zh-TW: '酒吧陷入火海'
 	String get fireMessage => '酒吧陷入火海';
 
-	/// zh-TW: '已經吃飽了'
-	String get alreadyFull => '已經吃飽了';
+	/// zh-TW: '酒吧開門了'
+	String get barOpen => '酒吧開門了';
+
+	/// zh-TW: '酒吧倒閉了'
+	String get barClosed => '酒吧倒閉了';
 
 	/// zh-TW: '去酒吧${action}'
 	String goAction({required Object action}) => '去酒吧${action}';
@@ -461,6 +538,33 @@ class TranslationsProfileDangerZoneZhTw {
 	String clearFailed({required Object item}) => '清除${item}失敗';
 
 	late final TranslationsProfileDangerZoneItemsZhTw items = TranslationsProfileDangerZoneItemsZhTw.internal(_root);
+}
+
+// Path: scanner.guide
+class TranslationsScannerGuideZhTw {
+	TranslationsScannerGuideZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '如何掃碼登入？'
+	String get title => '如何掃碼登入？';
+
+	/// zh-TW: '1. 電腦前往下列網址：'
+	String get step1 => '1. 電腦前往下列網址：';
+
+	/// zh-TW: 'https://i.ntut.club'
+	String get url => 'https://i.ntut.club';
+
+	/// zh-TW: '2. 點擊導覽列的「外校人士登入」'
+	String get step2 => '2. 點擊導覽列的「外校人士登入」';
+
+	/// zh-TW: '3. 點擊「QR Code 登入」'
+	String get step3 => '3. 點擊「QR Code 登入」';
+
+	/// zh-TW: '我知道了'
+	String get button => '我知道了';
 }
 
 // Path: intro.features.courseTable
@@ -574,7 +678,7 @@ extension on Translations {
 			'login.errors.useStudentId' => '請直接使用學號登入，不要使用電子郵件',
 			'login.errors.loginFailed' => '登入失敗，請確認帳號密碼',
 			'login.errors.wrongCredentials' => '學號或密碼錯誤',
-			'login.errors.accountLocked' => '帳號已被鎖定，請稍後再試',
+			'login.errors.accountLocked' => '登入失敗次數過多，帳號已被鎖定，請稍後再試',
 			'login.errors.passwordExpired' => '密碼已過期，請至校園入口網站變更密碼',
 			'login.errors.mobileVerificationRequired' => '需要進行手機驗證，請至校園入口網站完成驗證',
 			'nav.courseTable' => '課表',
@@ -582,6 +686,8 @@ extension on Translations {
 			'nav.portal' => '傳送門',
 			'nav.profile' => '我',
 			'courseTable.notFound' => '找不到課表',
+			'courseTable.actions.showMoreOptions' => '顯示更多選項',
+			'courseTable.actions.displayOptions' => '顯示選項',
 			'courseTable.dayOfWeek.sunday' => '日',
 			'courseTable.dayOfWeek.monday' => '一',
 			'courseTable.dayOfWeek.tuesday' => '二',
@@ -589,7 +695,7 @@ extension on Translations {
 			'courseTable.dayOfWeek.thursday' => '四',
 			'courseTable.dayOfWeek.friday' => '五',
 			'courseTable.dayOfWeek.saturday' => '六',
-			'profile.dataDisclaimer' => '本資料僅供參考，不做其他證明用途',
+			'profile.dataDisclaimer' => '僅供參考，非正式文件',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
 			'profile.sections.dangerZone' => '危險區域',
@@ -600,7 +706,7 @@ extension on Translations {
 			'profile.options.npcClub' => '北科程式設計研究社',
 			'profile.options.preferences' => '偏好設定',
 			'profile.options.logout' => '登出帳號',
-			'profile.avatar.uploading' => '正在更新個人圖片...',
+			'profile.avatar.uploading' => '正在更新個人圖片…',
 			'profile.avatar.uploadSuccess' => '個人圖片已更新',
 			'profile.avatar.tooLarge' => '圖片大小超過20 MB限制',
 			'profile.avatar.invalidFormat' => '無法辨識的圖片格式',
@@ -611,7 +717,8 @@ extension on Translations {
 			'profile.dangerZone.closedMessage' => '酒吧今天打烊了，改天再來探索吧！',
 			'profile.dangerZone.kickedMessage' => '你被店員勸退，還是早點回家休息吧～',
 			'profile.dangerZone.fireMessage' => '酒吧陷入火海',
-			'profile.dangerZone.alreadyFull' => '已經吃飽了',
+			'profile.dangerZone.barOpen' => '酒吧開門了',
+			'profile.dangerZone.barClosed' => '酒吧倒閉了',
 			'profile.dangerZone.goAction' => ({required Object action}) => '去酒吧${action}',
 			'profile.dangerZone.actions.0' => '點0杯啤酒',
 			'profile.dangerZone.actions.1' => '點999999999杯啤酒',
@@ -632,6 +739,31 @@ extension on Translations {
 			'profile.dangerZone.items.preferences' => '偏好設定',
 			'profile.dangerZone.items.credentials' => '登入憑證',
 			'profile.dangerZone.items.userData' => '使用者資料',
+			'scanner.title' => '掃碼登入',
+			'scanner.scanInstruction' => '請將二維碼放入框內',
+			'scanner.loginIStudy' => '掃碼登入i學園',
+			'scanner.success' => '登入成功',
+			'scanner.failed' => '登入失敗',
+			'scanner.processing' => '正在處理…',
+			'scanner.loggingIn' => '正在登入…',
+			'scanner.permissionDenied' => '需要相機權限才能掃描QR code',
+			'scanner.permissionDeniedDescription' => '請至設定中開啟相機權限，然後再試一次。',
+			'scanner.cameraError' => '無法開啟相機，請檢查硬體或稍後再試。',
+			'scanner.errors."201"' => '手機未登入',
+			'scanner.errors."202"' => '操作錯誤，請先至「首頁」，再點擊「校外人士登入」',
+			'scanner.errors."203"' => '已經是登入成功狀態',
+			'scanner.errors."204"' => 'QR code已失效，請重新整理頁面',
+			'scanner.errors."205"' => '已登入，要切換使用者必須先登出網頁',
+			'scanner.errors."206"' => 'QR code已過期，請在電腦上重新整理頁面',
+			'scanner.errors.unknown' => '登入失敗，請確認 QR code 是否正確或從電腦頁面刷新',
+			'scanner.howTo' => '在電腦開啟i.ntut.club並點選QR code登入',
+			'scanner.guide.title' => '如何掃碼登入？',
+			'scanner.guide.step1' => '1. 電腦前往下列網址：',
+			'scanner.guide.url' => 'https://i.ntut.club',
+			'scanner.guide.step2' => '2. 點擊導覽列的「外校人士登入」',
+			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
+			'scanner.guide.button' => '我知道了',
+			'scanner.invalidUrl' => '無效的網址',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',

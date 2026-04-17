@@ -12,7 +12,6 @@ import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/firebase_service.dart';
-import 'package:tattoo/utils/fetch_with_ttl.dart';
 import 'package:tattoo/utils/localized.dart';
 
 /// Data for a single cell in the course table grid.
@@ -20,8 +19,8 @@ typedef CourseTableCellData = ({
   /// [CourseOfferings] primary key, for navigating to detail view.
   int id,
 
-  /// [CourseOfferings.number].
-  String number,
+  /// [CourseOfferings.number], null for special entries.
+  String? number,
 
   /// Number of consecutive period rows this cell spans (excluding noon).
   int span,
@@ -43,84 +42,68 @@ typedef CourseTableCellData = ({
   int hours,
 });
 
-/// Maps `(dayOfWeek, period)` grid positions to cell data.
-///
-/// Only the start slot of a multi-period block has an entry; subsequent
-/// slots covered by [CourseTableCellData.span] are absent from the map.
-typedef CourseTableData =
-    Map<({DayOfWeek day, Period period}), CourseTableCellData>;
+/// Scheduled course table grid data and unscheduled courses, with
+/// pre-computed layout metadata for the course table UI.
+typedef CourseTableData = ({
+  /// Maps `(dayOfWeek, period)` grid positions to cell data.
+  ///
+  /// Only the start slot of a multi-period block has an entry; subsequent
+  /// slots covered by [CourseTableCellData.span] are absent from the map.
+  Map<({DayOfWeek day, Period period}), CourseTableCellData> scheduled,
 
-/// A single key–value pair from [CourseTableData].
-typedef CourseTableEntry =
-    MapEntry<({DayOfWeek day, Period period}), CourseTableCellData>;
+  /// Courses with no assigned schedule slots (e.g., thesis, internship).
+  List<CourseTableCellData> unscheduled,
 
-extension on CourseTableEntry {
-  /// All [Period]s this entry occupies, accounting for [CourseTableCellData.span]
-  /// and skipping noon when [CourseTableCellData.crossesNoon] is true.
-  Iterable<Period> get periods {
-    final noonIndex = Period.nPeriod.index;
-    final start = key.period.index;
-    return List.generate(value.span, (i) {
-      final raw = start + i;
-      return Period.values[raw >= noonIndex && value.crossesNoon
-          ? raw + 1
-          : raw];
-    });
-  }
-}
-
-/// Derived layout metadata computed from [CourseTableData] keys.
-///
-/// Used by the course table UI to decide which rows/columns to show.
-extension CourseTableMeta on CourseTableData {
   /// Whether any course falls on a weekday (Mon-Fri).
-  bool get hasWeekdayCourse => keys.any((s) => s.day.isWeekday);
+  bool hasWeekdayCourse,
 
   /// Whether any course falls on Saturday.
-  bool get hasSaturdayCourse => keys.any((s) => s.day == DayOfWeek.saturday);
+  bool hasSaturdayCourse,
 
   /// Whether any course falls on Sunday.
-  bool get hasSundayCourse => keys.any((s) => s.day == DayOfWeek.sunday);
+  bool hasSundayCourse,
 
   /// Whether any course falls in the morning period (1-4).
-  bool get hasAMCourse => entries.any((e) => e.periods.any((p) => p.isAM));
+  bool hasAMCourse,
 
   /// Whether any course falls in the afternoon period (5-9).
-  bool get hasPMCourse => entries.any((e) => e.periods.any((p) => p.isPM));
+  bool hasPMCourse,
 
   /// Whether any course falls in the noon period (N).
-  bool get hasNoonCourse =>
-      entries.any((e) => e.periods.any((p) => p == Period.nPeriod));
+  bool hasNoonCourse,
 
   /// Whether any course falls in the evening period (A-D).
-  bool get hasEveningCourse =>
-      entries.any((e) => e.periods.any((p) => p.isEvening));
+  bool hasEveningCourse,
 
   /// Earliest period that has a course, or null if empty.
-  Period? get earliestPeriod => isEmpty
-      ? null
-      : Period.values[keys.map((s) => s.period.index).reduce(min)];
+  Period? earliestPeriod,
 
   /// Latest period that has a course (accounting for span), or null if empty.
-  Period? get latestPeriod => isEmpty
-      ? null
-      : entries
-            .expand((e) => e.periods)
-            .reduce((a, b) => a.index > b.index ? a : b);
+  Period? latestPeriod,
 
-  /// Unique courses by number, for aggregation.
-  Iterable<CourseTableCellData> get _uniqueCourses {
-    final seen = <String>{};
-    return values.where((cell) => seen.add(cell.number));
-  }
+  /// Sum of credits across all distinct courses (scheduled + unscheduled).
+  double totalCredits,
 
-  /// Sum of credits across all distinct courses.
-  double get totalCredits =>
-      _uniqueCourses.fold(0.0, (sum, cell) => sum + cell.credits);
+  /// Sum of hours across all distinct courses (scheduled + unscheduled).
+  int totalHours,
+});
 
-  /// Sum of hours across all distinct courses.
-  int get totalHours => _uniqueCourses.fold(0, (sum, cell) => sum + cell.hours);
-}
+/// An empty [CourseTableData] with no courses.
+const emptyCourseTableData = (
+  scheduled: <({DayOfWeek day, Period period}), CourseTableCellData>{},
+  unscheduled: <CourseTableCellData>[],
+  hasWeekdayCourse: false,
+  hasSaturdayCourse: false,
+  hasSundayCourse: false,
+  hasAMCourse: false,
+  hasPMCourse: false,
+  hasNoonCourse: false,
+  hasEveningCourse: false,
+  earliestPeriod: null,
+  latestPeriod: null,
+  totalCredits: 0.0,
+  totalHours: 0,
+);
 
 /// Provides the [CourseRepository] instance.
 final courseRepositoryProvider = Provider<CourseRepository>((ref) {
@@ -140,17 +123,14 @@ final courseRepositoryProvider = Provider<CourseRepository>((ref) {
 /// ```dart
 /// final repo = ref.watch(courseRepositoryProvider);
 ///
-/// // Get available semesters
-/// final semesters = await repo.getSemesters();
+/// // Observe available semesters (auto-refreshes when stale)
+/// final stream = repo.watchSemesters();
 ///
-/// // Get course schedule for a semester
-/// final courses = await repo.getCourseTable(
-///   user: user,
-///   semester: semesters.first,
-/// );
+/// // Force refresh (for pull-to-refresh)
+/// await repo.refreshSemesters();
 ///
-/// // Get materials for a course
-/// final materials = await repo.getMaterials(courses.first);
+/// // Observe course schedule for a semester
+/// final courseStream = repo.watchCourseTable(semester: semesters.first);
 /// ```
 class CourseRepository {
   final PortalService _portalService;
@@ -174,84 +154,145 @@ class CourseRepository {
        _authRepository = authRepository,
        _firebaseService = firebaseService;
 
-  /// Gets available semesters for the authenticated student.
+  /// Watches available semesters for the authenticated student.
   ///
-  /// Returns cached data if fresh (within TTL). Set [refresh] to `true` to
-  /// bypass TTL (pull-to-refresh).
-  Future<List<Semester>> getSemesters({bool refresh = false}) async {
-    final user = await _database.select(_database.users).getSingleOrNull();
-    final cached =
-        await (_database.select(_database.semesters)
-              ..where((s) => s.inCourseSemesterList.equals(true))
-              ..orderBy([
-                (s) => OrderingTerm.desc(s.year),
-                (s) => OrderingTerm.desc(s.term),
-              ]))
-            .get();
+  /// Emits cached data immediately, then triggers a background network fetch
+  /// if data is empty or stale. The stream re-emits automatically when the
+  /// DB is updated.
+  ///
+  /// Network errors during background refresh are absorbed — the stream
+  /// continues showing stale (or empty) data rather than erroring.
+  Stream<List<Semester>> watchSemesters() async* {
+    const ttl = Duration(days: 3);
 
-    return fetchWithTtl(
-      cached: cached.isEmpty ? null : cached,
-      getFetchedAt: (_) => user?.semestersFetchedAt,
-      fetchFromNetwork: _fetchSemestersFromNetwork,
-      refresh: refresh,
-    );
+    final query = _database.select(_database.semesters)
+      ..where((s) => s.inCourseSemesterList.equals(true))
+      ..orderBy([
+        (s) => OrderingTerm.desc(s.year),
+        (s) => OrderingTerm.desc(s.term),
+      ]);
+
+    await for (final semesters in query.watch()) {
+      if (semesters.isEmpty) {
+        try {
+          await refreshSemesters();
+        } catch (_) {
+          // Absorb: yield empty below so UI exits loading state
+        }
+      }
+
+      yield semesters;
+
+      final user = await _database.select(_database.users).getSingleOrNull();
+      final age = switch (user?.semestersFetchedAt) {
+        final t? => DateTime.now().difference(t),
+        null => ttl,
+      };
+      if (age >= ttl) {
+        try {
+          await refreshSemesters();
+        } catch (_) {
+          // Absorb: stale data is shown via stream
+        }
+      }
+    }
   }
 
-  Future<List<Semester>> _fetchSemestersFromNetwork() async {
+  /// Fetches fresh semester data from network and writes to DB.
+  ///
+  /// The [watchSemesters] stream automatically emits the updated value.
+  /// Network errors propagate to the caller.
+  Future<void> refreshSemesters() async {
     final dtos = await _authRepository.withAuth(
       _courseService.getCourseSemesterList,
       sso: [.courseService],
     );
 
-    final semesters = await _database.transaction(() async {
-      final results = await dtos.map((dto) async {
+    await _database.transaction(() async {
+      for (final dto in dtos) {
         if (dto case (year: final year?, term: final term?)) {
-          return _database.getOrCreateSemester(
+          await _database.getOrCreateSemester(
             year,
             term,
             inCourseSemesterList: true,
           );
         }
-      }).wait;
+      }
 
       await (_database.update(_database.users)).write(
         UsersCompanion(semestersFetchedAt: Value(DateTime.now())),
       );
-
-      return results;
     });
-
-    return semesters.nonNulls.toList();
   }
 
-  /// Gets the course schedule for a semester.
+  /// Watches the course schedule for a semester with automatic background refresh.
   ///
-  /// Returns cached data if fresh (within TTL). Set [refresh] to `true` to
-  /// bypass TTL (pull-to-refresh).
+  /// Emits cached data immediately, then triggers a background network fetch
+  /// if data is empty or stale. The stream re-emits automatically when the
+  /// DB is updated.
   ///
   /// Use [getCourseOffering] for related data (teachers, classrooms, schedules).
-  Future<CourseTableData> getCourseTable({
-    required User user,
-    required Semester semester,
-    bool refresh = false,
-  }) async {
-    final cached = await _buildCourseTableData(semester.id);
-    final semesterRow = await (_database.select(
-      _database.semesters,
-    )..where((s) => s.id.equals(semester.id))).getSingle();
+  Stream<CourseTableData> watchCourseTable({required int semesterId}) async* {
+    const ttl = Duration(days: 3);
 
-    return fetchWithTtl(
-      cached: cached.isEmpty ? null : cached,
-      getFetchedAt: (_) => semesterRow.courseTableFetchedAt,
-      fetchFromNetwork: () => _fetchCourseTableFromNetwork(user, semester),
-      refresh: refresh,
-    );
+    final query = _database.select(_database.courseTableSlots)
+      ..where((s) => s.semester.equals(semesterId));
+
+    await for (final rows in query.watch()) {
+      final allOfferingRows =
+          await (_database.select(
+            _database.courseOfferings,
+          )..where((o) => o.semester.equals(semesterId))).join([
+            leftOuterJoin(
+              _database.courses,
+              _database.courses.id.equalsExp(_database.courseOfferings.course),
+            ),
+          ]).get();
+      final allOfferings = allOfferingRows.map((row) {
+        final offering = row.readTable(_database.courseOfferings);
+        final course = row.readTableOrNull(_database.courses);
+        return (offering: offering, course: course);
+      }).toList();
+      final data = _buildCourseTableData(rows, allOfferings);
+
+      if (data.scheduled.isEmpty && data.unscheduled.isEmpty) {
+        try {
+          await refreshCourseTable(semesterId: semesterId);
+        } catch (_) {
+          // Absorb: yield empty below so UI exits loading state
+        }
+      }
+
+      yield data;
+
+      final semesterRow = await (_database.select(
+        _database.semesters,
+      )..where((s) => s.id.equals(semesterId))).getSingle();
+      final age = switch (semesterRow.courseTableFetchedAt) {
+        final t? => DateTime.now().difference(t),
+        null => ttl,
+      };
+
+      if (age >= ttl) {
+        try {
+          await refreshCourseTable(semesterId: semesterId);
+        } catch (_) {
+          // Absorb: stale data is shown via stream
+        }
+      }
+    }
   }
 
-  Future<CourseTableData> _fetchCourseTableFromNetwork(
-    User user,
-    Semester semester,
-  ) async {
+  /// Fetches fresh course table data from network and writes to DB.
+  ///
+  /// The [watchCourseTable] stream automatically emits the updated value.
+  /// Network errors propagate to the caller.
+  Future<void> refreshCourseTable({required int semesterId}) async {
+    final user = await _database.select(_database.users).getSingle();
+    final semester = await (_database.select(
+      _database.semesters,
+    )..where((s) => s.id.equals(semesterId))).getSingle();
+
     final dtos = await _authRepository.withAuth(
       () => _courseService.getCourseTable(
         username: user.studentId,
@@ -268,46 +309,58 @@ class CourseRepository {
 
     // Persist to database
     await _database.transaction(() async {
-      // Remove offerings no longer in the response (e.g. dropped courses).
-      // Junction/child rows are cascade-deleted by FK constraints.
+      // Remove numbered offerings no longer in the response (e.g. dropped
+      // courses). Junction/child rows are cascade-deleted by FK constraints.
       await (_database.delete(_database.courseOfferings)..where(
             (o) =>
-                o.semester.equals(semester.id) & o.number.isNotIn(freshNumbers),
+                o.semester.equals(semester.id) &
+                o.number.isNotNull() &
+                o.number.isNotIn(freshNumbers),
+          ))
+          .go();
+
+      // Delete all special entries (null number) — they're re-inserted below.
+      await (_database.delete(_database.courseOfferings)..where(
+            (o) => o.semester.equals(semester.id) & o.number.isNull(),
           ))
           .go();
 
       for (final dto in dtos) {
-        if (dto.number == null) continue;
         final courseId = dto.course?.id;
         final courseNameZh = dto.course?.nameZh;
-        if (courseId == null || courseNameZh == null) {
+
+        if (courseNameZh == null) {
           _firebaseService.recordNonFatal(
-            'Skipped offering with incomplete course data: '
-            'number=${dto.number}, courseId=$courseId, '
-            'courseNameZh=$courseNameZh',
+            'Skipped offering with no name: '
+            'number=${dto.number}, courseId=$courseId',
           );
           continue;
         }
 
-        if (dto.credits == null || dto.hours == null) {
-          _firebaseService.recordNonFatal(
-            'Course $courseId missing credits/hours: '
-            'credits=${dto.credits}, hours=${dto.hours}',
+        int? dbCourseId;
+        if (courseId != null) {
+          if (dto.credits == null || dto.hours == null) {
+            _firebaseService.recordNonFatal(
+              'Course $courseId missing credits/hours: '
+              'credits=${dto.credits}, hours=${dto.hours}',
+            );
+          }
+
+          dbCourseId = await _database.upsertCourse(
+            code: courseId,
+            credits: dto.credits ?? 0,
+            hours: dto.hours ?? 0,
+            nameZh: courseNameZh,
+            nameEn: dto.course?.nameEn,
           );
         }
-
-        final dbCourseId = await _database.upsertCourse(
-          code: courseId,
-          credits: dto.credits ?? 0,
-          hours: dto.hours ?? 0,
-          nameZh: courseNameZh,
-          nameEn: dto.course?.nameEn,
-        );
 
         final offeringId = await _database.upsertCourseOffering(
           courseId: dbCourseId,
           semesterId: semester.id,
-          number: dto.number!,
+          number: dto.number,
+          nameZh: courseId == null ? courseNameZh : null,
+          nameEn: courseId == null ? dto.course?.nameEn : null,
           phase: dto.phase,
           status: dto.status,
           language: dto.language,
@@ -411,32 +464,33 @@ class CourseRepository {
         ),
       );
     });
-
-    return _buildCourseTableData(semester.id);
   }
 
-  Future<CourseTableData> _buildCourseTableData(int semesterId) async {
-    final rows = await (_database.select(
-      _database.courseTableSlots,
-    )..where((s) => s.semester.equals(semesterId))).get();
-    final data = CourseTableData();
+  /// Builds [CourseTableData] from scheduled view rows and all offerings for
+  /// the semester, computing multi-period spans and layout metadata.
+  static CourseTableData _buildCourseTableData(
+    List<CourseTableSlot> rows,
+    List<({CourseOffering offering, Course? course})> allOfferings,
+  ) {
+    final scheduled = <({DayOfWeek day, Period period}), CourseTableCellData>{};
 
     for (final row in rows) {
       final key = (day: row.dayOfWeek, period: row.period);
-      if (data.containsKey(key)) continue;
+      if (scheduled.containsKey(key)) continue;
 
-      data[key] = (
+      final courseName = localized(row.nameZh, row.nameEn);
+      scheduled[key] = (
         id: row.id,
         number: row.number,
         span: 1,
         crossesNoon: false,
-        courseName: localized(row.nameZh, row.nameEn),
+        courseName: courseName,
         classroomName: switch ((row.classroomNameZh, row.classroomNameEn)) {
           (final zh?, final en) => localized(zh, en),
           _ => null,
         },
-        credits: row.credits,
-        hours: row.hours,
+        credits: row.credits ?? 0,
+        hours: row.hours ?? 0,
       );
     }
 
@@ -447,13 +501,14 @@ class CourseRepository {
     // When no course occupies the noon period on any day, courses that span
     // across noon (e.g. period 4 → 5) are merged. The noon period is skipped
     // (not counted in span) and crossesNoon is set for UI height calculation.
-    final hasNoon = data.keys.any((s) => s.period == Period.nPeriod);
+    final hasNoon = scheduled.keys.any((s) => s.period == Period.nPeriod);
     final consumed = <({DayOfWeek day, Period period})>{};
-    for (final entry in data.entries) {
+    for (final entry in scheduled.entries) {
       if (consumed.contains(entry.key)) continue;
       var span = 1;
       var crossesNoon = false;
       var lookIndex = entry.key.period.index + 1;
+
       while (lookIndex < Period.values.length) {
         final nextPeriod = Period.values[lookIndex];
         // Skip noon if no courses use it
@@ -462,7 +517,8 @@ class CourseRepository {
           continue;
         }
         final nextKey = (day: entry.key.day, period: nextPeriod);
-        if (data[nextKey] case final next? when next.id == entry.value.id) {
+        if (scheduled[nextKey] case final next?
+            when next.id == entry.value.id) {
           consumed.add(nextKey);
           span++;
           crossesNoon = entry.key.period.isAM && nextPeriod.isPM;
@@ -471,8 +527,9 @@ class CourseRepository {
           break;
         }
       }
+
       if (span > 1 || crossesNoon) {
-        data[entry.key] = (
+        scheduled[entry.key] = (
           id: entry.value.id,
           number: entry.value.number,
           span: span,
@@ -484,9 +541,73 @@ class CourseRepository {
         );
       }
     }
-    data.removeWhere((key, _) => consumed.contains(key));
 
-    return data;
+    scheduled.removeWhere((key, _) => consumed.contains(key));
+
+    // Filter offerings not present in the scheduled map.
+    final scheduledIds = scheduled.values.map((c) => c.id).toSet();
+    final unscheduled = allOfferings
+        .where((row) => !scheduledIds.contains(row.offering.id))
+        .map((row) {
+          final courseName = localized(
+            row.course?.nameZh ?? row.offering.nameZh,
+            row.course?.nameEn ?? row.offering.nameEn,
+          );
+          return (
+            id: row.offering.id,
+            number: row.offering.number,
+            span: 0,
+            crossesNoon: false,
+            courseName: courseName,
+            classroomName: null,
+            credits: row.course?.credits ?? 0.0,
+            hours: row.course?.hours ?? 0,
+          );
+        })
+        .toList(growable: false);
+
+    // Compute layout metadata from the scheduled map.
+    final allEntryPeriods = scheduled.entries
+        .expand((e) {
+          final noonIndex = Period.nPeriod.index;
+          final start = e.key.period.index;
+          return List.generate(e.value.span, (i) {
+            final raw = start + i;
+            return Period.values[raw >= noonIndex && e.value.crossesNoon
+                ? raw + 1
+                : raw];
+          });
+        })
+        .toList(growable: false);
+
+    // Unique courses by ID for credit/hour aggregation.
+    final seen = <int>{};
+    final uniqueCourses = [
+      ...scheduled.values.where((c) => seen.add(c.id)),
+      ...unscheduled.where((c) => seen.add(c.id)),
+    ];
+
+    return (
+      scheduled: scheduled,
+      unscheduled: unscheduled,
+      hasWeekdayCourse: scheduled.keys.any((s) => s.day.isWeekday),
+      hasSaturdayCourse: scheduled.keys.any((s) => s.day == DayOfWeek.saturday),
+      hasSundayCourse: scheduled.keys.any((s) => s.day == DayOfWeek.sunday),
+      hasAMCourse: allEntryPeriods.any((p) => p.isAM),
+      hasPMCourse: allEntryPeriods.any((p) => p.isPM),
+      hasNoonCourse: allEntryPeriods.any((p) => p == Period.nPeriod),
+      hasEveningCourse: allEntryPeriods.any((p) => p.isEvening),
+      earliestPeriod: scheduled.isEmpty
+          ? null
+          : Period.values[scheduled.keys
+                .map((s) => s.period.index)
+                .reduce(min)],
+      latestPeriod: allEntryPeriods.isEmpty
+          ? null
+          : allEntryPeriods.reduce((a, b) => a.index > b.index ? a : b),
+      totalCredits: uniqueCourses.fold(0.0, (sum, c) => sum + c.credits),
+      totalHours: uniqueCourses.fold(0, (sum, c) => sum + c.hours),
+    );
   }
 
   /// Gets a course offering with related data (teachers, classrooms, schedules).
@@ -501,19 +622,22 @@ class CourseRepository {
   /// Returns cached data if fresh (within TTL). Set [refresh] to `true` to
   /// bypass TTL (pull-to-refresh).
   Future<Course> getCourse(String code, {bool refresh = false}) async {
-    final cached = await (_database.select(
-      _database.courses,
-    )..where((c) => c.code.equals(code))).getSingleOrNull();
+    const ttl = Duration(days: 3);
 
-    return fetchWithTtl(
-      cached: cached,
-      getFetchedAt: (c) => c.fetchedAt,
-      fetchFromNetwork: () => _fetchCourseFromNetwork(code),
-      refresh: refresh,
-    );
-  }
+    if (!refresh) {
+      final cached = await (_database.select(
+        _database.courses,
+      )..where((c) => c.code.equals(code))).getSingleOrNull();
 
-  Future<Course> _fetchCourseFromNetwork(String code) async {
+      if (cached != null) {
+        final age = switch (cached.fetchedAt) {
+          final t? => DateTime.now().difference(t),
+          null => ttl,
+        };
+        if (age < ttl) return cached;
+      }
+    }
+
     final dto = await _authRepository.withAuth(
       () => _courseService.getCourse(code),
       sso: [.courseService],
