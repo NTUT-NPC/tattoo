@@ -17,17 +17,19 @@ final calendarRepositoryProvider = Provider<CalendarRepository>((ref) {
 
 /// Manages academic calendar events from the NTUT portal.
 ///
+/// Caches a sliding window that spans the student's enrolled semesters plus
+/// a short buffer — reads within that window hit the DB, so month-to-month
+/// UI navigation never goes to the network.
+///
 /// ```dart
 /// final repo = ref.watch(calendarRepositoryProvider);
 ///
-/// // Observe events overlapping a range (auto-refreshes when stale)
 /// final stream = repo.watchCalendarEvents(
 ///   startDate: start,
 ///   endDate: end,
 /// );
 ///
-/// // Force refresh for pull-to-refresh; pass any date in the year to refetch.
-/// await repo.refreshCalendarEvents(date: start);
+/// await repo.refreshCalendarEvents(); // pull-to-refresh
 /// ```
 class CalendarRepository {
   final PortalService _portalService;
@@ -44,9 +46,9 @@ class CalendarRepository {
 
   /// Watches calendar events overlapping the given date range.
   ///
-  /// Emits cached data immediately, then triggers a background network fetch
-  /// if the cache is empty or stale. The stream re-emits automatically when
-  /// the DB is updated.
+  /// Emits cached data immediately, then triggers a background refresh of the
+  /// full window if the cache is empty or stale. The stream re-emits when the
+  /// DB is updated.
   ///
   /// Network errors during background refresh are absorbed — the stream
   /// continues showing stale (or empty) data rather than erroring.
@@ -64,11 +66,11 @@ class CalendarRepository {
       }
 
       // calendarFetchedAt is authoritative for cache presence. A range query
-      // may return [] when the academic year is cached but the requested
-      // range has no events, so isEmpty isn't a reliable nil-check.
+      // may return [] when the window is cached but the requested view has no
+      // events, so events.isEmpty isn't a reliable nil-check.
       if (user.calendarFetchedAt == null) {
         try {
-          await refreshCalendarEvents(date: startDate);
+          await refreshCalendarEvents();
         } catch (_) {
           // Absorb: yield below so UI exits loading state
         }
@@ -85,7 +87,7 @@ class CalendarRepository {
       };
       if (age >= ttl) {
         try {
-          await refreshCalendarEvents(date: startDate);
+          await refreshCalendarEvents();
         } catch (_) {
           // Absorb: stale data is shown via stream
         }
@@ -93,25 +95,19 @@ class CalendarRepository {
     }
   }
 
-  /// Fetches fresh calendar data for the academic year containing [date] and
-  /// writes it to the DB.
+  /// Fetches fresh calendar data for the student's semester lifetime window
+  /// and writes it to the DB.
   ///
   /// The [watchCalendarEvents] stream automatically emits the updated value.
   /// Network errors propagate to the caller.
-  Future<void> refreshCalendarEvents({required DateTime date}) async {
+  Future<void> refreshCalendarEvents() async {
     final user = await _database.select(_database.users).getSingleOrNull();
     if (user == null) return;
 
-    // Fetch the full academic year so subsequent range queries hit the cache.
-    // NTUT academic years run Aug 1 → July 31.
-    final wideStartDate = date.month < 8
-        ? DateTime(date.year - 1, 8, 1)
-        : DateTime(date.year, 8, 1);
-    // Exclusive upper bound: Aug 1 of the next year.
-    final wideEndDate = DateTime(wideStartDate.year + 1, 8, 1);
+    final (windowStart, windowEnd) = await _computeWindow();
 
     final dtos = await _authRepository.withAuth(
-      () => _portalService.getCalendar(wideStartDate, wideEndDate),
+      () => _portalService.getCalendar(windowStart, windowEnd),
     );
 
     await _database.transaction(() async {
@@ -156,13 +152,13 @@ class CalendarRepository {
         );
       });
 
-      // Delete events in the fetched window that are no longer on the portal.
-      // Use overlap semantics (consistent with read queries) so
-      // boundary-spanning events are cleaned up too.
+      // Delete events in the window that are no longer on the portal. Use
+      // overlap semantics (consistent with read queries) so boundary-spanning
+      // events are cleaned up too.
       if (portalIds.isNotEmpty) {
         await (_database.delete(_database.calendarEvents)..where((e) {
-              return e.start.isSmallerOrEqualValue(wideEndDate) &
-                  e.end.isBiggerOrEqualValue(wideStartDate) &
+              return e.start.isSmallerOrEqualValue(windowEnd) &
+                  e.end.isBiggerOrEqualValue(windowStart) &
                   e.portalId.isNotIn(portalIds);
             }))
             .go();
@@ -171,13 +167,13 @@ class CalendarRepository {
         // transient portal error, so log a warning before wiping the cache.
         log(
           'Portal returned 0 syncable events for '
-          '${wideStartDate.toIso8601String()}–${wideEndDate.toIso8601String()}, '
+          '${windowStart.toIso8601String()}~${windowEnd.toIso8601String()}, '
           'clearing cached events in range',
           name: 'CalendarRepository',
         );
         await (_database.delete(_database.calendarEvents)..where((e) {
-              return e.start.isSmallerOrEqualValue(wideEndDate) &
-                  e.end.isBiggerOrEqualValue(wideStartDate);
+              return e.start.isSmallerOrEqualValue(windowEnd) &
+                  e.end.isBiggerOrEqualValue(windowStart);
             }))
             .go();
       }
@@ -186,6 +182,65 @@ class CalendarRepository {
             ..where((u) => u.id.equals(user.id)))
           .write(UsersCompanion(calendarFetchedAt: Value(DateTime.now())));
     });
+  }
+
+  /// Computes the fetch window from the student's enrolled semesters.
+  ///
+  /// Falls back to `now ± 6 months` when no semesters are known yet (e.g.,
+  /// first login before [CourseRepository.refreshSemesters] has run). The
+  /// window self-corrects on the next refresh once semester data lands.
+  Future<(DateTime, DateTime)> _computeWindow() async {
+    final semesters =
+        await (_database.select(_database.semesters)
+              ..where((s) => s.inCourseSemesterList.equals(true))
+              ..orderBy([
+                (s) => OrderingTerm.asc(s.year),
+                (s) => OrderingTerm.asc(s.term),
+              ]))
+            .get();
+
+    if (semesters.isEmpty) {
+      final now = DateTime.now();
+      return (
+        DateTime(now.year, now.month - 6, 1),
+        DateTime(now.year, now.month + 6, 1),
+      );
+    }
+
+    final first = semesters.first;
+    final last = semesters.last;
+    return (
+      _semesterStart(first.year, first.term),
+      _semesterEnd(last.year, last.term).add(const Duration(days: 180)),
+    );
+  }
+
+  /// Approximate start date of an NTUT semester.
+  ///
+  /// Conventions: term 0 = pre-study (Jul 1), 1 = fall (Aug 1), 2 = spring
+  /// (Feb 1 of the next Western year), 3 = summer (Jul 1 of the next Western
+  /// year). ROC year → AD by adding 1911.
+  static DateTime _semesterStart(int rocYear, int term) {
+    final adYear = rocYear + 1911;
+    return switch (term) {
+      0 => DateTime(adYear, 7, 1),
+      1 => DateTime(adYear, 8, 1),
+      2 => DateTime(adYear + 1, 2, 1),
+      3 => DateTime(adYear + 1, 7, 1),
+      _ => DateTime(adYear, 8, 1),
+    };
+  }
+
+  /// Approximate end date of an NTUT semester.
+  static DateTime _semesterEnd(int rocYear, int term) {
+    final adYear = rocYear + 1911;
+    return switch (term) {
+      0 => DateTime(adYear, 7, 31),
+      1 => DateTime(adYear + 1, 1, 31),
+      2 => DateTime(adYear + 1, 7, 31),
+      3 => DateTime(adYear + 1, 8, 31),
+      _ => DateTime(adYear + 1, 1, 31),
+    };
   }
 
   /// Selects calendar events that overlap with the given date range,
