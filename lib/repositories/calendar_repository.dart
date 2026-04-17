@@ -110,7 +110,6 @@ class CalendarRepository {
     // Exclusive upper bound: Aug 1 of the next year.
     final wideEndDate = DateTime(wideStartDate.year + 1, 8, 1);
 
-    // No SSO needed — getCalendar uses the portal session from login.
     final dtos = await _authRepository.withAuth(
       () => _portalService.getCalendar(wideStartDate, wideEndDate),
     );
@@ -118,16 +117,12 @@ class CalendarRepository {
     await _database.transaction(() async {
       final portalIds = dtos.map((e) => e.id).nonNulls.toSet();
 
-      await _database.batch((batch) {
-        for (final dto in dtos) {
-          final id = dto.id;
-          // Skip events without an ID — we can't sync or dedupe them.
-          if (id == null) continue;
-
-          batch.insert(
-            _database.calendarEvents,
-            CalendarEventsCompanion.insert(
-              portalId: id,
+      // Skip events without an ID — we can't sync or dedupe them.
+      final companions = dtos
+          .where((dto) => dto.id != null)
+          .map(
+            (dto) => CalendarEventsCompanion.insert(
+              portalId: dto.id!,
               start: Value(dto.start),
               end: Value(dto.end),
               allDay: Value(dto.allDay),
@@ -137,21 +132,28 @@ class CalendarRepository {
               ownerName: Value(dto.ownerName),
               creatorName: Value(dto.creatorName),
             ),
-            onConflict: DoUpdate(
-              (old) => CalendarEventsCompanion(
-                start: Value(dto.start),
-                end: Value(dto.end),
-                allDay: Value(dto.allDay),
-                title: Value(dto.title),
-                place: Value(dto.place),
-                content: Value(dto.content),
-                ownerName: Value(dto.ownerName),
-                creatorName: Value(dto.creatorName),
+          )
+          .toList();
+
+      await _database.batch((batch) {
+        batch.insertAll(
+          _database.calendarEvents,
+          companions,
+          onConflict:
+              DoUpdate<$CalendarEventsTable, CalendarEvent>.withExcluded(
+                (old, excluded) => CalendarEventsCompanion.custom(
+                  start: excluded.start,
+                  end: excluded.end,
+                  allDay: excluded.allDay,
+                  title: excluded.title,
+                  place: excluded.place,
+                  content: excluded.content,
+                  ownerName: excluded.ownerName,
+                  creatorName: excluded.creatorName,
+                ),
+                target: [_database.calendarEvents.portalId],
               ),
-              target: [_database.calendarEvents.portalId],
-            ),
-          );
-        }
+        );
       });
 
       // Delete events in the fetched window that are no longer on the portal.
