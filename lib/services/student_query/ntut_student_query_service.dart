@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:tattoo/models/course.dart';
@@ -124,11 +125,9 @@ class NtutStudentQueryService implements StudentQueryService {
       final endIndex = nextButton == null
           ? elements.length
           : elementIndexes[nextButton] ?? elements.length;
-      final table = _findAcademicPerformanceTable(
-        elements,
-        startIndex,
-        endIndex,
-      );
+      final table = elements
+          .sublist(startIndex + 1, endIndex)
+          .firstWhereOrNull((element) => element.localName == 'table');
       if (table == null) continue;
 
       final semester = (
@@ -187,50 +186,6 @@ class NtutStudentQueryService implements StudentQueryService {
     }
 
     return results;
-  }
-
-  Element? _findAcademicPerformanceTable(
-    List<Element> elements,
-    int startIndex,
-    int endIndex,
-  ) {
-    // Pick the first score-like table between two semester headers.
-    for (var i = startIndex + 1; i < endIndex; i++) {
-      final element = elements[i];
-      if (element.localName != 'table') continue;
-      if (_isAcademicPerformanceTable(element)) {
-        return element;
-      }
-    }
-    return null;
-  }
-
-  bool _isAcademicPerformanceTable(Element table) {
-    final rows = table.querySelectorAll('tr');
-    if (rows.isEmpty) return false;
-
-    // Course rows usually have many columns (course metadata + score fields).
-    for (final row in rows) {
-      final cells = row.querySelectorAll('th, td');
-      if (cells.length >= 9) return true;
-    }
-
-    // Summary-only tables still contain known labels.
-    for (final row in rows) {
-      final cells = row.querySelectorAll('th, td');
-      if (cells.length != 2) continue;
-
-      final label = cells[0].text;
-      if (label.contains('Average') ||
-          label.contains('Conduct') ||
-          label.contains('Total Credits') ||
-          label.contains('Credits Passed') ||
-          label.contains('Note')) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   @override
