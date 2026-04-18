@@ -128,6 +128,12 @@ class Semesters extends Table with AutoIncrementId {
   /// those created as side effects by other flows (e.g., auth, scores).
   late final inCourseSemesterList = boolean().withDefault(Constant(false))();
 
+  /// Whether this semester appeared in the score semester list API response.
+  ///
+  /// Distinguishes semesters fetched by [StudentRepository.refreshSemesterRecords]
+  /// from those created as side effects by other flows (e.g., auth, courses).
+  late final inScoreSemesterList = boolean().withDefault(Constant(false))();
+
   /// When the course table was last fetched from the server for this semester.
   late final courseTableFetchedAt = dateTime().nullable()();
 
