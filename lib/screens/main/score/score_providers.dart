@@ -20,3 +20,17 @@ final semesterRecordsProvider =
     StreamProvider.autoDispose<List<SemesterRecordData>>((ref) {
       return ref.watch(studentRepositoryProvider).watchSemesterRecords();
     });
+
+/// Provides semester records indexed by [Semester.id].
+///
+/// Derived from [semesterRecordsProvider] to keep lookup/shape-conversion
+/// logic outside of widgets.
+final semesterRecordMapProvider =
+    Provider.autoDispose<AsyncValue<Map<int, SemesterRecordData>>>((ref) {
+      final semesterRecordsAsync = ref.watch(semesterRecordsProvider);
+      return semesterRecordsAsync.whenData((records) {
+        return {
+          for (final record in records) record.summary.semester: record,
+        };
+      });
+    });

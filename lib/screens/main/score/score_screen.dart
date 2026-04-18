@@ -25,20 +25,6 @@ class ScoreScreen extends ConsumerStatefulWidget {
 
 class _ScoreScreenState extends ConsumerState<ScoreScreen>
     with SingleTickerProviderStateMixin {
-
-  void _dismissRefreshSnackBar() {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-  }
-
-  bool _handleScrollNotification(ScrollNotification notification) {
-    if (notification is ScrollStartNotification ||
-        notification is UserScrollNotification) {
-      _dismissRefreshSnackBar();
-    }
-    return false;
-  }
-
   Future<void> _reloadScores() async {
     try {
       await refreshSemesterRecords(ref);
@@ -57,6 +43,7 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
   @override
   Widget build(BuildContext context) {
     final semestersAsync = ref.watch(scoreSemestersProvider);
+    final semesterRecordMapAsync = ref.watch(semesterRecordMapProvider);
     final displayedSemesterTabLabels =
         semestersAsync.asData?.value
             .map(_semesterLabel)
@@ -117,16 +104,39 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                 AsyncData(value: final semesters) when semesters.isEmpty =>
                   Center(child: Text(t.score.noRecords)),
 
-                // LOADED state: placeholder pages with tabs
-                AsyncData(value: final semesters) => TabBarView(
-                  children: [
-                    for (final semester in semesters)
-                      _ScorePlaceholder(
-                        semesterLabel: _semesterLabel(semester),
-                        bottomInset: _floatingBarBottomInset + bottomInset,
-                      ),
-                  ],
-                ),
+                // LOADED state: score pages with tabs
+                AsyncData(value: final semesters) =>
+                  switch (semesterRecordMapAsync) {
+                    AsyncError(:final error) => Center(
+                      child: Center(child: Text('Error: $error')),
+                    ),
+                    AsyncData(value: final recordMap) => TabBarView(
+                      children: [
+                        for (final semester in semesters)
+                          if (recordMap[semester.id] case final record?)
+                            _SemesterScoreList(
+                              record: record,
+                              onRefresh: _reloadScores,
+                            )
+                          else
+                            _ScorePlaceholder(
+                              semesterLabel: _semesterLabel(semester),
+                              bottomInset:
+                                  _floatingBarBottomInset + bottomInset,
+                            ),
+                      ],
+                    ),
+                    _ => TabBarView(
+                      children: [
+                        for (final semester in semesters)
+                          _ScorePlaceholder(
+                            semesterLabel: _semesterLabel(semester),
+                            bottomInset: _floatingBarBottomInset + bottomInset,
+                            loading: true,
+                          ),
+                      ],
+                    ),
+                  },
 
                 // LOADING state: show loading placeholder
                 _ => _ScorePlaceholder(
