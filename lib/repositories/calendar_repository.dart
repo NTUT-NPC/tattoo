@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
@@ -34,6 +36,7 @@ class CalendarRepository {
   final PortalService _portalService;
   final AppDatabase _database;
   final AuthRepository _authRepository;
+  Completer<void>? _refreshInFlight;
 
   CalendarRepository({
     required PortalService portalService,
@@ -58,13 +61,15 @@ class CalendarRepository {
   }) async* {
     const ttl = Duration(days: 1);
 
-    // Refresh at most once per stream for out-of-window requests.
-    // refreshCalendarEvents caps at _computeWindow() and uses delete+insert,
-    // so each call assigns fresh autoincrement ids to the same events. Drift
-    // .watch() sees the new ids as a changed result and re-emits, which would
-    // loop back into this branch if we didn't gate it — the view is past the
-    // semester range, so no refresh can ever cover it.
+    // Gate: refreshCalendarEvents uses delete+insert, which reassigns
+    // autoincrement IDs. Drift .watch() re-emits on every ID change, which
+    // would re-trigger this branch forever for permanently out-of-window
+    // requests that no refresh can ever cover.
     var refreshedForOutOfWindow = false;
+
+    // Lazily computed and cached; re-read once when out-of-window to catch
+    // semesters that landed after the stream started.
+    (DateTime, DateTime)? window;
 
     await for (final events in _eventsOverlapping(startDate, endDate).watch()) {
       final user = await _database.select(_database.users).getSingleOrNull();
@@ -73,9 +78,19 @@ class CalendarRepository {
         continue;
       }
 
-      final (windowStart, windowEnd) = await _computeWindow();
-      final outOfWindow =
+      window ??= await _computeWindow();
+      var (windowStart, windowEnd) = window;
+      var outOfWindow =
           startDate.isBefore(windowStart) || endDate.isAfter(windowEnd);
+
+      // If out of window, re-compute once in case the semester list expanded
+      // since the stream started.
+      if (outOfWindow && !refreshedForOutOfWindow) {
+        window = await _computeWindow();
+        (windowStart, windowEnd) = window;
+        outOfWindow =
+            startDate.isBefore(windowStart) || endDate.isAfter(windowEnd);
+      }
 
       // calendarFetchedAt is authoritative for cache presence within the
       // window. For out-of-window requests, try once in case the window has
@@ -117,51 +132,67 @@ class CalendarRepository {
   /// The [watchCalendarEvents] stream automatically emits the updated value.
   /// Network errors propagate to the caller.
   Future<void> refreshCalendarEvents() async {
-    final user = await _database.select(_database.users).getSingleOrNull();
-    if (user == null) return;
+    if (_refreshInFlight case final existing?) return existing.future;
 
-    final (windowStart, windowEnd) = await _computeWindow();
+    final completer = Completer<void>();
+    _refreshInFlight = completer;
+    try {
+      final user = await _database.select(_database.users).getSingleOrNull();
+      if (user == null) {
+        completer.complete();
+        return;
+      }
 
-    final dtos = await _authRepository.withAuth(
-      () => _portalService.getCalendar(windowStart, windowEnd),
-    );
+      final (windowStart, windowEnd) = await _computeWindow();
 
-    await _database.transaction(() async {
-      // Clear the window first, then insert fresh data. Overlap semantics
-      // (consistent with read queries) so boundary-spanning events are
-      // cleaned up too.
-      await (_database.delete(_database.calendarEvents)..where((e) {
-            return e.start.isSmallerOrEqualValue(windowEnd) &
-                e.end.isBiggerOrEqualValue(windowStart);
-          }))
-          .go();
+      final dtos = await _authRepository.withAuth(
+        () => _portalService.getCalendar(windowStart, windowEnd),
+      );
 
-      // Skip events without an ID — we can't sync or dedupe them.
-      final companions = dtos
-          .where((dto) => dto.id != null)
-          .map(
-            (dto) => CalendarEventsCompanion.insert(
-              portalId: dto.id!,
-              start: dto.start,
-              end: dto.end,
-              allDay: Value(dto.allDay),
-              title: Value(dto.title),
-              place: Value(dto.place),
-              content: Value(dto.content),
-              ownerName: Value(dto.ownerName),
-              creatorName: Value(dto.creatorName),
-            ),
-          )
-          .toList();
+      await _database.transaction(() async {
+        // Clear the window first, then insert fresh data. Overlap semantics
+        // (consistent with read queries) so boundary-spanning events are
+        // cleaned up too.
+        await (_database.delete(_database.calendarEvents)..where((e) {
+              return e.start.isSmallerOrEqualValue(windowEnd) &
+                  e.end.isBiggerOrEqualValue(windowStart);
+            }))
+            .go();
 
-      await _database.batch((batch) {
-        batch.insertAll(_database.calendarEvents, companions);
+        // Skip events without an ID — we can't sync or dedupe them.
+        final companions = dtos
+            .where((dto) => dto.id != null)
+            .map(
+              (dto) => CalendarEventsCompanion.insert(
+                portalId: dto.id!,
+                start: dto.start,
+                end: dto.end,
+                allDay: Value(dto.allDay),
+                title: Value(dto.title),
+                place: Value(dto.place),
+                content: Value(dto.content),
+                ownerName: Value(dto.ownerName),
+                creatorName: Value(dto.creatorName),
+              ),
+            )
+            .toList();
+
+        await _database.batch((batch) {
+          batch.insertAll(_database.calendarEvents, companions);
+        });
+
+        await (_database.update(_database.users)
+              ..where((u) => u.id.equals(user.id)))
+            .write(UsersCompanion(calendarFetchedAt: Value(DateTime.now())));
       });
 
-      await (_database.update(_database.users)
-            ..where((u) => u.id.equals(user.id)))
-          .write(UsersCompanion(calendarFetchedAt: Value(DateTime.now())));
-    });
+      completer.complete();
+    } catch (e, st) {
+      completer.completeError(e, st);
+      rethrow;
+    } finally {
+      _refreshInFlight = null;
+    }
   }
 
   /// Computes the fetch window from the student's enrolled semesters.
