@@ -95,23 +95,48 @@ class NtutStudentQueryService implements StudentQueryService {
 
     // Semester labels are in submit button values: "114 學年度 第 1 學期 (2025 - Fall)"
     final semesterPattern = RegExp(r'(\d+)\s*學年度\s*第\s*(\d+)\s*學期');
-    final semesterButtons = document.querySelectorAll("input[type='submit']");
-    final semesterMatches = semesterButtons
-        .map((btn) => semesterPattern.firstMatch(btn.attributes['value'] ?? ''))
-        .nonNulls
+    final semesterButtons = document
+        .querySelectorAll("input[type='submit']")
+        .where(
+          (button) =>
+              semesterPattern.hasMatch(button.attributes['value'] ?? ''),
+        )
         .toList();
-
-    final tables = document.querySelectorAll('table');
+    final elements = document.querySelectorAll('*');
+    final elementIndexes = <Element, int>{
+      for (var i = 0; i < elements.length; i++) elements[i]: i,
+    };
 
     final results = <SemesterScoreDto>[];
-    for (var i = 0; i < tables.length && i < semesterMatches.length; i++) {
-      final match = semesterMatches[i];
+    for (var i = 0; i < semesterButtons.length; i++) {
+      final currentButton = semesterButtons[i];
+      final match = semesterPattern.firstMatch(
+        currentButton.attributes['value'] ?? '',
+      );
+      if (match == null) continue;
+
+      final startIndex = elementIndexes[currentButton];
+      if (startIndex == null) continue;
+      final nextButton = i + 1 < semesterButtons.length
+          ? semesterButtons[i + 1]
+          : null;
+      // Parse within this semester section only to avoid table/button misalignment.
+      final endIndex = nextButton == null
+          ? elements.length
+          : elementIndexes[nextButton] ?? elements.length;
+      final table = _findAcademicPerformanceTable(
+        elements,
+        startIndex,
+        endIndex,
+      );
+      if (table == null) continue;
+
       final semester = (
         year: int.parse(match.group(1)!),
         term: int.parse(match.group(2)!),
       );
 
-      final rows = tables[i].querySelectorAll('tr');
+      final rows = table.querySelectorAll('tr');
       final scores = <ScoreDto>[];
       double? average;
       double? conduct;
@@ -162,6 +187,50 @@ class NtutStudentQueryService implements StudentQueryService {
     }
 
     return results;
+  }
+
+  Element? _findAcademicPerformanceTable(
+    List<Element> elements,
+    int startIndex,
+    int endIndex,
+  ) {
+    // Pick the first score-like table between two semester headers.
+    for (var i = startIndex + 1; i < endIndex; i++) {
+      final element = elements[i];
+      if (element.localName != 'table') continue;
+      if (_isAcademicPerformanceTable(element)) {
+        return element;
+      }
+    }
+    return null;
+  }
+
+  bool _isAcademicPerformanceTable(Element table) {
+    final rows = table.querySelectorAll('tr');
+    if (rows.isEmpty) return false;
+
+    // Course rows usually have many columns (course metadata + score fields).
+    for (final row in rows) {
+      final cells = row.querySelectorAll('th, td');
+      if (cells.length >= 9) return true;
+    }
+
+    // Summary-only tables still contain known labels.
+    for (final row in rows) {
+      final cells = row.querySelectorAll('th, td');
+      if (cells.length != 2) continue;
+
+      final label = cells[0].text;
+      if (label.contains('Average') ||
+          label.contains('Conduct') ||
+          label.contains('Total Credits') ||
+          label.contains('Credits Passed') ||
+          label.contains('Note')) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @override
