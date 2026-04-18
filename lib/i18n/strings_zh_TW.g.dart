@@ -299,8 +299,8 @@ class TranslationsMapZhTw {
 	/// zh-TW: '校園地圖'
 	String get title => '校園地圖';
 
-	/// zh-TW: '校園向量地圖 (實驗性)'
-	String get vectorMap => '校園向量地圖 (實驗性)';
+	/// zh-TW: '校園樓層導覽'
+	String get vectorMap => '校園樓層導覽';
 
 	/// zh-TW: '空間資訊'
 	String get roomInfo => '空間資訊';
@@ -772,7 +772,7 @@ extension on Translations {
 			'scanner.guide.button' => '我知道了',
 			'scanner.invalidUrl' => '無效的網址',
 			'map.title' => '校園地圖',
-			'map.vectorMap' => '校園向量地圖 (實驗性)',
+			'map.vectorMap' => '校園樓層導覽',
 			'map.roomInfo' => '空間資訊',
 			'map.centerAtMe' => '中心對準我的位置',
 			'map.floor' => '樓層',

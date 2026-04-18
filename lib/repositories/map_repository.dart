@@ -1,5 +1,9 @@
 import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/services/map/campus_map_service.dart';
 
@@ -33,10 +37,13 @@ class CampusMapRepository {
     if (_isInitialized) return;
     await _loadFromDisk();
     _isInitialized = true;
-    print('[MapRepo] Cache initialized. AllRoomsFetched: $_allRoomsFetched, Buildings: ${_buildingCache != null}');
+    log(
+      'Cache initialized. AllRoomsFetched: $_allRoomsFetched, Buildings: ${_buildingCache != null}',
+      name: 'MapRepo',
+    );
   }
 
-  static const _cacheKey = 'campus_map_data_v2';
+  static const _cacheKey = 'campus_map_data_v3';
 
   static const floorOrder = [
     "B5",
@@ -314,40 +321,57 @@ class CampusMapRepository {
   Future<List<FeatureDto>> getBuildings() async {
     if (_buildingCache != null) return _buildingCache!;
     _buildingCache = await _service.getBuildingGeometries();
-    _saveToDisk().catchError((_) {});
+    _saveToDisk().catchError((e) {
+      log('Failed to persist map cache: $e', name: 'MapRepo');
+    });
     return _buildingCache!;
   }
 
   List<FeatureDto>? getBuildingsSync() => _buildingCache;
 
-  Future<void> prefetchAll() async {
-    if (_allRoomsFetched) return;
+  Future<void>? _prefetchFuture;
 
-    final allRooms = await _service.getRoomGeometries(_allLayers);
+  Future<void> prefetchAll() {
+    if (_allRoomsFetched) return Future.value();
+    return _prefetchFuture ??= _doPrefetchAll();
+  }
 
-    // Clear and redistribute into cache
-    _roomCache.clear();
-    for (final room in allRooms) {
-      // room.id looks like "gis_room:A5T_1F.1"
-      final parts = room.id.split(':');
-      if (parts.length < 2) continue;
-      final layerAndId = parts[1];
-      final layerName = layerAndId.split('.').first;
-      final floorSuffix = layerName.split('_').last;
+  Future<void> _doPrefetchAll() async {
+    try {
+      final allRooms = await _service.getRoomGeometries(_allLayers);
 
-      // Handle special mapping (R1, R2, R3 -> RF) like in _getLayersForFloor
-      final String floor;
-      if (['R1', 'R2', 'R3', 'RF'].contains(floorSuffix)) {
-        floor = 'RF';
-      } else {
-        floor = floorSuffix;
+      // Clear and redistribute into cache
+      _roomCache.clear();
+      for (final room in allRooms) {
+        // room.id looks like "gis_room:A5T_1F.1"
+        final parts = room.id.split(':');
+        if (parts.length < 2) continue;
+        final layerAndId = parts[1];
+        final layerName = layerAndId.split('.').first;
+        final floorSuffix = layerName.split('_').last;
+
+        final floor = _normalizeFloorSuffix(floorSuffix);
+        _roomCache.putIfAbsent(floor, () => []).add(room);
       }
 
-      _roomCache.putIfAbsent(floor, () => []).add(room);
+      _allRoomsFetched = true;
+      _saveToDisk().catchError((e) {
+        log('Failed to persist map cache: $e', name: 'MapRepo');
+      });
+    } catch (e) {
+      _prefetchFuture = null; // Clear on failure to allow retry
+      rethrow;
     }
+  }
 
-    _allRoomsFetched = true;
-    _saveToDisk().catchError((_) {});
+  /// Maps mezzanine and rooftop suffixes to their canonical floor key.
+  static String _normalizeFloorSuffix(String suffix) {
+    return switch (suffix) {
+      'R1' || 'R2' || 'R3' || 'RF' => 'RF',
+      '1M' => '1F',
+      'B1M' => 'B1',
+      _ => suffix,
+    };
   }
 
   Future<void> _saveToDisk() async {
@@ -359,7 +383,7 @@ class CampusMapRepository {
       'allRoomsFetched': _allRoomsFetched,
     };
 
-    final json = jsonEncode(data);
+    final json = await compute(_encodeMapCache, data);
     await _db
         .into(_db.mapCache)
         .insertOnConflictUpdate(
@@ -373,7 +397,7 @@ class CampusMapRepository {
     )..where((t) => t.key.equals(_cacheKey))).getSingleOrNull();
     if (entry == null) return;
 
-    final data = jsonDecode(entry.value) as Map<String, dynamic>;
+    final data = await compute(_decodeMapCache, entry.value);
 
     if (data['buildings'] != null) {
       _buildingCache = (data['buildings'] as List)
@@ -417,19 +441,53 @@ class CampusMapRepository {
         .toList(),
   );
 
-  Future<List<FeatureDto>> getRoomsForFloor(String floor) async {
-    if (_allRoomsFetched && _roomCache.containsKey(floor)) {
-      return _roomCache[floor]!;
-    }
+  final Map<String, Future<List<FeatureDto>>> _inFlightFetches = {};
 
+  Future<List<FeatureDto>> getRoomsForFloor(String floor) async {
     if (_roomCache.containsKey(floor)) return _roomCache[floor]!;
 
     final layers = _getLayersForFloor(floor);
-    if (layers.isEmpty) return [];
+    if (layers.isEmpty) return []; // No layers defined for this floor
 
-    final rooms = await _service.getRoomGeometries(layers);
-    _roomCache[floor] = rooms;
-    return rooms;
+    if (_inFlightFetches.containsKey(floor)) {
+      return _inFlightFetches[floor]!;
+    }
+
+    final future = () async {
+      try {
+        final rooms = await _service.getRoomGeometries(layers);
+        if (rooms.isNotEmpty) {
+          _roomCache[floor] = rooms;
+          await _saveToDisk();
+        }
+        return rooms;
+      } finally {
+        _inFlightFetches.remove(floor);
+      }
+    }();
+
+    _inFlightFetches[floor] = future;
+    return future;
+  }
+
+  String? _cacheDirPath;
+
+  Future<File?> getBasemapTile(int z, int tx, int ty) async {
+    _cacheDirPath ??= (await getApplicationCacheDirectory()).path;
+    final file = File('$_cacheDirPath/basemaps/$z/$tx/$ty.png');
+
+    if (await file.exists()) {
+      return file;
+    }
+
+    try {
+      final bytes = await _service.getBasemapTileBytes(z, tx, ty);
+      await file.parent.create(recursive: true);
+      await file.writeAsBytes(bytes);
+      return file;
+    } catch (_) {
+      return null;
+    }
   }
 
   List<FeatureDto>? getRoomsSync(String floor) => _roomCache[floor];
@@ -437,10 +495,11 @@ class CampusMapRepository {
   List<String> _getLayersForFloor(String floor) {
     return _allLayers.where((l) {
       final suffix = l.split('_').last;
-      if (floor == 'RF') {
-        return ['R1', 'R2', 'R3', 'RF'].contains(suffix);
-      }
-      return suffix == floor;
+      return _normalizeFloorSuffix(suffix) == floor;
     }).toList();
   }
 }
+
+String _encodeMapCache(Map<String, dynamic> data) => jsonEncode(data);
+Map<String, dynamic> _decodeMapCache(String source) =>
+    jsonDecode(source) as Map<String, dynamic>;

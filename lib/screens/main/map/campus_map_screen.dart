@@ -1,6 +1,6 @@
+import 'dart:io';
 import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/repositories/map_repository.dart';
@@ -40,7 +40,7 @@ final mapSettingsProvider =
       MapSettingsNotifier.new,
     );
 
-final campusMapInitProvider = FutureProvider<void>((ref) async {
+final campusMapBaseInitProvider = FutureProvider<void>((ref) async {
   final repo = ref.watch(campusMapRepositoryProvider);
 
   // Ensure disk cache is loaded into memory first
@@ -50,6 +50,11 @@ final campusMapInitProvider = FutureProvider<void>((ref) async {
   if (repo.getBuildingsSync() == null) {
     await repo.getBuildings();
   }
+});
+
+final campusMapInitProvider = FutureProvider<void>((ref) async {
+  await ref.watch(campusMapBaseInitProvider.future);
+  final repo = ref.watch(campusMapRepositoryProvider);
 
   // Prioritize 1F if not in cache
   if (repo.getRoomsSync('1F') == null) {
@@ -58,27 +63,46 @@ final campusMapInitProvider = FutureProvider<void>((ref) async {
 
   // Fetch the rest in the background if not fully cached
   if (!repo.allRoomsFetched) {
-    await repo.prefetchAll();
+    repo.prefetchAll().ignore();
   }
 });
 
+final campusFloorRoomsProvider =
+    FutureProvider.family<List<FeatureDto>, String>((ref, floor) async {
+      final repo = ref.watch(campusMapRepositoryProvider);
+
+      // Ensure basic repository initialization is done
+      await ref.watch(campusMapBaseInitProvider.future);
+
+      // getRoomsForFloor handles internal caching and individual fetches
+      return repo.getRoomsForFloor(floor);
+    });
+
 final campusRoomsProvider = Provider<List<FeatureDto>>((ref) {
-  final repo = ref.watch(campusMapRepositoryProvider);
   final floor = ref.watch(selectedFloorProvider);
 
-  // If we have it in cache (from prefetch or previous individual fetch), use it
-  final cached = repo.getRoomsSync(floor);
-  if (cached != null) return cached;
+  // Watch the family provider to get the async value
+  final asyncValue = ref.watch(campusFloorRoomsProvider(floor));
 
-  // Otherwise, kick off an individual fetch and listen for result
-  // This ensures the first floor shown is fast.
-  ref.read(campusMapInitProvider); // kick off buildings too
-
-  final asyncValue = ref.watch(
-    FutureProvider((ref) => repo.getRoomsForFloor(floor)),
-  );
-  return asyncValue.value ?? [];
+  // Return the data if available, otherwise return an empty list
+  // The UI already shows a global loader via campusMapInitProvider
+  return asyncValue.value ?? const [];
 });
+
+final isFloorLoadingProvider = Provider<bool>((ref) {
+  final floor = ref.watch(selectedFloorProvider);
+  return ref.watch(campusFloorRoomsProvider(floor)).isLoading;
+});
+
+typedef TileCoord = ({int z, int tx, int ty});
+
+final basemapTileProvider = FutureProvider.autoDispose.family<File?, TileCoord>(
+  (ref, coord) async {
+    return ref
+        .read(campusMapRepositoryProvider)
+        .getBasemapTile(coord.z, coord.tx, coord.ty);
+  },
+);
 
 class CampusMapScreen extends ConsumerStatefulWidget {
   const CampusMapScreen({super.key});
@@ -89,6 +113,12 @@ class CampusMapScreen extends ConsumerStatefulWidget {
 
 class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
   final _transformationController = TransformationController();
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
+  }
 
   // Hardcoded EPSG:3857 Web Mercator bounds matching the Python script (padded campus bbox)
   static const double minX = 13528972.133;
@@ -125,8 +155,14 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
       final double span = 40075016.68557849 / pow(2, z);
       const double originShift = 20037508.342789244;
 
-      for (int tx = 439138; tx <= 439148; tx++) {
-        for (int ty = 224449; ty <= 224456; ty++) {
+      // Compute tile range from bbox
+      final int txMin = ((minX + originShift) / span).floor();
+      final int txMax = ((maxX + originShift) / span).floor();
+      final int tyMin = ((originShift - maxY) / span).floor();
+      final int tyMax = ((originShift - minY) / span).floor();
+
+      for (int tx = txMin; tx <= txMax; tx++) {
+        for (int ty = tyMin; ty <= tyMax; ty++) {
           final tileMinX = tx * span - originShift;
           final tileMaxY = originShift - ty * span; // Top edge of tile
           final tileMaxX = tileMinX + span;
@@ -150,13 +186,23 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
               top: top,
               width: right - left,
               height: bottom - top,
-              child: CachedNetworkImage(
-                imageUrl:
-                    'https://a.basemaps.cartocdn.com/rastertiles/voyager/$z/$tx/$ty@2x.png',
-                fit: BoxFit.fill,
-                fadeInDuration: Duration.zero,
-                fadeOutDuration: Duration.zero,
-                errorWidget: (context, url, error) => const SizedBox(),
+              child: Consumer(
+                builder: (context, ref, _) {
+                  final tileAsync = ref.watch(
+                    basemapTileProvider((z: z, tx: tx, ty: ty)),
+                  );
+                  return tileAsync.when(
+                    data: (file) => file != null
+                        ? Image.file(
+                            file,
+                            fit: BoxFit.fill,
+                            gaplessPlayback: true,
+                          )
+                        : const SizedBox(),
+                    loading: () => const SizedBox(),
+                    error: (e, _) => const SizedBox(),
+                  );
+                },
               ),
             ),
           );
@@ -212,6 +258,13 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
               child: CircularProgressIndicator(),
             ),
 
+          if (ref.watch(isFloorLoadingProvider))
+            const Positioned.fill(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+
           Positioned(
             right: 16,
             top: 16,
@@ -260,8 +313,13 @@ class _MapPainter extends CustomPainter {
   final List<FeatureDto> rooms;
   final ({double minX, double maxX, double minY, double maxY}) bbox;
 
+  late double _xMultiplier;
+  late double _yMultiplier;
+
   @override
   void paint(Canvas canvas, Size size) {
+    _xMultiplier = size.width / (bbox.maxX - bbox.minX);
+    _yMultiplier = size.height / (bbox.maxY - bbox.minY);
     // Style matching python CSS:
     // .building { fill: #f0f4f8; stroke: #d1dce5; stroke-width: 2; }
     // .room     { fill: #ffffff; fill-opacity: 0.8; stroke: #bcccdc; stroke-width: 1; }
@@ -288,65 +346,40 @@ class _MapPainter extends CustomPainter {
       for (final f in fs) {
         for (final poly in f.polygons) {
           if (poly.isEmpty) continue;
+
+          // Project all points once — reused for path, bbox, and label layout
+          final projected = poly.map((p) => _project(p)).toList();
+
           final path = Path();
-          final start = _project(poly[0], size);
-          path.moveTo(start.dx, start.dy);
-          for (int i = 1; i < poly.length; i++) {
-            final p = _project(poly[i], size);
-            path.lineTo(p.dx, p.dy);
+          path.moveTo(projected[0].dx, projected[0].dy);
+          for (int i = 1; i < projected.length; i++) {
+            path.lineTo(projected[i].dx, projected[i].dy);
           }
           path.close();
           canvas.drawPath(path, fill);
           canvas.drawPath(path, stroke);
 
           if (label) {
-            // ── 1. Extract fields with case-insensitive / keyword fallback ──
-            String? findProp(List<String> keywords) {
-              for (final k in keywords) {
-                final match = f.properties.entries.where(
-                  (e) => e.key.toLowerCase() == k.toLowerCase(),
-                );
-                if (match.isNotEmpty && match.first.value != null) {
-                  final val = match.first.value.toString().trim();
-                  if (val.isNotEmpty) return val;
-                }
-              }
-              // Secondary search: find any key that CONTAINS the keyword
-              for (final k in keywords) {
-                final match = f.properties.entries.where(
-                  (e) => e.key.toLowerCase().contains(k.toLowerCase()),
-                );
-                if (match.isNotEmpty && match.first.value != null) {
-                  final val = match.first.value.toString().trim();
-                  if (val.isNotEmpty) return val;
-                }
-              }
-              return null;
-            }
+            // ── 1. Extract fields using known GeoServer property names ──────
+            String propStr(String key) =>
+                (f.properties[key] ?? '').toString().trim();
 
-            final roomName =
-                findProp([
-                  'room_name',
-                  'name',
-                  'title',
-                  'room_title',
-                  'teacher',
-                  'ch_name',
-                  'cname',
-                  'note',
-                  'remark',
-                ]) ??
-                '';
+            final rn = propStr('room_name');
+            final n = propStr('name');
+            final cn = propStr('ch_name');
 
-            final roomNo =
-                findProp([
-                  'class_num',
-                  'room_no',
-                  'room_num',
-                  'num',
-                  'no',
-                ])?.replaceAll('-', '\u2011').replaceAll(' ', '\u00A0') ??
-                '';
+            final roomName = rn.isNotEmpty
+                ? rn
+                : n.isNotEmpty
+                ? n
+                : cn;
+
+            final classNum = propStr('class_num');
+            final rNum = propStr('room_no');
+
+            final roomNo = (classNum.isNotEmpty ? classNum : rNum)
+                .replaceAll('-', '\u2011')
+                .replaceAll(' ', '\u00A0');
 
             final roomId =
                 f.properties['room_id']?.toString() ??
@@ -355,11 +388,10 @@ class _MapPainter extends CustomPainter {
 
             if (roomName.isEmpty && roomNo.isEmpty && roomId.isEmpty) continue;
 
-            // ── 2. Compute pixel bbox and OBB (oriented bounding box) ─────────
+            // ── 2. Compute pixel bbox from cached projected points ──────────
             double pxMinX = double.infinity, pxMaxX = double.negativeInfinity;
             double pxMinY = double.infinity, pxMaxY = double.negativeInfinity;
-            final projectedPoly = poly.map((p) => _project(p, size)).toList();
-            for (final pp in projectedPoly) {
+            for (final pp in projected) {
               if (pp.dx < pxMinX) pxMinX = pp.dx;
               if (pp.dx > pxMaxX) pxMaxX = pp.dx;
               if (pp.dy < pxMinY) pxMinY = pp.dy;
@@ -376,9 +408,9 @@ class _MapPainter extends CustomPainter {
             {
               double sumCos = 0;
               double sumSin = 0;
-              for (int i = 0; i < projectedPoly.length - 1; i++) {
-                final a = projectedPoly[i];
-                final b = projectedPoly[i + 1];
+              for (int i = 0; i < projected.length - 1; i++) {
+                final a = projected[i];
+                final b = projected[i + 1];
                 final dx = b.dx - a.dx;
                 final dy = b.dy - a.dy;
                 final len = sqrt(dx * dx + dy * dy);
@@ -396,7 +428,7 @@ class _MapPainter extends CustomPainter {
 
               double minU = double.infinity, maxU = double.negativeInfinity;
               double minV = double.infinity, maxV = double.negativeInfinity;
-              for (final pp in projectedPoly) {
+              for (final pp in projected) {
                 final u = pp.dx * ux + pp.dy * uy;
                 final v = pp.dx * vx + pp.dy * vy;
                 if (u < minU) minU = u;
@@ -548,14 +580,13 @@ class _MapPainter extends CustomPainter {
     draw(rooms, pFillR, pStrokeR, label: true);
   }
 
-  Offset _project(VectorPoint p, Size size) {
-    // p is already in Web Mercator EPSG:3857 because of campus_map_service change
-    final x = (p.x - bbox.minX) / (bbox.maxX - bbox.minX) * size.width;
-    final y = (1.0 - (p.y - bbox.minY) / (bbox.maxY - bbox.minY)) * size.height;
+  Offset _project(VectorPoint p) {
+    final x = (p.x - bbox.minX) * _xMultiplier;
+    final y = (bbox.maxY - p.y) * _yMultiplier;
     return Offset(x, y);
   }
 
   @override
   bool shouldRepaint(covariant _MapPainter old) =>
-      old.rooms != rooms || old.buildings != buildings;
+      old.rooms != rooms || old.buildings != buildings || old.bbox != bbox;
 }

@@ -140,7 +140,7 @@ scanner:
   invalidUrl: Invalid URL
 map:
   title: Campus Map
-  vectorMap: Vector Campus Map (Experimental)
+  vectorMap: Campus Map
   roomInfo: Room Information
   centerAtMe: Center at my location
   floor: Floor

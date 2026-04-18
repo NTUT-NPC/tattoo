@@ -207,7 +207,7 @@ class _TranslationsMapEnUs extends TranslationsMapZhTw {
 
 	// Translations
 	@override String get title => 'Campus Map';
-	@override String get vectorMap => 'Vector Campus Map (Experimental)';
+	@override String get vectorMap => 'Campus Map';
 	@override String get roomInfo => 'Room Information';
 	@override String get centerAtMe => 'Center at my location';
 	@override String get floor => 'Floor';
@@ -537,7 +537,7 @@ extension on TranslationsEnUs {
 			'scanner.guide.button' => 'Got it',
 			'scanner.invalidUrl' => 'Invalid URL',
 			'map.title' => 'Campus Map',
-			'map.vectorMap' => 'Vector Campus Map (Experimental)',
+			'map.vectorMap' => 'Campus Map',
 			'map.roomInfo' => 'Room Information',
 			'map.centerAtMe' => 'Center at my location',
 			'map.floor' => 'Floor',
