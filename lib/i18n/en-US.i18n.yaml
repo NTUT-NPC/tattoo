@@ -162,7 +162,7 @@ about:
 featureFlags:
   title: Feature Flags
   reset: Reset to default
-  fetchFlags: Fetching from remote
+  fetchFlags: Fetch from remote
   noFlag: No Feature Flags
   status:
     local: Local

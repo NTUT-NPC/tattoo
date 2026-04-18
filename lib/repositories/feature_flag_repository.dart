@@ -4,6 +4,7 @@ import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tattoo/services/feature_flag_service.dart';
 import 'package:tattoo/services/firebase_service.dart';
+import 'package:tattoo/utils/shared_preferences.dart';
 
 /// Defines the origin of a feature flag value.
 enum FeatureFlagSource {
@@ -72,7 +73,7 @@ class FeatureFlag {
 final featureFlagRepositoryProvider = Provider<FeatureFlagRepository>((ref) {
   return FeatureFlagRepository(
     service: ref.watch(featureFlagServiceProvider),
-    prefs: SharedPreferencesAsync(),
+    prefs: ref.watch(sharedPreferencesProvider),
   );
 });
 
@@ -159,7 +160,11 @@ class FeatureFlagRepository {
     final logMap = {for (final f in result) f.key: f.value};
 
     log('Feature flags loaded: $logMap', name: 'FeatureFlagRepository');
-    firebaseService.log('Feature flags loaded: $logMap');
+
+    final flagKeys = result.map((f) => f.key).toList()..sort();
+    firebaseService.log(
+      'Feature flags loaded: count=${result.length}, keys=$flagKeys',
+    );
 
     return _flagsCache = result;
   }

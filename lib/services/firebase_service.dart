@@ -119,7 +119,7 @@ class FirebaseService {
     await _fetchAndActivate(
       rc,
       context: 'forced fetch',
-      recordFatalOnFailure: true,
+      recordNonFatalOnFailure: true,
     );
   }
 
@@ -127,7 +127,7 @@ class FirebaseService {
     FirebaseRemoteConfig rc, {
     required String context,
     bool setupSettings = false,
-    bool recordFatalOnFailure = false,
+    bool recordNonFatalOnFailure = false,
   }) async {
     try {
       if (setupSettings) {
@@ -141,29 +141,27 @@ class FirebaseService {
 
       await rc.fetchAndActivate();
 
-      final configData = rc.getAll().map(
-        (key, value) => MapEntry(key, value.asString()),
-      );
+      final keys = rc.getAll().keys.toList()..sort();
+      final status = rc.lastFetchStatus;
 
-      if (rc.lastFetchStatus == RemoteConfigFetchStatus.success) {
-        final message = 'Remote Config $context successful: $configData';
+      if (status == RemoteConfigFetchStatus.success) {
+        final message =
+            'Remote Config $context successful: count=${keys.length}, keys=$keys';
         dev.log(message, name: 'FirebaseService');
         firebaseService.log(message);
       } else {
         final message =
-            'Remote Config $context failed (status: ${rc.lastFetchStatus}), using cache: $configData';
+            'Remote Config $context failed (status: $status): count=${keys.length}, keys=$keys';
         dev.log(message, name: 'FirebaseService');
         firebaseService.log(message);
       }
     } catch (e) {
-      final configData = rc.getAll().map(
-        (key, value) => MapEntry(key, value.asString()),
-      );
+      final keys = rc.getAll().keys.toList()..sort();
       final message =
-          'Remote Config $context error: $e. Using cache: $configData';
+          'Remote Config $context error: $e. Cache: count=${keys.length}, keys=$keys';
       dev.log(message, name: 'FirebaseService');
 
-      if (recordFatalOnFailure) {
+      if (recordNonFatalOnFailure) {
         firebaseService.recordNonFatal(message);
       } else {
         firebaseService.log(message);

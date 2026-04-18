@@ -93,7 +93,7 @@ class _FlagTile extends ConsumerWidget {
         context,
         ref,
         flag,
-        flag.options!.map((e) => e.toString()).toList(),
+        flag.options!,
       );
       return;
     }
@@ -145,29 +145,31 @@ class _FlagTile extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     FeatureFlag flag,
-    List<String> options,
+    List<dynamic> options,
   ) {
     showDialog(
       context: context,
       builder: (context) {
+        final currentValue = options.contains(flag.value) ? flag.value : null;
+
         return AlertDialog(
           title: Text(flag.key),
-          content: RadioGroup<String>(
-            groupValue: flag.value as String,
-            onChanged: (newValue) {
-              if (newValue != null) {
-                ref
-                    .read(featureFlagsProvider.notifier)
-                    .setFlag(flag.key, newValue);
-              }
-              Navigator.of(context).pop();
-            },
-            child: SingleChildScrollView(
+          content: SingleChildScrollView(
+            child: RadioGroup<dynamic>(
+              groupValue: currentValue,
+              onChanged: (newValue) {
+                if (newValue != null) {
+                  ref
+                      .read(featureFlagsProvider.notifier)
+                      .setFlag(flag.key, newValue);
+                }
+                Navigator.of(context).pop();
+              },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: options.map((option) {
-                  return RadioListTile<String>(
-                    title: Text(option),
+                  return RadioListTile<dynamic>(
+                    title: Text(option.toString()),
                     value: option,
                   );
                 }).toList(),
