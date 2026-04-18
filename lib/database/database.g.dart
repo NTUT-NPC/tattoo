@@ -169,6 +169,18 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _calendarFetchedAtMeta = const VerificationMeta(
+    'calendarFetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> calendarFetchedAt =
+      GeneratedColumn<DateTime>(
+        'calendar_fetched_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -186,6 +198,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     passwordExpiresInDays,
     semestersFetchedAt,
     scoreDataFetchedAt,
+    calendarFetchedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -315,6 +328,15 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         ),
       );
     }
+    if (data.containsKey('calendar_fetched_at')) {
+      context.handle(
+        _calendarFetchedAtMeta,
+        calendarFetchedAt.isAcceptableOrUnknown(
+          data['calendar_fetched_at']!,
+          _calendarFetchedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -384,6 +406,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}score_data_fetched_at'],
       ),
+      calendarFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}calendar_fetched_at'],
+      ),
     );
   }
 
@@ -448,6 +474,9 @@ class User extends DataClass implements Insertable<User> {
 
   /// When score-related academic data was last fetched from student query.
   final DateTime? scoreDataFetchedAt;
+
+  /// When the academic calendar was last fetched from the portal.
+  final DateTime? calendarFetchedAt;
   const User({
     required this.id,
     this.fetchedAt,
@@ -464,6 +493,7 @@ class User extends DataClass implements Insertable<User> {
     this.passwordExpiresInDays,
     this.semestersFetchedAt,
     this.scoreDataFetchedAt,
+    this.calendarFetchedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -502,6 +532,9 @@ class User extends DataClass implements Insertable<User> {
     }
     if (!nullToAbsent || scoreDataFetchedAt != null) {
       map['score_data_fetched_at'] = Variable<DateTime>(scoreDataFetchedAt);
+    }
+    if (!nullToAbsent || calendarFetchedAt != null) {
+      map['calendar_fetched_at'] = Variable<DateTime>(calendarFetchedAt);
     }
     return map;
   }
@@ -543,6 +576,9 @@ class User extends DataClass implements Insertable<User> {
       scoreDataFetchedAt: scoreDataFetchedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(scoreDataFetchedAt),
+      calendarFetchedAt: calendarFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(calendarFetchedAt),
     );
   }
 
@@ -573,6 +609,9 @@ class User extends DataClass implements Insertable<User> {
       scoreDataFetchedAt: serializer.fromJson<DateTime?>(
         json['scoreDataFetchedAt'],
       ),
+      calendarFetchedAt: serializer.fromJson<DateTime?>(
+        json['calendarFetchedAt'],
+      ),
     );
   }
   @override
@@ -594,6 +633,7 @@ class User extends DataClass implements Insertable<User> {
       'passwordExpiresInDays': serializer.toJson<int?>(passwordExpiresInDays),
       'semestersFetchedAt': serializer.toJson<DateTime?>(semestersFetchedAt),
       'scoreDataFetchedAt': serializer.toJson<DateTime?>(scoreDataFetchedAt),
+      'calendarFetchedAt': serializer.toJson<DateTime?>(calendarFetchedAt),
     };
   }
 
@@ -613,6 +653,7 @@ class User extends DataClass implements Insertable<User> {
     Value<int?> passwordExpiresInDays = const Value.absent(),
     Value<DateTime?> semestersFetchedAt = const Value.absent(),
     Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
+    Value<DateTime?> calendarFetchedAt = const Value.absent(),
   }) => User(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
@@ -635,6 +676,9 @@ class User extends DataClass implements Insertable<User> {
     scoreDataFetchedAt: scoreDataFetchedAt.present
         ? scoreDataFetchedAt.value
         : this.scoreDataFetchedAt,
+    calendarFetchedAt: calendarFetchedAt.present
+        ? calendarFetchedAt.value
+        : this.calendarFetchedAt,
   );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -667,6 +711,9 @@ class User extends DataClass implements Insertable<User> {
       scoreDataFetchedAt: data.scoreDataFetchedAt.present
           ? data.scoreDataFetchedAt.value
           : this.scoreDataFetchedAt,
+      calendarFetchedAt: data.calendarFetchedAt.present
+          ? data.calendarFetchedAt.value
+          : this.calendarFetchedAt,
     );
   }
 
@@ -687,7 +734,8 @@ class User extends DataClass implements Insertable<User> {
           ..write('email: $email, ')
           ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
           ..write('semestersFetchedAt: $semestersFetchedAt, ')
-          ..write('scoreDataFetchedAt: $scoreDataFetchedAt')
+          ..write('scoreDataFetchedAt: $scoreDataFetchedAt, ')
+          ..write('calendarFetchedAt: $calendarFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -709,6 +757,7 @@ class User extends DataClass implements Insertable<User> {
     passwordExpiresInDays,
     semestersFetchedAt,
     scoreDataFetchedAt,
+    calendarFetchedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -728,7 +777,8 @@ class User extends DataClass implements Insertable<User> {
           other.email == this.email &&
           other.passwordExpiresInDays == this.passwordExpiresInDays &&
           other.semestersFetchedAt == this.semestersFetchedAt &&
-          other.scoreDataFetchedAt == this.scoreDataFetchedAt);
+          other.scoreDataFetchedAt == this.scoreDataFetchedAt &&
+          other.calendarFetchedAt == this.calendarFetchedAt);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -747,6 +797,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<int?> passwordExpiresInDays;
   final Value<DateTime?> semestersFetchedAt;
   final Value<DateTime?> scoreDataFetchedAt;
+  final Value<DateTime?> calendarFetchedAt;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
@@ -763,6 +814,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.passwordExpiresInDays = const Value.absent(),
     this.semestersFetchedAt = const Value.absent(),
     this.scoreDataFetchedAt = const Value.absent(),
+    this.calendarFetchedAt = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
@@ -780,6 +832,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.passwordExpiresInDays = const Value.absent(),
     this.semestersFetchedAt = const Value.absent(),
     this.scoreDataFetchedAt = const Value.absent(),
+    this.calendarFetchedAt = const Value.absent(),
   }) : studentId = Value(studentId),
        nameZh = Value(nameZh),
        avatarFilename = Value(avatarFilename),
@@ -800,6 +853,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<int>? passwordExpiresInDays,
     Expression<DateTime>? semestersFetchedAt,
     Expression<DateTime>? scoreDataFetchedAt,
+    Expression<DateTime>? calendarFetchedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -820,6 +874,7 @@ class UsersCompanion extends UpdateCompanion<User> {
         'semesters_fetched_at': semestersFetchedAt,
       if (scoreDataFetchedAt != null)
         'score_data_fetched_at': scoreDataFetchedAt,
+      if (calendarFetchedAt != null) 'calendar_fetched_at': calendarFetchedAt,
     });
   }
 
@@ -839,6 +894,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<int?>? passwordExpiresInDays,
     Value<DateTime?>? semestersFetchedAt,
     Value<DateTime?>? scoreDataFetchedAt,
+    Value<DateTime?>? calendarFetchedAt,
   }) {
     return UsersCompanion(
       id: id ?? this.id,
@@ -857,6 +913,7 @@ class UsersCompanion extends UpdateCompanion<User> {
           passwordExpiresInDays ?? this.passwordExpiresInDays,
       semestersFetchedAt: semestersFetchedAt ?? this.semestersFetchedAt,
       scoreDataFetchedAt: scoreDataFetchedAt ?? this.scoreDataFetchedAt,
+      calendarFetchedAt: calendarFetchedAt ?? this.calendarFetchedAt,
     );
   }
 
@@ -914,6 +971,9 @@ class UsersCompanion extends UpdateCompanion<User> {
         scoreDataFetchedAt.value,
       );
     }
+    if (calendarFetchedAt.present) {
+      map['calendar_fetched_at'] = Variable<DateTime>(calendarFetchedAt.value);
+    }
     return map;
   }
 
@@ -934,7 +994,8 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('email: $email, ')
           ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
           ..write('semestersFetchedAt: $semestersFetchedAt, ')
-          ..write('scoreDataFetchedAt: $scoreDataFetchedAt')
+          ..write('scoreDataFetchedAt: $scoreDataFetchedAt, ')
+          ..write('calendarFetchedAt: $calendarFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -9650,6 +9711,625 @@ class UserSemesterRankingsCompanion
   }
 }
 
+class $CalendarEventsTable extends CalendarEvents
+    with TableInfo<$CalendarEventsTable, CalendarEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CalendarEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _portalIdMeta = const VerificationMeta(
+    'portalId',
+  );
+  @override
+  late final GeneratedColumn<int> portalId = GeneratedColumn<int>(
+    'portal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _startMeta = const VerificationMeta('start');
+  @override
+  late final GeneratedColumn<DateTime> start = GeneratedColumn<DateTime>(
+    'start',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endMeta = const VerificationMeta('end');
+  @override
+  late final GeneratedColumn<DateTime> end = GeneratedColumn<DateTime>(
+    'end',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _allDayMeta = const VerificationMeta('allDay');
+  @override
+  late final GeneratedColumn<bool> allDay = GeneratedColumn<bool>(
+    'all_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("all_day" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _placeMeta = const VerificationMeta('place');
+  @override
+  late final GeneratedColumn<String> place = GeneratedColumn<String>(
+    'place',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ownerNameMeta = const VerificationMeta(
+    'ownerName',
+  );
+  @override
+  late final GeneratedColumn<String> ownerName = GeneratedColumn<String>(
+    'owner_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _creatorNameMeta = const VerificationMeta(
+    'creatorName',
+  );
+  @override
+  late final GeneratedColumn<String> creatorName = GeneratedColumn<String>(
+    'creator_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    portalId,
+    start,
+    end,
+    allDay,
+    title,
+    place,
+    content,
+    ownerName,
+    creatorName,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'calendar_events';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CalendarEvent> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('portal_id')) {
+      context.handle(
+        _portalIdMeta,
+        portalId.isAcceptableOrUnknown(data['portal_id']!, _portalIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_portalIdMeta);
+    }
+    if (data.containsKey('start')) {
+      context.handle(
+        _startMeta,
+        start.isAcceptableOrUnknown(data['start']!, _startMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startMeta);
+    }
+    if (data.containsKey('end')) {
+      context.handle(
+        _endMeta,
+        end.isAcceptableOrUnknown(data['end']!, _endMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endMeta);
+    }
+    if (data.containsKey('all_day')) {
+      context.handle(
+        _allDayMeta,
+        allDay.isAcceptableOrUnknown(data['all_day']!, _allDayMeta),
+      );
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    }
+    if (data.containsKey('place')) {
+      context.handle(
+        _placeMeta,
+        place.isAcceptableOrUnknown(data['place']!, _placeMeta),
+      );
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    }
+    if (data.containsKey('owner_name')) {
+      context.handle(
+        _ownerNameMeta,
+        ownerName.isAcceptableOrUnknown(data['owner_name']!, _ownerNameMeta),
+      );
+    }
+    if (data.containsKey('creator_name')) {
+      context.handle(
+        _creatorNameMeta,
+        creatorName.isAcceptableOrUnknown(
+          data['creator_name']!,
+          _creatorNameMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CalendarEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CalendarEvent(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      portalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}portal_id'],
+      )!,
+      start: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start'],
+      )!,
+      end: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}end'],
+      )!,
+      allDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}all_day'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      ),
+      place: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}place'],
+      ),
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      ),
+      ownerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_name'],
+      ),
+      creatorName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}creator_name'],
+      ),
+    );
+  }
+
+  @override
+  $CalendarEventsTable createAlias(String alias) {
+    return $CalendarEventsTable(attachedDatabase, alias);
+  }
+}
+
+class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
+  /// Auto-incrementing primary key.
+  final int id;
+
+  /// Unique event ID from NTUT Portal.
+  final int portalId;
+
+  /// Event start time.
+  final DateTime start;
+
+  /// Event end time.
+  final DateTime end;
+
+  /// Whether this is an all-day event.
+  final bool allDay;
+
+  /// Event title / description.
+  final String? title;
+
+  /// Event location.
+  final String? place;
+
+  /// Event content / details.
+  final String? content;
+
+  /// Owner name (e.g., "學校行事曆").
+  final String? ownerName;
+
+  /// Creator name (e.g., "教務處").
+  final String? creatorName;
+  const CalendarEvent({
+    required this.id,
+    required this.portalId,
+    required this.start,
+    required this.end,
+    required this.allDay,
+    this.title,
+    this.place,
+    this.content,
+    this.ownerName,
+    this.creatorName,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['portal_id'] = Variable<int>(portalId);
+    map['start'] = Variable<DateTime>(start);
+    map['end'] = Variable<DateTime>(end);
+    map['all_day'] = Variable<bool>(allDay);
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    if (!nullToAbsent || place != null) {
+      map['place'] = Variable<String>(place);
+    }
+    if (!nullToAbsent || content != null) {
+      map['content'] = Variable<String>(content);
+    }
+    if (!nullToAbsent || ownerName != null) {
+      map['owner_name'] = Variable<String>(ownerName);
+    }
+    if (!nullToAbsent || creatorName != null) {
+      map['creator_name'] = Variable<String>(creatorName);
+    }
+    return map;
+  }
+
+  CalendarEventsCompanion toCompanion(bool nullToAbsent) {
+    return CalendarEventsCompanion(
+      id: Value(id),
+      portalId: Value(portalId),
+      start: Value(start),
+      end: Value(end),
+      allDay: Value(allDay),
+      title: title == null && nullToAbsent
+          ? const Value.absent()
+          : Value(title),
+      place: place == null && nullToAbsent
+          ? const Value.absent()
+          : Value(place),
+      content: content == null && nullToAbsent
+          ? const Value.absent()
+          : Value(content),
+      ownerName: ownerName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerName),
+      creatorName: creatorName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(creatorName),
+    );
+  }
+
+  factory CalendarEvent.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CalendarEvent(
+      id: serializer.fromJson<int>(json['id']),
+      portalId: serializer.fromJson<int>(json['portalId']),
+      start: serializer.fromJson<DateTime>(json['start']),
+      end: serializer.fromJson<DateTime>(json['end']),
+      allDay: serializer.fromJson<bool>(json['allDay']),
+      title: serializer.fromJson<String?>(json['title']),
+      place: serializer.fromJson<String?>(json['place']),
+      content: serializer.fromJson<String?>(json['content']),
+      ownerName: serializer.fromJson<String?>(json['ownerName']),
+      creatorName: serializer.fromJson<String?>(json['creatorName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'portalId': serializer.toJson<int>(portalId),
+      'start': serializer.toJson<DateTime>(start),
+      'end': serializer.toJson<DateTime>(end),
+      'allDay': serializer.toJson<bool>(allDay),
+      'title': serializer.toJson<String?>(title),
+      'place': serializer.toJson<String?>(place),
+      'content': serializer.toJson<String?>(content),
+      'ownerName': serializer.toJson<String?>(ownerName),
+      'creatorName': serializer.toJson<String?>(creatorName),
+    };
+  }
+
+  CalendarEvent copyWith({
+    int? id,
+    int? portalId,
+    DateTime? start,
+    DateTime? end,
+    bool? allDay,
+    Value<String?> title = const Value.absent(),
+    Value<String?> place = const Value.absent(),
+    Value<String?> content = const Value.absent(),
+    Value<String?> ownerName = const Value.absent(),
+    Value<String?> creatorName = const Value.absent(),
+  }) => CalendarEvent(
+    id: id ?? this.id,
+    portalId: portalId ?? this.portalId,
+    start: start ?? this.start,
+    end: end ?? this.end,
+    allDay: allDay ?? this.allDay,
+    title: title.present ? title.value : this.title,
+    place: place.present ? place.value : this.place,
+    content: content.present ? content.value : this.content,
+    ownerName: ownerName.present ? ownerName.value : this.ownerName,
+    creatorName: creatorName.present ? creatorName.value : this.creatorName,
+  );
+  CalendarEvent copyWithCompanion(CalendarEventsCompanion data) {
+    return CalendarEvent(
+      id: data.id.present ? data.id.value : this.id,
+      portalId: data.portalId.present ? data.portalId.value : this.portalId,
+      start: data.start.present ? data.start.value : this.start,
+      end: data.end.present ? data.end.value : this.end,
+      allDay: data.allDay.present ? data.allDay.value : this.allDay,
+      title: data.title.present ? data.title.value : this.title,
+      place: data.place.present ? data.place.value : this.place,
+      content: data.content.present ? data.content.value : this.content,
+      ownerName: data.ownerName.present ? data.ownerName.value : this.ownerName,
+      creatorName: data.creatorName.present
+          ? data.creatorName.value
+          : this.creatorName,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalendarEvent(')
+          ..write('id: $id, ')
+          ..write('portalId: $portalId, ')
+          ..write('start: $start, ')
+          ..write('end: $end, ')
+          ..write('allDay: $allDay, ')
+          ..write('title: $title, ')
+          ..write('place: $place, ')
+          ..write('content: $content, ')
+          ..write('ownerName: $ownerName, ')
+          ..write('creatorName: $creatorName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    portalId,
+    start,
+    end,
+    allDay,
+    title,
+    place,
+    content,
+    ownerName,
+    creatorName,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CalendarEvent &&
+          other.id == this.id &&
+          other.portalId == this.portalId &&
+          other.start == this.start &&
+          other.end == this.end &&
+          other.allDay == this.allDay &&
+          other.title == this.title &&
+          other.place == this.place &&
+          other.content == this.content &&
+          other.ownerName == this.ownerName &&
+          other.creatorName == this.creatorName);
+}
+
+class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
+  final Value<int> id;
+  final Value<int> portalId;
+  final Value<DateTime> start;
+  final Value<DateTime> end;
+  final Value<bool> allDay;
+  final Value<String?> title;
+  final Value<String?> place;
+  final Value<String?> content;
+  final Value<String?> ownerName;
+  final Value<String?> creatorName;
+  const CalendarEventsCompanion({
+    this.id = const Value.absent(),
+    this.portalId = const Value.absent(),
+    this.start = const Value.absent(),
+    this.end = const Value.absent(),
+    this.allDay = const Value.absent(),
+    this.title = const Value.absent(),
+    this.place = const Value.absent(),
+    this.content = const Value.absent(),
+    this.ownerName = const Value.absent(),
+    this.creatorName = const Value.absent(),
+  });
+  CalendarEventsCompanion.insert({
+    this.id = const Value.absent(),
+    required int portalId,
+    required DateTime start,
+    required DateTime end,
+    this.allDay = const Value.absent(),
+    this.title = const Value.absent(),
+    this.place = const Value.absent(),
+    this.content = const Value.absent(),
+    this.ownerName = const Value.absent(),
+    this.creatorName = const Value.absent(),
+  }) : portalId = Value(portalId),
+       start = Value(start),
+       end = Value(end);
+  static Insertable<CalendarEvent> custom({
+    Expression<int>? id,
+    Expression<int>? portalId,
+    Expression<DateTime>? start,
+    Expression<DateTime>? end,
+    Expression<bool>? allDay,
+    Expression<String>? title,
+    Expression<String>? place,
+    Expression<String>? content,
+    Expression<String>? ownerName,
+    Expression<String>? creatorName,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (portalId != null) 'portal_id': portalId,
+      if (start != null) 'start': start,
+      if (end != null) 'end': end,
+      if (allDay != null) 'all_day': allDay,
+      if (title != null) 'title': title,
+      if (place != null) 'place': place,
+      if (content != null) 'content': content,
+      if (ownerName != null) 'owner_name': ownerName,
+      if (creatorName != null) 'creator_name': creatorName,
+    });
+  }
+
+  CalendarEventsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? portalId,
+    Value<DateTime>? start,
+    Value<DateTime>? end,
+    Value<bool>? allDay,
+    Value<String?>? title,
+    Value<String?>? place,
+    Value<String?>? content,
+    Value<String?>? ownerName,
+    Value<String?>? creatorName,
+  }) {
+    return CalendarEventsCompanion(
+      id: id ?? this.id,
+      portalId: portalId ?? this.portalId,
+      start: start ?? this.start,
+      end: end ?? this.end,
+      allDay: allDay ?? this.allDay,
+      title: title ?? this.title,
+      place: place ?? this.place,
+      content: content ?? this.content,
+      ownerName: ownerName ?? this.ownerName,
+      creatorName: creatorName ?? this.creatorName,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (portalId.present) {
+      map['portal_id'] = Variable<int>(portalId.value);
+    }
+    if (start.present) {
+      map['start'] = Variable<DateTime>(start.value);
+    }
+    if (end.present) {
+      map['end'] = Variable<DateTime>(end.value);
+    }
+    if (allDay.present) {
+      map['all_day'] = Variable<bool>(allDay.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (place.present) {
+      map['place'] = Variable<String>(place.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (ownerName.present) {
+      map['owner_name'] = Variable<String>(ownerName.value);
+    }
+    if (creatorName.present) {
+      map['creator_name'] = Variable<String>(creatorName.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalendarEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('portalId: $portalId, ')
+          ..write('start: $start, ')
+          ..write('end: $end, ')
+          ..write('allDay: $allDay, ')
+          ..write('title: $title, ')
+          ..write('place: $place, ')
+          ..write('content: $content, ')
+          ..write('ownerName: $ownerName, ')
+          ..write('creatorName: $creatorName')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class CourseTableSlot extends DataClass {
   final int id;
   final String? number;
@@ -10777,6 +11457,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $UserSemesterSummaryCadreRolesTable(this);
   late final $UserSemesterRankingsTable userSemesterRankings =
       $UserSemesterRankingsTable(this);
+  late final $CalendarEventsTable calendarEvents = $CalendarEventsTable(this);
   late final $CourseTableSlotsView courseTableSlots = $CourseTableSlotsView(
     this,
   );
@@ -10848,6 +11529,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userSemesterSummaryTutors,
     userSemesterSummaryCadreRoles,
     userSemesterRankings,
+    calendarEvents,
     courseTableSlots,
     scoreDetails,
     userAcademicSummaries,
@@ -10965,6 +11647,7 @@ typedef $$UsersTableCreateCompanionBuilder =
       Value<int?> passwordExpiresInDays,
       Value<DateTime?> semestersFetchedAt,
       Value<DateTime?> scoreDataFetchedAt,
+      Value<DateTime?> calendarFetchedAt,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
     UsersCompanion Function({
@@ -10983,6 +11666,7 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<int?> passwordExpiresInDays,
       Value<DateTime?> semestersFetchedAt,
       Value<DateTime?> scoreDataFetchedAt,
+      Value<DateTime?> calendarFetchedAt,
     });
 
 final class $$UsersTableReferences
@@ -11117,6 +11801,11 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<DateTime> get scoreDataFetchedAt => $composableBuilder(
     column: $table.scoreDataFetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get calendarFetchedAt => $composableBuilder(
+    column: $table.calendarFetchedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11255,6 +11944,11 @@ class $$UsersTableOrderingComposer
     column: $table.scoreDataFetchedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get calendarFetchedAt => $composableBuilder(
+    column: $table.calendarFetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$UsersTableAnnotationComposer
@@ -11322,6 +12016,11 @@ class $$UsersTableAnnotationComposer
 
   GeneratedColumn<DateTime> get scoreDataFetchedAt => $composableBuilder(
     column: $table.scoreDataFetchedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get calendarFetchedAt => $composableBuilder(
+    column: $table.calendarFetchedAt,
     builder: (column) => column,
   );
 
@@ -11423,6 +12122,7 @@ class $$UsersTableTableManager
                 Value<int?> passwordExpiresInDays = const Value.absent(),
                 Value<DateTime?> semestersFetchedAt = const Value.absent(),
                 Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
+                Value<DateTime?> calendarFetchedAt = const Value.absent(),
               }) => UsersCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -11439,6 +12139,7 @@ class $$UsersTableTableManager
                 passwordExpiresInDays: passwordExpiresInDays,
                 semestersFetchedAt: semestersFetchedAt,
                 scoreDataFetchedAt: scoreDataFetchedAt,
+                calendarFetchedAt: calendarFetchedAt,
               ),
           createCompanionCallback:
               ({
@@ -11457,6 +12158,7 @@ class $$UsersTableTableManager
                 Value<int?> passwordExpiresInDays = const Value.absent(),
                 Value<DateTime?> semestersFetchedAt = const Value.absent(),
                 Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
+                Value<DateTime?> calendarFetchedAt = const Value.absent(),
               }) => UsersCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -11473,6 +12175,7 @@ class $$UsersTableTableManager
                 passwordExpiresInDays: passwordExpiresInDays,
                 semestersFetchedAt: semestersFetchedAt,
                 scoreDataFetchedAt: scoreDataFetchedAt,
+                calendarFetchedAt: calendarFetchedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -21380,6 +22083,299 @@ typedef $$UserSemesterRankingsTableProcessedTableManager =
       UserSemesterRanking,
       PrefetchHooks Function({bool summary})
     >;
+typedef $$CalendarEventsTableCreateCompanionBuilder =
+    CalendarEventsCompanion Function({
+      Value<int> id,
+      required int portalId,
+      required DateTime start,
+      required DateTime end,
+      Value<bool> allDay,
+      Value<String?> title,
+      Value<String?> place,
+      Value<String?> content,
+      Value<String?> ownerName,
+      Value<String?> creatorName,
+    });
+typedef $$CalendarEventsTableUpdateCompanionBuilder =
+    CalendarEventsCompanion Function({
+      Value<int> id,
+      Value<int> portalId,
+      Value<DateTime> start,
+      Value<DateTime> end,
+      Value<bool> allDay,
+      Value<String?> title,
+      Value<String?> place,
+      Value<String?> content,
+      Value<String?> ownerName,
+      Value<String?> creatorName,
+    });
+
+class $$CalendarEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $CalendarEventsTable> {
+  $$CalendarEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get portalId => $composableBuilder(
+    column: $table.portalId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get start => $composableBuilder(
+    column: $table.start,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get end => $composableBuilder(
+    column: $table.end,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get allDay => $composableBuilder(
+    column: $table.allDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get place => $composableBuilder(
+    column: $table.place,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerName => $composableBuilder(
+    column: $table.ownerName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get creatorName => $composableBuilder(
+    column: $table.creatorName,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CalendarEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CalendarEventsTable> {
+  $$CalendarEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get portalId => $composableBuilder(
+    column: $table.portalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get start => $composableBuilder(
+    column: $table.start,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get end => $composableBuilder(
+    column: $table.end,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get allDay => $composableBuilder(
+    column: $table.allDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get place => $composableBuilder(
+    column: $table.place,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerName => $composableBuilder(
+    column: $table.ownerName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get creatorName => $composableBuilder(
+    column: $table.creatorName,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CalendarEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CalendarEventsTable> {
+  $$CalendarEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get portalId =>
+      $composableBuilder(column: $table.portalId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get start =>
+      $composableBuilder(column: $table.start, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get end =>
+      $composableBuilder(column: $table.end, builder: (column) => column);
+
+  GeneratedColumn<bool> get allDay =>
+      $composableBuilder(column: $table.allDay, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get place =>
+      $composableBuilder(column: $table.place, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerName =>
+      $composableBuilder(column: $table.ownerName, builder: (column) => column);
+
+  GeneratedColumn<String> get creatorName => $composableBuilder(
+    column: $table.creatorName,
+    builder: (column) => column,
+  );
+}
+
+class $$CalendarEventsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CalendarEventsTable,
+          CalendarEvent,
+          $$CalendarEventsTableFilterComposer,
+          $$CalendarEventsTableOrderingComposer,
+          $$CalendarEventsTableAnnotationComposer,
+          $$CalendarEventsTableCreateCompanionBuilder,
+          $$CalendarEventsTableUpdateCompanionBuilder,
+          (
+            CalendarEvent,
+            BaseReferences<_$AppDatabase, $CalendarEventsTable, CalendarEvent>,
+          ),
+          CalendarEvent,
+          PrefetchHooks Function()
+        > {
+  $$CalendarEventsTableTableManager(
+    _$AppDatabase db,
+    $CalendarEventsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CalendarEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CalendarEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CalendarEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> portalId = const Value.absent(),
+                Value<DateTime> start = const Value.absent(),
+                Value<DateTime> end = const Value.absent(),
+                Value<bool> allDay = const Value.absent(),
+                Value<String?> title = const Value.absent(),
+                Value<String?> place = const Value.absent(),
+                Value<String?> content = const Value.absent(),
+                Value<String?> ownerName = const Value.absent(),
+                Value<String?> creatorName = const Value.absent(),
+              }) => CalendarEventsCompanion(
+                id: id,
+                portalId: portalId,
+                start: start,
+                end: end,
+                allDay: allDay,
+                title: title,
+                place: place,
+                content: content,
+                ownerName: ownerName,
+                creatorName: creatorName,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int portalId,
+                required DateTime start,
+                required DateTime end,
+                Value<bool> allDay = const Value.absent(),
+                Value<String?> title = const Value.absent(),
+                Value<String?> place = const Value.absent(),
+                Value<String?> content = const Value.absent(),
+                Value<String?> ownerName = const Value.absent(),
+                Value<String?> creatorName = const Value.absent(),
+              }) => CalendarEventsCompanion.insert(
+                id: id,
+                portalId: portalId,
+                start: start,
+                end: end,
+                allDay: allDay,
+                title: title,
+                place: place,
+                content: content,
+                ownerName: ownerName,
+                creatorName: creatorName,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CalendarEventsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CalendarEventsTable,
+      CalendarEvent,
+      $$CalendarEventsTableFilterComposer,
+      $$CalendarEventsTableOrderingComposer,
+      $$CalendarEventsTableAnnotationComposer,
+      $$CalendarEventsTableCreateCompanionBuilder,
+      $$CalendarEventsTableUpdateCompanionBuilder,
+      (
+        CalendarEvent,
+        BaseReferences<_$AppDatabase, $CalendarEventsTable, CalendarEvent>,
+      ),
+      CalendarEvent,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -21439,4 +22435,6 @@ class $AppDatabaseManager {
       );
   $$UserSemesterRankingsTableTableManager get userSemesterRankings =>
       $$UserSemesterRankingsTableTableManager(_db, _db.userSemesterRankings);
+  $$CalendarEventsTableTableManager get calendarEvents =>
+      $$CalendarEventsTableTableManager(_db, _db.calendarEvents);
 }

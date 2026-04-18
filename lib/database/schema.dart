@@ -98,6 +98,9 @@ class Users extends Table with AutoIncrementId, Fetchable {
 
   /// When score-related academic data was last fetched from student query.
   late final scoreDataFetchedAt = dateTime().nullable()();
+
+  /// When the academic calendar was last fetched from the portal.
+  late final calendarFetchedAt = dateTime().nullable()();
 }
 
 /// Student seen in an I-School Plus course roster.
@@ -689,4 +692,36 @@ class Materials extends Table with AutoIncrementId {
   List<Set<Column>> get uniqueKeys => [
     {courseOffering, href},
   ];
+}
+
+/// Academic calendar events from the NTUT portal.
+///
+/// Data source: PortalService.getCalendar()
+class CalendarEvents extends Table with AutoIncrementId {
+  /// Unique event ID from NTUT Portal.
+  late final portalId = integer().unique()();
+
+  /// Event start time.
+  late final start = dateTime()();
+
+  /// Event end time.
+  late final end = dateTime()();
+
+  /// Whether this is an all-day event.
+  late final allDay = boolean().withDefault(const Constant(false))();
+
+  /// Event title / description.
+  late final title = text().nullable()();
+
+  /// Event location.
+  late final place = text().nullable()();
+
+  /// Event content / details.
+  late final content = text().nullable()();
+
+  /// Owner name (e.g., "學校行事曆").
+  late final ownerName = text().nullable()();
+
+  /// Creator name (e.g., "教務處").
+  late final creatorName = text().nullable()();
 }

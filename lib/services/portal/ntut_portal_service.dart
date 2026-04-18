@@ -224,8 +224,6 @@ class NtutPortalService implements PortalService {
     final List<dynamic> events = jsonDecode(response.data);
     String? normalizeEmpty(String? value) =>
         value?.isNotEmpty == true ? value : null;
-    DateTime? fromEpoch(int? ms) =>
-        ms != null ? DateTime.fromMillisecondsSinceEpoch(ms) : null;
 
     return events
         .where(
@@ -235,8 +233,8 @@ class NtutPortalService implements PortalService {
         .map<CalendarEventDto>(
           (e) => (
             id: e['id'],
-            start: fromEpoch(e['calStart']),
-            end: fromEpoch(e['calEnd']),
+            start: DateTime.fromMillisecondsSinceEpoch(e['calStart']),
+            end: DateTime.fromMillisecondsSinceEpoch(e['calEnd']),
             allDay: e['allDay'] == '1',
             title: normalizeEmpty(e['calTitle']),
             place: normalizeEmpty(e['calPlace']),

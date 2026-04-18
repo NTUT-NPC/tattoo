@@ -32,6 +32,7 @@ extension DatabaseActions on AppDatabase {
           fetchedAt: Value(null),
           semestersFetchedAt: Value(null),
           scoreDataFetchedAt: Value(null),
+          calendarFetchedAt: Value(null),
         ),
       );
     });
