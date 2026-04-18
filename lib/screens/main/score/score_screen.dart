@@ -189,7 +189,7 @@ class _SemesterScoreList extends StatelessWidget {
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
-              child: Skeleton.ignore(
+              child: Skeleton.keep(
                 child: _SemesterSummaryCard(summary: record.summary),
               ),
             ),
