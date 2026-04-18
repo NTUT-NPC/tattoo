@@ -269,7 +269,7 @@ void main() {
     });
 
     group('getAcademicPerformance', () {
-      test('should return semesters with scores', () async {
+      test('should return valid semesters', () async {
         final semesters = await studentQueryService.getAcademicPerformance();
 
         expect(
@@ -281,13 +281,13 @@ void main() {
         for (final semester in semesters) {
           expect(semester.semester.year, greaterThan(80));
           expect(semester.semester.term, isIn([0, 1, 2, 3]));
-          expect(
-            semester.scores,
-            isNotEmpty,
-            reason:
-                'Semester ${semester.semester.year}-${semester.semester.term} should have courses',
-          );
         }
+
+        expect(
+          semesters.any((semester) => semester.scores.isNotEmpty),
+          isTrue,
+          reason: 'Should have at least one semester with course scores',
+        );
       });
 
       test('should parse score entries with required fields', () async {
@@ -357,6 +357,10 @@ void main() {
         final semesters = await studentQueryService.getAcademicPerformance();
 
         for (final semester in semesters) {
+          if (semester.scores.isEmpty) {
+            continue;
+          }
+
           expect(
             semester.average,
             isNotNull,

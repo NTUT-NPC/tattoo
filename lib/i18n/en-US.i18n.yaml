@@ -49,6 +49,27 @@ nav:
   scores: Scores
   portal: Portals
   profile: Me
+score:
+  loadFailed: Failed to load scores
+  refreshSuccess: Scores updated
+  refreshFailed: Failed to refresh scores
+  noRecords: No score records found
+  noScoresThisSemester: No scores for this semester
+  courseNumber: "No: ${number}  Code: ${code}"
+  none: N/A
+  summary:
+    cumulativeGpa: Cumulative GPA
+    conduct: Conduct
+    semesterAverage: Semester Avg
+    creditsPassed: Credits Passed
+    totalCredits: Total Credits
+  status:
+    notEntered: Not entered
+    withdraw: Withdrawn
+    undelivered: Not submitted
+    pass: Pass
+    fail: Fail
+    creditTransfer: Credit transfer
 courseTable:
   notFound: Course table not found
   actions:

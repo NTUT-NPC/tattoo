@@ -48,6 +48,50 @@ class StudentRepository {
        _firebaseService = firebaseService,
        _studentQueryService = studentQueryService;
 
+  /// Watches score-available semesters for the authenticated student.
+  ///
+  /// Emits cached data immediately, then triggers a background network fetch
+  /// if data is empty or stale. The stream re-emits automatically when the DB
+  /// is updated.
+  ///
+  /// Network errors during background refresh are absorbed — the stream
+  /// continues showing stale (or empty) data rather than erroring.
+  Stream<List<Semester>> watchScoreSemesters() async* {
+    const ttl = Duration(days: 3);
+
+    final query = _database.select(_database.semesters)
+      ..where((s) => s.inScoreSemesterList.equals(true))
+      ..orderBy([
+        (s) => OrderingTerm.desc(s.year),
+        (s) => OrderingTerm.desc(s.term),
+      ]);
+
+    await for (final semesters in query.watch()) {
+      if (semesters.isEmpty) {
+        try {
+          await refreshSemesterRecords();
+        } catch (_) {
+          // Absorb: yield empty below so UI exits loading state
+        }
+      }
+
+      yield semesters;
+
+      final user = await _database.select(_database.users).getSingleOrNull();
+      final age = switch (user?.scoreDataFetchedAt) {
+        final t? => DateTime.now().difference(t),
+        null => ttl,
+      };
+      if (age >= ttl) {
+        try {
+          await refreshSemesterRecords();
+        } catch (_) {
+          // Absorb: stale data is shown via stream
+        }
+      }
+    }
+  }
+
   /// Watches aggregated academic records grouped by semester.
   ///
   /// Emits cached data immediately, then triggers a background network fetch
@@ -142,7 +186,11 @@ class StudentRepository {
 
       for (final semester in semesters) {
         if (semester.semester case (year: final year?, term: final term?)) {
-          final semesterRow = await _database.getOrCreateSemester(year, term);
+          final semesterRow = await _database.getOrCreateSemester(
+            year,
+            term,
+            inScoreSemesterList: true,
+          );
           final semesterId = semesterRow.id;
           fetchedSemesterIds.add(semesterId);
           final key = (year, term);
@@ -241,8 +289,29 @@ class StudentRepository {
         }
       }
 
+      final fetchedSemesterIdList = fetchedSemesterIds.toList(growable: false);
+
+      // Keep membership flag in sync with the latest score semester response.
+      if (fetchedSemesterIdList.isEmpty) {
+        await (_database.update(_database.semesters)..where(
+              (s) => s.inScoreSemesterList.equals(true),
+            ))
+            .write(
+              const SemestersCompanion(inScoreSemesterList: Value(false)),
+            );
+      } else {
+        await (_database.update(_database.semesters)..where(
+              (s) =>
+                  s.inScoreSemesterList.equals(true) &
+                  s.id.isNotIn(fetchedSemesterIdList),
+            ))
+            .write(
+              const SemestersCompanion(inScoreSemesterList: Value(false)),
+            );
+      }
+
       // Remove scores for semesters no longer in the response
-      if (fetchedSemesterIds.isEmpty) {
+      if (fetchedSemesterIdList.isEmpty) {
         await (_database.delete(
           _database.scores,
         )..where((t) => t.user.equals(userId))).go();
@@ -250,7 +319,7 @@ class StudentRepository {
         await (_database.delete(_database.scores)..where(
               (t) =>
                   t.user.equals(userId) &
-                  t.semester.isNotIn(fetchedSemesterIds.toList()),
+                  t.semester.isNotIn(fetchedSemesterIdList),
             ))
             .go();
       }
