@@ -45,9 +45,10 @@ class CalendarRepository {
 
   /// Watches calendar events overlapping the given date range.
   ///
-  /// Emits cached data immediately, then triggers a background refresh of the
-  /// full window if the cache is empty or stale. The stream re-emits when the
-  /// DB is updated.
+  /// Emits cached data immediately, then triggers a background refresh if the
+  /// cache is empty, stale, or the requested range falls outside the current
+  /// fetch window (e.g., semester list just expanded). The stream re-emits
+  /// when the DB is updated.
   ///
   /// Network errors during background refresh are absorbed — the stream
   /// continues showing stale (or empty) data rather than erroring.
@@ -57,6 +58,14 @@ class CalendarRepository {
   }) async* {
     const ttl = Duration(days: 1);
 
+    // Refresh at most once per stream for out-of-window requests.
+    // refreshCalendarEvents caps at _computeWindow() and uses delete+insert,
+    // so each call assigns fresh autoincrement ids to the same events. Drift
+    // .watch() sees the new ids as a changed result and re-emits, which would
+    // loop back into this branch if we didn't gate it — the view is past the
+    // semester range, so no refresh can ever cover it.
+    var refreshedForOutOfWindow = false;
+
     await for (final events in _eventsOverlapping(startDate, endDate).watch()) {
       final user = await _database.select(_database.users).getSingleOrNull();
       if (user == null) {
@@ -64,10 +73,18 @@ class CalendarRepository {
         continue;
       }
 
-      // calendarFetchedAt is authoritative for cache presence. A range query
-      // may return [] when the window is cached but the requested view has no
-      // events, so events.isEmpty isn't a reliable nil-check.
-      if (user.calendarFetchedAt == null) {
+      final (windowStart, windowEnd) = await _computeWindow();
+      final outOfWindow =
+          startDate.isBefore(windowStart) || endDate.isAfter(windowEnd);
+
+      // calendarFetchedAt is authoritative for cache presence within the
+      // window. For out-of-window requests, try once in case the window has
+      // widened since the cached stamp (e.g., a newly enrolled semester).
+      final shouldRefresh =
+          user.calendarFetchedAt == null ||
+          (outOfWindow && !refreshedForOutOfWindow);
+      if (shouldRefresh) {
+        if (outOfWindow) refreshedForOutOfWindow = true;
         try {
           await refreshCalendarEvents();
         } catch (_) {
