@@ -1,12 +1,20 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
+import 'package:tattoo/components/floating_action_bar.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/student_repository.dart';
 import 'package:tattoo/screens/main/score/score_providers.dart';
 import 'package:tattoo/screens/main/score/score_screen_actions.dart';
 import 'package:tattoo/screens/main/score/score_view_helpers.dart';
+
+const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
+const _floatingBarBottomInset = 80.0;
+const _floatingBarMargin = 16.0;
 
 class ScoreScreen extends ConsumerStatefulWidget {
   const ScoreScreen({super.key});
@@ -17,17 +25,6 @@ class ScoreScreen extends ConsumerStatefulWidget {
 
 class _ScoreScreenState extends ConsumerState<ScoreScreen>
     with SingleTickerProviderStateMixin {
-  int _selectedIndex = 0;
-  String? _selectedSemesterKey;
-  TabController? _semesterTabController;
-  int _semesterTabLength = 0;
-
-  @override
-  void dispose() {
-    _semesterTabController?.removeListener(_handleSemesterTabChanged);
-    _semesterTabController?.dispose();
-    super.dispose();
-  }
 
   void _dismissRefreshSnackBar() {
     if (!mounted) return;
@@ -40,69 +37,6 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
       _dismissRefreshSnackBar();
     }
     return false;
-  }
-
-  int _findPreferredSemesterIndex(List<SemesterRecordData> records) {
-    if (_selectedSemesterKey == null) return -1;
-    return records.indexWhere(
-      (record) => semesterKey(record) == _selectedSemesterKey,
-    );
-  }
-
-  int _findDefaultSemesterIndex(List<SemesterRecordData> records) {
-    final index = records.indexWhere((record) => record.scores.isNotEmpty);
-    return index >= 0 ? index : 0;
-  }
-
-  void _handleSemesterTabChanged() {
-    final controller = _semesterTabController;
-    if (controller == null || controller.indexIsChanging || !mounted) return;
-
-    if (_selectedIndex == controller.index) return;
-
-    setState(() {
-      _dismissRefreshSnackBar();
-      _selectedIndex = controller.index;
-    });
-  }
-
-  void _syncSemesterTabController(List<SemesterRecordData> records) {
-    if (records.isEmpty) {
-      _semesterTabController?.removeListener(_handleSemesterTabChanged);
-      _semesterTabController?.dispose();
-      _semesterTabController = null;
-      _semesterTabLength = 0;
-      _selectedIndex = 0;
-      _selectedSemesterKey = null;
-      return;
-    }
-
-    final preferredIndex = _findPreferredSemesterIndex(records);
-    final initialIndex = preferredIndex >= 0
-        ? preferredIndex
-        : _findDefaultSemesterIndex(records);
-
-    if (_semesterTabController == null ||
-        _semesterTabLength != records.length) {
-      _semesterTabController?.removeListener(_handleSemesterTabChanged);
-      _semesterTabController?.dispose();
-      _semesterTabController = TabController(
-        length: records.length,
-        initialIndex: initialIndex,
-        vsync: this,
-      )..addListener(_handleSemesterTabChanged);
-      _semesterTabLength = records.length;
-      _selectedIndex = initialIndex;
-      return;
-    }
-
-    final targetIndex = _selectedIndex >= records.length
-        ? initialIndex
-        : _selectedIndex;
-    if (_semesterTabController!.index != targetIndex) {
-      _semesterTabController!.index = targetIndex;
-    }
-    _selectedIndex = targetIndex;
   }
 
   Future<void> _reloadScores() async {
@@ -122,100 +56,117 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
 
   @override
   Widget build(BuildContext context) {
-    final recordsAsync = ref.watch(semesterRecordsProvider);
+    final semestersAsync = ref.watch(scoreSemestersProvider);
+    final displayedSemesterTabLabels =
+        semestersAsync.asData?.value
+            .map(_semesterLabel)
+            .toList(growable: false) ??
+        _loadingSemesterTabLabels;
+    final isSemesterLoading =
+        semestersAsync.isLoading && !semestersAsync.hasValue;
 
-    return Scaffold(
-      body: recordsAsync.when(
-        loading: () => CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              pinned: true,
-              title: Text(t.nav.scores),
-              centerTitle: true,
-            ),
-            const SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          ],
+    final tabLength = displayedSemesterTabLabels.isEmpty
+        ? 1
+        : displayedSemesterTabLabels.length;
+
+    return DefaultTabController(
+      key: ValueKey(tabLength),
+      length: tabLength,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(t.nav.scores),
         ),
-        error: (err, stack) => CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              pinned: true,
-              title: Text(t.nav.scores),
-              centerTitle: true,
-            ),
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: Text('${t.score.loadFailed}\n$err')),
-            ),
-          ],
-        ),
-        data: (records) {
-          _syncSemesterTabController(records);
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final mediaQuery = MediaQuery.of(context);
+            final bottomInset = math.max(
+              mediaQuery.padding.bottom,
+              mediaQuery.viewInsets.bottom,
+            );
+            final shouldShowFloatingBar = switch (semestersAsync) {
+              AsyncError() => false,
+              AsyncData(value: final semesters) => semesters.isNotEmpty,
+              _ => true,
+            };
 
-          final hasRecords = records.isNotEmpty;
-          if (hasRecords) {
-            final activeIndex = _semesterTabController?.index ?? _selectedIndex;
-            _selectedIndex = activeIndex >= records.length ? 0 : activeIndex;
-            _selectedSemesterKey = semesterKey(records[_selectedIndex]);
-          }
+            return ScrollAwareFloatingActionBar(
+              margin: const EdgeInsets.all(_floatingBarMargin),
+              floatingActionBarBuilder: (context, visible) {
+                if (!shouldShowFloatingBar) {
+                  return null;
+                }
 
-          return NotificationListener<ScrollNotification>(
-            onNotification: _handleScrollNotification,
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  title: Text(t.nav.scores),
-                  centerTitle: true,
-                  bottom: _semesterTabController != null && records.isNotEmpty
-                      ? PreferredSize(
-                          preferredSize: const Size.fromHeight(52),
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                            child: SizedBox(
-                              height: 40,
-                              child: ChipTabSwitcher(
-                                tabs: [
-                                  for (final record in records)
-                                    '${record.summary.year}-${record.summary.term}',
-                                ],
-                                controller: _semesterTabController,
-                                padding: EdgeInsets.zero,
-                                spacing: 6,
-                              ),
-                            ),
-                          ),
-                        )
-                      : null,
-                ),
-                if (!hasRecords)
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(child: Text(t.score.noRecords)),
-                  )
-                else ...[
-                  SliverFillRemaining(
-                    child: TabBarView(
-                      controller: _semesterTabController,
-                      children: [
-                        for (final record in records)
-                          _SemesterScoreList(
-                            record: record,
-                            onRefresh: _reloadScores,
-                          ),
-                      ],
+                return FloatingActionBar(
+                  visible: visible,
+                  child: AppSkeleton(
+                    enabled: isSemesterLoading,
+                    child: ChipTabSwitcher(
+                      tabs: displayedSemesterTabLabels,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                     ),
                   ),
-                ],
-              ],
-            ),
-          );
-        },
+                );
+              },
+              child: switch (semestersAsync) {
+                // ERROR state: show error message
+                AsyncError(:final error) => Center(
+                  child: Center(child: Text('Error: $error')),
+                ),
+
+                // EMPTY state: show not found message
+                AsyncData(value: final semesters) when semesters.isEmpty =>
+                  Center(child: Text(t.score.noRecords)),
+
+                // LOADED state: placeholder pages with tabs
+                AsyncData(value: final semesters) => TabBarView(
+                  children: [
+                    for (final semester in semesters)
+                      _ScorePlaceholder(
+                        semesterLabel: _semesterLabel(semester),
+                        bottomInset: _floatingBarBottomInset + bottomInset,
+                      ),
+                  ],
+                ),
+
+                // LOADING state: show loading placeholder
+                _ => _ScorePlaceholder(
+                  semesterLabel: _loadingSemesterTabLabels.first,
+                  bottomInset: _floatingBarBottomInset + bottomInset,
+                  loading: true,
+                ),
+              },
+            );
+          },
+        ),
       ),
+    );
+  }
+}
+
+class _ScorePlaceholder extends StatelessWidget {
+  const _ScorePlaceholder({
+    required this.semesterLabel,
+    required this.bottomInset,
+    this.loading = false,
+  });
+
+  final String semesterLabel;
+  final double bottomInset;
+  final bool loading;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(16, 24, 16, bottomInset + 16),
+      children: [
+        if (loading)
+          const Center(child: CircularProgressIndicator())
+        else
+          Center(
+            child: Text('$semesterLabel ${t.general.notImplemented}'),
+          ),
+      ],
     );
   }
 }
@@ -387,3 +338,5 @@ class _ScoreTile extends StatelessWidget {
     );
   }
 }
+
+String _semesterLabel(Semester semester) => '${semester.year}-${semester.term}';

@@ -48,6 +48,50 @@ class StudentRepository {
        _firebaseService = firebaseService,
        _studentQueryService = studentQueryService;
 
+  /// Watches score-available semesters for the authenticated student.
+  ///
+  /// Emits cached data immediately, then triggers a background network fetch
+  /// if data is empty or stale. The stream re-emits automatically when the DB
+  /// is updated.
+  ///
+  /// Network errors during background refresh are absorbed — the stream
+  /// continues showing stale (or empty) data rather than erroring.
+  Stream<List<Semester>> watchScoreSemesters() async* {
+    const ttl = Duration(days: 3);
+
+    final query = _database.select(_database.semesters)
+      ..where((s) => s.inScoreSemesterList.equals(true))
+      ..orderBy([
+        (s) => OrderingTerm.desc(s.year),
+        (s) => OrderingTerm.desc(s.term),
+      ]);
+
+    await for (final semesters in query.watch()) {
+      if (semesters.isEmpty) {
+        try {
+          await refreshSemesterRecords();
+        } catch (_) {
+          // Absorb: yield empty below so UI exits loading state
+        }
+      }
+
+      yield semesters;
+
+      final user = await _database.select(_database.users).getSingleOrNull();
+      final age = switch (user?.scoreDataFetchedAt) {
+        final t? => DateTime.now().difference(t),
+        null => ttl,
+      };
+      if (age >= ttl) {
+        try {
+          await refreshSemesterRecords();
+        } catch (_) {
+          // Absorb: stale data is shown via stream
+        }
+      }
+    }
+  }
+
   /// Watches aggregated academic records grouped by semester.
   ///
   /// Emits cached data immediately, then triggers a background network fetch
