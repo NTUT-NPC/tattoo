@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/components/app_skeleton.dart';
@@ -15,6 +13,30 @@ import 'package:tattoo/screens/main/score/score_view_helpers.dart';
 const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
 const _floatingBarBottomInset = 80.0;
 const _floatingBarMargin = 16.0;
+const _loadingSummary = UserAcademicSummary(
+  id: 0,
+  user: 0,
+  semester: 0,
+  year: 0,
+  term: 0,
+);
+const _loadingSemesterRecord = (
+  summary: _loadingSummary,
+  scores: <ScoreDetail>[],
+  rankings: <UserSemesterRanking>[],
+);
+final _loadingScores = List<ScoreDetail>.generate(
+  8,
+  (index) => ScoreDetail(
+    id: index,
+    user: 0,
+    semester: 0,
+    code: 'LOADING-$index',
+    nameZh: 'Loading',
+    number: '000$index',
+  ),
+  growable: false,
+);
 
 class ScoreScreen extends ConsumerStatefulWidget {
   const ScoreScreen({super.key});
@@ -65,11 +87,6 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
         ),
         body: LayoutBuilder(
           builder: (context, constraints) {
-            final mediaQuery = MediaQuery.of(context);
-            final bottomInset = math.max(
-              mediaQuery.padding.bottom,
-              mediaQuery.viewInsets.bottom,
-            );
             final shouldShowFloatingBar = switch (semestersAsync) {
               AsyncError() => false,
               AsyncData(value: final semesters) => semesters.isNotEmpty,
@@ -119,19 +136,15 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                               onRefresh: _reloadScores,
                             )
                           else
-                            _ScorePlaceholder(
-                              semesterLabel: _semesterLabel(semester),
-                              bottomInset:
-                                  _floatingBarBottomInset + bottomInset,
-                            ),
+                            Center(child: Text(t.score.noRecords)),
                       ],
                     ),
                     _ => TabBarView(
                       children: [
-                        for (final semester in semesters)
-                          _ScorePlaceholder(
-                            semesterLabel: _semesterLabel(semester),
-                            bottomInset: _floatingBarBottomInset + bottomInset,
+                        for (final _ in semesters)
+                          _SemesterScoreList(
+                            record: _loadingSemesterRecord,
+                            onRefresh: _reloadScores,
                             loading: true,
                           ),
                       ],
@@ -139,9 +152,9 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                   },
 
                 // LOADING state: show loading placeholder
-                _ => _ScorePlaceholder(
-                  semesterLabel: _loadingSemesterTabLabels.first,
-                  bottomInset: _floatingBarBottomInset + bottomInset,
+                _ => _SemesterScoreList(
+                  record: _loadingSemesterRecord,
+                  onRefresh: _reloadScores,
                   loading: true,
                 ),
               },
@@ -153,78 +166,58 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
   }
 }
 
-class _ScorePlaceholder extends StatelessWidget {
-  const _ScorePlaceholder({
-    required this.semesterLabel,
-    required this.bottomInset,
-    this.loading = false,
-  });
-
-  final String semesterLabel;
-  final double bottomInset;
-  final bool loading;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(16, 24, 16, bottomInset + 16),
-      children: [
-        if (loading)
-          const Center(child: CircularProgressIndicator())
-        else
-          Center(
-            child: Text('$semesterLabel ${t.general.notImplemented}'),
-          ),
-      ],
-    );
-  }
-}
-
 class _SemesterScoreList extends StatelessWidget {
   final SemesterRecordData record;
   final Future<void> Function() onRefresh;
+  final bool loading;
 
   const _SemesterScoreList({
     required this.record,
     required this.onRefresh,
+    this.loading = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final hasScores = record.scores.isNotEmpty;
+    final scores = loading ? _loadingScores : record.scores;
+    final hasScores = scores.isNotEmpty;
 
     return RefreshIndicator(
       onRefresh: onRefresh,
-      child: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: _SemesterSummaryCard(summary: record.summary),
-          ),
-          if (hasScores)
-            SliverPadding(
-              padding: const .fromLTRB(16, 0, 16, _floatingBarBottomInset),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, scoreIndex) {
-                  final score = record.scores[scoreIndex];
-                  return Column(
-                    children: [
-                      _ScoreTile(score: score),
-                      if (scoreIndex != record.scores.length - 1)
-                        const Divider(height: 1),
-                    ],
-                  );
-                }, childCount: record.scores.length),
-              ),
-            )
-          else
+      child: AppSkeleton(
+        enabled: loading,
+        child: CustomScrollView(
+          slivers: [
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const .symmetric(horizontal: 16),
-                child: Center(child: Text(t.score.noScoresThisSemester)),
+              child: Skeleton.ignore(
+                child: _SemesterSummaryCard(summary: record.summary),
               ),
             ),
-        ],
+            if (hasScores)
+              SliverPadding(
+                padding: const .fromLTRB(16, 0, 16, _floatingBarBottomInset),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, scoreIndex) {
+                    final score = scores[scoreIndex];
+                    return Column(
+                      children: [
+                        _ScoreTile(score: score),
+                        if (scoreIndex != scores.length - 1)
+                          const Divider(height: 1),
+                      ],
+                    );
+                  }, childCount: scores.length),
+                ),
+              )
+            else
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const .symmetric(horizontal: 16),
+                  child: Center(child: Text(t.score.noScoresThisSemester)),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
