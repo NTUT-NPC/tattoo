@@ -94,7 +94,7 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
             };
 
             return ScrollAwareFloatingActionBar(
-              margin: const EdgeInsets.all(_floatingBarMargin),
+              margin: const .all(_floatingBarMargin),
               floatingActionBarBuilder: (context, visible) {
                 if (!shouldShowFloatingBar) {
                   return null;
@@ -106,7 +106,7 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                     enabled: isSemesterLoading,
                     child: ChipTabSwitcher(
                       tabs: displayedSemesterTabLabels,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const .symmetric(horizontal: 12),
                     ),
                   ),
                 );
@@ -237,12 +237,12 @@ class _SemesterSummaryCard extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: .circular(16),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          padding: const .symmetric(vertical: 12, horizontal: 16),
           child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+            scrollDirection: .horizontal,
             primary: false,
             physics: const ClampingScrollPhysics(),
             child: Row(
@@ -291,13 +291,13 @@ class _SemesterSummaryCard extends StatelessWidget {
 
   Widget _buildStat(BuildContext context, String label, String value) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: .min,
       children: [
         Text(
           value,
           style: TextStyle(
             fontSize: 22,
-            fontWeight: FontWeight.bold,
+            fontWeight: .bold,
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
@@ -318,7 +318,7 @@ class _ScoreTile extends StatelessWidget {
 
     return ListTile(
       visualDensity: .compact,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+      contentPadding: const .symmetric(horizontal: 8, vertical: 0),
       title: Text(
         score.nameZh,
         style: Theme.of(context).textTheme.titleMedium,
@@ -330,16 +330,16 @@ class _ScoreTile extends StatelessWidget {
         ),
       ),
       trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const .symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: scoreColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: .circular(12),
         ),
         child: Text(
           score.score?.toString() ?? getScoreStatusText(score.status),
           style: TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: .bold,
             color: scoreColor,
           ),
         ),

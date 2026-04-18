@@ -118,7 +118,7 @@ class CourseTableScreen extends ConsumerWidget {
                   child: AppSkeleton(
                     enabled: isSemesterLoading,
                     child: ChipTabSwitcher(
-                      tabs: displayedSemesterTabLabels, 
+                      tabs: displayedSemesterTabLabels,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                     ),
                   ),
