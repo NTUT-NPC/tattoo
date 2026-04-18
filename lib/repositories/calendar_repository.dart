@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
@@ -111,7 +110,14 @@ class CalendarRepository {
     );
 
     await _database.transaction(() async {
-      final portalIds = dtos.map((e) => e.id).nonNulls.toSet();
+      // Clear the window first, then insert fresh data. Overlap semantics
+      // (consistent with read queries) so boundary-spanning events are
+      // cleaned up too.
+      await (_database.delete(_database.calendarEvents)..where((e) {
+            return e.start.isSmallerOrEqualValue(windowEnd) &
+                e.end.isBiggerOrEqualValue(windowStart);
+          }))
+          .go();
 
       // Skip events without an ID — we can't sync or dedupe them.
       final companions = dtos
@@ -132,51 +138,8 @@ class CalendarRepository {
           .toList();
 
       await _database.batch((batch) {
-        batch.insertAll(
-          _database.calendarEvents,
-          companions,
-          onConflict:
-              DoUpdate<$CalendarEventsTable, CalendarEvent>.withExcluded(
-                (old, excluded) => CalendarEventsCompanion.custom(
-                  start: excluded.start,
-                  end: excluded.end,
-                  allDay: excluded.allDay,
-                  title: excluded.title,
-                  place: excluded.place,
-                  content: excluded.content,
-                  ownerName: excluded.ownerName,
-                  creatorName: excluded.creatorName,
-                ),
-                target: [_database.calendarEvents.portalId],
-              ),
-        );
+        batch.insertAll(_database.calendarEvents, companions);
       });
-
-      // Delete events in the window that are no longer on the portal. Use
-      // overlap semantics (consistent with read queries) so boundary-spanning
-      // events are cleaned up too.
-      if (portalIds.isNotEmpty) {
-        await (_database.delete(_database.calendarEvents)..where((e) {
-              return e.start.isSmallerOrEqualValue(windowEnd) &
-                  e.end.isBiggerOrEqualValue(windowStart) &
-                  e.portalId.isNotIn(portalIds);
-            }))
-            .go();
-      } else {
-        // Portal returned no events (or none with IDs). This could be a
-        // transient portal error, so log a warning before wiping the cache.
-        log(
-          'Portal returned 0 syncable events for '
-          '${windowStart.toIso8601String()}~${windowEnd.toIso8601String()}, '
-          'clearing cached events in range',
-          name: 'CalendarRepository',
-        );
-        await (_database.delete(_database.calendarEvents)..where((e) {
-              return e.start.isSmallerOrEqualValue(windowEnd) &
-                  e.end.isBiggerOrEqualValue(windowStart);
-            }))
-            .go();
-      }
 
       await (_database.update(_database.users)
             ..where((u) => u.id.equals(user.id)))
