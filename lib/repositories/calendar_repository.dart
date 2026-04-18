@@ -45,13 +45,13 @@ class CalendarRepository {
 
   /// Watches calendar events overlapping the given date range.
   ///
-  /// Emits cached data immediately, then triggers a background refresh if the
-  /// cache is empty, stale, or the requested range falls outside the current
-  /// fetch window (e.g., semester list just expanded). The stream re-emits
-  /// when the DB is updated.
+  /// Reads events from the local DB and re-emits when the DB is updated. If
+  /// the cached window is missing, stale, or doesn't cover the requested
+  /// range (e.g., semester list just expanded), this stream awaits a refresh
+  /// before yielding so it can populate or update the cache.
   ///
-  /// Network errors during background refresh are absorbed — the stream
-  /// continues showing stale (or empty) data rather than erroring.
+  /// Network errors during refresh are absorbed — the stream continues
+  /// showing stale (or empty) data rather than erroring.
   Stream<List<CalendarEvent>> watchCalendarEvents({
     required DateTime startDate,
     required DateTime endDate,
