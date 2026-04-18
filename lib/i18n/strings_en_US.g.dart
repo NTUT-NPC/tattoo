@@ -47,6 +47,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
 	@override late final _TranslationsScannerEnUs scanner = _TranslationsScannerEnUs._(_root);
+	@override late final _TranslationsMapEnUs map = _TranslationsMapEnUs._(_root);
 	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
 	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
 }
@@ -197,6 +198,20 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 	@override String get howTo => 'Open i.ntut.club on your computer and select QR code login';
 	@override late final _TranslationsScannerGuideEnUs guide = _TranslationsScannerGuideEnUs._(_root);
 	@override String get invalidUrl => 'Invalid URL';
+}
+
+// Path: map
+class _TranslationsMapEnUs extends TranslationsMapZhTw {
+	_TranslationsMapEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Campus Map';
+	@override String get vectorMap => 'Campus Map';
+	@override String get roomInfo => 'Room Information';
+	@override String get centerAtMe => 'Center at my location';
+	@override String get floor => 'Floor';
 }
 
 // Path: enrollmentStatus
@@ -535,6 +550,11 @@ extension on TranslationsEnUs {
 			'scanner.guide.step3' => '3. Click "Scan QR code"',
 			'scanner.guide.button' => 'Got it',
 			'scanner.invalidUrl' => 'Invalid URL',
+			'map.title' => 'Campus Map',
+			'map.vectorMap' => 'Campus Map',
+			'map.roomInfo' => 'Room Information',
+			'map.centerAtMe' => 'Center at my location',
+			'map.floor' => 'Floor',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',

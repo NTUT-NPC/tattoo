@@ -125,12 +125,12 @@ scanner:
   permissionDeniedDescription: 請至設定中開啟相機權限，然後再試一次。
   cameraError: 無法開啟相機，請檢查硬體或稍後再試。
   errors(map):
-    '201': 手機未登入
-    '202': 操作錯誤，請先至「首頁」，再點擊「校外人士登入」
-    '203': 已經是登入成功狀態
-    '204': QR code已失效，請重新整理頁面
-    '205': 已登入，要切換使用者必須先登出網頁
-    '206': QR code已過期，請在電腦上重新整理頁面
+    "201": 手機未登入
+    "202": 操作錯誤，請先至「首頁」，再點擊「校外人士登入」
+    "203": 已經是登入成功狀態
+    "204": QR code已失效，請重新整理頁面
+    "205": 已登入，要切換使用者必須先登出網頁
+    "206": QR code已過期，請在電腦上重新整理頁面
     unknown: 登入失敗，請確認 QR code 是否正確或從電腦頁面刷新
   howTo: "在電腦開啟i.ntut.club並點選QR code登入"
   guide:
@@ -141,6 +141,12 @@ scanner:
     step3: "3. 點擊「QR Code 登入」"
     button: 我知道了
   invalidUrl: 無效的網址
+map:
+  title: 校園地圖
+  vectorMap: 校園樓層導覽
+  roomInfo: 空間資訊
+  centerAtMe: 中心對準我的位置
+  floor: 樓層
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學

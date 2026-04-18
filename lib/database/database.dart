@@ -48,6 +48,7 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     UserSemesterSummaryTutors,
     UserSemesterSummaryCadreRoles,
     UserSemesterRankings,
+    MapCache,
   ],
   views: [
     CourseTableSlots,

@@ -690,3 +690,15 @@ class Materials extends Table with AutoIncrementId {
     {courseOffering, href},
   ];
 }
+
+/// Persistent cache for large map data blobs.
+class MapCache extends Table {
+  /// The cache key (e.g., 'all_campus_data').
+  late final key = text()();
+
+  /// The JSON string value.
+  late final value = text()();
+
+  @override
+  Set<Column> get primaryKey => {key};
+}
