@@ -12,6 +12,7 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
+import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -88,6 +89,14 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDummyFeatureEnabled =
+        ref.watch(isDummyFeatureEnabledProvider).value == true;
+    final dummyString =
+        ref.watch(dummyStringValueProvider).value ?? 'Hello World';
+    final dummyInt = ref.watch(dummyIntValueProvider).value ?? 42;
+    final dummyTheme =
+        ref.watch(dummyThemeProvider).value ?? ThemeOption.system;
+
     // settings options for the profile tab
     final options = [
       SectionHeader(title: t.profile.sections.accountSettings),
@@ -125,6 +134,14 @@ class ProfileScreen extends ConsumerWidget {
       ),
 
       SectionHeader(title: t.profile.sections.appSettings),
+      if (isDummyFeatureEnabled)
+        OptionEntryTile.icon(
+          icon: Icons.science_outlined,
+          title: t.profile.options.dummyFeature,
+          description:
+              'String: $dummyString | Int: $dummyInt | Theme: ${dummyTheme.name}',
+          onTap: () => _showDemoTap(context),
+        ),
       OptionEntryTile.icon(
         icon: Icons.settings_outlined,
         title: t.profile.options.preferences,

@@ -11,6 +11,7 @@ import 'package:tattoo/screens/main/score/score_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
+import 'package:tattoo/screens/main/profile/feature_flag_screen.dart';
 import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
@@ -24,6 +25,7 @@ abstract class AppRoutes {
   static const intro = '/intro';
   static const login = '/login';
   static const about = '/about';
+  static const featureFlags = '/feature-flags';
   static const scanner = '/scanner';
 }
 
@@ -69,6 +71,10 @@ GoRouter createAppRouter({
     GoRoute(
       path: AppRoutes.about,
       builder: (context, state) => const AboutScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.featureFlags,
+      builder: (context, state) => const FeatureFlagScreen(),
     ),
     GoRoute(
       path: AppRoutes.scanner,

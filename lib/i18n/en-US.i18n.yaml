@@ -8,6 +8,7 @@ general:
   copy: Copy
   copied: Copied
   ok: OK
+  cancel: Cancel
 errors:
   occurred: An error occurred
   flutterError: A Flutter error occurred
@@ -15,6 +16,7 @@ errors:
   sessionExpired: Session expired. Please sign in again.
   credentialsInvalid: Credentials are no longer valid. Please sign in again.
   connectionFailed: Cannot connect to the server. Please check your network connection.
+  invalidInput: Invalid input value
 intro:
   features:
     courseTable:
@@ -75,6 +77,7 @@ profile:
     about: About TAT
     npcClub: NTUT Programming Club
     preferences: Preferences
+    dummyFeature: Dummy Feature (Test)
     logout: Sign Out
   avatar:
     uploading: Updating avatar…
@@ -83,6 +86,7 @@ profile:
     invalidFormat: Unrecognized image format
     uploadFailed: Failed to change avatar. Please try again later.
   dangerZone:
+    featureFlags: Feature Flags
     nonFlutterCrash: Non-Flutter Framework Crash
     nonFlutterCrashException: Simulation of asynchronous error
     closedTitle: Bar is currently closed
@@ -155,3 +159,14 @@ about:
   privacyPolicyUrl: https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md
   viewPrivacyPolicy: View our privacy policy
   copyright: "© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0"
+featureFlags:
+  title: Feature Flags
+  reset: Reset to default
+  fetchFlags: Fetch from remote
+  noFlag: No Feature Flags
+  status:
+    local: Local
+    remote: Remote
+    localOverride: Override
+    remoteOverride: Forced
+  refreshed: Refreshed from remote

@@ -49,7 +49,10 @@ runs:
 
     - name: Install Flutter dependencies
       shell: bash
-      run: flutter pub get --enforce-lockfile
+      run: |
+        flutter pub get --enforce-lockfile
+        dart pub global activate flutterfire_cli 1.1.0
+        echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
 
     - name: Setup Gradle cache
       if: ${{ inputs.platform == 'android' }}

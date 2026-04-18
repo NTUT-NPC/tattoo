@@ -425,6 +425,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.8.19"
+  firebase_remote_config:
+    dependency: "direct main"
+    description:
+      name: firebase_remote_config
+      sha256: "823c9017277daa6f754e6d7389de8fb4b96723894fca3f42cf0860019e6a4053"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.3.0"
+  firebase_remote_config_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_remote_config_platform_interface
+      sha256: "93662b23fc8cc4463f98355a2aeebbfb6f67ab81bfc763c7e6e874107f31d217"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
+  firebase_remote_config_web:
+    dependency: transitive
+    description:
+      name: firebase_remote_config_web
+      sha256: "427e4d1495580e3edde5b2b6f641a712799fec7b43c7db157622b29267daa15b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.10.5"
   fixnum:
     dependency: transitive
     description:
