@@ -41,15 +41,19 @@ extension DatabaseActions on AppDatabase {
   ///
   /// When [inCourseSemesterList] is `true`, marks the semester as having
   /// appeared in the course semester list API response.
+  /// When [inScoreSemesterList] is `true`, marks the semester as having
+  /// appeared in the score semester list API response.
   Future<Semester> getOrCreateSemester(
     int year,
     int term, {
     bool? inCourseSemesterList,
+    bool? inScoreSemesterList,
   }) async {
     final companion = SemestersCompanion.insert(
       year: year,
       term: term,
       inCourseSemesterList: Value.absentIfNull(inCourseSemesterList),
+      inScoreSemesterList: Value.absentIfNull(inScoreSemesterList),
     );
 
     return into(semesters).insertReturning(
