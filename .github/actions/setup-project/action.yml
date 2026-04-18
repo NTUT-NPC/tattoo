@@ -76,7 +76,7 @@ runs:
     - name: Select Xcode version
       if: ${{ inputs.platform == 'ios' }}
       shell: bash
-      run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
 
     - name: Setup CocoaPods cache
       if: ${{ inputs.platform == 'ios' }}
@@ -112,5 +112,6 @@ runs:
       if: ${{ inputs.platform == 'ios' && steps.ios-drift.outputs.changed == 'true' }}
       shell: bash
       run: |
-        echo "::error::ios/ has uncommitted changes after flutter build ios --config-only. Download the patch artifact and apply it with: git apply ios-drift.patch"
+        XCODE_VERSION=$(xcodebuild -version | head -1)
+        echo "::error::ios/ drifted after flutter build ios --config-only (CI ${XCODE_VERSION}). Mismatched local Xcode is the usual cause; otherwise apply ios-drift.patch from artifacts."
         exit 1

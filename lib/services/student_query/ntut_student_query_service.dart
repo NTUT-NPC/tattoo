@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:tattoo/models/course.dart';
@@ -95,23 +96,46 @@ class NtutStudentQueryService implements StudentQueryService {
 
     // Semester labels are in submit button values: "114 學年度 第 1 學期 (2025 - Fall)"
     final semesterPattern = RegExp(r'(\d+)\s*學年度\s*第\s*(\d+)\s*學期');
-    final semesterButtons = document.querySelectorAll("input[type='submit']");
-    final semesterMatches = semesterButtons
-        .map((btn) => semesterPattern.firstMatch(btn.attributes['value'] ?? ''))
-        .nonNulls
+    final semesterButtons = document
+        .querySelectorAll("input[type='submit']")
+        .where(
+          (button) =>
+              semesterPattern.hasMatch(button.attributes['value'] ?? ''),
+        )
         .toList();
-
-    final tables = document.querySelectorAll('table');
+    final elements = document.querySelectorAll('*');
+    final elementIndexes = <Element, int>{
+      for (var i = 0; i < elements.length; i++) elements[i]: i,
+    };
 
     final results = <SemesterScoreDto>[];
-    for (var i = 0; i < tables.length && i < semesterMatches.length; i++) {
-      final match = semesterMatches[i];
+    for (var i = 0; i < semesterButtons.length; i++) {
+      final currentButton = semesterButtons[i];
+      final match = semesterPattern.firstMatch(
+        currentButton.attributes['value'] ?? '',
+      );
+      if (match == null) continue;
+
+      final startIndex = elementIndexes[currentButton];
+      if (startIndex == null) continue;
+      final nextButton = i + 1 < semesterButtons.length
+          ? semesterButtons[i + 1]
+          : null;
+      // Parse within this semester section only to avoid table/button misalignment.
+      final endIndex = nextButton == null
+          ? elements.length
+          : elementIndexes[nextButton] ?? elements.length;
+      final table = elements
+          .sublist(startIndex + 1, endIndex)
+          .firstWhereOrNull((element) => element.localName == 'table');
+      if (table == null) continue;
+
       final semester = (
         year: int.parse(match.group(1)!),
         term: int.parse(match.group(2)!),
       );
 
-      final rows = tables[i].querySelectorAll('tr');
+      final rows = table.querySelectorAll('tr');
       final scores = <ScoreDto>[];
       double? average;
       double? conduct;

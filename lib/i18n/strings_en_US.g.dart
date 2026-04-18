@@ -161,6 +161,7 @@ class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
 
 	// Translations
 	@override String get notFound => 'Course table not found';
+	@override late final _TranslationsCourseTableActionsEnUs actions = _TranslationsCourseTableActionsEnUs._(_root);
 	@override Map<String, String> get dayOfWeek => {
 		'sunday': 'Sun',
 		'monday': 'Mon',
@@ -302,6 +303,17 @@ class _TranslationsScoreStatusEnUs extends TranslationsScoreStatusZhTw {
 	@override String get pass => 'Pass';
 	@override String get fail => 'Fail';
 	@override String get creditTransfer => 'Credit transfer';
+}
+
+// Path: courseTable.actions
+class _TranslationsCourseTableActionsEnUs extends TranslationsCourseTableActionsZhTw {
+	_TranslationsCourseTableActionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get showMoreOptions => 'Show more options';
+	@override String get displayOptions => 'Display options';
 }
 
 // Path: profile.sections
@@ -511,6 +523,8 @@ extension on TranslationsEnUs {
 			'score.status.fail' => 'Fail',
 			'score.status.creditTransfer' => 'Credit transfer',
 			'courseTable.notFound' => 'Course table not found',
+			'courseTable.actions.showMoreOptions' => 'Show more options',
+			'courseTable.actions.displayOptions' => 'Display options',
 			'courseTable.dayOfWeek.sunday' => 'Sun',
 			'courseTable.dayOfWeek.monday' => 'Mon',
 			'courseTable.dayOfWeek.tuesday' => 'Tue',
