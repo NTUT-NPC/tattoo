@@ -192,34 +192,39 @@ class _SemesterScoreList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasScores = record.scores.isNotEmpty;
+
     return RefreshIndicator(
       onRefresh: onRefresh,
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.only(top: 8, bottom: 12),
-        itemCount: record.scores.length + 2,
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return _SemesterSummaryCard(summary: record.summary);
-          }
-          if (index == 1) {
-            if (record.scores.isNotEmpty) return const SizedBox(height: 8);
-            return Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Center(child: Text(t.score.noScoresThisSemester)),
-            );
-          }
-
-          final scoreIndex = index - 2;
-          final score = record.scores[scoreIndex];
-          return Column(
-            children: [
-              _ScoreTile(score: score),
-              if (scoreIndex != record.scores.length - 1)
-                const Divider(height: 1, indent: 16),
-            ],
-          );
-        },
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: _SemesterSummaryCard(summary: record.summary),
+          ),
+          if (hasScores)
+            SliverPadding(
+              padding: const .fromLTRB(16, 0, 16, _floatingBarBottomInset),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, scoreIndex) {
+                  final score = record.scores[scoreIndex];
+                  return Column(
+                    children: [
+                      _ScoreTile(score: score),
+                      if (scoreIndex != record.scores.length - 1)
+                        const Divider(height: 1),
+                    ],
+                  );
+                }, childCount: record.scores.length),
+              ),
+            )
+          else
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const .symmetric(horizontal: 16),
+                child: Center(child: Text(t.score.noScoresThisSemester)),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -235,7 +240,7 @@ class _SemesterSummaryCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+      padding: const .symmetric(horizontal: 16, vertical: 8),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
@@ -319,7 +324,7 @@ class _ScoreTile extends StatelessWidget {
     final scoreColor = getScoreColor(context, score);
 
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       title: Text(
         score.nameZh,
         style: const TextStyle(fontWeight: FontWeight.w600),
