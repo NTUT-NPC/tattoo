@@ -317,10 +317,11 @@ class _ScoreTile extends StatelessWidget {
     final scoreColor = getScoreColor(context, score);
 
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      visualDensity: .compact,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
       title: Text(
         score.nameZh,
-        style: const TextStyle(fontWeight: FontWeight.w600),
+        style: Theme.of(context).textTheme.titleMedium,
       ),
       subtitle: Text(
         t.score.courseNumber(
