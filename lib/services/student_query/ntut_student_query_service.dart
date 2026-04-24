@@ -96,44 +96,31 @@ class NtutStudentQueryService implements StudentQueryService {
 
     // Semester labels are in submit button values: "114 學年度 第 1 學期 (2025 - Fall)"
     final semesterPattern = RegExp(r'(\d+)\s*學年度\s*第\s*(\d+)\s*學期');
-    final semesterButtons = document
-        .querySelectorAll("input[type='submit']")
-        .where(
-          (button) =>
-              semesterPattern.hasMatch(button.attributes['value'] ?? ''),
-        )
-        .toList();
-    final elements = document.querySelectorAll('*');
-    final elementIndexes = <Element, int>{
-      for (var i = 0; i < elements.length; i++) elements[i]: i,
-    };
+    final nodes = document.querySelectorAll("input[type='submit'], table");
+    final sections = <({int start, SemesterDto semester})>[];
+    for (final (i, node) in nodes.indexed) {
+      if (node.localName != 'input') continue;
+      final match = semesterPattern.firstMatch(node.attributes['value'] ?? '');
+      if (match == null) continue;
+      sections.add((
+        start: i,
+        semester: (
+          year: int.parse(match.group(1)!),
+          term: int.parse(match.group(2)!),
+        ),
+      ));
+    }
 
     final results = <SemesterScoreDto>[];
-    for (var i = 0; i < semesterButtons.length; i++) {
-      final currentButton = semesterButtons[i];
-      final match = semesterPattern.firstMatch(
-        currentButton.attributes['value'] ?? '',
-      );
-      if (match == null) continue;
-
-      final startIndex = elementIndexes[currentButton];
-      if (startIndex == null) continue;
-      final nextButton = i + 1 < semesterButtons.length
-          ? semesterButtons[i + 1]
-          : null;
+    for (final (i, section) in sections.indexed) {
       // Parse within this semester section only to avoid table/button misalignment.
-      final endIndex = nextButton == null
-          ? elements.length
-          : elementIndexes[nextButton] ?? elements.length;
-      final table = elements
-          .sublist(startIndex + 1, endIndex)
+      final endIndex = i + 1 < sections.length
+          ? sections[i + 1].start
+          : nodes.length;
+      final table = nodes
+          .sublist(section.start + 1, endIndex)
           .firstWhereOrNull((element) => element.localName == 'table');
       if (table == null) continue;
-
-      final semester = (
-        year: int.parse(match.group(1)!),
-        term: int.parse(match.group(2)!),
-      );
 
       final rows = table.querySelectorAll('tr');
       final scores = <ScoreDto>[];
@@ -175,7 +162,7 @@ class NtutStudentQueryService implements StudentQueryService {
       }
 
       results.add((
-        semester: semester,
+        semester: section.semester,
         scores: scores,
         average: average,
         conduct: conduct,
