@@ -133,6 +133,8 @@ class NtutStudentQueryService implements StudentQueryService {
           final (scoreValue, status) = _parseScore(scoreText);
           scores.add((
             number: _parseCellText(cells[0]),
+            courseNameZh: _parseCellText(cells[2]),
+            courseNameEn: _parseCellText(cells[3]),
             courseCode: _parseCellText(cells[4]),
             score: scoreValue,
             status: status,
