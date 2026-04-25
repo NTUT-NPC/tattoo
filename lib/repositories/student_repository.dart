@@ -142,7 +142,11 @@ class StudentRepository {
 
       for (final semester in semesters) {
         if (semester.semester case (year: final year?, term: final term?)) {
-          final semesterRow = await _database.getOrCreateSemester(year, term);
+          final semesterRow = await _database.getOrCreateSemester(
+            year,
+            term,
+            inScoreSemesterList: true,
+          );
           final semesterId = semesterRow.id;
           fetchedSemesterIds.add(semesterId);
           final key = (year, term);
@@ -241,6 +245,25 @@ class StudentRepository {
         }
       }
 
+      // Keep membership flag in sync with the latest score semester response.
+      if (fetchedSemesterIds.isEmpty) {
+        await (_database.update(_database.semesters)..where(
+              (s) => s.inScoreSemesterList.equals(true),
+            ))
+            .write(
+              const SemestersCompanion(inScoreSemesterList: Value(false)),
+            );
+      } else {
+        await (_database.update(_database.semesters)..where(
+              (s) =>
+                  s.inScoreSemesterList.equals(true) &
+                  s.id.isNotIn(fetchedSemesterIds),
+            ))
+            .write(
+              const SemestersCompanion(inScoreSemesterList: Value(false)),
+            );
+      }
+
       // Remove scores for semesters no longer in the response
       if (fetchedSemesterIds.isEmpty) {
         await (_database.delete(
@@ -250,7 +273,7 @@ class StudentRepository {
         await (_database.delete(_database.scores)..where(
               (t) =>
                   t.user.equals(userId) &
-                  t.semester.isNotIn(fetchedSemesterIds.toList()),
+                  t.semester.isNotIn(fetchedSemesterIds),
             ))
             .go();
       }
