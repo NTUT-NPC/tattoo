@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:tattoo/models/course.dart';
@@ -96,33 +95,28 @@ class NtutStudentQueryService implements StudentQueryService {
 
     // Semester labels are in submit button values: "114 學年度 第 1 學期 (2025 - Fall)"
     final semesterPattern = RegExp(r'(\d+)\s*學年度\s*第\s*(\d+)\s*學期');
-    final nodes = document.querySelectorAll("input[type='submit'], table");
-    final sections = <({int start, SemesterDto semester})>[];
-    for (final (i, node) in nodes.indexed) {
-      if (node.localName != 'input') continue;
-      final match = semesterPattern.firstMatch(node.attributes['value'] ?? '');
-      if (match == null) continue;
-      sections.add((
-        start: i,
-        semester: (
-          year: int.parse(match.group(1)!),
-          term: int.parse(match.group(2)!),
-        ),
-      ));
-    }
 
+    // Walk buttons and tables in document order, pairing each semester button
+    // with the next table. Other submits (print/reset) leave pending intact.
     final results = <SemesterScoreDto>[];
-    for (final (i, section) in sections.indexed) {
-      // Parse within this semester section only to avoid table/button misalignment.
-      final endIndex = i + 1 < sections.length
-          ? sections[i + 1].start
-          : nodes.length;
-      final table = nodes
-          .sublist(section.start + 1, endIndex)
-          .firstWhereOrNull((element) => element.localName == 'table');
-      if (table == null) continue;
+    SemesterDto? pendingSemester;
+    final nodes = document.querySelectorAll("input[type='submit'], table");
 
-      final rows = table.querySelectorAll('tr');
+    for (final node in nodes) {
+      if (node.localName == 'input') {
+        if (semesterPattern.firstMatch(node.attributes['value'] ?? '')
+            case final match?) {
+          pendingSemester = (
+            year: int.parse(match.group(1)!),
+            term: int.parse(match.group(2)!),
+          );
+        }
+        continue;
+      }
+
+      if (pendingSemester == null) continue;
+
+      final rows = node.querySelectorAll('tr');
       final scores = <ScoreDto>[];
       double? average;
       double? conduct;
@@ -162,7 +156,7 @@ class NtutStudentQueryService implements StudentQueryService {
       }
 
       results.add((
-        semester: section.semester,
+        semester: pendingSemester,
         scores: scores,
         average: average,
         conduct: conduct,
@@ -170,6 +164,7 @@ class NtutStudentQueryService implements StudentQueryService {
         creditsPassed: creditsPassed,
         note: note,
       ));
+      pendingSemester = null;
     }
 
     return results;
