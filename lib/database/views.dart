@@ -97,14 +97,13 @@ abstract class CourseTableSlots extends View {
   Courses get courses;
   Classrooms get classrooms;
 
-  /// Prefers the offering's timetable name; falls back to the catalog name
-  /// only when the offering name is somehow null.
+  /// Prefers the offering's timetable value; falls back to the catalog value
+  /// when the offering's value is null. Always returns the offering's name in
+  /// Chinese, since [CourseOfferings.nameZh] is NOT NULL.
   Expression<String> get nameZh =>
       coalesce([courseOfferings.nameZh, courses.nameZh]);
   Expression<String> get nameEn =>
       coalesce([courseOfferings.nameEn, courses.nameEn]);
-
-  /// Prefers the offering's timetable value; falls back to the catalog value.
   Expression<double> get credits =>
       coalesce([courseOfferings.credits, courses.credits]);
   Expression<int> get hours => coalesce([courseOfferings.hours, courses.hours]);
