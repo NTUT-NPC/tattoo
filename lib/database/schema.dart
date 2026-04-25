@@ -347,6 +347,18 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   /// May differ from [Courses.nameEn] (the catalog name).
   late final nameEn = text().nullable()();
 
+  /// Number of credits as listed in this semester's timetable.
+  ///
+  /// May differ from [Courses.credits] (the catalog value). Null for special
+  /// entries (e.g., 班週會及導師時間) that have no credit value.
+  late final credits = real().nullable()();
+
+  /// Number of class hours per week as listed in this semester's timetable.
+  ///
+  /// May differ from [Courses.hours] (the catalog value). Null for special
+  /// entries (e.g., 班週會及導師時間) that have no hour value.
+  late final hours = integer().nullable()();
+
   /// Course sequence phase/stage number (階段, e.g., "1", "2").
   ///
   /// For multi-part courses like 物理 with the same name. Some courses

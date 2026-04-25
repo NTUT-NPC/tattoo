@@ -103,6 +103,12 @@ abstract class CourseTableSlots extends View {
       coalesce([courseOfferings.nameZh, courses.nameZh]);
   Expression<String> get nameEn =>
       coalesce([courseOfferings.nameEn, courses.nameEn]);
+
+  /// Prefers the offering's timetable value; falls back to the catalog value.
+  Expression<double> get credits =>
+      coalesce([courseOfferings.credits, courses.credits]);
+  Expression<int> get hours => coalesce([courseOfferings.hours, courses.hours]);
+
   Expression<String> get classroomNameZh => classrooms.nameZh;
   Expression<String> get classroomNameEn => classrooms.nameEn;
 
@@ -114,8 +120,8 @@ abstract class CourseTableSlots extends View {
         courseOfferings.semester,
         nameZh,
         nameEn,
-        courses.credits,
-        courses.hours,
+        credits,
+        hours,
         schedules.dayOfWeek,
         schedules.period,
         classroomNameZh,

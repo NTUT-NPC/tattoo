@@ -3779,6 +3779,26 @@ class $CourseOfferingsTable extends CourseOfferings
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _creditsMeta = const VerificationMeta(
+    'credits',
+  );
+  @override
+  late final GeneratedColumn<double> credits = GeneratedColumn<double>(
+    'credits',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hoursMeta = const VerificationMeta('hours');
+  @override
+  late final GeneratedColumn<int> hours = GeneratedColumn<int>(
+    'hours',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _phaseMeta = const VerificationMeta('phase');
   @override
   late final GeneratedColumn<int> phase = GeneratedColumn<int>(
@@ -3937,6 +3957,8 @@ class $CourseOfferingsTable extends CourseOfferings
     number,
     nameZh,
     nameEn,
+    credits,
+    hours,
     phase,
     courseType,
     status,
@@ -4005,6 +4027,18 @@ class $CourseOfferingsTable extends CourseOfferings
       context.handle(
         _nameEnMeta,
         nameEn.isAcceptableOrUnknown(data['name_en']!, _nameEnMeta),
+      );
+    }
+    if (data.containsKey('credits')) {
+      context.handle(
+        _creditsMeta,
+        credits.isAcceptableOrUnknown(data['credits']!, _creditsMeta),
+      );
+    }
+    if (data.containsKey('hours')) {
+      context.handle(
+        _hoursMeta,
+        hours.isAcceptableOrUnknown(data['hours']!, _hoursMeta),
       );
     }
     if (data.containsKey('phase')) {
@@ -4132,6 +4166,14 @@ class $CourseOfferingsTable extends CourseOfferings
         DriftSqlType.string,
         data['${effectivePrefix}name_en'],
       ),
+      credits: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}credits'],
+      ),
+      hours: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hours'],
+      ),
       phase: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}phase'],
@@ -4242,6 +4284,18 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   /// May differ from [Courses.nameEn] (the catalog name).
   final String? nameEn;
 
+  /// Number of credits as listed in this semester's timetable.
+  ///
+  /// May differ from [Courses.credits] (the catalog value). Null for special
+  /// entries (e.g., 班週會及導師時間) that have no credit value.
+  final double? credits;
+
+  /// Number of class hours per week as listed in this semester's timetable.
+  ///
+  /// May differ from [Courses.hours] (the catalog value). Null for special
+  /// entries (e.g., 班週會及導師時間) that have no hour value.
+  final int? hours;
+
   /// Course sequence phase/stage number (階段, e.g., "1", "2").
   ///
   /// For multi-part courses like 物理 with the same name. Some courses
@@ -4311,6 +4365,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     this.number,
     required this.nameZh,
     this.nameEn,
+    this.credits,
+    this.hours,
     this.phase,
     this.courseType,
     this.status,
@@ -4343,6 +4399,12 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     map['name_zh'] = Variable<String>(nameZh);
     if (!nullToAbsent || nameEn != null) {
       map['name_en'] = Variable<String>(nameEn);
+    }
+    if (!nullToAbsent || credits != null) {
+      map['credits'] = Variable<double>(credits);
+    }
+    if (!nullToAbsent || hours != null) {
+      map['hours'] = Variable<int>(hours);
     }
     if (!nullToAbsent || phase != null) {
       map['phase'] = Variable<int>(phase);
@@ -4408,6 +4470,12 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       nameEn: nameEn == null && nullToAbsent
           ? const Value.absent()
           : Value(nameEn),
+      credits: credits == null && nullToAbsent
+          ? const Value.absent()
+          : Value(credits),
+      hours: hours == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hours),
       phase: phase == null && nullToAbsent
           ? const Value.absent()
           : Value(phase),
@@ -4466,6 +4534,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       number: serializer.fromJson<String?>(json['number']),
       nameZh: serializer.fromJson<String>(json['nameZh']),
       nameEn: serializer.fromJson<String?>(json['nameEn']),
+      credits: serializer.fromJson<double?>(json['credits']),
+      hours: serializer.fromJson<int?>(json['hours']),
       phase: serializer.fromJson<int?>(json['phase']),
       courseType: $CourseOfferingsTable.$convertercourseTypen.fromJson(
         serializer.fromJson<String?>(json['courseType']),
@@ -4497,6 +4567,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       'number': serializer.toJson<String?>(number),
       'nameZh': serializer.toJson<String>(nameZh),
       'nameEn': serializer.toJson<String?>(nameEn),
+      'credits': serializer.toJson<double?>(credits),
+      'hours': serializer.toJson<int?>(hours),
       'phase': serializer.toJson<int?>(phase),
       'courseType': serializer.toJson<String?>(
         $CourseOfferingsTable.$convertercourseTypen.toJson(courseType),
@@ -4524,6 +4596,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     Value<String?> number = const Value.absent(),
     String? nameZh,
     Value<String?> nameEn = const Value.absent(),
+    Value<double?> credits = const Value.absent(),
+    Value<int?> hours = const Value.absent(),
     Value<int?> phase = const Value.absent(),
     Value<CourseType?> courseType = const Value.absent(),
     Value<String?> status = const Value.absent(),
@@ -4546,6 +4620,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     number: number.present ? number.value : this.number,
     nameZh: nameZh ?? this.nameZh,
     nameEn: nameEn.present ? nameEn.value : this.nameEn,
+    credits: credits.present ? credits.value : this.credits,
+    hours: hours.present ? hours.value : this.hours,
     phase: phase.present ? phase.value : this.phase,
     courseType: courseType.present ? courseType.value : this.courseType,
     status: status.present ? status.value : this.status,
@@ -4576,6 +4652,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       number: data.number.present ? data.number.value : this.number,
       nameZh: data.nameZh.present ? data.nameZh.value : this.nameZh,
       nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
+      credits: data.credits.present ? data.credits.value : this.credits,
+      hours: data.hours.present ? data.hours.value : this.hours,
       phase: data.phase.present ? data.phase.value : this.phase,
       courseType: data.courseType.present
           ? data.courseType.value
@@ -4615,6 +4693,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           ..write('number: $number, ')
           ..write('nameZh: $nameZh, ')
           ..write('nameEn: $nameEn, ')
+          ..write('credits: $credits, ')
+          ..write('hours: $hours, ')
           ..write('phase: $phase, ')
           ..write('courseType: $courseType, ')
           ..write('status: $status, ')
@@ -4642,6 +4722,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     number,
     nameZh,
     nameEn,
+    credits,
+    hours,
     phase,
     courseType,
     status,
@@ -4668,6 +4750,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           other.number == this.number &&
           other.nameZh == this.nameZh &&
           other.nameEn == this.nameEn &&
+          other.credits == this.credits &&
+          other.hours == this.hours &&
           other.phase == this.phase &&
           other.courseType == this.courseType &&
           other.status == this.status &&
@@ -4692,6 +4776,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   final Value<String?> number;
   final Value<String> nameZh;
   final Value<String?> nameEn;
+  final Value<double?> credits;
+  final Value<int?> hours;
   final Value<int?> phase;
   final Value<CourseType?> courseType;
   final Value<String?> status;
@@ -4714,6 +4800,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.number = const Value.absent(),
     this.nameZh = const Value.absent(),
     this.nameEn = const Value.absent(),
+    this.credits = const Value.absent(),
+    this.hours = const Value.absent(),
     this.phase = const Value.absent(),
     this.courseType = const Value.absent(),
     this.status = const Value.absent(),
@@ -4737,6 +4825,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.number = const Value.absent(),
     required String nameZh,
     this.nameEn = const Value.absent(),
+    this.credits = const Value.absent(),
+    this.hours = const Value.absent(),
     this.phase = const Value.absent(),
     this.courseType = const Value.absent(),
     this.status = const Value.absent(),
@@ -4761,6 +4851,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Expression<String>? number,
     Expression<String>? nameZh,
     Expression<String>? nameEn,
+    Expression<double>? credits,
+    Expression<int>? hours,
     Expression<int>? phase,
     Expression<String>? courseType,
     Expression<String>? status,
@@ -4784,6 +4876,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       if (number != null) 'number': number,
       if (nameZh != null) 'name_zh': nameZh,
       if (nameEn != null) 'name_en': nameEn,
+      if (credits != null) 'credits': credits,
+      if (hours != null) 'hours': hours,
       if (phase != null) 'phase': phase,
       if (courseType != null) 'course_type': courseType,
       if (status != null) 'status': status,
@@ -4809,6 +4903,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Value<String?>? number,
     Value<String>? nameZh,
     Value<String?>? nameEn,
+    Value<double?>? credits,
+    Value<int?>? hours,
     Value<int?>? phase,
     Value<CourseType?>? courseType,
     Value<String?>? status,
@@ -4832,6 +4928,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       number: number ?? this.number,
       nameZh: nameZh ?? this.nameZh,
       nameEn: nameEn ?? this.nameEn,
+      credits: credits ?? this.credits,
+      hours: hours ?? this.hours,
       phase: phase ?? this.phase,
       courseType: courseType ?? this.courseType,
       status: status ?? this.status,
@@ -4872,6 +4970,12 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     }
     if (nameEn.present) {
       map['name_en'] = Variable<String>(nameEn.value);
+    }
+    if (credits.present) {
+      map['credits'] = Variable<double>(credits.value);
+    }
+    if (hours.present) {
+      map['hours'] = Variable<int>(hours.value);
     }
     if (phase.present) {
       map['phase'] = Variable<int>(phase.value);
@@ -4930,6 +5034,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
           ..write('number: $number, ')
           ..write('nameZh: $nameZh, ')
           ..write('nameEn: $nameEn, ')
+          ..write('credits: $credits, ')
+          ..write('hours: $hours, ')
           ..write('phase: $phase, ')
           ..write('courseType: $courseType, ')
           ..write('status: $status, ')
@@ -10679,14 +10785,20 @@ class $CourseTableSlotsView
     'credits',
     aliasedName,
     true,
-    generatedAs: GeneratedAs(courses.credits, false),
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.credits, courses.credits]),
+      false,
+    ),
     type: DriftSqlType.double,
   );
   late final GeneratedColumn<int> hours = GeneratedColumn<int>(
     'hours',
     aliasedName,
     true,
-    generatedAs: GeneratedAs(courses.hours, false),
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.hours, courses.hours]),
+      false,
+    ),
     type: DriftSqlType.int,
   );
   late final GeneratedColumnWithTypeConverter<DayOfWeek, int> dayOfWeek =
@@ -15021,6 +15133,8 @@ typedef $$CourseOfferingsTableCreateCompanionBuilder =
       Value<String?> number,
       required String nameZh,
       Value<String?> nameEn,
+      Value<double?> credits,
+      Value<int?> hours,
       Value<int?> phase,
       Value<CourseType?> courseType,
       Value<String?> status,
@@ -15045,6 +15159,8 @@ typedef $$CourseOfferingsTableUpdateCompanionBuilder =
       Value<String?> number,
       Value<String> nameZh,
       Value<String?> nameEn,
+      Value<double?> credits,
+      Value<int?> hours,
       Value<int?> phase,
       Value<CourseType?> courseType,
       Value<String?> status,
@@ -15274,6 +15390,16 @@ class $$CourseOfferingsTableFilterComposer
 
   ColumnFilters<String> get nameEn => $composableBuilder(
     column: $table.nameEn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get credits => $composableBuilder(
+    column: $table.credits,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hours => $composableBuilder(
+    column: $table.hours,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15564,6 +15690,16 @@ class $$CourseOfferingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get credits => $composableBuilder(
+    column: $table.credits,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get hours => $composableBuilder(
+    column: $table.hours,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get phase => $composableBuilder(
     column: $table.phase,
     builder: (column) => ColumnOrderings(column),
@@ -15686,6 +15822,12 @@ class $$CourseOfferingsTableAnnotationComposer
 
   GeneratedColumn<String> get nameEn =>
       $composableBuilder(column: $table.nameEn, builder: (column) => column);
+
+  GeneratedColumn<double> get credits =>
+      $composableBuilder(column: $table.credits, builder: (column) => column);
+
+  GeneratedColumn<int> get hours =>
+      $composableBuilder(column: $table.hours, builder: (column) => column);
 
   GeneratedColumn<int> get phase =>
       $composableBuilder(column: $table.phase, builder: (column) => column);
@@ -15964,6 +16106,8 @@ class $$CourseOfferingsTableTableManager
                 Value<String?> number = const Value.absent(),
                 Value<String> nameZh = const Value.absent(),
                 Value<String?> nameEn = const Value.absent(),
+                Value<double?> credits = const Value.absent(),
+                Value<int?> hours = const Value.absent(),
                 Value<int?> phase = const Value.absent(),
                 Value<CourseType?> courseType = const Value.absent(),
                 Value<String?> status = const Value.absent(),
@@ -15986,6 +16130,8 @@ class $$CourseOfferingsTableTableManager
                 number: number,
                 nameZh: nameZh,
                 nameEn: nameEn,
+                credits: credits,
+                hours: hours,
                 phase: phase,
                 courseType: courseType,
                 status: status,
@@ -16010,6 +16156,8 @@ class $$CourseOfferingsTableTableManager
                 Value<String?> number = const Value.absent(),
                 required String nameZh,
                 Value<String?> nameEn = const Value.absent(),
+                Value<double?> credits = const Value.absent(),
+                Value<int?> hours = const Value.absent(),
                 Value<int?> phase = const Value.absent(),
                 Value<CourseType?> courseType = const Value.absent(),
                 Value<String?> status = const Value.absent(),
@@ -16032,6 +16180,8 @@ class $$CourseOfferingsTableTableManager
                 number: number,
                 nameZh: nameZh,
                 nameEn: nameEn,
+                credits: credits,
+                hours: hours,
                 phase: phase,
                 courseType: courseType,
                 status: status,

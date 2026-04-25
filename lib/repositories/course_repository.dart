@@ -345,6 +345,8 @@ class CourseRepository {
           number: dto.number,
           nameZh: courseNameZh,
           nameEn: dto.course?.nameEn,
+          credits: dto.credits,
+          hours: dto.hours,
           phase: dto.phase,
           status: dto.status,
           language: dto.language,
@@ -544,8 +546,8 @@ class CourseRepository {
             crossesNoon: false,
             courseName: courseName,
             classroomName: null,
-            credits: row.course?.credits ?? 0.0,
-            hours: row.course?.hours ?? 0,
+            credits: row.offering.credits ?? row.course?.credits ?? 0.0,
+            hours: row.offering.hours ?? row.course?.hours ?? 0,
           );
         })
         .toList(growable: false);
