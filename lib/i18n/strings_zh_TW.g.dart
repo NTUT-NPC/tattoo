@@ -48,6 +48,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsScannerZhTw scanner = TranslationsScannerZhTw.internal(_root);
+	late final TranslationsMapZhTw map = TranslationsMapZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
 }
@@ -286,6 +287,30 @@ class TranslationsScannerZhTw {
 
 	/// zh-TW: '無效的網址'
 	String get invalidUrl => '無效的網址';
+}
+
+// Path: map
+class TranslationsMapZhTw {
+	TranslationsMapZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '校園地圖'
+	String get title => '校園地圖';
+
+	/// zh-TW: '校園樓層導覽'
+	String get vectorMap => '校園樓層導覽';
+
+	/// zh-TW: '空間資訊'
+	String get roomInfo => '空間資訊';
+
+	/// zh-TW: '中心對準我的位置'
+	String get centerAtMe => '中心對準我的位置';
+
+	/// zh-TW: '樓層'
+	String get floor => '樓層';
 }
 
 // Path: enrollmentStatus
@@ -764,6 +789,11 @@ extension on Translations {
 			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
 			'scanner.guide.button' => '我知道了',
 			'scanner.invalidUrl' => '無效的網址',
+			'map.title' => '校園地圖',
+			'map.vectorMap' => '校園樓層導覽',
+			'map.roomInfo' => '空間資訊',
+			'map.centerAtMe' => '中心對準我的位置',
+			'map.floor' => '樓層',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',

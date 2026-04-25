@@ -106,7 +106,12 @@ class ProfileScreen extends ConsumerWidget {
         title: t.profile.options.changeAvatar,
         onTap: () => _changeAvatar(context, ref),
       ),
-
+      SectionHeader(title: t.intro.features.campusLife.title),
+      OptionEntryTile.icon(
+        icon: Icons.map,
+        title: t.map.vectorMap,
+        onTap: () => context.push(AppRoutes.map),
+      ),
       SectionHeader(title: 'TAT'),
       OptionEntryTile.icon(
         icon: Icons.favorite_border_outlined,
