@@ -54,6 +54,27 @@ Flutter widgets with `Semantics` labels appear as `content-desc`. The bounds for
 - **Key event:** `adb shell input keyevent <code>` (BACK=4, HOME=3, ENTER=66)
 - **Text:** `adb shell input text '<text>'`
 
+### Text input pitfalls
+
+`input text` passes through both the host shell and the device shell, which silently drop or expand `$`, `#`, `\``, spaces, and other shell metacharacters. Failures look like a too-short string in the field.
+
+```bash
+# Wrong — host and device shell both expand $, leading to truncation
+adb shell input text "$PASSWORD"
+
+# Right — single-quote on the device side so the device shell treats it literally
+adb shell "input text '$PASSWORD'"
+```
+
+Tapping a non-empty field places the cursor at the end, so the next `input text` appends rather than replaces. Clear the field first:
+
+```bash
+adb shell input tap <x> <y>
+for i in $(seq 1 50); do adb shell input keyevent 67; done  # 67 = DEL/backspace
+```
+
+Password fields hide their contents, so the only way to verify what was typed is the dot count — count it against the expected length before submitting.
+
 ### Scrollable containers
 
 Swiping on a `TabBarView` body switches tabs. Swiping on a `SingleChildScrollView`/`HorizontalScrollView` scrolls it. The `uiautomator` dump shows `scrollable="true"` on scrollable containers — use those bounds for swipe coordinates.
