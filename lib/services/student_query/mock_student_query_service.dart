@@ -34,8 +34,8 @@ class MockStudentQueryService implements StudentQueryService {
             scores: [
               (
                 number: '346774',
-                courseNameZh: '課程3004130',
-                courseNameEn: 'Course 3004130',
+                courseNameZh: '鐵道號誌與行車控制系統',
+                courseNameEn: 'Railway Signal and Traffic Control System',
                 courseCode: '3004130',
                 score: 86,
                 status: null,
@@ -50,8 +50,8 @@ class MockStudentQueryService implements StudentQueryService {
               ),
               (
                 number: '348616',
-                courseNameZh: '課程AC23502',
-                courseNameEn: 'Course AC23502',
+                courseNameZh: '數位出版與設計',
+                courseNameEn: 'Digital Publishing Design',
                 courseCode: 'AC23502',
                 score: 82,
                 status: null,
@@ -109,8 +109,8 @@ class MockStudentQueryService implements StudentQueryService {
             scores: [
               (
                 number: '342501',
-                courseNameZh: '課程3602001',
-                courseNameEn: 'Course 3602001',
+                courseNameZh: '工程數學(一)',
+                courseNameEn: 'Engineering Mathematics (I)',
                 courseCode: '3602001',
                 score: 72,
                 status: null,
@@ -133,16 +133,16 @@ class MockStudentQueryService implements StudentQueryService {
               ),
               (
                 number: '345920',
-                courseNameZh: '課程1410080',
-                courseNameEn: 'Course 1410080',
+                courseNameZh: '中國書法藝術欣賞',
+                courseNameEn: 'Chinese Calligraphy Appreciation',
                 courseCode: '1410080',
                 score: 75,
                 status: null,
               ),
               (
                 number: null,
-                courseNameZh: '抵免課程',
-                courseNameEn: 'Transferred Course',
+                courseNameZh: '微積分',
+                courseNameEn: 'Calculus',
                 courseCode: '1401032',
                 score: null,
                 status: .creditTransfer,
