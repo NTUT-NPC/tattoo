@@ -16,9 +16,13 @@ class CalendarScreen extends ConsumerStatefulWidget {
 }
 
 class _CalendarScreenState extends ConsumerState<CalendarScreen> {
+  static const _yearSpan = 5;
+
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   DateTimeRange _range = threeMonthWindow(DateTime.now());
+  final DateTime _firstDay = DateTime(DateTime.now().year - _yearSpan, 1, 1);
+  final DateTime _lastDay = DateTime(DateTime.now().year + _yearSpan, 12, 31);
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +43,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           return Column(
             children: [
               TableCalendar<CalendarEvent>(
-                firstDay: DateTime(2020, 1, 1),
-                lastDay: DateTime(2030, 12, 31),
+                firstDay: _firstDay,
+                lastDay: _lastDay,
                 focusedDay: _focusedDay,
                 selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                 onDaySelected: (newSelectedDay, newFocusedDay) {
