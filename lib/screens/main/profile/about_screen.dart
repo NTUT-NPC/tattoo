@@ -43,15 +43,13 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
 
     ref.invalidate(dangerZoneActionProvider);
 
-    final action = ref.read(dangerZoneActionProvider);
-
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             newState
-                ? t.profile.dangerZone.goAction(action: action)
-                : t.profile.dangerZone.alreadyFull,
+                ? t.profile.dangerZone.barOpen
+                : t.profile.dangerZone.barClosed,
           ),
           behavior: SnackBarBehavior.floating,
         ),

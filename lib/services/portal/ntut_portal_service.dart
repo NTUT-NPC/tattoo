@@ -224,12 +224,11 @@ class NtutPortalService implements PortalService {
     final List<dynamic> events = jsonDecode(response.data);
     String? normalizeEmpty(String? value) =>
         value?.isNotEmpty == true ? value : null;
-    DateTime? fromEpoch(int? ms) {
-      if (ms == null) return null;
-      // NTUT API returns an epoch that exactly corresponds to UTC+8.
-      // By forcing it through UTC and adding 8 hours, we get the exact
-      // year/month/day/hour that the NTUT portal intended, regardless of
-      // the user's local timezone. We then create a device-local DateTime.
+    // NTUT API returns an epoch that exactly corresponds to UTC+8.
+    // By forcing it through UTC and adding 8 hours, we get the exact
+    // year/month/day/hour that the NTUT portal intended, regardless of
+    // the user's local timezone. We then create a device-local DateTime.
+    DateTime fromEpoch(int ms) {
       final utc = DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
       final taipei = utc.add(const Duration(hours: 8));
       return DateTime(
@@ -249,11 +248,7 @@ class NtutPortalService implements PortalService {
         )
         .map<CalendarEventDto>(
           (e) => (
-            id: switch (e['id']) {
-              final int i => i,
-              final String s => int.tryParse(s),
-              _ => null,
-            },
+            id: e['id'],
             start: fromEpoch(e['calStart']),
             end: fromEpoch(e['calEnd']),
             allDay: e['allDay'] == '1',

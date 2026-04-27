@@ -27,11 +27,13 @@ class CourseTableGrid extends StatelessWidget {
     required this.viewportHeight,
     this.loading = false,
     this.onRefresh,
+    this.bottomInset = 0,
   });
 
   final CourseTableData courseTableData;
   final bool loading;
   final RefreshCallback? onRefresh;
+  final double bottomInset;
 
   /// Initial visible width of the grid viewport (before user scrolls).
   final double viewportWidth;
@@ -49,8 +51,13 @@ class CourseTableGrid extends StatelessWidget {
 
   // CourseTableCell accepts a minimum height of 52.
   // with padding(2.0), set 56 as the minimum height.
+  // Display about 10 periods in the viewport by default,
+  // but expand if there are fewer to avoid excessive whitespace.
   double get _periodRowHeight =>
-      max((viewportHeight - _tableHeaderHeight) / 9, 56.0).toDouble();
+      max((viewportHeight - _tableHeaderHeight) / 10, 56.0).toDouble();
+  bool get _isEmpty =>
+      courseTableData.scheduled.isEmpty && courseTableData.unscheduled.isEmpty;
+
   double get _periodNoonHeight => switch (courseTableData.hasNoonCourse) {
     true => _periodRowHeight,
     false => _periodRowHeight / 3,
@@ -146,6 +153,10 @@ class CourseTableGrid extends StatelessWidget {
             ],
           ),
         ),
+        if (bottomInset > 0)
+          SliverToBoxAdapter(
+            child: SizedBox(height: bottomInset),
+          ),
       ],
     );
 
@@ -168,7 +179,7 @@ class CourseTableGrid extends StatelessWidget {
         )
         .toList(growable: false);
 
-    if (courseTableData.isEmpty) {
+    if (_isEmpty) {
       return (visibleDaysOfWeek: weekdays, visiblePeriods: defaultPeriods);
     }
 
@@ -458,10 +469,10 @@ class CourseTableGrid extends StatelessWidget {
     final columnWidth = _dayColumnWidth;
     final random = Random();
     final availableColors = cellColors.reversed.toList(growable: true);
-    final colorByCourseNumber = <String, Color>{};
+    final colorByCourseId = <int, Color>{};
 
-    Color resolveCellColor(String courseNumber) {
-      return colorByCourseNumber.putIfAbsent(courseNumber, () {
+    Color resolveCellColor(int courseId) {
+      return colorByCourseId.putIfAbsent(courseId, () {
         if (availableColors.isEmpty) {
           availableColors.addAll(cellColors.reversed);
         }
@@ -470,7 +481,7 @@ class CourseTableGrid extends StatelessWidget {
       });
     }
 
-    final sortedEntries = courseTableData.entries.toList()
+    final sortedEntries = courseTableData.scheduled.entries.toList()
       ..sort((a, b) {
         final dayComparison = visibleDaysOfWeek
             .indexOf(a.key.day)
@@ -526,7 +537,7 @@ class CourseTableGrid extends StatelessWidget {
                 },
                 child: CourseTableCell(
                   courseTableCellData: cell,
-                  cellColor: resolveCellColor(cell.number),
+                  cellColor: resolveCellColor(cell.id),
                   onTap: () {
                     showCourseTableDetailSheet(context, cell: cell);
                   },
@@ -561,35 +572,49 @@ Widget previewCourseTableGrid() {
   );
 }
 
-final CourseTableData _previewCourseTableData = {
-  (day: .monday, period: .first): (
-    id: 1,
-    number: 'CSIE3002',
-    span: 2,
-    crossesNoon: false,
-    courseName: '作業系統',
-    classroomName: '共同科館201',
-    credits: 3.0,
-    hours: 3,
-  ),
-  (day: .wednesday, period: .sixth): (
-    id: 2,
-    number: 'CSIE3045',
-    span: 3,
-    crossesNoon: false,
-    courseName: '雲端平台實作',
-    classroomName: '科研B215',
-    credits: 3.0,
-    hours: 3,
-  ),
-  (day: .thursday, period: .fourth): (
-    id: 3,
-    number: 'CSIE3702',
-    span: 2,
-    crossesNoon: true,
-    courseName: '軟體工程',
-    classroomName: '科研B112',
-    credits: 3.0,
-    hours: 3,
-  ),
-};
+final CourseTableData _previewCourseTableData = (
+  scheduled: {
+    (day: .monday, period: .first): (
+      id: 1,
+      number: 'CSIE3002',
+      span: 2,
+      crossesNoon: false,
+      courseName: '作業系統',
+      classroomName: '共同科館201',
+      credits: 3.0,
+      hours: 3,
+    ),
+    (day: .wednesday, period: .sixth): (
+      id: 2,
+      number: 'CSIE3045',
+      span: 3,
+      crossesNoon: false,
+      courseName: '雲端平台實作',
+      classroomName: '科研B215',
+      credits: 3.0,
+      hours: 3,
+    ),
+    (day: .thursday, period: .fourth): (
+      id: 3,
+      number: 'CSIE3702',
+      span: 2,
+      crossesNoon: true,
+      courseName: '軟體工程',
+      classroomName: '科研B112',
+      credits: 3.0,
+      hours: 3,
+    ),
+  },
+  unscheduled: <CourseTableCellData>[],
+  hasWeekdayCourse: true,
+  hasSaturdayCourse: false,
+  hasSundayCourse: false,
+  hasAMCourse: true,
+  hasPMCourse: true,
+  hasNoonCourse: false,
+  hasEveningCourse: false,
+  earliestPeriod: .first,
+  latestPeriod: .eighth,
+  totalCredits: 9.0,
+  totalHours: 9,
+);

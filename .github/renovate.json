@@ -7,51 +7,35 @@
   ],
   "timezone": "Asia/Taipei",
   "constraints": {
-    "flutter": "3.41.2"
+    "flutter": "3.41.6"
   },
   "bundler": {
-    "managerFilePatterns": [
-      "/(^|/)Pluginfile$/"
-    ]
+    "managerFilePatterns": ["/(^|/)Pluginfile$/"]
   },
   "packageRules": [
     {
-      "matchPackageNames": [
-        "dart",
-        "dev.flutter.flutter-plugin-loader"
-      ],
+      "matchPackageNames": ["dart", "dev.flutter.flutter-plugin-loader"],
       "enabled": false
     },
     {
-      "matchManagers": [
-        "mise"
-      ],
-      "matchPackageNames": [
-        "java",
-        "ruby"
-      ],
+      "matchManagers": ["mise"],
+      "matchDepNames": ["java"],
       "enabled": false
     },
     {
-      "matchManagers": [
-        "pub"
-      ],
+      "matchManagers": ["pub"],
       "groupName": "Flutter dependencies",
       "groupSlug": "pub",
       "rangeStrategy": "bump",
       "versioning": "npm"
     },
     {
-      "matchFileNames": [
-        "android/**"
-      ],
+      "matchFileNames": ["android/**"],
       "groupName": "Android dependencies",
       "groupSlug": "android"
     },
     {
-      "matchFileNames": [
-        "ios/**"
-      ],
+      "matchFileNames": ["ios/**"],
       "groupName": "iOS dependencies",
       "groupSlug": "ios"
     },

@@ -1,52 +1,35 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
+import 'package:tattoo/components/floating_action_bar.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/course_repository.dart';
-import 'package:tattoo/screens/main/user_providers.dart';
 import 'package:tattoo/screens/main/course_table/course_table_grid.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
+import 'package:tattoo/screens/main/user_providers.dart';
 
 // TODO: Import mock data from demo mode when implemented
-const _placeholderOwnerName = '載入中';
-const _placeholderAvatarInitial = '載';
 const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
-const _ownerAppBarHeight = 56.0;
-const _semesterTabsHeight = 48.0;
+const _floatingBarBottomInset = 80.0;
+const _floatingBarMargin = 16.0;
+
+enum _CourseTableMenuAction {
+  displayOptions,
+}
 
 class CourseTableScreen extends ConsumerWidget {
   const CourseTableScreen({super.key});
 
-  Future<void> _refreshCourseTable(
-    BuildContext context,
-    WidgetRef ref,
-    Semester semester,
-  ) async {
-    final userFuture = ref.read(userProfileProvider.future);
+  Future<void> _refreshCourseTable(WidgetRef ref, Semester semester) async {
     final courseRepository = ref.read(courseRepositoryProvider);
-
-    final user = await userFuture;
-    if (user == null) {
-      if (!context.mounted) return;
-      ref.invalidate(courseTableSemestersProvider);
-      ref.invalidate(courseTableProvider(semester));
-      return;
-    }
-
-    await Future.wait([
-      courseRepository.getSemesters(refresh: true),
-      courseRepository.getCourseTable(
-        user: user,
-        semester: semester,
-        refresh: true,
-      ),
-    ]);
-
-    if (!context.mounted) return;
-    ref.invalidate(courseTableSemestersProvider);
-    ref.invalidate(courseTableProvider(semester));
+    await [
+      courseRepository.refreshSemesters(),
+      courseRepository.refreshCourseTable(semesterId: semester.id),
+    ].wait;
   }
 
   void _showDemoTap(BuildContext context) {
@@ -57,17 +40,15 @@ class CourseTableScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final screenContext = context;
     final profileAsync = ref.watch(userProfileProvider);
     final semestersAsync = ref.watch(courseTableSemestersProvider);
-    final displayedSemesterTabLabels = switch (semestersAsync) {
-      AsyncData(value: final semesters) =>
-        semesters.map(_semesterLabel).toList(growable: false),
-      _ => _loadingSemesterTabLabels,
-    };
+    final displayedSemesterTabLabels =
+        semestersAsync.asData?.value
+            .map(_semesterLabel)
+            .toList(growable: false) ??
+        _loadingSemesterTabLabels;
     final isSemesterLoading =
-        semestersAsync is AsyncLoading<List<Semester>> &&
-        semestersAsync.asData?.value == null;
+        semestersAsync.isLoading && !semestersAsync.hasValue;
 
     final tabLength = displayedSemesterTabLabels.isEmpty
         ? 1
@@ -80,86 +61,70 @@ class CourseTableScreen extends ConsumerWidget {
         // A scaffold AppBar to handle status bar height.
         appBar: AppBar(
           toolbarHeight: 0,
-          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
         body: LayoutBuilder(
           builder: (context, constraints) {
-            final gridViewportSize = Size(
-              constraints.maxWidth,
-              (constraints.maxHeight - _ownerAppBarHeight - _semesterTabsHeight)
-                  .clamp(0.0, double.infinity),
+            final gridViewportSize = constraints.biggest;
+            final mediaQuery = MediaQuery.of(context);
+            final bottomInset = math.max(
+              mediaQuery.padding.bottom,
+              mediaQuery.viewInsets.bottom,
             );
+            final shouldShowFloatingBar = switch (semestersAsync) {
+              AsyncError() => false,
+              AsyncData(value: final semesters) => semesters.isNotEmpty,
+              _ => true,
+            };
 
-            return NestedScrollView(
-              headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                // primary app bar with owner indicator and action buttons
-                SliverAppBar(
-                  primary: false,
-                  toolbarHeight: _ownerAppBarHeight,
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  flexibleSpace: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const _TableOwnerIndicator(),
-                          const Spacer(),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            spacing: 8,
-                            children: [
-                              _CircularIconButton(
-                                icon: Icons.refresh_outlined,
-                                onTap: () => _showDemoTap(context),
+            return ScrollAwareFloatingActionBar(
+              margin: const EdgeInsets.all(_floatingBarMargin),
+              floatingActionBarBuilder: (context, visible) {
+                if (!shouldShowFloatingBar) {
+                  return null;
+                }
+
+                return FloatingActionBar(
+                  visible: visible,
+                  actions: [
+                    // TODO: add day view and week view toggle when implemented
+                    Builder(
+                      builder: (context) {
+                        return FloatingActionBarMenuButton<
+                          _CourseTableMenuAction
+                        >(
+                          icon: Icons.more_vert_outlined,
+                          items: [
+                            PopupMenuItem(
+                              value: .displayOptions,
+                              child: ListTile(
+                                leading: const Icon(Icons.tune_outlined),
+                                title: Text(
+                                  t.courseTable.actions.displayOptions,
+                                ),
                               ),
-                              _CircularIconButton(
-                                icon: Icons.share_outlined,
-                                onTap: () => _showDemoTap(context),
-                              ),
-                              _CircularIconButton(
-                                icon: Icons.more_vert_outlined,
-                                onTap: () => _showDemoTap(context),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                          onSelected: (action) async {
+                            switch (action) {
+                              case .displayOptions:
+                                _showDemoTap(context);
+                                break;
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                  child: AppSkeleton(
+                    enabled: isSemesterLoading,
+                    child: ChipTabSwitcher(
+                      tabs: displayedSemesterTabLabels,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                     ),
                   ),
-                ),
-
-                // secondary app bar with semester tabs
-                SliverAppBar(
-                  primary: false,
-                  floating: true,
-                  snap: true,
-                  pinned: false,
-                  toolbarHeight: _semesterTabsHeight,
-                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                  surfaceTintColor: Colors.transparent,
-                  elevation: 0,
-                  titleSpacing: 0,
-                  title: displayedSemesterTabLabels.isEmpty
-                      ? const SizedBox.shrink()
-                      : IgnorePointer(
-                          ignoring: isSemesterLoading,
-                          child: AppSkeleton(
-                            enabled: isSemesterLoading,
-                            child: ChipTabSwitcher(
-                              tabs: displayedSemesterTabLabels,
-                            ),
-                          ),
-                        ),
-                ),
-              ],
-
-              body: switch (semestersAsync) {
+                );
+              },
+              child: switch (semestersAsync) {
                 // ERROR state: show error message
                 AsyncError(:final error) => Center(
                   child: Center(child: Text('Error: $error')),
@@ -184,7 +149,7 @@ class CourseTableScreen extends ConsumerWidget {
                       Consumer(
                         builder: (context, tabRef, child) {
                           final courseTableAsync = tabRef.watch(
-                            courseTableProvider(semester),
+                            courseTableProvider(semester.id),
                           );
 
                           return switch (courseTableAsync) {
@@ -195,17 +160,18 @@ class CourseTableScreen extends ConsumerWidget {
                               key: ValueKey(_semesterLabel(semester)),
                               courseTableData:
                                   courseTableAsync.asData?.value ??
-                                  CourseTableData(),
+                                  emptyCourseTableData,
                               loading:
                                   courseTableAsync.isLoading &&
                                   !courseTableAsync.hasValue,
                               onRefresh: () => _refreshCourseTable(
-                                screenContext,
                                 ref,
                                 semester,
                               ),
                               viewportWidth: gridViewportSize.width,
                               viewportHeight: gridViewportSize.height,
+                              bottomInset:
+                                  _floatingBarBottomInset + bottomInset,
                             ),
                           };
                         },
@@ -215,10 +181,11 @@ class CourseTableScreen extends ConsumerWidget {
 
                 // LOADING state: show loading skeleton
                 _ => CourseTableGrid(
-                  courseTableData: CourseTableData(),
+                  courseTableData: emptyCourseTableData,
                   loading: true,
                   viewportWidth: gridViewportSize.width,
                   viewportHeight: gridViewportSize.height,
+                  bottomInset: _floatingBarBottomInset + bottomInset,
                 ),
               },
             );
@@ -229,149 +196,4 @@ class CourseTableScreen extends ConsumerWidget {
   }
 }
 
-class _TableOwnerIndicator extends ConsumerWidget {
-  const _TableOwnerIndicator();
-
-  static const double _height = 36;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final profileAsync = ref.watch(userProfileProvider);
-    final avatarAsync = ref.watch(userAvatarProvider);
-    final profile = profileAsync.asData?.value;
-    final avatarFile = avatarAsync.asData?.value;
-    final isLoading = profileAsync is AsyncLoading<User?> && profile == null;
-    final ownerName = switch (profileAsync) {
-      AsyncLoading() => _placeholderOwnerName,
-      AsyncData(value: null) => t.general.notLoggedIn,
-      AsyncError() => t.general.unknown,
-      _ when profile?.nameZh.isNotEmpty == true => profile!.nameZh,
-      _ => t.general.unknown,
-    };
-    final avatarInitial = switch (profile?.nameZh) {
-      final name? when name.isNotEmpty => name.substring(0, 1),
-      _ when isLoading => _placeholderAvatarInitial,
-      _ => '?',
-    };
-
-    const shape = StadiumBorder();
-
-    return AppSkeleton(
-      enabled: isLoading,
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          customBorder: shape,
-          splashFactory: InkRipple.splashFactory,
-          splashColor: Colors.black12,
-          highlightColor: Colors.black12,
-          // TODO: implement course table sharing feature and switch here
-          onTap: () {},
-          child: Ink(
-            height: _height,
-            padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),
-            decoration: ShapeDecoration(
-              shape: shape,
-              color: Colors.white.withValues(alpha: 0.7),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 8,
-              children: [
-                AspectRatio(
-                  aspectRatio: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    child: ClipOval(
-                      child: switch (avatarFile) {
-                        final file? => Image.file(
-                          file,
-                          fit: BoxFit.cover,
-                        ),
-                        null => Center(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              avatarInitial,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      },
-                    ),
-                  ),
-                ),
-                RichText(
-                  text: TextSpan(
-                    // TODO: Design text style here
-                    style: DefaultTextStyle.of(context).style,
-                    children: [
-                      TextSpan(text: ownerName),
-                      // TODO: Enable this dropdown indicator when course table sharing feature is implemented
-                      // WidgetSpan(
-                      //   alignment: PlaceholderAlignment.middle,
-                      //   child: Icon(
-                      //     Icons.arrow_drop_down_outlined,
-                      //     size:
-                      //         (DefaultTextStyle.of(context).style.fontSize ?? 14) *
-                      //         1.5,
-                      //   ),
-                      // ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 String _semesterLabel(Semester semester) => '${semester.year}-${semester.term}';
-
-class _CircularIconButton extends StatelessWidget {
-  const _CircularIconButton({
-    required this.icon,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 28,
-      height: 28,
-      child: Material(
-        color: Colors.white.withValues(alpha: 0.7),
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          splashFactory: InkRipple.splashFactory,
-          splashColor: Colors.black12,
-          highlightColor: Colors.black12,
-          onTap: onTap,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final iconSize = constraints.biggest.shortestSide * 0.45;
-
-              return Center(
-                child: Icon(icon, size: iconSize),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}

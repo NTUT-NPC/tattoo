@@ -131,6 +131,12 @@ class Semesters extends Table with AutoIncrementId {
   /// those created as side effects by other flows (e.g., auth, scores).
   late final inCourseSemesterList = boolean().withDefault(Constant(false))();
 
+  /// Whether this semester appeared in the score semester list API response.
+  ///
+  /// Distinguishes semesters fetched by [StudentRepository.refreshSemesterRecords]
+  /// from those created as side effects by other flows (e.g., auth, courses).
+  late final inScoreSemesterList = boolean().withDefault(Constant(false))();
+
   /// When the course table was last fetched from the server for this semester.
   late final courseTableFetchedAt = dateTime().nullable()();
 
@@ -318,13 +324,28 @@ class Classrooms extends Table with AutoIncrementId, Fetchable {
 @TableIndex(name: 'course_offering_semester', columns: {#semester})
 class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   /// Reference to the course definition.
-  late final course = integer().references(Courses, #id)();
+  ///
+  /// Null for special entries (e.g., "班週會及導師時間") that have schedule
+  /// slots but no course catalog entry.
+  late final course = integer().nullable().references(Courses, #id)();
 
   /// Reference to the semester when this course is offered.
   late final semester = integer().references(Semesters, #id)();
 
-  /// Unique course offering number (e.g., "313146", "352902").
-  late final number = text().unique()();
+  /// Course offering number (e.g., "313146", "352902").
+  ///
+  /// Null for special entries that have no assigned number.
+  late final number = text().nullable()();
+
+  /// Display name in Chinese, for entries without a [course] reference.
+  ///
+  /// When [course] is non-null, the name comes from [Courses.nameZh] instead.
+  late final nameZh = text().nullable()();
+
+  /// Display name in English, for entries without a [course] reference.
+  ///
+  /// When [course] is non-null, the name comes from [Courses.nameEn] instead.
+  late final nameEn = text().nullable()();
 
   /// Course sequence phase/stage number (階段, e.g., "1", "2").
   ///
@@ -389,6 +410,11 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
 
   /// Teacher-authored remarks from the syllabus page (備註).
   late final syllabusRemarks = text().nullable()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {semester, number},
+  ];
 }
 
 // Junction tables and dependent tables
@@ -679,16 +705,13 @@ class Materials extends Table with AutoIncrementId {
 /// Data source: PortalService.getCalendar()
 class CalendarEvents extends Table with AutoIncrementId {
   /// Unique event ID from NTUT Portal.
-  ///
-  /// Nullable in DTO, but we expect it for syncing. We use our own auto-increment
-  /// ID as the primary key and this as a unique constraint to avoid duplicates.
   late final portalId = integer().unique()();
 
   /// Event start time.
-  late final start = dateTime().nullable()();
+  late final start = dateTime()();
 
   /// Event end time.
-  late final end = dateTime().nullable()();
+  late final end = dateTime()();
 
   /// Whether this is an all-day event.
   late final allDay = boolean().withDefault(const Constant(false))();

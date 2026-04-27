@@ -51,7 +51,7 @@ class CourseTableCell extends StatelessWidget {
     final theme = Theme.of(context);
     final courseTitle = courseTableCellData.courseName.isNotEmpty
         ? courseTableCellData.courseName
-        : courseTableCellData.number;
+        : courseTableCellData.number ?? '';
     final classroomName = courseTableCellData.classroomName;
 
     return MediaQuery(
