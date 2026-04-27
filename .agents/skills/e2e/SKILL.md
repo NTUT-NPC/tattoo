@@ -7,10 +7,9 @@ description: Drive the app in an Android emulator or iOS Simulator for manual E2
 
 ### Android emulator (preferred)
 
-Requires a running Android emulator with the app installed.
-
-- Verify connection: run `adb devices`
-- Screen resolution: run `adb shell wm size`
+- Launch the app with `flutter run` (in the background) so logs are inspectable and the running build reflects the current code
+- If `adb devices` lists more than one device, pick the emulator and pass `-s <serial>` to every `adb` call
+- Screen resolution: `adb -s <serial> shell wm size`
 
 ### iOS Simulator (fallback)
 
