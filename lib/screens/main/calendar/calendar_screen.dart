@@ -8,6 +8,19 @@ import 'package:tattoo/screens/main/calendar/calendar_providers.dart';
 
 final _dateFormatter = DateFormat('yyyy-MM-dd');
 
+/// Returns a half-open [DateTimeRange] `[start, end)` covering the month
+/// before [focus], the focus month, and the month after — three months total.
+///
+/// `start` is the first instant of the previous month; `end` is the first
+/// instant of the month two months after [focus] (exclusive). The DB query
+/// in [CalendarRepository] uses the same half-open convention.
+DateTimeRange _threeMonthWindow(DateTime focus) {
+  return DateTimeRange(
+    start: DateTime(focus.year, focus.month - 1, 1),
+    end: DateTime(focus.year, focus.month + 2, 1),
+  );
+}
+
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
 
@@ -20,7 +33,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
-  DateTimeRange _range = threeMonthWindow(DateTime.now());
+  DateTimeRange _range = _threeMonthWindow(DateTime.now());
   final DateTime _firstDay = DateTime(DateTime.now().year - _yearSpan, 1, 1);
   final DateTime _lastDay = DateTime(DateTime.now().year + _yearSpan, 12, 31);
 
@@ -58,7 +71,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     _focusedDay = newFocusedDay;
                     if (newFocusedDay.isBefore(_range.start) ||
                         newFocusedDay.isAfter(_range.end)) {
-                      _range = threeMonthWindow(newFocusedDay);
+                      _range = _threeMonthWindow(newFocusedDay);
                     }
                   });
                 },
