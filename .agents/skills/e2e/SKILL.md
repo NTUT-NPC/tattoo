@@ -18,12 +18,18 @@ Requires Xcode Simulator with the app running. Limited to screenshots only via `
 
 - Booted devices: run `xcrun simctl list devices booted`
 
+### Login credentials
+
+If a flow needs login, look for project-local Dart test credentials in `test/test_config.json` under the current workspace. Do not copy credentials into this skill or into permanent notes.
+
 ## Tools
 
 ### Screenshots
 
-- **Android:** `adb exec-out screencap -p > /tmp/android_screen.png` then `Read` to view
-- **iOS:** `xcrun simctl io <UDID> screenshot /tmp/sim_screen.png` then `Read` to view
+Some AI image APIs reject screenshots with any side longer than 2000px, so always clamp the long edge before reading.
+
+- **Android:** `adb exec-out screencap -p | magick - -resize '1999x1999>' /tmp/android_screen.png` then read the PNG with the agent's image tool
+- **iOS:** `xcrun simctl io <UDID> screenshot /tmp/sim_screen.png && magick /tmp/sim_screen.png -resize '1999x1999>' /tmp/sim_screen.png` then read the PNG with the agent's image tool
 
 ### UI hierarchy (Android only)
 
