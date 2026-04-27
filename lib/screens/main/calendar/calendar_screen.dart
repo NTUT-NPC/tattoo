@@ -45,76 +45,80 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       appBar: AppBar(title: Text(t.nav.calendar)),
       body: eventsAsync.when(
         skipLoadingOnReload: true,
-        data: (eventsMap) {
-          final selectedKey = DateTime(
-            _selectedDay.year,
-            _selectedDay.month,
-            _selectedDay.day,
-          );
-          final selectedEvents = eventsMap[selectedKey] ?? const [];
-
-          return Column(
-            children: [
-              TableCalendar<CalendarEvent>(
-                firstDay: _firstDay,
-                lastDay: _lastDay,
-                focusedDay: _focusedDay,
-                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                onDaySelected: (newSelectedDay, newFocusedDay) {
-                  setState(() {
-                    _selectedDay = newSelectedDay;
-                    _focusedDay = newFocusedDay;
-                  });
-                },
-                onPageChanged: (newFocusedDay) {
-                  setState(() {
-                    _focusedDay = newFocusedDay;
-                    if (newFocusedDay.isBefore(_range.start) ||
-                        newFocusedDay.isAfter(_range.end)) {
-                      _range = _threeMonthWindow(newFocusedDay);
-                    }
-                  });
-                },
-                eventLoader: (day) =>
-                    eventsMap[DateTime(day.year, day.month, day.day)] ??
-                    const [],
-                calendarFormat: CalendarFormat.month,
-                headerStyle: const HeaderStyle(formatButtonVisible: false),
-              ),
-              const SizedBox(height: 8.0),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: selectedEvents.length,
-                  itemBuilder: (context, index) {
-                    final event = selectedEvents[index];
-                    final start = _dateFormatter.format(event.start);
-                    final end = _dateFormatter.format(event.displayEndDate);
-                    final subtitle = start == end ? start : '$start – $end';
-
-                    return ListTile(
-                      title: Text(event.title ?? t.general.unknown),
-                      subtitle: Text(subtitle),
-                      trailing: switch (event.place) {
-                        final place? => ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 120),
-                          child: Text(
-                            place,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.end,
-                          ),
-                        ),
-                        _ => null,
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          );
-        },
+        data: _buildBody,
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, _) => Center(child: Text(t.errors.occurred)),
+        // Network errors are absorbed in CalendarRepository.watchCalendarEvents,
+        // so this path only fires on rare DB failures the user can't act on.
+        // Match the about_screen pattern: silently degrade to an empty calendar.
+        error: (_, _) => _buildBody(const {}),
       ),
+    );
+  }
+
+  Widget _buildBody(Map<DateTime, List<CalendarEvent>> eventsMap) {
+    final selectedKey = DateTime(
+      _selectedDay.year,
+      _selectedDay.month,
+      _selectedDay.day,
+    );
+    final selectedEvents = eventsMap[selectedKey] ?? const [];
+
+    return Column(
+      children: [
+        TableCalendar<CalendarEvent>(
+          firstDay: _firstDay,
+          lastDay: _lastDay,
+          focusedDay: _focusedDay,
+          selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+          onDaySelected: (newSelectedDay, newFocusedDay) {
+            setState(() {
+              _selectedDay = newSelectedDay;
+              _focusedDay = newFocusedDay;
+            });
+          },
+          onPageChanged: (newFocusedDay) {
+            setState(() {
+              _focusedDay = newFocusedDay;
+              if (newFocusedDay.isBefore(_range.start) ||
+                  newFocusedDay.isAfter(_range.end)) {
+                _range = _threeMonthWindow(newFocusedDay);
+              }
+            });
+          },
+          eventLoader: (day) =>
+              eventsMap[DateTime(day.year, day.month, day.day)] ?? const [],
+          calendarFormat: CalendarFormat.month,
+          headerStyle: const HeaderStyle(formatButtonVisible: false),
+        ),
+        const SizedBox(height: 8.0),
+        Expanded(
+          child: ListView.builder(
+            itemCount: selectedEvents.length,
+            itemBuilder: (context, index) {
+              final event = selectedEvents[index];
+              final start = _dateFormatter.format(event.start);
+              final end = _dateFormatter.format(event.displayEndDate);
+              final subtitle = start == end ? start : '$start – $end';
+
+              return ListTile(
+                title: Text(event.title ?? t.general.unknown),
+                subtitle: Text(subtitle),
+                trailing: switch (event.place) {
+                  final place? => ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 120),
+                    child: Text(
+                      place,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                    ),
+                  ),
+                  _ => null,
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
