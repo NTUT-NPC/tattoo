@@ -111,8 +111,8 @@ class MockPortalService implements PortalService {
           ),
           (
             id: 60591,
-            start: DateTime(2025, 11, 28, 17, 0), // 1764259200000
-            end: DateTime(2025, 11, 29, 17, 0), // 1764320400000
+            start: DateTime(2025, 11, 28), // 1764259200000
+            end: DateTime(2025, 11, 28, 17, 0), // 1764320400000
             allDay: false,
             title: '日間部期中撤選結束(17:00 截止)、休退學學生退1/3學雜費截止',
             place: null,
