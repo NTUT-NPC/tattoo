@@ -77,11 +77,10 @@ Swiping on a `TabBarView` body switches tabs. Swiping on a `SingleChildScrollVie
 
 ## Workflow
 
-1. **Take a screenshot** to see current app state
-2. **Dump UI hierarchy** with `uiautomator` to get element bounds
-3. **Find the target element** by `content-desc` or position in the tree
-4. **Calculate center coordinates** from bounds and tap
-5. **Screenshot again** to verify the result
-6. Repeat until the task is complete
+1. **Dump UI hierarchy** with `uiautomator` to get element bounds
+2. **Find the target element** by `content-desc` or position in the tree
+3. **Calculate center coordinates** from bounds and tap
+4. **Screenshot** to confirm the resulting state
+5. Repeat until the task is complete
 
-Always dump the UI hierarchy before tapping — never guess coordinates from screenshots alone. Re-dump after each navigation since bounds change between screens.
+Bounds in the XML are exact pixels — that's where tap coordinates come from. Screenshots are best used as a state check between actions: confirming a screen rendered, an error appeared, or content updated. Re-dump after each navigation since bounds change between screens.
