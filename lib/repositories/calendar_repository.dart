@@ -137,12 +137,6 @@ class CalendarRepository {
     final completer = Completer<void>();
     _refreshInFlight = completer;
     try {
-      final user = await _database.select(_database.users).getSingleOrNull();
-      if (user == null) {
-        completer.complete();
-        return;
-      }
-
       final (windowStart, windowEnd) = await _computeWindow();
 
       final dtos = await _authRepository.withAuth(
@@ -181,8 +175,8 @@ class CalendarRepository {
           batch.insertAll(_database.calendarEvents, companions);
         });
 
-        await (_database.update(_database.users)
-              ..where((u) => u.id.equals(user.id)))
+        await _database
+            .update(_database.users)
             .write(UsersCompanion(calendarFetchedAt: Value(DateTime.now())));
       });
 
