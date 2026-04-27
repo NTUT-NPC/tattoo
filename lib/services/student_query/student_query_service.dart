@@ -12,10 +12,10 @@ typedef ScoreDto = ({
   /// Null for credit transfers/waivers from other institutions.
   String? number,
 
-  /// Course name in Chinese from the academic performance table's 2nd column.
+  /// Course name in Chinese from the academic performance table's 3rd column.
   String? courseNameZh,
 
-  /// Course name in English from the academic performance table's 3rd column.
+  /// Course name in English from the academic performance table's 4th column.
   String? courseNameEn,
 
   /// Course catalog code (joins with Courses.code).
