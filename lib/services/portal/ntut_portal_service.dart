@@ -222,24 +222,21 @@ class NtutPortalService implements PortalService {
     );
 
     final List<dynamic> events = jsonDecode(response.data);
+
     String? normalizeEmpty(String? value) =>
         value?.isNotEmpty == true ? value : null;
-    // NTUT API returns an epoch that exactly corresponds to UTC+8.
-    // By forcing it through UTC and adding 8 hours, we get the exact
-    // year/month/day/hour that the NTUT portal intended, regardless of
-    // the user's local timezone. We then create a device-local DateTime.
-    DateTime fromEpoch(int ms) {
-      final utc = DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
-      final taipei = utc.add(const Duration(hours: 8));
-      return DateTime(
-        taipei.year,
-        taipei.month,
-        taipei.day,
-        taipei.hour,
-        taipei.minute,
-        taipei.second,
-      );
-    }
+
+    // The portal returns proper Unix epoch ms (e.g. 1753977600000 ↔
+    // 2025-08-01 00:00 +08:00). Naively decoding via the device's local
+    // timezone would shift the displayed date when the user is outside
+    // Taipei — Aug 1 would render as Jul 31 in London. By offsetting the
+    // input by `+8h - localOffset`, fromMillisecondsSinceEpoch's local
+    // interpretation always lands on Taipei wall-clock fields.
+    DateTime taipeiWallClock(int ms) => DateTime.fromMillisecondsSinceEpoch(
+      ms +
+          const Duration(hours: 8).inMilliseconds -
+          DateTime.now().timeZoneOffset.inMilliseconds,
+    );
 
     return events
         .where(
@@ -249,8 +246,8 @@ class NtutPortalService implements PortalService {
         .map<CalendarEventDto>(
           (e) => (
             id: e['id'],
-            start: fromEpoch(e['calStart']),
-            end: fromEpoch(e['calEnd']),
+            start: taipeiWallClock(e['calStart']),
+            end: taipeiWallClock(e['calEnd']),
             allDay: e['allDay'] == '1',
             title: normalizeEmpty(e['calTitle']),
             place: normalizeEmpty(e['calPlace']),
