@@ -1,21 +1,15 @@
 ---
 name: e2e
-description: Drive the app in an Android emulator or iOS Simulator for manual E2E testing
+description: Drive the app in an Android emulator for manual E2E testing
 ---
 
 ## Setup
 
-### Android emulator (preferred)
+### Android emulator
 
 - Launch the app with `flutter run` (in the background) so logs are inspectable and the running build reflects the current code
 - If `adb devices` lists more than one device, pick the emulator and pass `-s <serial>` to every `adb` call
 - Screen resolution: `adb -s <serial> shell wm size`
-
-### iOS Simulator (fallback)
-
-Requires Xcode Simulator with the app running. Limited to screenshots only via `xcrun simctl` — touch input requires the computer-use MCP (takes over the user's screen).
-
-- Booted devices: run `xcrun simctl list devices booted`
 
 ### Login credentials
 
@@ -27,10 +21,13 @@ If a flow needs login, look for project-local Dart test credentials in `test/tes
 
 Some AI image APIs reject screenshots with any side longer than 2000px, so always clamp the long edge before reading.
 
-- **Android:** `adb exec-out screencap -p | magick - -resize '1999x1999>' /tmp/android_screen.png` then read the PNG with the agent's image tool
-- **iOS:** `xcrun simctl io <UDID> screenshot /tmp/sim_screen.png && magick /tmp/sim_screen.png -resize '1999x1999>' /tmp/sim_screen.png` then read the PNG with the agent's image tool
+```bash
+adb exec-out screencap -p | magick - -resize '1999x1999>' /tmp/android_screen.png
+```
 
-### UI hierarchy (Android only)
+Then read the PNG with the agent's image tool.
+
+### UI hierarchy
 
 `adb shell uiautomator dump` produces an XML accessibility tree with exact pixel bounds and `content-desc` for every element. This is the primary way to find tap coordinates — do not guess from screenshots.
 
@@ -46,7 +43,7 @@ grep -oE 'content-desc="[^"]*"[^/]*bounds="[^"]*"' /tmp/ui.xml
 
 Flutter widgets with `Semantics` labels appear as `content-desc`. The bounds format is `[left,top][right,bottom]` in pixels. Tap the center: `x = (left+right)/2`, `y = (top+bottom)/2`.
 
-### Touch input (Android only)
+### Touch input
 
 - **Tap:** `adb shell input tap <x> <y>`
 - **Swipe:** `adb shell input swipe <x1> <y1> <x2> <y2> <duration_ms>`
