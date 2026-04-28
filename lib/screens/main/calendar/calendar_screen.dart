@@ -46,7 +46,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       body: eventsAsync.when(
         skipLoadingOnReload: true,
         data: _buildBody,
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => _buildBody(const {}),
         // Network errors are absorbed in CalendarRepository.watchCalendarEvents,
         // so this path only fires on rare DB failures the user can't act on.
         // Match the about_screen pattern: silently degrade to an empty calendar.
