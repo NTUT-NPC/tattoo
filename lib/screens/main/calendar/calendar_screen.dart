@@ -80,7 +80,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             setState(() {
               _focusedDay = newFocusedDay;
               if (newFocusedDay.isBefore(_range.start) ||
-                  newFocusedDay.isAfter(_range.end)) {
+                  !newFocusedDay.isBefore(_range.end)) {
                 _range = _threeMonthWindow(newFocusedDay);
               }
             });
