@@ -52,13 +52,13 @@ Flutter widgets with `Semantics` labels appear as `content-desc`. The bounds for
 
 ### Text input pitfalls
 
-`input text` passes through both the host shell and the device shell, which silently drop or expand `$`, `#`, `\``, spaces, and other shell metacharacters. Failures look like a too-short string in the field.
+`input text` runs through the device's shell, so any `$`, `#`, backticks, or unquoted whitespace in the value get expanded or word-split there — even after the host shell has already substituted `$PASSWORD`. Failures look like a too-short string in the field.
 
 ```bash
-# Wrong — host and device shell both expand $, leading to truncation
+# Wrong — host expands $PASSWORD, then the device shell re-parses the value
 adb shell input text "$PASSWORD"
 
-# Right — single-quote on the device side so the device shell treats it literally
+# Right — single-quote on the device side so the device shell treats the value literally
 adb shell "input text '$PASSWORD'"
 ```
 
