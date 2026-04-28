@@ -209,17 +209,15 @@ class StudentRepository {
                         (o) => o.number.equals(number),
                       ))
                       .getSingleOrNull();
-              if (existingOffering != null) {
-                offeringId = existingOffering.id;
-              } else {
-                offeringId = await _database.upsertCourseOffering(
-                  courseId: course.id,
-                  semesterId: semesterId,
-                  number: number,
-                  nameZh: score.courseNameZh,
-                  nameEn: score.courseNameEn,
-                );
-              }
+              offeringId =
+                  existingOffering?.id ??
+                  await _database.upsertCourseOffering(
+                    courseId: course.id,
+                    semesterId: semesterId,
+                    number: number,
+                    nameZh: score.courseNameZh,
+                    nameEn: score.courseNameEn,
+                  );
             }
 
             await _database
