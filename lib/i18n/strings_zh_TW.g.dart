@@ -225,6 +225,7 @@ class TranslationsProfileZhTw {
 	/// zh-TW: '僅供參考，非正式文件'
 	String get dataDisclaimer => '僅供參考，非正式文件';
 
+	late final TranslationsProfilePasswordExpiryZhTw passwordExpiry = TranslationsProfilePasswordExpiryZhTw.internal(_root);
 	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
 	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
 	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
@@ -397,6 +398,21 @@ class TranslationsCourseTableActionsZhTw {
 
 	/// zh-TW: '顯示選項'
 	String get displayOptions => '顯示選項';
+}
+
+// Path: profile.passwordExpiry
+class TranslationsProfilePasswordExpiryZhTw {
+	TranslationsProfilePasswordExpiryZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '密碼將在${days}天後過期'
+	String warning({required Object days}) => '密碼將在${days}天後過期';
+
+	/// zh-TW: '更改'
+	String get action => '更改';
 }
 
 // Path: profile.sections
@@ -696,6 +712,8 @@ extension on Translations {
 			'courseTable.dayOfWeek.friday' => '五',
 			'courseTable.dayOfWeek.saturday' => '六',
 			'profile.dataDisclaimer' => '僅供參考，非正式文件',
+			'profile.passwordExpiry.warning' => ({required Object days}) => '密碼將在${days}天後過期',
+			'profile.passwordExpiry.action' => '更改',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
 			'profile.sections.dangerZone' => '危險區域',

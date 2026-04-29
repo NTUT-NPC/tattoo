@@ -64,6 +64,9 @@ courseTable:
     saturday: Sat
 profile:
   dataDisclaimer: Reference only. Not official.
+  passwordExpiry:
+    warning: Password expires in ${days} days
+    action: Change
   sections:
     accountSettings: Account Settings
     appSettings: App Settings
