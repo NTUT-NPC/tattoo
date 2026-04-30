@@ -124,7 +124,7 @@ typedef StudentProfileDto = ({
 
 /// Provides the singleton [StudentQueryService] instance.
 final studentQueryServiceProvider = Provider<StudentQueryService>((ref) {
-  if (isDemo) {
+  if (ref.watch(isDemoProvider)) {
     return MockStudentQueryService();
   }
   return NtutStudentQueryService();

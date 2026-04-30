@@ -60,7 +60,7 @@ typedef MaterialDto = ({
 
 /// Provides the singleton [ISchoolPlusService] instance.
 final iSchoolPlusServiceProvider = Provider<ISchoolPlusService>((ref) {
-  if (isDemo) {
+  if (ref.watch(isDemoProvider)) {
     return MockISchoolPlusService();
   }
   return NtutISchoolPlusService();

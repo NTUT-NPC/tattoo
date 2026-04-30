@@ -105,13 +105,15 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
                       onPressed: _isLoading
                           ? null
                           : () async {
-                              if (isDemo) {
+                              if (ref.read(isDemoProvider)) {
                                 setState(() => _isLoading = true);
                                 try {
                                   await ref
                                       .read(authRepositoryProvider)
                                       .login(demoUsername, demoPassword);
-                                  if (mounted) context.go(AppRoutes.home);
+                                  if (context.mounted) {
+                                    context.go(AppRoutes.home);
+                                  }
                                 } catch (_) {
                                   if (mounted) {
                                     setState(() => _isLoading = false);

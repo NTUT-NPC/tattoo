@@ -79,7 +79,7 @@ enum PortalServiceCode {
 
 /// Provides the singleton [PortalService] instance.
 final portalServiceProvider = Provider<PortalService>((ref) {
-  if (isDemo) {
+  if (ref.watch(isDemoProvider)) {
     return MockPortalService();
   }
   return NtutPortalService();

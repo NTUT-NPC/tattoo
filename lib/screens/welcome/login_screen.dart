@@ -33,7 +33,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void initState() {
     super.initState();
 
-    if (isDemo) {
+    if (ref.read(isDemoProvider)) {
       _usernameController.text = demoUsername;
       _passwordController.text = demoPassword;
     }
@@ -108,6 +108,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordController.text;
 
     // Validate input
+    final isDemo = isDemoCredentials(username, password);
     if (!isDemo) {
       if (username.isEmpty || password.trim().isEmpty) {
         _setError(
@@ -127,15 +128,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     FocusScope.of(context).unfocus();
 
     try {
-      final finalUsername = isDemo && username.isEmpty
-          ? demoUsername
-          : username;
-      final finalPassword = isDemo && password.isEmpty
-          ? demoPassword
-          : password;
-      await ref
-          .read(authRepositoryProvider)
-          .login(finalUsername, finalPassword);
+      // Enable demo mode before login so service providers switch to mocks
+      if (isDemo) {
+        ref.read(isDemoProvider.notifier).enable();
+      }
+      await ref.read(authRepositoryProvider).login(username, password);
       if (mounted) context.go(AppRoutes.home);
     } on DioException {
       if (mounted) _setError(t.errors.connectionFailed);
@@ -222,7 +219,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         spacing: 24,
                         children: [
-                          if (isDemo)
+                          if (ref.watch(isDemoProvider))
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,

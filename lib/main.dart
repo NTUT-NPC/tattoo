@@ -109,11 +109,14 @@ Future<void> main() async {
 
   final database = container.read(databaseProvider);
   final user = await database.select(database.users).getSingleOrNull();
-  if (user != null && !isDemo)
+  if (user != null) {
+    // Restore demo mode if the stored user is the demo account
+    if (user.studentId == demoUsername) {
+      container.read(isDemoProvider.notifier).enable();
+    }
     container.read(sessionProvider.notifier).create();
-  final initialLocation = (user != null && !isDemo)
-      ? AppRoutes.home
-      : AppRoutes.intro;
+  }
+  final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
   final router = createAppRouter(
     initialLocation: initialLocation,
     container: container,

@@ -158,7 +158,7 @@ typedef SyllabusDto = ({
 
 /// Provides the singleton [CourseService] instance.
 final courseServiceProvider = Provider<CourseService>((ref) {
-  if (isDemo) {
+  if (ref.watch(isDemoProvider)) {
     return MockCourseService();
   }
   return NtutCourseService();

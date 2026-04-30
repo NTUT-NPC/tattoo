@@ -1,13 +1,34 @@
-/// Global toggle for demo mode.
+import 'package:riverpod/riverpod.dart';
+
+/// Compile-time override for demo mode.
+///
+/// When building with `--dart-define=demo=true`, the app starts in demo mode
+/// automatically.
+const _demoOverride = bool.fromEnvironment('demo', defaultValue: false);
+
+/// Runtime toggle for demo mode.
 ///
 /// When true, the application uses mock services and data instead of
 /// communicating with the real NTUT servers.
 ///
-/// Override via: `--dart-define=demo=true`
-const bool isDemo = bool.fromEnvironment(
-  'demo',
-  defaultValue: false,
-);
+/// Enabled automatically via `--dart-define=demo=true`, or at runtime
+/// by logging in with demo credentials ([demoUsername] / [demoPassword]).
+/// Active until logout.
+class DemoNotifier extends Notifier<bool> {
+  @override
+  bool build() => _demoOverride;
 
-const String demoUsername = '111590001';
-const String demoPassword = 'demo1234';
+  void enable() => state = true;
+  void disable() => state = false;
+}
+
+final isDemoProvider = NotifierProvider<DemoNotifier, bool>(DemoNotifier.new);
+
+/// Demo account credentials. Only used with mock services — not real NTUT
+/// credentials.
+const String demoUsername = '111592347';
+const String demoPassword = 'password';
+
+/// Whether the given credentials match the demo account.
+bool isDemoCredentials(String username, String password) =>
+    username == demoUsername && password == demoPassword;

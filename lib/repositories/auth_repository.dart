@@ -84,10 +84,12 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     studentQueryService: ref.watch(studentQueryServiceProvider),
     database: ref.watch(databaseProvider),
     secureStorage: _secureStorage,
+    isDemo: ref.watch(isDemoProvider),
     onSessionCreated: () {
       ref.read(sessionProvider.notifier).create();
     },
     onSessionDestroyed: ([exception]) {
+      ref.read(isDemoProvider.notifier).disable();
       ref.read(sessionProvider.notifier).destroy(exception);
     },
   );
@@ -112,6 +114,7 @@ class AuthRepository {
   final StudentQueryService _studentQueryService;
   final AppDatabase _database;
   final FlutterSecureStorage _secureStorage;
+  final bool _isDemo;
   final void Function() _onSessionCreated;
   final void Function([LoginException?]) _onSessionDestroyed;
 
@@ -127,12 +130,14 @@ class AuthRepository {
     required StudentQueryService studentQueryService,
     required AppDatabase database,
     required FlutterSecureStorage secureStorage,
+    required bool isDemo,
     required void Function() onSessionCreated,
     required void Function([LoginException?]) onSessionDestroyed,
   }) : _portalService = portalService,
        _studentQueryService = studentQueryService,
        _database = database,
        _secureStorage = secureStorage,
+       _isDemo = isDemo,
        _onSessionCreated = onSessionCreated,
        _onSessionDestroyed = onSessionDestroyed;
 
@@ -145,7 +150,7 @@ class AuthRepository {
     final userDto = await _portalService.login(username, password);
 
     // Save credentials for auto-login (skip in demo mode)
-    if (!isDemo) {
+    if (!_isDemo) {
       await _secureStorage.write(key: _usernameKey, value: username);
       await _secureStorage.write(key: _passwordKey, value: password);
     }
@@ -240,7 +245,7 @@ class AuthRepository {
       var username = await _secureStorage.read(key: _usernameKey);
       var password = await _secureStorage.read(key: _passwordKey);
 
-      if (isDemo && (username == null || password == null)) {
+      if (_isDemo && (username == null || password == null)) {
         username = demoUsername;
         password = demoPassword;
       }

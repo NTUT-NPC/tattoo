@@ -1,7 +1,5 @@
 import 'dart:developer';
 
-import 'package:tattoo/utils/env.dart';
-
 import 'package:drift/drift.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:drift_flutter/drift_flutter.dart';
@@ -90,8 +88,7 @@ class AppDatabase extends _$AppDatabase {
   );
 
   static QueryExecutor _openConnection() {
-    final name = isDemo ? 'tattoo_demo' : 'tattoo';
-    return driftDatabase(name: name).interceptWith(_LogInterceptor());
+    return driftDatabase(name: 'tattoo').interceptWith(_LogInterceptor());
   }
 }
 
