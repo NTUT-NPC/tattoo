@@ -202,12 +202,23 @@ class StudentRepository {
               continue;
             }
 
-            final offeringId = switch (score.number) {
-              final number? => (await (_database.select(
-                _database.courseOfferings,
-              )..where((o) => o.number.equals(number))).getSingleOrNull())?.id,
-              _ => null,
-            };
+            int? offeringId;
+            if (score.number case final number?) {
+              final existingOffering =
+                  await (_database.select(_database.courseOfferings)..where(
+                        (o) => o.number.equals(number),
+                      ))
+                      .getSingleOrNull();
+              offeringId =
+                  existingOffering?.id ??
+                  await _database.upsertCourseOffering(
+                    courseId: course.id,
+                    semesterId: semesterId,
+                    number: number,
+                    nameZh: score.courseNameZh,
+                    nameEn: score.courseNameEn,
+                  );
+            }
 
             await _database
                 .into(_database.scores)

@@ -318,6 +318,25 @@ void main() {
                 'Course ${score.courseCode} should not have both score and status',
           );
         }
+
+        final hasBilingualNamedScore = allScores.any(
+          (score) =>
+              (score.number?.trim().isNotEmpty ?? false) &&
+              (score.courseNameZh?.trim().isNotEmpty ?? false) &&
+              (score.courseNameEn?.trim().isNotEmpty ?? false),
+        );
+        if (!hasBilingualNamedScore) {
+          expect(
+            allScores.any(
+              (score) =>
+                  (score.number?.trim().isNotEmpty ?? false) &&
+                  (score.courseNameZh?.trim().isNotEmpty ?? false),
+            ),
+            isTrue,
+            reason:
+                'When NTUT omits English names, scores with course numbers should still keep Chinese names.',
+          );
+        }
       });
 
       test('should have valid numeric scores', () async {
