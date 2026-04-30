@@ -3,7 +3,8 @@ import 'dart:developer';
 import 'package:tattoo/utils/env.dart';
 
 import 'package:drift/drift.dart';
-import 'package:drift_dev/api/migrations_native.dart';
+import 'schema_validation_native.dart'
+    if (dart.library.js_interop) 'schema_validation_stub.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/schema.dart';
@@ -91,7 +92,21 @@ class AppDatabase extends _$AppDatabase {
 
   static QueryExecutor _openConnection() {
     final name = isDemo ? 'tattoo_demo' : 'tattoo';
-    return driftDatabase(name: name).interceptWith(_LogInterceptor());
+    return driftDatabase(
+      name: name,
+      web: DriftWebOptions(
+        sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+        driftWorker: Uri.parse('drift_worker.js'),
+        onResult: (result) {
+          if (result.missingFeatures.isNotEmpty) {
+            log(
+              'Using ${result.chosenImplementation} due to unsupported browser features: ${result.missingFeatures}',
+              name: 'DB',
+            );
+          }
+        },
+      ),
+    ).interceptWith(_LogInterceptor());
   }
 }
 

@@ -436,7 +436,8 @@ class AuthRepository {
       return null;
     }
 
-    if (kIsWeb) return null; // Avatar cache relies on dart:io which fails on web
+    if (kIsWeb)
+      return null; // Avatar cache relies on dart:io which fails on web
 
     final filename = user.avatarFilename;
     final cacheDir = await getApplicationCacheDirectory();

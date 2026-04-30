@@ -102,40 +102,38 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                     child: FilledButton(
-                      onPressed:
-                          _isLoading
-                              ? null
-                              : () async {
-                                if (isDemo) {
-                                  setState(() => _isLoading = true);
-                                  try {
-                                    await ref
-                                        .read(authRepositoryProvider)
-                                        .login(demoUsername, demoPassword);
-                                    if (mounted) context.go(AppRoutes.home);
-                                  } catch (_) {
-                                    if (mounted) {
-                                      setState(() => _isLoading = false);
-                                    }
+                      onPressed: _isLoading
+                          ? null
+                          : () async {
+                              if (isDemo) {
+                                setState(() => _isLoading = true);
+                                try {
+                                  await ref
+                                      .read(authRepositoryProvider)
+                                      .login(demoUsername, demoPassword);
+                                  if (mounted) context.go(AppRoutes.home);
+                                } catch (_) {
+                                  if (mounted) {
+                                    setState(() => _isLoading = false);
                                   }
-                                } else {
-                                  context.push(AppRoutes.login);
                                 }
-                              },
+                              } else {
+                                context.push(AppRoutes.login);
+                              }
+                            },
                       child: Padding(
                         padding: const EdgeInsets.all(6.0),
-                        child:
-                            _isLoading
-                                ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                    strokeCap: StrokeCap.round,
-                                  ),
-                                )
-                                : Text(t.intro.kContinue),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                  strokeCap: StrokeCap.round,
+                                ),
+                              )
+                            : Text(t.intro.kContinue),
                       ),
                     ),
                   ),

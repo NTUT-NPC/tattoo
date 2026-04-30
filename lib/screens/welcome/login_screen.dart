@@ -127,9 +127,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     FocusScope.of(context).unfocus();
 
     try {
-      final finalUsername = isDemo && username.isEmpty ? demoUsername : username;
-      final finalPassword = isDemo && password.isEmpty ? demoPassword : password;
-      await ref.read(authRepositoryProvider).login(finalUsername, finalPassword);
+      final finalUsername = isDemo && username.isEmpty
+          ? demoUsername
+          : username;
+      final finalPassword = isDemo && password.isEmpty
+          ? demoPassword
+          : password;
+      await ref
+          .read(authRepositoryProvider)
+          .login(finalUsername, finalPassword);
       if (mounted) context.go(AppRoutes.home);
     } on DioException {
       if (mounted) _setError(t.errors.connectionFailed);
@@ -369,7 +375,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             ),
                           ),
-
 
                           // Privacy notice
                           ClearNoticeVertical(

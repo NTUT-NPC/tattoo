@@ -107,10 +107,17 @@ Future<void> main() async {
 
   await LocaleSettings.useDeviceLocale();
 
-  final database = container.read(databaseProvider);
-  final user = await database.select(database.users).getSingleOrNull();
-  if (user != null && !isDemo) container.read(sessionProvider.notifier).create();
-  final initialLocation = (user != null && !isDemo) ? AppRoutes.home : AppRoutes.intro;
+  // In demo mode, skip the blocking DB query — WASM initialization takes
+  // several seconds and we always start at the intro screen anyway.
+  String initialLocation;
+  if (isDemo) {
+    initialLocation = AppRoutes.intro;
+  } else {
+    final database = container.read(databaseProvider);
+    final user = await database.select(database.users).getSingleOrNull();
+    if (user != null) container.read(sessionProvider.notifier).create();
+    initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
+  }
   final router = createAppRouter(
     initialLocation: initialLocation,
     container: container,

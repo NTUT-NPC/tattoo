@@ -7,10 +7,12 @@ import 'package:flutter/foundation.dart';
 ///
 /// Automatically true when running on the web, or can be overridden
 /// via: `--dart-define=demo=true`
-const bool isDemo = kIsWeb || bool.fromEnvironment(
-  'demo',
-  defaultValue: false,
-);
+const bool isDemo =
+    kIsWeb ||
+    bool.fromEnvironment(
+      'demo',
+      defaultValue: false,
+    );
 
 const String demoUsername = '111590001';
 const String demoPassword = 'demo1234';
