@@ -41,6 +41,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ..showSnackBar(
         SnackBar(
           content: Text(t.profile.passwordExpiry.warning(days: days)),
+          // SnackBar defaults persist=true when an action is set; we want the
+          // warning to auto-dismiss so the user isn't left staring at it.
+          persist: false,
           action: SnackBarAction(
             label: t.profile.passwordExpiry.action,
             onPressed: () => messenger.showSnackBar(
