@@ -1,5 +1,7 @@
 import 'package:riverpod/riverpod.dart';
+import 'package:tattoo/services/i_school_plus/mock_i_school_plus_service.dart';
 import 'package:tattoo/services/i_school_plus/ntut_i_school_plus_service.dart';
+import 'package:tattoo/utils/env.dart';
 
 /// Course reference from the iSchool+ course selection sidebar.
 ///
@@ -57,9 +59,12 @@ typedef MaterialDto = ({
 });
 
 /// Provides the singleton [ISchoolPlusService] instance.
-final iSchoolPlusServiceProvider = Provider<ISchoolPlusService>(
-  (ref) => NtutISchoolPlusService(),
-);
+final iSchoolPlusServiceProvider = Provider<ISchoolPlusService>((ref) {
+  if (isDemo) {
+    return MockISchoolPlusService();
+  }
+  return NtutISchoolPlusService();
+});
 
 /// Service for accessing NTUT's I-School Plus learning management system.
 ///

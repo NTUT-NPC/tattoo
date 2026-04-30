@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:drift/drift.dart';
+
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
@@ -12,6 +13,7 @@ import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/models/user.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
+import 'package:tattoo/utils/env.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// Thrown when the avatar image exceeds [AuthRepository.maxAvatarSize].
@@ -142,9 +144,11 @@ class AuthRepository {
   Future<User> login(String username, String password) async {
     final userDto = await _portalService.login(username, password);
 
-    // Save credentials for auto-login
-    await _secureStorage.write(key: _usernameKey, value: username);
-    await _secureStorage.write(key: _passwordKey, value: password);
+    // Save credentials for auto-login (skip in demo mode)
+    if (!isDemo) {
+      await _secureStorage.write(key: _usernameKey, value: username);
+      await _secureStorage.write(key: _passwordKey, value: password);
+    }
     _onSessionCreated();
 
     return _database.transaction(() async {
@@ -233,8 +237,14 @@ class AuthRepository {
     final completer = Completer<UserDto>();
     _reauthenticateInFlight = completer;
     try {
-      final username = await _secureStorage.read(key: _usernameKey);
-      final password = await _secureStorage.read(key: _passwordKey);
+      var username = await _secureStorage.read(key: _usernameKey);
+      var password = await _secureStorage.read(key: _passwordKey);
+
+      if (isDemo && (username == null || password == null)) {
+        username = demoUsername;
+        password = demoPassword;
+      }
+
       if (username == null || password == null) {
         _onSessionDestroyed(const LoginException(.credentialsMissing));
         throw const _AuthFailedException();

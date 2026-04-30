@@ -9,6 +9,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/components/notices.dart';
+import 'package:tattoo/utils/env.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -31,6 +32,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void initState() {
     super.initState();
+
+    if (isDemo) {
+      _usernameController.text = demoUsername;
+      _passwordController.text = demoPassword;
+    }
 
     // Show an inline error if the user was redirected here due to auth failure.
     // Clear after reading — deferred to avoid modifying providers during build.
@@ -102,24 +108,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordController.text;
 
     // Validate input
-    if (username.isEmpty || password.trim().isEmpty) {
-      _setError(
-        t.login.errors.emptyFields,
-        username: username.isEmpty,
-        password: password.trim().isEmpty,
-      );
-      return;
-    }
-    if (username.contains('@') || username.startsWith('t')) {
-      _setError(t.login.errors.useStudentId, username: true);
-      return;
+    if (!isDemo) {
+      if (username.isEmpty || password.trim().isEmpty) {
+        _setError(
+          t.login.errors.emptyFields,
+          username: username.isEmpty,
+          password: password.trim().isEmpty,
+        );
+        return;
+      }
+      if (username.contains('@') || username.startsWith('t')) {
+        _setError(t.login.errors.useStudentId, username: true);
+        return;
+      }
     }
 
     _setLoading(true);
     FocusScope.of(context).unfocus();
 
     try {
-      await ref.read(authRepositoryProvider).login(username, password);
+      final finalUsername = isDemo && username.isEmpty
+          ? demoUsername
+          : username;
+      final finalPassword = isDemo && password.isEmpty
+          ? demoPassword
+          : password;
+      await ref
+          .read(authRepositoryProvider)
+          .login(finalUsername, finalPassword);
       if (mounted) context.go(AppRoutes.home);
     } on DioException {
       if (mounted) _setError(t.errors.connectionFailed);
@@ -206,6 +222,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         spacing: 24,
                         children: [
+                          if (isDemo)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.secondaryContainer,
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.science_outlined,
+                                    size: 16,
+                                    color:
+                                        theme.colorScheme.onSecondaryContainer,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Demo Mode',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: theme
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
                           // Welcome title
                           Text.rich(
                             TextSpan(
@@ -318,6 +368,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
                                           color: Colors.white,
+                                          strokeCap: StrokeCap.round,
                                         ),
                                       )
                                     : Text(t.login.loginButton),

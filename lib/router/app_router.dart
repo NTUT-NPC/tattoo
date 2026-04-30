@@ -52,7 +52,7 @@ GoRouter createAppRouter({
     final hasSession = container.read(sessionProvider);
     if (hasSession) return null;
     if (_publicRoutes.contains(state.matchedLocation)) return null;
-    return AppRoutes.login;
+    return AppRoutes.intro;
   },
   observers: [
     ?firebaseService.analyticsObserver,

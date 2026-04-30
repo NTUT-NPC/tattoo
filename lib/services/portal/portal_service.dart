@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
 import 'package:riverpod/riverpod.dart';
+import 'package:tattoo/services/portal/mock_portal_service.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
+import 'package:tattoo/utils/env.dart';
 
 /// Represents a logged-in NTUT Portal user.
 typedef UserDto = ({
@@ -77,6 +79,9 @@ enum PortalServiceCode {
 
 /// Provides the singleton [PortalService] instance.
 final portalServiceProvider = Provider<PortalService>((ref) {
+  if (isDemo) {
+    return MockPortalService();
+  }
   return NtutPortalService();
 });
 
