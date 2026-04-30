@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,10 +60,12 @@ class ProfileDangerZone extends ConsumerWidget {
     context,
     t.profile.dangerZone.items.cache,
     () async {
-      final cacheDir = await getApplicationCacheDirectory();
-      if (await cacheDir.exists()) {
-        await for (final entity in cacheDir.list()) {
-          await entity.delete(recursive: true);
+      if (!kIsWeb) {
+        final cacheDir = await getApplicationCacheDirectory();
+        if (await cacheDir.exists()) {
+          await for (final entity in cacheDir.list()) {
+            await entity.delete(recursive: true);
+          }
         }
       }
       await ref.read(databaseProvider).deleteCachedData();

@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:url_launcher/url_launcher.dart' as ul;
@@ -31,5 +31,5 @@ Future<void> launchNtutService(
   String serviceCode,
 ) async {
   final url = await authRepository.getSsoUrl(serviceCode);
-  await launchUrl(url, inExternalApplication: Platform.isIOS);
+  await launchUrl(url, inExternalApplication: !kIsWeb && Platform.isIOS);
 }

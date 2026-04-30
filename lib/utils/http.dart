@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
@@ -174,7 +175,7 @@ Dio createDio() {
     );
 
   const allowBadCertificates = bool.fromEnvironment('ALLOW_BAD_CERTIFICATES');
-  if (allowBadCertificates) {
+  if (!kIsWeb && allowBadCertificates) {
     dio.httpClientAdapter = IOHttpClientAdapter(
       createHttpClient: () => HttpClient()
         ..badCertificateCallback =
