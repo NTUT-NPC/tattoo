@@ -276,7 +276,10 @@ class _TranslationsProfilePasswordExpiryEnUs extends TranslationsProfilePassword
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String warning({required Object days}) => 'Password expires in ${days} days';
+	@override String warning({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(days,
+		one: 'Password expires in 1 day',
+		other: 'Password expires in ${days} days',
+	);
 	@override String get action => 'Change';
 }
 
@@ -479,7 +482,7 @@ extension on TranslationsEnUs {
 			'courseTable.dayOfWeek.friday' => 'Fri',
 			'courseTable.dayOfWeek.saturday' => 'Sat',
 			'profile.dataDisclaimer' => 'Reference only. Not official.',
-			'profile.passwordExpiry.warning' => ({required Object days}) => 'Password expires in ${days} days',
+			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(days, one: 'Password expires in 1 day', other: 'Password expires in ${days} days', ), 
 			'profile.passwordExpiry.action' => 'Change',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',

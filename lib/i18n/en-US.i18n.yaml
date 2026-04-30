@@ -65,7 +65,9 @@ courseTable:
 profile:
   dataDisclaimer: Reference only. Not official.
   passwordExpiry:
-    warning: Password expires in ${days} days
+    warning(plural, param=days):
+      one: Password expires in 1 day
+      other: Password expires in ${days} days
     action: Change
   sections:
     accountSettings: Account Settings

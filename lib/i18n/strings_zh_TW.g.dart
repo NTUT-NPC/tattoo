@@ -408,8 +408,11 @@ class TranslationsProfilePasswordExpiryZhTw {
 
 	// Translations
 
-	/// zh-TW: '密碼將在${days}天後過期'
-	String warning({required Object days}) => '密碼將在${days}天後過期';
+	/// zh-TW: '(one) {密碼將在1天後過期} (other) {密碼將在${days}天後過期}'
+	String warning({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(days,
+		one: '密碼將在1天後過期',
+		other: '密碼將在${days}天後過期',
+	);
 
 	/// zh-TW: '更改'
 	String get action => '更改';
@@ -712,7 +715,7 @@ extension on Translations {
 			'courseTable.dayOfWeek.friday' => '五',
 			'courseTable.dayOfWeek.saturday' => '六',
 			'profile.dataDisclaimer' => '僅供參考，非正式文件',
-			'profile.passwordExpiry.warning' => ({required Object days}) => '密碼將在${days}天後過期',
+			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(days, one: '密碼將在1天後過期', other: '密碼將在${days}天後過期', ), 
 			'profile.passwordExpiry.action' => '更改',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
