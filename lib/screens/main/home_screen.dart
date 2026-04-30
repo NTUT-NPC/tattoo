@@ -35,14 +35,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   void _showPasswordExpirySnackbar(BuildContext context, int days) {
     final t = Translations.of(context);
-    ScaffoldMessenger.of(context)
+    final messenger = ScaffoldMessenger.of(context);
+    messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
           content: Text(t.profile.passwordExpiry.warning(days: days)),
           action: SnackBarAction(
             label: t.profile.passwordExpiry.action,
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+            onPressed: () => messenger.showSnackBar(
               SnackBar(content: Text(t.general.notImplemented)),
             ), // TODO: navigate to change-password flow
           ),
