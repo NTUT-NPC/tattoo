@@ -115,7 +115,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
                                     context.go(AppRoutes.home);
                                   }
                                 } catch (_) {
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     setState(() => _isLoading = false);
                                   }
                                 }

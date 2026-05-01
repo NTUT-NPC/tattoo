@@ -40,7 +40,7 @@ const _publicRoutes = {AppRoutes.intro, AppRoutes.login, AppRoutes.about};
 /// Creates a configured [GoRouter] starting at [initialLocation].
 ///
 /// Watches [sessionProvider] via [refreshListenable] and redirects to
-/// [AppRoutes.login] when the session becomes inactive.
+/// [AppRoutes.intro] when the session becomes inactive.
 GoRouter createAppRouter({
   required String initialLocation,
   required ProviderContainer container,

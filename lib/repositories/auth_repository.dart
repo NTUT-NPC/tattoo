@@ -451,6 +451,8 @@ class AuthRepository {
 
     try {
       final bytes = await withAuth(() => _portalService.getAvatar(filename));
+      if (bytes.isEmpty) return null;
+
       await file.parent.create(recursive: true);
       await file.writeAsBytes(bytes);
       if (!await _isDecodableImage(bytes)) {
@@ -579,6 +581,7 @@ class AuthRepository {
   // Source - https://stackoverflow.com/a/76074236
   // License - CC BY-SA 4.0
   static Future<bool> _isDecodableImage(Uint8List bytes) async {
+    if (bytes.isEmpty) return false;
     Codec? codec;
     FrameInfo? frameInfo;
     try {

@@ -4,7 +4,7 @@ import 'package:riverpod/riverpod.dart';
 ///
 /// When building with `--dart-define=DEMO=true`, the app starts in demo mode
 /// automatically.
-const _demoOverride = bool.fromEnvironment('DEMO', defaultValue: false);
+const isDemoOverride = bool.fromEnvironment('DEMO', defaultValue: false);
 
 /// Runtime toggle for demo mode.
 ///
@@ -16,10 +16,10 @@ const _demoOverride = bool.fromEnvironment('DEMO', defaultValue: false);
 /// Active until logout.
 class DemoNotifier extends Notifier<bool> {
   @override
-  bool build() => _demoOverride;
+  bool build() => isDemoOverride;
 
   void enable() => state = true;
-  void disable() => state = false;
+  void disable() => state = isDemoOverride;
 }
 
 final isDemoProvider = NotifierProvider<DemoNotifier, bool>(DemoNotifier.new);
