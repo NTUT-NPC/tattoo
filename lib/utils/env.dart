@@ -2,16 +2,16 @@ import 'package:riverpod/riverpod.dart';
 
 /// Compile-time override for demo mode.
 ///
-/// When building with `--dart-define=demo=true`, the app starts in demo mode
+/// When building with `--dart-define=DEMO=true`, the app starts in demo mode
 /// automatically.
-const _demoOverride = bool.fromEnvironment('demo', defaultValue: false);
+const _demoOverride = bool.fromEnvironment('DEMO', defaultValue: false);
 
 /// Runtime toggle for demo mode.
 ///
 /// When true, the application uses mock services and data instead of
 /// communicating with the real NTUT servers.
 ///
-/// Enabled automatically via `--dart-define=demo=true`, or at runtime
+/// Enabled automatically via `--dart-define=DEMO=true`, or at runtime
 /// by logging in with demo credentials ([demoUsername] / [demoPassword]).
 /// Active until logout.
 class DemoNotifier extends Notifier<bool> {
