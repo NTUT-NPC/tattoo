@@ -329,18 +329,20 @@ class _ScoreTile extends StatelessWidget {
           code: score.code,
         ),
       ),
-      trailing: Container(
-        padding: const .symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: scoreColor.withValues(alpha: 0.1),
-          borderRadius: .circular(12),
-        ),
-        child: Text(
-          score.score?.toString() ?? getScoreStatusText(score.status),
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: .bold,
-            color: scoreColor,
+      trailing: Skeleton.unite(
+        child: Container(
+          padding: const .symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: scoreColor.withValues(alpha: 0.1),
+            borderRadius: .circular(12),
+          ),
+          child: Text(
+            score.score?.toString() ?? getScoreStatusText(score.status),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: .bold,
+              color: scoreColor,
+            ),
           ),
         ),
       ),
