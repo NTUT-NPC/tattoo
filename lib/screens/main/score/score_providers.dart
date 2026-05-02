@@ -15,10 +15,11 @@ final scoreSemestersProvider = StreamProvider.autoDispose<List<Semester>>((
 /// Provides semester records (scores, GPA, rankings) for the score screen.
 ///
 /// Watches the DB directly — automatically updates when score data changes.
-/// Background-refreshes stale data automatically.
+/// Refresh is driven by [scoreSemestersProvider] because both providers read
+/// data from the same network payload.
 final semesterRecordsProvider =
     StreamProvider.autoDispose<List<SemesterRecordData>>((ref) {
-      return ref.watch(studentRepositoryProvider).watchSemesterRecords();
+      return ref.watch(studentRepositoryProvider).watchCachedSemesterRecords();
     });
 
 /// Provides semester records indexed by [Semester.id].

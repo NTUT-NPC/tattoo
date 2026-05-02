@@ -143,6 +143,24 @@ class StudentRepository {
     }
   }
 
+  /// Watches cached academic records grouped by semester without refreshing.
+  ///
+  /// Use this when another stream owns refresh decisions for the same payload.
+  Stream<List<SemesterRecordData>> watchCachedSemesterRecords() async* {
+    // Watch academic summaries as the trigger signal. Score data changes
+    // atomically in a transaction, so this catches all updates.
+    await for (final _
+        in _database.select(_database.userAcademicSummaries).watch()) {
+      final user = await _database.select(_database.users).getSingleOrNull();
+      if (user == null) {
+        yield [];
+        continue;
+      }
+
+      yield await _buildSemesterRecordData(user.id);
+    }
+  }
+
   /// Fetches fresh semester records from network and writes to DB.
   ///
   /// The [watchSemesterRecords] stream automatically emits the updated value.
