@@ -143,7 +143,6 @@ class _TranslationsScoreEnUs extends TranslationsScoreZhTw {
 
 	// Translations
 	@override String get loadFailed => 'Failed to load scores';
-	@override String get refreshSuccess => 'Scores updated';
 	@override String get refreshFailed => 'Failed to refresh scores';
 	@override String get noRecords => 'No score records found';
 	@override String get noScoresThisSemester => 'No scores for this semester';
@@ -520,7 +519,6 @@ extension on TranslationsEnUs {
 			'nav.portal' => 'Portals',
 			'nav.profile' => 'Me',
 			'score.loadFailed' => 'Failed to load scores',
-			'score.refreshSuccess' => 'Scores updated',
 			'score.refreshFailed' => 'Failed to refresh scores',
 			'score.noRecords' => 'No score records found',
 			'score.noScoresThisSemester' => 'No scores for this semester',

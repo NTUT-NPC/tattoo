@@ -51,7 +51,6 @@ nav:
   profile: Me
 score:
   loadFailed: Failed to load scores
-  refreshSuccess: Scores updated
   refreshFailed: Failed to refresh scores
   noRecords: No score records found
   noScoresThisSemester: No scores for this semester

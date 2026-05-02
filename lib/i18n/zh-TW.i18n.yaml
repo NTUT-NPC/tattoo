@@ -51,7 +51,6 @@ nav:
   profile: 我
 score:
   loadFailed: 成績載入失敗
-  refreshSuccess: 成績資料已更新
   refreshFailed: 成績更新失敗
   noRecords: 目前沒有任何成績紀錄
   noScoresThisSemester: 本學期尚無成績

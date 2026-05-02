@@ -203,9 +203,6 @@ class TranslationsScoreZhTw {
 	/// zh-TW: '成績載入失敗'
 	String get loadFailed => '成績載入失敗';
 
-	/// zh-TW: '成績資料已更新'
-	String get refreshSuccess => '成績資料已更新';
-
 	/// zh-TW: '成績更新失敗'
 	String get refreshFailed => '成績更新失敗';
 
@@ -790,7 +787,6 @@ extension on Translations {
 			'nav.portal' => '傳送門',
 			'nav.profile' => '我',
 			'score.loadFailed' => '成績載入失敗',
-			'score.refreshSuccess' => '成績資料已更新',
 			'score.refreshFailed' => '成績更新失敗',
 			'score.noRecords' => '目前沒有任何成績紀錄',
 			'score.noScoresThisSemester' => '本學期尚無成績',

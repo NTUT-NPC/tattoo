@@ -59,10 +59,6 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
   Future<void> _reloadScores() async {
     try {
       await refreshSemesterRecords(ref);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.score.refreshSuccess)),
-      );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
