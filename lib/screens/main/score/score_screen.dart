@@ -203,6 +203,7 @@ class _SemesterScoreList extends StatelessWidget {
       child: AppSkeleton(
         enabled: loading,
         child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(
               child: Skeleton.keep(
