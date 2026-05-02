@@ -85,6 +85,11 @@ courseTable:
     saturday: 六
 profile:
   dataDisclaimer: 僅供參考，非正式文件
+  passwordExpiry:
+    warning(plural, param=days):
+      one: 密碼將在1天後過期
+      other: 密碼將在${days}天後過期
+    action: 更改
   sections:
     accountSettings: 帳號設定
     appSettings: 應用程式設定

@@ -369,6 +369,7 @@ class AuthRepository {
           avatarFilename: Value(userDto.avatarFilename ?? ''),
           nameZh: Value(userDto.name ?? ''),
           email: Value(userDto.email ?? ''),
+          passwordExpiresInDays: Value(userDto.passwordExpiresInDays),
           nameEn: Value(profile.englishName),
           dateOfBirth: Value(profile.dateOfBirth),
           programZh: Value(profile.programZh),
