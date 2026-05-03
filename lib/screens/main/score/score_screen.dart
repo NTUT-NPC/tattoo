@@ -47,15 +47,6 @@ class ScoreScreen extends ConsumerStatefulWidget {
 
 class _ScoreScreenState extends ConsumerState<ScoreScreen>
     with SingleTickerProviderStateMixin {
-  void _reportLoadError(Object error, StackTrace stackTrace) {
-    FlutterError.reportError(
-      FlutterErrorDetails(
-        exception: error,
-        stack: stackTrace,
-      ),
-    );
-  }
-
   Future<void> _reloadScores() async {
     try {
       await refreshSemesterRecords(ref);
@@ -69,17 +60,6 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(scoreSemestersProvider, (_, next) {
-      if (next case AsyncError(:final error, :final stackTrace)) {
-        _reportLoadError(error, stackTrace);
-      }
-    });
-    ref.listen(semesterRecordMapProvider, (_, next) {
-      if (next case AsyncError(:final error, :final stackTrace)) {
-        _reportLoadError(error, stackTrace);
-      }
-    });
-
     final semestersAsync = ref.watch(scoreSemestersProvider);
     final semesterRecordMapAsync = ref.watch(semesterRecordMapProvider);
     final displayedSemesterTabLabels =
