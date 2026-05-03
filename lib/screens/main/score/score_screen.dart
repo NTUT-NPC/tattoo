@@ -108,17 +108,26 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                 );
               },
               child: switch (semestersAsync) {
-                // ERROR state: show error message
-                AsyncError() => Center(child: Text(t.score.loadFailed)),
+                // ERROR state: show retryable error message
+                AsyncError() => _RetryableStateView(
+                  onRefresh: _reloadScores,
+                  child: Center(child: Text(t.score.loadFailed)),
+                ),
 
-                // EMPTY state: show not found message
+                // EMPTY state: show retryable not found message
                 AsyncData(value: final semesters) when semesters.isEmpty =>
-                  Center(child: Text(t.score.noRecords)),
+                  _RetryableStateView(
+                    onRefresh: _reloadScores,
+                    child: Center(child: Text(t.score.noRecords)),
+                  ),
 
                 // LOADED state: score pages with tabs
                 AsyncData(value: final semesters) =>
                   switch (semesterRecordMapAsync) {
-                    AsyncError() => Center(child: Text(t.score.loadFailed)),
+                    AsyncError() => _RetryableStateView(
+                      onRefresh: _reloadScores,
+                      child: Center(child: Text(t.score.loadFailed)),
+                    ),
                     AsyncData(value: final recordMap) => TabBarView(
                       children: [
                         for (final semester in semesters)
@@ -128,7 +137,10 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
                               onRefresh: _reloadScores,
                             )
                           else
-                            Center(child: Text(t.score.noRecords)),
+                            _RetryableStateView(
+                              onRefresh: _reloadScores,
+                              child: Center(child: Text(t.score.noRecords)),
+                            ),
                       ],
                     ),
                     _ => TabBarView(
@@ -158,9 +170,35 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
   }
 }
 
+class _RetryableStateView extends StatelessWidget {
+  final RefreshCallback onRefresh;
+  final Widget child;
+
+  const _RetryableStateView({
+    required this.onRefresh,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: child,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _SemesterScoreList extends StatelessWidget {
   final SemesterRecordData record;
-  final Future<void> Function() onRefresh;
+  final RefreshCallback onRefresh;
   final bool loading;
 
   const _SemesterScoreList({
