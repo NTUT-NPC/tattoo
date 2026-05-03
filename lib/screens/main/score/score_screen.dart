@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/components/app_skeleton.dart';
@@ -211,6 +213,11 @@ class _SemesterScoreList extends StatelessWidget {
   Widget build(BuildContext context) {
     final scores = loading ? _loadingScores : record.scores;
     final hasScores = scores.isNotEmpty;
+    final mediaQuery = MediaQuery.of(context);
+    final bottomInset = math.max(
+      mediaQuery.padding.bottom,
+      mediaQuery.viewInsets.bottom,
+    );
 
     return RefreshIndicator(
       onRefresh: onRefresh,
@@ -226,7 +233,12 @@ class _SemesterScoreList extends StatelessWidget {
             ),
             if (hasScores)
               SliverPadding(
-                padding: const .fromLTRB(16, 0, 16, _floatingBarBottomInset),
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  0,
+                  16,
+                  _floatingBarBottomInset + bottomInset,
+                ),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate((context, scoreIndex) {
                     final score = scores[scoreIndex];
