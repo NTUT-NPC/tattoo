@@ -267,8 +267,14 @@ class _TranslationsCourseTableSummaryEnUs extends TranslationsCourseTableSummary
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get credits => 'Credits';
-	@override String get hours => 'Hours';
+	@override String credits({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} credit',
+		other: '${count} credits',
+	);
+	@override String hours({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} hour',
+		other: '${count} hours',
+	);
 }
 
 // Path: courseTable.actions
@@ -486,8 +492,8 @@ extension on TranslationsEnUs {
 			'nav.profile' => 'Me',
 			'courseTable.notFound' => 'Course table not found',
 			'courseTable.unscheduled' => 'Unscheduled Courses',
-			'courseTable.summary.credits' => 'Credits',
-			'courseTable.summary.hours' => 'Hours',
+			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
+			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',
 			'courseTable.actions.displayOptions' => 'Display options',
 			'courseTable.dayOfWeek.sunday' => 'Sun',

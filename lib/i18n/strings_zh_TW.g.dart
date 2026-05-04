@@ -397,11 +397,17 @@ class TranslationsCourseTableSummaryZhTw {
 
 	// Translations
 
-	/// zh-TW: '學分'
-	String get credits => '學分';
+	/// zh-TW: '(one) {${count}學分} (other) {${count}學分}'
+	String credits({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		one: '${count}學分',
+		other: '${count}學分',
+	);
 
-	/// zh-TW: '時數'
-	String get hours => '時數';
+	/// zh-TW: '(one) {${count}小時} (other) {${count}小時}'
+	String hours({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		one: '${count}小時',
+		other: '${count}小時',
+	);
 }
 
 // Path: courseTable.actions
@@ -725,8 +731,8 @@ extension on Translations {
 			'nav.profile' => '我',
 			'courseTable.notFound' => '找不到課表',
 			'courseTable.unscheduled' => '未安排時間的課程',
-			'courseTable.summary.credits' => '學分',
-			'courseTable.summary.hours' => '時數',
+			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
+			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
 			'courseTable.actions.showMoreOptions' => '顯示更多選項',
 			'courseTable.actions.displayOptions' => '顯示選項',
 			'courseTable.dayOfWeek.sunday' => '日',
