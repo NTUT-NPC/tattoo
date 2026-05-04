@@ -156,7 +156,7 @@ class CourseTableGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorByCourseId = _buildColorByCourseId();
+    late final colorByCourseId = _buildColorByCourseId();
     final scrollView = CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics().applyTo(
         ScrollConfiguration.of(context).getScrollPhysics(context),
