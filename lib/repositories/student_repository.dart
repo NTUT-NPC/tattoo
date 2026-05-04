@@ -212,11 +212,11 @@ class StudentRepository {
               offeringId =
                   existingOffering?.id ??
                   await _database.upsertCourseOffering(
-                    courseId: course.id,
+                    courseCode: score.courseCode,
                     semesterId: semesterId,
                     number: number,
-                    nameZh: score.courseNameZh,
-                    nameEn: score.courseNameEn,
+                    nameZh: score.courseNameZh ?? course.nameZh,
+                    nameEn: score.courseNameEn ?? course.nameEn,
                   );
             }
 
