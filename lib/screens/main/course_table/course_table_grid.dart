@@ -594,7 +594,7 @@ class CourseTableGrid extends StatelessWidget {
       child: Center(
         child: Text(
           ' - '
-          '${t.courseTable.summary.credits}: ${courseTableData.totalCredits} / '
+          '${t.courseTable.summary.credits}: ${courseTableData.totalCredits} · '
           '${t.courseTable.summary.hours}: ${courseTableData.totalHours}'
           ' - ',
           style: Theme.of(context).textTheme.bodyMedium,

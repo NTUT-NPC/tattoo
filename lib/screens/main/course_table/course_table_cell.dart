@@ -218,7 +218,7 @@ class CourseTableUnscheduledCell extends StatelessWidget {
                 ),
               ),
               Text(
-                '${courseTableCellData.credits} / ${courseTableCellData.hours}',
+                '${courseTableCellData.credits} · ${courseTableCellData.hours}',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: .w600,
                 ),
