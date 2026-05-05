@@ -235,7 +235,7 @@ extension DatabaseActions on AppDatabase {
         (old) => CourseOfferingsCompanion(
           courseCode: Value(courseCode),
           nameZh: Value(nameZh),
-          nameEn: Value(nameEn),
+          nameEn: Value.absentIfNull(nameEn),
           credits: Value(credits),
           hours: Value(hours),
           phase: Value(phase),
