@@ -142,6 +142,8 @@ class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
 
 	// Translations
 	@override String get notFound => 'Course table not found';
+	@override String get unscheduled => 'Unscheduled Courses';
+	@override late final _TranslationsCourseTableSummaryEnUs summary = _TranslationsCourseTableSummaryEnUs._(_root);
 	@override late final _TranslationsCourseTableActionsEnUs actions = _TranslationsCourseTableActionsEnUs._(_root);
 	@override Map<String, String> get dayOfWeek => {
 		'sunday': 'Sun',
@@ -256,6 +258,23 @@ class _TranslationsLoginErrorsEnUs extends TranslationsLoginErrorsZhTw {
 	@override String get accountLocked => 'Account locked due to too many failed attempts. Please try again later.';
 	@override String get passwordExpired => 'Your password has expired. Please change it on the NTUT portal.';
 	@override String get mobileVerificationRequired => 'Mobile phone verification is required. Please complete it on the NTUT portal.';
+}
+
+// Path: courseTable.summary
+class _TranslationsCourseTableSummaryEnUs extends TranslationsCourseTableSummaryZhTw {
+	_TranslationsCourseTableSummaryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String credits({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} credit',
+		other: '${count} credits',
+	);
+	@override String hours({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} hour',
+		other: '${count} hours',
+	);
 }
 
 // Path: courseTable.actions
@@ -472,6 +491,9 @@ extension on TranslationsEnUs {
 			'nav.portal' => 'Portals',
 			'nav.profile' => 'Me',
 			'courseTable.notFound' => 'Course table not found',
+			'courseTable.unscheduled' => 'Unscheduled Courses',
+			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
+			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',
 			'courseTable.actions.displayOptions' => 'Display options',
 			'courseTable.dayOfWeek.sunday' => 'Sun',
