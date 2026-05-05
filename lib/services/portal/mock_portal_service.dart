@@ -43,6 +43,9 @@ class MockPortalService implements PortalService {
 
   @override
   Future<Uri> getSsoUrl(String serviceCode) async {
+    // Return a placeholder URL for demo mode. Since real SSO requires a real
+    // portal session, we return an Easter Egg URL to indicate that the service
+    // cannot be opened while using mock credentials.
     return ssoUrlResult ??
         Uri.parse('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
   }

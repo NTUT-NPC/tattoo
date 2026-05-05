@@ -4,10 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/shells/showcase_shell.dart';
-import 'package:tattoo/utils/env.dart';
 
 class IntroScreen extends ConsumerStatefulWidget {
   const IntroScreen({super.key});
@@ -18,8 +16,6 @@ class IntroScreen extends ConsumerStatefulWidget {
 
 class _IntroScreenState extends ConsumerState<IntroScreen>
     with SingleTickerProviderStateMixin {
-  bool _isLoading = false;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -102,40 +98,10 @@ class _IntroScreenState extends ConsumerState<IntroScreen>
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                     child: FilledButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () async {
-                              if (ref.read(isDemoProvider)) {
-                                setState(() => _isLoading = true);
-                                try {
-                                  await ref
-                                      .read(authRepositoryProvider)
-                                      .login(demoUsername, demoPassword);
-                                  if (context.mounted) {
-                                    context.go(AppRoutes.home);
-                                  }
-                                } catch (_) {
-                                  if (context.mounted) {
-                                    setState(() => _isLoading = false);
-                                  }
-                                }
-                              } else {
-                                context.push(AppRoutes.login);
-                              }
-                            },
+                      onPressed: () => context.push(AppRoutes.login),
                       child: Padding(
                         padding: const EdgeInsets.all(6.0),
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                  strokeCap: StrokeCap.round,
-                                ),
-                              )
-                            : Text(t.intro.kContinue),
+                        child: Text(t.intro.kContinue),
                       ),
                     ),
                   ),

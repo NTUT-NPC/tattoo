@@ -78,6 +78,16 @@ enum PortalServiceCode {
 // dart format on
 
 /// Provides the singleton [PortalService] instance.
+///
+/// In demo mode, this returns [MockPortalService] to provide canned data and
+/// bypass real NTUT authentication.
+///
+/// Note: Switching to mock implementation means that features depending on real
+/// SSO side effects (such as the QR scanner's iStudy login or portal service
+/// links) will become non-functional as they lack a real portal session.
+/// This is intentional; these features are kept enabled to maintain UI
+/// consistency and allow them to fail gracefully with a "login failed" message
+/// rather than being hidden or disabled.
 final portalServiceProvider = Provider<PortalService>((ref) {
   if (ref.watch(isDemoProvider)) {
     return MockPortalService();

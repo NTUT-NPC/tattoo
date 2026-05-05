@@ -154,9 +154,7 @@ class AuthRepository {
       await _secureStorage.write(key: _usernameKey, value: username);
       await _secureStorage.write(key: _passwordKey, value: password);
     }
-    _onSessionCreated();
-
-    return _database.transaction(() async {
+    final user = await _database.transaction(() async {
       await _database.delete(_database.users).go();
       return _database
           .into(_database.users)
@@ -170,6 +168,9 @@ class AuthRepository {
             ),
           );
     });
+
+    _onSessionCreated();
+    return user;
   }
 
   /// Logs out and clears all local user data and stored credentials.

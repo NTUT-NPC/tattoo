@@ -33,11 +33,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void initState() {
     super.initState();
 
-    if (ref.read(isDemoProvider)) {
-      _usernameController.text = demoUsername;
-      _passwordController.text = demoPassword;
-    }
-
     // Show an inline error if the user was redirected here due to auth failure.
     // Clear after reading — deferred to avoid modifying providers during build.
     final exception = ref.read(loginExceptionProvider);
@@ -132,24 +127,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (isDemo) {
         ref.read(isDemoProvider.notifier).enable();
       }
+
       await ref.read(authRepositoryProvider).login(username, password);
+
       if (mounted) context.go(AppRoutes.home);
-    } on DioException {
-      if (mounted) _setError(t.errors.connectionFailed);
-    } on LoginException catch (e) {
-      if (mounted) {
+    } catch (e) {
+      // Reset demo mode on failure so subsequent attempts don't use mocks
+      // if this login attempt failed (e.g. DB error or network error).
+      if (isDemo) {
+        ref.read(isDemoProvider.notifier).disable();
+      }
+
+      if (!mounted) return;
+
+      if (e is DioException) {
+        _setError(t.errors.connectionFailed);
+      } else if (e is LoginException) {
         switch (e.failure) {
-          case .wrongCredentials:
+          case LoginFailure.wrongCredentials:
             _setError(
               t.login.errors.wrongCredentials,
               username: true,
               password: true,
             );
-          case .accountLocked:
+          case LoginFailure.accountLocked:
             _setError(t.login.errors.accountLocked);
-          case .passwordExpired:
+          case LoginFailure.passwordExpired:
             _setError(t.login.errors.passwordExpired);
-          case .mobileVerificationRequired:
+          case LoginFailure.mobileVerificationRequired:
             _setError(t.login.errors.mobileVerificationRequired);
           case _:
             _setError(
@@ -158,9 +163,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               password: true,
             );
         }
-      }
-    } catch (_) {
-      if (mounted) {
+      } else {
         _setError(t.login.errors.loginFailed, username: true, password: true);
       }
     }
