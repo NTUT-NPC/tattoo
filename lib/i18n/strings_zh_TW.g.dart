@@ -205,6 +205,10 @@ class TranslationsCourseTableZhTw {
 	/// zh-TW: '找不到課表'
 	String get notFound => '找不到課表';
 
+	/// zh-TW: '未安排時間的課程'
+	String get unscheduled => '未安排時間的課程';
+
+	late final TranslationsCourseTableSummaryZhTw summary = TranslationsCourseTableSummaryZhTw.internal(_root);
 	late final TranslationsCourseTableActionsZhTw actions = TranslationsCourseTableActionsZhTw.internal(_root);
 	Map<String, String> get dayOfWeek => {
 		'sunday': '日',
@@ -228,6 +232,7 @@ class TranslationsProfileZhTw {
 	/// zh-TW: '僅供參考，非正式文件'
 	String get dataDisclaimer => '僅供參考，非正式文件';
 
+	late final TranslationsProfilePasswordExpiryZhTw passwordExpiry = TranslationsProfilePasswordExpiryZhTw.internal(_root);
 	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
 	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
 	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
@@ -387,6 +392,27 @@ class TranslationsLoginErrorsZhTw {
 	String get mobileVerificationRequired => '需要進行手機驗證，請至校園入口網站完成驗證';
 }
 
+// Path: courseTable.summary
+class TranslationsCourseTableSummaryZhTw {
+	TranslationsCourseTableSummaryZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '(one) {${count}學分} (other) {${count}學分}'
+	String credits({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		one: '${count}學分',
+		other: '${count}學分',
+	);
+
+	/// zh-TW: '(one) {${count}小時} (other) {${count}小時}'
+	String hours({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		one: '${count}小時',
+		other: '${count}小時',
+	);
+}
+
 // Path: courseTable.actions
 class TranslationsCourseTableActionsZhTw {
 	TranslationsCourseTableActionsZhTw.internal(this._root);
@@ -400,6 +426,24 @@ class TranslationsCourseTableActionsZhTw {
 
 	/// zh-TW: '顯示選項'
 	String get displayOptions => '顯示選項';
+}
+
+// Path: profile.passwordExpiry
+class TranslationsProfilePasswordExpiryZhTw {
+	TranslationsProfilePasswordExpiryZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '(one) {密碼將在1天後過期} (other) {密碼將在${days}天後過期}'
+	String warning({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(days,
+		one: '密碼將在1天後過期',
+		other: '密碼將在${days}天後過期',
+	);
+
+	/// zh-TW: '更改'
+	String get action => '更改';
 }
 
 // Path: profile.sections
@@ -690,6 +734,9 @@ extension on Translations {
 			'nav.calendar' => '行事曆',
 			'nav.profile' => '我',
 			'courseTable.notFound' => '找不到課表',
+			'courseTable.unscheduled' => '未安排時間的課程',
+			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
+			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
 			'courseTable.actions.showMoreOptions' => '顯示更多選項',
 			'courseTable.actions.displayOptions' => '顯示選項',
 			'courseTable.dayOfWeek.sunday' => '日',
@@ -700,6 +747,8 @@ extension on Translations {
 			'courseTable.dayOfWeek.friday' => '五',
 			'courseTable.dayOfWeek.saturday' => '六',
 			'profile.dataDisclaimer' => '僅供參考，非正式文件',
+			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(days, one: '密碼將在1天後過期', other: '密碼將在${days}天後過期', ), 
+			'profile.passwordExpiry.action' => '更改',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
 			'profile.sections.dangerZone' => '危險區域',

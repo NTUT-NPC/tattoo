@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
+import 'package:tattoo/screens/main/user_providers.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
     super.key,
     required this.navigationShell,
@@ -13,21 +14,63 @@ class HomeScreen extends ConsumerWidget {
 
   final StatefulNavigationShell navigationShell;
 
-  void _onDestinationSelected(WidgetRef ref, int index) {
-    final route = navigationShell.route.branches[index].defaultRoute?.path;
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _shownPasswordWarning = false;
+
+  void _onDestinationSelected(int index) {
+    final route =
+        widget.navigationShell.route.branches[index].defaultRoute?.path;
     if (route == AppRoutes.profile) {
       ref.invalidate(dangerZoneActionProvider);
     }
-    navigationShell.goBranch(
+    widget.navigationShell.goBranch(
       index,
-      initialLocation: index == navigationShell.currentIndex,
+      initialLocation: index == widget.navigationShell.currentIndex,
     );
   }
 
+  void _showPasswordExpirySnackbar(BuildContext context, int days) {
+    final t = Translations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(t.profile.passwordExpiry.warning(days: days)),
+          // SnackBar defaults persist=true when an action is set; we want the
+          // warning to auto-dismiss so the user isn't left staring at it.
+          persist: false,
+          action: SnackBarAction(
+            label: t.profile.passwordExpiry.action,
+            onPressed: () => messenger.showSnackBar(
+              SnackBar(content: Text(t.general.notImplemented)),
+            ), // TODO: navigate to change-password flow
+          ),
+        ),
+      );
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    ref.listen(
+      userProfileProvider.select((a) => a.asData?.value?.passwordExpiresInDays),
+      (_, days) {
+        if (days != null && !_shownPasswordWarning) {
+          _shownPasswordWarning = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            _showPasswordExpirySnackbar(context, days);
+          });
+        }
+      },
+    );
+
     return Scaffold(
-      body: navigationShell,
+      body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(
         destinations: <NavigationDestination>[
           NavigationDestination(
@@ -48,8 +91,8 @@ class HomeScreen extends ConsumerWidget {
             label: t.nav.profile,
           ),
         ],
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: (index) => _onDestinationSelected(ref, index),
+        selectedIndex: widget.navigationShell.currentIndex,
+        onDestinationSelected: _onDestinationSelected,
       ),
     );
   }

@@ -52,6 +52,14 @@ nav:
   profile: Me
 courseTable:
   notFound: Course table not found
+  unscheduled: Unscheduled Courses
+  summary:
+    credits(plural, param=count):
+      one: ${count} credit
+      other: ${count} credits
+    hours(plural, param=count):
+      one: ${count} hour
+      other: ${count} hours
   actions:
     showMoreOptions: Show more options
     displayOptions: Display options
@@ -65,6 +73,11 @@ courseTable:
     saturday: Sat
 profile:
   dataDisclaimer: Reference only. Not official.
+  passwordExpiry:
+    warning(plural, param=days):
+      one: Password expires in 1 day
+      other: Password expires in ${days} days
+    action: Change
   sections:
     accountSettings: Account Settings
     appSettings: App Settings

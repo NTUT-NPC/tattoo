@@ -143,6 +143,8 @@ class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
 
 	// Translations
 	@override String get notFound => 'Course table not found';
+	@override String get unscheduled => 'Unscheduled Courses';
+	@override late final _TranslationsCourseTableSummaryEnUs summary = _TranslationsCourseTableSummaryEnUs._(_root);
 	@override late final _TranslationsCourseTableActionsEnUs actions = _TranslationsCourseTableActionsEnUs._(_root);
 	@override Map<String, String> get dayOfWeek => {
 		'sunday': 'Sun',
@@ -163,6 +165,7 @@ class _TranslationsProfileEnUs extends TranslationsProfileZhTw {
 
 	// Translations
 	@override String get dataDisclaimer => 'Reference only. Not official.';
+	@override late final _TranslationsProfilePasswordExpiryEnUs passwordExpiry = _TranslationsProfilePasswordExpiryEnUs._(_root);
 	@override late final _TranslationsProfileSectionsEnUs sections = _TranslationsProfileSectionsEnUs._(_root);
 	@override late final _TranslationsProfileOptionsEnUs options = _TranslationsProfileOptionsEnUs._(_root);
 	@override late final _TranslationsProfileAvatarEnUs avatar = _TranslationsProfileAvatarEnUs._(_root);
@@ -258,6 +261,23 @@ class _TranslationsLoginErrorsEnUs extends TranslationsLoginErrorsZhTw {
 	@override String get mobileVerificationRequired => 'Mobile phone verification is required. Please complete it on the NTUT portal.';
 }
 
+// Path: courseTable.summary
+class _TranslationsCourseTableSummaryEnUs extends TranslationsCourseTableSummaryZhTw {
+	_TranslationsCourseTableSummaryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String credits({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} credit',
+		other: '${count} credits',
+	);
+	@override String hours({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} hour',
+		other: '${count} hours',
+	);
+}
+
 // Path: courseTable.actions
 class _TranslationsCourseTableActionsEnUs extends TranslationsCourseTableActionsZhTw {
 	_TranslationsCourseTableActionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -267,6 +287,20 @@ class _TranslationsCourseTableActionsEnUs extends TranslationsCourseTableActions
 	// Translations
 	@override String get showMoreOptions => 'Show more options';
 	@override String get displayOptions => 'Display options';
+}
+
+// Path: profile.passwordExpiry
+class _TranslationsProfilePasswordExpiryEnUs extends TranslationsProfilePasswordExpiryZhTw {
+	_TranslationsProfilePasswordExpiryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String warning({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(days,
+		one: 'Password expires in 1 day',
+		other: 'Password expires in ${days} days',
+	);
+	@override String get action => 'Change';
 }
 
 // Path: profile.sections
@@ -459,6 +493,9 @@ extension on TranslationsEnUs {
 			'nav.calendar' => 'Calendar',
 			'nav.profile' => 'Me',
 			'courseTable.notFound' => 'Course table not found',
+			'courseTable.unscheduled' => 'Unscheduled Courses',
+			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
+			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',
 			'courseTable.actions.displayOptions' => 'Display options',
 			'courseTable.dayOfWeek.sunday' => 'Sun',
@@ -469,6 +506,8 @@ extension on TranslationsEnUs {
 			'courseTable.dayOfWeek.friday' => 'Fri',
 			'courseTable.dayOfWeek.saturday' => 'Sat',
 			'profile.dataDisclaimer' => 'Reference only. Not official.',
+			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(days, one: 'Password expires in 1 day', other: 'Password expires in ${days} days', ), 
+			'profile.passwordExpiry.action' => 'Change',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
 			'profile.sections.dangerZone' => 'Danger Zone',
