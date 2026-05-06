@@ -42,7 +42,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final eventsAsync = ref.watch(calendarEventsProvider(_range));
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.nav.calendar)),
+      appBar: AppBar(
+        title: Text(t.nav.calendar),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.today),
+            tooltip: t.calendar.today,
+            onPressed: _isOnToday() ? null : _goToToday,
+          ),
+        ],
+      ),
       body: eventsAsync.when(
         skipLoadingOnReload: true,
         data: _buildBody,
@@ -53,6 +62,24 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         error: (_, _) => _buildBody(const {}),
       ),
     );
+  }
+
+  bool _isOnToday() {
+    final today = DateTime.now();
+    return _focusedDay.year == today.year &&
+        _focusedDay.month == today.month &&
+        isSameDay(_selectedDay, today);
+  }
+
+  void _goToToday() {
+    final today = DateTime.now();
+    setState(() {
+      _selectedDay = today;
+      _focusedDay = today;
+      if (today.isBefore(_range.start) || !today.isBefore(_range.end)) {
+        _range = _threeMonthWindow(today);
+      }
+    });
   }
 
   Widget _buildBody(Map<DateTime, List<CalendarEvent>> eventsMap) {
