@@ -47,8 +47,7 @@ class ScoreScreen extends ConsumerStatefulWidget {
   ConsumerState<ScoreScreen> createState() => _ScoreScreenState();
 }
 
-class _ScoreScreenState extends ConsumerState<ScoreScreen>
-    with SingleTickerProviderStateMixin {
+class _ScoreScreenState extends ConsumerState<ScoreScreen> {
   Future<void> _reloadScores() async {
     try {
       await ref.read(studentRepositoryProvider).refreshSemesterRecords();
@@ -84,6 +83,11 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
     final tabLength = displayedSemesterTabLabels.isEmpty
         ? 1
         : displayedSemesterTabLabels.length;
+    final shouldShowFloatingBar = switch (semestersAsync) {
+      AsyncError() => false,
+      AsyncData(value: final semesters) => semesters.isNotEmpty,
+      _ => true,
+    };
 
     return DefaultTabController(
       key: ValueKey(tabLength),
@@ -92,88 +96,78 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
         appBar: AppBar(
           title: Text(t.nav.scores),
         ),
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            final shouldShowFloatingBar = switch (semestersAsync) {
-              AsyncError() => false,
-              AsyncData(value: final semesters) => semesters.isNotEmpty,
-              _ => true,
-            };
+        body: ScrollAwareFloatingActionBar(
+          margin: const .all(_floatingBarMargin),
+          floatingActionBarBuilder: (context, visible) {
+            if (!shouldShowFloatingBar) {
+              return null;
+            }
 
-            return ScrollAwareFloatingActionBar(
-              margin: const .all(_floatingBarMargin),
-              floatingActionBarBuilder: (context, visible) {
-                if (!shouldShowFloatingBar) {
-                  return null;
-                }
+            return FloatingActionBar(
+              visible: visible,
+              child: AppSkeleton(
+                enabled: isSemesterLoading,
+                child: ChipTabSwitcher(
+                  tabs: displayedSemesterTabLabels,
+                  padding: const .symmetric(horizontal: 12),
+                ),
+              ),
+            );
+          },
+          child: switch (semestersAsync) {
+            // ERROR state: show retryable error message
+            AsyncError() => _RetryableStateView(
+              onRefresh: _reloadScores,
+              child: Center(child: Text(t.score.loadFailed)),
+            ),
 
-                return FloatingActionBar(
-                  visible: visible,
-                  child: AppSkeleton(
-                    enabled: isSemesterLoading,
-                    child: ChipTabSwitcher(
-                      tabs: displayedSemesterTabLabels,
-                      padding: const .symmetric(horizontal: 12),
-                    ),
-                  ),
-                );
-              },
-              child: switch (semestersAsync) {
-                // ERROR state: show retryable error message
+            // EMPTY state: show retryable not found message
+            AsyncData(value: final semesters) when semesters.isEmpty =>
+              _RetryableStateView(
+                onRefresh: _reloadScores,
+                child: Center(child: Text(t.score.noRecords)),
+              ),
+
+            // LOADED state: score pages with tabs
+            AsyncData(value: final semesters) =>
+              switch (semesterRecordMapAsync) {
                 AsyncError() => _RetryableStateView(
                   onRefresh: _reloadScores,
                   child: Center(child: Text(t.score.loadFailed)),
                 ),
-
-                // EMPTY state: show retryable not found message
-                AsyncData(value: final semesters) when semesters.isEmpty =>
-                  _RetryableStateView(
-                    onRefresh: _reloadScores,
-                    child: Center(child: Text(t.score.noRecords)),
-                  ),
-
-                // LOADED state: score pages with tabs
-                AsyncData(value: final semesters) =>
-                  switch (semesterRecordMapAsync) {
-                    AsyncError() => _RetryableStateView(
-                      onRefresh: _reloadScores,
-                      child: Center(child: Text(t.score.loadFailed)),
-                    ),
-                    AsyncData(value: final recordMap) => TabBarView(
-                      children: [
-                        for (final semester in semesters)
-                          if (recordMap[semester.id] case final record?)
-                            _SemesterScoreList(
-                              record: record,
-                              onRefresh: _reloadScores,
-                            )
-                          else
-                            _RetryableStateView(
-                              onRefresh: _reloadScores,
-                              child: Center(child: Text(t.score.noRecords)),
-                            ),
-                      ],
-                    ),
-                    _ => TabBarView(
-                      children: [
-                        for (final _ in semesters)
-                          _SemesterScoreList(
-                            record: _loadingSemesterRecord,
-                            onRefresh: _reloadScores,
-                            loading: true,
-                          ),
-                      ],
-                    ),
-                  },
-
-                // LOADING state: show loading placeholder
-                _ => _SemesterScoreList(
-                  record: _loadingSemesterRecord,
-                  onRefresh: _reloadScores,
-                  loading: true,
+                AsyncData(value: final recordMap) => TabBarView(
+                  children: [
+                    for (final semester in semesters)
+                      if (recordMap[semester.id] case final record?)
+                        _SemesterScoreList(
+                          record: record,
+                          onRefresh: _reloadScores,
+                        )
+                      else
+                        _RetryableStateView(
+                          onRefresh: _reloadScores,
+                          child: Center(child: Text(t.score.noRecords)),
+                        ),
+                  ],
+                ),
+                _ => TabBarView(
+                  children: [
+                    for (final _ in semesters)
+                      _SemesterScoreList(
+                        record: _loadingSemesterRecord,
+                        onRefresh: _reloadScores,
+                        loading: true,
+                      ),
+                  ],
                 ),
               },
-            );
+
+            // LOADING state: show loading placeholder
+            _ => _SemesterScoreList(
+              record: _loadingSemesterRecord,
+              onRefresh: _reloadScores,
+              loading: true,
+            ),
           },
         ),
       ),
