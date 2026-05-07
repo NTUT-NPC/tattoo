@@ -5,7 +5,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 ///
 /// Defaults to `false` to avoid package name mismatch issues in debug mode
 /// (`club.ntut.tattoo.debug`). Override via: `--dart-define=USE_FIREBASE=true`
-const bool useFirebase = bool.fromEnvironment(
+const bool useFirebase = .fromEnvironment(
   'USE_FIREBASE',
   defaultValue: false,
 );
@@ -26,8 +26,7 @@ class FirebaseService {
   const FirebaseService();
 
   /// The [FirebaseAnalytics] instance, or `null` if Firebase is disabled.
-  FirebaseAnalytics? get analytics =>
-      useFirebase ? FirebaseAnalytics.instance : null;
+  FirebaseAnalytics? get analytics => useFirebase ? .instance : null;
 
   /// Returns a [FirebaseAnalyticsObserver] for use with navigation observers, or
   /// `null` if Firebase is disabled.
@@ -35,8 +34,7 @@ class FirebaseService {
       useFirebase ? FirebaseAnalyticsObserver(analytics: analytics!) : null;
 
   /// The [FirebaseCrashlytics] instance, or `null` if Firebase is disabled.
-  FirebaseCrashlytics? get crashlytics =>
-      useFirebase ? FirebaseCrashlytics.instance : null;
+  FirebaseCrashlytics? get crashlytics => useFirebase ? .instance : null;
 
   /// Logs a custom message to Firebase Crashlytics if enabled.
   ///
@@ -50,7 +48,7 @@ class FirebaseService {
   void recordNonFatal(String message) {
     crashlytics?.recordError(
       Exception(message),
-      StackTrace.current,
+      .current,
       fatal: false,
     );
   }

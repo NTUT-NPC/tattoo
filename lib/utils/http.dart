@@ -81,13 +81,13 @@ class PlainTextTransformer extends BackgroundTransformer {
     ResponseBody responseBody,
   ) async {
     // Return streams and bytes as-is
-    if (options.responseType == ResponseType.stream) {
+    if (options.responseType == .stream) {
       return responseBody;
     }
 
     final responseBytes = await consolidateBytes(responseBody.stream);
 
-    if (options.responseType == ResponseType.bytes) {
+    if (options.responseType == .bytes) {
       return responseBytes;
     }
 

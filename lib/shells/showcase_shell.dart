@@ -48,13 +48,13 @@ class ShowcaseShell extends StatelessWidget {
     final verticalPadding = screenHeight * 0.1;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(8, 0, 8, 16),
+      padding: .fromLTRB(8, 0, 8, 16),
       child: CustomScrollView(
         slivers: [
           SliverFillRemaining(
             hasScrollBody: false,
             child: Padding(
-              padding: EdgeInsets.fromLTRB(
+              padding: .fromLTRB(
                 0,
                 verticalPadding,
                 0,
@@ -63,7 +63,7 @@ class ShowcaseShell extends StatelessWidget {
               ),
               child: Column(
                 spacing: 24,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: .center,
                 children: [
                   Spacer(flex: 1),
 
@@ -75,9 +75,9 @@ class ShowcaseShell extends StatelessWidget {
                       Text(
                         title,
                         style: theme.textTheme.headlineLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: .bold,
                         ),
-                        textAlign: TextAlign.center,
+                        textAlign: .center,
                       ),
                       if (subtitle case final subtitle?)
                         Text(
@@ -85,7 +85,7 @@ class ShowcaseShell extends StatelessWidget {
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: Colors.grey[600],
                           ),
-                          textAlign: TextAlign.center,
+                          textAlign: .center,
                         ),
                     ],
                   ),

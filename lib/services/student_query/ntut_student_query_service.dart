@@ -53,9 +53,9 @@ class NtutStudentQueryService implements StudentQueryService {
     ).firstMatch(fields['Date of Birth'] ?? '');
     final dateOfBirth = dobMatch != null
         ? DateTime(
-            int.parse(dobMatch.group(1)!),
-            int.parse(dobMatch.group(2)!),
-            int.parse(dobMatch.group(3)!),
+            .parse(dobMatch.group(1)!),
+            .parse(dobMatch.group(2)!),
+            .parse(dobMatch.group(3)!),
           )
         : null;
 
@@ -381,9 +381,9 @@ class NtutStudentQueryService implements StudentQueryService {
   /// Maps enrollment status text to [EnrollmentStatus].
   EnrollmentStatus? _parseEnrollmentStatus(String? text) {
     return switch (text) {
-      '在學' => EnrollmentStatus.learning,
-      '休學' => EnrollmentStatus.leaveOfAbsence,
-      '退學' => EnrollmentStatus.droppedOut,
+      '在學' => .learning,
+      '休學' => .leaveOfAbsence,
+      '退學' => .droppedOut,
       _ => null,
     };
   }

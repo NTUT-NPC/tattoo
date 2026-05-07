@@ -41,7 +41,7 @@ class CourseTableDetailSheet extends StatelessWidget {
           spacing: 16,
           children: [
             SizedBox(
-              width: double.infinity,
+              width: .infinity,
               child: Column(
                 crossAxisAlignment: .center,
                 children: [
@@ -55,12 +55,12 @@ class CourseTableDetailSheet extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: double.infinity,
+              width: .infinity,
               child: Card(
                 margin: .all(8),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: .circular(12),
                   side: BorderSide(color: theme.colorScheme.outlineVariant),
                 ),
                 color: theme.colorScheme.surfaceContainer,

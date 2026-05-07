@@ -259,7 +259,7 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
 
       final tabLeftInViewport = tabBox
           .localToGlobal(
-            Offset.zero,
+            .zero,
             ancestor: viewportBox,
           )
           .dx;
@@ -315,7 +315,7 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
       key: _scrollViewportKey,
       controller: _scrollController,
       padding: widget.padding,
-      scrollDirection: Axis.horizontal,
+      scrollDirection: .horizontal,
       child: Row(
         spacing: widget.spacing,
         children: [
@@ -373,7 +373,7 @@ class _TabSwitchChip extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(_borderRadius),
+        borderRadius: .circular(_borderRadius),
         onTap: onTap,
         child: AnimatedContainer(
           duration: _containerAnimationDuration,
@@ -381,15 +381,15 @@ class _TabSwitchChip extends StatelessWidget {
           padding: _chipPadding,
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(_borderRadius),
+            borderRadius: .circular(_borderRadius),
             border: Border.all(
               color: borderColor,
               width: borderWidth,
             ),
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: .min,
+            mainAxisAlignment: .center,
             children: [
               SizedBox(
                 width: _checkIconSize,
@@ -473,7 +473,7 @@ Widget tabSwitcherPreview() {
       length: tabs.length,
       child: ChipTabSwitcher(
         tabs: tabs,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const .symmetric(horizontal: 12),
         spacing: 12,
       ),
     ),

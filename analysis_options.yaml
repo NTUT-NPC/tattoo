@@ -2,6 +2,7 @@ include: package:flutter_lints/flutter.yaml
 
 plugins:
   riverpod_lint: 3.1.2
+  prefer_shorthands: 0.4.7
 
 formatter:
   trailing_commas: preserve

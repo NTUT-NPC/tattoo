@@ -236,7 +236,7 @@ class _SemesterScoreList extends StatelessWidget {
             ),
             if (hasScores)
               SliverPadding(
-                padding: EdgeInsets.fromLTRB(
+                padding: .fromLTRB(
                   16,
                   0,
                   16,

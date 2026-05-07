@@ -5,7 +5,7 @@ import 'package:tattoo/utils/localized.dart';
 void main() {
   group('localized', () {
     group('when locale is zhTw', () {
-      setUp(() async => LocaleSettings.setLocale(AppLocale.zhTw));
+      setUp(() async => LocaleSettings.setLocale(.zhTw));
 
       test('returns zh when both provided', () {
         expect(localized('中文', 'English'), '中文');
@@ -21,7 +21,7 @@ void main() {
     });
 
     group('when locale is en', () {
-      setUp(() async => LocaleSettings.setLocale(AppLocale.enUs));
+      setUp(() async => LocaleSettings.setLocale(.enUs));
 
       test('returns en when both provided', () {
         expect(localized('中文', 'English'), 'English');

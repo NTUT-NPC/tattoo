@@ -13,9 +13,9 @@ enum EnrollmentStatus {
   droppedOut;
 
   String toLabel() => switch (this) {
-    EnrollmentStatus.learning => t.enrollmentStatus.learning,
-    EnrollmentStatus.leaveOfAbsence => t.enrollmentStatus.leaveOfAbsence,
-    EnrollmentStatus.droppedOut => t.enrollmentStatus.droppedOut,
+    .learning => t.enrollmentStatus.learning,
+    .leaveOfAbsence => t.enrollmentStatus.leaveOfAbsence,
+    .droppedOut => t.enrollmentStatus.droppedOut,
   };
 }
 // dart format on

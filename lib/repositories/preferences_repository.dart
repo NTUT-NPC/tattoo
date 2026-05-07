@@ -15,10 +15,10 @@ enum PrefType { boolean, integer, double, string, stringList }
 /// Typed preference keys with defaults.
 enum PrefKey<T> {
   /// Whether to use mock data instead of live NTUT services.
-  demoMode<bool>(PrefType.boolean, false),
+  demoMode<bool>(.boolean, false),
 
   /// Whether the danger zone section is shown on the profile screen.
-  showDangerZone<bool>(PrefType.boolean, false);
+  showDangerZone<bool>(.boolean, false);
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;
@@ -64,11 +64,11 @@ class PreferencesRepository {
   /// Gets a preference value, returning the key's default if not set.
   Future<T> get<T>(PrefKey<T> key) async {
     final value = switch (key.type) {
-      PrefType.boolean => await _prefs.getBool(key.name),
-      PrefType.integer => await _prefs.getInt(key.name),
-      PrefType.double => await _prefs.getDouble(key.name),
-      PrefType.string => await _prefs.getString(key.name),
-      PrefType.stringList => await _prefs.getStringList(key.name),
+      .boolean => await _prefs.getBool(key.name),
+      .integer => await _prefs.getInt(key.name),
+      .double => await _prefs.getDouble(key.name),
+      .string => await _prefs.getString(key.name),
+      .stringList => await _prefs.getStringList(key.name),
     };
     return (value as T?) ?? key.defaultValue;
   }
@@ -76,11 +76,11 @@ class PreferencesRepository {
   /// Sets a preference value and marks local state as dirty for cloud sync.
   Future<void> set<T>(PrefKey<T> key, T value) async {
     await switch (key.type) {
-      PrefType.boolean => _prefs.setBool(key.name, value as bool),
-      PrefType.integer => _prefs.setInt(key.name, value as int),
-      PrefType.double => _prefs.setDouble(key.name, value as double),
-      PrefType.string => _prefs.setString(key.name, value as String),
-      PrefType.stringList => _prefs.setStringList(
+      .boolean => _prefs.setBool(key.name, value as bool),
+      .integer => _prefs.setInt(key.name, value as int),
+      .double => _prefs.setDouble(key.name, value as double),
+      .string => _prefs.setString(key.name, value as String),
+      .stringList => _prefs.setStringList(
         key.name,
         value as List<String>,
       ),
@@ -164,17 +164,17 @@ class PreferencesRepository {
       for (final key in PrefKey.values)
         if (map.containsKey(key.name))
           switch (key.type) {
-            PrefType.boolean => _prefs.setBool(key.name, map[key.name] as bool),
-            PrefType.integer => _prefs.setInt(key.name, map[key.name] as int),
-            PrefType.double => _prefs.setDouble(
+            .boolean => _prefs.setBool(key.name, map[key.name] as bool),
+            .integer => _prefs.setInt(key.name, map[key.name] as int),
+            .double => _prefs.setDouble(
               key.name,
               map[key.name] as double,
             ),
-            PrefType.string => _prefs.setString(
+            .string => _prefs.setString(
               key.name,
               map[key.name] as String,
             ),
-            PrefType.stringList => _prefs.setStringList(
+            .stringList => _prefs.setStringList(
               key.name,
               map[key.name] as List<String>,
             ),
