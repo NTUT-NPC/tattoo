@@ -4,26 +4,29 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/score.dart';
 
 Color getScoreColor(BuildContext context, ScoreDetail score) {
-  if (score.score != null) {
-    return score.score! >= 60
-        ? Colors.green.shade600
-        : Theme.of(context).colorScheme.error;
+  final passingColor = Colors.green.shade600;
+  final failingColor = Theme.of(context).colorScheme.error;
+  final neutralColor = Theme.of(context).colorScheme.onSurfaceVariant;
+
+  if (score.score case final scoreValue?) {
+    return scoreValue >= 60 ? passingColor : failingColor;
   }
-  if (score.status == ScoreStatus.pass ||
-      score.status == ScoreStatus.creditTransfer) {
-    return Colors.green.shade600;
-  }
-  return Theme.of(context).colorScheme.onSurfaceVariant;
+
+  return switch (score.status) {
+    .pass || .creditTransfer => passingColor,
+    .fail => failingColor,
+    _ => neutralColor,
+  };
 }
 
 String getScoreStatusText(ScoreStatus? status) {
   return switch (status) {
-    ScoreStatus.notEntered => t.score.status.notEntered,
-    ScoreStatus.withdraw => t.score.status.withdraw,
-    ScoreStatus.undelivered => t.score.status.undelivered,
-    ScoreStatus.pass => t.score.status.pass,
-    ScoreStatus.fail => t.score.status.fail,
-    ScoreStatus.creditTransfer => t.score.status.creditTransfer,
+    .notEntered => t.score.status.notEntered,
+    .withdraw => t.score.status.withdraw,
+    .undelivered => t.score.status.undelivered,
+    .pass => t.score.status.pass,
+    .fail => t.score.status.fail,
+    .creditTransfer => t.score.status.creditTransfer,
     _ => '-',
   };
 }
