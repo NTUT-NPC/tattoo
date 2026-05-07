@@ -2,21 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/score.dart';
-import 'package:tattoo/repositories/student_repository.dart';
-
-String semesterKey(SemesterRecordData record) {
-  return '${record.summary.year}-${record.summary.term}';
-}
-
-String formatLastUpdated(DateTime dateTime) {
-  String twoDigits(int value) => value.toString().padLeft(2, '0');
-  final year = dateTime.year;
-  final month = twoDigits(dateTime.month);
-  final day = twoDigits(dateTime.day);
-  final hour = twoDigits(dateTime.hour);
-  final minute = twoDigits(dateTime.minute);
-  return '$year/$month/$day $hour:$minute';
-}
 
 Color getScoreColor(BuildContext context, ScoreDetail score) {
   if (score.score != null) {

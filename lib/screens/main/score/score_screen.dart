@@ -9,7 +9,6 @@ import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/student_repository.dart';
 import 'package:tattoo/screens/main/score/score_providers.dart';
-import 'package:tattoo/screens/main/score/score_screen_actions.dart';
 import 'package:tattoo/screens/main/score/score_view_helpers.dart';
 
 const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
@@ -51,7 +50,7 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
     with SingleTickerProviderStateMixin {
   Future<void> _reloadScores() async {
     try {
-      await refreshSemesterRecords(ref);
+      await ref.read(studentRepositoryProvider).refreshSemesterRecords();
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,10 +59,19 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen>
     }
   }
 
+  String _semesterLabel(Semester semester) =>
+      '${semester.year}-${semester.term}';
+
   @override
   Widget build(BuildContext context) {
     final semestersAsync = ref.watch(scoreSemestersProvider);
-    final semesterRecordMapAsync = ref.watch(semesterRecordMapProvider);
+    final semesterRecordMapAsync = ref
+        .watch(semesterRecordsProvider)
+        .whenData(
+          (records) => {
+            for (final record in records) record.summary.semester: record,
+          },
+        );
     final displayedSemesterTabLabels =
         semestersAsync.asData?.value
             .map(_semesterLabel)
@@ -392,5 +400,3 @@ class _ScoreTile extends StatelessWidget {
     );
   }
 }
-
-String _semesterLabel(Semester semester) => '${semester.year}-${semester.term}';
