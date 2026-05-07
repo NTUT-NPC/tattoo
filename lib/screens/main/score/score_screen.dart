@@ -10,6 +10,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/student_repository.dart';
 import 'package:tattoo/screens/main/score/score_providers.dart';
 import 'package:tattoo/screens/main/score/score_view_helpers.dart';
+import 'package:tattoo/utils/localized.dart';
 
 const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
 const _floatingBarBottomInset = 80.0;
@@ -371,7 +372,7 @@ class _ScoreTile extends StatelessWidget {
       visualDensity: .compact,
       contentPadding: const .symmetric(horizontal: 8, vertical: 0),
       title: Text(
-        score.nameZh,
+        localized(score.nameZh, score.nameEn),
         style: Theme.of(context).textTheme.titleMedium,
       ),
       subtitle: Text(
