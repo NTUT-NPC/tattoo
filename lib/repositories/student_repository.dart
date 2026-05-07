@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
@@ -35,6 +37,8 @@ class StudentRepository {
   final CourseRepository _courseRepository;
   final FirebaseService _firebaseService;
   final StudentQueryService _studentQueryService;
+
+  Completer<void>? _refreshSemesterRecordsInFlight;
 
   StudentRepository({
     required AppDatabase database,
@@ -143,29 +147,33 @@ class StudentRepository {
     }
   }
 
-  /// Watches cached academic records grouped by semester without refreshing.
-  ///
-  /// Use this when another stream owns refresh decisions for the same payload.
-  Stream<List<SemesterRecordData>> watchCachedSemesterRecords() async* {
-    // Watch academic summaries as the trigger signal. Score data changes
-    // atomically in a transaction, so this catches all updates.
-    await for (final _
-        in _database.select(_database.userAcademicSummaries).watch()) {
-      final user = await _database.select(_database.users).getSingleOrNull();
-      if (user == null) {
-        yield [];
-        continue;
-      }
-
-      yield await _buildSemesterRecordData(user.id);
-    }
-  }
-
   /// Fetches fresh semester records from network and writes to DB.
   ///
   /// The [watchSemesterRecords] stream automatically emits the updated value.
   /// Network errors propagate to the caller.
+  ///
+  /// Concurrent calls coalesce — only the first caller triggers the actual
+  /// network fetch; subsequent callers await the same [Completer] and receive
+  /// the same result.
   Future<void> refreshSemesterRecords() async {
+    if (_refreshSemesterRecordsInFlight case final existing?) {
+      return existing.future;
+    }
+
+    final completer = Completer<void>();
+    _refreshSemesterRecordsInFlight = completer;
+    try {
+      await _refreshSemesterRecords();
+      completer.complete();
+    } catch (e, st) {
+      completer.completeError(e, st);
+      rethrow;
+    } finally {
+      _refreshSemesterRecordsInFlight = null;
+    }
+  }
+
+  Future<void> _refreshSemesterRecords() async {
     final userId = (await _database.select(_database.users).getSingle()).id;
     final (semesters, gpas, rankings) = await _authRepository.withAuth(
       () async {
