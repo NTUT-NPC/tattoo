@@ -46,6 +46,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsLoginZhTw login = TranslationsLoginZhTw.internal(_root);
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
 	late final TranslationsScoreZhTw score = TranslationsScoreZhTw.internal(_root);
+	late final TranslationsCalendarZhTw calendar = TranslationsCalendarZhTw.internal(_root);
 	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsScannerZhTw scanner = TranslationsScannerZhTw.internal(_root);
@@ -188,6 +189,9 @@ class TranslationsNavZhTw {
 	/// zh-TW: '傳送門'
 	String get portal => '傳送門';
 
+	/// zh-TW: '行事曆'
+	String get calendar => '行事曆';
+
 	/// zh-TW: '我'
 	String get profile => '我';
 }
@@ -222,6 +226,18 @@ class TranslationsScoreZhTw {
 	late final TranslationsScoreStatusZhTw status = TranslationsScoreStatusZhTw.internal(_root);
 }
 
+// Path: calendar
+class TranslationsCalendarZhTw {
+	TranslationsCalendarZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '今天'
+	String get today => '今天';
+}
+
 // Path: courseTable
 class TranslationsCourseTableZhTw {
 	TranslationsCourseTableZhTw.internal(this._root);
@@ -233,6 +249,10 @@ class TranslationsCourseTableZhTw {
 	/// zh-TW: '找不到課表'
 	String get notFound => '找不到課表';
 
+	/// zh-TW: '未安排時間的課程'
+	String get unscheduled => '未安排時間的課程';
+
+	late final TranslationsCourseTableSummaryZhTw summary = TranslationsCourseTableSummaryZhTw.internal(_root);
 	late final TranslationsCourseTableActionsZhTw actions = TranslationsCourseTableActionsZhTw.internal(_root);
 	Map<String, String> get dayOfWeek => {
 		'sunday': '日',
@@ -465,6 +485,27 @@ class TranslationsScoreStatusZhTw {
 
 	/// zh-TW: '抵免'
 	String get creditTransfer => '抵免';
+}
+
+// Path: courseTable.summary
+class TranslationsCourseTableSummaryZhTw {
+	TranslationsCourseTableSummaryZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '(one) {${count}學分} (other) {${count}學分}'
+	String credits({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		one: '${count}學分',
+		other: '${count}學分',
+	);
+
+	/// zh-TW: '(one) {${count}小時} (other) {${count}小時}'
+	String hours({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		one: '${count}小時',
+		other: '${count}小時',
+	);
 }
 
 // Path: courseTable.actions
@@ -785,6 +826,7 @@ extension on Translations {
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.portal' => '傳送門',
+			'nav.calendar' => '行事曆',
 			'nav.profile' => '我',
 			'score.loadFailed' => '成績載入失敗',
 			'score.refreshFailed' => '成績更新失敗',
@@ -803,7 +845,11 @@ extension on Translations {
 			'score.status.pass' => '通過',
 			'score.status.fail' => '不通過',
 			'score.status.creditTransfer' => '抵免',
+			'calendar.today' => '今天',
 			'courseTable.notFound' => '找不到課表',
+			'courseTable.unscheduled' => '未安排時間的課程',
+			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
+			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
 			'courseTable.actions.showMoreOptions' => '顯示更多選項',
 			'courseTable.actions.displayOptions' => '顯示選項',
 			'courseTable.dayOfWeek.sunday' => '日',

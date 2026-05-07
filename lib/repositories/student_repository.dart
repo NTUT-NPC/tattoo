@@ -279,15 +279,20 @@ class StudentRepository {
                         (o) => o.number.equals(number),
                       ))
                       .getSingleOrNull();
-              offeringId =
-                  existingOffering?.id ??
-                  await _database.upsertCourseOffering(
-                    courseId: course.id,
-                    semesterId: semesterId,
-                    number: number,
-                    nameZh: score.courseNameZh,
-                    nameEn: score.courseNameEn,
-                  );
+              if (existingOffering != null) {
+                offeringId = existingOffering.id;
+              } else if (score.courseNameZh case final nameZh?) {
+                // Skip rather than back-fill from courses.nameZh — that
+                // conflates catalog and timetable. ScoreDetails coalesces
+                // at read time.
+                offeringId = await _database.upsertCourseOffering(
+                  courseCode: score.courseCode,
+                  semesterId: semesterId,
+                  number: number,
+                  nameZh: nameZh,
+                  nameEn: score.courseNameEn,
+                );
+              }
             }
 
             await _database

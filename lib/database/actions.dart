@@ -203,11 +203,13 @@ extension DatabaseActions on AppDatabase {
   /// Upserts by `(semester, number)`. Null-number entries always insert
   /// (SQLite treats NULLs as distinct) — caller must delete stale ones first.
   Future<int> upsertCourseOffering({
-    int? courseId,
+    String? courseCode,
     required int semesterId,
     String? number,
-    String? nameZh,
+    required String nameZh,
     String? nameEn,
+    double? credits,
+    int? hours,
     int? phase,
     String? status,
     String? language,
@@ -216,11 +218,13 @@ extension DatabaseActions on AppDatabase {
   }) async {
     return (await into(courseOfferings).insertReturning(
       CourseOfferingsCompanion.insert(
-        course: Value(courseId),
+        courseCode: Value(courseCode),
         semester: semesterId,
         number: Value(number),
-        nameZh: Value(nameZh),
+        nameZh: nameZh,
         nameEn: Value(nameEn),
+        credits: Value(credits),
+        hours: Value(hours),
         phase: Value(phase),
         status: Value(status),
         language: Value(language),
@@ -229,9 +233,11 @@ extension DatabaseActions on AppDatabase {
       ),
       onConflict: DoUpdate(
         (old) => CourseOfferingsCompanion(
-          course: Value(courseId),
+          courseCode: Value(courseCode),
           nameZh: Value(nameZh),
-          nameEn: Value(nameEn),
+          nameEn: Value.absentIfNull(nameEn),
+          credits: Value(credits),
+          hours: Value(hours),
           phase: Value(phase),
           status: Value(status),
           language: Value(language),

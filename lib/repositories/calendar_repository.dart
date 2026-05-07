@@ -148,8 +148,8 @@ class CalendarRepository {
         // (consistent with read queries) so boundary-spanning events are
         // cleaned up too.
         await (_database.delete(_database.calendarEvents)..where((e) {
-              return e.start.isSmallerOrEqualValue(windowEnd) &
-                  e.end.isBiggerOrEqualValue(windowStart);
+              return e.start.isSmallerThanValue(windowEnd) &
+                  e.end.isBiggerThanValue(windowStart);
             }))
             .go();
 
@@ -189,7 +189,8 @@ class CalendarRepository {
     }
   }
 
-  /// Computes the fetch window from the student's enrolled semesters.
+  /// Computes the half-open fetch window `[start, end)` from the student's
+  /// enrolled semesters.
   ///
   /// Falls back to `now ± 6 months` when no semesters are known yet (e.g.,
   /// first login before [CourseRepository.refreshSemesters] has run). The
@@ -236,20 +237,20 @@ class CalendarRepository {
     };
   }
 
-  /// Approximate end date of an NTUT semester.
+  /// Approximate exclusive end date of an NTUT semester (first day after).
   static DateTime _semesterEnd(int rocYear, int term) {
     final adYear = rocYear + 1911;
     return switch (term) {
-      0 => DateTime(adYear, 7, 31),
-      1 => DateTime(adYear + 1, 1, 31),
-      2 => DateTime(adYear + 1, 7, 31),
-      3 => DateTime(adYear + 1, 8, 31),
-      _ => DateTime(adYear + 1, 1, 31),
+      0 => DateTime(adYear, 8, 1),
+      1 => DateTime(adYear + 1, 2, 1),
+      2 => DateTime(adYear + 1, 8, 1),
+      3 => DateTime(adYear + 1, 9, 1),
+      _ => DateTime(adYear + 1, 2, 1),
     };
   }
 
-  /// Selects calendar events that overlap with the given date range,
-  /// ordered by start date ascending.
+  /// Selects calendar events overlapping the half-open range
+  /// `[startDate, endDate)`, ordered by start date ascending.
   SimpleSelectStatement<$CalendarEventsTable, CalendarEvent> _eventsOverlapping(
     DateTime startDate,
     DateTime endDate,
@@ -257,8 +258,8 @@ class CalendarRepository {
     return _database.select(_database.calendarEvents)
       ..where(
         (e) =>
-            e.start.isSmallerOrEqualValue(endDate) &
-            e.end.isBiggerOrEqualValue(startDate),
+            e.start.isSmallerThanValue(endDate) &
+            e.end.isBiggerThanValue(startDate),
       )
       ..orderBy([(e) => OrderingTerm.asc(e.start)]);
   }

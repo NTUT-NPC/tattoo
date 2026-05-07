@@ -3727,17 +3727,16 @@ class $CourseOfferingsTable extends CourseOfferings
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _courseMeta = const VerificationMeta('course');
+  static const VerificationMeta _courseCodeMeta = const VerificationMeta(
+    'courseCode',
+  );
   @override
-  late final GeneratedColumn<int> course = GeneratedColumn<int>(
-    'course',
+  late final GeneratedColumn<String> courseCode = GeneratedColumn<String>(
+    'course_code',
     aliasedName,
     true,
-    type: DriftSqlType.int,
+    type: DriftSqlType.string,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES courses (id)',
-    ),
   );
   static const VerificationMeta _semesterMeta = const VerificationMeta(
     'semester',
@@ -3767,9 +3766,9 @@ class $CourseOfferingsTable extends CourseOfferings
   late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
     'name_zh',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.string,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
   );
   static const VerificationMeta _nameEnMeta = const VerificationMeta('nameEn');
   @override
@@ -3778,6 +3777,26 @@ class $CourseOfferingsTable extends CourseOfferings
     aliasedName,
     true,
     type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _creditsMeta = const VerificationMeta(
+    'credits',
+  );
+  @override
+  late final GeneratedColumn<double> credits = GeneratedColumn<double>(
+    'credits',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hoursMeta = const VerificationMeta('hours');
+  @override
+  late final GeneratedColumn<int> hours = GeneratedColumn<int>(
+    'hours',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
   static const VerificationMeta _phaseMeta = const VerificationMeta('phase');
@@ -3933,11 +3952,13 @@ class $CourseOfferingsTable extends CourseOfferings
   List<GeneratedColumn> get $columns => [
     id,
     fetchedAt,
-    course,
+    courseCode,
     semester,
     number,
     nameZh,
     nameEn,
+    credits,
+    hours,
     phase,
     courseType,
     status,
@@ -3974,10 +3995,10 @@ class $CourseOfferingsTable extends CourseOfferings
         fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
       );
     }
-    if (data.containsKey('course')) {
+    if (data.containsKey('course_code')) {
       context.handle(
-        _courseMeta,
-        course.isAcceptableOrUnknown(data['course']!, _courseMeta),
+        _courseCodeMeta,
+        courseCode.isAcceptableOrUnknown(data['course_code']!, _courseCodeMeta),
       );
     }
     if (data.containsKey('semester')) {
@@ -3999,11 +4020,25 @@ class $CourseOfferingsTable extends CourseOfferings
         _nameZhMeta,
         nameZh.isAcceptableOrUnknown(data['name_zh']!, _nameZhMeta),
       );
+    } else if (isInserting) {
+      context.missing(_nameZhMeta);
     }
     if (data.containsKey('name_en')) {
       context.handle(
         _nameEnMeta,
         nameEn.isAcceptableOrUnknown(data['name_en']!, _nameEnMeta),
+      );
+    }
+    if (data.containsKey('credits')) {
+      context.handle(
+        _creditsMeta,
+        credits.isAcceptableOrUnknown(data['credits']!, _creditsMeta),
+      );
+    }
+    if (data.containsKey('hours')) {
+      context.handle(
+        _hoursMeta,
+        hours.isAcceptableOrUnknown(data['hours']!, _hoursMeta),
       );
     }
     if (data.containsKey('phase')) {
@@ -4111,9 +4146,9 @@ class $CourseOfferingsTable extends CourseOfferings
         DriftSqlType.dateTime,
         data['${effectivePrefix}fetched_at'],
       ),
-      course: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}course'],
+      courseCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}course_code'],
       ),
       semester: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -4126,10 +4161,18 @@ class $CourseOfferingsTable extends CourseOfferings
       nameZh: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name_zh'],
-      ),
+      )!,
       nameEn: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name_en'],
+      ),
+      credits: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}credits'],
+      ),
+      hours: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hours'],
       ),
       phase: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -4217,11 +4260,11 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   /// - Implement cache expiration (old timestamp = stale, re-fetch)
   final DateTime? fetchedAt;
 
-  /// Reference to the course definition.
+  /// The course catalog code (e.g., "3601001").
   ///
-  /// Null for special entries (e.g., "班週會及導師時間") that have schedule
-  /// slots but no course catalog entry.
-  final int? course;
+  /// Soft reference — joins to [Courses.code] at query time. Null for
+  /// special entries (e.g., "班週會及導師時間") that have no catalog entry.
+  final String? courseCode;
 
   /// Reference to the semester when this course is offered.
   final int semester;
@@ -4231,15 +4274,27 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   /// Null for special entries that have no assigned number.
   final String? number;
 
-  /// Display name in Chinese, for entries without a [course] reference.
+  /// Display name as it appears in this semester's timetable.
   ///
-  /// When [course] is non-null, the name comes from [Courses.nameZh] instead.
-  final String? nameZh;
+  /// Always populated. May differ from [Courses.nameZh] (the catalog name).
+  final String nameZh;
 
-  /// Display name in English, for entries without a [course] reference.
+  /// Display name in English as it appears in this semester's timetable.
   ///
-  /// When [course] is non-null, the name comes from [Courses.nameEn] instead.
+  /// May differ from [Courses.nameEn] (the catalog name).
   final String? nameEn;
+
+  /// Number of credits as listed in this semester's timetable.
+  ///
+  /// May differ from [Courses.credits] (the catalog value). Null for special
+  /// entries (e.g., 班週會及導師時間) that have no credit value.
+  final double? credits;
+
+  /// Number of class hours per week as listed in this semester's timetable.
+  ///
+  /// May differ from [Courses.hours] (the catalog value). Null for special
+  /// entries (e.g., 班週會及導師時間) that have no hour value.
+  final int? hours;
 
   /// Course sequence phase/stage number (階段, e.g., "1", "2").
   ///
@@ -4305,11 +4360,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   const CourseOffering({
     required this.id,
     this.fetchedAt,
-    this.course,
+    this.courseCode,
     required this.semester,
     this.number,
-    this.nameZh,
+    required this.nameZh,
     this.nameEn,
+    this.credits,
+    this.hours,
     this.phase,
     this.courseType,
     this.status,
@@ -4332,18 +4389,22 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     if (!nullToAbsent || fetchedAt != null) {
       map['fetched_at'] = Variable<DateTime>(fetchedAt);
     }
-    if (!nullToAbsent || course != null) {
-      map['course'] = Variable<int>(course);
+    if (!nullToAbsent || courseCode != null) {
+      map['course_code'] = Variable<String>(courseCode);
     }
     map['semester'] = Variable<int>(semester);
     if (!nullToAbsent || number != null) {
       map['number'] = Variable<String>(number);
     }
-    if (!nullToAbsent || nameZh != null) {
-      map['name_zh'] = Variable<String>(nameZh);
-    }
+    map['name_zh'] = Variable<String>(nameZh);
     if (!nullToAbsent || nameEn != null) {
       map['name_en'] = Variable<String>(nameEn);
+    }
+    if (!nullToAbsent || credits != null) {
+      map['credits'] = Variable<double>(credits);
+    }
+    if (!nullToAbsent || hours != null) {
+      map['hours'] = Variable<int>(hours);
     }
     if (!nullToAbsent || phase != null) {
       map['phase'] = Variable<int>(phase);
@@ -4398,19 +4459,23 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       fetchedAt: fetchedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(fetchedAt),
-      course: course == null && nullToAbsent
+      courseCode: courseCode == null && nullToAbsent
           ? const Value.absent()
-          : Value(course),
+          : Value(courseCode),
       semester: Value(semester),
       number: number == null && nullToAbsent
           ? const Value.absent()
           : Value(number),
-      nameZh: nameZh == null && nullToAbsent
-          ? const Value.absent()
-          : Value(nameZh),
+      nameZh: Value(nameZh),
       nameEn: nameEn == null && nullToAbsent
           ? const Value.absent()
           : Value(nameEn),
+      credits: credits == null && nullToAbsent
+          ? const Value.absent()
+          : Value(credits),
+      hours: hours == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hours),
       phase: phase == null && nullToAbsent
           ? const Value.absent()
           : Value(phase),
@@ -4464,11 +4529,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     return CourseOffering(
       id: serializer.fromJson<int>(json['id']),
       fetchedAt: serializer.fromJson<DateTime?>(json['fetchedAt']),
-      course: serializer.fromJson<int?>(json['course']),
+      courseCode: serializer.fromJson<String?>(json['courseCode']),
       semester: serializer.fromJson<int>(json['semester']),
       number: serializer.fromJson<String?>(json['number']),
-      nameZh: serializer.fromJson<String?>(json['nameZh']),
+      nameZh: serializer.fromJson<String>(json['nameZh']),
       nameEn: serializer.fromJson<String?>(json['nameEn']),
+      credits: serializer.fromJson<double?>(json['credits']),
+      hours: serializer.fromJson<int?>(json['hours']),
       phase: serializer.fromJson<int?>(json['phase']),
       courseType: $CourseOfferingsTable.$convertercourseTypen.fromJson(
         serializer.fromJson<String?>(json['courseType']),
@@ -4495,11 +4562,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'fetchedAt': serializer.toJson<DateTime?>(fetchedAt),
-      'course': serializer.toJson<int?>(course),
+      'courseCode': serializer.toJson<String?>(courseCode),
       'semester': serializer.toJson<int>(semester),
       'number': serializer.toJson<String?>(number),
-      'nameZh': serializer.toJson<String?>(nameZh),
+      'nameZh': serializer.toJson<String>(nameZh),
       'nameEn': serializer.toJson<String?>(nameEn),
+      'credits': serializer.toJson<double?>(credits),
+      'hours': serializer.toJson<int?>(hours),
       'phase': serializer.toJson<int?>(phase),
       'courseType': serializer.toJson<String?>(
         $CourseOfferingsTable.$convertercourseTypen.toJson(courseType),
@@ -4522,11 +4591,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   CourseOffering copyWith({
     int? id,
     Value<DateTime?> fetchedAt = const Value.absent(),
-    Value<int?> course = const Value.absent(),
+    Value<String?> courseCode = const Value.absent(),
     int? semester,
     Value<String?> number = const Value.absent(),
-    Value<String?> nameZh = const Value.absent(),
+    String? nameZh,
     Value<String?> nameEn = const Value.absent(),
+    Value<double?> credits = const Value.absent(),
+    Value<int?> hours = const Value.absent(),
     Value<int?> phase = const Value.absent(),
     Value<CourseType?> courseType = const Value.absent(),
     Value<String?> status = const Value.absent(),
@@ -4544,11 +4615,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   }) => CourseOffering(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
-    course: course.present ? course.value : this.course,
+    courseCode: courseCode.present ? courseCode.value : this.courseCode,
     semester: semester ?? this.semester,
     number: number.present ? number.value : this.number,
-    nameZh: nameZh.present ? nameZh.value : this.nameZh,
+    nameZh: nameZh ?? this.nameZh,
     nameEn: nameEn.present ? nameEn.value : this.nameEn,
+    credits: credits.present ? credits.value : this.credits,
+    hours: hours.present ? hours.value : this.hours,
     phase: phase.present ? phase.value : this.phase,
     courseType: courseType.present ? courseType.value : this.courseType,
     status: status.present ? status.value : this.status,
@@ -4572,11 +4645,15 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     return CourseOffering(
       id: data.id.present ? data.id.value : this.id,
       fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
-      course: data.course.present ? data.course.value : this.course,
+      courseCode: data.courseCode.present
+          ? data.courseCode.value
+          : this.courseCode,
       semester: data.semester.present ? data.semester.value : this.semester,
       number: data.number.present ? data.number.value : this.number,
       nameZh: data.nameZh.present ? data.nameZh.value : this.nameZh,
       nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
+      credits: data.credits.present ? data.credits.value : this.credits,
+      hours: data.hours.present ? data.hours.value : this.hours,
       phase: data.phase.present ? data.phase.value : this.phase,
       courseType: data.courseType.present
           ? data.courseType.value
@@ -4611,11 +4688,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     return (StringBuffer('CourseOffering(')
           ..write('id: $id, ')
           ..write('fetchedAt: $fetchedAt, ')
-          ..write('course: $course, ')
+          ..write('courseCode: $courseCode, ')
           ..write('semester: $semester, ')
           ..write('number: $number, ')
           ..write('nameZh: $nameZh, ')
           ..write('nameEn: $nameEn, ')
+          ..write('credits: $credits, ')
+          ..write('hours: $hours, ')
           ..write('phase: $phase, ')
           ..write('courseType: $courseType, ')
           ..write('status: $status, ')
@@ -4638,11 +4717,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   int get hashCode => Object.hashAll([
     id,
     fetchedAt,
-    course,
+    courseCode,
     semester,
     number,
     nameZh,
     nameEn,
+    credits,
+    hours,
     phase,
     courseType,
     status,
@@ -4664,11 +4745,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       (other is CourseOffering &&
           other.id == this.id &&
           other.fetchedAt == this.fetchedAt &&
-          other.course == this.course &&
+          other.courseCode == this.courseCode &&
           other.semester == this.semester &&
           other.number == this.number &&
           other.nameZh == this.nameZh &&
           other.nameEn == this.nameEn &&
+          other.credits == this.credits &&
+          other.hours == this.hours &&
           other.phase == this.phase &&
           other.courseType == this.courseType &&
           other.status == this.status &&
@@ -4688,11 +4771,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
 class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   final Value<int> id;
   final Value<DateTime?> fetchedAt;
-  final Value<int?> course;
+  final Value<String?> courseCode;
   final Value<int> semester;
   final Value<String?> number;
-  final Value<String?> nameZh;
+  final Value<String> nameZh;
   final Value<String?> nameEn;
+  final Value<double?> credits;
+  final Value<int?> hours;
   final Value<int?> phase;
   final Value<CourseType?> courseType;
   final Value<String?> status;
@@ -4710,11 +4795,13 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   const CourseOfferingsCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
-    this.course = const Value.absent(),
+    this.courseCode = const Value.absent(),
     this.semester = const Value.absent(),
     this.number = const Value.absent(),
     this.nameZh = const Value.absent(),
     this.nameEn = const Value.absent(),
+    this.credits = const Value.absent(),
+    this.hours = const Value.absent(),
     this.phase = const Value.absent(),
     this.courseType = const Value.absent(),
     this.status = const Value.absent(),
@@ -4733,11 +4820,13 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   CourseOfferingsCompanion.insert({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
-    this.course = const Value.absent(),
+    this.courseCode = const Value.absent(),
     required int semester,
     this.number = const Value.absent(),
-    this.nameZh = const Value.absent(),
+    required String nameZh,
     this.nameEn = const Value.absent(),
+    this.credits = const Value.absent(),
+    this.hours = const Value.absent(),
     this.phase = const Value.absent(),
     this.courseType = const Value.absent(),
     this.status = const Value.absent(),
@@ -4752,15 +4841,18 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.evaluation = const Value.absent(),
     this.textbooks = const Value.absent(),
     this.syllabusRemarks = const Value.absent(),
-  }) : semester = Value(semester);
+  }) : semester = Value(semester),
+       nameZh = Value(nameZh);
   static Insertable<CourseOffering> custom({
     Expression<int>? id,
     Expression<DateTime>? fetchedAt,
-    Expression<int>? course,
+    Expression<String>? courseCode,
     Expression<int>? semester,
     Expression<String>? number,
     Expression<String>? nameZh,
     Expression<String>? nameEn,
+    Expression<double>? credits,
+    Expression<int>? hours,
     Expression<int>? phase,
     Expression<String>? courseType,
     Expression<String>? status,
@@ -4779,11 +4871,13 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (fetchedAt != null) 'fetched_at': fetchedAt,
-      if (course != null) 'course': course,
+      if (courseCode != null) 'course_code': courseCode,
       if (semester != null) 'semester': semester,
       if (number != null) 'number': number,
       if (nameZh != null) 'name_zh': nameZh,
       if (nameEn != null) 'name_en': nameEn,
+      if (credits != null) 'credits': credits,
+      if (hours != null) 'hours': hours,
       if (phase != null) 'phase': phase,
       if (courseType != null) 'course_type': courseType,
       if (status != null) 'status': status,
@@ -4804,11 +4898,13 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   CourseOfferingsCompanion copyWith({
     Value<int>? id,
     Value<DateTime?>? fetchedAt,
-    Value<int?>? course,
+    Value<String?>? courseCode,
     Value<int>? semester,
     Value<String?>? number,
-    Value<String?>? nameZh,
+    Value<String>? nameZh,
     Value<String?>? nameEn,
+    Value<double?>? credits,
+    Value<int?>? hours,
     Value<int?>? phase,
     Value<CourseType?>? courseType,
     Value<String?>? status,
@@ -4827,11 +4923,13 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     return CourseOfferingsCompanion(
       id: id ?? this.id,
       fetchedAt: fetchedAt ?? this.fetchedAt,
-      course: course ?? this.course,
+      courseCode: courseCode ?? this.courseCode,
       semester: semester ?? this.semester,
       number: number ?? this.number,
       nameZh: nameZh ?? this.nameZh,
       nameEn: nameEn ?? this.nameEn,
+      credits: credits ?? this.credits,
+      hours: hours ?? this.hours,
       phase: phase ?? this.phase,
       courseType: courseType ?? this.courseType,
       status: status ?? this.status,
@@ -4858,8 +4956,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     if (fetchedAt.present) {
       map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
     }
-    if (course.present) {
-      map['course'] = Variable<int>(course.value);
+    if (courseCode.present) {
+      map['course_code'] = Variable<String>(courseCode.value);
     }
     if (semester.present) {
       map['semester'] = Variable<int>(semester.value);
@@ -4872,6 +4970,12 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     }
     if (nameEn.present) {
       map['name_en'] = Variable<String>(nameEn.value);
+    }
+    if (credits.present) {
+      map['credits'] = Variable<double>(credits.value);
+    }
+    if (hours.present) {
+      map['hours'] = Variable<int>(hours.value);
     }
     if (phase.present) {
       map['phase'] = Variable<int>(phase.value);
@@ -4925,11 +5029,13 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     return (StringBuffer('CourseOfferingsCompanion(')
           ..write('id: $id, ')
           ..write('fetchedAt: $fetchedAt, ')
-          ..write('course: $course, ')
+          ..write('courseCode: $courseCode, ')
           ..write('semester: $semester, ')
           ..write('number: $number, ')
           ..write('nameZh: $nameZh, ')
           ..write('nameEn: $nameEn, ')
+          ..write('credits: $credits, ')
+          ..write('hours: $hours, ')
           ..write('phase: $phase, ')
           ..write('courseType: $courseType, ')
           ..write('status: $status, ')
@@ -10660,7 +10766,7 @@ class $CourseTableSlotsView
     aliasedName,
     true,
     generatedAs: GeneratedAs(
-      coalesce([courses.nameZh, courseOfferings.nameZh]),
+      coalesce([courseOfferings.nameZh, courses.nameZh]),
       false,
     ),
     type: DriftSqlType.string,
@@ -10670,7 +10776,7 @@ class $CourseTableSlotsView
     aliasedName,
     true,
     generatedAs: GeneratedAs(
-      coalesce([courses.nameEn, courseOfferings.nameEn]),
+      coalesce([courseOfferings.nameEn, courses.nameEn]),
       false,
     ),
     type: DriftSqlType.string,
@@ -10679,14 +10785,20 @@ class $CourseTableSlotsView
     'credits',
     aliasedName,
     true,
-    generatedAs: GeneratedAs(courses.credits, false),
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.credits, courses.credits]),
+      false,
+    ),
     type: DriftSqlType.double,
   );
   late final GeneratedColumn<int> hours = GeneratedColumn<int>(
     'hours',
     aliasedName,
     true,
-    generatedAs: GeneratedAs(courses.hours, false),
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.hours, courses.hours]),
+      false,
+    ),
     type: DriftSqlType.int,
   );
   late final GeneratedColumnWithTypeConverter<DayOfWeek, int> dayOfWeek =
@@ -10731,7 +10843,10 @@ class $CourseTableSlotsView
           courseOfferings,
           courseOfferings.id.equalsExp(schedules.courseOffering),
         ),
-        leftOuterJoin(courses, courses.id.equalsExp(courseOfferings.course)),
+        leftOuterJoin(
+          courses,
+          courses.code.equalsExp(courseOfferings.courseCode),
+        ),
         leftOuterJoin(classrooms, classrooms.id.equalsExp(schedules.classroom)),
       ]);
   @override
@@ -10750,7 +10865,8 @@ class ScoreDetail extends DataClass {
   final int? score;
   final ScoreStatus? status;
   final String code;
-  final String nameZh;
+  final String? nameZh;
+  final String? nameEn;
   final String? number;
   const ScoreDetail({
     required this.id,
@@ -10759,7 +10875,8 @@ class ScoreDetail extends DataClass {
     this.score,
     this.status,
     required this.code,
-    required this.nameZh,
+    this.nameZh,
+    this.nameEn,
     this.number,
   });
   factory ScoreDetail.fromJson(
@@ -10776,7 +10893,8 @@ class ScoreDetail extends DataClass {
         serializer.fromJson<String?>(json['status']),
       ),
       code: serializer.fromJson<String>(json['code']),
-      nameZh: serializer.fromJson<String>(json['nameZh']),
+      nameZh: serializer.fromJson<String?>(json['nameZh']),
+      nameEn: serializer.fromJson<String?>(json['nameEn']),
       number: serializer.fromJson<String?>(json['number']),
     );
   }
@@ -10792,7 +10910,8 @@ class ScoreDetail extends DataClass {
         $ScoresTable.$converterstatusn.toJson(status),
       ),
       'code': serializer.toJson<String>(code),
-      'nameZh': serializer.toJson<String>(nameZh),
+      'nameZh': serializer.toJson<String?>(nameZh),
+      'nameEn': serializer.toJson<String?>(nameEn),
       'number': serializer.toJson<String?>(number),
     };
   }
@@ -10804,7 +10923,8 @@ class ScoreDetail extends DataClass {
     Value<int?> score = const Value.absent(),
     Value<ScoreStatus?> status = const Value.absent(),
     String? code,
-    String? nameZh,
+    Value<String?> nameZh = const Value.absent(),
+    Value<String?> nameEn = const Value.absent(),
     Value<String?> number = const Value.absent(),
   }) => ScoreDetail(
     id: id ?? this.id,
@@ -10813,7 +10933,8 @@ class ScoreDetail extends DataClass {
     score: score.present ? score.value : this.score,
     status: status.present ? status.value : this.status,
     code: code ?? this.code,
-    nameZh: nameZh ?? this.nameZh,
+    nameZh: nameZh.present ? nameZh.value : this.nameZh,
+    nameEn: nameEn.present ? nameEn.value : this.nameEn,
     number: number.present ? number.value : this.number,
   );
   @override
@@ -10826,14 +10947,24 @@ class ScoreDetail extends DataClass {
           ..write('status: $status, ')
           ..write('code: $code, ')
           ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
           ..write('number: $number')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, user, semester, score, status, code, nameZh, number);
+  int get hashCode => Object.hash(
+    id,
+    user,
+    semester,
+    score,
+    status,
+    code,
+    nameZh,
+    nameEn,
+    number,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -10845,6 +10976,7 @@ class ScoreDetail extends DataClass {
           other.status == this.status &&
           other.code == this.code &&
           other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn &&
           other.number == this.number);
 }
 
@@ -10867,6 +10999,7 @@ class $ScoreDetailsView extends ViewInfo<$ScoreDetailsView, ScoreDetail>
     status,
     code,
     nameZh,
+    nameEn,
     number,
   ];
   @override
@@ -10910,7 +11043,11 @@ class $ScoreDetailsView extends ViewInfo<$ScoreDetailsView, ScoreDetail>
       nameZh: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name_zh'],
-      )!,
+      ),
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      ),
       number: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}number'],
@@ -10964,8 +11101,21 @@ class $ScoreDetailsView extends ViewInfo<$ScoreDetailsView, ScoreDetail>
   late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
     'name_zh',
     aliasedName,
-    false,
-    generatedAs: GeneratedAs(courses.nameZh, false),
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.nameZh, courses.nameZh]),
+      false,
+    ),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.nameEn, courses.nameEn]),
+      false,
+    ),
     type: DriftSqlType.string,
   );
   late final GeneratedColumn<String> number = GeneratedColumn<String>(
@@ -11537,9 +11687,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'class_semester',
     'CREATE INDEX class_semester ON classes (semester)',
   );
-  late final Index courseOfferingCourse = Index(
-    'course_offering_course',
-    'CREATE INDEX course_offering_course ON course_offerings (course)',
+  late final Index courseOfferingCourseCode = Index(
+    'course_offering_course_code',
+    'CREATE INDEX course_offering_course_code ON course_offerings (course_code)',
   );
   late final Index courseOfferingSemester = Index(
     'course_offering_semester',
@@ -11601,7 +11751,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userAcademicSummaries,
     userRegistrations,
     classSemester,
-    courseOfferingCourse,
+    courseOfferingCourseCode,
     courseOfferingSemester,
     scheduleCourseOffering,
     materialCourseOffering,
@@ -13337,26 +13487,6 @@ final class $$CoursesTableReferences
     extends BaseReferences<_$AppDatabase, $CoursesTable, Course> {
   $$CoursesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$CourseOfferingsTable, List<CourseOffering>>
-  _courseOfferingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.courseOfferings,
-    aliasName: $_aliasNameGenerator(db.courses.id, db.courseOfferings.course),
-  );
-
-  $$CourseOfferingsTableProcessedTableManager get courseOfferingsRefs {
-    final manager = $$CourseOfferingsTableTableManager(
-      $_db,
-      $_db.courseOfferings,
-    ).filter((f) => f.course.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _courseOfferingsRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
   static MultiTypedResultKey<$ScoresTable, List<Score>> _scoresRefsTable(
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
@@ -13430,31 +13560,6 @@ class $$CoursesTableFilterComposer
     column: $table.descriptionEn,
     builder: (column) => ColumnFilters(column),
   );
-
-  Expression<bool> courseOfferingsRefs(
-    Expression<bool> Function($$CourseOfferingsTableFilterComposer f) f,
-  ) {
-    final $$CourseOfferingsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.courseOfferings,
-      getReferencedColumn: (t) => t.course,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CourseOfferingsTableFilterComposer(
-            $db: $db,
-            $table: $db.courseOfferings,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 
   Expression<bool> scoresRefs(
     Expression<bool> Function($$ScoresTableFilterComposer f) f,
@@ -13577,31 +13682,6 @@ class $$CoursesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  Expression<T> courseOfferingsRefs<T extends Object>(
-    Expression<T> Function($$CourseOfferingsTableAnnotationComposer a) f,
-  ) {
-    final $$CourseOfferingsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.courseOfferings,
-      getReferencedColumn: (t) => t.course,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CourseOfferingsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.courseOfferings,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
   Expression<T> scoresRefs<T extends Object>(
     Expression<T> Function($$ScoresTableAnnotationComposer a) f,
   ) {
@@ -13641,7 +13721,7 @@ class $$CoursesTableTableManager
           $$CoursesTableUpdateCompanionBuilder,
           (Course, $$CoursesTableReferences),
           Course,
-          PrefetchHooks Function({bool courseOfferingsRefs, bool scoresRefs})
+          PrefetchHooks Function({bool scoresRefs})
         > {
   $$CoursesTableTableManager(_$AppDatabase db, $CoursesTable table)
     : super(
@@ -13706,59 +13786,28 @@ class $$CoursesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({courseOfferingsRefs = false, scoresRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (courseOfferingsRefs) db.courseOfferings,
-                    if (scoresRefs) db.scores,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (courseOfferingsRefs)
-                        await $_getPrefetchedData<
-                          Course,
-                          $CoursesTable,
-                          CourseOffering
-                        >(
-                          currentTable: table,
-                          referencedTable: $$CoursesTableReferences
-                              ._courseOfferingsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$CoursesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).courseOfferingsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.course == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (scoresRefs)
-                        await $_getPrefetchedData<Course, $CoursesTable, Score>(
-                          currentTable: table,
-                          referencedTable: $$CoursesTableReferences
-                              ._scoresRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$CoursesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).scoresRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.course == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
+          prefetchHooksCallback: ({scoresRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (scoresRefs) db.scores],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (scoresRefs)
+                    await $_getPrefetchedData<Course, $CoursesTable, Score>(
+                      currentTable: table,
+                      referencedTable: $$CoursesTableReferences
+                          ._scoresRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$CoursesTableReferences(db, table, p0).scoresRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.course == item.id),
+                      typedResults: items,
+                    ),
+                ];
               },
+            );
+          },
         ),
       );
 }
@@ -13775,7 +13824,7 @@ typedef $$CoursesTableProcessedTableManager =
       $$CoursesTableUpdateCompanionBuilder,
       (Course, $$CoursesTableReferences),
       Course,
-      PrefetchHooks Function({bool courseOfferingsRefs, bool scoresRefs})
+      PrefetchHooks Function({bool scoresRefs})
     >;
 typedef $$DepartmentsTableCreateCompanionBuilder =
     DepartmentsCompanion Function({
@@ -15079,11 +15128,13 @@ typedef $$CourseOfferingsTableCreateCompanionBuilder =
     CourseOfferingsCompanion Function({
       Value<int> id,
       Value<DateTime?> fetchedAt,
-      Value<int?> course,
+      Value<String?> courseCode,
       required int semester,
       Value<String?> number,
-      Value<String?> nameZh,
+      required String nameZh,
       Value<String?> nameEn,
+      Value<double?> credits,
+      Value<int?> hours,
       Value<int?> phase,
       Value<CourseType?> courseType,
       Value<String?> status,
@@ -15103,11 +15154,13 @@ typedef $$CourseOfferingsTableUpdateCompanionBuilder =
     CourseOfferingsCompanion Function({
       Value<int> id,
       Value<DateTime?> fetchedAt,
-      Value<int?> course,
+      Value<String?> courseCode,
       Value<int> semester,
       Value<String?> number,
-      Value<String?> nameZh,
+      Value<String> nameZh,
       Value<String?> nameEn,
+      Value<double?> credits,
+      Value<int?> hours,
       Value<int?> phase,
       Value<CourseType?> courseType,
       Value<String?> status,
@@ -15132,24 +15185,6 @@ final class $$CourseOfferingsTableReferences
     super.$_table,
     super.$_typedResult,
   );
-
-  static $CoursesTable _courseTable(_$AppDatabase db) => db.courses.createAlias(
-    $_aliasNameGenerator(db.courseOfferings.course, db.courses.id),
-  );
-
-  $$CoursesTableProcessedTableManager? get course {
-    final $_column = $_itemColumn<int>('course');
-    if ($_column == null) return null;
-    final manager = $$CoursesTableTableManager(
-      $_db,
-      $_db.courses,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_courseTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
 
   static $SemestersTable _semesterTable(_$AppDatabase db) =>
       db.semesters.createAlias(
@@ -15338,6 +15373,11 @@ class $$CourseOfferingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get courseCode => $composableBuilder(
+    column: $table.courseCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get number => $composableBuilder(
     column: $table.number,
     builder: (column) => ColumnFilters(column),
@@ -15350,6 +15390,16 @@ class $$CourseOfferingsTableFilterComposer
 
   ColumnFilters<String> get nameEn => $composableBuilder(
     column: $table.nameEn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get credits => $composableBuilder(
+    column: $table.credits,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hours => $composableBuilder(
+    column: $table.hours,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15423,29 +15473,6 @@ class $$CourseOfferingsTableFilterComposer
     column: $table.syllabusRemarks,
     builder: (column) => ColumnFilters(column),
   );
-
-  $$CoursesTableFilterComposer get course {
-    final $$CoursesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.course,
-      referencedTable: $db.courses,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CoursesTableFilterComposer(
-            $db: $db,
-            $table: $db.courses,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   $$SemestersTableFilterComposer get semester {
     final $$SemestersTableFilterComposer composer = $composerBuilder(
@@ -15643,6 +15670,11 @@ class $$CourseOfferingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get courseCode => $composableBuilder(
+    column: $table.courseCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get number => $composableBuilder(
     column: $table.number,
     builder: (column) => ColumnOrderings(column),
@@ -15655,6 +15687,16 @@ class $$CourseOfferingsTableOrderingComposer
 
   ColumnOrderings<String> get nameEn => $composableBuilder(
     column: $table.nameEn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get credits => $composableBuilder(
+    column: $table.credits,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get hours => $composableBuilder(
+    column: $table.hours,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -15728,29 +15770,6 @@ class $$CourseOfferingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$CoursesTableOrderingComposer get course {
-    final $$CoursesTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.course,
-      referencedTable: $db.courses,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CoursesTableOrderingComposer(
-            $db: $db,
-            $table: $db.courses,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
   $$SemestersTableOrderingComposer get semester {
     final $$SemestersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -15790,6 +15809,11 @@ class $$CourseOfferingsTableAnnotationComposer
   GeneratedColumn<DateTime> get fetchedAt =>
       $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
 
+  GeneratedColumn<String> get courseCode => $composableBuilder(
+    column: $table.courseCode,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get number =>
       $composableBuilder(column: $table.number, builder: (column) => column);
 
@@ -15798,6 +15822,12 @@ class $$CourseOfferingsTableAnnotationComposer
 
   GeneratedColumn<String> get nameEn =>
       $composableBuilder(column: $table.nameEn, builder: (column) => column);
+
+  GeneratedColumn<double> get credits =>
+      $composableBuilder(column: $table.credits, builder: (column) => column);
+
+  GeneratedColumn<int> get hours =>
+      $composableBuilder(column: $table.hours, builder: (column) => column);
 
   GeneratedColumn<int> get phase =>
       $composableBuilder(column: $table.phase, builder: (column) => column);
@@ -15853,29 +15883,6 @@ class $$CourseOfferingsTableAnnotationComposer
     column: $table.syllabusRemarks,
     builder: (column) => column,
   );
-
-  $$CoursesTableAnnotationComposer get course {
-    final $$CoursesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.course,
-      referencedTable: $db.courses,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CoursesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.courses,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   $$SemestersTableAnnotationComposer get semester {
     final $$SemestersTableAnnotationComposer composer = $composerBuilder(
@@ -16068,7 +16075,6 @@ class $$CourseOfferingsTableTableManager
           (CourseOffering, $$CourseOfferingsTableReferences),
           CourseOffering,
           PrefetchHooks Function({
-            bool course,
             bool semester,
             bool courseOfferingTeachersRefs,
             bool courseOfferingClassesRefs,
@@ -16095,11 +16101,13 @@ class $$CourseOfferingsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<DateTime?> fetchedAt = const Value.absent(),
-                Value<int?> course = const Value.absent(),
+                Value<String?> courseCode = const Value.absent(),
                 Value<int> semester = const Value.absent(),
                 Value<String?> number = const Value.absent(),
-                Value<String?> nameZh = const Value.absent(),
+                Value<String> nameZh = const Value.absent(),
                 Value<String?> nameEn = const Value.absent(),
+                Value<double?> credits = const Value.absent(),
+                Value<int?> hours = const Value.absent(),
                 Value<int?> phase = const Value.absent(),
                 Value<CourseType?> courseType = const Value.absent(),
                 Value<String?> status = const Value.absent(),
@@ -16117,11 +16125,13 @@ class $$CourseOfferingsTableTableManager
               }) => CourseOfferingsCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
-                course: course,
+                courseCode: courseCode,
                 semester: semester,
                 number: number,
                 nameZh: nameZh,
                 nameEn: nameEn,
+                credits: credits,
+                hours: hours,
                 phase: phase,
                 courseType: courseType,
                 status: status,
@@ -16141,11 +16151,13 @@ class $$CourseOfferingsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<DateTime?> fetchedAt = const Value.absent(),
-                Value<int?> course = const Value.absent(),
+                Value<String?> courseCode = const Value.absent(),
                 required int semester,
                 Value<String?> number = const Value.absent(),
-                Value<String?> nameZh = const Value.absent(),
+                required String nameZh,
                 Value<String?> nameEn = const Value.absent(),
+                Value<double?> credits = const Value.absent(),
+                Value<int?> hours = const Value.absent(),
                 Value<int?> phase = const Value.absent(),
                 Value<CourseType?> courseType = const Value.absent(),
                 Value<String?> status = const Value.absent(),
@@ -16163,11 +16175,13 @@ class $$CourseOfferingsTableTableManager
               }) => CourseOfferingsCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
-                course: course,
+                courseCode: courseCode,
                 semester: semester,
                 number: number,
                 nameZh: nameZh,
                 nameEn: nameEn,
+                credits: credits,
+                hours: hours,
                 phase: phase,
                 courseType: courseType,
                 status: status,
@@ -16193,7 +16207,6 @@ class $$CourseOfferingsTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
-                course = false,
                 semester = false,
                 courseOfferingTeachersRefs = false,
                 courseOfferingClassesRefs = false,
@@ -16228,21 +16241,6 @@ class $$CourseOfferingsTableTableManager
                           dynamic
                         >
                       >(state) {
-                        if (course) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.course,
-                                    referencedTable:
-                                        $$CourseOfferingsTableReferences
-                                            ._courseTable(db),
-                                    referencedColumn:
-                                        $$CourseOfferingsTableReferences
-                                            ._courseTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
                         if (semester) {
                           state =
                               state.withJoin(
@@ -16410,7 +16408,6 @@ typedef $$CourseOfferingsTableProcessedTableManager =
       (CourseOffering, $$CourseOfferingsTableReferences),
       CourseOffering,
       PrefetchHooks Function({
-        bool course,
         bool semester,
         bool courseOfferingTeachersRefs,
         bool courseOfferingClassesRefs,

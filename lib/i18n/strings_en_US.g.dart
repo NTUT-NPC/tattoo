@@ -45,6 +45,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsLoginEnUs login = _TranslationsLoginEnUs._(_root);
 	@override late final _TranslationsNavEnUs nav = _TranslationsNavEnUs._(_root);
 	@override late final _TranslationsScoreEnUs score = _TranslationsScoreEnUs._(_root);
+	@override late final _TranslationsCalendarEnUs calendar = _TranslationsCalendarEnUs._(_root);
 	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
 	@override late final _TranslationsScannerEnUs scanner = _TranslationsScannerEnUs._(_root);
@@ -132,6 +133,7 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	@override String get courseTable => 'Courses';
 	@override String get scores => 'Scores';
 	@override String get portal => 'Portals';
+	@override String get calendar => 'Calendar';
 	@override String get profile => 'Me';
 }
 
@@ -152,6 +154,16 @@ class _TranslationsScoreEnUs extends TranslationsScoreZhTw {
 	@override late final _TranslationsScoreStatusEnUs status = _TranslationsScoreStatusEnUs._(_root);
 }
 
+// Path: calendar
+class _TranslationsCalendarEnUs extends TranslationsCalendarZhTw {
+	_TranslationsCalendarEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => 'Today';
+}
+
 // Path: courseTable
 class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
 	_TranslationsCourseTableEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -160,6 +172,8 @@ class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
 
 	// Translations
 	@override String get notFound => 'Course table not found';
+	@override String get unscheduled => 'Unscheduled Courses';
+	@override late final _TranslationsCourseTableSummaryEnUs summary = _TranslationsCourseTableSummaryEnUs._(_root);
 	@override late final _TranslationsCourseTableActionsEnUs actions = _TranslationsCourseTableActionsEnUs._(_root);
 	@override Map<String, String> get dayOfWeek => {
 		'sunday': 'Sun',
@@ -303,6 +317,23 @@ class _TranslationsScoreStatusEnUs extends TranslationsScoreStatusZhTw {
 	@override String get pass => 'Pass';
 	@override String get fail => 'Fail';
 	@override String get creditTransfer => 'Credit transfer';
+}
+
+// Path: courseTable.summary
+class _TranslationsCourseTableSummaryEnUs extends TranslationsCourseTableSummaryZhTw {
+	_TranslationsCourseTableSummaryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String credits({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} credit',
+		other: '${count} credits',
+	);
+	@override String hours({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} hour',
+		other: '${count} hours',
+	);
 }
 
 // Path: courseTable.actions
@@ -517,6 +548,7 @@ extension on TranslationsEnUs {
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.portal' => 'Portals',
+			'nav.calendar' => 'Calendar',
 			'nav.profile' => 'Me',
 			'score.loadFailed' => 'Failed to load scores',
 			'score.refreshFailed' => 'Failed to refresh scores',
@@ -535,7 +567,11 @@ extension on TranslationsEnUs {
 			'score.status.pass' => 'Pass',
 			'score.status.fail' => 'Fail',
 			'score.status.creditTransfer' => 'Credit transfer',
+			'calendar.today' => 'Today',
 			'courseTable.notFound' => 'Course table not found',
+			'courseTable.unscheduled' => 'Unscheduled Courses',
+			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
+			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',
 			'courseTable.actions.displayOptions' => 'Display options',
 			'courseTable.dayOfWeek.sunday' => 'Sun',

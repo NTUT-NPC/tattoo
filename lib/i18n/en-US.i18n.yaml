@@ -48,6 +48,7 @@ nav:
   courseTable: Courses
   scores: Scores
   portal: Portals
+  calendar: Calendar
   profile: Me
 score:
   loadFailed: Failed to load scores
@@ -69,8 +70,18 @@ score:
     pass: Pass
     fail: Fail
     creditTransfer: Credit transfer
+calendar:
+  today: Today
 courseTable:
   notFound: Course table not found
+  unscheduled: Unscheduled Courses
+  summary:
+    credits(plural, param=count):
+      one: ${count} credit
+      other: ${count} credits
+    hours(plural, param=count):
+      one: ${count} hour
+      other: ${count} hours
   actions:
     showMoreOptions: Show more options
     displayOptions: Display options

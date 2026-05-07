@@ -245,7 +245,9 @@ class CourseRepository {
           )..where((o) => o.semester.equals(semesterId))).join([
             leftOuterJoin(
               _database.courses,
-              _database.courses.id.equalsExp(_database.courseOfferings.course),
+              _database.courses.code.equalsExp(
+                _database.courseOfferings.courseCode,
+              ),
             ),
           ]).get();
       final allOfferings = allOfferingRows.map((row) {
@@ -326,41 +328,25 @@ class CourseRepository {
           .go();
 
       for (final dto in dtos) {
-        final courseId = dto.course?.id;
+        final courseCode = dto.course?.id;
         final courseNameZh = dto.course?.nameZh;
 
         if (courseNameZh == null) {
           _firebaseService.recordNonFatal(
             'Skipped offering with no name: '
-            'number=${dto.number}, courseId=$courseId',
+            'number=${dto.number}, courseCode=$courseCode',
           );
           continue;
         }
 
-        int? dbCourseId;
-        if (courseId != null) {
-          if (dto.credits == null || dto.hours == null) {
-            _firebaseService.recordNonFatal(
-              'Course $courseId missing credits/hours: '
-              'credits=${dto.credits}, hours=${dto.hours}',
-            );
-          }
-
-          dbCourseId = await _database.upsertCourse(
-            code: courseId,
-            credits: dto.credits ?? 0,
-            hours: dto.hours ?? 0,
-            nameZh: courseNameZh,
-            nameEn: dto.course?.nameEn,
-          );
-        }
-
         final offeringId = await _database.upsertCourseOffering(
-          courseId: dbCourseId,
+          courseCode: courseCode,
           semesterId: semester.id,
           number: dto.number,
-          nameZh: courseId == null ? courseNameZh : null,
-          nameEn: courseId == null ? dto.course?.nameEn : null,
+          nameZh: courseNameZh,
+          nameEn: dto.course?.nameEn,
+          credits: dto.credits,
+          hours: dto.hours,
           phase: dto.phase,
           status: dto.status,
           language: dto.language,
@@ -550,8 +536,8 @@ class CourseRepository {
         .where((row) => !scheduledIds.contains(row.offering.id))
         .map((row) {
           final courseName = localized(
-            row.course?.nameZh ?? row.offering.nameZh,
-            row.course?.nameEn ?? row.offering.nameEn,
+            row.offering.nameZh,
+            row.offering.nameEn ?? row.course?.nameEn,
           );
           return (
             id: row.offering.id,
@@ -560,8 +546,8 @@ class CourseRepository {
             crossesNoon: false,
             courseName: courseName,
             classroomName: null,
-            credits: row.course?.credits ?? 0.0,
-            hours: row.course?.hours ?? 0,
+            credits: row.offering.credits ?? row.course?.credits ?? 0.0,
+            hours: row.offering.hours ?? row.course?.hours ?? 0,
           );
         })
         .toList(growable: false);
