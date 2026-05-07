@@ -326,10 +326,8 @@ class StudentRepository {
         }
       }
 
-      final fetchedSemesterIdList = fetchedSemesterIds.toList(growable: false);
-
       // Keep membership flag in sync with the latest score semester response.
-      if (fetchedSemesterIdList.isEmpty) {
+      if (fetchedSemesterIds.isEmpty) {
         await (_database.update(_database.semesters)..where(
               (s) => s.inScoreSemesterList.equals(true),
             ))
@@ -340,7 +338,7 @@ class StudentRepository {
         await (_database.update(_database.semesters)..where(
               (s) =>
                   s.inScoreSemesterList.equals(true) &
-                  s.id.isNotIn(fetchedSemesterIdList),
+                  s.id.isNotIn(fetchedSemesterIds),
             ))
             .write(
               const SemestersCompanion(inScoreSemesterList: Value(false)),
@@ -348,7 +346,7 @@ class StudentRepository {
       }
 
       // Remove scores for semesters no longer in the response
-      if (fetchedSemesterIdList.isEmpty) {
+      if (fetchedSemesterIds.isEmpty) {
         await (_database.delete(
           _database.scores,
         )..where((t) => t.user.equals(userId))).go();
@@ -356,7 +354,7 @@ class StudentRepository {
         await (_database.delete(_database.scores)..where(
               (t) =>
                   t.user.equals(userId) &
-                  t.semester.isNotIn(fetchedSemesterIdList),
+                  t.semester.isNotIn(fetchedSemesterIds),
             ))
             .go();
       }
