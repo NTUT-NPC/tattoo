@@ -9,7 +9,6 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/components/notices.dart';
-import 'package:tattoo/utils/env.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -123,38 +122,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     FocusScope.of(context).unfocus();
 
     try {
-      // Enable demo mode before login so service providers switch to mocks
-      if (isDemo) {
-        ref.read(isDemoProvider.notifier).enable();
-      }
-
       await ref.read(authRepositoryProvider).login(username, password);
-
       if (mounted) context.go(AppRoutes.home);
-    } catch (e) {
-      // Reset demo mode on failure so subsequent attempts don't use mocks
-      // if this login attempt failed (e.g. DB error or network error).
-      if (isDemo) {
-        ref.read(isDemoProvider.notifier).disable();
-      }
-
-      if (!mounted) return;
-
-      if (e is DioException) {
-        _setError(t.errors.connectionFailed);
-      } else if (e is LoginException) {
+    } on DioException {
+      if (mounted) _setError(t.errors.connectionFailed);
+    } on LoginException catch (e) {
+      if (mounted) {
         switch (e.failure) {
-          case LoginFailure.wrongCredentials:
+          case .wrongCredentials:
             _setError(
               t.login.errors.wrongCredentials,
               username: true,
               password: true,
             );
-          case LoginFailure.accountLocked:
+          case .accountLocked:
             _setError(t.login.errors.accountLocked);
-          case LoginFailure.passwordExpired:
+          case .passwordExpired:
             _setError(t.login.errors.passwordExpired);
-          case LoginFailure.mobileVerificationRequired:
+          case .mobileVerificationRequired:
             _setError(t.login.errors.mobileVerificationRequired);
           case _:
             _setError(
@@ -163,7 +148,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               password: true,
             );
         }
-      } else {
+      }
+    } catch (_) {
+      if (mounted) {
         _setError(t.login.errors.loginFailed, username: true, password: true);
       }
     }
@@ -222,40 +209,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         spacing: 24,
                         children: [
-                          if (ref.watch(isDemoProvider))
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.secondaryContainer,
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.science_outlined,
-                                    size: 16,
-                                    color:
-                                        theme.colorScheme.onSecondaryContainer,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Demo Mode',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: theme
-                                          .colorScheme
-                                          .onSecondaryContainer,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
                           // Welcome title
                           Text.rich(
                             TextSpan(
@@ -368,7 +321,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
                                           color: Colors.white,
-                                          strokeCap: StrokeCap.round,
                                         ),
                                       )
                                     : Text(t.login.loginButton),

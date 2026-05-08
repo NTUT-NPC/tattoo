@@ -40,7 +40,7 @@ const _publicRoutes = {AppRoutes.intro, AppRoutes.login, AppRoutes.about};
 /// Creates a configured [GoRouter] starting at [initialLocation].
 ///
 /// Watches [sessionProvider] via [refreshListenable] and redirects to
-/// [AppRoutes.intro] when the session becomes inactive.
+/// [AppRoutes.login] when the session becomes inactive.
 GoRouter createAppRouter({
   required String initialLocation,
   required ProviderContainer container,
@@ -52,7 +52,7 @@ GoRouter createAppRouter({
     final hasSession = container.read(sessionProvider);
     if (hasSession) return null;
     if (_publicRoutes.contains(state.matchedLocation)) return null;
-    return AppRoutes.intro;
+    return AppRoutes.login;
   },
   observers: [
     ?firebaseService.analyticsObserver,

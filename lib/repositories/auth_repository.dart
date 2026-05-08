@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:drift/drift.dart';
-
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,7 +12,6 @@ import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/models/user.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
-import 'package:tattoo/utils/env.dart';
 import 'package:tattoo/utils/http.dart';
 
 /// Thrown when the avatar image exceeds [AuthRepository.maxAvatarSize].
@@ -77,6 +75,39 @@ final loginExceptionProvider =
       LoginExceptionNotifier.new,
     );
 
+/// Runtime toggle for demo mode.
+///
+/// When true, the application uses mock services and data instead of
+/// communicating with the real NTUT servers.
+///
+/// This is a runtime-only toggle managed by Riverpod. It is enabled when
+/// logging in with the demo account ([demoUsername]) and remains active
+/// until the session is destroyed (logout).
+class DemoNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void enable() => state = true;
+  void disable() => state = false;
+}
+
+final isDemoProvider = NotifierProvider<DemoNotifier, bool>(DemoNotifier.new);
+
+/// Demo account credentials.
+///
+/// These are used exclusively with mock services during demo mode and do not
+/// correspond to real NTUT portal credentials.
+const String demoUsername = '111592347';
+const String demoPassword = 'password';
+
+/// Whether the given credentials should trigger demo mode.
+///
+/// For convenience, this only checks if the username matches [demoUsername].
+/// The password is not validated here, but [demoPassword] is used internally
+/// by [AuthRepository] to satisfy mock service requirements.
+bool isDemoCredentials(String username, String password) =>
+    username == demoUsername;
+
 /// Provides the [AuthRepository] instance.
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(
@@ -85,6 +116,9 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     database: ref.watch(databaseProvider),
     secureStorage: _secureStorage,
     isDemo: ref.watch(isDemoProvider),
+    onDemoModeEnabled: () {
+      ref.read(isDemoProvider.notifier).enable();
+    },
     onSessionCreated: () {
       ref.read(sessionProvider.notifier).create();
     },
@@ -115,6 +149,7 @@ class AuthRepository {
   final AppDatabase _database;
   final FlutterSecureStorage _secureStorage;
   final bool _isDemo;
+  final void Function() _onDemoModeEnabled;
   final void Function() _onSessionCreated;
   final void Function([LoginException?]) _onSessionDestroyed;
 
@@ -131,6 +166,7 @@ class AuthRepository {
     required AppDatabase database,
     required FlutterSecureStorage secureStorage,
     required bool isDemo,
+    required void Function() onDemoModeEnabled,
     required void Function() onSessionCreated,
     required void Function([LoginException?]) onSessionDestroyed,
   }) : _portalService = portalService,
@@ -138,6 +174,7 @@ class AuthRepository {
        _database = database,
        _secureStorage = secureStorage,
        _isDemo = isDemo,
+       _onDemoModeEnabled = onDemoModeEnabled,
        _onSessionCreated = onSessionCreated,
        _onSessionDestroyed = onSessionDestroyed;
 
@@ -147,10 +184,29 @@ class AuthRepository {
   /// locked, password expired, etc.). Throws [DioException] on network failure.
   /// On success, credentials are stored securely for auto-login.
   Future<User> login(String username, String password) async {
-    final userDto = await _portalService.login(username, password);
+    final isDemo = isDemoCredentials(username, password);
 
-    // Save credentials for auto-login (skip in demo mode)
-    if (!_isDemo) {
+    final UserDto userDto;
+    if (isDemo) {
+      // Demo mode: skip real portal, use hardcoded data
+      userDto = (
+        name: '王大同',
+        avatarFilename: null,
+        email: 't$demoUsername@ntut.edu.tw',
+        passwordExpiresInDays: null,
+      );
+    } else {
+      userDto = await _portalService.login(username, password);
+    }
+
+    // Save credentials for auto-login.
+    //
+    // Demo mode deliberately skips secure storage — demo sessions persist
+    // across restarts via the DB user row instead:
+    //   1. main.dart restores isDemoProvider by matching studentId == demoUsername
+    //   2. _reauthenticate() falls back to hardcoded demo credentials when
+    //      secure storage is empty and _isDemo is true
+    if (!isDemo) {
       await _secureStorage.write(key: _usernameKey, value: username);
       await _secureStorage.write(key: _passwordKey, value: password);
     }
@@ -169,6 +225,11 @@ class AuthRepository {
           );
     });
 
+    // Enable demo mode before session creation so that session-scoped
+    // providers (repositories, services) are built with mock services.
+    if (isDemo) {
+      _onDemoModeEnabled();
+    }
     _onSessionCreated();
     return user;
   }
@@ -246,6 +307,8 @@ class AuthRepository {
       var username = await _secureStorage.read(key: _usernameKey);
       var password = await _secureStorage.read(key: _passwordKey);
 
+      // Demo mode skips secure storage writes (see login()), so credentials
+      // are expected to be absent here. Fall back to hardcoded demo values.
       if (_isDemo && (username == null || password == null)) {
         username = demoUsername;
         password = demoPassword;

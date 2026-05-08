@@ -13,7 +13,6 @@ import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/firebase_service.dart';
-import 'package:tattoo/utils/env.dart';
 
 enum ErrorType {
   flutter,

@@ -5,7 +5,7 @@ import 'package:tattoo/models/score.dart';
 import 'package:tattoo/models/user.dart';
 import 'package:tattoo/services/student_query/mock_student_query_service.dart';
 import 'package:tattoo/services/student_query/ntut_student_query_service.dart';
-import 'package:tattoo/utils/env.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 
 /// A single course score entry from the academic performance page.
 typedef ScoreDto = ({

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/notices.dart';
@@ -7,14 +6,14 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/shells/showcase_shell.dart';
 
-class IntroScreen extends ConsumerStatefulWidget {
+class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
 
   @override
-  ConsumerState<IntroScreen> createState() => _IntroScreenState();
+  State<IntroScreen> createState() => _IntroScreenState();
 }
 
-class _IntroScreenState extends ConsumerState<IntroScreen>
+class _IntroScreenState extends State<IntroScreen>
     with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,7 @@
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/services/i_school_plus/mock_i_school_plus_service.dart';
 import 'package:tattoo/services/i_school_plus/ntut_i_school_plus_service.dart';
-import 'package:tattoo/utils/env.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 
 /// Course reference from the iSchool+ course selection sidebar.
 ///
