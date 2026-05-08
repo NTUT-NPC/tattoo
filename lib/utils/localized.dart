@@ -1,4 +1,4 @@
-import '../i18n/strings.g.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 
 /// Picks the appropriate localized string based on the current app locale.
 ///

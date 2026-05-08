@@ -2,10 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
 import 'package:tattoo/models/user.dart';
-import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
-import 'package:tattoo/services/student_query/student_query_service.dart';
+import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/ntut_student_query_service.dart';
+import 'package:tattoo/services/student_query/student_query_service.dart';
 
 import '../test_helpers.dart';
 

@@ -5,10 +5,9 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/screens/main/scanner/scanner_guide_bottom_sheet.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
-
-import 'scanner_guide_bottom_sheet.dart';
 
 class ScannerScreen extends ConsumerStatefulWidget {
   const ScannerScreen({super.key});

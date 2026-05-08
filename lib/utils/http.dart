@@ -5,11 +5,11 @@ import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:intl/intl.dart';
 // ignore: implementation_imports
 import 'package:dio/src/transformers/util/consolidate_bytes.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
+import 'package:intl/intl.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
 export 'package:dio/dio.dart';
