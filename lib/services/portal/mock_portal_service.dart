@@ -16,7 +16,7 @@ class MockPortalService implements PortalService {
     return loginResult ??
         (
           name: '王大同',
-          avatarFilename: '111592347_temp1714460935341.jpeg',
+          avatarFilename: '',
           email: 't111592347@ntut.edu.tw',
           passwordExpiresInDays: null,
         );
