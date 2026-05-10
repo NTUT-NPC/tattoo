@@ -28,10 +28,11 @@ class _WebviewSheetState extends State<WebviewSheet> {
   void initState() {
     super.initState();
     _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setJavaScriptMode(.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
+            if (!mounted) return;
             setState(() {
               _progress = progress / 100.0;
             });
@@ -49,7 +50,7 @@ class _WebviewSheetState extends State<WebviewSheet> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(request.message),
-              behavior: SnackBarBehavior.floating,
+              behavior: .floating,
             ),
           );
         }

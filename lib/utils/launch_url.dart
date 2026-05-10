@@ -1,10 +1,8 @@
-import 'dart:io';
-
-import 'package:flutter/services.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/components/webview_sheet.dart';
-import 'package:url_launcher/url_launcher.dart' as ul;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:tattoo/components/webview_sheet.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:url_launcher/url_launcher.dart' as ul;
 
 export 'package:url_launcher/url_launcher.dart' hide launchUrl;
 

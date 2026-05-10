@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tattoo/components/webview_sheet.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/utils/launch_url.dart';
-import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/components/webview_sheet.dart';
 
 String? scannedAuthCode;
 
@@ -49,22 +49,22 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('首頁')),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const .all(16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: .stretch,
             children: [
               Expanded(
                 child: Card(
-                  clipBehavior: Clip.antiAlias,
+                  clipBehavior: .antiAlias,
                   elevation: 2,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: .circular(24),
                   ),
                   child: InkWell(
                     onTap: () => _openVotingSystem(context, ref),
                     child: Center(
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: .center,
                         children: [
                           Icon(
                             Icons.how_to_vote,
@@ -76,7 +76,7 @@ class HomeScreen extends ConsumerWidget {
                             '前往投票系統',
                             style: Theme.of(context).textTheme.headlineMedium
                                 ?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: .bold,
                                 ),
                           ),
                         ],
@@ -91,7 +91,7 @@ class HomeScreen extends ConsumerWidget {
                 icon: const Icon(Icons.logout),
                 label: const Text('登出'),
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const .symmetric(vertical: 16),
                 ),
               ),
             ],

@@ -4,14 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:tattoo/models/login_exception.dart';
-import 'package:tattoo/utils/launch_url.dart';
+import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
+import 'package:tattoo/utils/launch_url.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -31,6 +30,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _usernameHasError = false;
   bool _passwordHasError = false;
   bool _isLoading = false;
+  bool _handledScan = false;
 
   @override
   void initState() {
@@ -209,17 +209,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   child: Center(
                     child: Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
+                      alignment: .center,
+                      crossAxisAlignment: .center,
                       children: [
                         SizedBox(
                           width: isWide
                               ? constraints.maxWidth / 2
                               : constraints.maxWidth,
                           child: Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const .all(16),
                             child: Column(
-                              mainAxisSize: MainAxisSize.min,
+                              mainAxisSize: .min,
                               spacing: 24,
                               children: [
                                 // Welcome title
@@ -237,10 +237,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                   style: TextStyle(
                                     fontSize: 32,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: .w800,
                                     color: theme.textTheme.bodyLarge?.color,
                                   ),
-                                  textAlign: TextAlign.center,
+                                  textAlign: .center,
                                 ),
 
                                 // Login instruction
@@ -249,11 +249,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     portalLink: (text) => TextSpan(
                                       text: text,
                                       style: const TextStyle(
-                                        decoration: TextDecoration.underline,
+                                        decoration: .underline,
                                       ),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () => launchUrl(
-                                          Uri.parse(
+                                          .parse(
                                             'https://nportal.ntut.edu.tw',
                                           ),
                                         ),
@@ -264,13 +264,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     height: 1.6,
                                     color: Colors.grey[600],
                                   ),
-                                  textAlign: TextAlign.center,
+                                  textAlign: .center,
                                 ),
 
                                 // Login form
                                 AutofillGroup(
                                   child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisAlignment: .center,
                                     spacing: 16,
                                     children: [
                                       TextField(
@@ -285,7 +285,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         autofillHints: const [
                                           AutofillHints.username,
                                         ],
-                                        textInputAction: TextInputAction.next,
+                                        textInputAction: .next,
                                         onSubmitted: (_) =>
                                             _passwordFocusNode.requestFocus(),
                                         onChanged: (_) => _clearErrors(),
@@ -303,7 +303,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                           AutofillHints.password,
                                         ],
                                         obscureText: true,
-                                        textInputAction: TextInputAction.done,
+                                        textInputAction: .done,
                                         onSubmitted: (_) => _attemptLogin(),
                                         onChanged: (_) => _clearErrors(),
                                       ),
@@ -315,16 +315,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 if (_errorMessage case final errorMessage?)
                                   Text(
                                     errorMessage,
-                                    textAlign: TextAlign.center,
+                                    textAlign: .center,
                                     style: TextStyle(
                                       color: theme.colorScheme.error,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: .w600,
                                     ),
                                   ),
 
                                 // Login button
                                 SizedBox(
-                                  width: double.infinity,
+                                  width: .infinity,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor:
@@ -335,7 +335,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         ? null
                                         : _attemptLogin,
                                     child: Padding(
-                                      padding: const EdgeInsets.all(6.0),
+                                      padding: const .all(6),
                                       child: _isLoading
                                           ? const SizedBox(
                                               height: 20,
@@ -356,11 +356,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     privacyPolicy: (text) => TextSpan(
                                       text: text,
                                       style: const TextStyle(
-                                        decoration: TextDecoration.underline,
+                                        decoration: .underline,
                                       ),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () => launchUrl(
-                                          Uri.parse(
+                                          .parse(
                                             t.about.privacyPolicyUrl,
                                           ),
                                         ),
@@ -376,9 +376,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ? constraints.maxWidth / 2
                               : constraints.maxWidth,
                           child: Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const .all(16),
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: .center,
                               children: [
                                 Text.rich(
                                   TextSpan(
@@ -394,28 +394,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                   style: TextStyle(
                                     fontSize: 32,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: .w800,
                                     color: theme.textTheme.bodyLarge?.color,
                                   ),
-                                  textAlign: TextAlign.center,
+                                  textAlign: .center,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
                                   t.login.quickLoginDescription,
-                                  textAlign: TextAlign.center,
+                                  textAlign: .center,
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                                 const SizedBox(height: 48),
                                 ClipRRect(
-                                  borderRadius: BorderRadius.circular(24),
+                                  borderRadius: .circular(24),
                                   child: SizedBox(
                                     width: 250,
                                     height: 250,
                                     child: MobileScanner(
                                       controller: _scannerController,
                                       onDetect: (capture) {
+                                        if (_handledScan) return;
                                         final barcodes = capture.barcodes;
                                         for (final barcode in barcodes) {
                                           if (barcode.rawValue != null) {
@@ -435,6 +436,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                                 _passwordFocusNode
                                                     .requestFocus();
                                               }
+                                              _handledScan = true;
+                                              Future.delayed(
+                                                const Duration(seconds: 10),
+                                                () {
+                                                  if (mounted)
+                                                    _handledScan = false;
+                                                },
+                                              );
                                             } else if (code.startsWith(
                                               'https://ntut.app/login?code=',
                                             )) {
@@ -447,6 +456,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                               if (RegExp(
                                                 r'^\d+$',
                                               ).hasMatch(extractedCode)) {
+                                                _handledScan = true;
+                                                _scannerController.stop();
                                                 scannedAuthCode = extractedCode;
                                                 ref
                                                     .read(
@@ -455,6 +466,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                                     .create();
                                                 context.go(AppRoutes.home);
                                               } else {
+                                                _handledScan = true;
+                                                Future.delayed(
+                                                  const Duration(seconds: 10),
+                                                  () {
+                                                    if (mounted)
+                                                      _handledScan = false;
+                                                  },
+                                                );
                                                 if (mounted) {
                                                   ScaffoldMessenger.of(
                                                     context,
@@ -466,8 +485,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                                             .errors
                                                             .invalidQrCode,
                                                       ),
-                                                      behavior: SnackBarBehavior
-                                                          .floating,
+                                                      behavior: .floating,
                                                     ),
                                                   );
                                                 }
