@@ -440,8 +440,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                               Future.delayed(
                                                 const Duration(seconds: 10),
                                                 () {
-                                                  if (mounted)
+                                                  if (mounted) {
                                                     _handledScan = false;
+                                                  }
                                                 },
                                               );
                                             } else if (code.startsWith(
@@ -470,8 +471,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                                 Future.delayed(
                                                   const Duration(seconds: 10),
                                                   () {
-                                                    if (mounted)
+                                                    if (mounted) {
                                                       _handledScan = false;
+                                                    }
                                                   },
                                                 );
                                                 if (mounted) {
