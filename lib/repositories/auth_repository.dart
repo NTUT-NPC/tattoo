@@ -9,7 +9,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/login_exception.dart';
-import 'package:tattoo/models/user.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
 import 'package:tattoo/utils/http.dart';
@@ -448,6 +447,7 @@ class AuthRepository {
           avatarFilename: Value(userDto.avatarFilename ?? ''),
           nameZh: Value(userDto.name ?? ''),
           email: Value(userDto.email ?? ''),
+          passwordExpiresInDays: Value(userDto.passwordExpiresInDays),
           nameEn: Value(profile.englishName),
           dateOfBirth: Value(profile.dateOfBirth),
           programZh: Value(profile.programZh),
@@ -613,7 +613,7 @@ class AuthRepository {
   Stream<UserRegistration?> watchActiveRegistration() {
     return (_database.select(_database.userRegistrations)
           ..where(
-            (r) => r.enrollmentStatus.equalsValue(EnrollmentStatus.learning),
+            (r) => r.enrollmentStatus.equalsValue(.learning),
           )
           ..orderBy([
             (r) => OrderingTerm.desc(r.year),
@@ -630,7 +630,7 @@ class AuthRepository {
     try {
       final result = await FlutterImageCompress.compressWithList(
         bytes,
-        format: CompressFormat.jpeg,
+        format: .jpeg,
         quality: 85,
         minWidth: 1200,
         minHeight: 1200,

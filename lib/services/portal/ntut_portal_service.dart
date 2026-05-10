@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:intl/intl.dart';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:intl/intl.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
@@ -92,7 +92,7 @@ class NtutPortalService implements PortalService {
     final response = await _portalDio.get(
       'photoView.do',
       queryParameters: {'realname': filename ?? ''},
-      options: Options(responseType: ResponseType.bytes),
+      options: Options(responseType: .bytes),
     );
 
     final contentType = response.headers.value('content-type') ?? '';
@@ -222,8 +222,32 @@ class NtutPortalService implements PortalService {
     );
 
     final List<dynamic> events = jsonDecode(response.data);
+
     String? normalizeEmpty(String? value) =>
         value?.isNotEmpty == true ? value : null;
+
+    // The portal returns proper Unix epoch ms (e.g. 1753977600000 ↔
+    // 2025-08-01 00:00 +08:00). Naively decoding via the device's local
+    // timezone would shift the displayed date when the user is outside
+    // Taipei — Aug 1 would render as Jul 31 in London. We instead build
+    // a UTC DateTime, add 8h, and copy its wall-clock fields into a local
+    // DateTime so the result reads as Taipei time regardless of the
+    // device's offset (and DST).
+    DateTime taipeiWallClock(int ms) {
+      final taipei = DateTime.fromMillisecondsSinceEpoch(
+        ms,
+        isUtc: true,
+      ).add(const Duration(hours: 8));
+      return DateTime(
+        taipei.year,
+        taipei.month,
+        taipei.day,
+        taipei.hour,
+        taipei.minute,
+        taipei.second,
+        taipei.millisecond,
+      );
+    }
 
     return events
         .where(
@@ -233,8 +257,8 @@ class NtutPortalService implements PortalService {
         .map<CalendarEventDto>(
           (e) => (
             id: e['id'],
-            start: DateTime.fromMillisecondsSinceEpoch(e['calStart']),
-            end: DateTime.fromMillisecondsSinceEpoch(e['calEnd']),
+            start: taipeiWallClock(e['calStart']),
+            end: taipeiWallClock(e['calEnd']),
             allDay: e['allDay'] == '1',
             title: normalizeEmpty(e['calTitle']),
             place: normalizeEmpty(e['calPlace']),

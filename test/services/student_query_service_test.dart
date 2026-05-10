@@ -2,10 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
 import 'package:tattoo/models/user.dart';
-import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
-import 'package:tattoo/services/student_query/student_query_service.dart';
+import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/ntut_student_query_service.dart';
+import 'package:tattoo/services/student_query/student_query_service.dart';
 
 import '../test_helpers.dart';
 
@@ -316,6 +316,25 @@ void main() {
             isFalse,
             reason:
                 'Course ${score.courseCode} should not have both score and status',
+          );
+        }
+
+        final hasBilingualNamedScore = allScores.any(
+          (score) =>
+              (score.number?.trim().isNotEmpty ?? false) &&
+              (score.courseNameZh?.trim().isNotEmpty ?? false) &&
+              (score.courseNameEn?.trim().isNotEmpty ?? false),
+        );
+        if (!hasBilingualNamedScore) {
+          expect(
+            allScores.any(
+              (score) =>
+                  (score.number?.trim().isNotEmpty ?? false) &&
+                  (score.courseNameZh?.trim().isNotEmpty ?? false),
+            ),
+            isTrue,
+            reason:
+                'When NTUT omits English names, scores with course numbers should still keep Chinese names.',
           );
         }
       });

@@ -43,7 +43,7 @@ decodeAvatarPayload(Uint8List bytes) {
     return (
       jpeg: jpeg,
       version: version,
-      data: Map<String, dynamic>.from(data as Map),
+      data: .from(data as Map),
     );
   } catch (_) {
     return (jpeg: jpeg, version: null, data: null);

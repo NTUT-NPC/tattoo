@@ -3,9 +3,9 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
 import 'package:tattoo/models/user.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/student_query/mock_student_query_service.dart';
 import 'package:tattoo/services/student_query/ntut_student_query_service.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
 
 /// A single course score entry from the academic performance page.
 typedef ScoreDto = ({
@@ -13,6 +13,12 @@ typedef ScoreDto = ({
   ///
   /// Null for credit transfers/waivers from other institutions.
   String? number,
+
+  /// Course name in Chinese from the academic performance table's 3rd column.
+  String? courseNameZh,
+
+  /// Course name in English from the academic performance table's 4th column.
+  String? courseNameEn,
 
   /// Course catalog code (joins with Courses.code).
   ///

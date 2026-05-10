@@ -48,9 +48,40 @@ nav:
   courseTable: Courses
   scores: Scores
   portal: Portals
+  calendar: Calendar
   profile: Me
+score:
+  loadFailed: Failed to load scores
+  refreshFailed: Failed to refresh scores
+  noRecords: No score records found
+  noScoresThisSemester: No scores for this semester
+  courseNumber: "No: ${number}  Code: ${code}"
+  none: N/A
+  summary:
+    cumulativeGpa: Cumulative GPA
+    conduct: Conduct
+    semesterAverage: Semester Avg
+    creditsPassed: Credits Passed
+    totalCredits: Total Credits
+  status:
+    notEntered: Not entered
+    withdraw: Withdrawn
+    undelivered: Not submitted
+    pass: Pass
+    fail: Fail
+    creditTransfer: Credit transfer
+calendar:
+  today: Today
 courseTable:
   notFound: Course table not found
+  unscheduled: Unscheduled Courses
+  summary:
+    credits(plural, param=count):
+      one: ${count} credit
+      other: ${count} credits
+    hours(plural, param=count):
+      one: ${count} hour
+      other: ${count} hours
   actions:
     showMoreOptions: Show more options
     displayOptions: Display options
@@ -64,6 +95,11 @@ courseTable:
     saturday: Sat
 profile:
   dataDisclaimer: Reference only. Not official.
+  passwordExpiry:
+    warning(plural, param=days):
+      one: Password expires in 1 day
+      other: Password expires in ${days} days
+    action: Change
   sections:
     accountSettings: Account Settings
     appSettings: App Settings

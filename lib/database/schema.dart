@@ -320,14 +320,14 @@ class Classrooms extends Table with AutoIncrementId, Fetchable {
 ///
 /// Represents a course section (班級) in a specific semester with its
 /// schedule, teachers, and enrollment information.
-@TableIndex(name: 'course_offering_course', columns: {#course})
+@TableIndex(name: 'course_offering_course_code', columns: {#courseCode})
 @TableIndex(name: 'course_offering_semester', columns: {#semester})
 class CourseOfferings extends Table with AutoIncrementId, Fetchable {
-  /// Reference to the course definition.
+  /// The course catalog code (e.g., "3601001").
   ///
-  /// Null for special entries (e.g., "班週會及導師時間") that have schedule
-  /// slots but no course catalog entry.
-  late final course = integer().nullable().references(Courses, #id)();
+  /// Soft reference — joins to [Courses.code] at query time. Null for
+  /// special entries (e.g., "班週會及導師時間") that have no catalog entry.
+  late final courseCode = text().nullable()();
 
   /// Reference to the semester when this course is offered.
   late final semester = integer().references(Semesters, #id)();
@@ -337,15 +337,27 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   /// Null for special entries that have no assigned number.
   late final number = text().nullable()();
 
-  /// Display name in Chinese, for entries without a [course] reference.
+  /// Display name as it appears in this semester's timetable.
   ///
-  /// When [course] is non-null, the name comes from [Courses.nameZh] instead.
-  late final nameZh = text().nullable()();
+  /// Always populated. May differ from [Courses.nameZh] (the catalog name).
+  late final nameZh = text()();
 
-  /// Display name in English, for entries without a [course] reference.
+  /// Display name in English as it appears in this semester's timetable.
   ///
-  /// When [course] is non-null, the name comes from [Courses.nameEn] instead.
+  /// May differ from [Courses.nameEn] (the catalog name).
   late final nameEn = text().nullable()();
+
+  /// Number of credits as listed in this semester's timetable.
+  ///
+  /// May differ from [Courses.credits] (the catalog value). Null for special
+  /// entries (e.g., 班週會及導師時間) that have no credit value.
+  late final credits = real().nullable()();
+
+  /// Number of class hours per week as listed in this semester's timetable.
+  ///
+  /// May differ from [Courses.hours] (the catalog value). Null for special
+  /// entries (e.g., 班週會及導師時間) that have no hour value.
+  late final hours = integer().nullable()();
 
   /// Course sequence phase/stage number (階段, e.g., "1", "2").
   ///
@@ -428,7 +440,7 @@ class CourseOfferingTeachers extends Table {
   late final courseOffering = integer().references(
     CourseOfferings,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Reference to the teacher profile.
@@ -446,7 +458,7 @@ class CourseOfferingClasses extends Table {
   late final courseOffering = integer().references(
     CourseOfferings,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Reference to the class/major.
@@ -464,7 +476,7 @@ class CourseOfferingStudents extends Table {
   late final courseOffering = integer().references(
     CourseOfferings,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Reference to the student.
@@ -484,7 +496,7 @@ class Schedules extends Table with AutoIncrementId {
   late final courseOffering = integer().references(
     CourseOfferings,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Day of the week for this class session.
@@ -515,7 +527,7 @@ class Scores extends Table with AutoIncrementId {
   late final user = integer().references(
     Users,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Reference to the semester this score belongs to.
@@ -555,7 +567,7 @@ class UserSemesterSummaries extends Table with AutoIncrementId {
   late final user = integer().references(
     Users,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Reference to the semester.
@@ -607,7 +619,7 @@ class UserSemesterSummaryTutors extends Table {
   late final summary = integer().references(
     UserSemesterSummaries,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Reference to the teacher profile serving as tutor.
@@ -627,7 +639,7 @@ class UserSemesterSummaryCadreRoles extends Table with AutoIncrementId {
   late final summary = integer().references(
     UserSemesterSummaries,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Cadre role title (e.g., "班代", "副班代").
@@ -648,7 +660,7 @@ class UserSemesterRankings extends Table {
   late final summary = integer().references(
     UserSemesterSummaries,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// The scope of this ranking (class, group, or department).
@@ -682,7 +694,7 @@ class Materials extends Table with AutoIncrementId {
   late final courseOffering = integer().references(
     CourseOfferings,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Title/name of the material or resource.

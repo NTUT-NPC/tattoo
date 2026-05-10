@@ -5,10 +5,9 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/screens/main/scanner/scanner_guide_bottom_sheet.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
-
-import 'scanner_guide_bottom_sheet.dart';
 
 class ScannerScreen extends ConsumerStatefulWidget {
   const ScannerScreen({super.key});
@@ -217,16 +216,16 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       children: [
         // Darkened background with a hole
         ColorFiltered(
-          colorFilter: ColorFilter.mode(
+          colorFilter: .mode(
             Colors.black.withAlpha(150),
-            BlendMode.srcOut,
+            .srcOut,
           ),
           child: Stack(
             children: [
               Container(
                 decoration: const BoxDecoration(
                   color: Colors.black,
-                  backgroundBlendMode: BlendMode.dstOut,
+                  backgroundBlendMode: .dstOut,
                 ),
               ),
               Center(
@@ -235,7 +234,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                   width: scanWindowSize,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: .circular(24),
                   ),
                 ),
               ),
@@ -251,7 +250,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                 color: Colors.white, // 改回白色
                 width: 2,
               ),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: .circular(24),
             ),
           ),
         ),
@@ -265,11 +264,11 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     IconData icon = Icons.error_outline;
 
     switch (error.errorCode) {
-      case MobileScannerErrorCode.permissionDenied:
+      case .permissionDenied:
         message = t.scanner.permissionDenied;
         description = t.scanner.permissionDeniedDescription;
         icon = Icons.no_photography_outlined;
-      case MobileScannerErrorCode.unsupported:
+      case .unsupported:
         message = t.scanner.cameraError;
         description = 'Scanning is not supported on this device';
       default:
@@ -278,11 +277,11 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
     return Container(
       color: Colors.black,
-      width: double.infinity,
-      height: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 32),
+      width: .infinity,
+      height: .infinity,
+      padding: const .symmetric(horizontal: 32),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: .center,
         children: [
           Icon(icon, color: Colors.white, size: 64),
           const SizedBox(height: 16),
@@ -291,9 +290,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontWeight: .bold,
             ),
-            textAlign: TextAlign.center,
+            textAlign: .center,
           ),
           if (description != null) ...[
             const SizedBox(height: 8),
@@ -303,7 +302,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                 color: Colors.white.withAlpha(200),
                 fontSize: 14,
               ),
-              textAlign: TextAlign.center,
+              textAlign: .center,
             ),
           ],
         ],

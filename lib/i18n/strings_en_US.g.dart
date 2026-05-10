@@ -44,6 +44,8 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsIntroEnUs intro = _TranslationsIntroEnUs._(_root);
 	@override late final _TranslationsLoginEnUs login = _TranslationsLoginEnUs._(_root);
 	@override late final _TranslationsNavEnUs nav = _TranslationsNavEnUs._(_root);
+	@override late final _TranslationsScoreEnUs score = _TranslationsScoreEnUs._(_root);
+	@override late final _TranslationsCalendarEnUs calendar = _TranslationsCalendarEnUs._(_root);
 	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
 	@override late final _TranslationsScannerEnUs scanner = _TranslationsScannerEnUs._(_root);
@@ -131,7 +133,35 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	@override String get courseTable => 'Courses';
 	@override String get scores => 'Scores';
 	@override String get portal => 'Portals';
+	@override String get calendar => 'Calendar';
 	@override String get profile => 'Me';
+}
+
+// Path: score
+class _TranslationsScoreEnUs extends TranslationsScoreZhTw {
+	_TranslationsScoreEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get loadFailed => 'Failed to load scores';
+	@override String get refreshFailed => 'Failed to refresh scores';
+	@override String get noRecords => 'No score records found';
+	@override String get noScoresThisSemester => 'No scores for this semester';
+	@override String courseNumber({required Object number, required Object code}) => 'No: ${number}  Code: ${code}';
+	@override String get none => 'N/A';
+	@override late final _TranslationsScoreSummaryEnUs summary = _TranslationsScoreSummaryEnUs._(_root);
+	@override late final _TranslationsScoreStatusEnUs status = _TranslationsScoreStatusEnUs._(_root);
+}
+
+// Path: calendar
+class _TranslationsCalendarEnUs extends TranslationsCalendarZhTw {
+	_TranslationsCalendarEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => 'Today';
 }
 
 // Path: courseTable
@@ -142,6 +172,8 @@ class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
 
 	// Translations
 	@override String get notFound => 'Course table not found';
+	@override String get unscheduled => 'Unscheduled Courses';
+	@override late final _TranslationsCourseTableSummaryEnUs summary = _TranslationsCourseTableSummaryEnUs._(_root);
 	@override late final _TranslationsCourseTableActionsEnUs actions = _TranslationsCourseTableActionsEnUs._(_root);
 	@override Map<String, String> get dayOfWeek => {
 		'sunday': 'Sun',
@@ -162,6 +194,7 @@ class _TranslationsProfileEnUs extends TranslationsProfileZhTw {
 
 	// Translations
 	@override String get dataDisclaimer => 'Reference only. Not official.';
+	@override late final _TranslationsProfilePasswordExpiryEnUs passwordExpiry = _TranslationsProfilePasswordExpiryEnUs._(_root);
 	@override late final _TranslationsProfileSectionsEnUs sections = _TranslationsProfileSectionsEnUs._(_root);
 	@override late final _TranslationsProfileOptionsEnUs options = _TranslationsProfileOptionsEnUs._(_root);
 	@override late final _TranslationsProfileAvatarEnUs avatar = _TranslationsProfileAvatarEnUs._(_root);
@@ -257,6 +290,52 @@ class _TranslationsLoginErrorsEnUs extends TranslationsLoginErrorsZhTw {
 	@override String get mobileVerificationRequired => 'Mobile phone verification is required. Please complete it on the NTUT portal.';
 }
 
+// Path: score.summary
+class _TranslationsScoreSummaryEnUs extends TranslationsScoreSummaryZhTw {
+	_TranslationsScoreSummaryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get cumulativeGpa => 'Cumulative GPA';
+	@override String get conduct => 'Conduct';
+	@override String get semesterAverage => 'Semester Avg';
+	@override String get creditsPassed => 'Credits Passed';
+	@override String get totalCredits => 'Total Credits';
+}
+
+// Path: score.status
+class _TranslationsScoreStatusEnUs extends TranslationsScoreStatusZhTw {
+	_TranslationsScoreStatusEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get notEntered => 'Not entered';
+	@override String get withdraw => 'Withdrawn';
+	@override String get undelivered => 'Not submitted';
+	@override String get pass => 'Pass';
+	@override String get fail => 'Fail';
+	@override String get creditTransfer => 'Credit transfer';
+}
+
+// Path: courseTable.summary
+class _TranslationsCourseTableSummaryEnUs extends TranslationsCourseTableSummaryZhTw {
+	_TranslationsCourseTableSummaryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String credits({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} credit',
+		other: '${count} credits',
+	);
+	@override String hours({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} hour',
+		other: '${count} hours',
+	);
+}
+
 // Path: courseTable.actions
 class _TranslationsCourseTableActionsEnUs extends TranslationsCourseTableActionsZhTw {
 	_TranslationsCourseTableActionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -266,6 +345,20 @@ class _TranslationsCourseTableActionsEnUs extends TranslationsCourseTableActions
 	// Translations
 	@override String get showMoreOptions => 'Show more options';
 	@override String get displayOptions => 'Display options';
+}
+
+// Path: profile.passwordExpiry
+class _TranslationsProfilePasswordExpiryEnUs extends TranslationsProfilePasswordExpiryZhTw {
+	_TranslationsProfilePasswordExpiryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String warning({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(days,
+		one: 'Password expires in 1 day',
+		other: 'Password expires in ${days} days',
+	);
+	@override String get action => 'Change';
 }
 
 // Path: profile.sections
@@ -455,8 +548,30 @@ extension on TranslationsEnUs {
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.portal' => 'Portals',
+			'nav.calendar' => 'Calendar',
 			'nav.profile' => 'Me',
+			'score.loadFailed' => 'Failed to load scores',
+			'score.refreshFailed' => 'Failed to refresh scores',
+			'score.noRecords' => 'No score records found',
+			'score.noScoresThisSemester' => 'No scores for this semester',
+			'score.courseNumber' => ({required Object number, required Object code}) => 'No: ${number}  Code: ${code}',
+			'score.none' => 'N/A',
+			'score.summary.cumulativeGpa' => 'Cumulative GPA',
+			'score.summary.conduct' => 'Conduct',
+			'score.summary.semesterAverage' => 'Semester Avg',
+			'score.summary.creditsPassed' => 'Credits Passed',
+			'score.summary.totalCredits' => 'Total Credits',
+			'score.status.notEntered' => 'Not entered',
+			'score.status.withdraw' => 'Withdrawn',
+			'score.status.undelivered' => 'Not submitted',
+			'score.status.pass' => 'Pass',
+			'score.status.fail' => 'Fail',
+			'score.status.creditTransfer' => 'Credit transfer',
+			'calendar.today' => 'Today',
 			'courseTable.notFound' => 'Course table not found',
+			'courseTable.unscheduled' => 'Unscheduled Courses',
+			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
+			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',
 			'courseTable.actions.displayOptions' => 'Display options',
 			'courseTable.dayOfWeek.sunday' => 'Sun',
@@ -467,6 +582,8 @@ extension on TranslationsEnUs {
 			'courseTable.dayOfWeek.friday' => 'Fri',
 			'courseTable.dayOfWeek.saturday' => 'Sat',
 			'profile.dataDisclaimer' => 'Reference only. Not official.',
+			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(days, one: 'Password expires in 1 day', other: 'Password expires in ${days} days', ), 
+			'profile.passwordExpiry.action' => 'Change',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
 			'profile.sections.dangerZone' => 'Danger Zone',
