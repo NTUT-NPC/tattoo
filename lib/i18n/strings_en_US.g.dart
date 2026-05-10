@@ -104,8 +104,8 @@ class _TranslationsLoginEnUs extends TranslationsLoginZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get welcomeLine1 => 'Welcome to';
-	@override String get welcomeLine2 => 'Campus Life';
+	@override String get manualLoginTitleLine1 => 'Manual';
+	@override String get manualLoginTitleLine2 => ' Login';
 	@override TextSpan instruction({required InlineSpanBuilder portalLink}) => TextSpan(children: [
 		const TextSpan(text: 'Sign in with your '),
 		portalLink('NTUT Portal'),
@@ -120,6 +120,9 @@ class _TranslationsLoginEnUs extends TranslationsLoginZhTw {
 		const TextSpan(text: '.'),
 	]);
 	@override late final _TranslationsLoginErrorsEnUs errors = _TranslationsLoginErrorsEnUs._(_root);
+	@override String get quickLoginTitleLine1 => 'Quick';
+	@override String get quickLoginTitleLine2 => 'Login';
+	@override String get quickLoginDescription => 'Scan a Tattoo App QR code to log in quickly, or scan your Student ID to auto-fill.';
 }
 
 // Path: nav
@@ -270,6 +273,7 @@ class _TranslationsLoginErrorsEnUs extends TranslationsLoginErrorsZhTw {
 	@override String get accountLocked => 'Account locked due to too many failed attempts. Please try again later.';
 	@override String get passwordExpired => 'Your password has expired. Please change it on the NTUT portal.';
 	@override String get mobileVerificationRequired => 'Mobile phone verification is required. Please complete it on the NTUT portal.';
+	@override String get invalidQrCode => 'Invalid QR code';
 }
 
 // Path: courseTable.summary
@@ -484,8 +488,8 @@ extension on TranslationsEnUs {
 			'intro.features.campusLife.description' => 'Access campus life information, with more features coming soon.',
 			'intro.developedBy' => 'Developed by NTUT NPC Club\nAll information is for reference only. Please refer to the official university system.',
 			'intro.kContinue' => 'Continue',
-			'login.welcomeLine1' => 'Welcome to',
-			'login.welcomeLine2' => 'Campus Life',
+			'login.manualLoginTitleLine1' => 'Manual',
+			'login.manualLoginTitleLine2' => ' Login',
 			'login.instruction' => ({required InlineSpanBuilder portalLink}) => TextSpan(children: [ const TextSpan(text: 'Sign in with your '), portalLink('NTUT Portal'), const TextSpan(text: ' account credentials.'), ]), 
 			'login.studentId' => 'Student ID',
 			'login.password' => 'Password',
@@ -498,6 +502,10 @@ extension on TranslationsEnUs {
 			'login.errors.accountLocked' => 'Account locked due to too many failed attempts. Please try again later.',
 			'login.errors.passwordExpired' => 'Your password has expired. Please change it on the NTUT portal.',
 			'login.errors.mobileVerificationRequired' => 'Mobile phone verification is required. Please complete it on the NTUT portal.',
+			'login.errors.invalidQrCode' => 'Invalid QR code',
+			'login.quickLoginTitleLine1' => 'Quick',
+			'login.quickLoginTitleLine2' => 'Login',
+			'login.quickLoginDescription' => 'Scan a Tattoo App QR code to log in quickly, or scan your Student ID to auto-fill.',
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.portal' => 'Portals',

@@ -140,11 +140,11 @@ class TranslationsLoginZhTw {
 
 	// Translations
 
-	/// zh-TW: '歡迎加入'
-	String get welcomeLine1 => '歡迎加入';
+	/// zh-TW: '手動'
+	String get manualLoginTitleLine1 => '手動';
 
-	/// zh-TW: '北科生活'
-	String get welcomeLine2 => '北科生活';
+	/// zh-TW: '登入'
+	String get manualLoginTitleLine2 => '登入';
 
 	/// zh-TW: '請使用${portalLink(北科校園入口網站)}的帳號密碼登入。'
 	TextSpan instruction({required InlineSpanBuilder portalLink}) => TextSpan(children: [
@@ -169,6 +169,15 @@ class TranslationsLoginZhTw {
 	]);
 
 	late final TranslationsLoginErrorsZhTw errors = TranslationsLoginErrorsZhTw.internal(_root);
+
+	/// zh-TW: '快速'
+	String get quickLoginTitleLine1 => '快速';
+
+	/// zh-TW: '登入'
+	String get quickLoginTitleLine2 => '登入';
+
+	/// zh-TW: '掃描 Tattoo App 的 QR 碼快速登入，或掃描學生證自動填入帳號。'
+	String get quickLoginDescription => '掃描 Tattoo App 的 QR 碼快速登入，或掃描學生證自動填入帳號。';
 }
 
 // Path: nav
@@ -403,6 +412,9 @@ class TranslationsLoginErrorsZhTw {
 
 	/// zh-TW: '需要進行手機驗證，請至校園入口網站完成驗證'
 	String get mobileVerificationRequired => '需要進行手機驗證，請至校園入口網站完成驗證';
+
+	/// zh-TW: '無效的 QR 碼'
+	String get invalidQrCode => '無效的 QR 碼';
 }
 
 // Path: courseTable.summary
@@ -727,8 +739,8 @@ extension on Translations {
 			'intro.features.campusLife.description' => '彙整其他校園生活資訊，更多功能敬請期待。',
 			'intro.developedBy' => '由北科程式設計研究社開發\n所有資訊僅供參考，請以學校官方系統為準',
 			'intro.kContinue' => '繼續',
-			'login.welcomeLine1' => '歡迎加入',
-			'login.welcomeLine2' => '北科生活',
+			'login.manualLoginTitleLine1' => '手動',
+			'login.manualLoginTitleLine2' => '登入',
 			'login.instruction' => ({required InlineSpanBuilder portalLink}) => TextSpan(children: [ const TextSpan(text: '請使用'), portalLink('北科校園入口網站'), const TextSpan(text: '的帳號密碼登入。'), ]), 
 			'login.studentId' => '學號',
 			'login.password' => '密碼',
@@ -741,6 +753,10 @@ extension on Translations {
 			'login.errors.accountLocked' => '登入失敗次數過多，帳號已被鎖定，請稍後再試',
 			'login.errors.passwordExpired' => '密碼已過期，請至校園入口網站變更密碼',
 			'login.errors.mobileVerificationRequired' => '需要進行手機驗證，請至校園入口網站完成驗證',
+			'login.errors.invalidQrCode' => '無效的 QR 碼',
+			'login.quickLoginTitleLine1' => '快速',
+			'login.quickLoginTitleLine2' => '登入',
+			'login.quickLoginDescription' => '掃描 Tattoo App 的 QR 碼快速登入，或掃描學生證自動填入帳號。',
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.portal' => '傳送門',
