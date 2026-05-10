@@ -7,11 +7,11 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/classroom.dart';
 import 'package:tattoo/models/course.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/course/course_service.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/utils/localized.dart';
 
 /// Data for a single cell in the course table grid.
@@ -416,7 +416,7 @@ class CourseRepository {
               if (nameEn == null && reportedUnknownClassrooms.add(id)) {
                 _firebaseService.crashlytics?.recordError(
                   Exception('Unknown classroom prefix: $name (code: $id)'),
-                  StackTrace.current,
+                  .current,
                   fatal: false,
                 );
               }
@@ -487,7 +487,7 @@ class CourseRepository {
     // When no course occupies the noon period on any day, courses that span
     // across noon (e.g. period 4 → 5) are merged. The noon period is skipped
     // (not counted in span) and crossesNoon is set for UI height calculation.
-    final hasNoon = scheduled.keys.any((s) => s.period == Period.nPeriod);
+    final hasNoon = scheduled.keys.any((s) => s.period == .nPeriod);
     final consumed = <({DayOfWeek day, Period period})>{};
     for (final entry in scheduled.entries) {
       if (consumed.contains(entry.key)) continue;
@@ -498,7 +498,7 @@ class CourseRepository {
       while (lookIndex < Period.values.length) {
         final nextPeriod = Period.values[lookIndex];
         // Skip noon if no courses use it
-        if (nextPeriod == Period.nPeriod && !hasNoon) {
+        if (nextPeriod == .nPeriod && !hasNoon) {
           lookIndex++;
           continue;
         }
@@ -577,11 +577,11 @@ class CourseRepository {
       scheduled: scheduled,
       unscheduled: unscheduled,
       hasWeekdayCourse: scheduled.keys.any((s) => s.day.isWeekday),
-      hasSaturdayCourse: scheduled.keys.any((s) => s.day == DayOfWeek.saturday),
-      hasSundayCourse: scheduled.keys.any((s) => s.day == DayOfWeek.sunday),
+      hasSaturdayCourse: scheduled.keys.any((s) => s.day == .saturday),
+      hasSundayCourse: scheduled.keys.any((s) => s.day == .sunday),
       hasAMCourse: allEntryPeriods.any((p) => p.isAM),
       hasPMCourse: allEntryPeriods.any((p) => p.isPM),
-      hasNoonCourse: allEntryPeriods.any((p) => p == Period.nPeriod),
+      hasNoonCourse: allEntryPeriods.any((p) => p == .nPeriod),
       hasEveningCourse: allEntryPeriods.any((p) => p.isEvening),
       earliestPeriod: scheduled.isEmpty
           ? null

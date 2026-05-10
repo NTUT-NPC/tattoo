@@ -2,9 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
+import 'package:tattoo/components/widget_preview_frame.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-
-import 'widget_preview_frame.dart';
 
 const _anchoredPopupMenuMinWidth = 112.0;
 const _anchoredPopupMenuMaxWidth = 280.0;
@@ -13,7 +12,7 @@ const _anchoredPopupMenuGap = 8.0;
 const _anchoredPopupMenuPadding = EdgeInsets.symmetric(vertical: 8.0);
 const _anchoredPopupMenuAnimationDuration = Duration(milliseconds: 220);
 const _anchoredPopupMenuShape = RoundedRectangleBorder(
-  borderRadius: BorderRadius.all(Radius.circular(16)),
+  borderRadius: .all(.circular(16)),
 );
 
 /// Controls how an [AnchoredPopupMenuButton] is sized and positioned.
@@ -183,7 +182,7 @@ class AnchoredPopupMenuStyle {
     shadowColor: Color(0x14000000),
     surfaceTintColor: Colors.transparent,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(16)),
+      borderRadius: .all(.circular(16)),
     ),
   );
 
@@ -297,9 +296,9 @@ class AnchoredPopupMenuButton<T> extends StatelessWidget {
     }
 
     return Rect.fromPoints(
-      button.localToGlobal(Offset.zero, ancestor: overlay),
+      button.localToGlobal(.zero, ancestor: overlay),
       button.localToGlobal(
-        button.size.bottomRight(Offset.zero),
+        button.size.bottomRight(.zero),
         ancestor: overlay,
       ),
     );

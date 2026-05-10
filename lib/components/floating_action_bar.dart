@@ -511,7 +511,7 @@ Widget previewFloatingActionBar() {
           ],
           child: ChipTabSwitcher(
             tabs: tabs,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const .symmetric(horizontal: 12),
           ),
         ),
       ),
@@ -560,7 +560,7 @@ Widget previewScrollAwareFloatingActionBar() {
             ],
             child: ChipTabSwitcher(
               tabs: tabs,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const .symmetric(horizontal: 12),
             ),
           ),
           child: ListView.builder(

@@ -31,9 +31,9 @@ class CalendarScreen extends ConsumerStatefulWidget {
 class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   static const _yearSpan = 5;
 
-  DateTime _focusedDay = DateTime.now();
-  DateTime _selectedDay = DateTime.now();
-  DateTimeRange _range = _threeMonthWindow(DateTime.now());
+  DateTime _focusedDay = .now();
+  DateTime _selectedDay = .now();
+  DateTimeRange _range = _threeMonthWindow(.now());
   final DateTime _firstDay = DateTime(DateTime.now().year - _yearSpan, 1, 1);
   final DateTime _lastDay = DateTime(DateTime.now().year + _yearSpan, 12, 31);
 
@@ -118,7 +118,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           },
           eventLoader: (day) =>
               eventsMap[DateTime(day.year, day.month, day.day)] ?? const [],
-          calendarFormat: CalendarFormat.month,
+          calendarFormat: .month,
           headerStyle: const HeaderStyle(formatButtonVisible: false),
         ),
         const SizedBox(height: 8.0),
@@ -139,8 +139,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     constraints: const BoxConstraints(maxWidth: 120),
                     child: Text(
                       place,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.end,
+                      overflow: .ellipsis,
+                      textAlign: .end,
                     ),
                   ),
                   _ => null,

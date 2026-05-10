@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
+import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
 
 import '../test_helpers.dart';

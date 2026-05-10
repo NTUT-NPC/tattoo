@@ -7,6 +7,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/components/notices.dart';
@@ -169,21 +170,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       hintText: hintText,
       hintStyle: TextStyle(
         color: theme.textTheme.bodyMedium?.color?.withAlpha(150),
-        fontWeight: FontWeight.w500,
+        fontWeight: .w500,
       ),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(50)),
+      border: OutlineInputBorder(borderRadius: .circular(50)),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(50),
+        borderRadius: .circular(50),
         borderSide: BorderSide(color: hasError ? errorColor : surfaceColor),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(50),
+        borderRadius: .circular(50),
         borderSide: BorderSide(
           color: hasError ? errorColor : primaryColor,
           width: 2,
         ),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      contentPadding: const .symmetric(horizontal: 24, vertical: 16),
       filled: true,
       fillColor: surfaceColor,
     );
@@ -199,7 +200,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           builder: (context, constraints) {
             final isWide = constraints.maxWidth > 800;
             return GestureDetector(
-              behavior: HitTestBehavior.translucent,
+              behavior: .translucent,
               onTap: () => FocusScope.of(context).unfocus(),
               child: SingleChildScrollView(
                 child: ConstrainedBox(

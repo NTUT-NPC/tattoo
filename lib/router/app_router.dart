@@ -6,8 +6,8 @@ import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
-import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
+import 'package:tattoo/shells/animated_shell_container.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 

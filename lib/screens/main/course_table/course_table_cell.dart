@@ -1,10 +1,10 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/course_repository.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 
 /// A single course block shown in the course table grid.
 ///
@@ -58,7 +58,7 @@ class CourseTableCell extends StatelessWidget {
     final highlightColor = borderColor.withValues(alpha: 0.14);
 
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+      data: MediaQuery.of(context).copyWith(textScaler: .noScaling),
       child: Material(
         color: Colors.transparent,
         child: Ink(
@@ -78,7 +78,7 @@ class CourseTableCell extends StatelessWidget {
                 final titleMaxLines = constraints.maxHeight > 100 ? 3 : 2;
 
                 return Padding(
-                  padding: const EdgeInsets.symmetric(
+                  padding: const .symmetric(
                     horizontal: 2,
                     vertical: 2,
                   ),
@@ -168,7 +168,7 @@ class CourseTableUnscheduledCell extends StatelessWidget {
         borderRadius: .circular(12),
         side: BorderSide(color: theme.colorScheme.outlineVariant),
       ),
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: .antiAlias,
       child: InkWell(
         borderRadius: .circular(12),
         onTap: onTap,

@@ -53,8 +53,8 @@ extension DatabaseActions on AppDatabase {
     final companion = SemestersCompanion.insert(
       year: year,
       term: term,
-      inCourseSemesterList: Value.absentIfNull(inCourseSemesterList),
-      inScoreSemesterList: Value.absentIfNull(inScoreSemesterList),
+      inCourseSemesterList: .absentIfNull(inCourseSemesterList),
+      inScoreSemesterList: .absentIfNull(inScoreSemesterList),
     );
 
     return into(semesters).insertReturning(
@@ -87,7 +87,7 @@ extension DatabaseActions on AppDatabase {
           credits: Value(credits),
           hours: Value(hours),
           nameZh: Value(nameZh),
-          nameEn: Value.absentIfNull(nameEn),
+          nameEn: .absentIfNull(nameEn),
         ),
         target: [courses.code],
       ),
@@ -117,7 +117,7 @@ extension DatabaseActions on AppDatabase {
         onConflict: DoUpdate(
           (old) => TeachersCompanion(
             nameZh: Value(nameZh),
-            nameEn: Value.absentIfNull(nameEn),
+            nameEn: .absentIfNull(nameEn),
           ),
           target: [teachers.code],
         ),
@@ -132,17 +132,17 @@ extension DatabaseActions on AppDatabase {
           title: Value(title),
           teachingHours: Value(teachingHours),
           officeHoursNote: Value(officeHoursNote),
-          fetchedAt: Value.absentIfNull(fetchedAt),
+          fetchedAt: .absentIfNull(fetchedAt),
         ),
         onConflict: DoUpdate(
           (old) => TeacherSemestersCompanion(
             teacher: Value(teacher.id),
-            email: Value.absentIfNull(email),
-            department: Value.absentIfNull(departmentId),
-            title: Value.absentIfNull(title),
-            teachingHours: Value.absentIfNull(teachingHours),
-            officeHoursNote: Value.absentIfNull(officeHoursNote),
-            fetchedAt: Value.absentIfNull(fetchedAt),
+            email: .absentIfNull(email),
+            department: .absentIfNull(departmentId),
+            title: .absentIfNull(title),
+            teachingHours: .absentIfNull(teachingHours),
+            officeHoursNote: .absentIfNull(officeHoursNote),
+            fetchedAt: .absentIfNull(fetchedAt),
           ),
           target: [teacherSemesters.teacher, teacherSemesters.semester],
         ),
@@ -167,7 +167,7 @@ extension DatabaseActions on AppDatabase {
       onConflict: DoUpdate(
         (old) => ClassroomsCompanion(
           nameZh: Value(nameZh),
-          nameEn: Value.absentIfNull(nameEn),
+          nameEn: .absentIfNull(nameEn),
         ),
         target: [classrooms.code],
       ),
@@ -191,7 +191,7 @@ extension DatabaseActions on AppDatabase {
       onConflict: DoUpdate(
         (old) => ClassesCompanion(
           nameZh: Value(nameZh),
-          nameEn: Value.absentIfNull(nameEn),
+          nameEn: .absentIfNull(nameEn),
         ),
         target: [classes.code, classes.semester],
       ),
@@ -235,7 +235,7 @@ extension DatabaseActions on AppDatabase {
         (old) => CourseOfferingsCompanion(
           courseCode: Value(courseCode),
           nameZh: Value(nameZh),
-          nameEn: Value.absentIfNull(nameEn),
+          nameEn: .absentIfNull(nameEn),
           credits: Value(credits),
           hours: Value(hours),
           phase: Value(phase),

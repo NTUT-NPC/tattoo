@@ -77,7 +77,7 @@ class CourseTableScreen extends ConsumerWidget {
             };
 
             return ScrollAwareFloatingActionBar(
-              margin: const EdgeInsets.all(_floatingBarMargin),
+              margin: const .all(_floatingBarMargin),
               floatingActionBarBuilder: (context, visible) {
                 if (!shouldShowFloatingBar) {
                   return null;
@@ -119,7 +119,7 @@ class CourseTableScreen extends ConsumerWidget {
                     enabled: isSemesterLoading,
                     child: ChipTabSwitcher(
                       tabs: displayedSemesterTabLabels,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const .symmetric(horizontal: 12),
                     ),
                   ),
                 );

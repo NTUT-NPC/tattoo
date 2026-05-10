@@ -42,10 +42,10 @@ class ScannerGuideSheet extends StatelessWidget {
       snap: true,
       builder: (context, scrollController) {
         return Container(
-          padding: EdgeInsets.fromLTRB(24, 0, 24, bottomPadding),
+          padding: .fromLTRB(24, 0, 24, bottomPadding),
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            borderRadius: const .vertical(top: .circular(32)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withAlpha(20),
@@ -60,12 +60,12 @@ class ScannerGuideSheet extends StatelessWidget {
               SliverToBoxAdapter(
                 child: Center(
                   child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 20),
+                    margin: const .symmetric(vertical: 20),
                     width: 40,
                     height: 5,
                     decoration: BoxDecoration(
                       color: colorScheme.onSurfaceVariant.withAlpha(100),
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: .circular(2),
                     ),
                   ),
                 ),
@@ -96,7 +96,7 @@ class ScannerGuideSheet extends StatelessWidget {
     final theme = Theme.of(context);
     return Column(
       key: const ValueKey('success'),
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: .min,
       children: [
         const SizedBox(height: 32),
         const Icon(Icons.check_circle_outline, color: Colors.green, size: 64),
@@ -104,7 +104,7 @@ class ScannerGuideSheet extends StatelessWidget {
         Text(
           t.scanner.success,
           style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
+            fontWeight: .bold,
           ),
         ),
         const SizedBox(height: 48),
@@ -116,23 +116,23 @@ class ScannerGuideSheet extends StatelessWidget {
     final theme = Theme.of(context);
     return Column(
       key: const ValueKey('error'),
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: .min,
+      crossAxisAlignment: .stretch,
       children: [
         const SizedBox(height: 32),
         const Icon(Icons.error_outline, color: Colors.red, size: 64),
         const SizedBox(height: 16),
         Text(
           t.scanner.failed,
-          textAlign: TextAlign.center,
+          textAlign: .center,
           style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
+            fontWeight: .bold,
           ),
         ),
         const SizedBox(height: 16),
         Text(
           message,
-          textAlign: TextAlign.center,
+          textAlign: .center,
           style: theme.textTheme.bodyLarge,
         ),
         const SizedBox(height: 32),
@@ -149,7 +149,7 @@ class ScannerGuideSheet extends StatelessWidget {
     final theme = Theme.of(context);
     return Column(
       key: const ValueKey('processing'),
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: .min,
       children: [
         const SizedBox(height: 48),
         const CircularProgressIndicator(),
@@ -175,14 +175,14 @@ class ScannerGuideSheet extends StatelessWidget {
 
     return Column(
       key: const ValueKey('guide'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: .stretch,
       children: [
         const SizedBox(height: 8),
         Text(
           t.scanner.guide.title,
-          textAlign: TextAlign.center,
+          textAlign: .center,
           style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
+            fontWeight: .bold,
           ),
         ),
         const SizedBox(height: 16),
@@ -232,16 +232,16 @@ class ScannerGuideSheet extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(t.general.copied),
-            behavior: SnackBarBehavior.floating,
+            behavior: .floating,
           ),
         );
       },
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: .circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        padding: const .symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest.withAlpha(50),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: .circular(8),
         ),
         child: Text.rich(
           TextSpan(
@@ -254,18 +254,18 @@ class ScannerGuideSheet extends StatelessWidget {
                 text: scheme,
                 style: TextStyle(
                   color: colorScheme.onSurfaceVariant.withAlpha(120),
-                  fontWeight: FontWeight.normal,
+                  fontWeight: .normal,
                 ),
               ),
               TextSpan(
                 text: rest,
                 style: const TextStyle(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: .bold,
                 ),
               ),
             ],
           ),
-          textAlign: TextAlign.center,
+          textAlign: .center,
         ),
       ),
     );

@@ -166,7 +166,7 @@ Uint8List encryptBytes(Uint8List plaintext, String matchPassword) {
   final password = _deriveKeyPassword(matchPassword);
   final random = Random.secure();
   final salt = Uint8List.fromList(
-    List.generate(8, (_) => random.nextInt(256)),
+    .generate(8, (_) => random.nextInt(256)),
   );
 
   final keyIv = _pbkdf2(password, salt, _keyLength + _ivLength);
@@ -187,7 +187,7 @@ Uint8List encryptBytes(Uint8List plaintext, String matchPassword) {
     cipher.processBlock(padded, offset, ciphertext, offset);
   }
 
-  return Uint8List.fromList([
+  return .fromList([
     ...utf8.encode(_saltHeader),
     ...salt,
     ...ciphertext,
