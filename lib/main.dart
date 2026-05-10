@@ -37,7 +37,7 @@ Future<void> main() async {
 
   void showErrorDialog(
     Object error, {
-    ErrorType type = ErrorType.unknown,
+    ErrorType type = .unknown,
     StackTrace? stackTrace,
   }) {
     final rootContext = rootNavigatorKey.currentContext;
@@ -48,9 +48,9 @@ Future<void> main() async {
       if (stackTrace != null) stackTrace.toString(),
     ].join('\n');
     final errorTitle = switch (type) {
-      ErrorType.flutter => t.errors.flutterError,
-      ErrorType.async => t.errors.asyncError,
-      ErrorType.unknown => t.errors.occurred,
+      .flutter => t.errors.flutterError,
+      .async => t.errors.asyncError,
+      .unknown => t.errors.occurred,
     };
 
     showDialog(
@@ -88,7 +88,7 @@ Future<void> main() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showErrorDialog(
         details.exception,
-        type: ErrorType.flutter,
+        type: .flutter,
         stackTrace: details.stack,
       );
     });
@@ -97,7 +97,7 @@ Future<void> main() async {
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
     firebaseService.crashlytics?.recordError(error, stack, fatal: true);
-    showErrorDialog(error, type: ErrorType.async, stackTrace: stack);
+    showErrorDialog(error, type: .async, stackTrace: stack);
     log('Uncaught asynchronous error: $error', stackTrace: stack);
     return true;
   };

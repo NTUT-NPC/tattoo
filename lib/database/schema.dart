@@ -440,7 +440,7 @@ class CourseOfferingTeachers extends Table {
   late final courseOffering = integer().references(
     CourseOfferings,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Reference to the teacher profile.
@@ -458,7 +458,7 @@ class CourseOfferingClasses extends Table {
   late final courseOffering = integer().references(
     CourseOfferings,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Reference to the class/major.
@@ -476,7 +476,7 @@ class CourseOfferingStudents extends Table {
   late final courseOffering = integer().references(
     CourseOfferings,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Reference to the student.
@@ -496,7 +496,7 @@ class Schedules extends Table with AutoIncrementId {
   late final courseOffering = integer().references(
     CourseOfferings,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Day of the week for this class session.
@@ -527,7 +527,7 @@ class Scores extends Table with AutoIncrementId {
   late final user = integer().references(
     Users,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Reference to the semester this score belongs to.
@@ -567,7 +567,7 @@ class UserSemesterSummaries extends Table with AutoIncrementId {
   late final user = integer().references(
     Users,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Reference to the semester.
@@ -619,7 +619,7 @@ class UserSemesterSummaryTutors extends Table {
   late final summary = integer().references(
     UserSemesterSummaries,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Reference to the teacher profile serving as tutor.
@@ -639,7 +639,7 @@ class UserSemesterSummaryCadreRoles extends Table with AutoIncrementId {
   late final summary = integer().references(
     UserSemesterSummaries,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Cadre role title (e.g., "班代", "副班代").
@@ -660,7 +660,7 @@ class UserSemesterRankings extends Table {
   late final summary = integer().references(
     UserSemesterSummaries,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// The scope of this ranking (class, group, or department).
@@ -694,7 +694,7 @@ class Materials extends Table with AutoIncrementId {
   late final courseOffering = integer().references(
     CourseOfferings,
     #id,
-    onDelete: KeyAction.cascade,
+    onDelete: .cascade,
   )();
 
   /// Title/name of the material or resource.

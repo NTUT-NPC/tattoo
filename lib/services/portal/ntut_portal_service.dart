@@ -92,7 +92,7 @@ class NtutPortalService implements PortalService {
     final response = await _portalDio.get(
       'photoView.do',
       queryParameters: {'realname': filename ?? ''},
-      options: Options(responseType: ResponseType.bytes),
+      options: Options(responseType: .bytes),
     );
 
     final contentType = response.headers.value('content-type') ?? '';

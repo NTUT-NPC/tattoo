@@ -58,7 +58,7 @@ class CourseTableCell extends StatelessWidget {
     final highlightColor = borderColor.withValues(alpha: 0.14);
 
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+      data: MediaQuery.of(context).copyWith(textScaler: .noScaling),
       child: Material(
         color: Colors.transparent,
         child: Ink(
@@ -78,7 +78,7 @@ class CourseTableCell extends StatelessWidget {
                 final titleMaxLines = constraints.maxHeight > 100 ? 3 : 2;
 
                 return Padding(
-                  padding: const EdgeInsets.symmetric(
+                  padding: const .symmetric(
                     horizontal: 2,
                     vertical: 2,
                   ),
@@ -168,7 +168,7 @@ class CourseTableUnscheduledCell extends StatelessWidget {
         borderRadius: .circular(12),
         side: BorderSide(color: theme.colorScheme.outlineVariant),
       ),
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: .antiAlias,
       child: InkWell(
         borderRadius: .circular(12),
         onTap: onTap,

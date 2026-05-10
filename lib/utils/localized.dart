@@ -5,7 +5,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 /// NTUT services return Chinese (always) and English (sometimes). For Chinese
 /// locales, prefers [zh]; all other locales prefer [en], falling back to [zh].
 String localized(String? zh, String? en) {
-  if (LocaleSettings.currentLocale == AppLocale.zhTw) {
+  if (LocaleSettings.currentLocale == .zhTw) {
     return zh ?? en ?? '';
   }
   return en ?? zh ?? '';

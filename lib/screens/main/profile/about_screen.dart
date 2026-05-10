@@ -51,7 +51,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                 ? t.profile.dangerZone.barOpen
                 : t.profile.dangerZone.barClosed,
           ),
-          behavior: SnackBarBehavior.floating,
+          behavior: .floating,
         ),
       );
     }
@@ -71,7 +71,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
         child: CustomScrollView(
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: const .all(16),
               sliver: SliverToBoxAdapter(
                 child: Column(
                   spacing: 16,
@@ -91,7 +91,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                         Text(
                           t.general.appTitle,
                           style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: .bold,
                           ),
                         ),
                         Text(
@@ -107,7 +107,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
 
                     // Description
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const .symmetric(horizontal: 16),
                       child: Text(
                         t.about.description,
                         textAlign: .justify,
@@ -124,7 +124,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                           title: 'GitHub',
                           description: t.about.viewSource,
                           onTap: () => launchUrl(
-                            Uri.parse('https://github.com/NTUT-NPC/tattoo'),
+                            .parse('https://github.com/NTUT-NPC/tattoo'),
                           ),
                         ),
                         OptionEntryTile.icon(
@@ -132,7 +132,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                           title: 'Crowdin',
                           description: t.about.helpTranslate,
                           onTap: () => launchUrl(
-                            Uri.parse('https://translate.ntut.club'),
+                            .parse('https://translate.ntut.club'),
                           ),
                         ),
                         OptionEntryTile.icon(
@@ -140,7 +140,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                           title: t.about.privacyPolicy,
                           description: t.about.viewPrivacyPolicy,
                           onTap: () => launchUrl(
-                            Uri.parse(t.about.privacyPolicyUrl),
+                            .parse(t.about.privacyPolicyUrl),
                           ),
                         ),
                       ],
@@ -157,7 +157,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                                 ...contributors.map(
                                   (contributor) => OptionEntryTile(
                                     leading: ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: .circular(12),
                                       child: Image.network(
                                         contributor.avatarUrl,
                                         width: 24,
@@ -178,17 +178,16 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                                     ),
                                     title: contributor.login,
                                     onTap: () => launchUrl(
-                                      Uri.parse(contributor.htmlUrl),
+                                      .parse(contributor.htmlUrl),
                                     ),
                                   ),
                                 ),
                                 OptionEntryTile.svg(
                                   svgIconAsset: 'assets/npc_logo.svg',
                                   title: t.profile.options.npcClub,
-                                  actionIcon:
-                                      OptionEntryTileActionIcon.exitToApp,
+                                  actionIcon: .exitToApp,
                                   onTap: () =>
-                                      launchUrl(Uri.parse('https://ntut.club')),
+                                      launchUrl(.parse('https://ntut.club')),
                                 ),
                               ],
                             ),
@@ -199,7 +198,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                           Skeletonizer(
                             child: Column(
                               spacing: 8,
-                              children: List.generate(
+                              children: .generate(
                                 3,
                                 (index) => const OptionEntryTile.icon(
                                   icon: Icons.person,
@@ -217,8 +216,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                           OptionEntryTile.svg(
                             svgIconAsset: 'assets/npc_logo.svg',
                             title: t.profile.options.npcClub,
-                            onTap: () =>
-                                launchUrl(Uri.parse('https://ntut.club')),
+                            onTap: () => launchUrl(.parse('https://ntut.club')),
                           ),
                         ],
                       ),
@@ -233,7 +231,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                         height: 1.6,
                         color: Colors.grey[600],
                       ),
-                      textAlign: TextAlign.center,
+                      textAlign: .center,
                     ),
                   ],
                 ),

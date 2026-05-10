@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/models/user.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 
@@ -26,7 +25,7 @@ const _placeholderSemester = UserRegistration(
   year: 199,
   term: 6,
   className: '載入一申',
-  enrollmentStatus: EnrollmentStatus.learning,
+  enrollmentStatus: .learning,
 );
 
 // Configs for profile card styling
@@ -50,7 +49,7 @@ class ProfileCard extends ConsumerWidget {
 
     return MediaQuery(
       // no text scaling to prevent card style from breaking
-      data: mediaQuery.copyWith(textScaler: TextScaler.noScaling),
+      data: mediaQuery.copyWith(textScaler: .noScaling),
 
       child: switch ((profileAsync, registrationAsync)) {
         // NOT_LOGIN state: not logged in
@@ -126,7 +125,7 @@ class ProfileContent extends StatelessWidget {
               Positioned.fill(
                 child: SvgPicture.asset(
                   'assets/profile_card_background.svg',
-                  fit: BoxFit.cover,
+                  fit: .cover,
                 ),
               ),
 
@@ -137,11 +136,11 @@ class ProfileContent extends StatelessWidget {
                 child: Text(
                   registration?.enrollmentStatus?.toLabel() ??
                       t.general.student,
-                  textAlign: TextAlign.left,
+                  textAlign: .left,
                   style: textTheme.bodyMedium?.copyWith(
                     color: Color(0xFF3B3B3B),
                     fontSize: height * 0.07,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: .w600,
                   ),
                 ),
               ),
@@ -156,13 +155,13 @@ class ProfileContent extends StatelessWidget {
                       textTheme.titleMedium?.copyWith(
                         color: Colors.white,
                         fontSize: height * 0.065,
-                        fontWeight: FontWeight.w400,
+                        fontWeight: .w400,
                         height: 1.1,
                       ) ??
                       const TextStyle(color: Colors.white),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: .start,
+                    mainAxisSize: .min,
                     spacing: height * 0.01,
                     children: [
                       Transform.translate(
@@ -173,11 +172,11 @@ class ProfileContent extends StatelessWidget {
                               ? profile.nameZh
                               : t.general.unknown,
                           maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          overflow: .ellipsis,
                           style: textTheme.titleMedium?.copyWith(
                             color: Colors.white,
                             fontSize: height * 0.11,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: .w700,
                             letterSpacing: 4,
                             height: 1.6,
                           ),
@@ -186,19 +185,19 @@ class ProfileContent extends StatelessWidget {
                       Text(
                         profile.departmentZh ?? '',
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        overflow: .ellipsis,
                       ),
                       Text(
                         profile.studentId,
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        overflow: .ellipsis,
                       ),
                       Text(
                         registration != null
                             ? '${registration!.year}-${registration!.term} ${registration!.className ?? ''}'
                             : '',
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        overflow: .ellipsis,
                       ),
                     ],
                   ),
@@ -214,18 +213,18 @@ class ProfileContent extends StatelessWidget {
                 child: Skeleton.leaf(
                   child: DecoratedBox(
                     decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
+                      shape: .circle,
                       color: Color(0xFFB3B3B5),
                     ),
                     child: ClipOval(
                       child: switch (avatarFile) {
-                        final file? => Image.file(file, fit: BoxFit.cover),
+                        final file? => Image.file(file, fit: .cover),
                         null => Center(
                           child: Text(
                             avatarInitial,
                             style: TextStyle(
                               color: const Color(0xFF808080),
-                              fontWeight: FontWeight.w700,
+                              fontWeight: .w700,
                               fontSize: avatarSize * 0.36,
                             ),
                           ),

@@ -106,7 +106,7 @@ class CourseTableGrid extends StatelessWidget {
   ).toDouble();
 
   double _periodHeight(Period period) => switch (period) {
-    Period.nPeriod => _periodNoonHeight,
+    .nPeriod => _periodNoonHeight,
     _ => _periodRowHeight,
   };
 
@@ -138,7 +138,7 @@ class CourseTableGrid extends StatelessWidget {
     var totalHeight = 0.0;
 
     for (final period in visiblePeriods.skip(startIndex)) {
-      if (period == Period.nPeriod && includeSyntheticNoonGap) {
+      if (period == .nPeriod && includeSyntheticNoonGap) {
         totalHeight += _periodNoonHeight;
         includeSyntheticNoonGap = false;
         continue;
@@ -236,7 +236,7 @@ class CourseTableGrid extends StatelessWidget {
         .toList(growable: false);
     final defaultPeriods = Period.values
         .where(
-          (period) => period.isAM || period == Period.nPeriod || period.isPM,
+          (period) => period.isAM || period == .nPeriod || period.isPM,
         )
         .toList(growable: false);
 
@@ -283,23 +283,23 @@ class CourseTableGrid extends StatelessWidget {
         addPeriods(Period.values.where((period) => period.isAM));
         break;
       case (false, true, false):
-        addPeriod(Period.nPeriod);
+        addPeriod(.nPeriod);
         break;
       case (false, false, true):
         addPeriods(Period.values.where((period) => period.isPM));
         break;
       case (true, true, false):
         addPeriods(Period.values.where((period) => period.isAM));
-        addPeriod(Period.nPeriod);
+        addPeriod(.nPeriod);
         break;
       case (false, true, true):
-        addPeriod(Period.nPeriod);
+        addPeriod(.nPeriod);
         addPeriods(Period.values.where((period) => period.isPM));
         break;
       case (true, false, true):
       case (true, true, true):
         addPeriods(Period.values.where((period) => period.isAM));
-        addPeriod(Period.nPeriod);
+        addPeriod(.nPeriod);
         addPeriods(Period.values.where((period) => period.isPM));
         break;
     }
