@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:intl/intl.dart';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:intl/intl.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';

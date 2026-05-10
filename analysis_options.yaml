@@ -5,3 +5,10 @@ plugins:
 
 formatter:
   trailing_commas: preserve
+
+linter:
+  rules:
+    - always_use_package_imports
+    - combinators_ordering
+    - directives_ordering
+    - unnecessary_library_directive

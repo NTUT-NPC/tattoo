@@ -7,11 +7,11 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/classroom.dart';
 import 'package:tattoo/models/course.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/course/course_service.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/utils/localized.dart';
 
 /// Data for a single cell in the course table grid.

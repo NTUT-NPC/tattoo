@@ -3,12 +3,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tattoo/models/login_exception.dart';
-import 'package:tattoo/utils/launch_url.dart';
+import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/components/notices.dart';
+import 'package:tattoo/utils/launch_url.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
