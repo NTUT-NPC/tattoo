@@ -7,8 +7,8 @@ class WebviewSheet extends StatefulWidget {
 
   final Uri url;
 
-  static void show(BuildContext context, Uri url) {
-    Navigator.of(context).push(
+  static Future<T?> show<T>(BuildContext context, Uri url) {
+    return Navigator.of(context).push<T>(
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (context) => WebviewSheet(url: url),
@@ -68,41 +68,53 @@ class _WebviewSheetState extends State<WebviewSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Top bar
-            SizedBox(
-              height: 48,
-              child: Stack(
-                children: [
-                  if (_progress < 1.0)
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: LinearProgressIndicator(
-                        value: _progress,
-                        minHeight: 2,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final canGoBack = await _controller.canGoBack();
+        if (canGoBack) {
+          await _controller.goBack();
+        } else if (context.mounted) {
+          Navigator.of(context).pop(result);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Top bar
+              SizedBox(
+                height: 48,
+                child: Stack(
+                  children: [
+                    if (_progress < 1.0)
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: LinearProgressIndicator(
+                          value: _progress,
+                          minHeight: 2,
+                        ),
+                      ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(context).pop(),
                       ),
                     ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            // Webview
-            Expanded(
-              child: WebViewWidget(controller: _controller),
-            ),
-          ],
+              // Webview
+              Expanded(
+                child: WebViewWidget(controller: _controller),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -5,7 +5,7 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
 import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
-import 'package:tattoo/screens/welcome/intro_screen.dart';
+
 import 'package:tattoo/screens/welcome/login_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
@@ -13,7 +13,7 @@ final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 abstract class AppRoutes {
   static const home = '/';
-  static const intro = '/intro';
+
   static const login = '/login';
   static const about = '/about';
   static const scanner = '/scanner';
@@ -27,7 +27,7 @@ class _SessionRefreshListenable extends ChangeNotifier {
 }
 
 /// Routes that don't require authentication.
-const _publicRoutes = {AppRoutes.intro, AppRoutes.login, AppRoutes.about};
+const _publicRoutes = {AppRoutes.login, AppRoutes.about};
 
 /// Creates a configured [GoRouter] starting at [initialLocation].
 ///
@@ -50,10 +50,6 @@ GoRouter createAppRouter({
     ?firebaseService.analyticsObserver,
   ],
   routes: [
-    GoRoute(
-      path: AppRoutes.intro,
-      builder: (context, state) => const IntroScreen(),
-    ),
     GoRoute(
       path: AppRoutes.login,
       builder: (context, state) => const LoginScreen(),

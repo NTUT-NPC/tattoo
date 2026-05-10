@@ -19,7 +19,7 @@ Future<void> launchUrl(Uri url, {bool inExternalApplication = false}) async {
     return;
   }
   try {
-    await ul.launchUrl(url, mode: ul.LaunchMode.inAppWebView);
+    await ul.launchUrl(url, mode: ul.LaunchMode.inAppBrowserView);
   } on PlatformException {
     await ul.launchUrl(url, mode: ul.LaunchMode.externalApplication);
   }
@@ -33,6 +33,6 @@ Future<void> launchNtutService(
 ) async {
   final url = await authRepository.getSsoUrl(serviceCode);
   if (context.mounted) {
-    WebviewSheet.show(context, url);
+    await WebviewSheet.show(context, url);
   }
 }

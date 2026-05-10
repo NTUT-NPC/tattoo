@@ -1,16 +1,13 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:tattoo/components/notices.dart';
+import 'package:tattoo/components/webview_sheet.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/screens/main/home_screen.dart';
-import 'package:tattoo/utils/launch_url.dart';
+import 'package:tattoo/services/portal/portal_service.dart';
+import 'package:tattoo/utils/http.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -100,6 +97,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
+  Future<void> _showWebview(Uri url) async {
+    await _scannerController.stop();
+    if (!mounted) return;
+    await WebviewSheet.show(context, url);
+    if (mounted) {
+      await _scannerController.start();
+    }
+  }
+
   // Actions
 
   Future<void> _attemptLogin() async {
@@ -123,9 +129,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _setLoading(true);
     FocusScope.of(context).unfocus();
 
+    // Clear immediately after submission to ensure they aren't stored in UI state
+    _usernameController.clear();
+    _passwordController.clear();
+
     try {
-      await ref.read(authRepositoryProvider).login(username, password);
-      if (mounted) context.go(AppRoutes.home);
+      final portal = ref.read(portalServiceProvider);
+      await portal.login(username, password);
+      final url = await portal.getSsoUrl('per_001_oauth');
+
+      if (!mounted) return;
+      await _showWebview(url);
     } on DioException {
       if (mounted) _setError(t.errors.connectionFailed);
     } on LoginException catch (e) {
@@ -155,6 +169,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) {
         _setError(t.login.errors.loginFailed, username: true, password: true);
       }
+    } finally {
+      await cookieJar.deleteAll();
+      if (mounted) _setLoading(false);
     }
   }
 
@@ -219,6 +236,141 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: Padding(
                             padding: const .all(16),
                             child: Column(
+                              mainAxisAlignment: .center,
+                              children: [
+                                Text.rich(
+                                  TextSpan(
+                                    text: t.login.quickLoginTitleLine1,
+                                    children: [
+                                      TextSpan(
+                                        text: t.login.quickLoginTitleLine2,
+                                        style: TextStyle(
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: .w800,
+                                    color: theme.textTheme.bodyLarge?.color,
+                                  ),
+                                  textAlign: .center,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  t.login.quickLoginDescription,
+                                  textAlign: .center,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                const SizedBox(height: 48),
+                                ClipRRect(
+                                  borderRadius: .circular(24),
+                                  child: SizedBox(
+                                    width: 250,
+                                    height: 250,
+                                    child: MobileScanner(
+                                      controller: _scannerController,
+                                      onDetect: (capture) {
+                                        if (_handledScan) return;
+                                        final barcodes = capture.barcodes;
+                                        for (final barcode in barcodes) {
+                                          if (barcode.rawValue != null) {
+                                            final code = barcode.rawValue!
+                                                .trim();
+                                            if (RegExp(
+                                              r'^11[0-5](?:3[0-9]|4[02459]|5[1246789]|6[01568]|7[3489]|8[1-5]|9[189]|A[0458BCGTY]|B[23]|C[057])[A-Z0-9]\d{3}$',
+                                            ).hasMatch(code)) {
+                                              // Student ID scanned
+                                              if (_usernameController.text !=
+                                                  code) {
+                                                setState(() {
+                                                  _usernameController.text =
+                                                      code;
+                                                  _clearErrors();
+                                                });
+                                                _passwordFocusNode
+                                                    .requestFocus();
+                                              }
+                                              _handledScan = true;
+                                              Future.delayed(
+                                                const Duration(seconds: 10),
+                                                () {
+                                                  if (mounted) {
+                                                    _handledScan = false;
+                                                  }
+                                                },
+                                              );
+                                            } else if (code.startsWith(
+                                              'https://ntut.app/login?code=',
+                                            )) {
+                                              // Tattoo App QR login scanned
+                                              final extractedCode = code
+                                                  .substring(
+                                                    'https://ntut.app/login?code='
+                                                        .length,
+                                                  );
+                                              if (RegExp(
+                                                r'^\d+$',
+                                              ).hasMatch(extractedCode)) {
+                                                _handledScan = true;
+                                                final url = Uri.parse(
+                                                  'https://aps-staff.ntut.edu.tw/vote/callback.jsp?oauthServer=http%3A%2F%2Fapp.ntut.edu.tw&code=$extractedCode&redirect_uri=https%3A%2F%2Faps-staff.ntut.edu.tw%2Fvote%2Fcallback.jsp',
+                                                );
+                                                if (mounted) {
+                                                  _showWebview(url).then((_) {
+                                                    if (mounted) {
+                                                      _handledScan = false;
+                                                    }
+                                                  });
+                                                }
+                                              } else {
+                                                _handledScan = true;
+                                                Future.delayed(
+                                                  const Duration(seconds: 10),
+                                                  () {
+                                                    if (mounted) {
+                                                      _handledScan = false;
+                                                    }
+                                                  },
+                                                );
+                                                if (mounted) {
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        t
+                                                            .login
+                                                            .errors
+                                                            .invalidQrCode,
+                                                      ),
+                                                      behavior: .floating,
+                                                    ),
+                                                  );
+                                                }
+                                              }
+                                            }
+                                            break;
+                                          }
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: isWide
+                              ? constraints.maxWidth / 2
+                              : constraints.maxWidth,
+                          child: Padding(
+                            padding: const .all(16),
+                            child: Column(
                               mainAxisSize: .min,
                               spacing: 24,
                               children: [
@@ -252,7 +404,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         decoration: .underline,
                                       ),
                                       recognizer: TapGestureRecognizer()
-                                        ..onTap = () => launchUrl(
+                                        ..onTap = () => _showWebview(
                                           .parse(
                                             'https://nportal.ntut.edu.tw',
                                           ),
@@ -346,157 +498,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                               ),
                                             )
                                           : Text(t.login.loginButton),
-                                    ),
-                                  ),
-                                ),
-
-                                // Privacy notice
-                                ClearNoticeVertical(
-                                  text: t.login.privacyNotice(
-                                    privacyPolicy: (text) => TextSpan(
-                                      text: text,
-                                      style: const TextStyle(
-                                        decoration: .underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () => launchUrl(
-                                          .parse(
-                                            t.about.privacyPolicyUrl,
-                                          ),
-                                        ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: isWide
-                              ? constraints.maxWidth / 2
-                              : constraints.maxWidth,
-                          child: Padding(
-                            padding: const .all(16),
-                            child: Column(
-                              mainAxisAlignment: .center,
-                              children: [
-                                Text.rich(
-                                  TextSpan(
-                                    text: t.login.quickLoginTitleLine1,
-                                    children: [
-                                      TextSpan(
-                                        text: t.login.quickLoginTitleLine2,
-                                        style: TextStyle(
-                                          color: theme.colorScheme.primary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  style: TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: .w800,
-                                    color: theme.textTheme.bodyLarge?.color,
-                                  ),
-                                  textAlign: .center,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  t.login.quickLoginDescription,
-                                  textAlign: .center,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                const SizedBox(height: 48),
-                                ClipRRect(
-                                  borderRadius: .circular(24),
-                                  child: SizedBox(
-                                    width: 250,
-                                    height: 250,
-                                    child: MobileScanner(
-                                      controller: _scannerController,
-                                      onDetect: (capture) {
-                                        if (_handledScan) return;
-                                        final barcodes = capture.barcodes;
-                                        for (final barcode in barcodes) {
-                                          if (barcode.rawValue != null) {
-                                            final code = barcode.rawValue!
-                                                .trim();
-                                            if (RegExp(
-                                              r'^11[0-5](?:3[0-9]|4[02459]|5[1246789]|6[01568]|7[3489]|8[1-5]|9[189]|A[0458BCGTY]|B[23]|C[057])[A-Z0-9]\d{3}$',
-                                            ).hasMatch(code)) {
-                                              // Student ID scanned
-                                              if (_usernameController.text !=
-                                                  code) {
-                                                setState(() {
-                                                  _usernameController.text =
-                                                      code;
-                                                  _clearErrors();
-                                                });
-                                                _passwordFocusNode
-                                                    .requestFocus();
-                                              }
-                                              _handledScan = true;
-                                              Future.delayed(
-                                                const Duration(seconds: 10),
-                                                () {
-                                                  if (mounted) {
-                                                    _handledScan = false;
-                                                  }
-                                                },
-                                              );
-                                            } else if (code.startsWith(
-                                              'https://ntut.app/login?code=',
-                                            )) {
-                                              // Tattoo App QR login scanned
-                                              final extractedCode = code
-                                                  .substring(
-                                                    'https://ntut.app/login?code='
-                                                        .length,
-                                                  );
-                                              if (RegExp(
-                                                r'^\d+$',
-                                              ).hasMatch(extractedCode)) {
-                                                _handledScan = true;
-                                                _scannerController.stop();
-                                                scannedAuthCode = extractedCode;
-                                                ref
-                                                    .read(
-                                                      sessionProvider.notifier,
-                                                    )
-                                                    .create();
-                                                context.go(AppRoutes.home);
-                                              } else {
-                                                _handledScan = true;
-                                                Future.delayed(
-                                                  const Duration(seconds: 10),
-                                                  () {
-                                                    if (mounted) {
-                                                      _handledScan = false;
-                                                    }
-                                                  },
-                                                );
-                                                if (mounted) {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    SnackBar(
-                                                      content: Text(
-                                                        t
-                                                            .login
-                                                            .errors
-                                                            .invalidQrCode,
-                                                      ),
-                                                      behavior: .floating,
-                                                    ),
-                                                  );
-                                                }
-                                              }
-                                            }
-                                            break;
-                                          }
-                                        }
-                                      },
                                     ),
                                   ),
                                 ),

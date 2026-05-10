@@ -109,7 +109,7 @@ Future<void> main() async {
   final database = container.read(databaseProvider);
   final user = await database.select(database.users).getSingleOrNull();
   if (user != null) container.read(sessionProvider.notifier).create();
-  final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
+  final initialLocation = user != null ? AppRoutes.home : AppRoutes.login;
   final router = createAppRouter(
     initialLocation: initialLocation,
     container: container,
