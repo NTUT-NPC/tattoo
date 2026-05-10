@@ -53,6 +53,10 @@ class _WebviewSheetState extends State<WebviewSheet> {
               behavior: .floating,
             ),
           );
+          if (request.message.contains('登入失敗：取得的字串為空白或null') ||
+              request.message.contains('登入失敗：找不到使用者')) {
+            Navigator.of(context).pop();
+          }
         }
       })
       ..loadRequest(widget.url);
