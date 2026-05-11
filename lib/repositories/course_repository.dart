@@ -269,7 +269,9 @@ class CourseRepository {
 
       final semesterRow = await (_database.select(
         _database.semesters,
-      )..where((s) => s.id.equals(semesterId))).getSingle();
+      )..where((s) => s.id.equals(semesterId))).getSingleOrNull();
+      if (semesterRow == null) return;
+
       final age = switch (semesterRow.courseTableFetchedAt) {
         final t? => DateTime.now().difference(t),
         null => ttl,
