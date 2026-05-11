@@ -3,15 +3,18 @@ import 'package:tattoo/database/database.dart';
 
 /// Reusable database operations shared across repositories.
 extension DatabaseActions on AppDatabase {
-  /// Drops and recreates all tables, fully resetting the database.
+  /// Deletes all rows from every table, fully resetting the database.
+  ///
+  /// Uses Drift's row-level deletes (not drop/createAll) so reactive
+  /// `.watch()` streams are notified of the change. Migrator-based drops
+  /// bypass change tracking and would leave watchers serving stale data.
   Future<void> deleteEverything() async {
     await transaction(() async {
-      final m = Migrator(this);
-      final reversed = allSchemaEntities.toList().reversed;
-      for (final entity in reversed) {
-        await m.drop(entity);
+      for (final entity in allSchemaEntities.toList().reversed) {
+        if (entity is TableInfo) {
+          await delete(entity).go();
+        }
       }
-      await m.createAll();
     });
   }
 
