@@ -20,6 +20,13 @@ class MainHomeScreen extends StatelessWidget {
               child: Column(
                 spacing: 8,
                 children: [
+                  OptionEntryTile.svg(
+                    svgIconAsset: "assets/tat_icon.svg",
+                    actionIcon: .exitToApp,
+                    title: '關於 Project Tattoo',
+                    description: '查看更多資訊或邀請你的朋友加入測試計畫。',
+                    onTap: () => launchUrl(.parse('https://ntut.app')),
+                  ),
                   OptionEntryTile.icon(
                     icon: Icons.explore_outlined,
                     actionIcon: .exitToApp,
