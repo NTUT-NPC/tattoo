@@ -51,6 +51,7 @@ nav:
   portal: 傳送門
   calendar: 行事曆
   profile: 我
+  vote: 投票登入
 home:
   projectTattoo:
     title: 關於Project Tattoo
@@ -192,8 +193,6 @@ scanner:
     button: 我知道了
   invalidUrl: 無效的網址
 kioskLogin:
-  title: Kiosk登入碼
-  profileEntry: 產生Kiosk登入碼
   qrCode: Kiosk登入QR code
   refresh: 重新產生
   loadFailed: 無法產生Kiosk登入碼，請稍後再試

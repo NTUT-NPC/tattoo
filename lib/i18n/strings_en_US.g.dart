@@ -138,6 +138,7 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	@override String get portal => 'Portals';
 	@override String get calendar => 'Calendar';
 	@override String get profile => 'Me';
+	@override String get vote => 'Vote Login';
 }
 
 // Path: home
@@ -254,8 +255,6 @@ class _TranslationsKioskLoginEnUs extends TranslationsKioskLoginZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Kiosk Login Code';
-	@override String get profileEntry => 'Generate Kiosk Login Code';
 	@override String get qrCode => 'Kiosk login QR code';
 	@override String get refresh => 'Regenerate';
 	@override String get loadFailed => 'Unable to generate the kiosk login code. Please try again later.';
@@ -617,6 +616,7 @@ extension on TranslationsEnUs {
 			'nav.portal' => 'Portals',
 			'nav.calendar' => 'Calendar',
 			'nav.profile' => 'Me',
+			'nav.vote' => 'Vote Login',
 			'home.projectTattoo.title' => 'About Project Tattoo',
 			'home.projectTattoo.description' => 'Learn more or invite your friends to join the testing program.',
 			'home.projectTattoo.url' => 'https://ntut.app',
@@ -728,8 +728,6 @@ extension on TranslationsEnUs {
 			'scanner.guide.step3' => '3. Click "Scan QR code"',
 			'scanner.guide.button' => 'Got it',
 			'scanner.invalidUrl' => 'Invalid URL',
-			'kioskLogin.title' => 'Kiosk Login Code',
-			'kioskLogin.profileEntry' => 'Generate Kiosk Login Code',
 			'kioskLogin.qrCode' => 'Kiosk login QR code',
 			'kioskLogin.refresh' => 'Regenerate',
 			'kioskLogin.loadFailed' => 'Unable to generate the kiosk login code. Please try again later.',

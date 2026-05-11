@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,14 +54,7 @@ class KioskLoginQrScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.kioskLogin.title),
-        actions: [
-          IconButton(
-            tooltip: t.kioskLogin.refresh,
-            onPressed: () => ref.invalidate(kioskLoginUriProvider),
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
+        title: Text(t.nav.vote),
       ),
       body: SafeArea(
         child: Center(
@@ -69,6 +64,7 @@ class KioskLoginQrScreen extends ConsumerWidget {
               data: (uri) => _KioskLoginQrContent(
                 uri: uri,
                 onCopy: () => _copyUrl(context, uri),
+                onExpired: () => ref.invalidate(kioskLoginUriProvider),
               ),
               loading: () => const CircularProgressIndicator(),
               error: (error, stackTrace) => _KioskLoginQrError(error: error),
@@ -80,14 +76,98 @@ class KioskLoginQrScreen extends ConsumerWidget {
   }
 }
 
-class _KioskLoginQrContent extends StatelessWidget {
+class _KioskLoginQrContent extends StatefulWidget {
   const _KioskLoginQrContent({
     required this.uri,
     required this.onCopy,
+    required this.onExpired,
   });
 
   final Uri uri;
   final VoidCallback onCopy;
+  final VoidCallback onExpired;
+
+  @override
+  State<_KioskLoginQrContent> createState() => _KioskLoginQrContentState();
+}
+
+class _KioskLoginQrContentState extends State<_KioskLoginQrContent> {
+  static const _expiryDuration = Duration(minutes: 2);
+
+  Timer? _timer;
+  Duration _remaining = _expiryDuration;
+
+  @override
+  void initState() {
+    super.initState();
+    _startCountdown(rebuild: false);
+  }
+
+  @override
+  void didUpdateWidget(covariant _KioskLoginQrContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.uri != widget.uri) {
+      _startCountdown();
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startCountdown({bool rebuild = true}) {
+    _timer?.cancel();
+    void resetRemaining() {
+      _remaining = _expiryDuration;
+    }
+
+    if (rebuild) {
+      setState(resetRemaining);
+    } else {
+      resetRemaining();
+    }
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_remaining <= const Duration(seconds: 1)) {
+        _timer?.cancel();
+        if (mounted) {
+          setState(() {
+            _remaining = .zero;
+          });
+          widget.onExpired();
+        }
+        return;
+      }
+
+      if (mounted) {
+        setState(() {
+          _remaining -= const Duration(seconds: 1);
+        });
+      }
+    });
+  }
+
+  String get _remainingLabel {
+    final minutes = _remaining.inMinutes
+        .remainder(60)
+        .toString()
+        .padLeft(
+          2,
+          '0',
+        );
+    final seconds = _remaining.inSeconds
+        .remainder(60)
+        .toString()
+        .padLeft(
+          2,
+          '0',
+        );
+
+    return '$minutes:$seconds';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +193,7 @@ class _KioskLoginQrContent extends StatelessWidget {
             child: Semantics(
               label: t.kioskLogin.qrCode,
               child: QrImageView(
-                data: uri.toString(),
+                data: widget.uri.toString(),
                 version: QrVersions.auto,
                 size: size,
                 backgroundColor: Colors.white,
@@ -121,17 +201,29 @@ class _KioskLoginQrContent extends StatelessWidget {
             ),
           ),
         ),
-        SelectableText(
-          uri.toString(),
-          textAlign: .center,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        FilledButton.icon(
-          onPressed: onCopy,
-          icon: const Icon(Icons.copy),
-          label: Text(t.general.copy),
+        Row(
+          mainAxisSize: .min,
+          spacing: 8,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.timer_outlined, size: 20),
+              onPressed: () {},
+              color: colorScheme.onSurfaceVariant,
+            ),
+            Text(
+              _remainingLabel,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontFeatures: const [FontFeature.tabularFigures()],
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            IconButton(
+              tooltip: t.kioskLogin.refresh,
+              visualDensity: .compact,
+              onPressed: widget.onExpired,
+              icon: const Icon(Icons.refresh, size: 20),
+            ),
+          ],
         ),
       ],
     );

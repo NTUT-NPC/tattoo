@@ -10,7 +10,7 @@ class MainHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
+
     var option = [
       OptionEntryTile.svg(
         svgIconAsset: "assets/tat_icon.svg",
@@ -51,8 +51,8 @@ class MainHomeScreen extends StatelessWidget {
         onTap: () => context.push(AppRoutes.calendar),
       ),
       OptionEntryTile.icon(
-        icon: Icons.qr_code_2_outlined,
-        title: t.kioskLogin.profileEntry,
+        icon: Icons.how_to_vote_outlined,
+        title: t.nav.vote,
         onTap: () => context.push(AppRoutes.kioskLoginQr),
       ),
     ];

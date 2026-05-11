@@ -51,6 +51,7 @@ nav:
   portal: Portals
   calendar: Calendar
   profile: Me
+  vote: Vote Login
 home:
   projectTattoo:
     title: About Project Tattoo
@@ -192,8 +193,6 @@ scanner:
     button: Got it
   invalidUrl: Invalid URL
 kioskLogin:
-  title: Kiosk Login Code
-  profileEntry: Generate Kiosk Login Code
   qrCode: Kiosk login QR code
   refresh: Regenerate
   loadFailed: Unable to generate the kiosk login code. Please try again later.

@@ -199,6 +199,9 @@ class TranslationsNavZhTw {
 
 	/// zh-TW: '我'
 	String get profile => '我';
+
+	/// zh-TW: '投票登入'
+	String get vote => '投票登入';
 }
 
 // Path: home
@@ -364,12 +367,6 @@ class TranslationsKioskLoginZhTw {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-
-	/// zh-TW: 'Kiosk登入碼'
-	String get title => 'Kiosk登入碼';
-
-	/// zh-TW: '產生Kiosk登入碼'
-	String get profileEntry => '產生Kiosk登入碼';
 
 	/// zh-TW: 'Kiosk登入QR code'
 	String get qrCode => 'Kiosk登入QR code';
@@ -927,6 +924,7 @@ extension on Translations {
 			'nav.portal' => '傳送門',
 			'nav.calendar' => '行事曆',
 			'nav.profile' => '我',
+			'nav.vote' => '投票登入',
 			'home.projectTattoo.title' => '關於Project Tattoo',
 			'home.projectTattoo.description' => '查看更多資訊或邀請你的朋友加入測試計畫。',
 			'home.projectTattoo.url' => 'https://ntut.app',
@@ -1038,8 +1036,6 @@ extension on Translations {
 			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
 			'scanner.guide.button' => '我知道了',
 			'scanner.invalidUrl' => '無效的網址',
-			'kioskLogin.title' => 'Kiosk登入碼',
-			'kioskLogin.profileEntry' => '產生Kiosk登入碼',
 			'kioskLogin.qrCode' => 'Kiosk登入QR code',
 			'kioskLogin.refresh' => '重新產生',
 			'kioskLogin.loadFailed' => '無法產生Kiosk登入碼，請稍後再試',
