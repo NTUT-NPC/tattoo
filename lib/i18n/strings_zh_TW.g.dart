@@ -88,6 +88,9 @@ class TranslationsGeneralZhTw {
 	/// zh-TW: '已複製'
 	String get copied => '已複製';
 
+	/// zh-TW: '返回'
+	String get back => '返回';
+
 	/// zh-TW: '確定'
 	String get ok => '確定';
 }
@@ -373,6 +376,9 @@ class TranslationsKioskLoginZhTw {
 
 	/// zh-TW: '重新產生'
 	String get refresh => '重新產生';
+
+	/// zh-TW: '請使用投票活動會場的iPad掃描此QR Code。\n為確保您的隱私，請勿將此QR Code分享給他人。'
+	String get notice => '請使用投票活動會場的iPad掃描此QR Code。\n為確保您的隱私，請勿將此QR Code分享給他人。';
 
 	/// zh-TW: '無法產生Kiosk登入碼，請稍後再試'
 	String get loadFailed => '無法產生Kiosk登入碼，請稍後再試';
@@ -889,6 +895,7 @@ extension on Translations {
 			'general.notLoggedIn' => '未登入',
 			'general.copy' => '複製',
 			'general.copied' => '已複製',
+			'general.back' => '返回',
 			'general.ok' => '確定',
 			'errors.occurred' => '發生錯誤',
 			'errors.flutterError' => '發生Flutter錯誤',
@@ -1038,6 +1045,7 @@ extension on Translations {
 			'scanner.invalidUrl' => '無效的網址',
 			'kioskLogin.qrCode' => 'Kiosk登入QR code',
 			'kioskLogin.refresh' => '重新產生',
+			'kioskLogin.notice' => '請使用投票活動會場的iPad掃描此QR Code。\n為確保您的隱私，請勿將此QR Code分享給他人。',
 			'kioskLogin.loadFailed' => '無法產生Kiosk登入碼，請稍後再試',
 			'kioskLogin.invalidSsoUrl' => '登入網址格式不正確，無法產生Kiosk登入碼',
 			'enrollmentStatus.learning' => '在學',

@@ -7,6 +7,7 @@ general:
   notLoggedIn: 未登入
   copy: 複製
   copied: 已複製
+  back: 返回
   ok: 確定
 errors:
   occurred: 發生錯誤
@@ -195,6 +196,7 @@ scanner:
 kioskLogin:
   qrCode: Kiosk登入QR code
   refresh: 重新產生
+  notice: 請使用投票活動會場的iPad掃描此QR Code。\n為確保您的隱私，請勿將此QR Code分享給他人。
   loadFailed: 無法產生Kiosk登入碼，請稍後再試
   invalidSsoUrl: 登入網址格式不正確，無法產生Kiosk登入碼
 enrollmentStatus:

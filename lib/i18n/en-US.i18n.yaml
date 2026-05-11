@@ -7,6 +7,7 @@ general:
   notLoggedIn: Not logged in
   copy: Copy
   copied: Copied
+  back: Back
   ok: OK
 errors:
   occurred: An error occurred
@@ -195,6 +196,7 @@ scanner:
 kioskLogin:
   qrCode: Kiosk login QR code
   refresh: Regenerate
+  notice: Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.
   loadFailed: Unable to generate the kiosk login code. Please try again later.
   invalidSsoUrl: The login URL is invalid. Unable to generate the kiosk login code.
 enrollmentStatus:

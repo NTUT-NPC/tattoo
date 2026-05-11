@@ -70,6 +70,7 @@ class _TranslationsGeneralEnUs extends TranslationsGeneralZhTw {
 	@override String get notLoggedIn => 'Not logged in';
 	@override String get copy => 'Copy';
 	@override String get copied => 'Copied';
+	@override String get back => 'Back';
 	@override String get ok => 'OK';
 }
 
@@ -257,6 +258,7 @@ class _TranslationsKioskLoginEnUs extends TranslationsKioskLoginZhTw {
 	// Translations
 	@override String get qrCode => 'Kiosk login QR code';
 	@override String get refresh => 'Regenerate';
+	@override String get notice => 'Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.';
 	@override String get loadFailed => 'Unable to generate the kiosk login code. Please try again later.';
 	@override String get invalidSsoUrl => 'The login URL is invalid. Unable to generate the kiosk login code.';
 }
@@ -581,6 +583,7 @@ extension on TranslationsEnUs {
 			'general.notLoggedIn' => 'Not logged in',
 			'general.copy' => 'Copy',
 			'general.copied' => 'Copied',
+			'general.back' => 'Back',
 			'general.ok' => 'OK',
 			'errors.occurred' => 'An error occurred',
 			'errors.flutterError' => 'A Flutter error occurred',
@@ -730,6 +733,7 @@ extension on TranslationsEnUs {
 			'scanner.invalidUrl' => 'Invalid URL',
 			'kioskLogin.qrCode' => 'Kiosk login QR code',
 			'kioskLogin.refresh' => 'Regenerate',
+			'kioskLogin.notice' => 'Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.',
 			'kioskLogin.loadFailed' => 'Unable to generate the kiosk login code. Please try again later.',
 			'kioskLogin.invalidSsoUrl' => 'The login URL is invalid. Unable to generate the kiosk login code.',
 			'enrollmentStatus.learning' => 'Enrolled',

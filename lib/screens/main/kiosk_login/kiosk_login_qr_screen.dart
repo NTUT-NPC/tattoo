@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 
@@ -70,6 +71,13 @@ class KioskLoginQrScreen extends ConsumerWidget {
               error: (error, stackTrace) => _KioskLoginQrError(error: error),
             ),
           ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const .fromLTRB(24, 0, 24, 24),
+        child: FilledButton(
+          onPressed: () => Navigator.of(context).maybePop(),
+          child: Text(t.general.back),
         ),
       ),
     );
@@ -224,6 +232,11 @@ class _KioskLoginQrContentState extends State<_KioskLoginQrContent> {
               icon: const Icon(Icons.refresh, size: 20),
             ),
           ],
+        ),
+        ClearNoticeVertical(
+          text: TextSpan(
+            text: t.kioskLogin.notice,
+          ),
         ),
       ],
     );
