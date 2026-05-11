@@ -5,12 +5,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/screens/main/kiosk_login/kiosk_login_uri.dart';
+
+const _kioskLoginServiceCode = 'per_001_oauth';
+const _kioskLoginHost = 'ntut.app';
+const _kioskLoginPath = '/login';
+
+Uri _buildKioskLoginUri(String authCode) {
+  if (authCode.isEmpty) {
+    throw const FormatException('SSO URL does not contain an auth code');
+  }
+
+  return .https(_kioskLoginHost, _kioskLoginPath, {'code': authCode});
+}
 
 final kioskLoginUriProvider = FutureProvider.autoDispose<Uri>((ref) async {
   final authRepository = ref.read(authRepositoryProvider);
-  final ssoUrl = await authRepository.getSsoUrl(kioskLoginServiceCode);
-  return buildKioskLoginUri(ssoUrl);
+  final ssoUrl = await authRepository.getSsoUrl(_kioskLoginServiceCode);
+  final authCode =
+      ssoUrl.queryParameters['code'] ?? ssoUrl.queryParameters['amp;code'];
+
+  if (authCode case final authCode?) {
+    return _buildKioskLoginUri(authCode);
+  }
+
+  throw const FormatException('SSO URL does not contain an auth code');
 });
 
 class KioskLoginQrScreen extends ConsumerWidget {
