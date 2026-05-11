@@ -36,7 +36,6 @@ runs:
         2. Select "Project Tattoo"
         3. Install or update to the latest build
 
-        > **Note:** Manual build selection is not available in Google Play, so the latest approved build will be installed.
-        > **Note:** It may take ~15 minutes for the build to appear in the Play Store after upload.
+        > **Note:** It may take ~30 minutes for the build to appear in the Play Store after upload.
         EOF
         fi

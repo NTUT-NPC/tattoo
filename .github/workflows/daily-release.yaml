@@ -14,7 +14,7 @@ on:
         required: false
         type: string
       include_public_testers:
-        description: 'Upload to external public testers (TestFlight/Firebase)'
+        description: 'Upload to external public testers (TestFlight)'
         required: false
         type: boolean
         default: false
@@ -153,7 +153,6 @@ jobs:
       PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
       FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
     timeout-minutes: 30
     steps:
@@ -195,16 +194,17 @@ jobs:
           body: |
             ### Android
             You can join the testing program here:
-            [Join Firebase App Distribution](${{ vars.FIREBASE_PUBLIC_LINK }})
 
-            [Install build ${{ needs.prepare.outputs.build_number }} in Firebase App Distribution](${{ steps.build.outputs.testing_uri }})
+            - **Google Play (Recommended):** [Join the testing program](https://play.google.com/apps/testing/club.ntut.tattoo)
+            - **Firebase App Distribution (For Internal Testers):** [Join the program](${{ vars.FIREBASE_PUBLIC_LINK }})
 
-            1. Open the Firebase App Distribution app on your Android device
-            2. Select "Project Tattoo"
-            3. Install or update to the latest build
+            [Install build ${{ needs.prepare.outputs.build_number }} in Firebase](${{ steps.build.outputs.testing_uri }})
 
-            > If you cannot find the new release in Firebase App Distribution, navigate to the home page and back.
-            > Installing the App Distribution app is optional but recommended.
+            > [!NOTE]
+            > We are migrating our daily build distribution to Google Play.
+            > The build will be available on Google Play within 30 minutes after the Google Play review process.
+            > Please use Google Play for the best experience and automatic updates.
+            > Firebase remains available for internal testers.
 
   ios:
     runs-on: macos-26
@@ -270,5 +270,6 @@ jobs:
             2. Select "Project Tattoo"
             3. Install build ${{ needs.prepare.outputs.build_number }}
 
+            > [!TIP]
             > Install TestFlight app from App Store if you don't have it (required iOS 16.0 or later)
-            > TestFlight app is blocked by NTUT Wi-Fi, please use your own mobile data or other networks to install.
+            > TestFlight is unstable on NTUT Wi-Fi. If you encounter issues installing or updating, please switch to mobile data or a different network.
