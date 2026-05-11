@@ -23,6 +23,11 @@ enum ErrorType {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // TODO: Remove orientation restriction after responsive layouts are complete.
+  await SystemChrome.setPreferredOrientations([
+    .portraitUp,
+  ]);
+
   if (useFirebase) {
     try {
       await Firebase.initializeApp(
