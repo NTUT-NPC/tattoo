@@ -10,7 +10,6 @@ class MainHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     var option = [
       OptionEntryTile.svg(
         svgIconAsset: "assets/tat_icon.svg",

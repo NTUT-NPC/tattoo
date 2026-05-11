@@ -12,6 +12,7 @@ import 'package:tattoo/repositories/auth_repository.dart';
 const _kioskLoginServiceCode = 'per_001_oauth';
 const _kioskLoginHost = 'ntut.app';
 const _kioskLoginPath = '/login';
+const _kioskLoginQrExpiryDuration = Duration(minutes: 2);
 
 Uri _buildKioskLoginUri(String authCode) {
   if (authCode.isEmpty) {
@@ -67,7 +68,7 @@ class KioskLoginQrScreen extends ConsumerWidget {
                 onCopy: () => _copyUrl(context, uri),
                 onExpired: () => ref.invalidate(kioskLoginUriProvider),
               ),
-              loading: () => const CircularProgressIndicator(),
+              loading: () => const _KioskLoginQrLoading(),
               error: (error, stackTrace) => _KioskLoginQrError(error: error),
             ),
           ),
@@ -100,10 +101,8 @@ class _KioskLoginQrContent extends StatefulWidget {
 }
 
 class _KioskLoginQrContentState extends State<_KioskLoginQrContent> {
-  static const _expiryDuration = Duration(minutes: 2);
-
   Timer? _timer;
-  Duration _remaining = _expiryDuration;
+  Duration _remaining = _kioskLoginQrExpiryDuration;
 
   @override
   void initState() {
@@ -129,7 +128,7 @@ class _KioskLoginQrContentState extends State<_KioskLoginQrContent> {
   void _startCountdown({bool rebuild = true}) {
     _timer?.cancel();
     void resetRemaining() {
-      _remaining = _expiryDuration;
+      _remaining = _kioskLoginQrExpiryDuration;
     }
 
     if (rebuild) {
@@ -159,88 +158,172 @@ class _KioskLoginQrContentState extends State<_KioskLoginQrContent> {
   }
 
   String get _remainingLabel {
-    final minutes = _remaining.inMinutes
-        .remainder(60)
-        .toString()
-        .padLeft(
-          2,
-          '0',
-        );
-    final seconds = _remaining.inSeconds
-        .remainder(60)
-        .toString()
-        .padLeft(
-          2,
-          '0',
-        );
-
-    return '$minutes:$seconds';
+    return _formatRemaining(_remaining);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final size = (MediaQuery.sizeOf(context).shortestSide - 96).clamp(
-      80.0,
-      320.0,
-    );
+    final size = _qrSize(context);
 
     return Column(
       mainAxisSize: .min,
       spacing: 16,
       children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: .circular(8),
-            border: .all(color: colorScheme.outlineVariant),
+        _KioskLoginQrContainer(
+          child: Semantics(
+            label: t.kioskLogin.qrCode,
+            child: QrImageView(
+              data: widget.uri.toString(),
+              version: QrVersions.auto,
+              size: size,
+              backgroundColor: Colors.white,
+            ),
           ),
-          child: Padding(
-            padding: const .all(16),
-            child: Semantics(
-              label: t.kioskLogin.qrCode,
-              child: QrImageView(
-                data: widget.uri.toString(),
-                version: QrVersions.auto,
-                size: size,
-                backgroundColor: Colors.white,
+        ),
+        _KioskLoginQrStatusRow(
+          remainingLabel: _remainingLabel,
+          onRefresh: widget.onExpired,
+        ),
+        const _KioskLoginQrNotice(),
+      ],
+    );
+  }
+}
+
+class _KioskLoginQrLoading extends StatelessWidget {
+  const _KioskLoginQrLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final size = _qrSize(context);
+
+    return Column(
+      mainAxisSize: .min,
+      spacing: 16,
+      children: [
+        _KioskLoginQrContainer(
+          child: SizedBox.square(
+            dimension: size,
+            child: Center(
+              child: CircularProgressIndicator(
+                color: colorScheme.primary,
               ),
             ),
           ),
         ),
-        Row(
-          mainAxisSize: .min,
-          spacing: 8,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.timer_outlined, size: 20),
-              onPressed: () {},
-              color: colorScheme.onSurfaceVariant,
-            ),
-            Text(
-              _remainingLabel,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontFeatures: const [FontFeature.tabularFigures()],
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            IconButton(
-              tooltip: t.kioskLogin.refresh,
-              visualDensity: .compact,
-              onPressed: widget.onExpired,
-              icon: const Icon(Icons.refresh, size: 20),
-            ),
-          ],
+        _KioskLoginQrStatusRow(
+          remainingLabel: _formatRemaining(_kioskLoginQrExpiryDuration),
+          onRefresh: null,
         ),
-        ClearNoticeVertical(
-          text: TextSpan(
-            text: t.kioskLogin.notice,
+        const _KioskLoginQrNotice(),
+      ],
+    );
+  }
+}
+
+class _KioskLoginQrContainer extends StatelessWidget {
+  const _KioskLoginQrContainer({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: .circular(8),
+        border: .all(color: colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const .all(16),
+        child: child,
+      ),
+    );
+  }
+}
+
+double _qrSize(BuildContext context) {
+  return (MediaQuery.sizeOf(context).shortestSide - 96).clamp(
+    80.0,
+    320.0,
+  );
+}
+
+class _KioskLoginQrStatusRow extends StatelessWidget {
+  const _KioskLoginQrStatusRow({
+    required this.remainingLabel,
+    required this.onRefresh,
+  });
+
+  final String remainingLabel;
+  final VoidCallback? onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Row(
+      mainAxisSize: .min,
+      spacing: 8,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.timer_outlined, size: 20),
+          onPressed: null,
+          color: colorScheme.onSurfaceVariant,
+          disabledColor: colorScheme.onSurfaceVariant,
+        ),
+        Text(
+          remainingLabel,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontFeatures: const [FontFeature.tabularFigures()],
+            color: colorScheme.onSurfaceVariant,
           ),
+        ),
+        IconButton(
+          tooltip: t.kioskLogin.refresh,
+          visualDensity: .compact,
+          onPressed: onRefresh,
+          icon: const Icon(Icons.refresh, size: 20),
         ),
       ],
     );
   }
+}
+
+class _KioskLoginQrNotice extends StatelessWidget {
+  const _KioskLoginQrNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    return ClearNoticeVertical(
+      text: TextSpan(
+        text: t.kioskLogin.notice,
+      ),
+    );
+  }
+}
+
+String _formatRemaining(Duration remaining) {
+  final minutes = remaining.inMinutes
+      .remainder(60)
+      .toString()
+      .padLeft(
+        2,
+        '0',
+      );
+  final seconds = remaining.inSeconds
+      .remainder(60)
+      .toString()
+      .padLeft(
+        2,
+        '0',
+      );
+
+  return '$minutes:$seconds';
 }
 
 class _KioskLoginQrError extends StatelessWidget {
