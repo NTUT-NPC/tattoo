@@ -23,27 +23,25 @@ class MainHomeScreen extends StatelessWidget {
                   OptionEntryTile.svg(
                     svgIconAsset: "assets/tat_icon.svg",
                     actionIcon: .exitToApp,
-                    title: '關於 Project Tattoo',
-                    description: '查看更多資訊或邀請你的朋友加入測試計畫。',
-                    onTap: () => launchUrl(.parse('https://ntut.app')),
+                    title: t.home.projectTattoo.title,
+                    description: t.home.projectTattoo.description,
+                    onTap: () => launchUrl(.parse(t.home.projectTattoo.url)),
                   ),
                   OptionEntryTile.icon(
                     icon: Icons.explore_outlined,
                     actionIcon: .exitToApp,
-                    title: '屬於我們的 TAT 正在打造中',
-                    description: '我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！',
+                    title: t.home.ideation.title,
+                    description: t.home.ideation.description,
                     onTap: () => launchUrl(
-                      .parse(
-                        'https://forms.gle/LdQdMfvAfUYyGE4k8',
-                      ),
+                      .parse(t.home.ideation.url),
                     ),
                   ),
                   OptionEntryTile.svg(
                     svgIconAsset: "assets/npc_logo.svg",
                     actionIcon: .exitToApp,
-                    title: t.profile.options.npcClub,
-                    description: "有任何想法或是想加入開發，隨時歡迎聯絡我們！",
-                    onTap: () => launchUrl(.parse('https://ntut.club')),
+                    title: t.home.npcClub.title,
+                    description: t.home.npcClub.description,
+                    onTap: () => launchUrl(.parse(t.home.npcClub.url)),
                   ),
                   OptionEntryTile.icon(
                     icon: Icons.qr_code_scanner,
