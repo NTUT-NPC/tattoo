@@ -34,19 +34,13 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   }
 
   Future<void> _onDetect(BarcodeCapture capture) async {
-    if (_isProcessing) {
-      return;
-    }
+    if (_isProcessing) return;
 
     final barcodes = capture.barcodes;
-    if (barcodes.isEmpty) {
-      return;
-    }
+    if (barcodes.isEmpty) return;
 
     final String? rawCode = barcodes.first.rawValue;
-    if (rawCode == null) {
-      return;
-    }
+    if (rawCode == null) return;
 
     // Sanitize the code (remove trailing null bytes and common garbage characters like '\x00' and '\uFFFD')
     final code = rawCode.trim().replaceAll('\x00', '').replaceAll('\uFFFD', '');
@@ -55,9 +49,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     }
 
     final uri = Uri.tryParse(code);
-    if (uri == null) {
-      return;
-    }
+    if (uri == null) return;
 
     // Correct iStudy login QR code pattern: https://istudy.ntut.edu.tw/mooc/login.php?spotlight=*
     final isIStudyHost = uri.host == 'istudy.ntut.edu.tw';
@@ -126,9 +118,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         throw _ScannerTypeException(type ?? 'unknown');
       }
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       setState(() {
         _isProcessing = false;
@@ -137,14 +127,10 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
       // Wait a bit before closing
       await Future.delayed(const Duration(seconds: 1));
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       Navigator.of(context).pop();
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       setState(() {
         _isProcessing = false;
