@@ -50,6 +50,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
 	@override late final _TranslationsScannerEnUs scanner = _TranslationsScannerEnUs._(_root);
+	@override late final _TranslationsKioskLoginEnUs kioskLogin = _TranslationsKioskLoginEnUs._(_root);
 	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
 	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
 }
@@ -244,6 +245,21 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 	@override String get howTo => 'Open i.ntut.club on your computer and select QR code login';
 	@override late final _TranslationsScannerGuideEnUs guide = _TranslationsScannerGuideEnUs._(_root);
 	@override String get invalidUrl => 'Invalid URL';
+}
+
+// Path: kioskLogin
+class _TranslationsKioskLoginEnUs extends TranslationsKioskLoginZhTw {
+	_TranslationsKioskLoginEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Kiosk Login Code';
+	@override String get profileEntry => 'Generate Kiosk Login Code';
+	@override String get qrCode => 'Kiosk login QR code';
+	@override String get refresh => 'Regenerate';
+	@override String get loadFailed => 'Unable to generate the kiosk login code. Please try again later.';
+	@override String get invalidSsoUrl => 'The login URL is invalid. Unable to generate the kiosk login code.';
 }
 
 // Path: enrollmentStatus
@@ -712,6 +728,12 @@ extension on TranslationsEnUs {
 			'scanner.guide.step3' => '3. Click "Scan QR code"',
 			'scanner.guide.button' => 'Got it',
 			'scanner.invalidUrl' => 'Invalid URL',
+			'kioskLogin.title' => 'Kiosk Login Code',
+			'kioskLogin.profileEntry' => 'Generate Kiosk Login Code',
+			'kioskLogin.qrCode' => 'Kiosk login QR code',
+			'kioskLogin.refresh' => 'Regenerate',
+			'kioskLogin.loadFailed' => 'Unable to generate the kiosk login code. Please try again later.',
+			'kioskLogin.invalidSsoUrl' => 'The login URL is invalid. Unable to generate the kiosk login code.',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',

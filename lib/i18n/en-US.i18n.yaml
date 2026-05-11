@@ -191,6 +191,13 @@ scanner:
     step3: 3. Click "Scan QR code"
     button: Got it
   invalidUrl: Invalid URL
+kioskLogin:
+  title: Kiosk Login Code
+  profileEntry: Generate Kiosk Login Code
+  qrCode: Kiosk login QR code
+  refresh: Regenerate
+  loadFailed: Unable to generate the kiosk login code. Please try again later.
+  invalidSsoUrl: The login URL is invalid. Unable to generate the kiosk login code.
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence

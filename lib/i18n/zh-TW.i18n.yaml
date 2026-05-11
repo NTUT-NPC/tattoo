@@ -191,6 +191,13 @@ scanner:
     step3: "3. 點擊「QR Code 登入」"
     button: 我知道了
   invalidUrl: 無效的網址
+kioskLogin:
+  title: Kiosk登入碼
+  profileEntry: 產生Kiosk登入碼
+  qrCode: Kiosk登入QR code
+  refresh: 重新產生
+  loadFailed: 無法產生Kiosk登入碼，請稍後再試
+  invalidSsoUrl: 登入網址格式不正確，無法產生Kiosk登入碼
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學

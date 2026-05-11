@@ -51,6 +51,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsScannerZhTw scanner = TranslationsScannerZhTw.internal(_root);
+	late final TranslationsKioskLoginZhTw kioskLogin = TranslationsKioskLoginZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
 }
@@ -354,6 +355,33 @@ class TranslationsScannerZhTw {
 
 	/// zh-TW: '無效的網址'
 	String get invalidUrl => '無效的網址';
+}
+
+// Path: kioskLogin
+class TranslationsKioskLoginZhTw {
+	TranslationsKioskLoginZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: 'Kiosk登入碼'
+	String get title => 'Kiosk登入碼';
+
+	/// zh-TW: '產生Kiosk登入碼'
+	String get profileEntry => '產生Kiosk登入碼';
+
+	/// zh-TW: 'Kiosk登入QR code'
+	String get qrCode => 'Kiosk登入QR code';
+
+	/// zh-TW: '重新產生'
+	String get refresh => '重新產生';
+
+	/// zh-TW: '無法產生Kiosk登入碼，請稍後再試'
+	String get loadFailed => '無法產生Kiosk登入碼，請稍後再試';
+
+	/// zh-TW: '登入網址格式不正確，無法產生Kiosk登入碼'
+	String get invalidSsoUrl => '登入網址格式不正確，無法產生Kiosk登入碼';
 }
 
 // Path: enrollmentStatus
@@ -1010,6 +1038,12 @@ extension on Translations {
 			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
 			'scanner.guide.button' => '我知道了',
 			'scanner.invalidUrl' => '無效的網址',
+			'kioskLogin.title' => 'Kiosk登入碼',
+			'kioskLogin.profileEntry' => '產生Kiosk登入碼',
+			'kioskLogin.qrCode' => 'Kiosk登入QR code',
+			'kioskLogin.refresh' => '重新產生',
+			'kioskLogin.loadFailed' => '無法產生Kiosk登入碼，請稍後再試',
+			'kioskLogin.invalidSsoUrl' => '登入網址格式不正確，無法產生Kiosk登入碼',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
