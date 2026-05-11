@@ -29,8 +29,8 @@ intro:
   developedBy: Developed by NTUT NPC Club\nAll information is for reference only. Please refer to the official university system.
   continue: Continue
 login:
-  welcomeLine1: Welcome to
-  welcomeLine2: Campus Life
+  manualLoginTitleLine1: Manual
+  manualLoginTitleLine2: " Login"
   instruction(rich): "Sign in with your ${portalLink(NTUT Portal)} account credentials."
   studentId: Student ID
   password: Password
@@ -44,6 +44,10 @@ login:
     accountLocked: Account locked due to too many failed attempts. Please try again later.
     passwordExpired: Your password has expired. Please change it on the NTUT portal.
     mobileVerificationRequired: Mobile phone verification is required. Please complete it on the NTUT portal.
+    invalidQrCode: Invalid QR code
+  quickLoginTitleLine1: Quick
+  quickLoginTitleLine2: Login
+  quickLoginDescription: Scan a Tattoo App QR code to log in quickly, or scan your Student ID to auto-fill.
 nav:
   courseTable: Courses
   scores: Scores

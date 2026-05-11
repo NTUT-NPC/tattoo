@@ -29,8 +29,8 @@ intro:
   developedBy: 由北科程式設計研究社開發\n所有資訊僅供參考，請以學校官方系統為準
   continue: 繼續
 login:
-  welcomeLine1: 歡迎加入
-  welcomeLine2: 北科生活
+  manualLoginTitleLine1: 手動
+  manualLoginTitleLine2: 登入
   instruction(rich): "請使用${portalLink(北科校園入口網站)}的帳號密碼登入。"
   studentId: 學號
   password: 密碼
@@ -44,6 +44,10 @@ login:
     accountLocked: 登入失敗次數過多，帳號已被鎖定，請稍後再試
     passwordExpired: 密碼已過期，請至校園入口網站變更密碼
     mobileVerificationRequired: 需要進行手機驗證，請至校園入口網站完成驗證
+    invalidQrCode: 無效的 QR 碼
+  quickLoginTitleLine1: 快速
+  quickLoginTitleLine2: 登入
+  quickLoginDescription: 掃描 Tattoo App 的 QR 碼快速登入，或掃描學生證自動填入帳號。
 nav:
   courseTable: 課表
   scores: 成績
