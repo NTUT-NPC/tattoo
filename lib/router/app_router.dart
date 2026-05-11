@@ -4,6 +4,7 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/screens/main/calendar/calendar_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
+import 'package:tattoo/screens/main/home/home_screen.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
@@ -19,6 +20,7 @@ final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 abstract class AppRoutes {
   static const home = '/';
+  static const courseTable = '/course-table';
   static const score = '/score';
   static const portal = '/portal';
   static const calendar = '/calendar';
@@ -76,6 +78,14 @@ GoRouter createAppRouter({
       path: AppRoutes.scanner,
       builder: (context, state) => const ScannerScreen(),
     ),
+    GoRoute(
+      path: AppRoutes.portal,
+      builder: (context, state) => const PortalScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.calendar,
+      builder: (context, state) => const CalendarScreen(),
+    ),
     StatefulShellRoute(
       builder: (context, state, navigationShell) =>
           HomeScreen(navigationShell: navigationShell),
@@ -91,6 +101,15 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.home,
               pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: MainHomeScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.courseTable,
+              pageBuilder: (context, state) =>
                   const NoTransitionPage(child: CourseTableScreen()),
             ),
           ],
@@ -101,24 +120,6 @@ GoRouter createAppRouter({
               path: AppRoutes.score,
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: ScoreScreen()),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.portal,
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: PortalScreen()),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.calendar,
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: CalendarScreen()),
             ),
           ],
         ),

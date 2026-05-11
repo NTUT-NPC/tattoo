@@ -130,6 +130,7 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get home => 'Home';
 	@override String get courseTable => 'Courses';
 	@override String get scores => 'Scores';
 	@override String get portal => 'Portals';
@@ -545,6 +546,7 @@ extension on TranslationsEnUs {
 			'login.errors.accountLocked' => 'Account locked due to too many failed attempts. Please try again later.',
 			'login.errors.passwordExpired' => 'Your password has expired. Please change it on the NTUT portal.',
 			'login.errors.mobileVerificationRequired' => 'Mobile phone verification is required. Please complete it on the NTUT portal.',
+			'nav.home' => 'Home',
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.portal' => 'Portals',

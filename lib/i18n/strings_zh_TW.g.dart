@@ -180,6 +180,9 @@ class TranslationsNavZhTw {
 
 	// Translations
 
+	/// zh-TW: '首頁'
+	String get home => '首頁';
+
 	/// zh-TW: '課表'
 	String get courseTable => '課表';
 
@@ -823,6 +826,7 @@ extension on Translations {
 			'login.errors.accountLocked' => '登入失敗次數過多，帳號已被鎖定，請稍後再試',
 			'login.errors.passwordExpired' => '密碼已過期，請至校園入口網站變更密碼',
 			'login.errors.mobileVerificationRequired' => '需要進行手機驗證，請至校園入口網站完成驗證',
+			'nav.home' => '首頁',
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.portal' => '傳送門',

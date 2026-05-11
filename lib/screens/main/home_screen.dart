@@ -73,19 +73,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(
         destinations: <NavigationDestination>[
+          NavigationDestination(icon: Icon(Icons.home), label: t.nav.home),
           NavigationDestination(
             icon: Icon(Icons.dashboard),
             label: t.nav.courseTable,
           ),
           NavigationDestination(icon: Icon(Icons.school), label: t.nav.scores),
-          NavigationDestination(
-            icon: Icon(Icons.switch_access_shortcut_outlined),
-            label: t.nav.portal,
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_month),
-            label: t.nav.calendar,
-          ),
           NavigationDestination(
             icon: Icon(Icons.account_circle),
             label: t.nav.profile,

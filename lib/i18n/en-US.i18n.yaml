@@ -45,6 +45,7 @@ login:
     passwordExpired: Your password has expired. Please change it on the NTUT portal.
     mobileVerificationRequired: Mobile phone verification is required. Please complete it on the NTUT portal.
 nav:
+  home: Home
   courseTable: Courses
   scores: Scores
   portal: Portals

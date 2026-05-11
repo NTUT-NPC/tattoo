@@ -45,6 +45,7 @@ login:
     passwordExpired: 密碼已過期，請至校園入口網站變更密碼
     mobileVerificationRequired: 需要進行手機驗證，請至校園入口網站完成驗證
 nav:
+  home: 首頁
   courseTable: 課表
   scores: 成績
   portal: 傳送門
