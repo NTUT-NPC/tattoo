@@ -74,8 +74,10 @@ class KioskLoginQrScreen extends ConsumerWidget {
                         onExpired: () => ref.invalidate(kioskLoginUriProvider),
                       ),
                       loading: () => const _KioskLoginQrLoading(),
-                      error: (error, stackTrace) =>
-                          _KioskLoginQrError(error: error),
+                      error: (error, stackTrace) => _KioskLoginQrError(
+                        error: error,
+                        onRefresh: () => ref.invalidate(kioskLoginUriProvider),
+                      ),
                     ),
                   ),
                 ),
@@ -175,27 +177,20 @@ class _KioskLoginQrContentState extends State<_KioskLoginQrContent> {
   Widget build(BuildContext context) {
     final size = _qrSize(context);
 
-    return Column(
-      mainAxisSize: .min,
-      spacing: 16,
-      children: [
-        _KioskLoginQrContainer(
-          child: Semantics(
-            label: t.kioskLogin.qrCode,
-            child: QrImageView(
-              data: widget.uri.toString(),
-              version: QrVersions.auto,
-              size: size,
-              backgroundColor: Colors.white,
-            ),
+    return _KioskLoginQrLayout(
+      remainingLabel: _remainingLabel,
+      onRefresh: widget.onExpired,
+      child: _KioskLoginQrContainer(
+        child: Semantics(
+          label: t.kioskLogin.qrCode,
+          child: QrImageView(
+            data: widget.uri.toString(),
+            version: QrVersions.auto,
+            size: size,
+            backgroundColor: Colors.white,
           ),
         ),
-        _KioskLoginQrStatusRow(
-          remainingLabel: _remainingLabel,
-          onRefresh: widget.onExpired,
-        ),
-        const _KioskLoginQrNotice(),
-      ],
+      ),
     );
   }
 }
@@ -208,23 +203,44 @@ class _KioskLoginQrLoading extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final size = _qrSize(context);
 
+    return _KioskLoginQrLayout(
+      remainingLabel: _formatRemaining(_kioskLoginQrExpiryDuration),
+      onRefresh: null,
+      child: _KioskLoginQrContainer(
+        child: SizedBox.square(
+          dimension: size,
+          child: Center(
+            child: CircularProgressIndicator(
+              color: colorScheme.primary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _KioskLoginQrLayout extends StatelessWidget {
+  const _KioskLoginQrLayout({
+    required this.child,
+    required this.remainingLabel,
+    required this.onRefresh,
+  });
+
+  final Widget child;
+  final String remainingLabel;
+  final VoidCallback? onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       mainAxisSize: .min,
       spacing: 16,
       children: [
-        _KioskLoginQrContainer(
-          child: SizedBox.square(
-            dimension: size,
-            child: Center(
-              child: CircularProgressIndicator(
-                color: colorScheme.primary,
-              ),
-            ),
-          ),
-        ),
+        child,
         _KioskLoginQrStatusRow(
-          remainingLabel: _formatRemaining(_kioskLoginQrExpiryDuration),
-          onRefresh: null,
+          remainingLabel: remainingLabel,
+          onRefresh: onRefresh,
         ),
         const _KioskLoginQrNotice(),
       ],
@@ -337,9 +353,13 @@ String _formatRemaining(Duration remaining) {
 }
 
 class _KioskLoginQrError extends StatelessWidget {
-  const _KioskLoginQrError({required this.error});
+  const _KioskLoginQrError({
+    required this.error,
+    required this.onRefresh,
+  });
 
   final Object error;
+  final VoidCallback onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -351,21 +371,37 @@ class _KioskLoginQrError extends StatelessWidget {
       _ => t.kioskLogin.loadFailed,
     };
 
-    return Column(
-      mainAxisSize: .min,
-      spacing: 12,
-      children: [
-        Icon(
-          Icons.qr_code_2_outlined,
-          size: 48,
-          color: colorScheme.onSurfaceVariant,
+    return _KioskLoginQrLayout(
+      remainingLabel: _formatRemaining(_kioskLoginQrExpiryDuration),
+      onRefresh: onRefresh,
+      child: _KioskLoginQrContainer(
+        child: SizedBox.square(
+          dimension: _qrSize(context),
+          child: Center(
+            child: Padding(
+              padding: const .all(12),
+              child: Column(
+                mainAxisSize: .min,
+                spacing: 12,
+                children: [
+                  Icon(
+                    Icons.qr_code_2_outlined,
+                    size: 48,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  Text(
+                    message,
+                    textAlign: .center,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
-        Text(
-          message,
-          textAlign: .center,
-          style: theme.textTheme.bodyLarge,
-        ),
-      ],
+      ),
     );
   }
 }
