@@ -10,7 +10,7 @@ class MainHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var option = [
+    final options = [
       OptionEntryTile.svg(
         svgIconAsset: "assets/tat_icon.svg",
         actionIcon: .exitToApp,
@@ -65,7 +65,7 @@ class MainHomeScreen extends StatelessWidget {
             sliver: SliverToBoxAdapter(
               child: Column(
                 spacing: 8,
-                children: option,
+                children: options,
               ),
             ),
           ),
