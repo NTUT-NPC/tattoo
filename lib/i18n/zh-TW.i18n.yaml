@@ -45,11 +45,25 @@ login:
     passwordExpired: 密碼已過期，請至校園入口網站變更密碼
     mobileVerificationRequired: 需要進行手機驗證，請至校園入口網站完成驗證
 nav:
+  home: 首頁
   courseTable: 課表
   scores: 成績
   portal: 傳送門
   calendar: 行事曆
   profile: 我
+home:
+  projectTattoo:
+    title: 關於Project Tattoo
+    description: 查看更多資訊或邀請你的朋友加入測試計畫。
+    url: https://ntut.app
+  ideation:
+    title: 屬於我們的TAT正在打造中
+    description: 我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！
+    url: https://forms.gle/LdQdMfvAfUYyGE4k8
+  npcClub:
+    title: 北科程式設計研究社
+    description: 有任何想法或是想加入開發，隨時歡迎聯絡我們！
+    url: https://ntut.club
 score:
   loadFailed: 成績載入失敗
   refreshFailed: 成績更新失敗

@@ -44,6 +44,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsIntroEnUs intro = _TranslationsIntroEnUs._(_root);
 	@override late final _TranslationsLoginEnUs login = _TranslationsLoginEnUs._(_root);
 	@override late final _TranslationsNavEnUs nav = _TranslationsNavEnUs._(_root);
+	@override late final _TranslationsHomeEnUs home = _TranslationsHomeEnUs._(_root);
 	@override late final _TranslationsScoreEnUs score = _TranslationsScoreEnUs._(_root);
 	@override late final _TranslationsCalendarEnUs calendar = _TranslationsCalendarEnUs._(_root);
 	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
@@ -130,11 +131,24 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get home => 'Home';
 	@override String get courseTable => 'Courses';
 	@override String get scores => 'Scores';
 	@override String get portal => 'Portals';
 	@override String get calendar => 'Calendar';
 	@override String get profile => 'Me';
+}
+
+// Path: home
+class _TranslationsHomeEnUs extends TranslationsHomeZhTw {
+	_TranslationsHomeEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsHomeProjectTattooEnUs projectTattoo = _TranslationsHomeProjectTattooEnUs._(_root);
+	@override late final _TranslationsHomeIdeationEnUs ideation = _TranslationsHomeIdeationEnUs._(_root);
+	@override late final _TranslationsHomeNpcClubEnUs npcClub = _TranslationsHomeNpcClubEnUs._(_root);
 }
 
 // Path: score
@@ -288,6 +302,42 @@ class _TranslationsLoginErrorsEnUs extends TranslationsLoginErrorsZhTw {
 	@override String get accountLocked => 'Account locked due to too many failed attempts. Please try again later.';
 	@override String get passwordExpired => 'Your password has expired. Please change it on the NTUT portal.';
 	@override String get mobileVerificationRequired => 'Mobile phone verification is required. Please complete it on the NTUT portal.';
+}
+
+// Path: home.projectTattoo
+class _TranslationsHomeProjectTattooEnUs extends TranslationsHomeProjectTattooZhTw {
+	_TranslationsHomeProjectTattooEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'About Project Tattoo';
+	@override String get description => 'Learn more or invite your friends to join the testing program.';
+	@override String get url => 'https://ntut.app';
+}
+
+// Path: home.ideation
+class _TranslationsHomeIdeationEnUs extends TranslationsHomeIdeationZhTw {
+	_TranslationsHomeIdeationEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Our TAT is under construction';
+	@override String get description => 'We\'re collecting ideas for the Home page. Share your proposal with us.';
+	@override String get url => 'https://forms.gle/LdQdMfvAfUYyGE4k8';
+}
+
+// Path: home.npcClub
+class _TranslationsHomeNpcClubEnUs extends TranslationsHomeNpcClubZhTw {
+	_TranslationsHomeNpcClubEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'NTUT Programming Club';
+	@override String get description => 'If you have ideas or want to contribute, feel free to reach out anytime.';
+	@override String get url => 'https://ntut.club';
 }
 
 // Path: score.summary
@@ -545,11 +595,21 @@ extension on TranslationsEnUs {
 			'login.errors.accountLocked' => 'Account locked due to too many failed attempts. Please try again later.',
 			'login.errors.passwordExpired' => 'Your password has expired. Please change it on the NTUT portal.',
 			'login.errors.mobileVerificationRequired' => 'Mobile phone verification is required. Please complete it on the NTUT portal.',
+			'nav.home' => 'Home',
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.portal' => 'Portals',
 			'nav.calendar' => 'Calendar',
 			'nav.profile' => 'Me',
+			'home.projectTattoo.title' => 'About Project Tattoo',
+			'home.projectTattoo.description' => 'Learn more or invite your friends to join the testing program.',
+			'home.projectTattoo.url' => 'https://ntut.app',
+			'home.ideation.title' => 'Our TAT is under construction',
+			'home.ideation.description' => 'We\'re collecting ideas for the Home page. Share your proposal with us.',
+			'home.ideation.url' => 'https://forms.gle/LdQdMfvAfUYyGE4k8',
+			'home.npcClub.title' => 'NTUT Programming Club',
+			'home.npcClub.description' => 'If you have ideas or want to contribute, feel free to reach out anytime.',
+			'home.npcClub.url' => 'https://ntut.club',
 			'score.loadFailed' => 'Failed to load scores',
 			'score.refreshFailed' => 'Failed to refresh scores',
 			'score.noRecords' => 'No score records found',

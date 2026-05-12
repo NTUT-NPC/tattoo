@@ -45,6 +45,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsIntroZhTw intro = TranslationsIntroZhTw.internal(_root);
 	late final TranslationsLoginZhTw login = TranslationsLoginZhTw.internal(_root);
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
+	late final TranslationsHomeZhTw home = TranslationsHomeZhTw.internal(_root);
 	late final TranslationsScoreZhTw score = TranslationsScoreZhTw.internal(_root);
 	late final TranslationsCalendarZhTw calendar = TranslationsCalendarZhTw.internal(_root);
 	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
@@ -180,6 +181,9 @@ class TranslationsNavZhTw {
 
 	// Translations
 
+	/// zh-TW: '首頁'
+	String get home => '首頁';
+
 	/// zh-TW: '課表'
 	String get courseTable => '課表';
 
@@ -194,6 +198,18 @@ class TranslationsNavZhTw {
 
 	/// zh-TW: '我'
 	String get profile => '我';
+}
+
+// Path: home
+class TranslationsHomeZhTw {
+	TranslationsHomeZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsHomeProjectTattooZhTw projectTattoo = TranslationsHomeProjectTattooZhTw.internal(_root);
+	late final TranslationsHomeIdeationZhTw ideation = TranslationsHomeIdeationZhTw.internal(_root);
+	late final TranslationsHomeNpcClubZhTw npcClub = TranslationsHomeNpcClubZhTw.internal(_root);
 }
 
 // Path: score
@@ -434,6 +450,60 @@ class TranslationsLoginErrorsZhTw {
 
 	/// zh-TW: '需要進行手機驗證，請至校園入口網站完成驗證'
 	String get mobileVerificationRequired => '需要進行手機驗證，請至校園入口網站完成驗證';
+}
+
+// Path: home.projectTattoo
+class TranslationsHomeProjectTattooZhTw {
+	TranslationsHomeProjectTattooZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '關於Project Tattoo'
+	String get title => '關於Project Tattoo';
+
+	/// zh-TW: '查看更多資訊或邀請你的朋友加入測試計畫。'
+	String get description => '查看更多資訊或邀請你的朋友加入測試計畫。';
+
+	/// zh-TW: 'https://ntut.app'
+	String get url => 'https://ntut.app';
+}
+
+// Path: home.ideation
+class TranslationsHomeIdeationZhTw {
+	TranslationsHomeIdeationZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '屬於我們的TAT正在打造中'
+	String get title => '屬於我們的TAT正在打造中';
+
+	/// zh-TW: '我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！'
+	String get description => '我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！';
+
+	/// zh-TW: 'https://forms.gle/LdQdMfvAfUYyGE4k8'
+	String get url => 'https://forms.gle/LdQdMfvAfUYyGE4k8';
+}
+
+// Path: home.npcClub
+class TranslationsHomeNpcClubZhTw {
+	TranslationsHomeNpcClubZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '北科程式設計研究社'
+	String get title => '北科程式設計研究社';
+
+	/// zh-TW: '有任何想法或是想加入開發，隨時歡迎聯絡我們！'
+	String get description => '有任何想法或是想加入開發，隨時歡迎聯絡我們！';
+
+	/// zh-TW: 'https://ntut.club'
+	String get url => 'https://ntut.club';
 }
 
 // Path: score.summary
@@ -823,11 +893,21 @@ extension on Translations {
 			'login.errors.accountLocked' => '登入失敗次數過多，帳號已被鎖定，請稍後再試',
 			'login.errors.passwordExpired' => '密碼已過期，請至校園入口網站變更密碼',
 			'login.errors.mobileVerificationRequired' => '需要進行手機驗證，請至校園入口網站完成驗證',
+			'nav.home' => '首頁',
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.portal' => '傳送門',
 			'nav.calendar' => '行事曆',
 			'nav.profile' => '我',
+			'home.projectTattoo.title' => '關於Project Tattoo',
+			'home.projectTattoo.description' => '查看更多資訊或邀請你的朋友加入測試計畫。',
+			'home.projectTattoo.url' => 'https://ntut.app',
+			'home.ideation.title' => '屬於我們的TAT正在打造中',
+			'home.ideation.description' => '我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！',
+			'home.ideation.url' => 'https://forms.gle/LdQdMfvAfUYyGE4k8',
+			'home.npcClub.title' => '北科程式設計研究社',
+			'home.npcClub.description' => '有任何想法或是想加入開發，隨時歡迎聯絡我們！',
+			'home.npcClub.url' => 'https://ntut.club',
 			'score.loadFailed' => '成績載入失敗',
 			'score.refreshFailed' => '成績更新失敗',
 			'score.noRecords' => '目前沒有任何成績紀錄',
