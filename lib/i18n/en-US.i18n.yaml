@@ -8,6 +8,7 @@ general:
   copy: Copy
   copied: Copied
   ok: OK
+  cancel: Cancel
 errors:
   occurred: An error occurred
   flutterError: A Flutter error occurred
@@ -205,3 +206,14 @@ about:
   privacyPolicyUrl: https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md
   viewPrivacyPolicy: View our privacy policy
   copyright: "© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0"
+featureFlags:
+  title: Feature Flags
+  fetchFlags: Fetch from remote
+  noFlag: No Feature Flags
+  refreshed: Feature flags refreshed
+  reset: Reset to default
+  status:
+    local: Local Default
+    remote: Remote Config
+    localOverride: User Override
+    remoteOverride: Forced (Remote)
