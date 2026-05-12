@@ -39,7 +39,7 @@ class MainHomeScreen extends StatelessWidget {
               OptionEntryTile.icon(
                 icon: Icons.how_to_vote_outlined,
                 title: t.nav.vote,
-                description: '學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！',
+                description: t.home.vote.description,
                 onTap: () => context.push(AppRoutes.kioskLoginQr),
               ),
             ]

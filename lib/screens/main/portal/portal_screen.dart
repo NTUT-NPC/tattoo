@@ -86,6 +86,10 @@ final _portalSections =
         title: '資訊服務',
         services: [
           (
+            title: '網路投票系統',
+            serviceCode: 'per_001_oauth',
+          ),
+          (
             title: '網路與資訊安全管理系統',
             serviceCode: 'ipmac_oauth',
           ),

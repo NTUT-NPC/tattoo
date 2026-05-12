@@ -217,6 +217,7 @@ class TranslationsHomeZhTw {
 	late final TranslationsHomeProjectTattooZhTw projectTattoo = TranslationsHomeProjectTattooZhTw.internal(_root);
 	late final TranslationsHomeIdeationZhTw ideation = TranslationsHomeIdeationZhTw.internal(_root);
 	late final TranslationsHomeNpcClubZhTw npcClub = TranslationsHomeNpcClubZhTw.internal(_root);
+	late final TranslationsHomeVoteZhTw vote = TranslationsHomeVoteZhTw.internal(_root);
 }
 
 // Path: score
@@ -371,8 +372,8 @@ class TranslationsKioskLoginZhTw {
 
 	// Translations
 
-	/// zh-TW: 'Kiosk登入QR code'
-	String get qrCode => 'Kiosk登入QR code';
+	/// zh-TW: '登入QR code'
+	String get qrCode => '登入QR code';
 
 	/// zh-TW: '重新產生'
 	String get refresh => '重新產生';
@@ -380,11 +381,11 @@ class TranslationsKioskLoginZhTw {
 	/// zh-TW: '請使用投票活動會場的iPad掃描此QR Code。\n為確保您的隱私，請勿將此QR Code分享給他人。'
 	String get notice => '請使用投票活動會場的iPad掃描此QR Code。\n為確保您的隱私，請勿將此QR Code分享給他人。';
 
-	/// zh-TW: '無法產生Kiosk登入碼，請稍後再試'
-	String get loadFailed => '無法產生Kiosk登入碼，請稍後再試';
+	/// zh-TW: '無法產生登入QR code，請稍後再試'
+	String get loadFailed => '無法產生登入QR code，請稍後再試';
 
-	/// zh-TW: '登入網址格式不正確，無法產生Kiosk登入碼'
-	String get invalidSsoUrl => '登入網址格式不正確，無法產生Kiosk登入碼';
+	/// zh-TW: '登入網址格式不正確，無法產生登入QR code'
+	String get invalidSsoUrl => '登入網址格式不正確，無法產生登入QR code';
 }
 
 // Path: enrollmentStatus
@@ -535,6 +536,18 @@ class TranslationsHomeNpcClubZhTw {
 
 	/// zh-TW: 'https://ntut.club'
 	String get url => 'https://ntut.club';
+}
+
+// Path: home.vote
+class TranslationsHomeVoteZhTw {
+	TranslationsHomeVoteZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！'
+	String get description => '學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！';
 }
 
 // Path: score.summary
@@ -941,6 +954,7 @@ extension on Translations {
 			'home.npcClub.title' => '北科程式設計研究社',
 			'home.npcClub.description' => '有任何想法或是想加入開發，隨時歡迎聯絡我們！',
 			'home.npcClub.url' => 'https://ntut.club',
+			'home.vote.description' => '學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！',
 			'score.loadFailed' => '成績載入失敗',
 			'score.refreshFailed' => '成績更新失敗',
 			'score.noRecords' => '目前沒有任何成績紀錄',
@@ -1043,11 +1057,11 @@ extension on Translations {
 			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
 			'scanner.guide.button' => '我知道了',
 			'scanner.invalidUrl' => '無效的網址',
-			'kioskLogin.qrCode' => 'Kiosk登入QR code',
+			'kioskLogin.qrCode' => '登入QR code',
 			'kioskLogin.refresh' => '重新產生',
 			'kioskLogin.notice' => '請使用投票活動會場的iPad掃描此QR Code。\n為確保您的隱私，請勿將此QR Code分享給他人。',
-			'kioskLogin.loadFailed' => '無法產生Kiosk登入碼，請稍後再試',
-			'kioskLogin.invalidSsoUrl' => '登入網址格式不正確，無法產生Kiosk登入碼',
+			'kioskLogin.loadFailed' => '無法產生登入QR code，請稍後再試',
+			'kioskLogin.invalidSsoUrl' => '登入網址格式不正確，無法產生登入QR code',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',

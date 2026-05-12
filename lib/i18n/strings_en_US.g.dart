@@ -152,6 +152,7 @@ class _TranslationsHomeEnUs extends TranslationsHomeZhTw {
 	@override late final _TranslationsHomeProjectTattooEnUs projectTattoo = _TranslationsHomeProjectTattooEnUs._(_root);
 	@override late final _TranslationsHomeIdeationEnUs ideation = _TranslationsHomeIdeationEnUs._(_root);
 	@override late final _TranslationsHomeNpcClubEnUs npcClub = _TranslationsHomeNpcClubEnUs._(_root);
+	@override late final _TranslationsHomeVoteEnUs vote = _TranslationsHomeVoteEnUs._(_root);
 }
 
 // Path: score
@@ -256,11 +257,11 @@ class _TranslationsKioskLoginEnUs extends TranslationsKioskLoginZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get qrCode => 'Kiosk login QR code';
+	@override String get qrCode => 'login QR code';
 	@override String get refresh => 'Regenerate';
 	@override String get notice => 'Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.';
-	@override String get loadFailed => 'Unable to generate the kiosk login code. Please try again later.';
-	@override String get invalidSsoUrl => 'The login URL is invalid. Unable to generate the kiosk login code.';
+	@override String get loadFailed => 'Unable to generate thed login code. Please try again later.';
+	@override String get invalidSsoUrl => 'The login URL is invalid. Unable to generate the login code.';
 }
 
 // Path: enrollmentStatus
@@ -355,6 +356,16 @@ class _TranslationsHomeNpcClubEnUs extends TranslationsHomeNpcClubZhTw {
 	@override String get title => 'NTUT Programming Club';
 	@override String get description => 'If you have ideas or want to contribute, feel free to reach out anytime.';
 	@override String get url => 'https://ntut.club';
+}
+
+// Path: home.vote
+class _TranslationsHomeVoteEnUs extends TranslationsHomeVoteZhTw {
+	_TranslationsHomeVoteEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => 'Student four-in-one democratic election voting is open. Come vote at First Auditorium before 4:00 PM on 5/15.';
 }
 
 // Path: score.summary
@@ -629,6 +640,7 @@ extension on TranslationsEnUs {
 			'home.npcClub.title' => 'NTUT Programming Club',
 			'home.npcClub.description' => 'If you have ideas or want to contribute, feel free to reach out anytime.',
 			'home.npcClub.url' => 'https://ntut.club',
+			'home.vote.description' => 'Student four-in-one democratic election voting is open. Come vote at First Auditorium before 4:00 PM on 5/15.',
 			'score.loadFailed' => 'Failed to load scores',
 			'score.refreshFailed' => 'Failed to refresh scores',
 			'score.noRecords' => 'No score records found',
@@ -731,11 +743,11 @@ extension on TranslationsEnUs {
 			'scanner.guide.step3' => '3. Click "Scan QR code"',
 			'scanner.guide.button' => 'Got it',
 			'scanner.invalidUrl' => 'Invalid URL',
-			'kioskLogin.qrCode' => 'Kiosk login QR code',
+			'kioskLogin.qrCode' => 'login QR code',
 			'kioskLogin.refresh' => 'Regenerate',
 			'kioskLogin.notice' => 'Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.',
-			'kioskLogin.loadFailed' => 'Unable to generate the kiosk login code. Please try again later.',
-			'kioskLogin.invalidSsoUrl' => 'The login URL is invalid. Unable to generate the kiosk login code.',
+			'kioskLogin.loadFailed' => 'Unable to generate thed login code. Please try again later.',
+			'kioskLogin.invalidSsoUrl' => 'The login URL is invalid. Unable to generate the login code.',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',
