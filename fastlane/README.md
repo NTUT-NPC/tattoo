@@ -15,14 +15,6 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios device
-
-```sh
-[bundle exec] fastlane ios device
-```
-
-Build, install on connected device, and upload dSYMs
-
 ### ios upload_testflight
 
 ```sh
@@ -36,21 +28,21 @@ Build and upload to TestFlight
 
 ## Android
 
-### android build
+### android build_apk
 
 ```sh
-[bundle exec] fastlane android build
+[bundle exec] fastlane android build_apk
 ```
 
-Build the APK
 
-### android device
+
+### android build_appbundle
 
 ```sh
-[bundle exec] fastlane android device
+[bundle exec] fastlane android build_appbundle
 ```
 
-Build and install on connected Android device
+
 
 ### android preview
 
