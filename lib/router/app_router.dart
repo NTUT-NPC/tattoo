@@ -8,6 +8,7 @@ import 'package:tattoo/screens/main/home/home_screen.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
+import 'package:tattoo/screens/main/profile/feature_flag_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';
@@ -29,6 +30,7 @@ abstract class AppRoutes {
   static const login = '/login';
   static const about = '/about';
   static const scanner = '/scanner';
+  static const featureFlags = '/feature-flags';
 }
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
@@ -39,7 +41,12 @@ class _SessionRefreshListenable extends ChangeNotifier {
 }
 
 /// Routes that don't require authentication.
-const _publicRoutes = {AppRoutes.intro, AppRoutes.login, AppRoutes.about};
+const _publicRoutes = {
+  AppRoutes.intro,
+  AppRoutes.login,
+  AppRoutes.about,
+  AppRoutes.featureFlags,
+};
 
 /// Creates a configured [GoRouter] starting at [initialLocation].
 ///
@@ -77,6 +84,10 @@ GoRouter createAppRouter({
     GoRoute(
       path: AppRoutes.scanner,
       builder: (context, state) => const ScannerScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.featureFlags,
+      builder: (context, state) => const FeatureFlagScreen(),
     ),
     GoRoute(
       path: AppRoutes.portal,
