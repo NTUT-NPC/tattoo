@@ -34,12 +34,16 @@ class MainHomeScreen extends StatelessWidget {
         description: t.home.npcClub.description,
         onTap: () => launchUrl(.parse(t.home.npcClub.url)),
       ),
-      OptionEntryTile.icon(
-        icon: Icons.how_to_vote_outlined,
-        title: t.nav.vote,
-        description: '學生四合一選舉活動，2/15下午四點前來一大川堂投票吧！',
-        onTap: () => context.push(AppRoutes.kioskLoginQr),
-      ),
+      ...(_showVoteEntry()
+          ? <Widget>[
+              OptionEntryTile.icon(
+                icon: Icons.how_to_vote_outlined,
+                title: t.nav.vote,
+                description: '學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！',
+                onTap: () => context.push(AppRoutes.kioskLoginQr),
+              ),
+            ]
+          : <Widget>[]),
       OptionEntryTile.icon(
         icon: Icons.qr_code_scanner,
         title: t.scanner.loginIStudy,
@@ -75,3 +79,8 @@ class MainHomeScreen extends StatelessWidget {
     );
   }
 }
+
+bool _showVoteEntry() => DateTime.now()
+    .toUtc()
+    .add(const Duration(hours: 8))
+    .isBefore(.utc(2026, 5, 16));
