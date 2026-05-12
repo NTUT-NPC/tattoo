@@ -194,11 +194,11 @@ scanner:
     button: Got it
   invalidUrl: Invalid URL
 kioskLogin:
-  qrCode: Kiosk login QR code
+  qrCode: login QR code
   refresh: Regenerate
   notice: Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.
-  loadFailed: Unable to generate the kiosk login code. Please try again later.
-  invalidSsoUrl: The login URL is invalid. Unable to generate the kiosk login code.
+  loadFailed: Unable to generate the login code. Please try again later.
+  invalidSsoUrl: The login URL is invalid. Unable to generate the login code.
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence
