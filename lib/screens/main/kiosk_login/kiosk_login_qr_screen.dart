@@ -68,6 +68,7 @@ class KioskLoginQrScreen extends ConsumerWidget {
                   child: Padding(
                     padding: const .all(24),
                     child: loginUri.when(
+                      skipLoadingOnRefresh: false,
                       data: (uri) => _KioskLoginQrContent(
                         uri: uri,
                         onCopy: () => _copyUrl(context, uri),
