@@ -365,7 +365,7 @@ class _TranslationsHomeVoteEnUs extends TranslationsHomeVoteZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get description => 'Student four-in-one democratic election voting is open. Come vote at First Auditorium before 4:00 PM on 5/15.';
+	@override String get description => 'Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.';
 }
 
 // Path: score.summary
@@ -640,7 +640,7 @@ extension on TranslationsEnUs {
 			'home.npcClub.title' => 'NTUT Programming Club',
 			'home.npcClub.description' => 'If you have ideas or want to contribute, feel free to reach out anytime.',
 			'home.npcClub.url' => 'https://ntut.club',
-			'home.vote.description' => 'Student four-in-one democratic election voting is open. Come vote at First Auditorium before 4:00 PM on 5/15.',
+			'home.vote.description' => 'Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.',
 			'score.loadFailed' => 'Failed to load scores',
 			'score.refreshFailed' => 'Failed to refresh scores',
 			'score.noRecords' => 'No score records found',

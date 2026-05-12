@@ -67,7 +67,7 @@ home:
     description: If you have ideas or want to contribute, feel free to reach out anytime.
     url: https://ntut.club
   vote:
-    description: Student four-in-one democratic election voting is open. Come vote at First Auditorium before 4:00 PM on 5/15.
+    description: Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.
 score:
   loadFailed: Failed to load scores
   refreshFailed: Failed to refresh scores
