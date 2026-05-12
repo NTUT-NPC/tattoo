@@ -1,0 +1,16 @@
+{
+  "enable_dummy_feature": false,
+  "dummy_string_value": "Hello World",
+  "dummy_num_lock": 42,
+  "dummy_num_unlock": 3.14159,
+  "dummy_theme": {
+    "value": "system",
+    "options": [
+      "light",
+      "dark",
+      "system"
+    ]
+  },
+  "dummy_not_in_remote": "Local Default",
+  "_force_override_flags": ""
+}

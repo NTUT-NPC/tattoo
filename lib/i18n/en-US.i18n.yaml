@@ -9,6 +9,7 @@ general:
   copied: Copied
   back: Back
   ok: OK
+  cancel: Cancel
 errors:
   occurred: An error occurred
   flutterError: A Flutter error occurred
@@ -217,3 +218,14 @@ about:
   openSourceLicenses: Open Source Licenses
   viewOpenSourceLicenses: TAT's implementation is made possible by the open source community
   copyright: "© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0"
+featureFlags:
+  title: Feature Flags
+  fetchFlags: Fetch from remote
+  noFlag: No Feature Flags
+  refreshed: Feature flags refreshed
+  reset: Reset to default
+  status:
+    local: Local Default
+    remote: Remote Config
+    localOverride: User Override
+    remoteOverride: Forced (Remote)

@@ -12,6 +12,7 @@ import 'package:tattoo/database/database.dart';
 import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/feature_flag_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/firebase_service.dart';
@@ -46,6 +47,9 @@ Future<void> main() async {
   }
 
   final container = ProviderContainer();
+
+  // Initialize feature flags early
+  await container.read(featureFlagRepositoryProvider).init();
 
   void showErrorDialog(
     Object error, {

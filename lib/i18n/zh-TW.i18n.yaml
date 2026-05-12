@@ -9,6 +9,7 @@ general:
   copied: 已複製
   back: 返回
   ok: 確定
+  cancel: 取消
 errors:
   occurred: 發生錯誤
   flutterError: 發生Flutter錯誤
@@ -217,3 +218,14 @@ about:
   openSourceLicenses: 開放原始碼授權
   viewOpenSourceLicenses: TAT的實作歸功於開放原始碼社群
   copyright: © 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出
+featureFlags:
+  title: 功能開關
+  fetchFlags: 從遠端獲取
+  noFlag: 沒有功能開關
+  refreshed: 功能開關已更新
+  reset: 重設為預設值
+  status:
+    local: 預設值
+    remote: 雲端設定
+    localOverride: 使用者覆寫
+    remoteOverride: 強制覆寫 (遠端)

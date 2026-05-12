@@ -53,6 +53,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsKioskLoginEnUs kioskLogin = _TranslationsKioskLoginEnUs._(_root);
 	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
 	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
+	@override late final _TranslationsFeatureFlagsEnUs featureFlags = _TranslationsFeatureFlagsEnUs._(_root);
 }
 
 // Path: general
@@ -72,6 +73,7 @@ class _TranslationsGeneralEnUs extends TranslationsGeneralZhTw {
 	@override String get copied => 'Copied';
 	@override String get back => 'Back';
 	@override String get ok => 'OK';
+	@override String get cancel => 'Cancel';
 }
 
 // Path: errors
@@ -294,6 +296,21 @@ class _TranslationsAboutEnUs extends TranslationsAboutZhTw {
 	@override String get openSourceLicenses => 'Open Source Licenses';
 	@override String get viewOpenSourceLicenses => 'TAT\'s implementation is made possible by the open source community';
 	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
+}
+
+// Path: featureFlags
+class _TranslationsFeatureFlagsEnUs extends TranslationsFeatureFlagsZhTw {
+	_TranslationsFeatureFlagsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Feature Flags';
+	@override String get fetchFlags => 'Fetch from remote';
+	@override String get noFlag => 'No Feature Flags';
+	@override String get refreshed => 'Feature flags refreshed';
+	@override String get reset => 'Reset to default';
+	@override late final _TranslationsFeatureFlagsStatusEnUs status = _TranslationsFeatureFlagsStatusEnUs._(_root);
 }
 
 // Path: intro.features
@@ -533,6 +550,19 @@ class _TranslationsScannerGuideEnUs extends TranslationsScannerGuideZhTw {
 	@override String get button => 'Got it';
 }
 
+// Path: featureFlags.status
+class _TranslationsFeatureFlagsStatusEnUs extends TranslationsFeatureFlagsStatusZhTw {
+	_TranslationsFeatureFlagsStatusEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get local => 'Local Default';
+	@override String get remote => 'Remote Config';
+	@override String get localOverride => 'User Override';
+	@override String get remoteOverride => 'Forced (Remote)';
+}
+
 // Path: intro.features.courseTable
 class _TranslationsIntroFeaturesCourseTableEnUs extends TranslationsIntroFeaturesCourseTableZhTw {
 	_TranslationsIntroFeaturesCourseTableEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -598,6 +628,7 @@ extension on TranslationsEnUs {
 			'general.copied' => 'Copied',
 			'general.back' => 'Back',
 			'general.ok' => 'OK',
+			'general.cancel' => 'Cancel',
 			'errors.occurred' => 'An error occurred',
 			'errors.flutterError' => 'A Flutter error occurred',
 			'errors.asyncError' => 'An async error occurred',
@@ -764,6 +795,15 @@ extension on TranslationsEnUs {
 			'about.openSourceLicenses' => 'Open Source Licenses',
 			'about.viewOpenSourceLicenses' => 'TAT\'s implementation is made possible by the open source community',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
+			'featureFlags.title' => 'Feature Flags',
+			'featureFlags.fetchFlags' => 'Fetch from remote',
+			'featureFlags.noFlag' => 'No Feature Flags',
+			'featureFlags.refreshed' => 'Feature flags refreshed',
+			'featureFlags.reset' => 'Reset to default',
+			'featureFlags.status.local' => 'Local Default',
+			'featureFlags.status.remote' => 'Remote Config',
+			'featureFlags.status.localOverride' => 'User Override',
+			'featureFlags.status.remoteOverride' => 'Forced (Remote)',
 			_ => null,
 		};
 	}
