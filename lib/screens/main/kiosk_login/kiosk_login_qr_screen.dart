@@ -59,19 +59,29 @@ class KioskLoginQrScreen extends ConsumerWidget {
         title: Text(t.nav.vote),
       ),
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const .all(24),
-            child: loginUri.when(
-              data: (uri) => _KioskLoginQrContent(
-                uri: uri,
-                onCopy: () => _copyUrl(context, uri),
-                onExpired: () => ref.invalidate(kioskLoginUriProvider),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Center(
+                  child: Padding(
+                    padding: const .all(24),
+                    child: loginUri.when(
+                      data: (uri) => _KioskLoginQrContent(
+                        uri: uri,
+                        onCopy: () => _copyUrl(context, uri),
+                        onExpired: () => ref.invalidate(kioskLoginUriProvider),
+                      ),
+                      loading: () => const _KioskLoginQrLoading(),
+                      error: (error, stackTrace) =>
+                          _KioskLoginQrError(error: error),
+                    ),
+                  ),
+                ),
               ),
-              loading: () => const _KioskLoginQrLoading(),
-              error: (error, stackTrace) => _KioskLoginQrError(error: error),
-            ),
-          ),
+            );
+          },
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -246,7 +256,7 @@ class _KioskLoginQrContainer extends StatelessWidget {
 }
 
 double _qrSize(BuildContext context) {
-  return (MediaQuery.sizeOf(context).shortestSide - 96).clamp(
+  return (MediaQuery.sizeOf(context).shortestSide - 128).clamp(
     80.0,
     320.0,
   );
