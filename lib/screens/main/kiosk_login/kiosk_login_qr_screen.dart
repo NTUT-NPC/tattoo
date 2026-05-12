@@ -113,13 +113,16 @@ class _KioskLoginQrContent extends StatefulWidget {
   State<_KioskLoginQrContent> createState() => _KioskLoginQrContentState();
 }
 
-class _KioskLoginQrContentState extends State<_KioskLoginQrContent> {
+class _KioskLoginQrContentState extends State<_KioskLoginQrContent>
+    with WidgetsBindingObserver {
   Timer? _timer;
+  late DateTime _expiresAt;
   Duration _remaining = _kioskLoginQrExpiryDuration;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _startCountdown(rebuild: false);
   }
 
@@ -133,40 +136,50 @@ class _KioskLoginQrContentState extends State<_KioskLoginQrContent> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == .resumed) {
+      _tick();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     super.dispose();
   }
 
   void _startCountdown({bool rebuild = true}) {
     _timer?.cancel();
-    void resetRemaining() {
+    void reset() {
+      _expiresAt = DateTime.now().add(_kioskLoginQrExpiryDuration);
       _remaining = _kioskLoginQrExpiryDuration;
     }
 
     if (rebuild) {
-      setState(resetRemaining);
+      setState(reset);
     } else {
-      resetRemaining();
+      reset();
     }
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_remaining <= const Duration(seconds: 1)) {
-        _timer?.cancel();
-        if (mounted) {
-          setState(() {
-            _remaining = .zero;
-          });
-          widget.onExpired();
-        }
-        return;
-      }
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+  }
 
-      if (mounted) {
-        setState(() {
-          _remaining -= const Duration(seconds: 1);
-        });
-      }
+  void _tick() {
+    if (!mounted) return;
+
+    final remaining = _expiresAt.difference(.now());
+    if (remaining <= .zero) {
+      _timer?.cancel();
+      setState(() {
+        _remaining = .zero;
+      });
+      widget.onExpired();
+      return;
+    }
+
+    setState(() {
+      _remaining = remaining;
     });
   }
 
