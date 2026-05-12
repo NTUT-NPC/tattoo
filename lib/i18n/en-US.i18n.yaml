@@ -7,6 +7,7 @@ general:
   notLoggedIn: Not logged in
   copy: Copy
   copied: Copied
+  back: Back
   ok: OK
 errors:
   occurred: An error occurred
@@ -51,6 +52,7 @@ nav:
   portal: Portals
   calendar: Calendar
   profile: Me
+  vote: Vote Login
 home:
   projectTattoo:
     title: About Project Tattoo
@@ -64,6 +66,8 @@ home:
     title: NTUT Programming Club
     description: If you have ideas or want to contribute, feel free to reach out anytime.
     url: https://ntut.club
+  vote:
+    description: Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.
 score:
   loadFailed: Failed to load scores
   refreshFailed: Failed to refresh scores
@@ -191,6 +195,12 @@ scanner:
     step3: 3. Click "Scan QR code"
     button: Got it
   invalidUrl: Invalid URL
+kioskLogin:
+  qrCode: login QR code
+  refresh: Regenerate
+  notice: Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.
+  loadFailed: Unable to generate the login code. Please try again later.
+  invalidSsoUrl: The login URL is invalid. Unable to generate the login code.
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence

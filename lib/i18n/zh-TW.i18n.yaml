@@ -7,6 +7,7 @@ general:
   notLoggedIn: 未登入
   copy: 複製
   copied: 已複製
+  back: 返回
   ok: 確定
 errors:
   occurred: 發生錯誤
@@ -51,6 +52,7 @@ nav:
   portal: 傳送門
   calendar: 行事曆
   profile: 我
+  vote: 投票登入
 home:
   projectTattoo:
     title: 關於Project Tattoo
@@ -64,6 +66,8 @@ home:
     title: 北科程式設計研究社
     description: 有任何想法或是想加入開發，隨時歡迎聯絡我們！
     url: https://ntut.club
+  vote:
+    description: 學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！
 score:
   loadFailed: 成績載入失敗
   refreshFailed: 成績更新失敗
@@ -191,6 +195,12 @@ scanner:
     step3: "3. 點擊「QR Code 登入」"
     button: 我知道了
   invalidUrl: 無效的網址
+kioskLogin:
+  qrCode: 登入QR code
+  refresh: 重新產生
+  notice: 請使用投票活動會場的iPad掃描此QR Code。\n為確保您的隱私，請勿將此QR Code分享給他人。
+  loadFailed: 無法產生登入QR code，請稍後再試
+  invalidSsoUrl: 登入網址格式不正確，無法產生登入QR code
 enrollmentStatus:
   learning: 在學
   leaveOfAbsence: 休學

@@ -51,6 +51,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsScannerZhTw scanner = TranslationsScannerZhTw.internal(_root);
+	late final TranslationsKioskLoginZhTw kioskLogin = TranslationsKioskLoginZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
 }
@@ -86,6 +87,9 @@ class TranslationsGeneralZhTw {
 
 	/// zh-TW: '已複製'
 	String get copied => '已複製';
+
+	/// zh-TW: '返回'
+	String get back => '返回';
 
 	/// zh-TW: '確定'
 	String get ok => '確定';
@@ -198,6 +202,9 @@ class TranslationsNavZhTw {
 
 	/// zh-TW: '我'
 	String get profile => '我';
+
+	/// zh-TW: '投票登入'
+	String get vote => '投票登入';
 }
 
 // Path: home
@@ -210,6 +217,7 @@ class TranslationsHomeZhTw {
 	late final TranslationsHomeProjectTattooZhTw projectTattoo = TranslationsHomeProjectTattooZhTw.internal(_root);
 	late final TranslationsHomeIdeationZhTw ideation = TranslationsHomeIdeationZhTw.internal(_root);
 	late final TranslationsHomeNpcClubZhTw npcClub = TranslationsHomeNpcClubZhTw.internal(_root);
+	late final TranslationsHomeVoteZhTw vote = TranslationsHomeVoteZhTw.internal(_root);
 }
 
 // Path: score
@@ -354,6 +362,30 @@ class TranslationsScannerZhTw {
 
 	/// zh-TW: '無效的網址'
 	String get invalidUrl => '無效的網址';
+}
+
+// Path: kioskLogin
+class TranslationsKioskLoginZhTw {
+	TranslationsKioskLoginZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '登入QR code'
+	String get qrCode => '登入QR code';
+
+	/// zh-TW: '重新產生'
+	String get refresh => '重新產生';
+
+	/// zh-TW: '請使用投票活動會場的iPad掃描此QR Code。\n為確保您的隱私，請勿將此QR Code分享給他人。'
+	String get notice => '請使用投票活動會場的iPad掃描此QR Code。\n為確保您的隱私，請勿將此QR Code分享給他人。';
+
+	/// zh-TW: '無法產生登入QR code，請稍後再試'
+	String get loadFailed => '無法產生登入QR code，請稍後再試';
+
+	/// zh-TW: '登入網址格式不正確，無法產生登入QR code'
+	String get invalidSsoUrl => '登入網址格式不正確，無法產生登入QR code';
 }
 
 // Path: enrollmentStatus
@@ -504,6 +536,18 @@ class TranslationsHomeNpcClubZhTw {
 
 	/// zh-TW: 'https://ntut.club'
 	String get url => 'https://ntut.club';
+}
+
+// Path: home.vote
+class TranslationsHomeVoteZhTw {
+	TranslationsHomeVoteZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！'
+	String get description => '學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！';
 }
 
 // Path: score.summary
@@ -864,6 +908,7 @@ extension on Translations {
 			'general.notLoggedIn' => '未登入',
 			'general.copy' => '複製',
 			'general.copied' => '已複製',
+			'general.back' => '返回',
 			'general.ok' => '確定',
 			'errors.occurred' => '發生錯誤',
 			'errors.flutterError' => '發生Flutter錯誤',
@@ -899,6 +944,7 @@ extension on Translations {
 			'nav.portal' => '傳送門',
 			'nav.calendar' => '行事曆',
 			'nav.profile' => '我',
+			'nav.vote' => '投票登入',
 			'home.projectTattoo.title' => '關於Project Tattoo',
 			'home.projectTattoo.description' => '查看更多資訊或邀請你的朋友加入測試計畫。',
 			'home.projectTattoo.url' => 'https://ntut.app',
@@ -908,6 +954,7 @@ extension on Translations {
 			'home.npcClub.title' => '北科程式設計研究社',
 			'home.npcClub.description' => '有任何想法或是想加入開發，隨時歡迎聯絡我們！',
 			'home.npcClub.url' => 'https://ntut.club',
+			'home.vote.description' => '學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！',
 			'score.loadFailed' => '成績載入失敗',
 			'score.refreshFailed' => '成績更新失敗',
 			'score.noRecords' => '目前沒有任何成績紀錄',
@@ -1010,6 +1057,11 @@ extension on Translations {
 			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
 			'scanner.guide.button' => '我知道了',
 			'scanner.invalidUrl' => '無效的網址',
+			'kioskLogin.qrCode' => '登入QR code',
+			'kioskLogin.refresh' => '重新產生',
+			'kioskLogin.notice' => '請使用投票活動會場的iPad掃描此QR Code。\n為確保您的隱私，請勿將此QR Code分享給他人。',
+			'kioskLogin.loadFailed' => '無法產生登入QR code，請稍後再試',
+			'kioskLogin.invalidSsoUrl' => '登入網址格式不正確，無法產生登入QR code',
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',

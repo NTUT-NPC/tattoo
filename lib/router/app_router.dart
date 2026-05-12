@@ -6,6 +6,7 @@ import 'package:tattoo/screens/main/calendar/calendar_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/main/home/home_screen.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
+import 'package:tattoo/screens/main/kiosk_login/kiosk_login_qr_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
@@ -29,6 +30,7 @@ abstract class AppRoutes {
   static const login = '/login';
   static const about = '/about';
   static const scanner = '/scanner';
+  static const kioskLoginQr = '/kiosk-login-qr';
 }
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
@@ -85,6 +87,10 @@ GoRouter createAppRouter({
     GoRoute(
       path: AppRoutes.calendar,
       builder: (context, state) => const CalendarScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.kioskLoginQr,
+      builder: (context, state) => const KioskLoginQrScreen(),
     ),
     StatefulShellRoute(
       builder: (context, state, navigationShell) =>
