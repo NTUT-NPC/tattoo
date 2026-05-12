@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
+import 'package:tattoo/components/widget_preview_frame.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'widget_preview_frame.dart';
 
 class SectionHeader extends StatelessWidget {
   const SectionHeader({required this.title, this.color, super.key});
@@ -13,11 +13,11 @@ class SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(top: 8),
+      padding: const .only(top: 8),
       child: Text(
         title,
         style: theme.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.bold,
+          fontWeight: .bold,
           color: color ?? theme.colorScheme.primary,
         ),
       ),

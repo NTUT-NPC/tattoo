@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tattoo/components/widget_preview_frame.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'widget_preview_frame.dart';
 
 /// Built-in trailing icon options for [OptionEntryTile].
 enum OptionEntryTileActionIcon {
@@ -149,7 +149,7 @@ class OptionEntryTile extends StatelessWidget {
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            padding: const .symmetric(horizontal: 12, vertical: 12),
             child: Row(
               spacing: 12,
               children: [
@@ -159,8 +159,8 @@ class OptionEntryTile extends StatelessWidget {
 
                 Expanded(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: .center,
+                    crossAxisAlignment: .start,
                     spacing: 4,
                     children: [
                       Text(
@@ -181,7 +181,7 @@ class OptionEntryTile extends StatelessWidget {
 
                 customActionIcon ??
                     Icon(
-                      actionIcon == OptionEntryTileActionIcon.navigateNext
+                      actionIcon == .navigateNext
                           ? Icons.navigate_next
                           : Icons.exit_to_app,
                       color: colorScheme.outlineVariant,
@@ -202,11 +202,11 @@ class OptionEntryTile extends StatelessWidget {
         dimension: 24,
         child: SvgPicture.asset(
           _svgIconAsset,
-          fit: BoxFit.contain,
+          fit: .contain,
           alignment: Alignment.center,
-          colorFilter: ColorFilter.mode(
+          colorFilter: .mode(
             color ?? colorScheme.primary,
-            BlendMode.srcIn,
+            .srcIn,
           ),
         ),
       );
@@ -224,10 +224,10 @@ class OptionEntryTile extends StatelessWidget {
 Widget optionEntryTileProfileOptionsPreview() {
   return WidgetPreviewFrame(
     child: Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const .all(16),
       child: Column(
         spacing: 8,
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: .min,
         children: [
           OptionEntryTile.icon(
             icon: Icons.image,
@@ -242,7 +242,7 @@ Widget optionEntryTileProfileOptionsPreview() {
           OptionEntryTile.svg(
             svgIconAsset: 'assets/npc_logo.svg',
             title: t.profile.options.npcClub,
-            actionIcon: OptionEntryTileActionIcon.exitToApp,
+            actionIcon: .exitToApp,
             onTap: () {},
           ),
           OptionEntryTile.icon(

@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/notices.dart';
+import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
@@ -30,7 +30,7 @@ class ProfileScreen extends ConsumerWidget {
   Future<XFile?> _pickAvatarImage() {
     // Use OS picker to select a single image without broad media access.
     return _imagePicker.pickImage(
-      source: ImageSource.gallery,
+      source: .gallery,
       requestFullMetadata: false,
     );
   }
@@ -94,17 +94,11 @@ class ProfileScreen extends ConsumerWidget {
     final dummyString =
         ref.watch(dummyStringValueProvider).value ?? 'Hello World';
     final dummyInt = ref.watch(dummyIntValueProvider).value ?? 42;
-    final dummyTheme =
-        ref.watch(dummyThemeProvider).value ?? ThemeOption.system;
+    final dummyTheme = ref.watch(dummyThemeProvider).value ?? .system;
 
     // settings options for the profile tab
     final options = [
       SectionHeader(title: t.profile.sections.accountSettings),
-      OptionEntryTile.icon(
-        icon: Icons.qr_code_scanner,
-        title: t.scanner.loginIStudy,
-        onTap: () => context.push(AppRoutes.scanner),
-      ),
       OptionEntryTile.icon(
         icon: Icons.password,
         title: t.profile.options.changePassword,
@@ -130,7 +124,7 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile.svg(
         svgIconAsset: "assets/npc_logo.svg",
         title: t.profile.options.npcClub,
-        onTap: () => launchUrl(Uri.parse('https://ntut.club')),
+        onTap: () => launchUrl(.parse('https://ntut.club')),
       ),
 
       SectionHeader(title: t.profile.sections.appSettings),
@@ -157,8 +151,8 @@ class ProfileScreen extends ConsumerWidget {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: switch (Theme.of(context).brightness) {
-        Brightness.light => SystemUiOverlayStyle.dark,
-        Brightness.dark => SystemUiOverlayStyle.light,
+        .light => SystemUiOverlayStyle.dark,
+        .dark => SystemUiOverlayStyle.light,
       },
       child: Scaffold(
         body: SafeArea(
@@ -167,7 +161,7 @@ class ProfileScreen extends ConsumerWidget {
             child: CustomScrollView(
               slivers: [
                 SliverPadding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const .all(16),
                   sliver: SliverToBoxAdapter(
                     child: Column(
                       spacing: 16,

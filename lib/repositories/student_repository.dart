@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
@@ -36,6 +38,8 @@ class StudentRepository {
   final FirebaseService _firebaseService;
   final StudentQueryService _studentQueryService;
 
+  Completer<void>? _refreshSemesterRecordsInFlight;
+
   StudentRepository({
     required AppDatabase database,
     required AuthRepository authRepository,
@@ -47,6 +51,50 @@ class StudentRepository {
        _courseRepository = courseRepository,
        _firebaseService = firebaseService,
        _studentQueryService = studentQueryService;
+
+  /// Watches score-available semesters for the authenticated student.
+  ///
+  /// Emits cached data immediately, then triggers a background network fetch
+  /// if data is empty or stale. The stream re-emits automatically when the DB
+  /// is updated.
+  ///
+  /// Network errors during background refresh are absorbed — the stream
+  /// continues showing stale (or empty) data rather than erroring.
+  Stream<List<Semester>> watchScoreSemesters() async* {
+    const ttl = Duration(days: 3);
+
+    final query = _database.select(_database.semesters)
+      ..where((s) => s.inScoreSemesterList.equals(true))
+      ..orderBy([
+        (s) => OrderingTerm.desc(s.year),
+        (s) => OrderingTerm.desc(s.term),
+      ]);
+
+    await for (final semesters in query.watch()) {
+      if (semesters.isEmpty) {
+        try {
+          await refreshSemesterRecords();
+        } catch (_) {
+          // Absorb: yield empty below so UI exits loading state
+        }
+      }
+
+      yield semesters;
+
+      final user = await _database.select(_database.users).getSingleOrNull();
+      final age = switch (user?.scoreDataFetchedAt) {
+        final t? => DateTime.now().difference(t),
+        null => ttl,
+      };
+      if (age >= ttl) {
+        try {
+          await refreshSemesterRecords();
+        } catch (_) {
+          // Absorb: stale data is shown via stream
+        }
+      }
+    }
+  }
 
   /// Watches aggregated academic records grouped by semester.
   ///
@@ -103,7 +151,29 @@ class StudentRepository {
   ///
   /// The [watchSemesterRecords] stream automatically emits the updated value.
   /// Network errors propagate to the caller.
+  ///
+  /// Concurrent calls coalesce — only the first caller triggers the actual
+  /// network fetch; subsequent callers await the same [Completer] and receive
+  /// the same result.
   Future<void> refreshSemesterRecords() async {
+    if (_refreshSemesterRecordsInFlight case final existing?) {
+      return existing.future;
+    }
+
+    final completer = Completer<void>();
+    _refreshSemesterRecordsInFlight = completer;
+    try {
+      await _refreshSemesterRecords();
+      completer.complete();
+    } catch (e, st) {
+      completer.completeError(e, st);
+      rethrow;
+    } finally {
+      _refreshSemesterRecordsInFlight = null;
+    }
+  }
+
+  Future<void> _refreshSemesterRecords() async {
     final userId = (await _database.select(_database.users).getSingle()).id;
     final (semesters, gpas, rankings) = await _authRepository.withAuth(
       () async {
@@ -142,7 +212,11 @@ class StudentRepository {
 
       for (final semester in semesters) {
         if (semester.semester case (year: final year?, term: final term?)) {
-          final semesterRow = await _database.getOrCreateSemester(year, term);
+          final semesterRow = await _database.getOrCreateSemester(
+            year,
+            term,
+            inScoreSemesterList: true,
+          );
           final semesterId = semesterRow.id;
           fetchedSemesterIds.add(semesterId);
           final key = (year, term);
@@ -198,12 +272,28 @@ class StudentRepository {
               continue;
             }
 
-            final offeringId = switch (score.number) {
-              final number? => (await (_database.select(
-                _database.courseOfferings,
-              )..where((o) => o.number.equals(number))).getSingleOrNull())?.id,
-              _ => null,
-            };
+            int? offeringId;
+            if (score.number case final number?) {
+              final existingOffering =
+                  await (_database.select(_database.courseOfferings)..where(
+                        (o) => o.number.equals(number),
+                      ))
+                      .getSingleOrNull();
+              if (existingOffering != null) {
+                offeringId = existingOffering.id;
+              } else if (score.courseNameZh case final nameZh?) {
+                // Skip rather than back-fill from courses.nameZh — that
+                // conflates catalog and timetable. ScoreDetails coalesces
+                // at read time.
+                offeringId = await _database.upsertCourseOffering(
+                  courseCode: score.courseCode,
+                  semesterId: semesterId,
+                  number: number,
+                  nameZh: nameZh,
+                  nameEn: score.courseNameEn,
+                );
+              }
+            }
 
             await _database
                 .into(_database.scores)
@@ -241,6 +331,25 @@ class StudentRepository {
         }
       }
 
+      // Keep membership flag in sync with the latest score semester response.
+      if (fetchedSemesterIds.isEmpty) {
+        await (_database.update(_database.semesters)..where(
+              (s) => s.inScoreSemesterList.equals(true),
+            ))
+            .write(
+              const SemestersCompanion(inScoreSemesterList: Value(false)),
+            );
+      } else {
+        await (_database.update(_database.semesters)..where(
+              (s) =>
+                  s.inScoreSemesterList.equals(true) &
+                  s.id.isNotIn(fetchedSemesterIds),
+            ))
+            .write(
+              const SemestersCompanion(inScoreSemesterList: Value(false)),
+            );
+      }
+
       // Remove scores for semesters no longer in the response
       if (fetchedSemesterIds.isEmpty) {
         await (_database.delete(
@@ -250,7 +359,7 @@ class StudentRepository {
         await (_database.delete(_database.scores)..where(
               (t) =>
                   t.user.equals(userId) &
-                  t.semester.isNotIn(fetchedSemesterIds.toList()),
+                  t.semester.isNotIn(fetchedSemesterIds),
             ))
             .go();
       }

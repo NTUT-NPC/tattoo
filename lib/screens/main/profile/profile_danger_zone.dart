@@ -52,7 +52,7 @@ class ProfileDangerZone extends ConsumerWidget {
   }
 
   void _triggerNonFlutterCrash() {
-    Future.delayed(Duration.zero, () {
+    Future.delayed(.zero, () {
       throw Exception(t.profile.dangerZone.nonFlutterCrashException);
     });
   }

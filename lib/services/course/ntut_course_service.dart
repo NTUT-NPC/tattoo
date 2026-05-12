@@ -447,13 +447,13 @@ class NtutCourseService implements CourseService {
 
   DayOfWeek? _parseDayOfWeek(String code) {
     return switch (code.toLowerCase()) {
-      'sun' => DayOfWeek.sunday,
-      'mon' => DayOfWeek.monday,
-      'tue' => DayOfWeek.tuesday,
-      'wed' => DayOfWeek.wednesday,
-      'thu' => DayOfWeek.thursday,
-      'fri' => DayOfWeek.friday,
-      'sat' => DayOfWeek.saturday,
+      'sun' => .sunday,
+      'mon' => .monday,
+      'tue' => .tuesday,
+      'wed' => .wednesday,
+      'thu' => .thursday,
+      'fri' => .friday,
+      'sat' => .saturday,
       _ => null,
     };
   }

@@ -5,11 +5,11 @@ import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:intl/intl.dart';
 // ignore: implementation_imports
 import 'package:dio/src/transformers/util/consolidate_bytes.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
+import 'package:intl/intl.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
 export 'package:dio/dio.dart';
@@ -81,13 +81,13 @@ class PlainTextTransformer extends BackgroundTransformer {
     ResponseBody responseBody,
   ) async {
     // Return streams and bytes as-is
-    if (options.responseType == ResponseType.stream) {
+    if (options.responseType == .stream) {
       return responseBody;
     }
 
     final responseBytes = await consolidateBytes(responseBody.stream);
 
-    if (options.responseType == ResponseType.bytes) {
+    if (options.responseType == .bytes) {
       return responseBytes;
     }
 

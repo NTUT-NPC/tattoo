@@ -2,8 +2,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tattoo/components/widget_preview_frame.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'widget_preview_frame.dart';
 
 /// Preset styles used by [BackgroundNotice].
 enum NoticeType { warning, error, info }
@@ -47,11 +47,11 @@ class ClearNotice extends StatelessWidget {
     final resolvedColor = color ?? Colors.grey[600];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const .symmetric(horizontal: 16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: .center,
+        mainAxisSize: .min,
+        crossAxisAlignment: .center,
         spacing: 8,
         children: [
           IconTheme(
@@ -61,12 +61,12 @@ class ClearNotice extends StatelessWidget {
           Flexible(
             child: Text(
               text,
-              textAlign: TextAlign.justify,
+              textAlign: .justify,
               style:
                   textStyle?.copyWith(color: resolvedColor) ??
                   TextStyle(color: resolvedColor),
               softWrap: true,
-              overflow: TextOverflow.fade,
+              overflow: .fade,
             ),
           ),
         ],
@@ -156,7 +156,7 @@ class ClearNoticeVertical extends StatelessWidget {
             height: 1.6,
             color: resolvedColor,
           ),
-          textAlign: TextAlign.center,
+          textAlign: .center,
         ),
       ],
     );
@@ -220,7 +220,7 @@ class BackgroundNotice extends StatelessWidget {
     final resolvedTextStyle =
         (theme.textTheme.bodyMedium ?? const TextStyle(fontSize: 12))
             .merge(textStyle)
-            .copyWith(color: resolvedColor, fontWeight: FontWeight.w800);
+            .copyWith(color: resolvedColor, fontWeight: .w800);
     final borderRadius = BorderRadius.circular(14);
 
     return Material(
@@ -232,9 +232,9 @@ class BackgroundNotice extends StatelessWidget {
           color: resolvedColor.withValues(alpha: 0.08),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const .symmetric(horizontal: 12, vertical: 10),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: .center,
             spacing: 10,
             children: [
               IconTheme(
@@ -258,16 +258,16 @@ class BackgroundNotice extends StatelessWidget {
   Color _presetColor(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return switch (noticeType) {
-      NoticeType.warning => colorScheme.tertiary,
-      NoticeType.error => colorScheme.error,
-      NoticeType.info => colorScheme.primary,
+      .warning => colorScheme.tertiary,
+      .error => colorScheme.error,
+      .info => colorScheme.primary,
     };
   }
 
   IconData _presetIcon() => switch (noticeType) {
-    NoticeType.warning => Icons.warning_amber_rounded,
-    NoticeType.error => Icons.error_outline,
-    NoticeType.info => Icons.info_outline,
+    .warning => Icons.warning_amber_rounded,
+    .error => Icons.error_outline,
+    .info => Icons.info_outline,
   };
 }
 
@@ -290,15 +290,15 @@ Widget clearNoticeProfileDataDisclaimerPreview() {
 Widget clearNoticeVerticalIntroDevelopedByPreview() {
   return WidgetPreviewFrame(
     child: Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: .min,
       children: [
         ClearNoticeVertical(
           icon: SvgPicture.asset(
             'assets/npc_horizontal.svg',
             height: 24,
-            colorFilter: ColorFilter.mode(
+            colorFilter: .mode(
               Colors.grey[600]!,
-              BlendMode.srcIn,
+              .srcIn,
             ),
           ),
           text: TextSpan(text: t.intro.developedBy),
@@ -316,15 +316,15 @@ Widget clearNoticeVerticalIntroDevelopedByPreview() {
 Widget clearNoticeVerticalLoginPrivacyPreview() {
   return WidgetPreviewFrame(
     child: Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: .min,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const .symmetric(horizontal: 16),
           child: ClearNoticeVertical(
             text: t.login.privacyNotice(
               privacyPolicy: (text) => TextSpan(
                 text: text,
-                style: const TextStyle(decoration: TextDecoration.underline),
+                style: const TextStyle(decoration: .underline),
                 recognizer: TapGestureRecognizer()..onTap = () {},
               ),
             ),
@@ -343,22 +343,22 @@ Widget clearNoticeVerticalLoginPrivacyPreview() {
 Widget backgroundNoticeProfileNoticesPreview() {
   return WidgetPreviewFrame(
     child: Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const .all(16),
       child: Column(
         spacing: 8,
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: .min,
         children: [
           BackgroundNotice(
             text: "目前新版的TAT仍在測試階段，若有問題歡迎和我們反映。",
-            noticeType: NoticeType.info,
+            noticeType: .info,
           ),
           BackgroundNotice(
             text: "您的密碼將於7天後到期，請盡快更新以免無法登入。",
-            noticeType: NoticeType.warning,
+            noticeType: .warning,
           ),
           BackgroundNotice(
             text: "無法連接到伺服器，資料可能不正確。",
-            noticeType: NoticeType.error,
+            noticeType: .error,
           ),
         ],
       ),

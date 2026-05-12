@@ -48,6 +48,7 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     UserSemesterSummaryTutors,
     UserSemesterSummaryCadreRoles,
     UserSemesterRankings,
+    CalendarEvents,
   ],
   views: [
     CourseTableSlots,
@@ -87,77 +88,6 @@ class AppDatabase extends _$AppDatabase {
   );
 
   static QueryExecutor _openConnection() {
-    return driftDatabase(name: 'tattoo').interceptWith(_LogInterceptor());
+    return driftDatabase(name: 'tattoo');
   }
-}
-
-class _LogInterceptor extends QueryInterceptor {
-  static final _fromPattern = RegExp(r'FROM "(\w+)"', caseSensitive: false);
-  static final _firstQuoted = RegExp(r'"(\w+)"');
-
-  static String _describeStatement(String statement) {
-    final verb = statement.split(' ').first;
-    final table =
-        _fromPattern.firstMatch(statement)?.group(1) ??
-        _firstQuoted.firstMatch(statement)?.group(1) ??
-        '?';
-    return '$verb $table';
-  }
-
-  Future<T> _run<T>(
-    Future<T> Function() op,
-    String statement,
-    List<Object?> args, [
-    String Function(T result)? describeResult,
-  ]) async {
-    final result = await op();
-    final desc = _describeStatement(statement);
-    final parts = [
-      desc,
-      if (args.isNotEmpty) '${args.length} arg${args.length != 1 ? 's' : ''}',
-      if (describeResult != null) describeResult(result),
-    ];
-    log(parts.join(' '), name: 'DB');
-    return result;
-  }
-
-  @override
-  Future<void> runCustom(
-    QueryExecutor e,
-    String statement,
-    List<Object?> args,
-  ) => _run(() => e.runCustom(statement, args), statement, args);
-
-  @override
-  Future<int> runInsert(
-    QueryExecutor e,
-    String statement,
-    List<Object?> args,
-  ) => _run(() => e.runInsert(statement, args), statement, args);
-
-  @override
-  Future<int> runUpdate(
-    QueryExecutor e,
-    String statement,
-    List<Object?> args,
-  ) => _run(() => e.runUpdate(statement, args), statement, args);
-
-  @override
-  Future<int> runDelete(
-    QueryExecutor e,
-    String statement,
-    List<Object?> args,
-  ) => _run(() => e.runDelete(statement, args), statement, args);
-
-  @override
-  Future<List<Map<String, Object?>>> runSelect(
-    QueryExecutor e,
-    String statement,
-    List<Object?> args,
-  ) => _run(
-    () => e.runSelect(statement, args),
-    statement,
-    args,
-    (rows) => '=> ${rows.length} row${rows.length != 1 ? 's' : ''}',
-  );
 }

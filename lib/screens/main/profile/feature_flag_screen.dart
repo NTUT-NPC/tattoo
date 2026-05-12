@@ -63,7 +63,7 @@ class _FlagTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isForced = flag.source == FeatureFlagSource.forced;
+    final isForced = flag.source == .forced;
 
     return ListTile(
       title: Text(flag.key),
@@ -166,7 +166,7 @@ class _FlagTile extends ConsumerWidget {
                 Navigator.of(context).pop();
               },
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: .min,
                 children: options.map((option) {
                   return RadioListTile<dynamic>(
                     title: Text(option.toString()),
@@ -216,22 +216,22 @@ class _FlagSubtitle extends StatelessWidget {
     final status = _getStatusMetadata();
 
     return Padding(
-      padding: const EdgeInsets.only(top: 4),
+      padding: const .only(top: 4),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: .min,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding: const .symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
               color: status.bgColor,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: .circular(12),
             ),
             child: Text(
               status.text,
               style: TextStyle(
                 fontSize: 12,
                 color: status.textColor,
-                fontWeight: FontWeight.w500,
+                fontWeight: .w500,
               ),
             ),
           ),
@@ -242,7 +242,7 @@ class _FlagSubtitle extends StatelessWidget {
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyMedium?.color,
               ),
-              overflow: TextOverflow.ellipsis,
+              overflow: .ellipsis,
             ),
           ),
         ],
@@ -253,22 +253,22 @@ class _FlagSubtitle extends StatelessWidget {
   /// Returns visual styling and localized text based on the flag's source.
   ({String text, Color bgColor, Color textColor}) _getStatusMetadata() {
     return switch (flag.source) {
-      FeatureFlagSource.override => (
+      .override => (
         text: t.featureFlags.status.localOverride,
         bgColor: Colors.blue.withValues(alpha: 0.15),
         textColor: Colors.blue.shade800,
       ),
-      FeatureFlagSource.remote => (
+      .remote => (
         text: t.featureFlags.status.remote,
         bgColor: Colors.purple.withValues(alpha: 0.15),
         textColor: Colors.purple.shade800,
       ),
-      FeatureFlagSource.local => (
+      .local => (
         text: t.featureFlags.status.local,
         bgColor: Colors.grey.withValues(alpha: 0.2),
         textColor: Colors.grey.shade800,
       ),
-      FeatureFlagSource.forced => (
+      .forced => (
         text: t.featureFlags.status.remoteOverride,
         bgColor: Colors.red.withValues(alpha: 0.15),
         textColor: Colors.red.shade800,
@@ -285,10 +285,10 @@ class _FlagTrailingAction extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isOverridden = flag.source == FeatureFlagSource.override;
+    final isOverridden = flag.source == .override;
 
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: .min,
       children: [
         if (isOverridden)
           IconButton(

@@ -47,12 +47,57 @@ login:
     passwordExpired: Your password has expired. Please change it on the NTUT portal.
     mobileVerificationRequired: Mobile phone verification is required. Please complete it on the NTUT portal.
 nav:
+  home: Home
   courseTable: Courses
   scores: Scores
   portal: Portals
+  calendar: Calendar
   profile: Me
+home:
+  projectTattoo:
+    title: About Project Tattoo
+    description: Learn more or invite your friends to join the testing program.
+    url: https://ntut.app
+  ideation:
+    title: Our TAT is under construction
+    description: We're collecting ideas for the Home page. Share your proposal with us.
+    url: https://forms.gle/LdQdMfvAfUYyGE4k8
+  npcClub:
+    title: NTUT Programming Club
+    description: If you have ideas or want to contribute, feel free to reach out anytime.
+    url: https://ntut.club
+score:
+  loadFailed: Failed to load scores
+  refreshFailed: Failed to refresh scores
+  noRecords: No score records found
+  noScoresThisSemester: No scores for this semester
+  courseNumber: "No: ${number}  Code: ${code}"
+  none: N/A
+  summary:
+    cumulativeGpa: Cumulative GPA
+    conduct: Conduct
+    semesterAverage: Semester Avg
+    creditsPassed: Credits Passed
+    totalCredits: Total Credits
+  status:
+    notEntered: Not entered
+    withdraw: Withdrawn
+    undelivered: Not submitted
+    pass: Pass
+    fail: Fail
+    creditTransfer: Credit transfer
+calendar:
+  today: Today
 courseTable:
   notFound: Course table not found
+  unscheduled: Unscheduled Courses
+  summary:
+    credits(plural, param=count):
+      one: ${count} credit
+      other: ${count} credits
+    hours(plural, param=count):
+      one: ${count} hour
+      other: ${count} hours
   actions:
     showMoreOptions: Show more options
     displayOptions: Display options
@@ -66,6 +111,11 @@ courseTable:
     saturday: Sat
 profile:
   dataDisclaimer: Reference only. Not official.
+  passwordExpiry:
+    warning(plural, param=days):
+      one: Password expires in 1 day
+      other: Password expires in ${days} days
+    action: Change
   sections:
     accountSettings: Account Settings
     appSettings: App Settings

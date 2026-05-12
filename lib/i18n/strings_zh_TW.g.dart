@@ -45,6 +45,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsIntroZhTw intro = TranslationsIntroZhTw.internal(_root);
 	late final TranslationsLoginZhTw login = TranslationsLoginZhTw.internal(_root);
 	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
+	late final TranslationsHomeZhTw home = TranslationsHomeZhTw.internal(_root);
+	late final TranslationsScoreZhTw score = TranslationsScoreZhTw.internal(_root);
+	late final TranslationsCalendarZhTw calendar = TranslationsCalendarZhTw.internal(_root);
 	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
 	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
 	late final TranslationsScannerZhTw scanner = TranslationsScannerZhTw.internal(_root);
@@ -185,6 +188,9 @@ class TranslationsNavZhTw {
 
 	// Translations
 
+	/// zh-TW: '首頁'
+	String get home => '首頁';
+
 	/// zh-TW: '課表'
 	String get courseTable => '課表';
 
@@ -194,8 +200,65 @@ class TranslationsNavZhTw {
 	/// zh-TW: '傳送門'
 	String get portal => '傳送門';
 
+	/// zh-TW: '行事曆'
+	String get calendar => '行事曆';
+
 	/// zh-TW: '我'
 	String get profile => '我';
+}
+
+// Path: home
+class TranslationsHomeZhTw {
+	TranslationsHomeZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final TranslationsHomeProjectTattooZhTw projectTattoo = TranslationsHomeProjectTattooZhTw.internal(_root);
+	late final TranslationsHomeIdeationZhTw ideation = TranslationsHomeIdeationZhTw.internal(_root);
+	late final TranslationsHomeNpcClubZhTw npcClub = TranslationsHomeNpcClubZhTw.internal(_root);
+}
+
+// Path: score
+class TranslationsScoreZhTw {
+	TranslationsScoreZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '成績載入失敗'
+	String get loadFailed => '成績載入失敗';
+
+	/// zh-TW: '成績更新失敗'
+	String get refreshFailed => '成績更新失敗';
+
+	/// zh-TW: '目前沒有任何成績紀錄'
+	String get noRecords => '目前沒有任何成績紀錄';
+
+	/// zh-TW: '本學期尚無成績'
+	String get noScoresThisSemester => '本學期尚無成績';
+
+	/// zh-TW: '課號: ${number} 編碼: ${code}'
+	String courseNumber({required Object number, required Object code}) => '課號: ${number}  編碼: ${code}';
+
+	/// zh-TW: '無'
+	String get none => '無';
+
+	late final TranslationsScoreSummaryZhTw summary = TranslationsScoreSummaryZhTw.internal(_root);
+	late final TranslationsScoreStatusZhTw status = TranslationsScoreStatusZhTw.internal(_root);
+}
+
+// Path: calendar
+class TranslationsCalendarZhTw {
+	TranslationsCalendarZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '今天'
+	String get today => '今天';
 }
 
 // Path: courseTable
@@ -209,6 +272,10 @@ class TranslationsCourseTableZhTw {
 	/// zh-TW: '找不到課表'
 	String get notFound => '找不到課表';
 
+	/// zh-TW: '未安排時間的課程'
+	String get unscheduled => '未安排時間的課程';
+
+	late final TranslationsCourseTableSummaryZhTw summary = TranslationsCourseTableSummaryZhTw.internal(_root);
 	late final TranslationsCourseTableActionsZhTw actions = TranslationsCourseTableActionsZhTw.internal(_root);
 	Map<String, String> get dayOfWeek => {
 		'sunday': '日',
@@ -232,6 +299,7 @@ class TranslationsProfileZhTw {
 	/// zh-TW: '僅供參考，非正式文件'
 	String get dataDisclaimer => '僅供參考，非正式文件';
 
+	late final TranslationsProfilePasswordExpiryZhTw passwordExpiry = TranslationsProfilePasswordExpiryZhTw.internal(_root);
 	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
 	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
 	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
@@ -417,6 +485,132 @@ class TranslationsLoginErrorsZhTw {
 	String get mobileVerificationRequired => '需要進行手機驗證，請至校園入口網站完成驗證';
 }
 
+// Path: home.projectTattoo
+class TranslationsHomeProjectTattooZhTw {
+	TranslationsHomeProjectTattooZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '關於Project Tattoo'
+	String get title => '關於Project Tattoo';
+
+	/// zh-TW: '查看更多資訊或邀請你的朋友加入測試計畫。'
+	String get description => '查看更多資訊或邀請你的朋友加入測試計畫。';
+
+	/// zh-TW: 'https://ntut.app'
+	String get url => 'https://ntut.app';
+}
+
+// Path: home.ideation
+class TranslationsHomeIdeationZhTw {
+	TranslationsHomeIdeationZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '屬於我們的TAT正在打造中'
+	String get title => '屬於我們的TAT正在打造中';
+
+	/// zh-TW: '我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！'
+	String get description => '我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！';
+
+	/// zh-TW: 'https://forms.gle/LdQdMfvAfUYyGE4k8'
+	String get url => 'https://forms.gle/LdQdMfvAfUYyGE4k8';
+}
+
+// Path: home.npcClub
+class TranslationsHomeNpcClubZhTw {
+	TranslationsHomeNpcClubZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '北科程式設計研究社'
+	String get title => '北科程式設計研究社';
+
+	/// zh-TW: '有任何想法或是想加入開發，隨時歡迎聯絡我們！'
+	String get description => '有任何想法或是想加入開發，隨時歡迎聯絡我們！';
+
+	/// zh-TW: 'https://ntut.club'
+	String get url => 'https://ntut.club';
+}
+
+// Path: score.summary
+class TranslationsScoreSummaryZhTw {
+	TranslationsScoreSummaryZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '歷年GPA'
+	String get cumulativeGpa => '歷年GPA';
+
+	/// zh-TW: '操行成績'
+	String get conduct => '操行成績';
+
+	/// zh-TW: '學期平均'
+	String get semesterAverage => '學期平均';
+
+	/// zh-TW: '實得學分'
+	String get creditsPassed => '實得學分';
+
+	/// zh-TW: '修課總學分'
+	String get totalCredits => '修課總學分';
+}
+
+// Path: score.status
+class TranslationsScoreStatusZhTw {
+	TranslationsScoreStatusZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '未輸入'
+	String get notEntered => '未輸入';
+
+	/// zh-TW: '撤選'
+	String get withdraw => '撤選';
+
+	/// zh-TW: '未送成績'
+	String get undelivered => '未送成績';
+
+	/// zh-TW: '通過'
+	String get pass => '通過';
+
+	/// zh-TW: '不通過'
+	String get fail => '不通過';
+
+	/// zh-TW: '抵免'
+	String get creditTransfer => '抵免';
+}
+
+// Path: courseTable.summary
+class TranslationsCourseTableSummaryZhTw {
+	TranslationsCourseTableSummaryZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '(one) {${count}學分} (other) {${count}學分}'
+	String credits({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		one: '${count}學分',
+		other: '${count}學分',
+	);
+
+	/// zh-TW: '(one) {${count}小時} (other) {${count}小時}'
+	String hours({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		one: '${count}小時',
+		other: '${count}小時',
+	);
+}
+
 // Path: courseTable.actions
 class TranslationsCourseTableActionsZhTw {
 	TranslationsCourseTableActionsZhTw.internal(this._root);
@@ -430,6 +624,24 @@ class TranslationsCourseTableActionsZhTw {
 
 	/// zh-TW: '顯示選項'
 	String get displayOptions => '顯示選項';
+}
+
+// Path: profile.passwordExpiry
+class TranslationsProfilePasswordExpiryZhTw {
+	TranslationsProfilePasswordExpiryZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '(one) {密碼將在1天後過期} (other) {密碼將在${days}天後過期}'
+	String warning({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(days,
+		one: '密碼將在1天後過期',
+		other: '密碼將在${days}天後過期',
+	);
+
+	/// zh-TW: '更改'
+	String get action => '更改';
 }
 
 // Path: profile.sections
@@ -743,11 +955,43 @@ extension on Translations {
 			'login.errors.accountLocked' => '登入失敗次數過多，帳號已被鎖定，請稍後再試',
 			'login.errors.passwordExpired' => '密碼已過期，請至校園入口網站變更密碼',
 			'login.errors.mobileVerificationRequired' => '需要進行手機驗證，請至校園入口網站完成驗證',
+			'nav.home' => '首頁',
 			'nav.courseTable' => '課表',
 			'nav.scores' => '成績',
 			'nav.portal' => '傳送門',
+			'nav.calendar' => '行事曆',
 			'nav.profile' => '我',
+			'home.projectTattoo.title' => '關於Project Tattoo',
+			'home.projectTattoo.description' => '查看更多資訊或邀請你的朋友加入測試計畫。',
+			'home.projectTattoo.url' => 'https://ntut.app',
+			'home.ideation.title' => '屬於我們的TAT正在打造中',
+			'home.ideation.description' => '我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！',
+			'home.ideation.url' => 'https://forms.gle/LdQdMfvAfUYyGE4k8',
+			'home.npcClub.title' => '北科程式設計研究社',
+			'home.npcClub.description' => '有任何想法或是想加入開發，隨時歡迎聯絡我們！',
+			'home.npcClub.url' => 'https://ntut.club',
+			'score.loadFailed' => '成績載入失敗',
+			'score.refreshFailed' => '成績更新失敗',
+			'score.noRecords' => '目前沒有任何成績紀錄',
+			'score.noScoresThisSemester' => '本學期尚無成績',
+			'score.courseNumber' => ({required Object number, required Object code}) => '課號: ${number}  編碼: ${code}',
+			'score.none' => '無',
+			'score.summary.cumulativeGpa' => '歷年GPA',
+			'score.summary.conduct' => '操行成績',
+			'score.summary.semesterAverage' => '學期平均',
+			'score.summary.creditsPassed' => '實得學分',
+			'score.summary.totalCredits' => '修課總學分',
+			'score.status.notEntered' => '未輸入',
+			'score.status.withdraw' => '撤選',
+			'score.status.undelivered' => '未送成績',
+			'score.status.pass' => '通過',
+			'score.status.fail' => '不通過',
+			'score.status.creditTransfer' => '抵免',
+			'calendar.today' => '今天',
 			'courseTable.notFound' => '找不到課表',
+			'courseTable.unscheduled' => '未安排時間的課程',
+			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
+			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
 			'courseTable.actions.showMoreOptions' => '顯示更多選項',
 			'courseTable.actions.displayOptions' => '顯示選項',
 			'courseTable.dayOfWeek.sunday' => '日',
@@ -758,6 +1002,8 @@ extension on Translations {
 			'courseTable.dayOfWeek.friday' => '五',
 			'courseTable.dayOfWeek.saturday' => '六',
 			'profile.dataDisclaimer' => '僅供參考，非正式文件',
+			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(days, one: '密碼將在1天後過期', other: '密碼將在${days}天後過期', ), 
+			'profile.passwordExpiry.action' => '更改',
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
 			'profile.sections.dangerZone' => '危險區域',

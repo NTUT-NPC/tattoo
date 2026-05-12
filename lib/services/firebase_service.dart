@@ -1,14 +1,15 @@
+import 'dart:async';
+import 'dart:developer' as dev;
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'dart:async';
-import 'dart:developer' as dev;
 
 /// Global toggle for Firebase features.
 ///
 /// Defaults to `false` to avoid package name mismatch issues in debug mode
 /// (`club.ntut.tattoo.debug`). Override via: `--dart-define=USE_FIREBASE=true`
-const bool useFirebase = bool.fromEnvironment(
+const bool useFirebase = .fromEnvironment(
   'USE_FIREBASE',
   defaultValue: false,
 );
@@ -35,8 +36,7 @@ class FirebaseService {
   Stream<void> get onConfigUpdated => _updateController.stream;
 
   /// The [FirebaseAnalytics] instance, or `null` if Firebase is disabled.
-  FirebaseAnalytics? get analytics =>
-      useFirebase ? FirebaseAnalytics.instance : null;
+  FirebaseAnalytics? get analytics => useFirebase ? .instance : null;
 
   /// Returns a [FirebaseAnalyticsObserver] for use with navigation observers, or
   /// `null` if Firebase is disabled.
@@ -44,12 +44,10 @@ class FirebaseService {
       useFirebase ? FirebaseAnalyticsObserver(analytics: analytics!) : null;
 
   /// The [FirebaseCrashlytics] instance, or `null` if Firebase is disabled.
-  FirebaseCrashlytics? get crashlytics =>
-      useFirebase ? FirebaseCrashlytics.instance : null;
+  FirebaseCrashlytics? get crashlytics => useFirebase ? .instance : null;
 
   /// The [FirebaseRemoteConfig] instance, or `null` if Firebase is disabled.
-  FirebaseRemoteConfig? get remoteConfig =>
-      useFirebase ? FirebaseRemoteConfig.instance : null;
+  FirebaseRemoteConfig? get remoteConfig => useFirebase ? .instance : null;
 
   /// Logs a custom message to Firebase Crashlytics if enabled.
   ///
@@ -63,7 +61,7 @@ class FirebaseService {
   void recordNonFatal(String message) {
     crashlytics?.recordError(
       Exception(message),
-      StackTrace.current,
+      .current,
       fatal: false,
     );
   }
@@ -144,7 +142,7 @@ class FirebaseService {
       final keys = rc.getAll().keys.toList()..sort();
       final status = rc.lastFetchStatus;
 
-      if (status == RemoteConfigFetchStatus.success) {
+      if (status == .success) {
         final message =
             'Remote Config $context successful: count=${keys.length}, keys=$keys';
         dev.log(message, name: 'FirebaseService');
@@ -181,7 +179,7 @@ class FirebaseService {
     final val = rc.getValue(key);
     return (
       value: val.asString(),
-      isRemote: val.source == ValueSource.valueRemote,
+      isRemote: val.source == .valueRemote,
     );
   }
 }

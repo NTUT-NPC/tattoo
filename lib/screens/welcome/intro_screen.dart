@@ -53,9 +53,9 @@ class _IntroScreenState extends State<IntroScreen>
       icon: SvgPicture.asset(
         'assets/npc_horizontal.svg',
         height: 24,
-        colorFilter: ColorFilter.mode(
+        colorFilter: .mode(
           Colors.grey[600]!,
-          BlendMode.srcIn,
+          .srcIn,
         ),
       ),
       text: TextSpan(text: t.intro.developedBy),
@@ -80,8 +80,8 @@ class _IntroScreenState extends State<IntroScreen>
               child: SafeArea(
                 top: false,
                 child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.only(top: 16),
+                  width: .infinity,
+                  padding: const .only(top: 16),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.bottomCenter,
@@ -95,11 +95,11 @@ class _IntroScreenState extends State<IntroScreen>
                     ),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    padding: const .fromLTRB(16, 8, 16, 0),
                     child: FilledButton(
                       onPressed: () => context.push(AppRoutes.login),
                       child: Padding(
-                        padding: const EdgeInsets.all(6.0),
+                        padding: const .all(6.0),
                         child: Text(t.intro.kContinue),
                       ),
                     ),
@@ -129,23 +129,23 @@ class _FeatureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        width: .infinity,
+        padding: const .symmetric(horizontal: 24, vertical: 12),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: .center,
           spacing: 24,
           children: [
             Icon(icon, size: 28),
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: .start,
                 spacing: 4,
                 children: [
                   Text(
                     title,
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: .bold,
                     ),
                   ),
                   Text(

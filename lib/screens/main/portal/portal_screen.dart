@@ -145,7 +145,7 @@ class PortalScreen extends ConsumerWidget {
         child: CustomScrollView(
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: const .all(16),
               sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: .center,
@@ -156,7 +156,7 @@ class PortalScreen extends ConsumerWidget {
                     _PortalCard(
                       title: "打開校園入口網站",
                       onTap: () => launchUrl(
-                        Uri.parse('https://nportal.ntut.edu.tw'),
+                        .parse('https://nportal.ntut.edu.tw'),
                       ),
                     ),
                     for (final section in _portalSections)
@@ -205,7 +205,7 @@ class _PortalCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: SizedBox(
-          width: double.infinity,
+          width: .infinity,
           child: Padding(
             padding: const .symmetric(horizontal: 16, vertical: 12),
             child: Text(

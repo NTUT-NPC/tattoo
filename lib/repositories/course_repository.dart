@@ -7,11 +7,11 @@ import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/classroom.dart';
 import 'package:tattoo/models/course.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/course/course_service.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/utils/localized.dart';
 
 /// Data for a single cell in the course table grid.
@@ -245,7 +245,9 @@ class CourseRepository {
           )..where((o) => o.semester.equals(semesterId))).join([
             leftOuterJoin(
               _database.courses,
-              _database.courses.id.equalsExp(_database.courseOfferings.course),
+              _database.courses.code.equalsExp(
+                _database.courseOfferings.courseCode,
+              ),
             ),
           ]).get();
       final allOfferings = allOfferingRows.map((row) {
@@ -267,7 +269,9 @@ class CourseRepository {
 
       final semesterRow = await (_database.select(
         _database.semesters,
-      )..where((s) => s.id.equals(semesterId))).getSingle();
+      )..where((s) => s.id.equals(semesterId))).getSingleOrNull();
+      if (semesterRow == null) return;
+
       final age = switch (semesterRow.courseTableFetchedAt) {
         final t? => DateTime.now().difference(t),
         null => ttl,
@@ -326,41 +330,25 @@ class CourseRepository {
           .go();
 
       for (final dto in dtos) {
-        final courseId = dto.course?.id;
+        final courseCode = dto.course?.id;
         final courseNameZh = dto.course?.nameZh;
 
         if (courseNameZh == null) {
           _firebaseService.recordNonFatal(
             'Skipped offering with no name: '
-            'number=${dto.number}, courseId=$courseId',
+            'number=${dto.number}, courseCode=$courseCode',
           );
           continue;
         }
 
-        int? dbCourseId;
-        if (courseId != null) {
-          if (dto.credits == null || dto.hours == null) {
-            _firebaseService.recordNonFatal(
-              'Course $courseId missing credits/hours: '
-              'credits=${dto.credits}, hours=${dto.hours}',
-            );
-          }
-
-          dbCourseId = await _database.upsertCourse(
-            code: courseId,
-            credits: dto.credits ?? 0,
-            hours: dto.hours ?? 0,
-            nameZh: courseNameZh,
-            nameEn: dto.course?.nameEn,
-          );
-        }
-
         final offeringId = await _database.upsertCourseOffering(
-          courseId: dbCourseId,
+          courseCode: courseCode,
           semesterId: semester.id,
           number: dto.number,
-          nameZh: courseId == null ? courseNameZh : null,
-          nameEn: courseId == null ? dto.course?.nameEn : null,
+          nameZh: courseNameZh,
+          nameEn: dto.course?.nameEn,
+          credits: dto.credits,
+          hours: dto.hours,
           phase: dto.phase,
           status: dto.status,
           language: dto.language,
@@ -430,7 +418,7 @@ class CourseRepository {
               if (nameEn == null && reportedUnknownClassrooms.add(id)) {
                 _firebaseService.crashlytics?.recordError(
                   Exception('Unknown classroom prefix: $name (code: $id)'),
-                  StackTrace.current,
+                  .current,
                   fatal: false,
                 );
               }
@@ -501,7 +489,7 @@ class CourseRepository {
     // When no course occupies the noon period on any day, courses that span
     // across noon (e.g. period 4 → 5) are merged. The noon period is skipped
     // (not counted in span) and crossesNoon is set for UI height calculation.
-    final hasNoon = scheduled.keys.any((s) => s.period == Period.nPeriod);
+    final hasNoon = scheduled.keys.any((s) => s.period == .nPeriod);
     final consumed = <({DayOfWeek day, Period period})>{};
     for (final entry in scheduled.entries) {
       if (consumed.contains(entry.key)) continue;
@@ -512,7 +500,7 @@ class CourseRepository {
       while (lookIndex < Period.values.length) {
         final nextPeriod = Period.values[lookIndex];
         // Skip noon if no courses use it
-        if (nextPeriod == Period.nPeriod && !hasNoon) {
+        if (nextPeriod == .nPeriod && !hasNoon) {
           lookIndex++;
           continue;
         }
@@ -550,8 +538,8 @@ class CourseRepository {
         .where((row) => !scheduledIds.contains(row.offering.id))
         .map((row) {
           final courseName = localized(
-            row.course?.nameZh ?? row.offering.nameZh,
-            row.course?.nameEn ?? row.offering.nameEn,
+            row.offering.nameZh,
+            row.offering.nameEn ?? row.course?.nameEn,
           );
           return (
             id: row.offering.id,
@@ -560,8 +548,8 @@ class CourseRepository {
             crossesNoon: false,
             courseName: courseName,
             classroomName: null,
-            credits: row.course?.credits ?? 0.0,
-            hours: row.course?.hours ?? 0,
+            credits: row.offering.credits ?? row.course?.credits ?? 0.0,
+            hours: row.offering.hours ?? row.course?.hours ?? 0,
           );
         })
         .toList(growable: false);
@@ -591,11 +579,11 @@ class CourseRepository {
       scheduled: scheduled,
       unscheduled: unscheduled,
       hasWeekdayCourse: scheduled.keys.any((s) => s.day.isWeekday),
-      hasSaturdayCourse: scheduled.keys.any((s) => s.day == DayOfWeek.saturday),
-      hasSundayCourse: scheduled.keys.any((s) => s.day == DayOfWeek.sunday),
+      hasSaturdayCourse: scheduled.keys.any((s) => s.day == .saturday),
+      hasSundayCourse: scheduled.keys.any((s) => s.day == .sunday),
       hasAMCourse: allEntryPeriods.any((p) => p.isAM),
       hasPMCourse: allEntryPeriods.any((p) => p.isPM),
-      hasNoonCourse: allEntryPeriods.any((p) => p == Period.nPeriod),
+      hasNoonCourse: allEntryPeriods.any((p) => p == .nPeriod),
       hasEveningCourse: allEntryPeriods.any((p) => p.isEvening),
       earliestPeriod: scheduled.isEmpty
           ? null

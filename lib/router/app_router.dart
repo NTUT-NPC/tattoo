@@ -2,25 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/shells/animated_shell_container.dart';
+import 'package:tattoo/screens/main/calendar/calendar_screen.dart';
+import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
+import 'package:tattoo/screens/main/home/home_screen.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
+import 'package:tattoo/screens/main/profile/feature_flag_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
+import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';
-import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
-import 'package:tattoo/screens/main/profile/feature_flag_screen.dart';
-import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
+import 'package:tattoo/shells/animated_shell_container.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 abstract class AppRoutes {
   static const home = '/';
+  static const courseTable = '/course-table';
   static const score = '/score';
   static const portal = '/portal';
+  static const calendar = '/calendar';
   static const profile = '/profile';
   static const intro = '/intro';
   static const login = '/login';
@@ -80,6 +84,14 @@ GoRouter createAppRouter({
       path: AppRoutes.scanner,
       builder: (context, state) => const ScannerScreen(),
     ),
+    GoRoute(
+      path: AppRoutes.portal,
+      builder: (context, state) => const PortalScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.calendar,
+      builder: (context, state) => const CalendarScreen(),
+    ),
     StatefulShellRoute(
       builder: (context, state, navigationShell) =>
           HomeScreen(navigationShell: navigationShell),
@@ -95,6 +107,15 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.home,
               pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: MainHomeScreen()),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.courseTable,
+              pageBuilder: (context, state) =>
                   const NoTransitionPage(child: CourseTableScreen()),
             ),
           ],
@@ -105,15 +126,6 @@ GoRouter createAppRouter({
               path: AppRoutes.score,
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: ScoreScreen()),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.portal,
-              pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: PortalScreen()),
             ),
           ],
         ),
