@@ -260,7 +260,7 @@ class _TranslationsKioskLoginEnUs extends TranslationsKioskLoginZhTw {
 	@override String get qrCode => 'login QR code';
 	@override String get refresh => 'Regenerate';
 	@override String get notice => 'Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.';
-	@override String get loadFailed => 'Unable to generate thed login code. Please try again later.';
+	@override String get loadFailed => 'Unable to generate the login code. Please try again later.';
 	@override String get invalidSsoUrl => 'The login URL is invalid. Unable to generate the login code.';
 }
 
@@ -746,7 +746,7 @@ extension on TranslationsEnUs {
 			'kioskLogin.qrCode' => 'login QR code',
 			'kioskLogin.refresh' => 'Regenerate',
 			'kioskLogin.notice' => 'Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.',
-			'kioskLogin.loadFailed' => 'Unable to generate thed login code. Please try again later.',
+			'kioskLogin.loadFailed' => 'Unable to generate the login code. Please try again later.',
 			'kioskLogin.invalidSsoUrl' => 'The login URL is invalid. Unable to generate the login code.',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
