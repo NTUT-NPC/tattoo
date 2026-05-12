@@ -35,6 +35,12 @@ class MainHomeScreen extends StatelessWidget {
         onTap: () => launchUrl(.parse(t.home.npcClub.url)),
       ),
       OptionEntryTile.icon(
+        icon: Icons.how_to_vote_outlined,
+        title: t.nav.vote,
+        description: '學生四合一選舉活動，2/15下午四點前來一大川堂投票吧！',
+        onTap: () => context.push(AppRoutes.kioskLoginQr),
+      ),
+      OptionEntryTile.icon(
         icon: Icons.qr_code_scanner,
         title: t.scanner.loginIStudy,
         onTap: () => context.push(AppRoutes.scanner),
@@ -48,11 +54,6 @@ class MainHomeScreen extends StatelessWidget {
         icon: Icons.calendar_month,
         title: t.nav.calendar,
         onTap: () => context.push(AppRoutes.calendar),
-      ),
-      OptionEntryTile.icon(
-        icon: Icons.how_to_vote_outlined,
-        title: t.nav.vote,
-        onTap: () => context.push(AppRoutes.kioskLoginQr),
       ),
     ];
 
