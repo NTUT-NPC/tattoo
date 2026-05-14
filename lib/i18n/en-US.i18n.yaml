@@ -161,6 +161,7 @@ scanner:
   failed: Login failed
   processing: Processing…
   loggingIn: Logging in…
+  switchCamera: Switch camera
   permissionDenied: Camera permission required to scan QR codes
   permissionDeniedDescription: Please enable camera access in your device settings and try again.
   cameraError: Unable to start the camera. Please check your hardware or try again later.

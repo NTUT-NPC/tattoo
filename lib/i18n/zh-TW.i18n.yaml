@@ -161,6 +161,7 @@ scanner:
   failed: 登入失敗
   processing: 正在處理…
   loggingIn: 正在登入…
+  switchCamera: 切換鏡頭
   permissionDenied: 需要相機權限才能掃描QR code
   permissionDeniedDescription: 請至設定中開啟相機權限，然後再試一次。
   cameraError: 無法開啟相機，請檢查硬體或稍後再試。

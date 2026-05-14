@@ -218,6 +218,7 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 	@override String get failed => 'Login failed';
 	@override String get processing => 'Processing…';
 	@override String get loggingIn => 'Logging in…';
+	@override String get switchCamera => 'Switch camera';
 	@override String get permissionDenied => 'Camera permission required to scan QR codes';
 	@override String get permissionDeniedDescription => 'Please enable camera access in your device settings and try again.';
 	@override String get cameraError => 'Unable to start the camera. Please check your hardware or try again later.';
@@ -642,6 +643,7 @@ extension on TranslationsEnUs {
 			'scanner.failed' => 'Login failed',
 			'scanner.processing' => 'Processing…',
 			'scanner.loggingIn' => 'Logging in…',
+			'scanner.switchCamera' => 'Switch camera',
 			'scanner.permissionDenied' => 'Camera permission required to scan QR codes',
 			'scanner.permissionDeniedDescription' => 'Please enable camera access in your device settings and try again.',
 			'scanner.cameraError' => 'Unable to start the camera. Please check your hardware or try again later.',

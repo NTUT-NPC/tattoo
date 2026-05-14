@@ -321,6 +321,9 @@ class TranslationsScannerZhTw {
 	/// zh-TW: '正在登入…'
 	String get loggingIn => '正在登入…';
 
+	/// zh-TW: '切換鏡頭'
+	String get switchCamera => '切換鏡頭';
+
 	/// zh-TW: '需要相機權限才能掃描QR code'
 	String get permissionDenied => '需要相機權限才能掃描QR code';
 
@@ -928,6 +931,7 @@ extension on Translations {
 			'scanner.failed' => '登入失敗',
 			'scanner.processing' => '正在處理…',
 			'scanner.loggingIn' => '正在登入…',
+			'scanner.switchCamera' => '切換鏡頭',
 			'scanner.permissionDenied' => '需要相機權限才能掃描QR code',
 			'scanner.permissionDeniedDescription' => '請至設定中開啟相機權限，然後再試一次。',
 			'scanner.cameraError' => '無法開啟相機，請檢查硬體或稍後再試。',

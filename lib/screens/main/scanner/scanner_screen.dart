@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:tattoo/components/camera_switch_button.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
@@ -17,11 +18,14 @@ class ScannerScreen extends ConsumerStatefulWidget {
 }
 
 class _ScannerScreenState extends ConsumerState<ScannerScreen> {
-  final MobileScannerController _controller = MobileScannerController();
+  final MobileScannerController _controller = MobileScannerController(
+    facing: .front,
+  );
   final DraggableScrollableController _sheetController =
       DraggableScrollableController();
   bool _isProcessing = false;
   bool _isSuccess = false;
+  bool _isSwitchingCamera = false;
   Object? _error;
 
   static const _scannerSuccessCodes = {'221', '222', '223'};
@@ -147,6 +151,21 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     setState(() => _error = null);
   }
 
+  Future<void> _switchCamera() async {
+    if (_isProcessing || _isSwitchingCamera) return;
+    setState(() => _isSwitchingCamera = true);
+
+    try {
+      await _controller.switchCamera();
+      HapticFeedback.selectionClick();
+    } catch (_) {
+    } finally {
+      if (mounted) {
+        setState(() => _isSwitchingCamera = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,6 +187,19 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             },
           ),
           _buildOverlay(context),
+          SafeArea(
+            child: Align(
+              alignment: .topRight,
+              child: Padding(
+                padding: const .all(16),
+                child: CameraSwitchButton(
+                  controller: _controller,
+                  isSwitching: _isSwitchingCamera || _isProcessing,
+                  onPressed: _switchCamera,
+                ),
+              ),
+            ),
+          ),
           ScannerGuideSheet(
             controller: _sheetController,
             isProcessing: _isProcessing,

@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:tattoo/components/camera_switch_button.dart';
 import 'package:tattoo/components/webview_sheet.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/login_exception.dart';
@@ -21,13 +22,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   final _usernameFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
-  final _scannerController = MobileScannerController();
+  final _scannerController = MobileScannerController(facing: .front);
 
   String? _errorMessage;
   bool _usernameHasError = false;
   bool _passwordHasError = false;
   bool _isLoading = false;
   bool _handledScan = false;
+  bool _isSwitchingCamera = false;
 
   @override
   void initState() {
@@ -103,6 +105,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     await WebviewSheet.show(context, url);
     if (mounted) {
       await _scannerController.start();
+    }
+  }
+
+  Future<void> _switchCamera() async {
+    if (_isSwitchingCamera) return;
+    setState(() => _isSwitchingCamera = true);
+
+    try {
+      await _scannerController.switchCamera();
+    } catch (_) {
+    } finally {
+      if (mounted) {
+        setState(() => _isSwitchingCamera = false);
+      }
     }
   }
 
@@ -271,92 +287,110 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   child: SizedBox(
                                     width: 250,
                                     height: 250,
-                                    child: MobileScanner(
-                                      controller: _scannerController,
-                                      onDetect: (capture) {
-                                        if (_handledScan) return;
-                                        final barcodes = capture.barcodes;
-                                        for (final barcode in barcodes) {
-                                          if (barcode.rawValue != null) {
-                                            final code = barcode.rawValue!
-                                                .trim();
-                                            if (RegExp(
-                                              r'^11[0-5](?:3[0-9]|4[02459]|5[1246789]|6[01568]|7[3489]|8[1-5]|9[189]|A[0458BCGTY]|B[23]|C[057])[A-Z0-9]\d{3}$',
-                                            ).hasMatch(code)) {
-                                              // Student ID scanned
-                                              if (_usernameController.text !=
-                                                  code) {
-                                                setState(() {
-                                                  _usernameController.text =
-                                                      code;
-                                                  _clearErrors();
-                                                });
-                                                _passwordFocusNode
-                                                    .requestFocus();
-                                              }
-                                              _handledScan = true;
-                                              Future.delayed(
-                                                const Duration(seconds: 10),
-                                                () {
-                                                  if (mounted) {
-                                                    _handledScan = false;
+                                    child: Stack(
+                                      children: [
+                                        MobileScanner(
+                                          controller: _scannerController,
+                                          onDetect: (capture) {
+                                            if (_handledScan) return;
+                                            final barcodes = capture.barcodes;
+                                            for (final barcode in barcodes) {
+                                              if (barcode.rawValue != null) {
+                                                final code = barcode.rawValue!
+                                                    .trim();
+                                                if (RegExp(
+                                                  r'^11[0-5](?:3[0-9]|4[02459]|5[1246789]|6[01568]|7[3489]|8[1-5]|9[189]|A[0458BCGTY]|B[23]|C[057])[A-Z0-9]\d{3}$',
+                                                ).hasMatch(code)) {
+                                                  // Student ID scanned
+                                                  if (_usernameController
+                                                          .text !=
+                                                      code) {
+                                                    setState(() {
+                                                      _usernameController.text =
+                                                          code;
+                                                      _clearErrors();
+                                                    });
+                                                    _passwordFocusNode
+                                                        .requestFocus();
                                                   }
-                                                },
-                                              );
-                                            } else if (code.startsWith(
-                                              'https://ntut.app/login?code=',
-                                            )) {
-                                              // Tattoo App QR login scanned
-                                              final extractedCode = code
-                                                  .substring(
-                                                    'https://ntut.app/login?code='
-                                                        .length,
+                                                  _handledScan = true;
+                                                  Future.delayed(
+                                                    const Duration(seconds: 10),
+                                                    () {
+                                                      if (mounted) {
+                                                        _handledScan = false;
+                                                      }
+                                                    },
                                                   );
-                                              if (RegExp(
-                                                r'^\d+$',
-                                              ).hasMatch(extractedCode)) {
-                                                _handledScan = true;
-                                                final url = Uri.parse(
-                                                  'https://aps-staff.ntut.edu.tw/vote/callback.jsp?oauthServer=http%3A%2F%2Fapp.ntut.edu.tw&code=$extractedCode&redirect_uri=https%3A%2F%2Faps-staff.ntut.edu.tw%2Fvote%2Fcallback.jsp',
-                                                );
-                                                if (mounted) {
-                                                  _showWebview(url).then((_) {
+                                                } else if (code.startsWith(
+                                                  'https://ntut.app/login?code=',
+                                                )) {
+                                                  // Tattoo App QR login scanned
+                                                  final extractedCode = code
+                                                      .substring(
+                                                        'https://ntut.app/login?code='
+                                                            .length,
+                                                      );
+                                                  if (RegExp(
+                                                    r'^\d+$',
+                                                  ).hasMatch(extractedCode)) {
+                                                    _handledScan = true;
+                                                    final url = Uri.parse(
+                                                      'https://aps-staff.ntut.edu.tw/vote/callback.jsp?oauthServer=http%3A%2F%2Fapp.ntut.edu.tw&code=$extractedCode&redirect_uri=https%3A%2F%2Faps-staff.ntut.edu.tw%2Fvote%2Fcallback.jsp',
+                                                    );
                                                     if (mounted) {
-                                                      _handledScan = false;
+                                                      _showWebview(url).then((
+                                                        _,
+                                                      ) {
+                                                        if (mounted) {
+                                                          _handledScan = false;
+                                                        }
+                                                      });
                                                     }
-                                                  });
-                                                }
-                                              } else {
-                                                _handledScan = true;
-                                                Future.delayed(
-                                                  const Duration(seconds: 10),
-                                                  () {
-                                                    if (mounted) {
-                                                      _handledScan = false;
-                                                    }
-                                                  },
-                                                );
-                                                if (mounted) {
-                                                  ScaffoldMessenger.of(
-                                                    context,
-                                                  ).showSnackBar(
-                                                    SnackBar(
-                                                      content: Text(
-                                                        t
-                                                            .login
-                                                            .errors
-                                                            .invalidQrCode,
+                                                  } else {
+                                                    _handledScan = true;
+                                                    Future.delayed(
+                                                      const Duration(
+                                                        seconds: 10,
                                                       ),
-                                                      behavior: .floating,
-                                                    ),
-                                                  );
+                                                      () {
+                                                        if (mounted) {
+                                                          _handledScan = false;
+                                                        }
+                                                      },
+                                                    );
+                                                    if (mounted) {
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            t
+                                                                .login
+                                                                .errors
+                                                                .invalidQrCode,
+                                                          ),
+                                                          behavior: .floating,
+                                                        ),
+                                                      );
+                                                    }
+                                                  }
                                                 }
+                                                break;
                                               }
                                             }
-                                            break;
-                                          }
-                                        }
-                                      },
+                                          },
+                                        ),
+                                        Positioned(
+                                          top: 8,
+                                          right: 8,
+                                          child: CameraSwitchButton(
+                                            controller: _scannerController,
+                                            isSwitching: _isSwitchingCamera,
+                                            onPressed: _switchCamera,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
