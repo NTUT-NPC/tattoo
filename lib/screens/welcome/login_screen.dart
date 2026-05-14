@@ -456,11 +456,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         decoration: .underline,
                                       ),
                                       recognizer: TapGestureRecognizer()
-                                        ..onTap = () => _showWebview(
-                                          .parse(
-                                            'https://nportal.ntut.edu.tw',
-                                          ),
-                                        ),
+                                        ..onTap = () {
+                                          ScaffoldMessenger.of(context)
+                                            ..hideCurrentSnackBar()
+                                            ..showSnackBar(
+                                              const SnackBar(
+                                                content: Text('請不要亂按'),
+                                                behavior: .floating,
+                                              ),
+                                            );
+                                        },
                                     ),
                                   ),
                                   style: theme.textTheme.bodySmall?.copyWith(
