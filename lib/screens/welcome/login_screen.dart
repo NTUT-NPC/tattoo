@@ -115,12 +115,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
-  Future<void> _showWebview(Uri url, {Uri? redirectAfterFirstLoad}) async {
+  Future<void> _showWebview(
+    Uri url, {
+    Uri? redirectAfterFirstLoad,
+    String? initialToastMessage,
+  }) async {
     if (!mounted) return;
     await WebviewSheet.show(
       context,
       url,
       redirectAfterFirstLoad: redirectAfterFirstLoad,
+      initialToastMessage: initialToastMessage,
     );
   }
 
@@ -171,7 +176,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final url = await portal.getSsoUrl('per_001_oauth');
 
       if (!mounted) return;
-      await _showWebview(url, redirectAfterFirstLoad: voteIndexUri());
+      await _showWebview(
+        url,
+        redirectAfterFirstLoad: voteIndexUri(),
+        initialToastMessage: '投票結束請記得按右上角登出關閉系統。',
+      );
     } on DioException {
       if (mounted) _setError(t.errors.connectionFailed);
     } on LoginException catch (e) {

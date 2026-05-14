@@ -7,15 +7,18 @@ class WebviewSheet extends StatefulWidget {
     super.key,
     required this.url,
     this.redirectAfterFirstLoad,
+    this.initialToastMessage,
   });
 
   final Uri url;
   final Uri? redirectAfterFirstLoad;
+  final String? initialToastMessage;
 
   static Future<T?> show<T>(
     BuildContext context,
     Uri url, {
     Uri? redirectAfterFirstLoad,
+    String? initialToastMessage,
   }) {
     return Navigator.of(context).push<T>(
       MaterialPageRoute(
@@ -23,6 +26,7 @@ class WebviewSheet extends StatefulWidget {
         builder: (context) => WebviewSheet(
           url: url,
           redirectAfterFirstLoad: redirectAfterFirstLoad,
+          initialToastMessage: initialToastMessage,
         ),
       ),
     );
@@ -40,6 +44,20 @@ class _WebviewSheetState extends State<WebviewSheet> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final message = widget.initialToastMessage;
+      if (message == null) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(message),
+            behavior: .floating,
+          ),
+        );
+    });
+
     _controller = WebViewController()
       ..setJavaScriptMode(.unrestricted)
       ..setNavigationDelegate(
@@ -126,8 +144,9 @@ class _WebviewSheetState extends State<WebviewSheet> {
                       ),
                     Align(
                       alignment: Alignment.centerRight,
-                      child: IconButton(
-                        icon: const Icon(Icons.close),
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.logout),
+                        label: const Text('登出'),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ),
