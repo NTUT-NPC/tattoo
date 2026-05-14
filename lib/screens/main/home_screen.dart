@@ -20,6 +20,8 @@ class HomeScreen extends ConsumerWidget {
           context,
           url,
           redirectAfterFirstLoad: voteIndexUri(),
+          initialToastMessage: '投票結束請記得按右上角登出關閉系統。',
+          closeOnNtutLoggedOut: true,
         );
       }
       return;
@@ -31,6 +33,7 @@ class HomeScreen extends ConsumerWidget {
         ref.read(authRepositoryProvider),
         'per_001_oauth',
         redirectAfterFirstLoad: voteIndexUri(),
+        closeOnNtutLoggedOut: true,
       );
     } on DioException {
       if (!context.mounted) return;

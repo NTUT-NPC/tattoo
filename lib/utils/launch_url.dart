@@ -31,6 +31,7 @@ Future<void> launchNtutService(
   AuthRepository authRepository,
   String serviceCode, {
   Uri? redirectAfterFirstLoad,
+  bool closeOnNtutLoggedOut = false,
 }) async {
   final url = await authRepository.getSsoUrl(serviceCode);
   if (context.mounted) {
@@ -38,6 +39,7 @@ Future<void> launchNtutService(
       context,
       url,
       redirectAfterFirstLoad: redirectAfterFirstLoad,
+      closeOnNtutLoggedOut: closeOnNtutLoggedOut,
     );
   }
 }

@@ -119,6 +119,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     Uri url, {
     Uri? redirectAfterFirstLoad,
     String? initialToastMessage,
+    bool closeOnNtutLoggedOut = false,
   }) async {
     if (!mounted) return;
     await WebviewSheet.show(
@@ -126,6 +127,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       url,
       redirectAfterFirstLoad: redirectAfterFirstLoad,
       initialToastMessage: initialToastMessage,
+      closeOnNtutLoggedOut: closeOnNtutLoggedOut,
     );
   }
 
@@ -180,6 +182,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         url,
         redirectAfterFirstLoad: voteIndexUri(),
         initialToastMessage: '投票結束請記得按右上角登出關閉系統。',
+        closeOnNtutLoggedOut: true,
       );
     } on DioException {
       if (mounted) _setError(t.errors.connectionFailed);
@@ -368,6 +371,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                                         url,
                                                         redirectAfterFirstLoad:
                                                             voteIndexUri(),
+                                                        initialToastMessage:
+                                                            '投票結束請記得按右上角登出關閉系統。',
+                                                        closeOnNtutLoggedOut:
+                                                            true,
                                                       ).then((_) {
                                                         if (mounted) {
                                                           _handledScan = false;

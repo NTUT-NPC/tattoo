@@ -8,17 +8,20 @@ class WebviewSheet extends StatefulWidget {
     required this.url,
     this.redirectAfterFirstLoad,
     this.initialToastMessage,
+    this.closeOnNtutLoggedOut = false,
   });
 
   final Uri url;
   final Uri? redirectAfterFirstLoad;
   final String? initialToastMessage;
+  final bool closeOnNtutLoggedOut;
 
   static Future<T?> show<T>(
     BuildContext context,
     Uri url, {
     Uri? redirectAfterFirstLoad,
     String? initialToastMessage,
+    bool closeOnNtutLoggedOut = false,
   }) {
     return Navigator.of(context).push<T>(
       MaterialPageRoute(
@@ -27,6 +30,7 @@ class WebviewSheet extends StatefulWidget {
           url: url,
           redirectAfterFirstLoad: redirectAfterFirstLoad,
           initialToastMessage: initialToastMessage,
+          closeOnNtutLoggedOut: closeOnNtutLoggedOut,
         ),
       ),
     );
@@ -40,6 +44,7 @@ class _WebviewSheetState extends State<WebviewSheet> {
   late final WebViewController _controller;
   double _progress = 0;
   bool _didRedirectAfterFirstLoad = false;
+  bool _didCloseForNtutLoggedOut = false;
 
   @override
   void initState() {
@@ -60,6 +65,14 @@ class _WebviewSheetState extends State<WebviewSheet> {
 
     _controller = WebViewController()
       ..setJavaScriptMode(.unrestricted)
+      ..addJavaScriptChannel(
+        'TattooWebview',
+        onMessageReceived: (message) {
+          if (message.message == 'ntut-logged-out') {
+            _closeForNtutLoggedOut();
+          }
+        },
+      )
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
@@ -76,10 +89,13 @@ class _WebviewSheetState extends State<WebviewSheet> {
             } catch (_) {}
 
             final redirectUrl = widget.redirectAfterFirstLoad;
-            if (redirectUrl == null || _didRedirectAfterFirstLoad) return;
+            if (redirectUrl != null && !_didRedirectAfterFirstLoad) {
+              _didRedirectAfterFirstLoad = true;
+              await _controller.loadRequest(redirectUrl);
+              return;
+            }
 
-            _didRedirectAfterFirstLoad = true;
-            await _controller.loadRequest(redirectUrl);
+            await _installNtutLoggedOutDetector();
           },
         ),
       )
@@ -107,6 +123,55 @@ class _WebviewSheetState extends State<WebviewSheet> {
       androidController.setHorizontalScrollBarEnabled(false);
       androidController.setUseWideViewPort(true);
     }
+  }
+
+  void _closeForNtutLoggedOut() {
+    if (!mounted || !widget.closeOnNtutLoggedOut || _didCloseForNtutLoggedOut) {
+      return;
+    }
+    _didCloseForNtutLoggedOut = true;
+    Navigator.of(context).pop();
+  }
+
+  Future<void> _installNtutLoggedOutDetector() async {
+    if (!widget.closeOnNtutLoggedOut) return;
+    try {
+      await _controller.runJavaScript(r'''
+(function () {
+  function notifyIfLoggedOut() {
+    var text = document.body ? (document.body.innerText || document.body.textContent || '') : '';
+    if (text.indexOf('您尚未登入') !== -1) {
+      TattooWebview.postMessage('ntut-logged-out');
+    }
+  }
+
+  notifyIfLoggedOut();
+
+  if (window.__tattooNtutLoggedOutObserverInstalled) {
+    return;
+  }
+  window.__tattooNtutLoggedOutObserverInstalled = true;
+
+  function observeBody() {
+    if (!document.body) {
+      return;
+    }
+    var observer = new MutationObserver(notifyIfLoggedOut);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+  }
+
+  if (document.body) {
+    observeBody();
+  } else {
+    document.addEventListener('DOMContentLoaded', observeBody, { once: true });
+  }
+})();
+''');
+    } catch (_) {}
   }
 
   @override
