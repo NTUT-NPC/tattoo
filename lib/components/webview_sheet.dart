@@ -3,15 +3,27 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 
 class WebviewSheet extends StatefulWidget {
-  const WebviewSheet({super.key, required this.url});
+  const WebviewSheet({
+    super.key,
+    required this.url,
+    this.redirectAfterFirstLoad,
+  });
 
   final Uri url;
+  final Uri? redirectAfterFirstLoad;
 
-  static Future<T?> show<T>(BuildContext context, Uri url) {
+  static Future<T?> show<T>(
+    BuildContext context,
+    Uri url, {
+    Uri? redirectAfterFirstLoad,
+  }) {
     return Navigator.of(context).push<T>(
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (context) => WebviewSheet(url: url),
+        builder: (context) => WebviewSheet(
+          url: url,
+          redirectAfterFirstLoad: redirectAfterFirstLoad,
+        ),
       ),
     );
   }
@@ -23,6 +35,7 @@ class WebviewSheet extends StatefulWidget {
 class _WebviewSheetState extends State<WebviewSheet> {
   late final WebViewController _controller;
   double _progress = 0;
+  bool _didRedirectAfterFirstLoad = false;
 
   @override
   void initState() {
@@ -37,10 +50,18 @@ class _WebviewSheetState extends State<WebviewSheet> {
               _progress = progress / 100.0;
             });
           },
-          onPageFinished: (String url) {
-            _controller.runJavaScript(
-              "var style = document.createElement('style'); style.innerHTML = '::-webkit-scrollbar { display: none; }'; document.head.appendChild(style);",
-            );
+          onPageFinished: (String url) async {
+            try {
+              await _controller.runJavaScript(
+                "var style = document.createElement('style'); style.innerHTML = '::-webkit-scrollbar { display: none; }'; document.head.appendChild(style);",
+              );
+            } catch (_) {}
+
+            final redirectUrl = widget.redirectAfterFirstLoad;
+            if (redirectUrl == null || _didRedirectAfterFirstLoad) return;
+
+            _didRedirectAfterFirstLoad = true;
+            await _controller.loadRequest(redirectUrl);
           },
         ),
       )

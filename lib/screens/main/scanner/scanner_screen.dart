@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +11,7 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/screens/main/scanner/scanner_guide_bottom_sheet.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
+import 'package:tattoo/utils/mobile_scanner_guard.dart';
 
 class ScannerScreen extends ConsumerStatefulWidget {
   const ScannerScreen({super.key});
@@ -19,6 +22,7 @@ class ScannerScreen extends ConsumerStatefulWidget {
 
 class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   final MobileScannerController _controller = MobileScannerController(
+    autoStart: false,
     facing: .front,
   );
   final DraggableScrollableController _sheetController =
@@ -31,10 +35,24 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   static const _scannerSuccessCodes = {'221', '222', '223'};
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(guardMobileScannerCall(_controller.start));
+    });
+  }
+
+  @override
   void dispose() {
-    _controller.dispose();
+    unawaited(_disposeScanner());
     _sheetController.dispose();
     super.dispose();
+  }
+
+  Future<void> _disposeScanner() async {
+    await guardMobileScannerCall(_controller.stop);
+    await guardMobileScannerCall(_controller.dispose);
   }
 
   Future<void> _onDetect(BarcodeCapture capture) async {
@@ -81,9 +99,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
     );
-    try {
-      await _controller.stop();
-    } catch (_) {}
     HapticFeedback.lightImpact();
 
     try {
@@ -141,9 +156,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         _isSuccess = false;
         _error = e;
       });
-      try {
-        await _controller.start();
-      } catch (_) {}
     }
   }
 
@@ -156,7 +168,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     setState(() => _isSwitchingCamera = true);
 
     try {
-      await _controller.switchCamera();
+      await guardMobileScannerCall(_controller.switchCamera);
       HapticFeedback.selectionClick();
     } catch (_) {
     } finally {

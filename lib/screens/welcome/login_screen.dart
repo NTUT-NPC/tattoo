@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +11,8 @@ import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
+import 'package:tattoo/utils/mobile_scanner_guard.dart';
+import 'package:tattoo/utils/vote_urls.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -22,7 +26,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   final _usernameFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
-  final _scannerController = MobileScannerController(facing: .front);
+  final _scannerController = MobileScannerController(
+    autoStart: false,
+    facing: .front,
+  );
 
   String? _errorMessage;
   bool _usernameHasError = false;
@@ -34,6 +41,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(guardMobileScannerCall(_scannerController.start));
+    });
 
     // Show an inline error if the user was redirected here due to auth failure.
     // Clear after reading — deferred to avoid modifying providers during build.
@@ -59,8 +70,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _passwordController.dispose();
     _usernameFocusNode.dispose();
     _passwordFocusNode.dispose();
-    _scannerController.dispose();
+    unawaited(_disposeScanner());
     super.dispose();
+  }
+
+  Future<void> _disposeScanner() async {
+    await guardMobileScannerCall(_scannerController.stop);
+    await guardMobileScannerCall(_scannerController.dispose);
   }
 
   // State management
@@ -99,13 +115,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
-  Future<void> _showWebview(Uri url) async {
-    await _scannerController.stop();
+  Future<void> _showWebview(Uri url, {Uri? redirectAfterFirstLoad}) async {
     if (!mounted) return;
-    await WebviewSheet.show(context, url);
-    if (mounted) {
-      await _scannerController.start();
-    }
+    await WebviewSheet.show(
+      context,
+      url,
+      redirectAfterFirstLoad: redirectAfterFirstLoad,
+    );
   }
 
   Future<void> _switchCamera() async {
@@ -113,7 +129,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _isSwitchingCamera = true);
 
     try {
-      await _scannerController.switchCamera();
+      await guardMobileScannerCall(_scannerController.switchCamera);
     } catch (_) {
     } finally {
       if (mounted) {
@@ -155,7 +171,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final url = await portal.getSsoUrl('per_001_oauth');
 
       if (!mounted) return;
-      await _showWebview(url);
+      await _showWebview(url, redirectAfterFirstLoad: voteIndexUri());
     } on DioException {
       if (mounted) _setError(t.errors.connectionFailed);
     } on LoginException catch (e) {
@@ -335,13 +351,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                                     r'^\d+$',
                                                   ).hasMatch(extractedCode)) {
                                                     _handledScan = true;
-                                                    final url = Uri.parse(
-                                                      'https://aps-staff.ntut.edu.tw/vote/callback.jsp?oauthServer=http%3A%2F%2Fapp.ntut.edu.tw&code=$extractedCode&redirect_uri=https%3A%2F%2Faps-staff.ntut.edu.tw%2Fvote%2Fcallback.jsp',
+                                                    final url = voteCallbackUrl(
+                                                      extractedCode,
                                                     );
                                                     if (mounted) {
-                                                      _showWebview(url).then((
-                                                        _,
-                                                      ) {
+                                                      _showWebview(
+                                                        url,
+                                                        redirectAfterFirstLoad:
+                                                            voteIndexUri(),
+                                                      ).then((_) {
                                                         if (mounted) {
                                                           _handledScan = false;
                                                         }

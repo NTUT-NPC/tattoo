@@ -5,6 +5,7 @@ import 'package:tattoo/components/webview_sheet.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/utils/launch_url.dart';
+import 'package:tattoo/utils/vote_urls.dart';
 
 String? scannedAuthCode;
 
@@ -13,11 +14,13 @@ class HomeScreen extends ConsumerWidget {
 
   Future<void> _openVotingSystem(BuildContext context, WidgetRef ref) async {
     if (scannedAuthCode != null) {
-      final url = Uri.parse(
-        'https://aps-staff.ntut.edu.tw/vote/callback.jsp?oauthServer=http%3A%2F%2Fapp.ntut.edu.tw&code=$scannedAuthCode&redirect_uri=https%3A%2F%2Faps-staff.ntut.edu.tw%2Fvote%2Fcallback.jsp',
-      );
+      final url = voteCallbackUrl(scannedAuthCode!);
       if (context.mounted) {
-        WebviewSheet.show(context, url);
+        WebviewSheet.show(
+          context,
+          url,
+          redirectAfterFirstLoad: voteIndexUri(),
+        );
       }
       return;
     }
@@ -27,6 +30,7 @@ class HomeScreen extends ConsumerWidget {
         context,
         ref.read(authRepositoryProvider),
         'per_001_oauth',
+        redirectAfterFirstLoad: voteIndexUri(),
       );
     } on DioException {
       if (!context.mounted) return;

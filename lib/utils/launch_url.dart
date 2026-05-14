@@ -29,10 +29,15 @@ Future<void> launchUrl(Uri url, {bool inExternalApplication = false}) async {
 Future<void> launchNtutService(
   BuildContext context,
   AuthRepository authRepository,
-  String serviceCode,
-) async {
+  String serviceCode, {
+  Uri? redirectAfterFirstLoad,
+}) async {
   final url = await authRepository.getSsoUrl(serviceCode);
   if (context.mounted) {
-    await WebviewSheet.show(context, url);
+    await WebviewSheet.show(
+      context,
+      url,
+      redirectAfterFirstLoad: redirectAfterFirstLoad,
+    );
   }
 }
