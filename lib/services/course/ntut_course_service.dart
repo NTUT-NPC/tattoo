@@ -195,7 +195,7 @@ class NtutCourseService implements CourseService {
         if (courseName.isEmpty) continue;
 
         var classroomRef = anchors.length >= 3
-            ? _parseAnchorRef(anchors[2])
+            ? _parseAnchorRef(anchors.last)
             : null;
         // Strip e化教室 marker "(e)" from classroom names
         if (classroomRef?.name case final name?) {
