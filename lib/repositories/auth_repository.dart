@@ -92,18 +92,17 @@ class DemoNotifier extends Notifier<bool> {
 
 final isDemoProvider = NotifierProvider<DemoNotifier, bool>(DemoNotifier.new);
 
-/// Demo account credentials.
+/// Demo account username.
 ///
-/// These are used exclusively with mock services during demo mode and do not
-/// correspond to real NTUT portal credentials.
+/// '111592347' is structurally invalid as an NTUT student ID — class "592"
+/// does not exist — so it cannot collide with any real account. Any string
+/// entered into the password field is accepted; the password is not validated.
 const String demoUsername = '111592347';
-const String demoPassword = 'password';
 
 /// Whether the given credentials should trigger demo mode.
 ///
-/// For convenience, this only checks if the username matches [demoUsername].
-/// The password is not validated here, but [demoPassword] is used internally
-/// by [AuthRepository] to satisfy mock service requirements.
+/// Only the username is checked — any password is accepted for the demo
+/// account (see [demoUsername]).
 bool isDemoCredentials(String username, String password) =>
     username == demoUsername;
 
@@ -202,9 +201,9 @@ class AuthRepository {
     //
     // Demo mode deliberately skips secure storage — demo sessions persist
     // across restarts via the DB user row instead:
-    //   1. main.dart restores isDemoProvider by matching studentId == demoUsername
-    //   2. _reauthenticate() falls back to hardcoded demo credentials when
-    //      secure storage is empty and _isDemo is true
+    // - main.dart restores isDemoProvider by matching studentId == demoUsername
+    // - _reauthenticate() falls back to the demo username when secure
+    //   storage is empty and _isDemo is true (mock ignores password)
     if (!isDemo) {
       await _secureStorage.write(key: _usernameKey, value: username);
       await _secureStorage.write(key: _passwordKey, value: password);
@@ -307,10 +306,11 @@ class AuthRepository {
       var password = await _secureStorage.read(key: _passwordKey);
 
       // Demo mode skips secure storage writes (see login()), so credentials
-      // are expected to be absent here. Fall back to hardcoded demo values.
+      // are expected to be absent here. Use the demo username; the mock
+      // portal accepts any password.
       if (_isDemo && (username == null || password == null)) {
         username = demoUsername;
-        password = demoPassword;
+        password = '';
       }
 
       if (username == null || password == null) {
