@@ -114,6 +114,59 @@ class _WebviewSheetState extends State<WebviewSheet> {
           }
         }
       })
+      ..setOnJavaScriptConfirmDialog((request) async {
+        if (!mounted) return false;
+        return await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                content: Text(request.message),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    child: const Text('取消'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    child: const Text('確定'),
+                  ),
+                ],
+              ),
+            ) ??
+            false;
+      })
+      ..setOnJavaScriptTextInputDialog((request) async {
+        if (!mounted) return '';
+        final controller = TextEditingController(text: request.defaultText);
+        final result = await showDialog<String>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            content: Column(
+              mainAxisSize: .min,
+              crossAxisAlignment: .start,
+              children: [
+                if (request.message.isNotEmpty)
+                  Padding(
+                    padding: .only(bottom: 8),
+                    child: Text(request.message),
+                  ),
+                TextField(controller: controller),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(null),
+                child: const Text('取消'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(controller.text),
+                child: const Text('確定'),
+              ),
+            ],
+          ),
+        );
+        controller.dispose();
+        return result ?? '';
+      })
       ..loadRequest(widget.url);
 
     if (_controller.platform is AndroidWebViewController) {
