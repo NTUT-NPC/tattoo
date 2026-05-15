@@ -1,5 +1,5 @@
 import 'package:riverpod/riverpod.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/i_school_plus/mock_i_school_plus_service.dart';
 import 'package:tattoo/services/i_school_plus/ntut_i_school_plus_service.dart';
 

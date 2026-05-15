@@ -1,8 +1,8 @@
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/models/course.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/course/mock_course_service.dart';
 import 'package:tattoo/services/course/ntut_course_service.dart';
+import 'package:tattoo/services/demo_mode.dart';
 
 /// Course schedule entry from the course selection system.
 typedef ScheduleDto = ({

@@ -8,6 +8,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {

@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/login_exception.dart';
+import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
 import 'package:tattoo/utils/http.dart';
@@ -73,38 +74,6 @@ final loginExceptionProvider =
     NotifierProvider<LoginExceptionNotifier, LoginException?>(
       LoginExceptionNotifier.new,
     );
-
-/// Runtime toggle for demo mode.
-///
-/// When true, the application uses mock services and data instead of
-/// communicating with the real NTUT servers.
-///
-/// This is a runtime-only toggle managed by Riverpod. It is enabled when
-/// logging in with the demo account ([demoUsername]) and remains active
-/// until the session is destroyed (logout).
-class DemoNotifier extends Notifier<bool> {
-  @override
-  bool build() => false;
-
-  void enable() => state = true;
-  void disable() => state = false;
-}
-
-final isDemoProvider = NotifierProvider<DemoNotifier, bool>(DemoNotifier.new);
-
-/// Demo account username.
-///
-/// '111592347' is structurally invalid as an NTUT student ID — class "592"
-/// does not exist — so it cannot collide with any real account. Any string
-/// entered into the password field is accepted; the password is not validated.
-const String demoUsername = '111592347';
-
-/// Whether the given credentials should trigger demo mode.
-///
-/// Only the username is checked — any password is accepted for the demo
-/// account (see [demoUsername]).
-bool isDemoCredentials(String username, String password) =>
-    username == demoUsername;
 
 /// Provides the [AuthRepository] instance.
 final authRepositoryProvider = Provider<AuthRepository>((ref) {

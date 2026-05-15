@@ -12,6 +12,7 @@ import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
 enum ErrorType {

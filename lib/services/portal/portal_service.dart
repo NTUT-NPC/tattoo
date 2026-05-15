@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:riverpod/riverpod.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/portal/mock_portal_service.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
 
