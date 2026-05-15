@@ -100,20 +100,9 @@ class _WebviewSheetState extends State<WebviewSheet> {
         ),
       )
       ..setOnConsoleMessage((message) {})
-      ..setOnJavaScriptAlertDialog((request) async {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(request.message),
-              behavior: .floating,
-            ),
-          );
-          if (request.message.contains('登入失敗：取得的字串為空白或null') ||
-              request.message.contains('登入失敗：找不到使用者')) {
-            Navigator.of(context).pop();
-          }
-        }
-      })
+      ..setOnJavaScriptAlertDialog(_handleJavaScriptAlertDialog)
+      ..setOnJavaScriptConfirmDialog(_handleJavaScriptConfirmDialog)
+      ..setOnJavaScriptTextInputDialog(_handleJavaScriptTextInputDialog)
       ..loadRequest(widget.url);
 
     if (_controller.platform is AndroidWebViewController) {
@@ -122,6 +111,103 @@ class _WebviewSheetState extends State<WebviewSheet> {
       androidController.setVerticalScrollBarEnabled(false);
       androidController.setHorizontalScrollBarEnabled(false);
       androidController.setUseWideViewPort(true);
+    }
+  }
+
+  Future<void> _handleJavaScriptAlertDialog(
+    JavaScriptAlertDialogRequest request,
+  ) async {
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Text(request.message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(MaterialLocalizations.of(context).okButtonLabel),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted) return;
+    if (request.message.contains('登入失敗：取得的字串為空白或null') ||
+        request.message.contains('登入失敗：找不到使用者')) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  Future<bool> _handleJavaScriptConfirmDialog(
+    JavaScriptConfirmDialogRequest request,
+  ) async {
+    if (!mounted) return false;
+
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) {
+            final localizations = MaterialLocalizations.of(context);
+            return AlertDialog(
+              content: Text(request.message),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(localizations.cancelButtonLabel),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text(localizations.okButtonLabel),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+  }
+
+  Future<String> _handleJavaScriptTextInputDialog(
+    JavaScriptTextInputDialogRequest request,
+  ) async {
+    if (!mounted) return '';
+
+    final controller = TextEditingController(text: request.defaultText);
+    try {
+      return await showDialog<String>(
+            context: context,
+            builder: (context) {
+              final localizations = MaterialLocalizations.of(context);
+              return AlertDialog(
+                content: Column(
+                  mainAxisSize: .min,
+                  crossAxisAlignment: .stretch,
+                  children: [
+                    Text(request.message),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: controller,
+                      autofocus: true,
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(''),
+                    child: Text(localizations.cancelButtonLabel),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(controller.text),
+                    child: Text(localizations.okButtonLabel),
+                  ),
+                ],
+              );
+            },
+          ) ??
+          '';
+    } finally {
+      controller.dispose();
     }
   }
 
