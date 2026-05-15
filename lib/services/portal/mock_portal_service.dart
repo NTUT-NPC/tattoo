@@ -43,9 +43,9 @@ class MockPortalService implements PortalService {
 
   @override
   Future<Uri> getSsoUrl(String serviceCode) async {
-    // Return a placeholder URL for demo mode. Since real SSO requires a real
-    // portal session, we return an Easter Egg URL to indicate that the service
-    // cannot be opened while using mock credentials.
+    // Real SSO requires a real portal session, which the mock can't provide.
+    // Fall back to the portal homepage so the in-app browser opens something
+    // benign rather than failing or showing a broken URL.
     return ssoUrlResult ?? Uri.parse('https://nportal.ntut.edu.tw/');
   }
 
