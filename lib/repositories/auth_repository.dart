@@ -74,6 +74,39 @@ final loginExceptionProvider =
       LoginExceptionNotifier.new,
     );
 
+/// Runtime toggle for demo mode.
+///
+/// When true, the application uses mock services and data instead of
+/// communicating with the real NTUT servers.
+///
+/// This is a runtime-only toggle managed by Riverpod. It is enabled when
+/// logging in with the demo account ([demoUsername]) and remains active
+/// until the session is destroyed (logout).
+class DemoNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void enable() => state = true;
+  void disable() => state = false;
+}
+
+final isDemoProvider = NotifierProvider<DemoNotifier, bool>(DemoNotifier.new);
+
+/// Demo account credentials.
+///
+/// These are used exclusively with mock services during demo mode and do not
+/// correspond to real NTUT portal credentials.
+const String demoUsername = '111592347';
+const String demoPassword = 'password';
+
+/// Whether the given credentials should trigger demo mode.
+///
+/// For convenience, this only checks if the username matches [demoUsername].
+/// The password is not validated here, but [demoPassword] is used internally
+/// by [AuthRepository] to satisfy mock service requirements.
+bool isDemoCredentials(String username, String password) =>
+    username == demoUsername;
+
 /// Provides the [AuthRepository] instance.
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(
@@ -81,10 +114,15 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     studentQueryService: ref.watch(studentQueryServiceProvider),
     database: ref.watch(databaseProvider),
     secureStorage: _secureStorage,
+    isDemo: ref.watch(isDemoProvider),
+    onDemoModeEnabled: () {
+      ref.read(isDemoProvider.notifier).enable();
+    },
     onSessionCreated: () {
       ref.read(sessionProvider.notifier).create();
     },
     onSessionDestroyed: ([exception]) {
+      ref.read(isDemoProvider.notifier).disable();
       ref.read(sessionProvider.notifier).destroy(exception);
     },
   );
@@ -109,6 +147,8 @@ class AuthRepository {
   final StudentQueryService _studentQueryService;
   final AppDatabase _database;
   final FlutterSecureStorage _secureStorage;
+  final bool _isDemo;
+  final void Function() _onDemoModeEnabled;
   final void Function() _onSessionCreated;
   final void Function([LoginException?]) _onSessionDestroyed;
 
@@ -124,12 +164,16 @@ class AuthRepository {
     required StudentQueryService studentQueryService,
     required AppDatabase database,
     required FlutterSecureStorage secureStorage,
+    required bool isDemo,
+    required void Function() onDemoModeEnabled,
     required void Function() onSessionCreated,
     required void Function([LoginException?]) onSessionDestroyed,
   }) : _portalService = portalService,
        _studentQueryService = studentQueryService,
        _database = database,
        _secureStorage = secureStorage,
+       _isDemo = isDemo,
+       _onDemoModeEnabled = onDemoModeEnabled,
        _onSessionCreated = onSessionCreated,
        _onSessionDestroyed = onSessionDestroyed;
 
@@ -139,14 +183,33 @@ class AuthRepository {
   /// locked, password expired, etc.). Throws [DioException] on network failure.
   /// On success, credentials are stored securely for auto-login.
   Future<User> login(String username, String password) async {
-    final userDto = await _portalService.login(username, password);
+    final isDemo = isDemoCredentials(username, password);
 
-    // Save credentials for auto-login
-    await _secureStorage.write(key: _usernameKey, value: username);
-    await _secureStorage.write(key: _passwordKey, value: password);
-    _onSessionCreated();
+    final UserDto userDto;
+    if (isDemo) {
+      // Demo mode: skip real portal, use hardcoded data
+      userDto = (
+        name: '王大同',
+        avatarFilename: null,
+        email: 't$demoUsername@ntut.edu.tw',
+        passwordExpiresInDays: null,
+      );
+    } else {
+      userDto = await _portalService.login(username, password);
+    }
 
-    return _database.transaction(() async {
+    // Save credentials for auto-login.
+    //
+    // Demo mode deliberately skips secure storage — demo sessions persist
+    // across restarts via the DB user row instead:
+    //   1. main.dart restores isDemoProvider by matching studentId == demoUsername
+    //   2. _reauthenticate() falls back to hardcoded demo credentials when
+    //      secure storage is empty and _isDemo is true
+    if (!isDemo) {
+      await _secureStorage.write(key: _usernameKey, value: username);
+      await _secureStorage.write(key: _passwordKey, value: password);
+    }
+    final user = await _database.transaction(() async {
       await _database.delete(_database.users).go();
       return _database
           .into(_database.users)
@@ -160,6 +223,14 @@ class AuthRepository {
             ),
           );
     });
+
+    // Enable demo mode before session creation so that session-scoped
+    // providers (repositories, services) are built with mock services.
+    if (isDemo) {
+      _onDemoModeEnabled();
+    }
+    _onSessionCreated();
+    return user;
   }
 
   /// Logs out and clears all local user data and stored credentials.
@@ -232,8 +303,16 @@ class AuthRepository {
     final completer = Completer<UserDto>();
     _reauthenticateInFlight = completer;
     try {
-      final username = await _secureStorage.read(key: _usernameKey);
-      final password = await _secureStorage.read(key: _passwordKey);
+      var username = await _secureStorage.read(key: _usernameKey);
+      var password = await _secureStorage.read(key: _passwordKey);
+
+      // Demo mode skips secure storage writes (see login()), so credentials
+      // are expected to be absent here. Fall back to hardcoded demo values.
+      if (_isDemo && (username == null || password == null)) {
+        username = demoUsername;
+        password = demoPassword;
+      }
+
       if (username == null || password == null) {
         _onSessionDestroyed(const LoginException(.credentialsMissing));
         throw const _AuthFailedException();
@@ -436,6 +515,7 @@ class AuthRepository {
 
     try {
       final bytes = await withAuth(() => _portalService.getAvatar(filename));
+
       await file.parent.create(recursive: true);
       await file.writeAsBytes(bytes);
       if (!await _isDecodableImage(bytes)) {

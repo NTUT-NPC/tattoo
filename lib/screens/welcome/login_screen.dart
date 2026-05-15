@@ -102,17 +102,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordController.text;
 
     // Validate input
-    if (username.isEmpty || password.trim().isEmpty) {
-      _setError(
-        t.login.errors.emptyFields,
-        username: username.isEmpty,
-        password: password.trim().isEmpty,
-      );
-      return;
-    }
-    if (username.contains('@') || username.startsWith('t')) {
-      _setError(t.login.errors.useStudentId, username: true);
-      return;
+    final isDemo = isDemoCredentials(username, password);
+    if (!isDemo) {
+      if (username.isEmpty || password.trim().isEmpty) {
+        _setError(
+          t.login.errors.emptyFields,
+          username: username.isEmpty,
+          password: password.trim().isEmpty,
+        );
+        return;
+      }
+      if (username.contains('@') || username.startsWith('t')) {
+        _setError(t.login.errors.useStudentId, username: true);
+        return;
+      }
     }
 
     _setLoading(true);

@@ -16,7 +16,7 @@ class MockPortalService implements PortalService {
     return loginResult ??
         (
           name: '王大同',
-          avatarFilename: '111592347_temp1714460935341.jpeg',
+          avatarFilename: '',
           email: 't111592347@ntut.edu.tw',
           passwordExpiresInDays: null,
         );
@@ -43,8 +43,10 @@ class MockPortalService implements PortalService {
 
   @override
   Future<Uri> getSsoUrl(String serviceCode) async {
-    return ssoUrlResult ??
-        Uri.parse('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    // Return a placeholder URL for demo mode. Since real SSO requires a real
+    // portal session, we return an Easter Egg URL to indicate that the service
+    // cannot be opened while using mock credentials.
+    return ssoUrlResult ?? Uri.parse('https://nportal.ntut.edu.tw/');
   }
 
   @override
