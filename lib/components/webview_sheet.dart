@@ -101,18 +101,69 @@ class _WebviewSheetState extends State<WebviewSheet> {
       )
       ..setOnConsoleMessage((message) {})
       ..setOnJavaScriptAlertDialog((request) async {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(request.message),
-              behavior: .floating,
-            ),
-          );
-          if (request.message.contains('登入失敗：取得的字串為空白或null') ||
-              request.message.contains('登入失敗：找不到使用者')) {
-            Navigator.of(context).pop();
-          }
+        if (!mounted) return;
+        await showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Text(request.message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('確定'),
+              ),
+            ],
+          ),
+        );
+        if (mounted &&
+            (request.message.contains('登入失敗：取得的字串為空白或null') ||
+                request.message.contains('登入失敗：找不到使用者'))) {
+          Navigator.of(context).pop();
         }
+      })
+      ..setOnJavaScriptConfirmDialog((request) async {
+        if (!mounted) return false;
+        final result = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Text(request.message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('取消'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('確定'),
+              ),
+            ],
+          ),
+        );
+        return result ?? false;
+      })
+      ..setOnJavaScriptTextInputDialog((request) async {
+        if (!mounted) return request.defaultText ?? '';
+        final controller = TextEditingController(text: request.defaultText);
+        final result = await showDialog<String>(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: TextField(
+              controller: controller,
+              autofocus: true,
+              decoration: InputDecoration(hintText: request.message),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('取消'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(controller.text),
+                child: const Text('確定'),
+              ),
+            ],
+          ),
+        );
+        return result ?? request.defaultText ?? '';
       })
       ..loadRequest(widget.url);
 
