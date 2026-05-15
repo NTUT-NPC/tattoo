@@ -35,7 +35,7 @@ class MockPortalService implements PortalService {
 
   @override
   Future<String> uploadAvatar(Uint8List imageBytes, String? oldFilename) async {
-    return uploadAvatarResult ?? '111590001_temp1052748000000.jpeg';
+    return uploadAvatarResult ?? '111592347_temp1052748000000.jpeg';
   }
 
   @override

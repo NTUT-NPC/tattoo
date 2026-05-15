@@ -21,6 +21,7 @@ class MockISchoolPlusService implements ISchoolPlusService {
         ];
   }
 
+  /// Returns the mock student and the authors of this app.
   @override
   Future<List<StudentDto>> getStudents(ISchoolCourseDto course) async {
     return studentsResult ??
