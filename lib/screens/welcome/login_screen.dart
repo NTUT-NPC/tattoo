@@ -122,6 +122,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _setLoading(true);
     FocusScope.of(context).unfocus();
 
+    // Sync isDemoProvider to the current attempt's credentials so the
+    // AuthRepository instance and its services match before login runs.
+    // Also clears stale demo state from a previous failed demo attempt.
+    if (isDemo) {
+      ref.read(isDemoProvider.notifier).enable();
+    } else {
+      ref.read(isDemoProvider.notifier).disable();
+    }
+
     try {
       await ref.read(authRepositoryProvider).login(username, password);
       if (mounted) context.go(AppRoutes.home);

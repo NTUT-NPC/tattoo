@@ -51,6 +51,7 @@ class SessionNotifier extends Notifier<bool> {
 
   void destroy([LoginException? exception]) {
     ref.read(loginExceptionProvider.notifier).set(exception);
+    ref.read(isDemoProvider.notifier).disable();
     state = false;
   }
 }
@@ -83,14 +84,10 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     database: ref.watch(databaseProvider),
     secureStorage: _secureStorage,
     isDemo: ref.watch(isDemoProvider),
-    onDemoModeEnabled: () {
-      ref.read(isDemoProvider.notifier).enable();
-    },
     onSessionCreated: () {
       ref.read(sessionProvider.notifier).create();
     },
     onSessionDestroyed: ([exception]) {
-      ref.read(isDemoProvider.notifier).disable();
       ref.read(sessionProvider.notifier).destroy(exception);
     },
   );
@@ -116,7 +113,6 @@ class AuthRepository {
   final AppDatabase _database;
   final FlutterSecureStorage _secureStorage;
   final bool _isDemo;
-  final void Function() _onDemoModeEnabled;
   final void Function() _onSessionCreated;
   final void Function([LoginException?]) _onSessionDestroyed;
 
@@ -133,7 +129,6 @@ class AuthRepository {
     required AppDatabase database,
     required FlutterSecureStorage secureStorage,
     required bool isDemo,
-    required void Function() onDemoModeEnabled,
     required void Function() onSessionCreated,
     required void Function([LoginException?]) onSessionDestroyed,
   }) : _portalService = portalService,
@@ -141,7 +136,6 @@ class AuthRepository {
        _database = database,
        _secureStorage = secureStorage,
        _isDemo = isDemo,
-       _onDemoModeEnabled = onDemoModeEnabled,
        _onSessionCreated = onSessionCreated,
        _onSessionDestroyed = onSessionDestroyed;
 
@@ -192,11 +186,6 @@ class AuthRepository {
           );
     });
 
-    // Enable demo mode before session creation so that session-scoped
-    // providers (repositories, services) are built with mock services.
-    if (isDemo) {
-      _onDemoModeEnabled();
-    }
     _onSessionCreated();
     return user;
   }
