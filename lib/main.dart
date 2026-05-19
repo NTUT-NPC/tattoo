@@ -12,6 +12,7 @@ import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
 enum ErrorType {
@@ -113,7 +114,13 @@ Future<void> main() async {
 
   final database = container.read(databaseProvider);
   final user = await database.select(database.users).getSingleOrNull();
-  if (user != null) container.read(sessionProvider.notifier).create();
+  if (user != null) {
+    // Restore demo mode if the stored user is the demo account
+    if (user.studentId == demoUsername) {
+      container.read(isDemoProvider.notifier).set(true);
+    }
+    container.read(sessionProvider.notifier).create();
+  }
   final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
   final router = createAppRouter(
     initialLocation: initialLocation,

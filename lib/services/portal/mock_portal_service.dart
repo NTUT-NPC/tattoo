@@ -16,7 +16,7 @@ class MockPortalService implements PortalService {
     return loginResult ??
         (
           name: '王大同',
-          avatarFilename: '111592347_temp1714460935341.jpeg',
+          avatarFilename: '',
           email: 't111592347@ntut.edu.tw',
           passwordExpiresInDays: null,
         );
@@ -35,7 +35,7 @@ class MockPortalService implements PortalService {
 
   @override
   Future<String> uploadAvatar(Uint8List imageBytes, String? oldFilename) async {
-    return uploadAvatarResult ?? '111590001_temp1052748000000.jpeg';
+    return uploadAvatarResult ?? '111592347_temp1052748000000.jpeg';
   }
 
   @override
@@ -43,8 +43,10 @@ class MockPortalService implements PortalService {
 
   @override
   Future<Uri> getSsoUrl(String serviceCode) async {
-    return ssoUrlResult ??
-        Uri.parse('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    // Real SSO requires a real portal session, which the mock can't provide.
+    // Fall back to the portal homepage so the in-app browser opens something
+    // benign rather than failing or showing a broken URL.
+    return ssoUrlResult ?? Uri.parse('https://nportal.ntut.edu.tw/');
   }
 
   @override

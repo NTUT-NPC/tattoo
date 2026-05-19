@@ -3,6 +3,8 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/models/score.dart';
 import 'package:tattoo/models/user.dart';
+import 'package:tattoo/services/demo_mode.dart';
+import 'package:tattoo/services/student_query/mock_student_query_service.dart';
 import 'package:tattoo/services/student_query/ntut_student_query_service.dart';
 
 /// A single course score entry from the academic performance page.
@@ -127,9 +129,12 @@ typedef StudentProfileDto = ({
 });
 
 /// Provides the singleton [StudentQueryService] instance.
-final studentQueryServiceProvider = Provider<StudentQueryService>(
-  (ref) => NtutStudentQueryService(),
-);
+final studentQueryServiceProvider = Provider<StudentQueryService>((ref) {
+  if (ref.watch(isDemoProvider)) {
+    return MockStudentQueryService();
+  }
+  return NtutStudentQueryService();
+});
 
 /// Service for accessing NTUT's student query system (學生查詢專區).
 ///

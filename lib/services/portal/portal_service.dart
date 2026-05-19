@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:riverpod/riverpod.dart';
+import 'package:tattoo/services/demo_mode.dart';
+import 'package:tattoo/services/portal/mock_portal_service.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
 
 /// Represents a logged-in NTUT Portal user.
@@ -76,7 +78,15 @@ enum PortalServiceCode {
 // dart format on
 
 /// Provides the singleton [PortalService] instance.
+///
+/// Returns [MockPortalService] in demo mode. Features that rely on real SSO
+/// side effects (QR scanner iStudy login, portal service links) are
+/// intentionally left enabled so they fail gracefully with "login failed"
+/// rather than disappearing — keeps the UI consistent across modes.
 final portalServiceProvider = Provider<PortalService>((ref) {
+  if (ref.watch(isDemoProvider)) {
+    return MockPortalService();
+  }
   return NtutPortalService();
 });
 

@@ -8,6 +8,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -102,21 +103,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordController.text;
 
     // Validate input
-    if (username.isEmpty || password.trim().isEmpty) {
-      _setError(
-        t.login.errors.emptyFields,
-        username: username.isEmpty,
-        password: password.trim().isEmpty,
-      );
-      return;
-    }
-    if (username.contains('@') || username.startsWith('t')) {
-      _setError(t.login.errors.useStudentId, username: true);
-      return;
+    final isDemo = isDemoCredentials(username, password);
+    if (!isDemo) {
+      if (username.isEmpty || password.trim().isEmpty) {
+        _setError(
+          t.login.errors.emptyFields,
+          username: username.isEmpty,
+          password: password.trim().isEmpty,
+        );
+        return;
+      }
+      if (username.contains('@') || username.startsWith('t')) {
+        _setError(t.login.errors.useStudentId, username: true);
+        return;
+      }
     }
 
     _setLoading(true);
     FocusScope.of(context).unfocus();
+
+    // Sync isDemoProvider to the current attempt's credentials so the
+    // AuthRepository instance and its services match before login runs.
+    // Also clears stale demo state from a previous failed demo attempt.
+    ref.read(isDemoProvider.notifier).set(isDemo);
 
     try {
       await ref.read(authRepositoryProvider).login(username, password);
