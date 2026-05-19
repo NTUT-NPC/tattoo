@@ -112,7 +112,7 @@ Future<void> main() async {
   if (user != null) {
     // Restore demo mode if the stored user is the demo account
     if (user.studentId == demoUsername) {
-      container.read(isDemoProvider.notifier).enable();
+      container.read(isDemoProvider.notifier).set(true);
     }
     container.read(sessionProvider.notifier).create();
   }

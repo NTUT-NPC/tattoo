@@ -12,8 +12,7 @@ class DemoNotifier extends Notifier<bool> {
   @override
   bool build() => false;
 
-  void enable() => state = true;
-  void disable() => state = false;
+  void set(bool value) => state = value;
 }
 
 final isDemoProvider = NotifierProvider<DemoNotifier, bool>(DemoNotifier.new);

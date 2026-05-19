@@ -51,7 +51,7 @@ class SessionNotifier extends Notifier<bool> {
 
   void destroy([LoginException? exception]) {
     ref.read(loginExceptionProvider.notifier).set(exception);
-    ref.read(isDemoProvider.notifier).disable();
+    ref.read(isDemoProvider.notifier).set(false);
     state = false;
   }
 }

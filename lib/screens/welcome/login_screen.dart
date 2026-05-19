@@ -125,11 +125,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     // Sync isDemoProvider to the current attempt's credentials so the
     // AuthRepository instance and its services match before login runs.
     // Also clears stale demo state from a previous failed demo attempt.
-    if (isDemo) {
-      ref.read(isDemoProvider.notifier).enable();
-    } else {
-      ref.read(isDemoProvider.notifier).disable();
-    }
+    ref.read(isDemoProvider.notifier).set(isDemo);
 
     try {
       await ref.read(authRepositoryProvider).login(username, password);
