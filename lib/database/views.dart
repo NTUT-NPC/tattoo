@@ -87,6 +87,51 @@ abstract class ScoreDetails extends View {
       ]);
 }
 
+/// Flat view of a course offering joined with its catalog entry.
+///
+/// One row per [CourseOfferings] row. Falls back to catalog values for
+/// name/credits/hours when the offering's own values are null, matching
+/// [CourseTableSlots]. The repository composes this row with separate
+/// queries for the offering's many-side relations (schedule slots,
+/// teachers, classes) into a full detail record.
+abstract class CourseOfferingOverviews extends View {
+  CourseOfferings get courseOfferings;
+  Courses get courses;
+
+  Expression<String> get nameZh =>
+      coalesce([courseOfferings.nameZh, courses.nameZh]);
+  Expression<String> get nameEn =>
+      coalesce([courseOfferings.nameEn, courses.nameEn]);
+  Expression<double> get credits =>
+      coalesce([courseOfferings.credits, courses.credits]);
+  Expression<int> get hours => coalesce([courseOfferings.hours, courses.hours]);
+
+  @override
+  Query as() =>
+      select([
+        courseOfferings.id,
+        courseOfferings.courseCode,
+        courseOfferings.semester,
+        courseOfferings.number,
+        nameZh,
+        nameEn,
+        credits,
+        hours,
+        courseOfferings.phase,
+        courseOfferings.courseType,
+        courseOfferings.status,
+        courseOfferings.language,
+        courseOfferings.remarks,
+        courseOfferings.enrolled,
+        courseOfferings.withdrawn,
+      ]).from(courseOfferings).join([
+        leftOuterJoin(
+          courses,
+          courses.code.equalsExp(courseOfferings.courseCode),
+        ),
+      ]);
+}
+
 /// Flat view of schedule slots with course offering and course metadata.
 ///
 /// One row per `(dayOfWeek, period)` slot. Repository groups these rows

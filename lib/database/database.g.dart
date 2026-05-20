@@ -10502,6 +10502,424 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
   }
 }
 
+class CourseOfferingOverview extends DataClass {
+  final int id;
+  final String? courseCode;
+  final int semester;
+  final String? number;
+  final String? nameZh;
+  final String? nameEn;
+  final double? credits;
+  final int? hours;
+  final int? phase;
+  final CourseType? courseType;
+  final String? status;
+  final String? language;
+  final String? remarks;
+  final int? enrolled;
+  final int? withdrawn;
+  const CourseOfferingOverview({
+    required this.id,
+    this.courseCode,
+    required this.semester,
+    this.number,
+    this.nameZh,
+    this.nameEn,
+    this.credits,
+    this.hours,
+    this.phase,
+    this.courseType,
+    this.status,
+    this.language,
+    this.remarks,
+    this.enrolled,
+    this.withdrawn,
+  });
+  factory CourseOfferingOverview.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CourseOfferingOverview(
+      id: serializer.fromJson<int>(json['id']),
+      courseCode: serializer.fromJson<String?>(json['courseCode']),
+      semester: serializer.fromJson<int>(json['semester']),
+      number: serializer.fromJson<String?>(json['number']),
+      nameZh: serializer.fromJson<String?>(json['nameZh']),
+      nameEn: serializer.fromJson<String?>(json['nameEn']),
+      credits: serializer.fromJson<double?>(json['credits']),
+      hours: serializer.fromJson<int?>(json['hours']),
+      phase: serializer.fromJson<int?>(json['phase']),
+      courseType: $CourseOfferingsTable.$convertercourseTypen.fromJson(
+        serializer.fromJson<String?>(json['courseType']),
+      ),
+      status: serializer.fromJson<String?>(json['status']),
+      language: serializer.fromJson<String?>(json['language']),
+      remarks: serializer.fromJson<String?>(json['remarks']),
+      enrolled: serializer.fromJson<int?>(json['enrolled']),
+      withdrawn: serializer.fromJson<int?>(json['withdrawn']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'courseCode': serializer.toJson<String?>(courseCode),
+      'semester': serializer.toJson<int>(semester),
+      'number': serializer.toJson<String?>(number),
+      'nameZh': serializer.toJson<String?>(nameZh),
+      'nameEn': serializer.toJson<String?>(nameEn),
+      'credits': serializer.toJson<double?>(credits),
+      'hours': serializer.toJson<int?>(hours),
+      'phase': serializer.toJson<int?>(phase),
+      'courseType': serializer.toJson<String?>(
+        $CourseOfferingsTable.$convertercourseTypen.toJson(courseType),
+      ),
+      'status': serializer.toJson<String?>(status),
+      'language': serializer.toJson<String?>(language),
+      'remarks': serializer.toJson<String?>(remarks),
+      'enrolled': serializer.toJson<int?>(enrolled),
+      'withdrawn': serializer.toJson<int?>(withdrawn),
+    };
+  }
+
+  CourseOfferingOverview copyWith({
+    int? id,
+    Value<String?> courseCode = const Value.absent(),
+    int? semester,
+    Value<String?> number = const Value.absent(),
+    Value<String?> nameZh = const Value.absent(),
+    Value<String?> nameEn = const Value.absent(),
+    Value<double?> credits = const Value.absent(),
+    Value<int?> hours = const Value.absent(),
+    Value<int?> phase = const Value.absent(),
+    Value<CourseType?> courseType = const Value.absent(),
+    Value<String?> status = const Value.absent(),
+    Value<String?> language = const Value.absent(),
+    Value<String?> remarks = const Value.absent(),
+    Value<int?> enrolled = const Value.absent(),
+    Value<int?> withdrawn = const Value.absent(),
+  }) => CourseOfferingOverview(
+    id: id ?? this.id,
+    courseCode: courseCode.present ? courseCode.value : this.courseCode,
+    semester: semester ?? this.semester,
+    number: number.present ? number.value : this.number,
+    nameZh: nameZh.present ? nameZh.value : this.nameZh,
+    nameEn: nameEn.present ? nameEn.value : this.nameEn,
+    credits: credits.present ? credits.value : this.credits,
+    hours: hours.present ? hours.value : this.hours,
+    phase: phase.present ? phase.value : this.phase,
+    courseType: courseType.present ? courseType.value : this.courseType,
+    status: status.present ? status.value : this.status,
+    language: language.present ? language.value : this.language,
+    remarks: remarks.present ? remarks.value : this.remarks,
+    enrolled: enrolled.present ? enrolled.value : this.enrolled,
+    withdrawn: withdrawn.present ? withdrawn.value : this.withdrawn,
+  );
+  @override
+  String toString() {
+    return (StringBuffer('CourseOfferingOverview(')
+          ..write('id: $id, ')
+          ..write('courseCode: $courseCode, ')
+          ..write('semester: $semester, ')
+          ..write('number: $number, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('credits: $credits, ')
+          ..write('hours: $hours, ')
+          ..write('phase: $phase, ')
+          ..write('courseType: $courseType, ')
+          ..write('status: $status, ')
+          ..write('language: $language, ')
+          ..write('remarks: $remarks, ')
+          ..write('enrolled: $enrolled, ')
+          ..write('withdrawn: $withdrawn')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    courseCode,
+    semester,
+    number,
+    nameZh,
+    nameEn,
+    credits,
+    hours,
+    phase,
+    courseType,
+    status,
+    language,
+    remarks,
+    enrolled,
+    withdrawn,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CourseOfferingOverview &&
+          other.id == this.id &&
+          other.courseCode == this.courseCode &&
+          other.semester == this.semester &&
+          other.number == this.number &&
+          other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn &&
+          other.credits == this.credits &&
+          other.hours == this.hours &&
+          other.phase == this.phase &&
+          other.courseType == this.courseType &&
+          other.status == this.status &&
+          other.language == this.language &&
+          other.remarks == this.remarks &&
+          other.enrolled == this.enrolled &&
+          other.withdrawn == this.withdrawn);
+}
+
+class $CourseOfferingOverviewsView
+    extends ViewInfo<$CourseOfferingOverviewsView, CourseOfferingOverview>
+    implements HasResultSet {
+  final String? _alias;
+  @override
+  final _$AppDatabase attachedDatabase;
+  $CourseOfferingOverviewsView(this.attachedDatabase, [this._alias]);
+  $CourseOfferingsTable get courseOfferings =>
+      attachedDatabase.courseOfferings.createAlias('t0');
+  $CoursesTable get courses => attachedDatabase.courses.createAlias('t1');
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    courseCode,
+    semester,
+    number,
+    nameZh,
+    nameEn,
+    credits,
+    hours,
+    phase,
+    courseType,
+    status,
+    language,
+    remarks,
+    enrolled,
+    withdrawn,
+  ];
+  @override
+  String get aliasedName => _alias ?? entityName;
+  @override
+  String get entityName => 'course_offering_overviews';
+  @override
+  Map<SqlDialect, String>? get createViewStatements => null;
+  @override
+  $CourseOfferingOverviewsView get asDslTable => this;
+  @override
+  CourseOfferingOverview map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CourseOfferingOverview(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      courseCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}course_code'],
+      ),
+      semester: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}semester'],
+      )!,
+      number: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}number'],
+      ),
+      nameZh: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_zh'],
+      ),
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      ),
+      credits: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}credits'],
+      ),
+      hours: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hours'],
+      ),
+      phase: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}phase'],
+      ),
+      courseType: $CourseOfferingsTable.$convertercourseTypen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}course_type'],
+        ),
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      ),
+      language: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}language'],
+      ),
+      remarks: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remarks'],
+      ),
+      enrolled: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}enrolled'],
+      ),
+      withdrawn: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}withdrawn'],
+      ),
+    );
+  }
+
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(courseOfferings.id, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<String> courseCode = GeneratedColumn<String>(
+    'course_code',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.courseCode, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<int> semester = GeneratedColumn<int>(
+    'semester',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(courseOfferings.semester, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<String> number = GeneratedColumn<String>(
+    'number',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.number, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
+    'name_zh',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.nameZh, courses.nameZh]),
+      false,
+    ),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.nameEn, courses.nameEn]),
+      false,
+    ),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<double> credits = GeneratedColumn<double>(
+    'credits',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.credits, courses.credits]),
+      false,
+    ),
+    type: DriftSqlType.double,
+  );
+  late final GeneratedColumn<int> hours = GeneratedColumn<int>(
+    'hours',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.hours, courses.hours]),
+      false,
+    ),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> phase = GeneratedColumn<int>(
+    'phase',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.phase, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumnWithTypeConverter<CourseType?, String> courseType =
+      GeneratedColumn<String>(
+        'course_type',
+        aliasedName,
+        true,
+        generatedAs: GeneratedAs(courseOfferings.courseType, false),
+        type: DriftSqlType.string,
+      ).withConverter<CourseType?>($CourseOfferingsTable.$convertercourseTypen);
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.status, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+    'language',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.language, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> remarks = GeneratedColumn<String>(
+    'remarks',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.remarks, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<int> enrolled = GeneratedColumn<int>(
+    'enrolled',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.enrolled, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> withdrawn = GeneratedColumn<int>(
+    'withdrawn',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.withdrawn, false),
+    type: DriftSqlType.int,
+  );
+  @override
+  $CourseOfferingOverviewsView createAlias(String alias) {
+    return $CourseOfferingOverviewsView(attachedDatabase, alias);
+  }
+
+  @override
+  Query? get query =>
+      (attachedDatabase.selectOnly(courseOfferings)..addColumns($columns)).join(
+        [
+          leftOuterJoin(
+            courses,
+            courses.code.equalsExp(courseOfferings.courseCode),
+          ),
+        ],
+      );
+  @override
+  Set<String> get readTables => const {'course_offerings', 'courses'};
+}
+
 class CourseTableSlot extends DataClass {
   final int id;
   final String? number;
@@ -11674,6 +12092,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $UserSemesterRankingsTable userSemesterRankings =
       $UserSemesterRankingsTable(this);
   late final $CalendarEventsTable calendarEvents = $CalendarEventsTable(this);
+  late final $CourseOfferingOverviewsView courseOfferingOverviews =
+      $CourseOfferingOverviewsView(this);
   late final $CourseTableSlotsView courseTableSlots = $CourseTableSlotsView(
     this,
   );
@@ -11746,6 +12166,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userSemesterSummaryCadreRoles,
     userSemesterRankings,
     calendarEvents,
+    courseOfferingOverviews,
     courseTableSlots,
     scoreDetails,
     userAcademicSummaries,

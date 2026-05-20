@@ -14,6 +14,28 @@ import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/localized.dart';
 
+/// Detailed data for a single course offering, sufficient to populate the
+/// course-table detail bottom sheet. Composes the [CourseOfferingOverview]
+/// view row (single-value offering+catalog fields) with the offering's
+/// many-side relations (schedule slots, teachers, classes).
+///
+/// Future iSchool-sourced lists (roster, assignments) will be added as
+/// additional fields on this record.
+typedef CourseOfferingDetail = ({
+  CourseOfferingOverview overview,
+  List<
+    ({
+      DayOfWeek day,
+      Period period,
+      String? classroomNameZh,
+      String? classroomNameEn,
+    })
+  >
+  schedule,
+  List<({String code, String nameZh, String? nameEn})> teachers,
+  List<({String code, String nameZh, String? nameEn})> classes,
+});
+
 /// Data for a single cell in the course table grid.
 typedef CourseTableCellData = ({
   /// [CourseOfferings] primary key, for navigating to detail view.
@@ -600,9 +622,140 @@ class CourseRepository {
 
   /// Gets a course offering with related data (teachers, classrooms, schedules).
   ///
-  /// Returns `null` if not found.
-  Future<CourseOffering?> getCourseOffering(int id) async {
-    throw UnimplementedError();
+  /// Assumes [refreshCourseTable] has already populated the offering and its
+  /// junctions. Returns `null` if not found.
+  ///
+  /// If the offering has a `syllabusId` and its syllabus fields are missing or
+  /// stale (TTL 3 days, tracked via [CourseOfferings]'s `fetchedAt` from
+  /// [Fetchable]), this lazily fetches the syllabus through
+  /// [CourseService.getSyllabus] and persists `courseType` / `enrolled` /
+  /// `withdrawn` / syllabus content fields. Network errors are absorbed —
+  /// whatever's in the DB is still returned.
+  Future<CourseOfferingDetail?> getCourseOffering(int id) async {
+    const syllabusTtl = Duration(days: 3);
+
+    final raw = await (_database.select(
+      _database.courseOfferings,
+    )..where((o) => o.id.equals(id))).getSingleOrNull();
+    if (raw == null) return null;
+
+    final syllabusAge = switch (raw.fetchedAt) {
+      final t? => DateTime.now().difference(t),
+      null => syllabusTtl,
+    };
+    if (raw.syllabusId case final syllabusId?
+        when raw.number != null && syllabusAge >= syllabusTtl) {
+      try {
+        final syllabus = await _authRepository.withAuth(
+          () => _courseService.getSyllabus(
+            courseNumber: raw.number!,
+            syllabusId: syllabusId,
+          ),
+          sso: [.courseService],
+        );
+        await (_database.update(
+          _database.courseOfferings,
+        )..where((o) => o.id.equals(id))).write(
+          CourseOfferingsCompanion(
+            courseType: Value(syllabus.type),
+            enrolled: Value(syllabus.enrolled),
+            withdrawn: Value(syllabus.withdrawn),
+            syllabusUpdatedAt: Value(syllabus.lastUpdated),
+            objective: Value(syllabus.objective),
+            weeklyPlan: Value(syllabus.weeklyPlan),
+            evaluation: Value(syllabus.evaluation),
+            textbooks: Value(syllabus.materials),
+            syllabusRemarks: Value(syllabus.remarks),
+            fetchedAt: Value(DateTime.now()),
+          ),
+        );
+      } catch (_) {
+        // Absorb: stale or empty syllabus data is preferable to failing the
+        // whole detail load (network errors, parse failures, etc.).
+      }
+    }
+
+    final overview = await (_database.select(
+      _database.courseOfferingOverviews,
+    )..where((o) => o.id.equals(id))).getSingleOrNull();
+    if (overview == null) return null;
+
+    final scheduleRows =
+        await (_database.select(_database.schedules).join([
+                leftOuterJoin(
+                  _database.classrooms,
+                  _database.classrooms.id.equalsExp(
+                    _database.schedules.classroom,
+                  ),
+                ),
+              ])
+              ..where(_database.schedules.courseOffering.equals(id))
+              ..orderBy([
+                OrderingTerm.asc(_database.schedules.dayOfWeek),
+                OrderingTerm.asc(_database.schedules.period),
+              ]))
+            .get();
+
+    final teacherRows =
+        await (_database.select(_database.courseOfferingTeachers).join([
+              innerJoin(
+                _database.teacherSemesters,
+                _database.teacherSemesters.id.equalsExp(
+                  _database.courseOfferingTeachers.teacherSemester,
+                ),
+              ),
+              innerJoin(
+                _database.teachers,
+                _database.teachers.id.equalsExp(
+                  _database.teacherSemesters.teacher,
+                ),
+              ),
+            ])..where(
+              _database.courseOfferingTeachers.courseOffering.equals(id),
+            ))
+            .get();
+
+    final classRows =
+        await (_database.select(_database.courseOfferingClasses).join([
+                innerJoin(
+                  _database.classes,
+                  _database.classes.id.equalsExp(
+                    _database.courseOfferingClasses.classEntity,
+                  ),
+                ),
+              ])
+              ..where(_database.courseOfferingClasses.courseOffering.equals(id))
+              ..orderBy([OrderingTerm.asc(_database.classes.code)]))
+            .get();
+
+    return (
+      overview: overview,
+      schedule: [
+        for (final row in scheduleRows)
+          (
+            day: row.readTable(_database.schedules).dayOfWeek,
+            period: row.readTable(_database.schedules).period,
+            classroomNameZh: row.readTableOrNull(_database.classrooms)?.nameZh,
+            classroomNameEn: row.readTableOrNull(_database.classrooms)?.nameEn,
+          ),
+      ],
+      teachers: [
+        for (final row in teacherRows)
+          (
+            code: row.readTable(_database.teachers).code,
+            nameZh: row.readTable(_database.teachers).nameZh,
+            nameEn: row.readTable(_database.teachers).nameEn,
+          ),
+      ],
+      classes: [
+        for (final row in classRows)
+          (
+            code: row.readTable(_database.classes).code,
+            nameZh: row.readTable(_database.classes).nameZh,
+            nameEn: row.readTable(_database.classes).nameEn,
+          ),
+      ],
+    );
   }
 
   /// Gets course catalog information by code.
@@ -659,13 +812,6 @@ class CourseRepository {
     return (_database.select(
       _database.courses,
     )..where((c) => c.id.equals(courseId))).getSingle();
-  }
-
-  /// Gets detailed course catalog information.
-  ///
-  /// Throws [Exception] on network failure.
-  Future<Course> getCourseDetails(String courseId) async {
-    throw UnimplementedError();
   }
 
   /// Gets course materials (files, recordings, etc.) from I-School Plus.

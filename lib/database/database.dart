@@ -51,6 +51,7 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     CalendarEvents,
   ],
   views: [
+    CourseOfferingOverviews,
     CourseTableSlots,
     ScoreDetails,
     UserAcademicSummaries,
