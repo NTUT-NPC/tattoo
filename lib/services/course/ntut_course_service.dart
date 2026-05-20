@@ -195,7 +195,7 @@ class NtutCourseService implements CourseService {
         if (courseName.isEmpty) continue;
 
         var classroomRef = anchors.length >= 3
-            ? _parseAnchorRef(anchors[2])
+            ? _parseAnchorRef(anchors.last)
             : null;
         // Strip e化教室 marker "(e)" from classroom names
         if (classroomRef?.name case final name?) {
@@ -447,13 +447,13 @@ class NtutCourseService implements CourseService {
 
   DayOfWeek? _parseDayOfWeek(String code) {
     return switch (code.toLowerCase()) {
-      'sun' => DayOfWeek.sunday,
-      'mon' => DayOfWeek.monday,
-      'tue' => DayOfWeek.tuesday,
-      'wed' => DayOfWeek.wednesday,
-      'thu' => DayOfWeek.thursday,
-      'fri' => DayOfWeek.friday,
-      'sat' => DayOfWeek.saturday,
+      'sun' => .sunday,
+      'mon' => .monday,
+      'tue' => .tuesday,
+      'wed' => .wednesday,
+      'thu' => .thursday,
+      'fri' => .friday,
+      'sat' => .saturday,
       _ => null,
     };
   }

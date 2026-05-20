@@ -7,6 +7,7 @@ general:
   notLoggedIn: Not logged in
   copy: Copy
   copied: Copied
+  back: Back
   ok: OK
 errors:
   occurred: An error occurred
@@ -45,12 +46,63 @@ login:
     passwordExpired: Your password has expired. Please change it on the NTUT portal.
     mobileVerificationRequired: Mobile phone verification is required. Please complete it on the NTUT portal.
 nav:
+  home: Home
   courseTable: Courses
   scores: Scores
   portal: Portals
+  calendar: Calendar
   profile: Me
+  vote: Vote Login
+home:
+  projectTattoo:
+    title: About Project Tattoo
+    description: Learn more or invite your friends to join the testing program.
+    url: https://ntut.app
+  ideation:
+    title: Our TAT is under construction
+    description: We're collecting ideas for the Home page. Share your proposal with us.
+    url: https://forms.gle/LdQdMfvAfUYyGE4k8
+  npcClub:
+    title: NTUT Programming Club
+    description: If you have ideas or want to contribute, feel free to reach out anytime.
+    url: https://ntut.club
+  vote:
+    description: Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.
+score:
+  loadFailed: Failed to load scores
+  refreshFailed: Failed to refresh scores
+  noRecords: No score records found
+  noScoresThisSemester: No scores for this semester
+  courseNumber: "No: ${number}  Code: ${code}"
+  none: N/A
+  summary:
+    cumulativeGpa: Cumulative GPA
+    conduct: Conduct
+    semesterAverage: Semester Avg
+    creditsPassed: Credits Passed
+    totalCredits: Total Credits
+  status:
+    notEntered: Not entered
+    withdraw: Withdrawn
+    undelivered: Not submitted
+    pass: Pass
+    fail: Fail
+    creditTransfer: Credit transfer
+calendar:
+  today: Today
 courseTable:
   notFound: Course table not found
+  unscheduled: Unscheduled Courses
+  summary:
+    credits(plural, param=count):
+      one: ${count} credit
+      other: ${count} credits
+    hours(plural, param=count):
+      one: ${count} hour
+      other: ${count} hours
+  actions:
+    showMoreOptions: Show more options
+    displayOptions: Display options
   dayOfWeek(map):
     sunday: Sun
     monday: Mon
@@ -61,6 +113,11 @@ courseTable:
     saturday: Sat
 profile:
   dataDisclaimer: Reference only. Not official.
+  passwordExpiry:
+    warning(plural, param=days):
+      one: Password expires in 1 day
+      other: Password expires in ${days} days
+    action: Change
   sections:
     accountSettings: Account Settings
     appSettings: App Settings
@@ -205,6 +262,12 @@ ntutWifi:
     later: Later
     credentialChanged: NTUT-802.1X was previously saved through compat mode. Your portal credentials changed, so the system Wi-Fi profile needs to be updated.
     suggestionFallbackRequired: Automatic NTUT-802.1X refresh failed. Do you want to switch to compat mode and update it now?
+kioskLogin:
+  qrCode: login QR code
+  refresh: Regenerate
+  notice: Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.
+  loadFailed: Unable to generate the login code. Please try again later.
+  invalidSsoUrl: The login URL is invalid. Unable to generate the login code.
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence

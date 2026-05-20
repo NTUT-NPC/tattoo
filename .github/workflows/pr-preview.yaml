@@ -146,6 +146,7 @@ jobs:
       PR_TITLE: ${{ github.event.pull_request.title }}
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -183,7 +184,7 @@ jobs:
           edit-mode: append
 
   ios:
-    runs-on: macos-latest
+    runs-on: macos-26
     needs: [prepare]
     env:
       FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
@@ -202,6 +203,7 @@ jobs:
       PR_TITLE: ${{ github.event.pull_request.title }}
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6

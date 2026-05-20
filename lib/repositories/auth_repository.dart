@@ -11,8 +11,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/login_exception.dart';
-import 'package:tattoo/models/user.dart';
 import 'package:tattoo/services/campus_wifi/campus_wifi_platform.dart';
+import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
 import 'package:tattoo/utils/http.dart';
@@ -59,6 +59,7 @@ class SessionNotifier extends Notifier<bool> {
 
   void destroy([LoginException? exception]) {
     ref.read(loginExceptionProvider.notifier).set(exception);
+    ref.read(isDemoProvider.notifier).set(false);
     state = false;
   }
 }
@@ -90,6 +91,7 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     studentQueryService: ref.watch(studentQueryServiceProvider),
     database: ref.watch(databaseProvider),
     secureStorage: _secureStorage,
+    isDemo: ref.watch(isDemoProvider),
     onSessionCreated: () {
       ref.read(sessionProvider.notifier).create();
     },
@@ -134,6 +136,7 @@ class AuthRepository {
   final StudentQueryService _studentQueryService;
   final AppDatabase _database;
   final FlutterSecureStorage _secureStorage;
+  final bool _isDemo;
   final void Function() _onSessionCreated;
   final void Function([LoginException?]) _onSessionDestroyed;
   final Future<void> Function({
@@ -156,6 +159,7 @@ class AuthRepository {
     required StudentQueryService studentQueryService,
     required AppDatabase database,
     required FlutterSecureStorage secureStorage,
+    required bool isDemo,
     required void Function() onSessionCreated,
     required void Function([LoginException?]) onSessionDestroyed,
     Future<void> Function({
@@ -169,6 +173,7 @@ class AuthRepository {
        _studentQueryService = studentQueryService,
        _database = database,
        _secureStorage = secureStorage,
+       _isDemo = isDemo,
        _onSessionCreated = onSessionCreated,
        _onSessionDestroyed = onSessionDestroyed,
        _onCredentialsUpdated = onCredentialsUpdated;
@@ -179,14 +184,35 @@ class AuthRepository {
   /// locked, password expired, etc.). Throws [DioException] on network failure.
   /// On success, credentials are stored securely for auto-login.
   Future<User> login(String username, String password) async {
-    final previousCredentials = await getStoredCredentials();
-    final userDto = await _portalService.login(username, password);
+    final isDemo = isDemoCredentials(username, password);
+    final ({String username, String password})? previousCredentials = isDemo
+        ? null
+        : await getStoredCredentials();
 
-    // Save credentials for auto-login
-    await _secureStorage.write(key: _usernameKey, value: username);
-    await _secureStorage.write(key: _passwordKey, value: password);
-    _onSessionCreated();
+    final UserDto userDto;
+    if (isDemo) {
+      // Demo mode: skip real portal, use hardcoded data
+      userDto = (
+        name: '王大同',
+        avatarFilename: null,
+        email: 't$demoUsername@ntut.edu.tw',
+        passwordExpiresInDays: null,
+      );
+    } else {
+      userDto = await _portalService.login(username, password);
+    }
 
+    // Save credentials for auto-login.
+    //
+    // Demo mode deliberately skips secure storage: demo sessions persist
+    // across restarts via the DB user row instead:
+    // - main.dart restores isDemoProvider by matching studentId == demoUsername
+    // - _reauthenticate() falls back to the demo username when secure
+    //   storage is empty and _isDemo is true (mock ignores password)
+    if (!isDemo) {
+      await _secureStorage.write(key: _usernameKey, value: username);
+      await _secureStorage.write(key: _passwordKey, value: password);
+    }
     final user = await _database.transaction(() async {
       await _database.delete(_database.users).go();
       return _database
@@ -202,12 +228,15 @@ class AuthRepository {
           );
     });
 
-    await _maybeRefreshNtut8021x(
-      username: username,
-      password: password,
-      previousUsername: previousCredentials?.username,
-      previousPassword: previousCredentials?.password,
-    );
+    _onSessionCreated();
+    if (!isDemo) {
+      await _maybeRefreshNtut8021x(
+        username: username,
+        password: password,
+        previousUsername: previousCredentials?.username,
+        previousPassword: previousCredentials?.password,
+      );
+    }
     return user;
   }
 
@@ -281,16 +310,23 @@ class AuthRepository {
     final completer = Completer<UserDto>();
     _reauthenticateInFlight = completer;
     try {
-      final credentials = await getStoredCredentials();
-      if (credentials == null) {
+      var username = await _secureStorage.read(key: _usernameKey);
+      var password = await _secureStorage.read(key: _passwordKey);
+
+      // Demo mode skips secure storage writes (see login()), so credentials
+      // are expected to be absent here. Use the demo username; the mock
+      // portal accepts any password.
+      if (_isDemo && (username == null || password == null)) {
+        username = demoUsername;
+        password = '';
+      }
+
+      if (username == null || password == null) {
         _onSessionDestroyed(const LoginException(.credentialsMissing));
         throw const _AuthFailedException();
       }
 
-      final userDto = await _portalService.login(
-        credentials.username,
-        credentials.password,
-      );
+      final userDto = await _portalService.login(username, password);
       _ssoCache.clear();
       _ssoInFlight.clear();
       completer.complete(userDto);
@@ -432,6 +468,7 @@ class AuthRepository {
           avatarFilename: Value(userDto.avatarFilename ?? ''),
           nameZh: Value(userDto.name ?? ''),
           email: Value(userDto.email ?? ''),
+          passwordExpiresInDays: Value(userDto.passwordExpiresInDays),
           nameEn: Value(profile.englishName),
           dateOfBirth: Value(profile.dateOfBirth),
           programZh: Value(profile.programZh),
@@ -499,6 +536,7 @@ class AuthRepository {
 
     try {
       final bytes = await withAuth(() => _portalService.getAvatar(filename));
+
       await file.parent.create(recursive: true);
       await file.writeAsBytes(bytes);
       if (!await _isDecodableImage(bytes)) {
@@ -603,7 +641,7 @@ class AuthRepository {
   Stream<UserRegistration?> watchActiveRegistration() {
     return (_database.select(_database.userRegistrations)
           ..where(
-            (r) => r.enrollmentStatus.equalsValue(EnrollmentStatus.learning),
+            (r) => r.enrollmentStatus.equalsValue(.learning),
           )
           ..orderBy([
             (r) => OrderingTerm.desc(r.year),
@@ -620,7 +658,7 @@ class AuthRepository {
     try {
       final result = await FlutterImageCompress.compressWithList(
         bytes,
-        format: CompressFormat.jpeg,
+        format: .jpeg,
         quality: 85,
         minWidth: 1200,
         minHeight: 1200,

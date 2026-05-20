@@ -1,1 +1,1 @@
-Follow and maintain @AGENTS.md for project memory.
+AGENTS.md

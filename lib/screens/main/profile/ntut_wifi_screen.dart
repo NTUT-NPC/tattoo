@@ -88,28 +88,20 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
 
   String _provisioningSnackBarMessage(Ntut8021xProvisioningResult result) {
     return switch (result.status) {
-      Ntut8021xProvisioningStatus.success => t.ntutWifi.provisioning.success,
-      Ntut8021xProvisioningStatus.successPendingWifi =>
-        t.ntutWifi.provisioning.successPendingWifi,
-      Ntut8021xProvisioningStatus.approvalPending =>
-        t.ntutWifi.provisioning.approvalPending,
-      Ntut8021xProvisioningStatus.approvalRejected =>
-        t.ntutWifi.provisioning.approvalRejected,
-      Ntut8021xProvisioningStatus.validationUnavailable =>
-        t.ntutWifi.provisioning.validationUnavailable,
-      Ntut8021xProvisioningStatus.unsupportedPlatform =>
-        t.ntutWifi.provisioning.unsupportedPlatform,
-      Ntut8021xProvisioningStatus.failed => t.ntutWifi.provisioning.failed,
-      Ntut8021xProvisioningStatus.compatSuccess =>
+      .success => t.ntutWifi.provisioning.success,
+      .successPendingWifi => t.ntutWifi.provisioning.successPendingWifi,
+      .approvalPending => t.ntutWifi.provisioning.approvalPending,
+      .approvalRejected => t.ntutWifi.provisioning.approvalRejected,
+      .validationUnavailable => t.ntutWifi.provisioning.validationUnavailable,
+      .unsupportedPlatform => t.ntutWifi.provisioning.unsupportedPlatform,
+      .failed => t.ntutWifi.provisioning.failed,
+      .compatSuccess =>
         result.usedCompatFallback
             ? t.ntutWifi.provisioning.compatFallbackSuccess
             : t.ntutWifi.provisioning.compatSuccess,
-      Ntut8021xProvisioningStatus.compatAlreadyExists =>
-        t.ntutWifi.provisioning.compatAlreadyExists,
-      Ntut8021xProvisioningStatus.compatCancelled =>
-        t.ntutWifi.provisioning.compatCancelled,
-      Ntut8021xProvisioningStatus.compatFailed =>
-        t.ntutWifi.provisioning.compatFailed,
+      .compatAlreadyExists => t.ntutWifi.provisioning.compatAlreadyExists,
+      .compatCancelled => t.ntutWifi.provisioning.compatCancelled,
+      .compatFailed => t.ntutWifi.provisioning.compatFailed,
     };
   }
 
@@ -147,10 +139,10 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
           ),
           AsyncError() => Center(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const .all(16),
               child: BackgroundNotice(
                 text: t.errors.occurred,
-                noticeType: NoticeType.error,
+                noticeType: .error,
               ),
             ),
           ),
@@ -212,21 +204,20 @@ class _AssistantBody extends StatelessWidget {
           !data.capabilities.isAndroid12OrNewer)
         BackgroundNotice(
           text: t.ntutWifi.olderAndroidWarning,
-          noticeType: NoticeType.warning,
+          noticeType: .warning,
         ),
-      if (data.status == Ntut8021xAssistantStatus.ready &&
-          data.screenMode != Ntut8021xScreenMode.manualOnly)
+      if (data.status == .ready && data.screenMode != .manualOnly)
         BackgroundNotice(
           text: t.ntutWifi.systemCertificatesHint,
-          noticeType: NoticeType.info,
+          noticeType: .info,
         ),
     ];
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const .all(16),
       children: [
         Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: .start,
           spacing: 16,
           children: [
             ...notices,
@@ -257,8 +248,7 @@ class _AssistantBody extends StatelessWidget {
                 label: Text(
                   isSavingCompat
                       ? t.ntutWifi.actions.autoProvisioning
-                      : data.pendingCompatPromptReason ==
-                            Ntut8021xPendingPromptReason.credentialChanged
+                      : data.pendingCompatPromptReason == .credentialChanged
                       ? t.ntutWifi.actions.updateCompatProvision
                       : t.ntutWifi.actions.retryCompatProvision,
                 ),
@@ -329,27 +319,24 @@ class _AssistantBody extends StatelessWidget {
 
   String _statusMessage(Ntut8021xAssistantData data) {
     return switch (data.status) {
-      Ntut8021xAssistantStatus.ready =>
-        '${t.ntutWifi.intro}\n${t.ntutWifi.accountHint}',
-      Ntut8021xAssistantStatus.notLoggedIn => t.ntutWifi.notLoggedIn,
-      Ntut8021xAssistantStatus.credentialsMissing =>
+      .ready => '${t.ntutWifi.intro}\n${t.ntutWifi.accountHint}',
+      .notLoggedIn => t.ntutWifi.notLoggedIn,
+      .credentialsMissing =>
         '${t.ntutWifi.credentialsMissing}\n${t.ntutWifi.accountHint}',
-      Ntut8021xAssistantStatus.unsupportedPlatform =>
-        t.ntutWifi.unsupportedPlatform,
+      .unsupportedPlatform => t.ntutWifi.unsupportedPlatform,
     };
   }
 
   NoticeType _statusNoticeType(Ntut8021xAssistantStatus status) {
     return switch (status) {
-      Ntut8021xAssistantStatus.ready => NoticeType.info,
-      Ntut8021xAssistantStatus.notLoggedIn ||
-      Ntut8021xAssistantStatus.credentialsMissing => NoticeType.warning,
-      Ntut8021xAssistantStatus.unsupportedPlatform => NoticeType.error,
+      .ready => .info,
+      .notLoggedIn || .credentialsMissing => .warning,
+      .unsupportedPlatform => .error,
     };
   }
 
   String? _modeNoticeMessage(Ntut8021xAssistantData data) {
-    if (data.status != Ntut8021xAssistantStatus.ready) return null;
+    if (data.status != .ready) return null;
 
     if (data.capabilities.isLegacyAndroidManualOnly) {
       return t.ntutWifi.legacyManualOnly;
@@ -360,17 +347,15 @@ class _AssistantBody extends StatelessWidget {
       return t.ntutWifi.android10PermissionRejected;
     }
 
-    if (data.pendingCompatPromptReason ==
-        Ntut8021xPendingPromptReason.credentialChanged) {
+    if (data.pendingCompatPromptReason == .credentialChanged) {
       return t.ntutWifi.compatUpdateRequired;
     }
 
-    if (data.pendingCompatPromptReason ==
-        Ntut8021xPendingPromptReason.suggestionFallbackRequired) {
+    if (data.pendingCompatPromptReason == .suggestionFallbackRequired) {
       return t.ntutWifi.suggestionFallbackRequired;
     }
 
-    if (data.lastProvisioningMode == Ntut8021xProvisioningMode.compat) {
+    if (data.lastProvisioningMode == .compat) {
       return t.ntutWifi.compatModeSavedHint;
     }
 
@@ -381,56 +366,44 @@ class _AssistantBody extends StatelessWidget {
     if (data.capabilities.isLegacyAndroidManualOnly ||
         (data.capabilities.isAndroid10 &&
             data.capabilities.isSuggestionPermissionDisallowed)) {
-      return NoticeType.warning;
+      return .warning;
     }
 
     if (data.pendingCompatPromptReason != null) {
-      return NoticeType.warning;
+      return .warning;
     }
 
-    return NoticeType.info;
+    return .info;
   }
 
   String _provisioningMessage(Ntut8021xProvisioningResult result) {
     return switch (result.status) {
-      Ntut8021xProvisioningStatus.success => t.ntutWifi.provisioning.success,
-      Ntut8021xProvisioningStatus.successPendingWifi =>
-        t.ntutWifi.provisioning.successPendingWifi,
-      Ntut8021xProvisioningStatus.approvalPending =>
-        t.ntutWifi.provisioning.approvalPending,
-      Ntut8021xProvisioningStatus.approvalRejected =>
-        t.ntutWifi.provisioning.approvalRejected,
-      Ntut8021xProvisioningStatus.validationUnavailable =>
-        t.ntutWifi.provisioning.validationUnavailable,
-      Ntut8021xProvisioningStatus.unsupportedPlatform =>
-        t.ntutWifi.provisioning.unsupportedPlatform,
-      Ntut8021xProvisioningStatus.failed => t.ntutWifi.provisioning.failed,
-      Ntut8021xProvisioningStatus.compatSuccess =>
+      .success => t.ntutWifi.provisioning.success,
+      .successPendingWifi => t.ntutWifi.provisioning.successPendingWifi,
+      .approvalPending => t.ntutWifi.provisioning.approvalPending,
+      .approvalRejected => t.ntutWifi.provisioning.approvalRejected,
+      .validationUnavailable => t.ntutWifi.provisioning.validationUnavailable,
+      .unsupportedPlatform => t.ntutWifi.provisioning.unsupportedPlatform,
+      .failed => t.ntutWifi.provisioning.failed,
+      .compatSuccess =>
         result.usedCompatFallback
             ? t.ntutWifi.provisioning.compatFallbackSuccess
             : t.ntutWifi.provisioning.compatSuccess,
-      Ntut8021xProvisioningStatus.compatAlreadyExists =>
-        t.ntutWifi.provisioning.compatAlreadyExists,
-      Ntut8021xProvisioningStatus.compatCancelled =>
-        t.ntutWifi.provisioning.compatCancelled,
-      Ntut8021xProvisioningStatus.compatFailed =>
-        t.ntutWifi.provisioning.compatFailed,
+      .compatAlreadyExists => t.ntutWifi.provisioning.compatAlreadyExists,
+      .compatCancelled => t.ntutWifi.provisioning.compatCancelled,
+      .compatFailed => t.ntutWifi.provisioning.compatFailed,
     };
   }
 
   NoticeType _provisioningNoticeType(Ntut8021xProvisioningStatus status) {
     return switch (status) {
-      Ntut8021xProvisioningStatus.success ||
-      Ntut8021xProvisioningStatus.successPendingWifi ||
-      Ntut8021xProvisioningStatus.compatSuccess => NoticeType.info,
-      Ntut8021xProvisioningStatus.approvalPending ||
-      Ntut8021xProvisioningStatus.approvalRejected ||
-      Ntut8021xProvisioningStatus.validationUnavailable ||
-      Ntut8021xProvisioningStatus.compatAlreadyExists ||
-      Ntut8021xProvisioningStatus.compatCancelled => NoticeType.warning,
-      Ntut8021xProvisioningStatus.unsupportedPlatform ||
-      Ntut8021xProvisioningStatus.failed ||
-      Ntut8021xProvisioningStatus.compatFailed => NoticeType.error,
+      .success || .successPendingWifi || .compatSuccess => .info,
+      .approvalPending ||
+      .approvalRejected ||
+      .validationUnavailable ||
+      .compatAlreadyExists ||
+      .compatCancelled => .warning,
+      .unsupportedPlatform || .failed || .compatFailed => .error,
     };
   }
 }
@@ -458,14 +431,14 @@ class _SettingFieldTile extends StatelessWidget {
         border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const .symmetric(horizontal: 12, vertical: 12),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: .start,
           spacing: 12,
           children: [
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: .start,
                 spacing: 4,
                 children: [
                   Text(

@@ -3,15 +3,18 @@ import 'package:tattoo/database/database.dart';
 
 /// Reusable database operations shared across repositories.
 extension DatabaseActions on AppDatabase {
-  /// Drops and recreates all tables, fully resetting the database.
+  /// Deletes all rows from every table, fully resetting the database.
+  ///
+  /// Uses Drift's row-level deletes (not drop/createAll) so reactive
+  /// `.watch()` streams are notified of the change. Migrator-based drops
+  /// bypass change tracking and would leave watchers serving stale data.
   Future<void> deleteEverything() async {
     await transaction(() async {
-      final m = Migrator(this);
-      final reversed = allSchemaEntities.toList().reversed;
-      for (final entity in reversed) {
-        await m.drop(entity);
+      for (final entity in allSchemaEntities.toList().reversed) {
+        if (entity is TableInfo) {
+          await delete(entity).go();
+        }
       }
-      await m.createAll();
     });
   }
 
@@ -32,6 +35,7 @@ extension DatabaseActions on AppDatabase {
           fetchedAt: Value(null),
           semestersFetchedAt: Value(null),
           scoreDataFetchedAt: Value(null),
+          calendarFetchedAt: Value(null),
         ),
       );
     });
@@ -41,15 +45,19 @@ extension DatabaseActions on AppDatabase {
   ///
   /// When [inCourseSemesterList] is `true`, marks the semester as having
   /// appeared in the course semester list API response.
+  /// When [inScoreSemesterList] is `true`, marks the semester as having
+  /// appeared in the score semester list API response.
   Future<Semester> getOrCreateSemester(
     int year,
     int term, {
     bool? inCourseSemesterList,
+    bool? inScoreSemesterList,
   }) async {
     final companion = SemestersCompanion.insert(
       year: year,
       term: term,
-      inCourseSemesterList: Value.absentIfNull(inCourseSemesterList),
+      inCourseSemesterList: .absentIfNull(inCourseSemesterList),
+      inScoreSemesterList: .absentIfNull(inScoreSemesterList),
     );
 
     return into(semesters).insertReturning(
@@ -82,7 +90,7 @@ extension DatabaseActions on AppDatabase {
           credits: Value(credits),
           hours: Value(hours),
           nameZh: Value(nameZh),
-          nameEn: Value.absentIfNull(nameEn),
+          nameEn: .absentIfNull(nameEn),
         ),
         target: [courses.code],
       ),
@@ -112,7 +120,7 @@ extension DatabaseActions on AppDatabase {
         onConflict: DoUpdate(
           (old) => TeachersCompanion(
             nameZh: Value(nameZh),
-            nameEn: Value.absentIfNull(nameEn),
+            nameEn: .absentIfNull(nameEn),
           ),
           target: [teachers.code],
         ),
@@ -127,17 +135,17 @@ extension DatabaseActions on AppDatabase {
           title: Value(title),
           teachingHours: Value(teachingHours),
           officeHoursNote: Value(officeHoursNote),
-          fetchedAt: Value.absentIfNull(fetchedAt),
+          fetchedAt: .absentIfNull(fetchedAt),
         ),
         onConflict: DoUpdate(
           (old) => TeacherSemestersCompanion(
             teacher: Value(teacher.id),
-            email: Value.absentIfNull(email),
-            department: Value.absentIfNull(departmentId),
-            title: Value.absentIfNull(title),
-            teachingHours: Value.absentIfNull(teachingHours),
-            officeHoursNote: Value.absentIfNull(officeHoursNote),
-            fetchedAt: Value.absentIfNull(fetchedAt),
+            email: .absentIfNull(email),
+            department: .absentIfNull(departmentId),
+            title: .absentIfNull(title),
+            teachingHours: .absentIfNull(teachingHours),
+            officeHoursNote: .absentIfNull(officeHoursNote),
+            fetchedAt: .absentIfNull(fetchedAt),
           ),
           target: [teacherSemesters.teacher, teacherSemesters.semester],
         ),
@@ -162,7 +170,7 @@ extension DatabaseActions on AppDatabase {
       onConflict: DoUpdate(
         (old) => ClassroomsCompanion(
           nameZh: Value(nameZh),
-          nameEn: Value.absentIfNull(nameEn),
+          nameEn: .absentIfNull(nameEn),
         ),
         target: [classrooms.code],
       ),
@@ -186,7 +194,7 @@ extension DatabaseActions on AppDatabase {
       onConflict: DoUpdate(
         (old) => ClassesCompanion(
           nameZh: Value(nameZh),
-          nameEn: Value.absentIfNull(nameEn),
+          nameEn: .absentIfNull(nameEn),
         ),
         target: [classes.code, classes.semester],
       ),
@@ -194,10 +202,17 @@ extension DatabaseActions on AppDatabase {
   }
 
   /// Returns the ID of an existing course offering, or creates/updates one.
+  ///
+  /// Upserts by `(semester, number)`. Null-number entries always insert
+  /// (SQLite treats NULLs as distinct) — caller must delete stale ones first.
   Future<int> upsertCourseOffering({
-    required int courseId,
+    String? courseCode,
     required int semesterId,
-    required String number,
+    String? number,
+    required String nameZh,
+    String? nameEn,
+    double? credits,
+    int? hours,
     int? phase,
     String? status,
     String? language,
@@ -206,9 +221,13 @@ extension DatabaseActions on AppDatabase {
   }) async {
     return (await into(courseOfferings).insertReturning(
       CourseOfferingsCompanion.insert(
-        course: courseId,
+        courseCode: Value(courseCode),
         semester: semesterId,
-        number: number,
+        number: Value(number),
+        nameZh: nameZh,
+        nameEn: Value(nameEn),
+        credits: Value(credits),
+        hours: Value(hours),
         phase: Value(phase),
         status: Value(status),
         language: Value(language),
@@ -217,14 +236,18 @@ extension DatabaseActions on AppDatabase {
       ),
       onConflict: DoUpdate(
         (old) => CourseOfferingsCompanion(
-          course: Value(courseId),
+          courseCode: Value(courseCode),
+          nameZh: Value(nameZh),
+          nameEn: .absentIfNull(nameEn),
+          credits: Value(credits),
+          hours: Value(hours),
           phase: Value(phase),
           status: Value(status),
           language: Value(language),
           remarks: Value(remarks),
           syllabusId: Value(syllabusId),
         ),
-        target: [courseOfferings.number],
+        target: [courseOfferings.semester, courseOfferings.number],
       ),
     )).id;
   }

@@ -53,10 +53,18 @@ abstract class UserAcademicSummaries extends View {
 ///
 /// One row per score entry. Joins [Scores] with [Courses] and optionally
 /// [CourseOfferings] to provide course name and offering number for display.
+///
+/// Prefers the offering's timetable name; falls back to the catalog name
+/// for waivers/transfers (no offering).
 abstract class ScoreDetails extends View {
   Scores get scores;
   Courses get courses;
   CourseOfferings get courseOfferings;
+
+  Expression<String> get nameZh =>
+      coalesce([courseOfferings.nameZh, courses.nameZh]);
+  Expression<String> get nameEn =>
+      coalesce([courseOfferings.nameEn, courses.nameEn]);
 
   @override
   Query as() =>
@@ -67,7 +75,8 @@ abstract class ScoreDetails extends View {
         scores.score,
         scores.status,
         courses.code,
-        courses.nameZh,
+        nameZh,
+        nameEn,
         courseOfferings.number,
       ]).from(scores).join([
         innerJoin(courses, courses.id.equalsExp(scores.course)),
@@ -88,6 +97,17 @@ abstract class CourseTableSlots extends View {
   Courses get courses;
   Classrooms get classrooms;
 
+  /// Prefers the offering's timetable value; falls back to the catalog value
+  /// when the offering's value is null. Always returns the offering's name in
+  /// Chinese, since [CourseOfferings.nameZh] is NOT NULL.
+  Expression<String> get nameZh =>
+      coalesce([courseOfferings.nameZh, courses.nameZh]);
+  Expression<String> get nameEn =>
+      coalesce([courseOfferings.nameEn, courses.nameEn]);
+  Expression<double> get credits =>
+      coalesce([courseOfferings.credits, courses.credits]);
+  Expression<int> get hours => coalesce([courseOfferings.hours, courses.hours]);
+
   Expression<String> get classroomNameZh => classrooms.nameZh;
   Expression<String> get classroomNameEn => classrooms.nameEn;
 
@@ -97,10 +117,10 @@ abstract class CourseTableSlots extends View {
         courseOfferings.id,
         courseOfferings.number,
         courseOfferings.semester,
-        courses.nameZh,
-        courses.nameEn,
-        courses.credits,
-        courses.hours,
+        nameZh,
+        nameEn,
+        credits,
+        hours,
         schedules.dayOfWeek,
         schedules.period,
         classroomNameZh,
@@ -110,7 +130,10 @@ abstract class CourseTableSlots extends View {
           courseOfferings,
           courseOfferings.id.equalsExp(schedules.courseOffering),
         ),
-        innerJoin(courses, courses.id.equalsExp(courseOfferings.course)),
+        leftOuterJoin(
+          courses,
+          courses.code.equalsExp(courseOfferings.courseCode),
+        ),
         leftOuterJoin(
           classrooms,
           classrooms.id.equalsExp(schedules.classroom),

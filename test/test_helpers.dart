@@ -17,8 +17,8 @@ import 'package:flutter_test/flutter_test.dart';
 /// flutter test --dart-define-from-file=test/test_config.json
 /// ```
 class TestCredentials {
-  static const String username = String.fromEnvironment('NTUT_TEST_USERNAME');
-  static const String password = String.fromEnvironment('NTUT_TEST_PASSWORD');
+  static const String username = .fromEnvironment('NTUT_TEST_USERNAME');
+  static const String password = .fromEnvironment('NTUT_TEST_PASSWORD');
 
   static void validate() {
     if (username.isEmpty || password.isEmpty) {

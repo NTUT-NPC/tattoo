@@ -22,7 +22,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() {
-    LocaleSettings.setLocale(AppLocale.zhTw);
+    LocaleSettings.setLocale(.zhTw);
   });
 
   setUp(() {
@@ -38,7 +38,7 @@ void main() {
       final campusWifiRepository = _FakeCampusWifiRepository(
         authRepository: authRepository,
         pendingPrompt: const Ntut8021xImmediatePromptData(
-          reason: Ntut8021xPendingPromptReason.credentialChanged,
+          reason: .credentialChanged,
           identity: '111360109',
           password: 'portal-password',
         ),
@@ -80,7 +80,7 @@ void main() {
       final campusWifiRepository = _FakeCampusWifiRepository(
         authRepository: authRepository,
         pendingPrompt: const Ntut8021xImmediatePromptData(
-          reason: Ntut8021xPendingPromptReason.suggestionFallbackRequired,
+          reason: .suggestionFallbackRequired,
           identity: '111360109',
           password: 'portal-password',
         ),
@@ -135,7 +135,7 @@ Widget _buildApp({
       campusWifiRepositoryProvider.overrideWithValue(campusWifiRepository),
     ],
     child: MaterialApp.router(
-      theme: ThemeData(useMaterial3: true, platform: TargetPlatform.android),
+      theme: ThemeData(useMaterial3: true, platform: .android),
       routerConfig: router,
     ),
   );
@@ -148,6 +148,7 @@ class _FakeAuthRepository extends AuthRepository {
         studentQueryService: MockStudentQueryService(),
         database: _database,
         secureStorage: const FlutterSecureStorage(),
+        isDemo: false,
         onSessionCreated: _noop,
         onSessionDestroyed: _noopDestroyed,
       );
@@ -180,10 +181,10 @@ class _FakeCampusWifiRepository extends CampusWifiRepository {
   }) : saveResult =
            saveResult ??
            const Ntut8021xProvisioningResult(
-             status: Ntut8021xProvisioningStatus.compatSuccess,
+             status: .compatSuccess,
              androidSdkInt: 30,
              usedHiddenCaPath: true,
-             lastProvisioningMode: Ntut8021xProvisioningMode.compat,
+             lastProvisioningMode: .compat,
              usedCompatFallback: false,
              compatNetworkResultCodes: <int>[0],
            ),

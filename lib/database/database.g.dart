@@ -169,6 +169,18 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _calendarFetchedAtMeta = const VerificationMeta(
+    'calendarFetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> calendarFetchedAt =
+      GeneratedColumn<DateTime>(
+        'calendar_fetched_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -186,6 +198,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     passwordExpiresInDays,
     semestersFetchedAt,
     scoreDataFetchedAt,
+    calendarFetchedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -315,6 +328,15 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         ),
       );
     }
+    if (data.containsKey('calendar_fetched_at')) {
+      context.handle(
+        _calendarFetchedAtMeta,
+        calendarFetchedAt.isAcceptableOrUnknown(
+          data['calendar_fetched_at']!,
+          _calendarFetchedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -384,6 +406,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}score_data_fetched_at'],
       ),
+      calendarFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}calendar_fetched_at'],
+      ),
     );
   }
 
@@ -448,6 +474,9 @@ class User extends DataClass implements Insertable<User> {
 
   /// When score-related academic data was last fetched from student query.
   final DateTime? scoreDataFetchedAt;
+
+  /// When the academic calendar was last fetched from the portal.
+  final DateTime? calendarFetchedAt;
   const User({
     required this.id,
     this.fetchedAt,
@@ -464,6 +493,7 @@ class User extends DataClass implements Insertable<User> {
     this.passwordExpiresInDays,
     this.semestersFetchedAt,
     this.scoreDataFetchedAt,
+    this.calendarFetchedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -502,6 +532,9 @@ class User extends DataClass implements Insertable<User> {
     }
     if (!nullToAbsent || scoreDataFetchedAt != null) {
       map['score_data_fetched_at'] = Variable<DateTime>(scoreDataFetchedAt);
+    }
+    if (!nullToAbsent || calendarFetchedAt != null) {
+      map['calendar_fetched_at'] = Variable<DateTime>(calendarFetchedAt);
     }
     return map;
   }
@@ -543,6 +576,9 @@ class User extends DataClass implements Insertable<User> {
       scoreDataFetchedAt: scoreDataFetchedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(scoreDataFetchedAt),
+      calendarFetchedAt: calendarFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(calendarFetchedAt),
     );
   }
 
@@ -573,6 +609,9 @@ class User extends DataClass implements Insertable<User> {
       scoreDataFetchedAt: serializer.fromJson<DateTime?>(
         json['scoreDataFetchedAt'],
       ),
+      calendarFetchedAt: serializer.fromJson<DateTime?>(
+        json['calendarFetchedAt'],
+      ),
     );
   }
   @override
@@ -594,6 +633,7 @@ class User extends DataClass implements Insertable<User> {
       'passwordExpiresInDays': serializer.toJson<int?>(passwordExpiresInDays),
       'semestersFetchedAt': serializer.toJson<DateTime?>(semestersFetchedAt),
       'scoreDataFetchedAt': serializer.toJson<DateTime?>(scoreDataFetchedAt),
+      'calendarFetchedAt': serializer.toJson<DateTime?>(calendarFetchedAt),
     };
   }
 
@@ -613,6 +653,7 @@ class User extends DataClass implements Insertable<User> {
     Value<int?> passwordExpiresInDays = const Value.absent(),
     Value<DateTime?> semestersFetchedAt = const Value.absent(),
     Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
+    Value<DateTime?> calendarFetchedAt = const Value.absent(),
   }) => User(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
@@ -635,6 +676,9 @@ class User extends DataClass implements Insertable<User> {
     scoreDataFetchedAt: scoreDataFetchedAt.present
         ? scoreDataFetchedAt.value
         : this.scoreDataFetchedAt,
+    calendarFetchedAt: calendarFetchedAt.present
+        ? calendarFetchedAt.value
+        : this.calendarFetchedAt,
   );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -667,6 +711,9 @@ class User extends DataClass implements Insertable<User> {
       scoreDataFetchedAt: data.scoreDataFetchedAt.present
           ? data.scoreDataFetchedAt.value
           : this.scoreDataFetchedAt,
+      calendarFetchedAt: data.calendarFetchedAt.present
+          ? data.calendarFetchedAt.value
+          : this.calendarFetchedAt,
     );
   }
 
@@ -687,7 +734,8 @@ class User extends DataClass implements Insertable<User> {
           ..write('email: $email, ')
           ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
           ..write('semestersFetchedAt: $semestersFetchedAt, ')
-          ..write('scoreDataFetchedAt: $scoreDataFetchedAt')
+          ..write('scoreDataFetchedAt: $scoreDataFetchedAt, ')
+          ..write('calendarFetchedAt: $calendarFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -709,6 +757,7 @@ class User extends DataClass implements Insertable<User> {
     passwordExpiresInDays,
     semestersFetchedAt,
     scoreDataFetchedAt,
+    calendarFetchedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -728,7 +777,8 @@ class User extends DataClass implements Insertable<User> {
           other.email == this.email &&
           other.passwordExpiresInDays == this.passwordExpiresInDays &&
           other.semestersFetchedAt == this.semestersFetchedAt &&
-          other.scoreDataFetchedAt == this.scoreDataFetchedAt);
+          other.scoreDataFetchedAt == this.scoreDataFetchedAt &&
+          other.calendarFetchedAt == this.calendarFetchedAt);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -747,6 +797,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<int?> passwordExpiresInDays;
   final Value<DateTime?> semestersFetchedAt;
   final Value<DateTime?> scoreDataFetchedAt;
+  final Value<DateTime?> calendarFetchedAt;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
@@ -763,6 +814,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.passwordExpiresInDays = const Value.absent(),
     this.semestersFetchedAt = const Value.absent(),
     this.scoreDataFetchedAt = const Value.absent(),
+    this.calendarFetchedAt = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
@@ -780,6 +832,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.passwordExpiresInDays = const Value.absent(),
     this.semestersFetchedAt = const Value.absent(),
     this.scoreDataFetchedAt = const Value.absent(),
+    this.calendarFetchedAt = const Value.absent(),
   }) : studentId = Value(studentId),
        nameZh = Value(nameZh),
        avatarFilename = Value(avatarFilename),
@@ -800,6 +853,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<int>? passwordExpiresInDays,
     Expression<DateTime>? semestersFetchedAt,
     Expression<DateTime>? scoreDataFetchedAt,
+    Expression<DateTime>? calendarFetchedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -820,6 +874,7 @@ class UsersCompanion extends UpdateCompanion<User> {
         'semesters_fetched_at': semestersFetchedAt,
       if (scoreDataFetchedAt != null)
         'score_data_fetched_at': scoreDataFetchedAt,
+      if (calendarFetchedAt != null) 'calendar_fetched_at': calendarFetchedAt,
     });
   }
 
@@ -839,6 +894,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<int?>? passwordExpiresInDays,
     Value<DateTime?>? semestersFetchedAt,
     Value<DateTime?>? scoreDataFetchedAt,
+    Value<DateTime?>? calendarFetchedAt,
   }) {
     return UsersCompanion(
       id: id ?? this.id,
@@ -857,6 +913,7 @@ class UsersCompanion extends UpdateCompanion<User> {
           passwordExpiresInDays ?? this.passwordExpiresInDays,
       semestersFetchedAt: semestersFetchedAt ?? this.semestersFetchedAt,
       scoreDataFetchedAt: scoreDataFetchedAt ?? this.scoreDataFetchedAt,
+      calendarFetchedAt: calendarFetchedAt ?? this.calendarFetchedAt,
     );
   }
 
@@ -914,6 +971,9 @@ class UsersCompanion extends UpdateCompanion<User> {
         scoreDataFetchedAt.value,
       );
     }
+    if (calendarFetchedAt.present) {
+      map['calendar_fetched_at'] = Variable<DateTime>(calendarFetchedAt.value);
+    }
     return map;
   }
 
@@ -934,7 +994,8 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('email: $email, ')
           ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
           ..write('semestersFetchedAt: $semestersFetchedAt, ')
-          ..write('scoreDataFetchedAt: $scoreDataFetchedAt')
+          ..write('scoreDataFetchedAt: $scoreDataFetchedAt, ')
+          ..write('calendarFetchedAt: $calendarFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -1246,6 +1307,20 @@ class $SemestersTable extends Semesters
     ),
     defaultValue: Constant(false),
   );
+  static const VerificationMeta _inScoreSemesterListMeta =
+      const VerificationMeta('inScoreSemesterList');
+  @override
+  late final GeneratedColumn<bool> inScoreSemesterList = GeneratedColumn<bool>(
+    'in_score_semester_list',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("in_score_semester_list" IN (0, 1))',
+    ),
+    defaultValue: Constant(false),
+  );
   static const VerificationMeta _courseTableFetchedAtMeta =
       const VerificationMeta('courseTableFetchedAt');
   @override
@@ -1263,6 +1338,7 @@ class $SemestersTable extends Semesters
     year,
     term,
     inCourseSemesterList,
+    inScoreSemesterList,
     courseTableFetchedAt,
   ];
   @override
@@ -1305,6 +1381,15 @@ class $SemestersTable extends Semesters
         ),
       );
     }
+    if (data.containsKey('in_score_semester_list')) {
+      context.handle(
+        _inScoreSemesterListMeta,
+        inScoreSemesterList.isAcceptableOrUnknown(
+          data['in_score_semester_list']!,
+          _inScoreSemesterListMeta,
+        ),
+      );
+    }
     if (data.containsKey('course_table_fetched_at')) {
       context.handle(
         _courseTableFetchedAtMeta,
@@ -1343,6 +1428,10 @@ class $SemestersTable extends Semesters
         DriftSqlType.bool,
         data['${effectivePrefix}in_course_semester_list'],
       )!,
+      inScoreSemesterList: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}in_score_semester_list'],
+      )!,
       courseTableFetchedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}course_table_fetched_at'],
@@ -1372,6 +1461,12 @@ class Semester extends DataClass implements Insertable<Semester> {
   /// those created as side effects by other flows (e.g., auth, scores).
   final bool inCourseSemesterList;
 
+  /// Whether this semester appeared in the score semester list API response.
+  ///
+  /// Distinguishes semesters fetched by [StudentRepository.refreshSemesterRecords]
+  /// from those created as side effects by other flows (e.g., auth, courses).
+  final bool inScoreSemesterList;
+
   /// When the course table was last fetched from the server for this semester.
   final DateTime? courseTableFetchedAt;
   const Semester({
@@ -1379,6 +1474,7 @@ class Semester extends DataClass implements Insertable<Semester> {
     required this.year,
     required this.term,
     required this.inCourseSemesterList,
+    required this.inScoreSemesterList,
     this.courseTableFetchedAt,
   });
   @override
@@ -1388,6 +1484,7 @@ class Semester extends DataClass implements Insertable<Semester> {
     map['year'] = Variable<int>(year);
     map['term'] = Variable<int>(term);
     map['in_course_semester_list'] = Variable<bool>(inCourseSemesterList);
+    map['in_score_semester_list'] = Variable<bool>(inScoreSemesterList);
     if (!nullToAbsent || courseTableFetchedAt != null) {
       map['course_table_fetched_at'] = Variable<DateTime>(courseTableFetchedAt);
     }
@@ -1400,6 +1497,7 @@ class Semester extends DataClass implements Insertable<Semester> {
       year: Value(year),
       term: Value(term),
       inCourseSemesterList: Value(inCourseSemesterList),
+      inScoreSemesterList: Value(inScoreSemesterList),
       courseTableFetchedAt: courseTableFetchedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(courseTableFetchedAt),
@@ -1418,6 +1516,9 @@ class Semester extends DataClass implements Insertable<Semester> {
       inCourseSemesterList: serializer.fromJson<bool>(
         json['inCourseSemesterList'],
       ),
+      inScoreSemesterList: serializer.fromJson<bool>(
+        json['inScoreSemesterList'],
+      ),
       courseTableFetchedAt: serializer.fromJson<DateTime?>(
         json['courseTableFetchedAt'],
       ),
@@ -1431,6 +1532,7 @@ class Semester extends DataClass implements Insertable<Semester> {
       'year': serializer.toJson<int>(year),
       'term': serializer.toJson<int>(term),
       'inCourseSemesterList': serializer.toJson<bool>(inCourseSemesterList),
+      'inScoreSemesterList': serializer.toJson<bool>(inScoreSemesterList),
       'courseTableFetchedAt': serializer.toJson<DateTime?>(
         courseTableFetchedAt,
       ),
@@ -1442,12 +1544,14 @@ class Semester extends DataClass implements Insertable<Semester> {
     int? year,
     int? term,
     bool? inCourseSemesterList,
+    bool? inScoreSemesterList,
     Value<DateTime?> courseTableFetchedAt = const Value.absent(),
   }) => Semester(
     id: id ?? this.id,
     year: year ?? this.year,
     term: term ?? this.term,
     inCourseSemesterList: inCourseSemesterList ?? this.inCourseSemesterList,
+    inScoreSemesterList: inScoreSemesterList ?? this.inScoreSemesterList,
     courseTableFetchedAt: courseTableFetchedAt.present
         ? courseTableFetchedAt.value
         : this.courseTableFetchedAt,
@@ -1460,6 +1564,9 @@ class Semester extends DataClass implements Insertable<Semester> {
       inCourseSemesterList: data.inCourseSemesterList.present
           ? data.inCourseSemesterList.value
           : this.inCourseSemesterList,
+      inScoreSemesterList: data.inScoreSemesterList.present
+          ? data.inScoreSemesterList.value
+          : this.inScoreSemesterList,
       courseTableFetchedAt: data.courseTableFetchedAt.present
           ? data.courseTableFetchedAt.value
           : this.courseTableFetchedAt,
@@ -1473,14 +1580,21 @@ class Semester extends DataClass implements Insertable<Semester> {
           ..write('year: $year, ')
           ..write('term: $term, ')
           ..write('inCourseSemesterList: $inCourseSemesterList, ')
+          ..write('inScoreSemesterList: $inScoreSemesterList, ')
           ..write('courseTableFetchedAt: $courseTableFetchedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, year, term, inCourseSemesterList, courseTableFetchedAt);
+  int get hashCode => Object.hash(
+    id,
+    year,
+    term,
+    inCourseSemesterList,
+    inScoreSemesterList,
+    courseTableFetchedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1489,6 +1603,7 @@ class Semester extends DataClass implements Insertable<Semester> {
           other.year == this.year &&
           other.term == this.term &&
           other.inCourseSemesterList == this.inCourseSemesterList &&
+          other.inScoreSemesterList == this.inScoreSemesterList &&
           other.courseTableFetchedAt == this.courseTableFetchedAt);
 }
 
@@ -1497,12 +1612,14 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
   final Value<int> year;
   final Value<int> term;
   final Value<bool> inCourseSemesterList;
+  final Value<bool> inScoreSemesterList;
   final Value<DateTime?> courseTableFetchedAt;
   const SemestersCompanion({
     this.id = const Value.absent(),
     this.year = const Value.absent(),
     this.term = const Value.absent(),
     this.inCourseSemesterList = const Value.absent(),
+    this.inScoreSemesterList = const Value.absent(),
     this.courseTableFetchedAt = const Value.absent(),
   });
   SemestersCompanion.insert({
@@ -1510,6 +1627,7 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
     required int year,
     required int term,
     this.inCourseSemesterList = const Value.absent(),
+    this.inScoreSemesterList = const Value.absent(),
     this.courseTableFetchedAt = const Value.absent(),
   }) : year = Value(year),
        term = Value(term);
@@ -1518,6 +1636,7 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
     Expression<int>? year,
     Expression<int>? term,
     Expression<bool>? inCourseSemesterList,
+    Expression<bool>? inScoreSemesterList,
     Expression<DateTime>? courseTableFetchedAt,
   }) {
     return RawValuesInsertable({
@@ -1526,6 +1645,8 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
       if (term != null) 'term': term,
       if (inCourseSemesterList != null)
         'in_course_semester_list': inCourseSemesterList,
+      if (inScoreSemesterList != null)
+        'in_score_semester_list': inScoreSemesterList,
       if (courseTableFetchedAt != null)
         'course_table_fetched_at': courseTableFetchedAt,
     });
@@ -1536,6 +1657,7 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
     Value<int>? year,
     Value<int>? term,
     Value<bool>? inCourseSemesterList,
+    Value<bool>? inScoreSemesterList,
     Value<DateTime?>? courseTableFetchedAt,
   }) {
     return SemestersCompanion(
@@ -1543,6 +1665,7 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
       year: year ?? this.year,
       term: term ?? this.term,
       inCourseSemesterList: inCourseSemesterList ?? this.inCourseSemesterList,
+      inScoreSemesterList: inScoreSemesterList ?? this.inScoreSemesterList,
       courseTableFetchedAt: courseTableFetchedAt ?? this.courseTableFetchedAt,
     );
   }
@@ -1564,6 +1687,9 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
         inCourseSemesterList.value,
       );
     }
+    if (inScoreSemesterList.present) {
+      map['in_score_semester_list'] = Variable<bool>(inScoreSemesterList.value);
+    }
     if (courseTableFetchedAt.present) {
       map['course_table_fetched_at'] = Variable<DateTime>(
         courseTableFetchedAt.value,
@@ -1579,6 +1705,7 @@ class SemestersCompanion extends UpdateCompanion<Semester> {
           ..write('year: $year, ')
           ..write('term: $term, ')
           ..write('inCourseSemesterList: $inCourseSemesterList, ')
+          ..write('inScoreSemesterList: $inScoreSemesterList, ')
           ..write('courseTableFetchedAt: $courseTableFetchedAt')
           ..write(')'))
         .toString();
@@ -3600,17 +3727,16 @@ class $CourseOfferingsTable extends CourseOfferings
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _courseMeta = const VerificationMeta('course');
+  static const VerificationMeta _courseCodeMeta = const VerificationMeta(
+    'courseCode',
+  );
   @override
-  late final GeneratedColumn<int> course = GeneratedColumn<int>(
-    'course',
+  late final GeneratedColumn<String> courseCode = GeneratedColumn<String>(
+    'course_code',
     aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES courses (id)',
-    ),
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _semesterMeta = const VerificationMeta(
     'semester',
@@ -3631,10 +3757,47 @@ class $CourseOfferingsTable extends CourseOfferings
   late final GeneratedColumn<String> number = GeneratedColumn<String>(
     'number',
     aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nameZhMeta = const VerificationMeta('nameZh');
+  @override
+  late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
+    'name_zh',
+    aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _nameEnMeta = const VerificationMeta('nameEn');
+  @override
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _creditsMeta = const VerificationMeta(
+    'credits',
+  );
+  @override
+  late final GeneratedColumn<double> credits = GeneratedColumn<double>(
+    'credits',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hoursMeta = const VerificationMeta('hours');
+  @override
+  late final GeneratedColumn<int> hours = GeneratedColumn<int>(
+    'hours',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _phaseMeta = const VerificationMeta('phase');
   @override
@@ -3789,9 +3952,13 @@ class $CourseOfferingsTable extends CourseOfferings
   List<GeneratedColumn> get $columns => [
     id,
     fetchedAt,
-    course,
+    courseCode,
     semester,
     number,
+    nameZh,
+    nameEn,
+    credits,
+    hours,
     phase,
     courseType,
     status,
@@ -3828,13 +3995,11 @@ class $CourseOfferingsTable extends CourseOfferings
         fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
       );
     }
-    if (data.containsKey('course')) {
+    if (data.containsKey('course_code')) {
       context.handle(
-        _courseMeta,
-        course.isAcceptableOrUnknown(data['course']!, _courseMeta),
+        _courseCodeMeta,
+        courseCode.isAcceptableOrUnknown(data['course_code']!, _courseCodeMeta),
       );
-    } else if (isInserting) {
-      context.missing(_courseMeta);
     }
     if (data.containsKey('semester')) {
       context.handle(
@@ -3849,8 +4014,32 @@ class $CourseOfferingsTable extends CourseOfferings
         _numberMeta,
         number.isAcceptableOrUnknown(data['number']!, _numberMeta),
       );
+    }
+    if (data.containsKey('name_zh')) {
+      context.handle(
+        _nameZhMeta,
+        nameZh.isAcceptableOrUnknown(data['name_zh']!, _nameZhMeta),
+      );
     } else if (isInserting) {
-      context.missing(_numberMeta);
+      context.missing(_nameZhMeta);
+    }
+    if (data.containsKey('name_en')) {
+      context.handle(
+        _nameEnMeta,
+        nameEn.isAcceptableOrUnknown(data['name_en']!, _nameEnMeta),
+      );
+    }
+    if (data.containsKey('credits')) {
+      context.handle(
+        _creditsMeta,
+        credits.isAcceptableOrUnknown(data['credits']!, _creditsMeta),
+      );
+    }
+    if (data.containsKey('hours')) {
+      context.handle(
+        _hoursMeta,
+        hours.isAcceptableOrUnknown(data['hours']!, _hoursMeta),
+      );
     }
     if (data.containsKey('phase')) {
       context.handle(
@@ -3942,6 +4131,10 @@ class $CourseOfferingsTable extends CourseOfferings
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {semester, number},
+  ];
+  @override
   CourseOffering map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return CourseOffering(
@@ -3953,10 +4146,10 @@ class $CourseOfferingsTable extends CourseOfferings
         DriftSqlType.dateTime,
         data['${effectivePrefix}fetched_at'],
       ),
-      course: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}course'],
-      )!,
+      courseCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}course_code'],
+      ),
       semester: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}semester'],
@@ -3964,7 +4157,23 @@ class $CourseOfferingsTable extends CourseOfferings
       number: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}number'],
+      ),
+      nameZh: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_zh'],
       )!,
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      ),
+      credits: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}credits'],
+      ),
+      hours: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hours'],
+      ),
       phase: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}phase'],
@@ -4051,14 +4260,41 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   /// - Implement cache expiration (old timestamp = stale, re-fetch)
   final DateTime? fetchedAt;
 
-  /// Reference to the course definition.
-  final int course;
+  /// The course catalog code (e.g., "3601001").
+  ///
+  /// Soft reference — joins to [Courses.code] at query time. Null for
+  /// special entries (e.g., "班週會及導師時間") that have no catalog entry.
+  final String? courseCode;
 
   /// Reference to the semester when this course is offered.
   final int semester;
 
-  /// Unique course offering number (e.g., "313146", "352902").
-  final String number;
+  /// Course offering number (e.g., "313146", "352902").
+  ///
+  /// Null for special entries that have no assigned number.
+  final String? number;
+
+  /// Display name as it appears in this semester's timetable.
+  ///
+  /// Always populated. May differ from [Courses.nameZh] (the catalog name).
+  final String nameZh;
+
+  /// Display name in English as it appears in this semester's timetable.
+  ///
+  /// May differ from [Courses.nameEn] (the catalog name).
+  final String? nameEn;
+
+  /// Number of credits as listed in this semester's timetable.
+  ///
+  /// May differ from [Courses.credits] (the catalog value). Null for special
+  /// entries (e.g., 班週會及導師時間) that have no credit value.
+  final double? credits;
+
+  /// Number of class hours per week as listed in this semester's timetable.
+  ///
+  /// May differ from [Courses.hours] (the catalog value). Null for special
+  /// entries (e.g., 班週會及導師時間) that have no hour value.
+  final int? hours;
 
   /// Course sequence phase/stage number (階段, e.g., "1", "2").
   ///
@@ -4124,9 +4360,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   const CourseOffering({
     required this.id,
     this.fetchedAt,
-    required this.course,
+    this.courseCode,
     required this.semester,
-    required this.number,
+    this.number,
+    required this.nameZh,
+    this.nameEn,
+    this.credits,
+    this.hours,
     this.phase,
     this.courseType,
     this.status,
@@ -4149,9 +4389,23 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     if (!nullToAbsent || fetchedAt != null) {
       map['fetched_at'] = Variable<DateTime>(fetchedAt);
     }
-    map['course'] = Variable<int>(course);
+    if (!nullToAbsent || courseCode != null) {
+      map['course_code'] = Variable<String>(courseCode);
+    }
     map['semester'] = Variable<int>(semester);
-    map['number'] = Variable<String>(number);
+    if (!nullToAbsent || number != null) {
+      map['number'] = Variable<String>(number);
+    }
+    map['name_zh'] = Variable<String>(nameZh);
+    if (!nullToAbsent || nameEn != null) {
+      map['name_en'] = Variable<String>(nameEn);
+    }
+    if (!nullToAbsent || credits != null) {
+      map['credits'] = Variable<double>(credits);
+    }
+    if (!nullToAbsent || hours != null) {
+      map['hours'] = Variable<int>(hours);
+    }
     if (!nullToAbsent || phase != null) {
       map['phase'] = Variable<int>(phase);
     }
@@ -4205,9 +4459,23 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       fetchedAt: fetchedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(fetchedAt),
-      course: Value(course),
+      courseCode: courseCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(courseCode),
       semester: Value(semester),
-      number: Value(number),
+      number: number == null && nullToAbsent
+          ? const Value.absent()
+          : Value(number),
+      nameZh: Value(nameZh),
+      nameEn: nameEn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nameEn),
+      credits: credits == null && nullToAbsent
+          ? const Value.absent()
+          : Value(credits),
+      hours: hours == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hours),
       phase: phase == null && nullToAbsent
           ? const Value.absent()
           : Value(phase),
@@ -4261,9 +4529,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     return CourseOffering(
       id: serializer.fromJson<int>(json['id']),
       fetchedAt: serializer.fromJson<DateTime?>(json['fetchedAt']),
-      course: serializer.fromJson<int>(json['course']),
+      courseCode: serializer.fromJson<String?>(json['courseCode']),
       semester: serializer.fromJson<int>(json['semester']),
-      number: serializer.fromJson<String>(json['number']),
+      number: serializer.fromJson<String?>(json['number']),
+      nameZh: serializer.fromJson<String>(json['nameZh']),
+      nameEn: serializer.fromJson<String?>(json['nameEn']),
+      credits: serializer.fromJson<double?>(json['credits']),
+      hours: serializer.fromJson<int?>(json['hours']),
       phase: serializer.fromJson<int?>(json['phase']),
       courseType: $CourseOfferingsTable.$convertercourseTypen.fromJson(
         serializer.fromJson<String?>(json['courseType']),
@@ -4290,9 +4562,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'fetchedAt': serializer.toJson<DateTime?>(fetchedAt),
-      'course': serializer.toJson<int>(course),
+      'courseCode': serializer.toJson<String?>(courseCode),
       'semester': serializer.toJson<int>(semester),
-      'number': serializer.toJson<String>(number),
+      'number': serializer.toJson<String?>(number),
+      'nameZh': serializer.toJson<String>(nameZh),
+      'nameEn': serializer.toJson<String?>(nameEn),
+      'credits': serializer.toJson<double?>(credits),
+      'hours': serializer.toJson<int?>(hours),
       'phase': serializer.toJson<int?>(phase),
       'courseType': serializer.toJson<String?>(
         $CourseOfferingsTable.$convertercourseTypen.toJson(courseType),
@@ -4315,9 +4591,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   CourseOffering copyWith({
     int? id,
     Value<DateTime?> fetchedAt = const Value.absent(),
-    int? course,
+    Value<String?> courseCode = const Value.absent(),
     int? semester,
-    String? number,
+    Value<String?> number = const Value.absent(),
+    String? nameZh,
+    Value<String?> nameEn = const Value.absent(),
+    Value<double?> credits = const Value.absent(),
+    Value<int?> hours = const Value.absent(),
     Value<int?> phase = const Value.absent(),
     Value<CourseType?> courseType = const Value.absent(),
     Value<String?> status = const Value.absent(),
@@ -4335,9 +4615,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   }) => CourseOffering(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
-    course: course ?? this.course,
+    courseCode: courseCode.present ? courseCode.value : this.courseCode,
     semester: semester ?? this.semester,
-    number: number ?? this.number,
+    number: number.present ? number.value : this.number,
+    nameZh: nameZh ?? this.nameZh,
+    nameEn: nameEn.present ? nameEn.value : this.nameEn,
+    credits: credits.present ? credits.value : this.credits,
+    hours: hours.present ? hours.value : this.hours,
     phase: phase.present ? phase.value : this.phase,
     courseType: courseType.present ? courseType.value : this.courseType,
     status: status.present ? status.value : this.status,
@@ -4361,9 +4645,15 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     return CourseOffering(
       id: data.id.present ? data.id.value : this.id,
       fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
-      course: data.course.present ? data.course.value : this.course,
+      courseCode: data.courseCode.present
+          ? data.courseCode.value
+          : this.courseCode,
       semester: data.semester.present ? data.semester.value : this.semester,
       number: data.number.present ? data.number.value : this.number,
+      nameZh: data.nameZh.present ? data.nameZh.value : this.nameZh,
+      nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
+      credits: data.credits.present ? data.credits.value : this.credits,
+      hours: data.hours.present ? data.hours.value : this.hours,
       phase: data.phase.present ? data.phase.value : this.phase,
       courseType: data.courseType.present
           ? data.courseType.value
@@ -4398,9 +4688,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     return (StringBuffer('CourseOffering(')
           ..write('id: $id, ')
           ..write('fetchedAt: $fetchedAt, ')
-          ..write('course: $course, ')
+          ..write('courseCode: $courseCode, ')
           ..write('semester: $semester, ')
           ..write('number: $number, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('credits: $credits, ')
+          ..write('hours: $hours, ')
           ..write('phase: $phase, ')
           ..write('courseType: $courseType, ')
           ..write('status: $status, ')
@@ -4420,12 +4714,16 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     fetchedAt,
-    course,
+    courseCode,
     semester,
     number,
+    nameZh,
+    nameEn,
+    credits,
+    hours,
     phase,
     courseType,
     status,
@@ -4440,16 +4738,20 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     evaluation,
     textbooks,
     syllabusRemarks,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CourseOffering &&
           other.id == this.id &&
           other.fetchedAt == this.fetchedAt &&
-          other.course == this.course &&
+          other.courseCode == this.courseCode &&
           other.semester == this.semester &&
           other.number == this.number &&
+          other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn &&
+          other.credits == this.credits &&
+          other.hours == this.hours &&
           other.phase == this.phase &&
           other.courseType == this.courseType &&
           other.status == this.status &&
@@ -4469,9 +4771,13 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
 class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   final Value<int> id;
   final Value<DateTime?> fetchedAt;
-  final Value<int> course;
+  final Value<String?> courseCode;
   final Value<int> semester;
-  final Value<String> number;
+  final Value<String?> number;
+  final Value<String> nameZh;
+  final Value<String?> nameEn;
+  final Value<double?> credits;
+  final Value<int?> hours;
   final Value<int?> phase;
   final Value<CourseType?> courseType;
   final Value<String?> status;
@@ -4489,9 +4795,13 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   const CourseOfferingsCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
-    this.course = const Value.absent(),
+    this.courseCode = const Value.absent(),
     this.semester = const Value.absent(),
     this.number = const Value.absent(),
+    this.nameZh = const Value.absent(),
+    this.nameEn = const Value.absent(),
+    this.credits = const Value.absent(),
+    this.hours = const Value.absent(),
     this.phase = const Value.absent(),
     this.courseType = const Value.absent(),
     this.status = const Value.absent(),
@@ -4510,9 +4820,13 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   CourseOfferingsCompanion.insert({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
-    required int course,
+    this.courseCode = const Value.absent(),
     required int semester,
-    required String number,
+    this.number = const Value.absent(),
+    required String nameZh,
+    this.nameEn = const Value.absent(),
+    this.credits = const Value.absent(),
+    this.hours = const Value.absent(),
     this.phase = const Value.absent(),
     this.courseType = const Value.absent(),
     this.status = const Value.absent(),
@@ -4527,15 +4841,18 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.evaluation = const Value.absent(),
     this.textbooks = const Value.absent(),
     this.syllabusRemarks = const Value.absent(),
-  }) : course = Value(course),
-       semester = Value(semester),
-       number = Value(number);
+  }) : semester = Value(semester),
+       nameZh = Value(nameZh);
   static Insertable<CourseOffering> custom({
     Expression<int>? id,
     Expression<DateTime>? fetchedAt,
-    Expression<int>? course,
+    Expression<String>? courseCode,
     Expression<int>? semester,
     Expression<String>? number,
+    Expression<String>? nameZh,
+    Expression<String>? nameEn,
+    Expression<double>? credits,
+    Expression<int>? hours,
     Expression<int>? phase,
     Expression<String>? courseType,
     Expression<String>? status,
@@ -4554,9 +4871,13 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (fetchedAt != null) 'fetched_at': fetchedAt,
-      if (course != null) 'course': course,
+      if (courseCode != null) 'course_code': courseCode,
       if (semester != null) 'semester': semester,
       if (number != null) 'number': number,
+      if (nameZh != null) 'name_zh': nameZh,
+      if (nameEn != null) 'name_en': nameEn,
+      if (credits != null) 'credits': credits,
+      if (hours != null) 'hours': hours,
       if (phase != null) 'phase': phase,
       if (courseType != null) 'course_type': courseType,
       if (status != null) 'status': status,
@@ -4577,9 +4898,13 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   CourseOfferingsCompanion copyWith({
     Value<int>? id,
     Value<DateTime?>? fetchedAt,
-    Value<int>? course,
+    Value<String?>? courseCode,
     Value<int>? semester,
-    Value<String>? number,
+    Value<String?>? number,
+    Value<String>? nameZh,
+    Value<String?>? nameEn,
+    Value<double?>? credits,
+    Value<int?>? hours,
     Value<int?>? phase,
     Value<CourseType?>? courseType,
     Value<String?>? status,
@@ -4598,9 +4923,13 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     return CourseOfferingsCompanion(
       id: id ?? this.id,
       fetchedAt: fetchedAt ?? this.fetchedAt,
-      course: course ?? this.course,
+      courseCode: courseCode ?? this.courseCode,
       semester: semester ?? this.semester,
       number: number ?? this.number,
+      nameZh: nameZh ?? this.nameZh,
+      nameEn: nameEn ?? this.nameEn,
+      credits: credits ?? this.credits,
+      hours: hours ?? this.hours,
       phase: phase ?? this.phase,
       courseType: courseType ?? this.courseType,
       status: status ?? this.status,
@@ -4627,14 +4956,26 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     if (fetchedAt.present) {
       map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
     }
-    if (course.present) {
-      map['course'] = Variable<int>(course.value);
+    if (courseCode.present) {
+      map['course_code'] = Variable<String>(courseCode.value);
     }
     if (semester.present) {
       map['semester'] = Variable<int>(semester.value);
     }
     if (number.present) {
       map['number'] = Variable<String>(number.value);
+    }
+    if (nameZh.present) {
+      map['name_zh'] = Variable<String>(nameZh.value);
+    }
+    if (nameEn.present) {
+      map['name_en'] = Variable<String>(nameEn.value);
+    }
+    if (credits.present) {
+      map['credits'] = Variable<double>(credits.value);
+    }
+    if (hours.present) {
+      map['hours'] = Variable<int>(hours.value);
     }
     if (phase.present) {
       map['phase'] = Variable<int>(phase.value);
@@ -4688,9 +5029,13 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     return (StringBuffer('CourseOfferingsCompanion(')
           ..write('id: $id, ')
           ..write('fetchedAt: $fetchedAt, ')
-          ..write('course: $course, ')
+          ..write('courseCode: $courseCode, ')
           ..write('semester: $semester, ')
           ..write('number: $number, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('credits: $credits, ')
+          ..write('hours: $hours, ')
           ..write('phase: $phase, ')
           ..write('courseType: $courseType, ')
           ..write('status: $status, ')
@@ -9538,26 +9883,645 @@ class UserSemesterRankingsCompanion
   }
 }
 
+class $CalendarEventsTable extends CalendarEvents
+    with TableInfo<$CalendarEventsTable, CalendarEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CalendarEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _portalIdMeta = const VerificationMeta(
+    'portalId',
+  );
+  @override
+  late final GeneratedColumn<int> portalId = GeneratedColumn<int>(
+    'portal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _startMeta = const VerificationMeta('start');
+  @override
+  late final GeneratedColumn<DateTime> start = GeneratedColumn<DateTime>(
+    'start',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endMeta = const VerificationMeta('end');
+  @override
+  late final GeneratedColumn<DateTime> end = GeneratedColumn<DateTime>(
+    'end',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _allDayMeta = const VerificationMeta('allDay');
+  @override
+  late final GeneratedColumn<bool> allDay = GeneratedColumn<bool>(
+    'all_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("all_day" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _placeMeta = const VerificationMeta('place');
+  @override
+  late final GeneratedColumn<String> place = GeneratedColumn<String>(
+    'place',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ownerNameMeta = const VerificationMeta(
+    'ownerName',
+  );
+  @override
+  late final GeneratedColumn<String> ownerName = GeneratedColumn<String>(
+    'owner_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _creatorNameMeta = const VerificationMeta(
+    'creatorName',
+  );
+  @override
+  late final GeneratedColumn<String> creatorName = GeneratedColumn<String>(
+    'creator_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    portalId,
+    start,
+    end,
+    allDay,
+    title,
+    place,
+    content,
+    ownerName,
+    creatorName,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'calendar_events';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CalendarEvent> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('portal_id')) {
+      context.handle(
+        _portalIdMeta,
+        portalId.isAcceptableOrUnknown(data['portal_id']!, _portalIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_portalIdMeta);
+    }
+    if (data.containsKey('start')) {
+      context.handle(
+        _startMeta,
+        start.isAcceptableOrUnknown(data['start']!, _startMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startMeta);
+    }
+    if (data.containsKey('end')) {
+      context.handle(
+        _endMeta,
+        end.isAcceptableOrUnknown(data['end']!, _endMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endMeta);
+    }
+    if (data.containsKey('all_day')) {
+      context.handle(
+        _allDayMeta,
+        allDay.isAcceptableOrUnknown(data['all_day']!, _allDayMeta),
+      );
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    }
+    if (data.containsKey('place')) {
+      context.handle(
+        _placeMeta,
+        place.isAcceptableOrUnknown(data['place']!, _placeMeta),
+      );
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    }
+    if (data.containsKey('owner_name')) {
+      context.handle(
+        _ownerNameMeta,
+        ownerName.isAcceptableOrUnknown(data['owner_name']!, _ownerNameMeta),
+      );
+    }
+    if (data.containsKey('creator_name')) {
+      context.handle(
+        _creatorNameMeta,
+        creatorName.isAcceptableOrUnknown(
+          data['creator_name']!,
+          _creatorNameMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CalendarEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CalendarEvent(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      portalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}portal_id'],
+      )!,
+      start: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start'],
+      )!,
+      end: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}end'],
+      )!,
+      allDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}all_day'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      ),
+      place: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}place'],
+      ),
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      ),
+      ownerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_name'],
+      ),
+      creatorName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}creator_name'],
+      ),
+    );
+  }
+
+  @override
+  $CalendarEventsTable createAlias(String alias) {
+    return $CalendarEventsTable(attachedDatabase, alias);
+  }
+}
+
+class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
+  /// Auto-incrementing primary key.
+  final int id;
+
+  /// Unique event ID from NTUT Portal.
+  final int portalId;
+
+  /// Event start time.
+  final DateTime start;
+
+  /// Event end time.
+  final DateTime end;
+
+  /// Whether this is an all-day event.
+  final bool allDay;
+
+  /// Event title / description.
+  final String? title;
+
+  /// Event location.
+  final String? place;
+
+  /// Event content / details.
+  final String? content;
+
+  /// Owner name (e.g., "學校行事曆").
+  final String? ownerName;
+
+  /// Creator name (e.g., "教務處").
+  final String? creatorName;
+  const CalendarEvent({
+    required this.id,
+    required this.portalId,
+    required this.start,
+    required this.end,
+    required this.allDay,
+    this.title,
+    this.place,
+    this.content,
+    this.ownerName,
+    this.creatorName,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['portal_id'] = Variable<int>(portalId);
+    map['start'] = Variable<DateTime>(start);
+    map['end'] = Variable<DateTime>(end);
+    map['all_day'] = Variable<bool>(allDay);
+    if (!nullToAbsent || title != null) {
+      map['title'] = Variable<String>(title);
+    }
+    if (!nullToAbsent || place != null) {
+      map['place'] = Variable<String>(place);
+    }
+    if (!nullToAbsent || content != null) {
+      map['content'] = Variable<String>(content);
+    }
+    if (!nullToAbsent || ownerName != null) {
+      map['owner_name'] = Variable<String>(ownerName);
+    }
+    if (!nullToAbsent || creatorName != null) {
+      map['creator_name'] = Variable<String>(creatorName);
+    }
+    return map;
+  }
+
+  CalendarEventsCompanion toCompanion(bool nullToAbsent) {
+    return CalendarEventsCompanion(
+      id: Value(id),
+      portalId: Value(portalId),
+      start: Value(start),
+      end: Value(end),
+      allDay: Value(allDay),
+      title: title == null && nullToAbsent
+          ? const Value.absent()
+          : Value(title),
+      place: place == null && nullToAbsent
+          ? const Value.absent()
+          : Value(place),
+      content: content == null && nullToAbsent
+          ? const Value.absent()
+          : Value(content),
+      ownerName: ownerName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerName),
+      creatorName: creatorName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(creatorName),
+    );
+  }
+
+  factory CalendarEvent.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CalendarEvent(
+      id: serializer.fromJson<int>(json['id']),
+      portalId: serializer.fromJson<int>(json['portalId']),
+      start: serializer.fromJson<DateTime>(json['start']),
+      end: serializer.fromJson<DateTime>(json['end']),
+      allDay: serializer.fromJson<bool>(json['allDay']),
+      title: serializer.fromJson<String?>(json['title']),
+      place: serializer.fromJson<String?>(json['place']),
+      content: serializer.fromJson<String?>(json['content']),
+      ownerName: serializer.fromJson<String?>(json['ownerName']),
+      creatorName: serializer.fromJson<String?>(json['creatorName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'portalId': serializer.toJson<int>(portalId),
+      'start': serializer.toJson<DateTime>(start),
+      'end': serializer.toJson<DateTime>(end),
+      'allDay': serializer.toJson<bool>(allDay),
+      'title': serializer.toJson<String?>(title),
+      'place': serializer.toJson<String?>(place),
+      'content': serializer.toJson<String?>(content),
+      'ownerName': serializer.toJson<String?>(ownerName),
+      'creatorName': serializer.toJson<String?>(creatorName),
+    };
+  }
+
+  CalendarEvent copyWith({
+    int? id,
+    int? portalId,
+    DateTime? start,
+    DateTime? end,
+    bool? allDay,
+    Value<String?> title = const Value.absent(),
+    Value<String?> place = const Value.absent(),
+    Value<String?> content = const Value.absent(),
+    Value<String?> ownerName = const Value.absent(),
+    Value<String?> creatorName = const Value.absent(),
+  }) => CalendarEvent(
+    id: id ?? this.id,
+    portalId: portalId ?? this.portalId,
+    start: start ?? this.start,
+    end: end ?? this.end,
+    allDay: allDay ?? this.allDay,
+    title: title.present ? title.value : this.title,
+    place: place.present ? place.value : this.place,
+    content: content.present ? content.value : this.content,
+    ownerName: ownerName.present ? ownerName.value : this.ownerName,
+    creatorName: creatorName.present ? creatorName.value : this.creatorName,
+  );
+  CalendarEvent copyWithCompanion(CalendarEventsCompanion data) {
+    return CalendarEvent(
+      id: data.id.present ? data.id.value : this.id,
+      portalId: data.portalId.present ? data.portalId.value : this.portalId,
+      start: data.start.present ? data.start.value : this.start,
+      end: data.end.present ? data.end.value : this.end,
+      allDay: data.allDay.present ? data.allDay.value : this.allDay,
+      title: data.title.present ? data.title.value : this.title,
+      place: data.place.present ? data.place.value : this.place,
+      content: data.content.present ? data.content.value : this.content,
+      ownerName: data.ownerName.present ? data.ownerName.value : this.ownerName,
+      creatorName: data.creatorName.present
+          ? data.creatorName.value
+          : this.creatorName,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalendarEvent(')
+          ..write('id: $id, ')
+          ..write('portalId: $portalId, ')
+          ..write('start: $start, ')
+          ..write('end: $end, ')
+          ..write('allDay: $allDay, ')
+          ..write('title: $title, ')
+          ..write('place: $place, ')
+          ..write('content: $content, ')
+          ..write('ownerName: $ownerName, ')
+          ..write('creatorName: $creatorName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    portalId,
+    start,
+    end,
+    allDay,
+    title,
+    place,
+    content,
+    ownerName,
+    creatorName,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CalendarEvent &&
+          other.id == this.id &&
+          other.portalId == this.portalId &&
+          other.start == this.start &&
+          other.end == this.end &&
+          other.allDay == this.allDay &&
+          other.title == this.title &&
+          other.place == this.place &&
+          other.content == this.content &&
+          other.ownerName == this.ownerName &&
+          other.creatorName == this.creatorName);
+}
+
+class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
+  final Value<int> id;
+  final Value<int> portalId;
+  final Value<DateTime> start;
+  final Value<DateTime> end;
+  final Value<bool> allDay;
+  final Value<String?> title;
+  final Value<String?> place;
+  final Value<String?> content;
+  final Value<String?> ownerName;
+  final Value<String?> creatorName;
+  const CalendarEventsCompanion({
+    this.id = const Value.absent(),
+    this.portalId = const Value.absent(),
+    this.start = const Value.absent(),
+    this.end = const Value.absent(),
+    this.allDay = const Value.absent(),
+    this.title = const Value.absent(),
+    this.place = const Value.absent(),
+    this.content = const Value.absent(),
+    this.ownerName = const Value.absent(),
+    this.creatorName = const Value.absent(),
+  });
+  CalendarEventsCompanion.insert({
+    this.id = const Value.absent(),
+    required int portalId,
+    required DateTime start,
+    required DateTime end,
+    this.allDay = const Value.absent(),
+    this.title = const Value.absent(),
+    this.place = const Value.absent(),
+    this.content = const Value.absent(),
+    this.ownerName = const Value.absent(),
+    this.creatorName = const Value.absent(),
+  }) : portalId = Value(portalId),
+       start = Value(start),
+       end = Value(end);
+  static Insertable<CalendarEvent> custom({
+    Expression<int>? id,
+    Expression<int>? portalId,
+    Expression<DateTime>? start,
+    Expression<DateTime>? end,
+    Expression<bool>? allDay,
+    Expression<String>? title,
+    Expression<String>? place,
+    Expression<String>? content,
+    Expression<String>? ownerName,
+    Expression<String>? creatorName,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (portalId != null) 'portal_id': portalId,
+      if (start != null) 'start': start,
+      if (end != null) 'end': end,
+      if (allDay != null) 'all_day': allDay,
+      if (title != null) 'title': title,
+      if (place != null) 'place': place,
+      if (content != null) 'content': content,
+      if (ownerName != null) 'owner_name': ownerName,
+      if (creatorName != null) 'creator_name': creatorName,
+    });
+  }
+
+  CalendarEventsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? portalId,
+    Value<DateTime>? start,
+    Value<DateTime>? end,
+    Value<bool>? allDay,
+    Value<String?>? title,
+    Value<String?>? place,
+    Value<String?>? content,
+    Value<String?>? ownerName,
+    Value<String?>? creatorName,
+  }) {
+    return CalendarEventsCompanion(
+      id: id ?? this.id,
+      portalId: portalId ?? this.portalId,
+      start: start ?? this.start,
+      end: end ?? this.end,
+      allDay: allDay ?? this.allDay,
+      title: title ?? this.title,
+      place: place ?? this.place,
+      content: content ?? this.content,
+      ownerName: ownerName ?? this.ownerName,
+      creatorName: creatorName ?? this.creatorName,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (portalId.present) {
+      map['portal_id'] = Variable<int>(portalId.value);
+    }
+    if (start.present) {
+      map['start'] = Variable<DateTime>(start.value);
+    }
+    if (end.present) {
+      map['end'] = Variable<DateTime>(end.value);
+    }
+    if (allDay.present) {
+      map['all_day'] = Variable<bool>(allDay.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (place.present) {
+      map['place'] = Variable<String>(place.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (ownerName.present) {
+      map['owner_name'] = Variable<String>(ownerName.value);
+    }
+    if (creatorName.present) {
+      map['creator_name'] = Variable<String>(creatorName.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalendarEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('portalId: $portalId, ')
+          ..write('start: $start, ')
+          ..write('end: $end, ')
+          ..write('allDay: $allDay, ')
+          ..write('title: $title, ')
+          ..write('place: $place, ')
+          ..write('content: $content, ')
+          ..write('ownerName: $ownerName, ')
+          ..write('creatorName: $creatorName')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class CourseTableSlot extends DataClass {
   final int id;
-  final String number;
+  final String? number;
   final int semester;
-  final String nameZh;
+  final String? nameZh;
   final String? nameEn;
-  final double credits;
-  final int hours;
+  final double? credits;
+  final int? hours;
   final DayOfWeek dayOfWeek;
   final Period period;
   final String? classroomNameZh;
   final String? classroomNameEn;
   const CourseTableSlot({
     required this.id,
-    required this.number,
+    this.number,
     required this.semester,
-    required this.nameZh,
+    this.nameZh,
     this.nameEn,
-    required this.credits,
-    required this.hours,
+    this.credits,
+    this.hours,
     required this.dayOfWeek,
     required this.period,
     this.classroomNameZh,
@@ -9570,12 +10534,12 @@ class CourseTableSlot extends DataClass {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return CourseTableSlot(
       id: serializer.fromJson<int>(json['id']),
-      number: serializer.fromJson<String>(json['number']),
+      number: serializer.fromJson<String?>(json['number']),
       semester: serializer.fromJson<int>(json['semester']),
-      nameZh: serializer.fromJson<String>(json['nameZh']),
+      nameZh: serializer.fromJson<String?>(json['nameZh']),
       nameEn: serializer.fromJson<String?>(json['nameEn']),
-      credits: serializer.fromJson<double>(json['credits']),
-      hours: serializer.fromJson<int>(json['hours']),
+      credits: serializer.fromJson<double?>(json['credits']),
+      hours: serializer.fromJson<int?>(json['hours']),
       dayOfWeek: $SchedulesTable.$converterdayOfWeek.fromJson(
         serializer.fromJson<int>(json['dayOfWeek']),
       ),
@@ -9591,12 +10555,12 @@ class CourseTableSlot extends DataClass {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'number': serializer.toJson<String>(number),
+      'number': serializer.toJson<String?>(number),
       'semester': serializer.toJson<int>(semester),
-      'nameZh': serializer.toJson<String>(nameZh),
+      'nameZh': serializer.toJson<String?>(nameZh),
       'nameEn': serializer.toJson<String?>(nameEn),
-      'credits': serializer.toJson<double>(credits),
-      'hours': serializer.toJson<int>(hours),
+      'credits': serializer.toJson<double?>(credits),
+      'hours': serializer.toJson<int?>(hours),
       'dayOfWeek': serializer.toJson<int>(
         $SchedulesTable.$converterdayOfWeek.toJson(dayOfWeek),
       ),
@@ -9610,24 +10574,24 @@ class CourseTableSlot extends DataClass {
 
   CourseTableSlot copyWith({
     int? id,
-    String? number,
+    Value<String?> number = const Value.absent(),
     int? semester,
-    String? nameZh,
+    Value<String?> nameZh = const Value.absent(),
     Value<String?> nameEn = const Value.absent(),
-    double? credits,
-    int? hours,
+    Value<double?> credits = const Value.absent(),
+    Value<int?> hours = const Value.absent(),
     DayOfWeek? dayOfWeek,
     Period? period,
     Value<String?> classroomNameZh = const Value.absent(),
     Value<String?> classroomNameEn = const Value.absent(),
   }) => CourseTableSlot(
     id: id ?? this.id,
-    number: number ?? this.number,
+    number: number.present ? number.value : this.number,
     semester: semester ?? this.semester,
-    nameZh: nameZh ?? this.nameZh,
+    nameZh: nameZh.present ? nameZh.value : this.nameZh,
     nameEn: nameEn.present ? nameEn.value : this.nameEn,
-    credits: credits ?? this.credits,
-    hours: hours ?? this.hours,
+    credits: credits.present ? credits.value : this.credits,
+    hours: hours.present ? hours.value : this.hours,
     dayOfWeek: dayOfWeek ?? this.dayOfWeek,
     period: period ?? this.period,
     classroomNameZh: classroomNameZh.present
@@ -9732,7 +10696,7 @@ class $CourseTableSlotsView
       number: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}number'],
-      )!,
+      ),
       semester: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}semester'],
@@ -9740,7 +10704,7 @@ class $CourseTableSlotsView
       nameZh: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name_zh'],
-      )!,
+      ),
       nameEn: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name_en'],
@@ -9748,11 +10712,11 @@ class $CourseTableSlotsView
       credits: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}credits'],
-      )!,
+      ),
       hours: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}hours'],
-      )!,
+      ),
       dayOfWeek: $SchedulesTable.$converterdayOfWeek.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.int,
@@ -9786,7 +10750,7 @@ class $CourseTableSlotsView
   late final GeneratedColumn<String> number = GeneratedColumn<String>(
     'number',
     aliasedName,
-    false,
+    true,
     generatedAs: GeneratedAs(courseOfferings.number, false),
     type: DriftSqlType.string,
   );
@@ -9800,29 +10764,41 @@ class $CourseTableSlotsView
   late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
     'name_zh',
     aliasedName,
-    false,
-    generatedAs: GeneratedAs(courses.nameZh, false),
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.nameZh, courses.nameZh]),
+      false,
+    ),
     type: DriftSqlType.string,
   );
   late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
     'name_en',
     aliasedName,
     true,
-    generatedAs: GeneratedAs(courses.nameEn, false),
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.nameEn, courses.nameEn]),
+      false,
+    ),
     type: DriftSqlType.string,
   );
   late final GeneratedColumn<double> credits = GeneratedColumn<double>(
     'credits',
     aliasedName,
-    false,
-    generatedAs: GeneratedAs(courses.credits, false),
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.credits, courses.credits]),
+      false,
+    ),
     type: DriftSqlType.double,
   );
   late final GeneratedColumn<int> hours = GeneratedColumn<int>(
     'hours',
     aliasedName,
-    false,
-    generatedAs: GeneratedAs(courses.hours, false),
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.hours, courses.hours]),
+      false,
+    ),
     type: DriftSqlType.int,
   );
   late final GeneratedColumnWithTypeConverter<DayOfWeek, int> dayOfWeek =
@@ -9867,7 +10843,10 @@ class $CourseTableSlotsView
           courseOfferings,
           courseOfferings.id.equalsExp(schedules.courseOffering),
         ),
-        innerJoin(courses, courses.id.equalsExp(courseOfferings.course)),
+        leftOuterJoin(
+          courses,
+          courses.code.equalsExp(courseOfferings.courseCode),
+        ),
         leftOuterJoin(classrooms, classrooms.id.equalsExp(schedules.classroom)),
       ]);
   @override
@@ -9886,7 +10865,8 @@ class ScoreDetail extends DataClass {
   final int? score;
   final ScoreStatus? status;
   final String code;
-  final String nameZh;
+  final String? nameZh;
+  final String? nameEn;
   final String? number;
   const ScoreDetail({
     required this.id,
@@ -9895,7 +10875,8 @@ class ScoreDetail extends DataClass {
     this.score,
     this.status,
     required this.code,
-    required this.nameZh,
+    this.nameZh,
+    this.nameEn,
     this.number,
   });
   factory ScoreDetail.fromJson(
@@ -9912,7 +10893,8 @@ class ScoreDetail extends DataClass {
         serializer.fromJson<String?>(json['status']),
       ),
       code: serializer.fromJson<String>(json['code']),
-      nameZh: serializer.fromJson<String>(json['nameZh']),
+      nameZh: serializer.fromJson<String?>(json['nameZh']),
+      nameEn: serializer.fromJson<String?>(json['nameEn']),
       number: serializer.fromJson<String?>(json['number']),
     );
   }
@@ -9928,7 +10910,8 @@ class ScoreDetail extends DataClass {
         $ScoresTable.$converterstatusn.toJson(status),
       ),
       'code': serializer.toJson<String>(code),
-      'nameZh': serializer.toJson<String>(nameZh),
+      'nameZh': serializer.toJson<String?>(nameZh),
+      'nameEn': serializer.toJson<String?>(nameEn),
       'number': serializer.toJson<String?>(number),
     };
   }
@@ -9940,7 +10923,8 @@ class ScoreDetail extends DataClass {
     Value<int?> score = const Value.absent(),
     Value<ScoreStatus?> status = const Value.absent(),
     String? code,
-    String? nameZh,
+    Value<String?> nameZh = const Value.absent(),
+    Value<String?> nameEn = const Value.absent(),
     Value<String?> number = const Value.absent(),
   }) => ScoreDetail(
     id: id ?? this.id,
@@ -9949,7 +10933,8 @@ class ScoreDetail extends DataClass {
     score: score.present ? score.value : this.score,
     status: status.present ? status.value : this.status,
     code: code ?? this.code,
-    nameZh: nameZh ?? this.nameZh,
+    nameZh: nameZh.present ? nameZh.value : this.nameZh,
+    nameEn: nameEn.present ? nameEn.value : this.nameEn,
     number: number.present ? number.value : this.number,
   );
   @override
@@ -9962,14 +10947,24 @@ class ScoreDetail extends DataClass {
           ..write('status: $status, ')
           ..write('code: $code, ')
           ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
           ..write('number: $number')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, user, semester, score, status, code, nameZh, number);
+  int get hashCode => Object.hash(
+    id,
+    user,
+    semester,
+    score,
+    status,
+    code,
+    nameZh,
+    nameEn,
+    number,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -9981,6 +10976,7 @@ class ScoreDetail extends DataClass {
           other.status == this.status &&
           other.code == this.code &&
           other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn &&
           other.number == this.number);
 }
 
@@ -10003,6 +10999,7 @@ class $ScoreDetailsView extends ViewInfo<$ScoreDetailsView, ScoreDetail>
     status,
     code,
     nameZh,
+    nameEn,
     number,
   ];
   @override
@@ -10046,7 +11043,11 @@ class $ScoreDetailsView extends ViewInfo<$ScoreDetailsView, ScoreDetail>
       nameZh: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name_zh'],
-      )!,
+      ),
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      ),
       number: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}number'],
@@ -10100,8 +11101,21 @@ class $ScoreDetailsView extends ViewInfo<$ScoreDetailsView, ScoreDetail>
   late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
     'name_zh',
     aliasedName,
-    false,
-    generatedAs: GeneratedAs(courses.nameZh, false),
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.nameZh, courses.nameZh]),
+      false,
+    ),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.nameEn, courses.nameEn]),
+      false,
+    ),
     type: DriftSqlType.string,
   );
   late final GeneratedColumn<String> number = GeneratedColumn<String>(
@@ -10659,6 +11673,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $UserSemesterSummaryCadreRolesTable(this);
   late final $UserSemesterRankingsTable userSemesterRankings =
       $UserSemesterRankingsTable(this);
+  late final $CalendarEventsTable calendarEvents = $CalendarEventsTable(this);
   late final $CourseTableSlotsView courseTableSlots = $CourseTableSlotsView(
     this,
   );
@@ -10672,9 +11687,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'class_semester',
     'CREATE INDEX class_semester ON classes (semester)',
   );
-  late final Index courseOfferingCourse = Index(
-    'course_offering_course',
-    'CREATE INDEX course_offering_course ON course_offerings (course)',
+  late final Index courseOfferingCourseCode = Index(
+    'course_offering_course_code',
+    'CREATE INDEX course_offering_course_code ON course_offerings (course_code)',
   );
   late final Index courseOfferingSemester = Index(
     'course_offering_semester',
@@ -10730,12 +11745,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userSemesterSummaryTutors,
     userSemesterSummaryCadreRoles,
     userSemesterRankings,
+    calendarEvents,
     courseTableSlots,
     scoreDetails,
     userAcademicSummaries,
     userRegistrations,
     classSemester,
-    courseOfferingCourse,
+    courseOfferingCourseCode,
     courseOfferingSemester,
     scheduleCourseOffering,
     materialCourseOffering,
@@ -10847,6 +11863,7 @@ typedef $$UsersTableCreateCompanionBuilder =
       Value<int?> passwordExpiresInDays,
       Value<DateTime?> semestersFetchedAt,
       Value<DateTime?> scoreDataFetchedAt,
+      Value<DateTime?> calendarFetchedAt,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
     UsersCompanion Function({
@@ -10865,6 +11882,7 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<int?> passwordExpiresInDays,
       Value<DateTime?> semestersFetchedAt,
       Value<DateTime?> scoreDataFetchedAt,
+      Value<DateTime?> calendarFetchedAt,
     });
 
 final class $$UsersTableReferences
@@ -10999,6 +12017,11 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
 
   ColumnFilters<DateTime> get scoreDataFetchedAt => $composableBuilder(
     column: $table.scoreDataFetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get calendarFetchedAt => $composableBuilder(
+    column: $table.calendarFetchedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11137,6 +12160,11 @@ class $$UsersTableOrderingComposer
     column: $table.scoreDataFetchedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get calendarFetchedAt => $composableBuilder(
+    column: $table.calendarFetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$UsersTableAnnotationComposer
@@ -11204,6 +12232,11 @@ class $$UsersTableAnnotationComposer
 
   GeneratedColumn<DateTime> get scoreDataFetchedAt => $composableBuilder(
     column: $table.scoreDataFetchedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get calendarFetchedAt => $composableBuilder(
+    column: $table.calendarFetchedAt,
     builder: (column) => column,
   );
 
@@ -11305,6 +12338,7 @@ class $$UsersTableTableManager
                 Value<int?> passwordExpiresInDays = const Value.absent(),
                 Value<DateTime?> semestersFetchedAt = const Value.absent(),
                 Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
+                Value<DateTime?> calendarFetchedAt = const Value.absent(),
               }) => UsersCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -11321,6 +12355,7 @@ class $$UsersTableTableManager
                 passwordExpiresInDays: passwordExpiresInDays,
                 semestersFetchedAt: semestersFetchedAt,
                 scoreDataFetchedAt: scoreDataFetchedAt,
+                calendarFetchedAt: calendarFetchedAt,
               ),
           createCompanionCallback:
               ({
@@ -11339,6 +12374,7 @@ class $$UsersTableTableManager
                 Value<int?> passwordExpiresInDays = const Value.absent(),
                 Value<DateTime?> semestersFetchedAt = const Value.absent(),
                 Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
+                Value<DateTime?> calendarFetchedAt = const Value.absent(),
               }) => UsersCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -11355,6 +12391,7 @@ class $$UsersTableTableManager
                 passwordExpiresInDays: passwordExpiresInDays,
                 semestersFetchedAt: semestersFetchedAt,
                 scoreDataFetchedAt: scoreDataFetchedAt,
+                calendarFetchedAt: calendarFetchedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -11701,6 +12738,7 @@ typedef $$SemestersTableCreateCompanionBuilder =
       required int year,
       required int term,
       Value<bool> inCourseSemesterList,
+      Value<bool> inScoreSemesterList,
       Value<DateTime?> courseTableFetchedAt,
     });
 typedef $$SemestersTableUpdateCompanionBuilder =
@@ -11709,6 +12747,7 @@ typedef $$SemestersTableUpdateCompanionBuilder =
       Value<int> year,
       Value<int> term,
       Value<bool> inCourseSemesterList,
+      Value<bool> inScoreSemesterList,
       Value<DateTime?> courseTableFetchedAt,
     });
 
@@ -11854,6 +12893,11 @@ class $$SemestersTableFilterComposer
 
   ColumnFilters<bool> get inCourseSemesterList => $composableBuilder(
     column: $table.inCourseSemesterList,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get inScoreSemesterList => $composableBuilder(
+    column: $table.inScoreSemesterList,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12018,6 +13062,11 @@ class $$SemestersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get inScoreSemesterList => $composableBuilder(
+    column: $table.inScoreSemesterList,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get courseTableFetchedAt => $composableBuilder(
     column: $table.courseTableFetchedAt,
     builder: (column) => ColumnOrderings(column),
@@ -12044,6 +13093,11 @@ class $$SemestersTableAnnotationComposer
 
   GeneratedColumn<bool> get inCourseSemesterList => $composableBuilder(
     column: $table.inCourseSemesterList,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get inScoreSemesterList => $composableBuilder(
+    column: $table.inScoreSemesterList,
     builder: (column) => column,
   );
 
@@ -12217,12 +13271,14 @@ class $$SemestersTableTableManager
                 Value<int> year = const Value.absent(),
                 Value<int> term = const Value.absent(),
                 Value<bool> inCourseSemesterList = const Value.absent(),
+                Value<bool> inScoreSemesterList = const Value.absent(),
                 Value<DateTime?> courseTableFetchedAt = const Value.absent(),
               }) => SemestersCompanion(
                 id: id,
                 year: year,
                 term: term,
                 inCourseSemesterList: inCourseSemesterList,
+                inScoreSemesterList: inScoreSemesterList,
                 courseTableFetchedAt: courseTableFetchedAt,
               ),
           createCompanionCallback:
@@ -12231,12 +13287,14 @@ class $$SemestersTableTableManager
                 required int year,
                 required int term,
                 Value<bool> inCourseSemesterList = const Value.absent(),
+                Value<bool> inScoreSemesterList = const Value.absent(),
                 Value<DateTime?> courseTableFetchedAt = const Value.absent(),
               }) => SemestersCompanion.insert(
                 id: id,
                 year: year,
                 term: term,
                 inCourseSemesterList: inCourseSemesterList,
+                inScoreSemesterList: inScoreSemesterList,
                 courseTableFetchedAt: courseTableFetchedAt,
               ),
           withReferenceMapper: (p0) => p0
@@ -12429,26 +13487,6 @@ final class $$CoursesTableReferences
     extends BaseReferences<_$AppDatabase, $CoursesTable, Course> {
   $$CoursesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$CourseOfferingsTable, List<CourseOffering>>
-  _courseOfferingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.courseOfferings,
-    aliasName: $_aliasNameGenerator(db.courses.id, db.courseOfferings.course),
-  );
-
-  $$CourseOfferingsTableProcessedTableManager get courseOfferingsRefs {
-    final manager = $$CourseOfferingsTableTableManager(
-      $_db,
-      $_db.courseOfferings,
-    ).filter((f) => f.course.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _courseOfferingsRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
   static MultiTypedResultKey<$ScoresTable, List<Score>> _scoresRefsTable(
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
@@ -12522,31 +13560,6 @@ class $$CoursesTableFilterComposer
     column: $table.descriptionEn,
     builder: (column) => ColumnFilters(column),
   );
-
-  Expression<bool> courseOfferingsRefs(
-    Expression<bool> Function($$CourseOfferingsTableFilterComposer f) f,
-  ) {
-    final $$CourseOfferingsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.courseOfferings,
-      getReferencedColumn: (t) => t.course,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CourseOfferingsTableFilterComposer(
-            $db: $db,
-            $table: $db.courseOfferings,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 
   Expression<bool> scoresRefs(
     Expression<bool> Function($$ScoresTableFilterComposer f) f,
@@ -12669,31 +13682,6 @@ class $$CoursesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  Expression<T> courseOfferingsRefs<T extends Object>(
-    Expression<T> Function($$CourseOfferingsTableAnnotationComposer a) f,
-  ) {
-    final $$CourseOfferingsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.courseOfferings,
-      getReferencedColumn: (t) => t.course,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CourseOfferingsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.courseOfferings,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
   Expression<T> scoresRefs<T extends Object>(
     Expression<T> Function($$ScoresTableAnnotationComposer a) f,
   ) {
@@ -12733,7 +13721,7 @@ class $$CoursesTableTableManager
           $$CoursesTableUpdateCompanionBuilder,
           (Course, $$CoursesTableReferences),
           Course,
-          PrefetchHooks Function({bool courseOfferingsRefs, bool scoresRefs})
+          PrefetchHooks Function({bool scoresRefs})
         > {
   $$CoursesTableTableManager(_$AppDatabase db, $CoursesTable table)
     : super(
@@ -12798,59 +13786,28 @@ class $$CoursesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({courseOfferingsRefs = false, scoresRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (courseOfferingsRefs) db.courseOfferings,
-                    if (scoresRefs) db.scores,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (courseOfferingsRefs)
-                        await $_getPrefetchedData<
-                          Course,
-                          $CoursesTable,
-                          CourseOffering
-                        >(
-                          currentTable: table,
-                          referencedTable: $$CoursesTableReferences
-                              ._courseOfferingsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$CoursesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).courseOfferingsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.course == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (scoresRefs)
-                        await $_getPrefetchedData<Course, $CoursesTable, Score>(
-                          currentTable: table,
-                          referencedTable: $$CoursesTableReferences
-                              ._scoresRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$CoursesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).scoresRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.course == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
+          prefetchHooksCallback: ({scoresRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (scoresRefs) db.scores],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (scoresRefs)
+                    await $_getPrefetchedData<Course, $CoursesTable, Score>(
+                      currentTable: table,
+                      referencedTable: $$CoursesTableReferences
+                          ._scoresRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$CoursesTableReferences(db, table, p0).scoresRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.course == item.id),
+                      typedResults: items,
+                    ),
+                ];
               },
+            );
+          },
         ),
       );
 }
@@ -12867,7 +13824,7 @@ typedef $$CoursesTableProcessedTableManager =
       $$CoursesTableUpdateCompanionBuilder,
       (Course, $$CoursesTableReferences),
       Course,
-      PrefetchHooks Function({bool courseOfferingsRefs, bool scoresRefs})
+      PrefetchHooks Function({bool scoresRefs})
     >;
 typedef $$DepartmentsTableCreateCompanionBuilder =
     DepartmentsCompanion Function({
@@ -14171,9 +15128,13 @@ typedef $$CourseOfferingsTableCreateCompanionBuilder =
     CourseOfferingsCompanion Function({
       Value<int> id,
       Value<DateTime?> fetchedAt,
-      required int course,
+      Value<String?> courseCode,
       required int semester,
-      required String number,
+      Value<String?> number,
+      required String nameZh,
+      Value<String?> nameEn,
+      Value<double?> credits,
+      Value<int?> hours,
       Value<int?> phase,
       Value<CourseType?> courseType,
       Value<String?> status,
@@ -14193,9 +15154,13 @@ typedef $$CourseOfferingsTableUpdateCompanionBuilder =
     CourseOfferingsCompanion Function({
       Value<int> id,
       Value<DateTime?> fetchedAt,
-      Value<int> course,
+      Value<String?> courseCode,
       Value<int> semester,
-      Value<String> number,
+      Value<String?> number,
+      Value<String> nameZh,
+      Value<String?> nameEn,
+      Value<double?> credits,
+      Value<int?> hours,
       Value<int?> phase,
       Value<CourseType?> courseType,
       Value<String?> status,
@@ -14220,24 +15185,6 @@ final class $$CourseOfferingsTableReferences
     super.$_table,
     super.$_typedResult,
   );
-
-  static $CoursesTable _courseTable(_$AppDatabase db) => db.courses.createAlias(
-    $_aliasNameGenerator(db.courseOfferings.course, db.courses.id),
-  );
-
-  $$CoursesTableProcessedTableManager get course {
-    final $_column = $_itemColumn<int>('course')!;
-
-    final manager = $$CoursesTableTableManager(
-      $_db,
-      $_db.courses,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_courseTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
 
   static $SemestersTable _semesterTable(_$AppDatabase db) =>
       db.semesters.createAlias(
@@ -14426,8 +15373,33 @@ class $$CourseOfferingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get courseCode => $composableBuilder(
+    column: $table.courseCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get number => $composableBuilder(
     column: $table.number,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameZh => $composableBuilder(
+    column: $table.nameZh,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get credits => $composableBuilder(
+    column: $table.credits,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hours => $composableBuilder(
+    column: $table.hours,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14501,29 +15473,6 @@ class $$CourseOfferingsTableFilterComposer
     column: $table.syllabusRemarks,
     builder: (column) => ColumnFilters(column),
   );
-
-  $$CoursesTableFilterComposer get course {
-    final $$CoursesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.course,
-      referencedTable: $db.courses,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CoursesTableFilterComposer(
-            $db: $db,
-            $table: $db.courses,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   $$SemestersTableFilterComposer get semester {
     final $$SemestersTableFilterComposer composer = $composerBuilder(
@@ -14721,8 +15670,33 @@ class $$CourseOfferingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get courseCode => $composableBuilder(
+    column: $table.courseCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get number => $composableBuilder(
     column: $table.number,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameZh => $composableBuilder(
+    column: $table.nameZh,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get credits => $composableBuilder(
+    column: $table.credits,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get hours => $composableBuilder(
+    column: $table.hours,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -14796,29 +15770,6 @@ class $$CourseOfferingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$CoursesTableOrderingComposer get course {
-    final $$CoursesTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.course,
-      referencedTable: $db.courses,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CoursesTableOrderingComposer(
-            $db: $db,
-            $table: $db.courses,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
   $$SemestersTableOrderingComposer get semester {
     final $$SemestersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -14858,8 +15809,25 @@ class $$CourseOfferingsTableAnnotationComposer
   GeneratedColumn<DateTime> get fetchedAt =>
       $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
 
+  GeneratedColumn<String> get courseCode => $composableBuilder(
+    column: $table.courseCode,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get number =>
       $composableBuilder(column: $table.number, builder: (column) => column);
+
+  GeneratedColumn<String> get nameZh =>
+      $composableBuilder(column: $table.nameZh, builder: (column) => column);
+
+  GeneratedColumn<String> get nameEn =>
+      $composableBuilder(column: $table.nameEn, builder: (column) => column);
+
+  GeneratedColumn<double> get credits =>
+      $composableBuilder(column: $table.credits, builder: (column) => column);
+
+  GeneratedColumn<int> get hours =>
+      $composableBuilder(column: $table.hours, builder: (column) => column);
 
   GeneratedColumn<int> get phase =>
       $composableBuilder(column: $table.phase, builder: (column) => column);
@@ -14915,29 +15883,6 @@ class $$CourseOfferingsTableAnnotationComposer
     column: $table.syllabusRemarks,
     builder: (column) => column,
   );
-
-  $$CoursesTableAnnotationComposer get course {
-    final $$CoursesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.course,
-      referencedTable: $db.courses,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CoursesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.courses,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   $$SemestersTableAnnotationComposer get semester {
     final $$SemestersTableAnnotationComposer composer = $composerBuilder(
@@ -15130,7 +16075,6 @@ class $$CourseOfferingsTableTableManager
           (CourseOffering, $$CourseOfferingsTableReferences),
           CourseOffering,
           PrefetchHooks Function({
-            bool course,
             bool semester,
             bool courseOfferingTeachersRefs,
             bool courseOfferingClassesRefs,
@@ -15157,9 +16101,13 @@ class $$CourseOfferingsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<DateTime?> fetchedAt = const Value.absent(),
-                Value<int> course = const Value.absent(),
+                Value<String?> courseCode = const Value.absent(),
                 Value<int> semester = const Value.absent(),
-                Value<String> number = const Value.absent(),
+                Value<String?> number = const Value.absent(),
+                Value<String> nameZh = const Value.absent(),
+                Value<String?> nameEn = const Value.absent(),
+                Value<double?> credits = const Value.absent(),
+                Value<int?> hours = const Value.absent(),
                 Value<int?> phase = const Value.absent(),
                 Value<CourseType?> courseType = const Value.absent(),
                 Value<String?> status = const Value.absent(),
@@ -15177,9 +16125,13 @@ class $$CourseOfferingsTableTableManager
               }) => CourseOfferingsCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
-                course: course,
+                courseCode: courseCode,
                 semester: semester,
                 number: number,
+                nameZh: nameZh,
+                nameEn: nameEn,
+                credits: credits,
+                hours: hours,
                 phase: phase,
                 courseType: courseType,
                 status: status,
@@ -15199,9 +16151,13 @@ class $$CourseOfferingsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<DateTime?> fetchedAt = const Value.absent(),
-                required int course,
+                Value<String?> courseCode = const Value.absent(),
                 required int semester,
-                required String number,
+                Value<String?> number = const Value.absent(),
+                required String nameZh,
+                Value<String?> nameEn = const Value.absent(),
+                Value<double?> credits = const Value.absent(),
+                Value<int?> hours = const Value.absent(),
                 Value<int?> phase = const Value.absent(),
                 Value<CourseType?> courseType = const Value.absent(),
                 Value<String?> status = const Value.absent(),
@@ -15219,9 +16175,13 @@ class $$CourseOfferingsTableTableManager
               }) => CourseOfferingsCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
-                course: course,
+                courseCode: courseCode,
                 semester: semester,
                 number: number,
+                nameZh: nameZh,
+                nameEn: nameEn,
+                credits: credits,
+                hours: hours,
                 phase: phase,
                 courseType: courseType,
                 status: status,
@@ -15247,7 +16207,6 @@ class $$CourseOfferingsTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
-                course = false,
                 semester = false,
                 courseOfferingTeachersRefs = false,
                 courseOfferingClassesRefs = false,
@@ -15282,21 +16241,6 @@ class $$CourseOfferingsTableTableManager
                           dynamic
                         >
                       >(state) {
-                        if (course) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.course,
-                                    referencedTable:
-                                        $$CourseOfferingsTableReferences
-                                            ._courseTable(db),
-                                    referencedColumn:
-                                        $$CourseOfferingsTableReferences
-                                            ._courseTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
                         if (semester) {
                           state =
                               state.withJoin(
@@ -15464,7 +16408,6 @@ typedef $$CourseOfferingsTableProcessedTableManager =
       (CourseOffering, $$CourseOfferingsTableReferences),
       CourseOffering,
       PrefetchHooks Function({
-        bool course,
         bool semester,
         bool courseOfferingTeachersRefs,
         bool courseOfferingClassesRefs,
@@ -21224,6 +22167,299 @@ typedef $$UserSemesterRankingsTableProcessedTableManager =
       UserSemesterRanking,
       PrefetchHooks Function({bool summary})
     >;
+typedef $$CalendarEventsTableCreateCompanionBuilder =
+    CalendarEventsCompanion Function({
+      Value<int> id,
+      required int portalId,
+      required DateTime start,
+      required DateTime end,
+      Value<bool> allDay,
+      Value<String?> title,
+      Value<String?> place,
+      Value<String?> content,
+      Value<String?> ownerName,
+      Value<String?> creatorName,
+    });
+typedef $$CalendarEventsTableUpdateCompanionBuilder =
+    CalendarEventsCompanion Function({
+      Value<int> id,
+      Value<int> portalId,
+      Value<DateTime> start,
+      Value<DateTime> end,
+      Value<bool> allDay,
+      Value<String?> title,
+      Value<String?> place,
+      Value<String?> content,
+      Value<String?> ownerName,
+      Value<String?> creatorName,
+    });
+
+class $$CalendarEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $CalendarEventsTable> {
+  $$CalendarEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get portalId => $composableBuilder(
+    column: $table.portalId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get start => $composableBuilder(
+    column: $table.start,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get end => $composableBuilder(
+    column: $table.end,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get allDay => $composableBuilder(
+    column: $table.allDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get place => $composableBuilder(
+    column: $table.place,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerName => $composableBuilder(
+    column: $table.ownerName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get creatorName => $composableBuilder(
+    column: $table.creatorName,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CalendarEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CalendarEventsTable> {
+  $$CalendarEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get portalId => $composableBuilder(
+    column: $table.portalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get start => $composableBuilder(
+    column: $table.start,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get end => $composableBuilder(
+    column: $table.end,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get allDay => $composableBuilder(
+    column: $table.allDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get place => $composableBuilder(
+    column: $table.place,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerName => $composableBuilder(
+    column: $table.ownerName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get creatorName => $composableBuilder(
+    column: $table.creatorName,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CalendarEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CalendarEventsTable> {
+  $$CalendarEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get portalId =>
+      $composableBuilder(column: $table.portalId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get start =>
+      $composableBuilder(column: $table.start, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get end =>
+      $composableBuilder(column: $table.end, builder: (column) => column);
+
+  GeneratedColumn<bool> get allDay =>
+      $composableBuilder(column: $table.allDay, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get place =>
+      $composableBuilder(column: $table.place, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerName =>
+      $composableBuilder(column: $table.ownerName, builder: (column) => column);
+
+  GeneratedColumn<String> get creatorName => $composableBuilder(
+    column: $table.creatorName,
+    builder: (column) => column,
+  );
+}
+
+class $$CalendarEventsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CalendarEventsTable,
+          CalendarEvent,
+          $$CalendarEventsTableFilterComposer,
+          $$CalendarEventsTableOrderingComposer,
+          $$CalendarEventsTableAnnotationComposer,
+          $$CalendarEventsTableCreateCompanionBuilder,
+          $$CalendarEventsTableUpdateCompanionBuilder,
+          (
+            CalendarEvent,
+            BaseReferences<_$AppDatabase, $CalendarEventsTable, CalendarEvent>,
+          ),
+          CalendarEvent,
+          PrefetchHooks Function()
+        > {
+  $$CalendarEventsTableTableManager(
+    _$AppDatabase db,
+    $CalendarEventsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CalendarEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CalendarEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CalendarEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> portalId = const Value.absent(),
+                Value<DateTime> start = const Value.absent(),
+                Value<DateTime> end = const Value.absent(),
+                Value<bool> allDay = const Value.absent(),
+                Value<String?> title = const Value.absent(),
+                Value<String?> place = const Value.absent(),
+                Value<String?> content = const Value.absent(),
+                Value<String?> ownerName = const Value.absent(),
+                Value<String?> creatorName = const Value.absent(),
+              }) => CalendarEventsCompanion(
+                id: id,
+                portalId: portalId,
+                start: start,
+                end: end,
+                allDay: allDay,
+                title: title,
+                place: place,
+                content: content,
+                ownerName: ownerName,
+                creatorName: creatorName,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int portalId,
+                required DateTime start,
+                required DateTime end,
+                Value<bool> allDay = const Value.absent(),
+                Value<String?> title = const Value.absent(),
+                Value<String?> place = const Value.absent(),
+                Value<String?> content = const Value.absent(),
+                Value<String?> ownerName = const Value.absent(),
+                Value<String?> creatorName = const Value.absent(),
+              }) => CalendarEventsCompanion.insert(
+                id: id,
+                portalId: portalId,
+                start: start,
+                end: end,
+                allDay: allDay,
+                title: title,
+                place: place,
+                content: content,
+                ownerName: ownerName,
+                creatorName: creatorName,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CalendarEventsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CalendarEventsTable,
+      CalendarEvent,
+      $$CalendarEventsTableFilterComposer,
+      $$CalendarEventsTableOrderingComposer,
+      $$CalendarEventsTableAnnotationComposer,
+      $$CalendarEventsTableCreateCompanionBuilder,
+      $$CalendarEventsTableUpdateCompanionBuilder,
+      (
+        CalendarEvent,
+        BaseReferences<_$AppDatabase, $CalendarEventsTable, CalendarEvent>,
+      ),
+      CalendarEvent,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -21283,4 +22519,6 @@ class $AppDatabaseManager {
       );
   $$UserSemesterRankingsTableTableManager get userSemesterRankings =>
       $$UserSemesterRankingsTableTableManager(_db, _db.userSemesterRankings);
+  $$CalendarEventsTableTableManager get calendarEvents =>
+      $$CalendarEventsTableTableManager(_db, _db.calendarEvents);
 }

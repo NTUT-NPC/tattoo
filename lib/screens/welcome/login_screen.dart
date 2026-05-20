@@ -3,13 +3,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tattoo/models/login_exception.dart';
-import 'package:tattoo/utils/launch_url.dart';
+import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/campus_wifi_repository.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/components/notices.dart';
+import 'package:tattoo/services/demo_mode.dart';
+import 'package:tattoo/utils/launch_url.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -103,21 +104,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordController.text;
 
     // Validate input
-    if (username.isEmpty || password.trim().isEmpty) {
-      _setError(
-        t.login.errors.emptyFields,
-        username: username.isEmpty,
-        password: password.trim().isEmpty,
-      );
-      return;
-    }
-    if (username.contains('@') || username.startsWith('t')) {
-      _setError(t.login.errors.useStudentId, username: true);
-      return;
+    final isDemo = isDemoCredentials(username, password);
+    if (!isDemo) {
+      if (username.isEmpty || password.trim().isEmpty) {
+        _setError(
+          t.login.errors.emptyFields,
+          username: username.isEmpty,
+          password: password.trim().isEmpty,
+        );
+        return;
+      }
+      if (username.contains('@') || username.startsWith('t')) {
+        _setError(t.login.errors.useStudentId, username: true);
+        return;
+      }
     }
 
     _setLoading(true);
     FocusScope.of(context).unfocus();
+
+    // Sync isDemoProvider to the current attempt's credentials so the
+    // AuthRepository instance and its services match before login runs.
+    // Also clears stale demo state from a previous failed demo attempt.
+    ref.read(isDemoProvider.notifier).set(isDemo);
 
     try {
       await ref.read(authRepositoryProvider).login(username, password);
@@ -230,21 +239,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       hintText: hintText,
       hintStyle: TextStyle(
         color: theme.textTheme.bodyMedium?.color?.withAlpha(150),
-        fontWeight: FontWeight.w500,
+        fontWeight: .w500,
       ),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(50)),
+      border: OutlineInputBorder(borderRadius: .circular(50)),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(50),
+        borderRadius: .circular(50),
         borderSide: BorderSide(color: hasError ? errorColor : surfaceColor),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(50),
+        borderRadius: .circular(50),
         borderSide: BorderSide(
           color: hasError ? errorColor : primaryColor,
           width: 2,
         ),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      contentPadding: const .symmetric(horizontal: 24, vertical: 16),
       filled: true,
       fillColor: surfaceColor,
     );
@@ -259,16 +268,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             return GestureDetector(
-              behavior: HitTestBehavior.translucent,
+              behavior: .translucent,
               onTap: () => FocusScope.of(context).unfocus(),
               child: SingleChildScrollView(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: constraints.maxHeight),
                   child: Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const .all(16.0),
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisSize: .min,
                         spacing: 24,
                         children: [
                           // Welcome title
@@ -286,10 +295,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                             style: TextStyle(
                               fontSize: 48,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: .w800,
                               color: theme.textTheme.bodyLarge?.color,
                             ),
-                            textAlign: TextAlign.center,
+                            textAlign: .center,
                           ),
 
                           // Login instruction
@@ -298,11 +307,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               portalLink: (text) => TextSpan(
                                 text: text,
                                 style: const TextStyle(
-                                  decoration: TextDecoration.underline,
+                                  decoration: .underline,
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () => launchUrl(
-                                    Uri.parse('https://nportal.ntut.edu.tw'),
+                                    .parse('https://nportal.ntut.edu.tw'),
                                   ),
                               ),
                             ),
@@ -311,13 +320,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               height: 1.6,
                               color: Colors.grey[600],
                             ),
-                            textAlign: TextAlign.center,
+                            textAlign: .center,
                           ),
 
                           // Login form
                           AutofillGroup(
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: .center,
                               spacing: 16,
                               children: [
                                 TextField(
@@ -330,7 +339,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     hasError: _usernameHasError,
                                   ),
                                   autofillHints: const [AutofillHints.username],
-                                  textInputAction: TextInputAction.next,
+                                  textInputAction: .next,
                                   onSubmitted: (_) =>
                                       _passwordFocusNode.requestFocus(),
                                   onChanged: (_) => _clearErrors(),
@@ -346,7 +355,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                   autofillHints: const [AutofillHints.password],
                                   obscureText: true,
-                                  textInputAction: TextInputAction.done,
+                                  textInputAction: .done,
                                   onSubmitted: (_) => _attemptLogin(),
                                   onChanged: (_) => _clearErrors(),
                                 ),
@@ -358,16 +367,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           if (_errorMessage case final errorMessage?)
                             Text(
                               errorMessage,
-                              textAlign: TextAlign.center,
+                              textAlign: .center,
                               style: TextStyle(
                                 color: theme.colorScheme.error,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: .w600,
                               ),
                             ),
 
                           // Login button
                           SizedBox(
-                            width: double.infinity,
+                            width: .infinity,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: theme.colorScheme.primary,
@@ -375,7 +384,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                               onPressed: _isLoading ? null : _attemptLogin,
                               child: Padding(
-                                padding: const EdgeInsets.all(6.0),
+                                padding: const .all(6.0),
                                 child: _isLoading
                                     ? const SizedBox(
                                         height: 20,
@@ -396,11 +405,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               privacyPolicy: (text) => TextSpan(
                                 text: text,
                                 style: const TextStyle(
-                                  decoration: TextDecoration.underline,
+                                  decoration: .underline,
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () => launchUrl(
-                                    Uri.parse(
+                                    .parse(
                                       t.about.privacyPolicyUrl,
                                     ),
                                   ),

@@ -34,11 +34,11 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<!-- TODO: Remove orientation restriction after responsive layouts are complete. -->
+	<!-- iPad must declare all four orientations to satisfy App Store multitasking requirements (error 90474); runtime SystemChrome.setPreferredOrientations locks the actual orientation. -->
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>

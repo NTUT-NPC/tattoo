@@ -1,6 +1,8 @@
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/models/course.dart';
+import 'package:tattoo/services/course/mock_course_service.dart';
 import 'package:tattoo/services/course/ntut_course_service.dart';
+import 'package:tattoo/services/demo_mode.dart';
 
 /// Course schedule entry from the course selection system.
 typedef ScheduleDto = ({
@@ -155,9 +157,12 @@ typedef SyllabusDto = ({
 });
 
 /// Provides the singleton [CourseService] instance.
-final courseServiceProvider = Provider<CourseService>(
-  (ref) => NtutCourseService(),
-);
+final courseServiceProvider = Provider<CourseService>((ref) {
+  if (ref.watch(isDemoProvider)) {
+    return MockCourseService();
+  }
+  return NtutCourseService();
+});
 
 /// Service for accessing NTUT's course selection and catalog system.
 ///

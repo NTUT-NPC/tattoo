@@ -53,9 +53,9 @@ class NtutStudentQueryService implements StudentQueryService {
     ).firstMatch(fields['Date of Birth'] ?? '');
     final dateOfBirth = dobMatch != null
         ? DateTime(
-            int.parse(dobMatch.group(1)!),
-            int.parse(dobMatch.group(2)!),
-            int.parse(dobMatch.group(3)!),
+            .parse(dobMatch.group(1)!),
+            .parse(dobMatch.group(2)!),
+            .parse(dobMatch.group(3)!),
           )
         : null;
 
@@ -95,23 +95,28 @@ class NtutStudentQueryService implements StudentQueryService {
 
     // Semester labels are in submit button values: "114 學年度 第 1 學期 (2025 - Fall)"
     final semesterPattern = RegExp(r'(\d+)\s*學年度\s*第\s*(\d+)\s*學期');
-    final semesterButtons = document.querySelectorAll("input[type='submit']");
-    final semesterMatches = semesterButtons
-        .map((btn) => semesterPattern.firstMatch(btn.attributes['value'] ?? ''))
-        .nonNulls
-        .toList();
 
-    final tables = document.querySelectorAll('table');
-
+    // Walk buttons and tables in document order, pairing each semester button
+    // with the next table. Other submits (print/reset) leave pending intact.
     final results = <SemesterScoreDto>[];
-    for (var i = 0; i < tables.length && i < semesterMatches.length; i++) {
-      final match = semesterMatches[i];
-      final semester = (
-        year: int.parse(match.group(1)!),
-        term: int.parse(match.group(2)!),
-      );
+    SemesterDto? pendingSemester;
+    final nodes = document.querySelectorAll("input[type='submit'], table");
 
-      final rows = tables[i].querySelectorAll('tr');
+    for (final node in nodes) {
+      if (node.localName == 'input') {
+        if (semesterPattern.firstMatch(node.attributes['value'] ?? '')
+            case final match?) {
+          pendingSemester = (
+            year: int.parse(match.group(1)!),
+            term: int.parse(match.group(2)!),
+          );
+        }
+        continue;
+      }
+
+      if (pendingSemester == null) continue;
+
+      final rows = node.querySelectorAll('tr');
       final scores = <ScoreDto>[];
       double? average;
       double? conduct;
@@ -128,6 +133,8 @@ class NtutStudentQueryService implements StudentQueryService {
           final (scoreValue, status) = _parseScore(scoreText);
           scores.add((
             number: _parseCellText(cells[0]),
+            courseNameZh: _parseCellText(cells[2]),
+            courseNameEn: _parseCellText(cells[3]),
             courseCode: _parseCellText(cells[4]),
             score: scoreValue,
             status: status,
@@ -151,7 +158,7 @@ class NtutStudentQueryService implements StudentQueryService {
       }
 
       results.add((
-        semester: semester,
+        semester: pendingSemester,
         scores: scores,
         average: average,
         conduct: conduct,
@@ -159,6 +166,7 @@ class NtutStudentQueryService implements StudentQueryService {
         creditsPassed: creditsPassed,
         note: note,
       ));
+      pendingSemester = null;
     }
 
     return results;
@@ -373,9 +381,9 @@ class NtutStudentQueryService implements StudentQueryService {
   /// Maps enrollment status text to [EnrollmentStatus].
   EnrollmentStatus? _parseEnrollmentStatus(String? text) {
     return switch (text) {
-      '在學' => EnrollmentStatus.learning,
-      '休學' => EnrollmentStatus.leaveOfAbsence,
-      '退學' => EnrollmentStatus.droppedOut,
+      '在學' => .learning,
+      '休學' => .leaveOfAbsence,
+      '退學' => .droppedOut,
       _ => null,
     };
   }

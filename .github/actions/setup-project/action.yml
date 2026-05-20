@@ -25,7 +25,7 @@ runs:
       shell: bash
       run: |
         FLUTTER_VERSION=$(mise current flutter)
-        if [ "$FLUTTER_VERSION" != "3.41.6" ]; then
+        if [ "$FLUTTER_VERSION" != "3.41.9" ]; then
           echo "::error::Flutter version has changed to $FLUTTER_VERSION. Please update cache paths accordingly."
           exit 1
         fi
@@ -33,14 +33,14 @@ runs:
 
     - name: Setup Ruby
       if: ${{ inputs.platform == 'android' || inputs.platform == 'ios' }}
-      uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64 # v1.299.0
+      uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
       with:
         bundler-cache: true
       env:
         BUNDLE_FROZEN: "true"
 
     - name: Setup Flutter pub cache
-      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
         path: ~/.pub-cache
@@ -53,7 +53,7 @@ runs:
 
     - name: Setup Gradle cache
       if: ${{ inputs.platform == 'android' }}
-      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         path: |
@@ -64,7 +64,7 @@ runs:
 
     - name: Setup Android SDK cache
       if: ${{ inputs.platform == 'android' }}
-      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         key: ${{ runner.os }}-android-sdk-${{ steps.flutter-version.outputs.flutter_version }}
         # Update paths when updating Flutter version
@@ -76,11 +76,11 @@ runs:
     - name: Select Xcode version
       if: ${{ inputs.platform == 'ios' }}
       shell: bash
-      run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
 
     - name: Setup CocoaPods cache
       if: ${{ inputs.platform == 'ios' }}
-      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
         path: ios/Pods
@@ -103,7 +103,7 @@ runs:
 
     - name: Upload iOS drift patch
       if: ${{ inputs.platform == 'ios' && steps.ios-drift.outputs.changed == 'true' }}
-      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         archive: false
         path: ios-drift.patch
@@ -112,5 +112,6 @@ runs:
       if: ${{ inputs.platform == 'ios' && steps.ios-drift.outputs.changed == 'true' }}
       shell: bash
       run: |
-        echo "::error::ios/ has uncommitted changes after flutter build ios --config-only. Download the patch artifact and apply it with: git apply ios-drift.patch"
+        XCODE_VERSION=$(xcodebuild -version | head -1)
+        echo "::error::ios/ drifted after flutter build ios --config-only (CI ${XCODE_VERSION}). Mismatched local Xcode is the usual cause; otherwise apply ios-drift.patch from artifacts."
         exit 1

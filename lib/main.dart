@@ -7,11 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tattoo/database/database.dart';
 import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
 enum ErrorType {
@@ -22,6 +23,11 @@ enum ErrorType {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // TODO: Remove orientation restriction after responsive layouts are complete.
+  await SystemChrome.setPreferredOrientations([
+    .portraitUp,
+  ]);
 
   if (useFirebase) {
     try {
@@ -37,7 +43,7 @@ Future<void> main() async {
 
   void showErrorDialog(
     Object error, {
-    ErrorType type = ErrorType.unknown,
+    ErrorType type = .unknown,
     StackTrace? stackTrace,
   }) {
     final rootContext = rootNavigatorKey.currentContext;
@@ -48,9 +54,9 @@ Future<void> main() async {
       if (stackTrace != null) stackTrace.toString(),
     ].join('\n');
     final errorTitle = switch (type) {
-      ErrorType.flutter => t.errors.flutterError,
-      ErrorType.async => t.errors.asyncError,
-      ErrorType.unknown => t.errors.occurred,
+      .flutter => t.errors.flutterError,
+      .async => t.errors.asyncError,
+      .unknown => t.errors.occurred,
     };
 
     showDialog(
@@ -88,7 +94,7 @@ Future<void> main() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showErrorDialog(
         details.exception,
-        type: ErrorType.flutter,
+        type: .flutter,
         stackTrace: details.stack,
       );
     });
@@ -97,7 +103,7 @@ Future<void> main() async {
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
     firebaseService.crashlytics?.recordError(error, stack, fatal: true);
-    showErrorDialog(error, type: ErrorType.async, stackTrace: stack);
+    showErrorDialog(error, type: .async, stackTrace: stack);
     log('Uncaught asynchronous error: $error', stackTrace: stack);
     return true;
   };
@@ -108,7 +114,13 @@ Future<void> main() async {
 
   final database = container.read(databaseProvider);
   final user = await database.select(database.users).getSingleOrNull();
-  if (user != null) container.read(sessionProvider.notifier).create();
+  if (user != null) {
+    // Restore demo mode if the stored user is the demo account
+    if (user.studentId == demoUsername) {
+      container.read(isDemoProvider.notifier).set(true);
+    }
+    container.read(sessionProvider.notifier).create();
+  }
   final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
   final router = createAppRouter(
     initialLocation: initialLocation,

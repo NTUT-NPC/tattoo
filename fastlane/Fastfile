@@ -128,12 +128,10 @@ platform :android do
     pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
     commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
     commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
-    include_public_testers = options[:include_public_testers].to_s == "true" || ENV["PUBLIC_TESTERS"].to_s == "true"
-
     changelog_text = changelog(pr_number, pr_title, commit_sha, commit_message)
     aab_path = options[:aab] || File.expand_path("../build/app/outputs/bundle/release/app-release.aab", __dir__)
 
-    target_groups = include_public_testers ? "pub-tester,dev-tester" : "dev-tester"
+    target_groups = "dev-tester"
 
     release = firebase_app_distribution(
       groups: target_groups,
@@ -165,16 +163,19 @@ platform :android do
     end
 
     aab_path = options[:aab] || File.expand_path("../build/app/outputs/bundle/release/app-release.aab", __dir__)
+    track = options[:track] || "internal"
 
     upload_to_play_store(
       package_name: ENV["FASTLANE_APP_IDENTIFIER"],
-      track: "internal",
+      track: track,
       aab: aab_path,
       json_key: File.expand_path("../service-account.json", __dir__),
       skip_upload_metadata: false,
       skip_upload_images: true,
       skip_upload_screenshots: true,
-      skip_upload_changelogs: false
+      skip_upload_changelogs: false,
+      release_status: "completed",
+      changes_not_sent_for_review: false
     )
   end
 
@@ -189,7 +190,7 @@ platform :android do
   lane :release do |options|
     aab = options[:aab]
     aab ||= build_appbundle(options) unless options[:skip_build].to_s == "true"
-    upload_playstore(options.merge(aab: aab)) unless options[:skip_upload_playstore].to_s == "true"
+    upload_playstore(options.merge(aab: aab, track: "beta")) unless options[:skip_upload_playstore].to_s == "true"
     upload_firebase(options.merge(aab: aab)) unless options[:skip_upload_firebase].to_s == "true"
   end
 end

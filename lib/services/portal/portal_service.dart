@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:riverpod/riverpod.dart';
+import 'package:tattoo/services/demo_mode.dart';
+import 'package:tattoo/services/portal/mock_portal_service.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
 
 /// Represents a logged-in NTUT Portal user.
@@ -24,17 +26,22 @@ typedef UserDto = ({
 
 /// Represents a calendar event from the NTUT Portal.
 ///
-/// Weekend markers (isHoliday with empty title) are filtered out by
-/// [PortalService.getCalendar].
+/// Weekend markers (`isHoliday == '1'`) are filtered out by
+/// [PortalService.getCalendar] before mapping to this type.
+/// Some non-holiday events may still have a null [id].
 typedef CalendarEventDto = ({
-  /// Event ID.
+  /// Event ID from the portal.
+  ///
+  /// Null for some portal events (not just weekends — those are already
+  /// filtered). Events without an ID are skipped by [CalendarRepository]
+  /// since they cannot be synced or deduplicated.
   int? id,
 
   /// Event start time.
-  DateTime? start,
+  DateTime start,
 
   /// Event end time.
-  DateTime? end,
+  DateTime end,
 
   /// Whether this is an all-day event.
   bool allDay,
@@ -71,7 +78,15 @@ enum PortalServiceCode {
 // dart format on
 
 /// Provides the singleton [PortalService] instance.
+///
+/// Returns [MockPortalService] in demo mode. Features that rely on real SSO
+/// side effects (QR scanner iStudy login, portal service links) are
+/// intentionally left enabled so they fail gracefully with "login failed"
+/// rather than disappearing — keeps the UI consistent across modes.
 final portalServiceProvider = Provider<PortalService>((ref) {
+  if (ref.watch(isDemoProvider)) {
+    return MockPortalService();
+  }
   return NtutPortalService();
 });
 

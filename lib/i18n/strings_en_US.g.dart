@@ -44,10 +44,14 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsIntroEnUs intro = _TranslationsIntroEnUs._(_root);
 	@override late final _TranslationsLoginEnUs login = _TranslationsLoginEnUs._(_root);
 	@override late final _TranslationsNavEnUs nav = _TranslationsNavEnUs._(_root);
+	@override late final _TranslationsHomeEnUs home = _TranslationsHomeEnUs._(_root);
+	@override late final _TranslationsScoreEnUs score = _TranslationsScoreEnUs._(_root);
+	@override late final _TranslationsCalendarEnUs calendar = _TranslationsCalendarEnUs._(_root);
 	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
 	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
 	@override late final _TranslationsScannerEnUs scanner = _TranslationsScannerEnUs._(_root);
 	@override late final _TranslationsNtutWifiEnUs ntutWifi = _TranslationsNtutWifiEnUs._(_root);
+	@override late final _TranslationsKioskLoginEnUs kioskLogin = _TranslationsKioskLoginEnUs._(_root);
 	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
 	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
 }
@@ -67,6 +71,7 @@ class _TranslationsGeneralEnUs extends TranslationsGeneralZhTw {
 	@override String get notLoggedIn => 'Not logged in';
 	@override String get copy => 'Copy';
 	@override String get copied => 'Copied';
+	@override String get back => 'Back';
 	@override String get ok => 'OK';
 }
 
@@ -129,10 +134,53 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get home => 'Home';
 	@override String get courseTable => 'Courses';
 	@override String get scores => 'Scores';
 	@override String get portal => 'Portals';
+	@override String get calendar => 'Calendar';
 	@override String get profile => 'Me';
+	@override String get vote => 'Vote Login';
+}
+
+// Path: home
+class _TranslationsHomeEnUs extends TranslationsHomeZhTw {
+	_TranslationsHomeEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _TranslationsHomeProjectTattooEnUs projectTattoo = _TranslationsHomeProjectTattooEnUs._(_root);
+	@override late final _TranslationsHomeIdeationEnUs ideation = _TranslationsHomeIdeationEnUs._(_root);
+	@override late final _TranslationsHomeNpcClubEnUs npcClub = _TranslationsHomeNpcClubEnUs._(_root);
+	@override late final _TranslationsHomeVoteEnUs vote = _TranslationsHomeVoteEnUs._(_root);
+}
+
+// Path: score
+class _TranslationsScoreEnUs extends TranslationsScoreZhTw {
+	_TranslationsScoreEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get loadFailed => 'Failed to load scores';
+	@override String get refreshFailed => 'Failed to refresh scores';
+	@override String get noRecords => 'No score records found';
+	@override String get noScoresThisSemester => 'No scores for this semester';
+	@override String courseNumber({required Object number, required Object code}) => 'No: ${number}  Code: ${code}';
+	@override String get none => 'N/A';
+	@override late final _TranslationsScoreSummaryEnUs summary = _TranslationsScoreSummaryEnUs._(_root);
+	@override late final _TranslationsScoreStatusEnUs status = _TranslationsScoreStatusEnUs._(_root);
+}
+
+// Path: calendar
+class _TranslationsCalendarEnUs extends TranslationsCalendarZhTw {
+	_TranslationsCalendarEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => 'Today';
 }
 
 // Path: courseTable
@@ -143,6 +191,9 @@ class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
 
 	// Translations
 	@override String get notFound => 'Course table not found';
+	@override String get unscheduled => 'Unscheduled Courses';
+	@override late final _TranslationsCourseTableSummaryEnUs summary = _TranslationsCourseTableSummaryEnUs._(_root);
+	@override late final _TranslationsCourseTableActionsEnUs actions = _TranslationsCourseTableActionsEnUs._(_root);
 	@override Map<String, String> get dayOfWeek => {
 		'sunday': 'Sun',
 		'monday': 'Mon',
@@ -162,6 +213,7 @@ class _TranslationsProfileEnUs extends TranslationsProfileZhTw {
 
 	// Translations
 	@override String get dataDisclaimer => 'Reference only. Not official.';
+	@override late final _TranslationsProfilePasswordExpiryEnUs passwordExpiry = _TranslationsProfilePasswordExpiryEnUs._(_root);
 	@override late final _TranslationsProfileSectionsEnUs sections = _TranslationsProfileSectionsEnUs._(_root);
 	@override late final _TranslationsProfileOptionsEnUs options = _TranslationsProfileOptionsEnUs._(_root);
 	@override late final _TranslationsProfileAvatarEnUs avatar = _TranslationsProfileAvatarEnUs._(_root);
@@ -234,6 +286,20 @@ class _TranslationsNtutWifiEnUs extends TranslationsNtutWifiZhTw {
 	@override late final _TranslationsNtutWifiCompatPromptEnUs compatPrompt = _TranslationsNtutWifiCompatPromptEnUs._(_root);
 }
 
+// Path: kioskLogin
+class _TranslationsKioskLoginEnUs extends TranslationsKioskLoginZhTw {
+	_TranslationsKioskLoginEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get qrCode => 'login QR code';
+	@override String get refresh => 'Regenerate';
+	@override String get notice => 'Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.';
+	@override String get loadFailed => 'Unable to generate the login code. Please try again later.';
+	@override String get invalidSsoUrl => 'The login URL is invalid. Unable to generate the login code.';
+}
+
 // Path: enrollmentStatus
 class _TranslationsEnrollmentStatusEnUs extends TranslationsEnrollmentStatusZhTw {
 	_TranslationsEnrollmentStatusEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -290,6 +356,123 @@ class _TranslationsLoginErrorsEnUs extends TranslationsLoginErrorsZhTw {
 	@override String get accountLocked => 'Account locked due to too many failed attempts. Please try again later.';
 	@override String get passwordExpired => 'Your password has expired. Please change it on the NTUT portal.';
 	@override String get mobileVerificationRequired => 'Mobile phone verification is required. Please complete it on the NTUT portal.';
+}
+
+// Path: home.projectTattoo
+class _TranslationsHomeProjectTattooEnUs extends TranslationsHomeProjectTattooZhTw {
+	_TranslationsHomeProjectTattooEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'About Project Tattoo';
+	@override String get description => 'Learn more or invite your friends to join the testing program.';
+	@override String get url => 'https://ntut.app';
+}
+
+// Path: home.ideation
+class _TranslationsHomeIdeationEnUs extends TranslationsHomeIdeationZhTw {
+	_TranslationsHomeIdeationEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Our TAT is under construction';
+	@override String get description => 'We\'re collecting ideas for the Home page. Share your proposal with us.';
+	@override String get url => 'https://forms.gle/LdQdMfvAfUYyGE4k8';
+}
+
+// Path: home.npcClub
+class _TranslationsHomeNpcClubEnUs extends TranslationsHomeNpcClubZhTw {
+	_TranslationsHomeNpcClubEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'NTUT Programming Club';
+	@override String get description => 'If you have ideas or want to contribute, feel free to reach out anytime.';
+	@override String get url => 'https://ntut.club';
+}
+
+// Path: home.vote
+class _TranslationsHomeVoteEnUs extends TranslationsHomeVoteZhTw {
+	_TranslationsHomeVoteEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get description => 'Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.';
+}
+
+// Path: score.summary
+class _TranslationsScoreSummaryEnUs extends TranslationsScoreSummaryZhTw {
+	_TranslationsScoreSummaryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get cumulativeGpa => 'Cumulative GPA';
+	@override String get conduct => 'Conduct';
+	@override String get semesterAverage => 'Semester Avg';
+	@override String get creditsPassed => 'Credits Passed';
+	@override String get totalCredits => 'Total Credits';
+}
+
+// Path: score.status
+class _TranslationsScoreStatusEnUs extends TranslationsScoreStatusZhTw {
+	_TranslationsScoreStatusEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get notEntered => 'Not entered';
+	@override String get withdraw => 'Withdrawn';
+	@override String get undelivered => 'Not submitted';
+	@override String get pass => 'Pass';
+	@override String get fail => 'Fail';
+	@override String get creditTransfer => 'Credit transfer';
+}
+
+// Path: courseTable.summary
+class _TranslationsCourseTableSummaryEnUs extends TranslationsCourseTableSummaryZhTw {
+	_TranslationsCourseTableSummaryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String credits({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} credit',
+		other: '${count} credits',
+	);
+	@override String hours({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} hour',
+		other: '${count} hours',
+	);
+}
+
+// Path: courseTable.actions
+class _TranslationsCourseTableActionsEnUs extends TranslationsCourseTableActionsZhTw {
+	_TranslationsCourseTableActionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get showMoreOptions => 'Show more options';
+	@override String get displayOptions => 'Display options';
+}
+
+// Path: profile.passwordExpiry
+class _TranslationsProfilePasswordExpiryEnUs extends TranslationsProfilePasswordExpiryZhTw {
+	_TranslationsProfilePasswordExpiryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String warning({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(days,
+		one: 'Password expires in 1 day',
+		other: 'Password expires in ${days} days',
+	);
+	@override String get action => 'Change';
 }
 
 // Path: profile.sections
@@ -550,6 +733,7 @@ extension on TranslationsEnUs {
 			'general.notLoggedIn' => 'Not logged in',
 			'general.copy' => 'Copy',
 			'general.copied' => 'Copied',
+			'general.back' => 'Back',
 			'general.ok' => 'OK',
 			'errors.occurred' => 'An error occurred',
 			'errors.flutterError' => 'A Flutter error occurred',
@@ -579,11 +763,47 @@ extension on TranslationsEnUs {
 			'login.errors.accountLocked' => 'Account locked due to too many failed attempts. Please try again later.',
 			'login.errors.passwordExpired' => 'Your password has expired. Please change it on the NTUT portal.',
 			'login.errors.mobileVerificationRequired' => 'Mobile phone verification is required. Please complete it on the NTUT portal.',
+			'nav.home' => 'Home',
 			'nav.courseTable' => 'Courses',
 			'nav.scores' => 'Scores',
 			'nav.portal' => 'Portals',
+			'nav.calendar' => 'Calendar',
 			'nav.profile' => 'Me',
+			'nav.vote' => 'Vote Login',
+			'home.projectTattoo.title' => 'About Project Tattoo',
+			'home.projectTattoo.description' => 'Learn more or invite your friends to join the testing program.',
+			'home.projectTattoo.url' => 'https://ntut.app',
+			'home.ideation.title' => 'Our TAT is under construction',
+			'home.ideation.description' => 'We\'re collecting ideas for the Home page. Share your proposal with us.',
+			'home.ideation.url' => 'https://forms.gle/LdQdMfvAfUYyGE4k8',
+			'home.npcClub.title' => 'NTUT Programming Club',
+			'home.npcClub.description' => 'If you have ideas or want to contribute, feel free to reach out anytime.',
+			'home.npcClub.url' => 'https://ntut.club',
+			'home.vote.description' => 'Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.',
+			'score.loadFailed' => 'Failed to load scores',
+			'score.refreshFailed' => 'Failed to refresh scores',
+			'score.noRecords' => 'No score records found',
+			'score.noScoresThisSemester' => 'No scores for this semester',
+			'score.courseNumber' => ({required Object number, required Object code}) => 'No: ${number}  Code: ${code}',
+			'score.none' => 'N/A',
+			'score.summary.cumulativeGpa' => 'Cumulative GPA',
+			'score.summary.conduct' => 'Conduct',
+			'score.summary.semesterAverage' => 'Semester Avg',
+			'score.summary.creditsPassed' => 'Credits Passed',
+			'score.summary.totalCredits' => 'Total Credits',
+			'score.status.notEntered' => 'Not entered',
+			'score.status.withdraw' => 'Withdrawn',
+			'score.status.undelivered' => 'Not submitted',
+			'score.status.pass' => 'Pass',
+			'score.status.fail' => 'Fail',
+			'score.status.creditTransfer' => 'Credit transfer',
+			'calendar.today' => 'Today',
 			'courseTable.notFound' => 'Course table not found',
+			'courseTable.unscheduled' => 'Unscheduled Courses',
+			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
+			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
+			'courseTable.actions.showMoreOptions' => 'Show more options',
+			'courseTable.actions.displayOptions' => 'Display options',
 			'courseTable.dayOfWeek.sunday' => 'Sun',
 			'courseTable.dayOfWeek.monday' => 'Mon',
 			'courseTable.dayOfWeek.tuesday' => 'Tue',
@@ -592,6 +812,8 @@ extension on TranslationsEnUs {
 			'courseTable.dayOfWeek.friday' => 'Fri',
 			'courseTable.dayOfWeek.saturday' => 'Sat',
 			'profile.dataDisclaimer' => 'Reference only. Not official.',
+			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(days, one: 'Password expires in 1 day', other: 'Password expires in ${days} days', ), 
+			'profile.passwordExpiry.action' => 'Change',
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
 			'profile.sections.dangerZone' => 'Danger Zone',
@@ -719,6 +941,11 @@ extension on TranslationsEnUs {
 			'ntutWifi.compatPrompt.later' => 'Later',
 			'ntutWifi.compatPrompt.credentialChanged' => 'NTUT-802.1X was previously saved through compat mode. Your portal credentials changed, so the system Wi-Fi profile needs to be updated.',
 			'ntutWifi.compatPrompt.suggestionFallbackRequired' => 'Automatic NTUT-802.1X refresh failed. Do you want to switch to compat mode and update it now?',
+			'kioskLogin.qrCode' => 'login QR code',
+			'kioskLogin.refresh' => 'Regenerate',
+			'kioskLogin.notice' => 'Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.',
+			'kioskLogin.loadFailed' => 'Unable to generate the login code. Please try again later.',
+			'kioskLogin.invalidSsoUrl' => 'The login URL is invalid. Unable to generate the login code.',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',

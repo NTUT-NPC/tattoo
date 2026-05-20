@@ -45,7 +45,7 @@ void main() {
 
         await autoReprovision.enable();
         await stateStore.markProvisioned(
-          mode: Ntut8021xStoredProvisioningMode.compat,
+          mode: .compat,
         );
 
         await autoReprovision.reprovisionIfEnabled(
@@ -76,7 +76,7 @@ void main() {
 
         await autoReprovision.enable();
         await stateStore.markProvisioned(
-          mode: Ntut8021xStoredProvisioningMode.suggestion,
+          mode: .suggestion,
         );
 
         await autoReprovision.reprovisionIfEnabled(
@@ -111,7 +111,7 @@ void main() {
 
       await autoReprovision.enable();
       await stateStore.markProvisioned(
-        mode: Ntut8021xStoredProvisioningMode.suggestion,
+        mode: .suggestion,
       );
 
       await autoReprovision.reprovisionIfEnabled(
@@ -160,7 +160,7 @@ void main() {
 
         await autoReprovision.enable();
         await stateStore.markProvisioned(
-          mode: Ntut8021xStoredProvisioningMode.suggestion,
+          mode: .suggestion,
         );
 
         await autoReprovision.reprovisionIfEnabled(
