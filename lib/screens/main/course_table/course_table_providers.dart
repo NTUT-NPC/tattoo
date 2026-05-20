@@ -25,3 +25,15 @@ final courseTableProvider = StreamProvider.autoDispose
           .watch(courseRepositoryProvider)
           .watchCourseTable(semesterId: semesterId);
     });
+
+/// Provides the detailed data for a single course offering.
+///
+/// Emits cached DB data immediately, then re-emits when the background
+/// syllabus refresh lands. Errors during the background refresh are absorbed
+/// — the stream stays on cached data.
+final courseOfferingProvider = StreamProvider.autoDispose
+    .family<CourseOfferingDetail?, int>((ref, offeringId) {
+      return ref
+          .watch(courseRepositoryProvider)
+          .watchCourseOffering(offeringId);
+    });

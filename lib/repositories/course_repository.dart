@@ -1,5 +1,6 @@
 // ignore_for_file: unused_field
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:drift/drift.dart';
@@ -253,7 +254,7 @@ class CourseRepository {
   /// if data is empty or stale. The stream re-emits automatically when the
   /// DB is updated.
   ///
-  /// Use [getCourseOffering] for related data (teachers, classrooms, schedules).
+  /// Use [watchCourseOffering] for related data (teachers, classrooms, schedules).
   Stream<CourseTableData> watchCourseTable({required int semesterId}) async* {
     const ttl = Duration(days: 3);
 
@@ -620,67 +621,103 @@ class CourseRepository {
     );
   }
 
-  /// Gets a course offering with related data (teachers, classrooms, schedules).
+  /// Watches a course offering's joined detail (overview + schedule + teachers
+  /// + classes).
   ///
   /// Assumes [refreshCourseTable] has already populated the offering and its
-  /// junctions. Returns `null` if not found.
+  /// junctions. Emits `null` when the offering is missing; the stream stays
+  /// open so a later insert can surface it.
   ///
-  /// If the offering has a `syllabusId` and its syllabus fields are missing or
-  /// stale (TTL 3 days, tracked via [CourseOfferings]'s `fetchedAt` from
-  /// [Fetchable]), this lazily fetches the syllabus through
-  /// [CourseService.getSyllabus] and persists `courseType` / `enrolled` /
-  /// `withdrawn` / syllabus content fields. Network errors are absorbed —
-  /// whatever's in the DB is still returned.
-  Future<CourseOfferingDetail?> getCourseOffering(int id) async {
-    const syllabusTtl = Duration(days: 3);
-
+  /// Refresh behavior, gated by [CourseOfferings.fetchedAt]:
+  /// - **Never fetched** (`fetchedAt == null`): blocks on [refreshCourseOffering]
+  ///   before the first emission so consumers don't render null syllabus fields
+  ///   (`courseType`, `enrolled`, `withdrawn`, `remarks`, …). If the refresh
+  ///   fails, falls through and emits the cached row (with whatever's there).
+  /// - **Previously fetched**: emits cached data immediately and fires
+  ///   [refreshCourseOffering] in the background. When that write lands, the
+  ///   view's `.watch()` re-emits with fresh fields.
+  Stream<CourseOfferingDetail?> watchCourseOffering(int id) async* {
     final raw = await (_database.select(
       _database.courseOfferings,
     )..where((o) => o.id.equals(id))).getSingleOrNull();
-    if (raw == null) return null;
-
-    final syllabusAge = switch (raw.fetchedAt) {
-      final t? => DateTime.now().difference(t),
-      null => syllabusTtl,
-    };
-    if (raw.syllabusId case final syllabusId?
-        when raw.number != null && syllabusAge >= syllabusTtl) {
+    if (raw?.fetchedAt == null) {
       try {
-        final syllabus = await _authRepository.withAuth(
-          () => _courseService.getSyllabus(
-            courseNumber: raw.number!,
-            syllabusId: syllabusId,
-          ),
-          sso: [.courseService],
-        );
-        await (_database.update(
-          _database.courseOfferings,
-        )..where((o) => o.id.equals(id))).write(
-          CourseOfferingsCompanion(
-            courseType: Value(syllabus.type),
-            enrolled: Value(syllabus.enrolled),
-            withdrawn: Value(syllabus.withdrawn),
-            syllabusUpdatedAt: Value(syllabus.lastUpdated),
-            objective: Value(syllabus.objective),
-            weeklyPlan: Value(syllabus.weeklyPlan),
-            evaluation: Value(syllabus.evaluation),
-            textbooks: Value(syllabus.materials),
-            syllabusRemarks: Value(syllabus.remarks),
-            fetchedAt: Value(DateTime.now()),
-          ),
-        );
+        await refreshCourseOffering(id);
       } catch (_) {
-        // Absorb: stale or empty syllabus data is preferable to failing the
-        // whole detail load (network errors, parse failures, etc.).
+        // Absorb: fall through and emit whatever's in the DB.
       }
+    } else {
+      unawaited(refreshCourseOffering(id).catchError((_) {}));
     }
 
-    final overview = await (_database.select(
-      _database.courseOfferingOverviews,
-    )..where((o) => o.id.equals(id))).getSingleOrNull();
-    if (overview == null) return null;
+    final query = _database.select(_database.courseOfferingOverviews)
+      ..where((o) => o.id.equals(id));
 
-    final scheduleRows =
+    await for (final overview in query.watchSingleOrNull()) {
+      if (overview == null) {
+        yield null;
+        continue;
+      }
+      yield (
+        overview: overview,
+        schedule: await _readOfferingSchedule(id),
+        teachers: await _readOfferingTeachers(id),
+        classes: await _readOfferingClasses(id),
+      );
+    }
+  }
+
+  /// Fetches a course offering's syllabus from the network and writes it to
+  /// the [CourseOfferings] row.
+  ///
+  /// The [watchCourseOffering] stream automatically emits the updated value.
+  /// Network errors propagate to the caller. No-ops when the offering is
+  /// missing or has no `syllabusId` / `number`.
+  Future<void> refreshCourseOffering(int id) async {
+    final raw = await (_database.select(
+      _database.courseOfferings,
+    )..where((o) => o.id.equals(id))).getSingleOrNull();
+    if (raw == null) return;
+    if (raw.syllabusId == null || raw.number == null) return;
+
+    final syllabus = await _authRepository.withAuth(
+      () => _courseService.getSyllabus(
+        courseNumber: raw.number!,
+        syllabusId: raw.syllabusId!,
+      ),
+      sso: [.courseService],
+    );
+
+    await (_database.update(
+      _database.courseOfferings,
+    )..where((o) => o.id.equals(id))).write(
+      CourseOfferingsCompanion(
+        courseType: Value(syllabus.type),
+        enrolled: Value(syllabus.enrolled),
+        withdrawn: Value(syllabus.withdrawn),
+        syllabusUpdatedAt: Value(syllabus.lastUpdated),
+        objective: Value(syllabus.objective),
+        weeklyPlan: Value(syllabus.weeklyPlan),
+        evaluation: Value(syllabus.evaluation),
+        textbooks: Value(syllabus.materials),
+        syllabusRemarks: Value(syllabus.remarks),
+        fetchedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  Future<
+    List<
+      ({
+        DayOfWeek day,
+        Period period,
+        String? classroomNameZh,
+        String? classroomNameEn,
+      })
+    >
+  >
+  _readOfferingSchedule(int id) async {
+    final rows =
         await (_database.select(_database.schedules).join([
                 leftOuterJoin(
                   _database.classrooms,
@@ -695,8 +732,20 @@ class CourseRepository {
                 OrderingTerm.asc(_database.schedules.period),
               ]))
             .get();
+    return [
+      for (final row in rows)
+        (
+          day: row.readTable(_database.schedules).dayOfWeek,
+          period: row.readTable(_database.schedules).period,
+          classroomNameZh: row.readTableOrNull(_database.classrooms)?.nameZh,
+          classroomNameEn: row.readTableOrNull(_database.classrooms)?.nameEn,
+        ),
+    ];
+  }
 
-    final teacherRows =
+  Future<List<({String code, String nameZh, String? nameEn})>>
+  _readOfferingTeachers(int id) async {
+    final rows =
         await (_database.select(_database.courseOfferingTeachers).join([
               innerJoin(
                 _database.teacherSemesters,
@@ -714,8 +763,19 @@ class CourseRepository {
               _database.courseOfferingTeachers.courseOffering.equals(id),
             ))
             .get();
+    return [
+      for (final row in rows)
+        (
+          code: row.readTable(_database.teachers).code,
+          nameZh: row.readTable(_database.teachers).nameZh,
+          nameEn: row.readTable(_database.teachers).nameEn,
+        ),
+    ];
+  }
 
-    final classRows =
+  Future<List<({String code, String nameZh, String? nameEn})>>
+  _readOfferingClasses(int id) async {
+    final rows =
         await (_database.select(_database.courseOfferingClasses).join([
                 innerJoin(
                   _database.classes,
@@ -727,35 +787,14 @@ class CourseRepository {
               ..where(_database.courseOfferingClasses.courseOffering.equals(id))
               ..orderBy([OrderingTerm.asc(_database.classes.code)]))
             .get();
-
-    return (
-      overview: overview,
-      schedule: [
-        for (final row in scheduleRows)
-          (
-            day: row.readTable(_database.schedules).dayOfWeek,
-            period: row.readTable(_database.schedules).period,
-            classroomNameZh: row.readTableOrNull(_database.classrooms)?.nameZh,
-            classroomNameEn: row.readTableOrNull(_database.classrooms)?.nameEn,
-          ),
-      ],
-      teachers: [
-        for (final row in teacherRows)
-          (
-            code: row.readTable(_database.teachers).code,
-            nameZh: row.readTable(_database.teachers).nameZh,
-            nameEn: row.readTable(_database.teachers).nameEn,
-          ),
-      ],
-      classes: [
-        for (final row in classRows)
-          (
-            code: row.readTable(_database.classes).code,
-            nameZh: row.readTable(_database.classes).nameZh,
-            nameEn: row.readTable(_database.classes).nameEn,
-          ),
-      ],
-    );
+    return [
+      for (final row in rows)
+        (
+          code: row.readTable(_database.classes).code,
+          nameZh: row.readTable(_database.classes).nameZh,
+          nameEn: row.readTable(_database.classes).nameEn,
+        ),
+    ];
   }
 
   /// Gets course catalog information by code.
