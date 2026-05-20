@@ -89,15 +89,16 @@ abstract class ScoreDetails extends View {
 
 /// Flat view of a course offering joined with its catalog entry.
 ///
-/// One row per [CourseOfferings] row. Falls back to catalog values for
-/// name/credits/hours when the offering's own values are null, matching
-/// [CourseTableSlots]. The repository composes this row with separate
-/// queries for the offering's many-side relations (schedule slots,
+/// One row per [CourseOfferings] row. The repository composes this row with
+/// separate queries for the offering's many-side relations (schedule slots,
 /// teachers, classes) into a full detail record.
 abstract class CourseOfferingOverviews extends View {
   CourseOfferings get courseOfferings;
   Courses get courses;
 
+  /// Prefers the offering's timetable value; falls back to the catalog value
+  /// when the offering's value is null. Always returns the offering's name in
+  /// Chinese, since [CourseOfferings.nameZh] is NOT NULL.
   Expression<String> get nameZh =>
       coalesce([courseOfferings.nameZh, courses.nameZh]);
   Expression<String> get nameEn =>
