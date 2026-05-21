@@ -628,41 +628,59 @@ class CourseRepository {
   /// junctions. Emits `null` when the offering is missing; the stream stays
   /// open so a later insert can surface it.
   ///
-  /// Refresh behavior, gated by [CourseOfferings.fetchedAt]:
+  /// Refresh behavior on the first non-null emission, gated by
+  /// [CourseOfferings.fetchedAt]:
   /// - **Never fetched** (`fetchedAt == null`): blocks on [refreshCourseOffering]
-  ///   before the first emission so consumers don't render null syllabus fields
-  ///   (`courseType`, `enrolled`, `withdrawn`, `remarks`, …). If the refresh
-  ///   fails, falls through and emits the cached row (with whatever's there).
-  /// - **Previously fetched**: emits cached data immediately and fires
+  ///   before yielding so consumers don't render null syllabus fields
+  ///   (`courseType`, `enrolled`, `withdrawn`, `syllabusRemarks`, …). If the
+  ///   refresh fails, falls through and emits the cached row (with whatever's
+  ///   there).
+  /// - **Previously fetched**: yields cached data immediately and fires
   ///   [refreshCourseOffering] in the background. When that write lands, the
   ///   view's `.watch()` re-emits with fresh fields.
+  ///
+  /// The refresh decision happens inside the stream loop (rather than as a
+  /// pre-check), so an offering that is inserted *after* subscription still
+  /// gets the blocking first-load behavior on its first appearance.
   Stream<CourseOfferingDetail?> watchCourseOffering(int id) async* {
-    final raw = await (_database.select(
-      _database.courseOfferings,
-    )..where((o) => o.id.equals(id))).getSingleOrNull();
-    if (raw?.fetchedAt == null) {
-      try {
-        await refreshCourseOffering(id);
-      } catch (_) {
-        // Absorb: fall through and emit whatever's in the DB.
-      }
-    } else {
-      unawaited(refreshCourseOffering(id).catchError((_) {}));
-    }
-
     final query = _database.select(_database.courseOfferingOverviews)
       ..where((o) => o.id.equals(id));
 
+    var refreshTriggered = false;
     await for (final overview in query.watchSingleOrNull()) {
       if (overview == null) {
         yield null;
         continue;
       }
+
+      if (!refreshTriggered) {
+        refreshTriggered = true;
+        final raw = await (_database.select(
+          _database.courseOfferings,
+        )..where((o) => o.id.equals(id))).getSingleOrNull();
+        if (raw?.fetchedAt == null) {
+          try {
+            await refreshCourseOffering(id);
+            // Wait for the resulting DB write to re-emit a populated row.
+            continue;
+          } catch (_) {
+            // Absorb: fall through and emit the cached row below.
+          }
+        } else {
+          unawaited(refreshCourseOffering(id).catchError((_) {}));
+        }
+      }
+
+      final (schedule, teachers, classes) = await (
+        _readOfferingSchedule(id),
+        _readOfferingTeachers(id),
+        _readOfferingClasses(id),
+      ).wait;
       yield (
         overview: overview,
-        schedule: await _readOfferingSchedule(id),
-        teachers: await _readOfferingTeachers(id),
-        classes: await _readOfferingClasses(id),
+        schedule: schedule,
+        teachers: teachers,
+        classes: classes,
       );
     }
   }
