@@ -76,7 +76,7 @@ runs:
     - name: Select Xcode version
       if: ${{ inputs.platform == 'ios' }}
       shell: bash
-      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
 
     - name: Setup CocoaPods cache
       if: ${{ inputs.platform == 'ios' }}
