@@ -209,14 +209,29 @@ class CourseRepository {
     );
 
     await _database.transaction(() async {
+      final fetchedSemesterIds = <int>{};
       for (final dto in dtos) {
         if (dto case (year: final year?, term: final term?)) {
-          await _database.getOrCreateSemester(
+          final semester = await _database.getOrCreateSemester(
             year,
             term,
             inCourseSemesterList: true,
           );
+          fetchedSemesterIds.add(semester.id);
         }
+      }
+
+      // Keep membership flag in sync with the latest course semester response.
+      // Skip on empty.
+      if (fetchedSemesterIds.isNotEmpty) {
+        await (_database.update(_database.semesters)..where(
+              (s) =>
+                  s.inCourseSemesterList.equals(true) &
+                  s.id.isNotIn(fetchedSemesterIds),
+            ))
+            .write(
+              const SemestersCompanion(inCourseSemesterList: Value(false)),
+            );
       }
 
       await (_database.update(_database.users)).write(
