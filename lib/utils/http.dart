@@ -11,6 +11,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:intl/intl.dart';
 import 'package:tattoo/services/firebase_service.dart';
+import 'package:tattoo/utils/native_http_adapter.dart';
 
 export 'package:dio/dio.dart';
 
@@ -162,8 +163,15 @@ CookieJar get cookieJar => _cookieJar ??= CookieJar();
 
 /// Creates a new Dio instance with configured interceptors.
 ///
+/// On Android, this uses [NativeHttpAdapter] to route requests through the
+/// native [HttpURLConnection] stack. This leverages the system's Conscrypt TLS
+/// provider, whose handshake fingerprint matches standard Android apps and bypasses
+/// firewalls that detect and block BoringSSL (used by dart:io) or OpenSSL (used by curl).
+///
 /// To debug with a self-signed certificate, pass
 /// --dart-define=ALLOW_BAD_CERTIFICATES=true to flutter run.
+/// This falls back to [IOHttpClientAdapter] since native network stacks do not
+/// support bad certificate callbacks.
 ///
 /// Cookies are shared across all clients via the global [cookieJar].
 Dio createDio() {
@@ -180,6 +188,8 @@ Dio createDio() {
         ..badCertificateCallback =
             (X509Certificate cert, String host, int port) => true,
     );
+  } else if (Platform.isAndroid) {
+    dio.httpClientAdapter = NativeHttpAdapter();
   }
 
   dio.interceptors.addAll([
