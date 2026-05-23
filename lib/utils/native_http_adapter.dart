@@ -114,16 +114,20 @@ class NativeHttpAdapter implements HttpClientAdapter {
     }
 
     try {
-      final fetchFuture = _channel.invokeMethod<Map>('fetch', {
-        'requestId': requestId,
-        'url': options.uri.toString(),
-        'method': options.method,
-        'headers': headers,
-        'body': bodyBytes,
-        'followRedirects': options.followRedirects,
-        'connectTimeout': options.connectTimeout?.inMilliseconds,
-        'readTimeout': options.receiveTimeout?.inMilliseconds,
-      });
+      final fetchFuture = _channel
+          .invokeMethod<Map>('fetch', {
+            'requestId': requestId,
+            'url': options.uri.toString(),
+            'method': options.method,
+            'headers': headers,
+            'body': bodyBytes,
+            'followRedirects': options.followRedirects,
+            'connectTimeout': options.connectTimeout?.inMilliseconds,
+            'readTimeout': options.receiveTimeout?.inMilliseconds,
+          })
+          .whenComplete(() {
+            requestCompleted = true;
+          });
 
       if (cancelFuture != null) {
         // Silence unhandled PlatformExceptions if the request is cancelled and abandoned
@@ -133,8 +137,6 @@ class NativeHttpAdapter implements HttpClientAdapter {
       final result = cancelFuture != null
           ? await Future.any([fetchFuture, cancelCompleter.future])
           : await fetchFuture;
-
-      requestCompleted = true;
 
       if (result == null) {
         throw DioException(
