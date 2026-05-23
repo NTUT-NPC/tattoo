@@ -7,6 +7,9 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import java.io.ByteArrayOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.Collections
+import java.util.HashSet
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.*
 
 /// Flutter plugin that performs HTTP requests using Android's [HttpURLConnection].
@@ -18,6 +21,8 @@ import kotlinx.coroutines.*
 class NativeHttpPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var channel: MethodChannel
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val activeRequests = ConcurrentHashMap<String, HttpURLConnection>()
+    private val cancelledRequests = Collections.synchronizedSet(HashSet<String>())
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "club.ntut.tattoo/native_http")
@@ -27,22 +32,59 @@ class NativeHttpPlugin : FlutterPlugin, MethodCallHandler {
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
         scope.cancel()
+        activeRequests.forEach { (_, connection) ->
+            try { connection.disconnect() } catch (_: Exception) {}
+        }
+        activeRequests.clear()
+        cancelledRequests.clear()
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "fetch" -> {
-                val url = call.argument<String>("url")!!
-                val method = call.argument<String>("method")!!
-                val headers = call.argument<Map<String, List<Any>>>("headers") ?: emptyMap()
-                val body = call.argument<ByteArray>("body")
-                val followRedirects = call.argument<Boolean>("followRedirects") ?: false
-                val connectTimeout = call.argument<Int>("connectTimeout")
-                val readTimeout = call.argument<Int>("readTimeout")
+                val requestId = try { call.argument<String>("requestId") } catch (e: Exception) { null }
+                val url = try { call.argument<String>("url") } catch (e: Exception) {
+                    result.error("BAD_ARGUMENT", "Malformed 'url' argument: ${e.message}", null)
+                    return
+                }
+                val method = try { call.argument<String>("method") } catch (e: Exception) {
+                    result.error("BAD_ARGUMENT", "Malformed 'method' argument: ${e.message}", null)
+                    return
+                }
+
+                if (url == null) {
+                    result.error("BAD_ARGUMENT", "Missing or null 'url' argument", null)
+                    return
+                }
+                if (method == null) {
+                    result.error("BAD_ARGUMENT", "Missing or null 'method' argument", null)
+                    return
+                }
+
+                val headers = try { call.argument<Map<String, List<Any>>>("headers") ?: emptyMap() } catch (e: Exception) {
+                    result.error("BAD_ARGUMENT", "Malformed 'headers' argument: ${e.message}", null)
+                    return
+                }
+                val body = try { call.argument<ByteArray>("body") } catch (e: Exception) {
+                    result.error("BAD_ARGUMENT", "Malformed 'body' argument: ${e.message}", null)
+                    return
+                }
+                val followRedirects = try { call.argument<Boolean>("followRedirects") ?: false } catch (e: Exception) {
+                    result.error("BAD_ARGUMENT", "Malformed 'followRedirects' argument: ${e.message}", null)
+                    return
+                }
+                val connectTimeout = try { call.argument<Int>("connectTimeout") } catch (e: Exception) {
+                    result.error("BAD_ARGUMENT", "Malformed 'connectTimeout' argument: ${e.message}", null)
+                    return
+                }
+                val readTimeout = try { call.argument<Int>("readTimeout") } catch (e: Exception) {
+                    result.error("BAD_ARGUMENT", "Malformed 'readTimeout' argument: ${e.message}", null)
+                    return
+                }
 
                 scope.launch {
                     try {
-                        val response = performRequest(url, method, headers, body, followRedirects, connectTimeout, readTimeout)
+                        val response = performRequest(requestId, url, method, headers, body, followRedirects, connectTimeout, readTimeout)
                         withContext(Dispatchers.Main) {
                             result.success(response)
                         }
@@ -53,11 +95,24 @@ class NativeHttpPlugin : FlutterPlugin, MethodCallHandler {
                     }
                 }
             }
+            "cancel" -> {
+                val requestId = try { call.argument<String>("requestId") } catch (e: Exception) { null }
+                if (requestId != null) {
+                    if (cancelledRequests.size > 500) {
+                        cancelledRequests.clear()
+                    }
+                    cancelledRequests.add(requestId)
+                    val connection = activeRequests.remove(requestId)
+                    connection?.disconnect()
+                }
+                result.success(null)
+            }
             else -> result.notImplemented()
         }
     }
 
     private fun performRequest(
+        requestId: String?,
         urlString: String,
         method: String,
         headers: Map<String, List<Any>>,
@@ -69,7 +124,25 @@ class NativeHttpPlugin : FlutterPlugin, MethodCallHandler {
         val url = URL(urlString)
         val connection = url.openConnection() as HttpURLConnection
 
+        if (requestId != null) {
+            if (cancelledRequests.contains(requestId)) {
+                cancelledRequests.remove(requestId)
+                throw java.io.IOException("Request cancelled")
+            }
+            activeRequests[requestId] = connection
+            if (cancelledRequests.contains(requestId)) {
+                activeRequests.remove(requestId)
+                cancelledRequests.remove(requestId)
+                connection.disconnect()
+                throw java.io.IOException("Request cancelled")
+            }
+        }
+
         try {
+            if (body != null && body.isNotEmpty()) {
+                connection.doOutput = true
+            }
+
             connection.requestMethod = method
             connection.instanceFollowRedirects = followRedirects
             connection.connectTimeout = connectTimeout ?: 30_000
@@ -84,7 +157,6 @@ class NativeHttpPlugin : FlutterPlugin, MethodCallHandler {
 
             // Write request body
             if (body != null && body.isNotEmpty()) {
-                connection.doOutput = true
                 connection.outputStream.use { it.write(body) }
             }
 
@@ -136,6 +208,10 @@ class NativeHttpPlugin : FlutterPlugin, MethodCallHandler {
                 "isRedirect" to (statusCode in 300..399)
             )
         } finally {
+            if (requestId != null) {
+                activeRequests.remove(requestId)
+                cancelledRequests.remove(requestId)
+            }
             connection.disconnect()
         }
     }

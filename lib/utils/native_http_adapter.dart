@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -15,6 +16,7 @@ import 'package:flutter/services.dart';
 /// needs to pass headers and bytes transparently.
 class NativeHttpAdapter implements HttpClientAdapter {
   static const _channel = MethodChannel('club.ntut.tattoo/native_http');
+  static int _nextRequestId = 0;
 
   @override
   Future<ResponseBody> fetch(
@@ -25,18 +27,51 @@ class NativeHttpAdapter implements HttpClientAdapter {
     // Collect request body stream into bytes
     Uint8List? bodyBytes;
     if (requestStream != null) {
-      final chunks = <List<int>>[];
-      var totalLength = 0;
-      await for (final chunk in requestStream) {
-        chunks.add(chunk);
-        totalLength += chunk.length;
+      final builder = BytesBuilder(copy: false);
+      final completer = Completer<void>();
+      StreamSubscription<Uint8List>? subscription;
+
+      if (cancelFuture != null) {
+        cancelFuture.then((_) {
+          if (!completer.isCompleted) {
+            subscription?.cancel();
+            completer.completeError(
+              DioException(
+                requestOptions: options,
+                type: .cancel,
+                message: 'Request cancelled during upload buffering',
+              ),
+            );
+          }
+        });
       }
-      if (totalLength > 0) {
-        final builder = BytesBuilder(copy: false);
-        for (final chunk in chunks) {
-          builder.add(chunk);
+
+      try {
+        subscription = requestStream.listen(
+          (chunk) {
+            builder.add(chunk);
+          },
+          onError: (Object error, StackTrace stackTrace) {
+            if (!completer.isCompleted) {
+              completer.completeError(error, stackTrace);
+            }
+          },
+          onDone: () {
+            if (!completer.isCompleted) {
+              completer.complete();
+            }
+          },
+          cancelOnError: true,
+        );
+
+        await completer.future;
+
+        if (builder.length > 0) {
+          bodyBytes = builder.takeBytes();
         }
-        bodyBytes = builder.takeBytes();
+      } catch (e) {
+        await subscription?.cancel();
+        rethrow;
       }
     }
 
@@ -51,8 +86,36 @@ class NativeHttpAdapter implements HttpClientAdapter {
       }
     });
 
+    final requestId =
+        '${DateTime.now().microsecondsSinceEpoch}_${_nextRequestId++}';
+    var requestCompleted = false;
+    final cancelCompleter = Completer<Map?>();
+
+    if (cancelFuture != null) {
+      cancelFuture.then((_) {
+        if (requestCompleted) return;
+        requestCompleted = true;
+
+        // Notify native side to cancel the connection
+        _channel
+            .invokeMethod('cancel', {'requestId': requestId})
+            .catchError((_) => null);
+
+        if (!cancelCompleter.isCompleted) {
+          cancelCompleter.completeError(
+            DioException(
+              requestOptions: options,
+              type: .cancel,
+              message: 'Request cancelled',
+            ),
+          );
+        }
+      });
+    }
+
     try {
-      final result = await _channel.invokeMethod<Map>('fetch', {
+      final fetchFuture = _channel.invokeMethod<Map>('fetch', {
+        'requestId': requestId,
         'url': options.uri.toString(),
         'method': options.method,
         'headers': headers,
@@ -62,13 +125,41 @@ class NativeHttpAdapter implements HttpClientAdapter {
         'readTimeout': options.receiveTimeout?.inMilliseconds,
       });
 
-      final response = Map<String, dynamic>.from(result!);
-      final statusCode = response['statusCode'] as int;
+      if (cancelFuture != null) {
+        // Silence unhandled PlatformExceptions if the request is cancelled and abandoned
+        fetchFuture.catchError((_) => <dynamic, dynamic>{});
+      }
+
+      final result = cancelFuture != null
+          ? await Future.any([fetchFuture, cancelCompleter.future])
+          : await fetchFuture;
+
+      requestCompleted = true;
+
+      if (result == null) {
+        throw DioException(
+          requestOptions: options,
+          type: .connectionError,
+          message:
+              'Invalid or null response received from native HTTP channel.',
+        );
+      }
+
+      final response = Map<dynamic, dynamic>.from(result);
+      final rawStatusCode = response['statusCode'];
+      if (rawStatusCode == null || rawStatusCode is! int) {
+        throw DioException(
+          requestOptions: options,
+          type: .connectionError,
+          message: 'Invalid or missing HTTP status code from native response.',
+        );
+      }
+      final statusCode = rawStatusCode;
       final statusMessage = response['statusMessage'] as String?;
 
       final responseHeaders = <String, List<String>>{};
-      final rawHeaders = response['headers'] as Map?;
-      if (rawHeaders != null) {
+      final rawHeaders = response['headers'];
+      if (rawHeaders is Map) {
         rawHeaders.forEach((key, value) {
           if (value is List) {
             responseHeaders[key.toString()] = value
@@ -78,8 +169,11 @@ class NativeHttpAdapter implements HttpClientAdapter {
         });
       }
 
-      final body = response['body'] as Uint8List? ?? Uint8List(0);
-      final isRedirect = response['isRedirect'] as bool? ?? false;
+      final rawBody = response['body'];
+      final body = rawBody is Uint8List ? rawBody : Uint8List(0);
+
+      final rawIsRedirect = response['isRedirect'];
+      final isRedirect = rawIsRedirect is bool ? rawIsRedirect : false;
 
       return ResponseBody.fromBytes(
         body,
@@ -89,11 +183,15 @@ class NativeHttpAdapter implements HttpClientAdapter {
         isRedirect: isRedirect,
       );
     } on PlatformException catch (e) {
+      requestCompleted = true;
       throw DioException(
         requestOptions: options,
         type: .connectionError,
         message: e.message,
       );
+    } catch (e) {
+      requestCompleted = true;
+      rethrow;
     }
   }
 
