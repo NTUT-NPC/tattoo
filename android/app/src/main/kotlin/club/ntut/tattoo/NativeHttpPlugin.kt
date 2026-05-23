@@ -200,12 +200,15 @@ class NativeHttpPlugin : FlutterPlugin, MethodCallHandler {
                 ByteArray(0)
             }
 
+            val isRedirect = (statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 307 || statusCode == 308) &&
+                !responseHeaders["location"].isNullOrEmpty()
+
             return mapOf(
                 "statusCode" to statusCode,
                 "statusMessage" to statusMessage,
                 "headers" to responseHeaders,
                 "body" to responseBody,
-                "isRedirect" to (statusCode in 300..399)
+                "isRedirect" to isRedirect
             )
         } finally {
             if (requestId != null) {
