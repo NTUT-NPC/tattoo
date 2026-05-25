@@ -205,7 +205,11 @@ Dio createDio() {
     );
 
   if (Platform.isAndroid || Platform.isIOS) {
-    dio.httpClientAdapter = NativeAdapter();
+    dio.httpClientAdapter = NativeAdapter(
+      createCupertinoConfiguration: () =>
+          URLSessionConfiguration.defaultSessionConfiguration()
+            ..httpShouldSetCookies = false,
+    );
   }
 
   dio.interceptors.addAll([
