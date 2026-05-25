@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
@@ -105,7 +104,7 @@ class ProfileContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final textTheme = GoogleFonts.notoSansTcTextTheme(theme.textTheme);
+    final textTheme = theme.textTheme.apply(fontFamily: 'NotoSansTC');
 
     return _ProfileCardFrame(
       childBuilder: (context, constraints, borderRadius) {
