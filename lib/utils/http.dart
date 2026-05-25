@@ -101,27 +101,28 @@ class PlainTextTransformer extends BackgroundTransformer {
 /// Logs to both `dart:developer` and Firebase Crashlytics for breadcrumb
 /// context in crash reports.
 class LogInterceptor extends Interceptor {
-  @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    final compactFormat = NumberFormat.compact().format;
+  static final _compactFormat = NumberFormat.compact().format;
 
-    final method = response.requestOptions.method;
-    final uri = response.requestOptions.uri;
-    final parameters = response.requestOptions.queryParameters.length;
-    final requestBodyLength = switch (response.requestOptions.data) {
+    static String _requestLog(RequestOptions options) {
+    final parameters = options.queryParameters.length;
+    final requestBodyLength = switch (options.data) {
       String s => s.length,
       List l => l.length,
       FormData f => f.length,
       Map m => m.length,
       _ => null,
     };
-
-    final requestLog = [
-      method,
-      "${uri.origin}${uri.path}",
+return [
+      options.method,
+      '${options.uri.origin}${options.uri.path}',
       if (parameters > 0) "$parameters param${parameters != 1 ? 's' : ''}",
-      if (requestBodyLength case final l?) "${compactFormat(l)}B",
+      if (requestBodyLength case final l?) '${_compactFormat(l)}B',
     ].join(' ');
+}
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    final requestLog = _requestLog(response.requestOptions);
 
     final statusCode = response.statusCode;
     final contentType = response.headers
@@ -144,14 +145,28 @@ class LogInterceptor extends Interceptor {
     final responseLog = [
       statusCode,
       if (contentType case final t) t,
-      if (responseBodyLength case final l?) '${compactFormat(l)}B',
+      if (responseBodyLength case final l?) '${_compactFormat(l)}B',
       if (cookies case final c? when c > 0) "$c cookie${c != 1 ? 's' : ''}",
     ].join(' ');
 
-    final message = "$requestLog => $responseLog";
+    final message = '$requestLog => $responseLog';
     log(message, name: 'HTTP');
     firebaseService.log(message);
     handler.next(response);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    final requestLog = _requestLog(err.requestOptions);
+    final errorLog = [
+      err.type,
+      ?err.response?.statusCode,
+    ].join(' ');
+
+    final message = '$requestLog => $errorLog';
+    log(message, name: 'HTTP');
+    firebaseService.log(message);
+    handler.next(err);
   }
 }
 

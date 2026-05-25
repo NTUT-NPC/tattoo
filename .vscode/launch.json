@@ -5,16 +5,12 @@
       "name": "Debug",
       "request": "launch",
       "type": "dart",
-      "toolArgs": [
-        "--dart-define=ALLOW_BAD_CERTIFICATES=true"
-      ],
     },
     { 
       "name": "Debug with Firebase",
       "request": "launch",
       "type": "dart",
       "toolArgs": [
-        "--dart-define=ALLOW_BAD_CERTIFICATES=true",
         "--dart-define=USE_FIREBASE=true"
       ],
     },
