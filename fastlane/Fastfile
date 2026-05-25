@@ -104,7 +104,8 @@ platform :android do
       build_number: settings[:build_number],
       build_args: [
         "--dart-define=USE_FIREBASE=true",
-        "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}"
+        "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}",
+        "--dart-define=cronetHttpNoPlay=true"
       ],
     )
   end
@@ -118,7 +119,8 @@ platform :android do
       build_number: settings[:build_number],
       build_args: [
         "--dart-define=USE_FIREBASE=true",
-        "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}"
+        "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}",
+        "--dart-define=cronetHttpNoPlay=true"
       ],
     )
   end

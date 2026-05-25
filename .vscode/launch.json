@@ -5,13 +5,17 @@
       "name": "Debug",
       "request": "launch",
       "type": "dart",
+      "toolArgs": [
+        "--dart-define=cronetHttpNoPlay=true"
+      ],
     },
-    { 
+    {
       "name": "Debug with Firebase",
       "request": "launch",
       "type": "dart",
       "toolArgs": [
-        "--dart-define=USE_FIREBASE=true"
+        "--dart-define=USE_FIREBASE=true",
+        "--dart-define=cronetHttpNoPlay=true"
       ],
     },
     {
@@ -19,14 +23,18 @@
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile",
+      "toolArgs": [
+        "--dart-define=cronetHttpNoPlay=true"
+      ],
     },
-    { 
+    {
       "name": "Profile with Firebase",
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile",
       "toolArgs": [
-        "--dart-define=USE_FIREBASE=true"
+        "--dart-define=USE_FIREBASE=true",
+        "--dart-define=cronetHttpNoPlay=true"
       ],
     },
     {
@@ -34,14 +42,18 @@
       "request": "launch",
       "type": "dart",
       "flutterMode": "release",
+      "toolArgs": [
+        "--dart-define=cronetHttpNoPlay=true"
+      ],
     },
-    { 
+    {
       "name": "Release with Firebase",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release",
       "toolArgs": [
-        "--dart-define=USE_FIREBASE=true"
+        "--dart-define=USE_FIREBASE=true",
+        "--dart-define=cronetHttpNoPlay=true"
       ],
     },
   ]
