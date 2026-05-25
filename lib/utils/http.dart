@@ -158,7 +158,7 @@ class LogInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final requestLog = _requestLog(err.requestOptions);
     final errorLog = [
-      err.type,
+      err.type.name,
       ?err.response?.statusCode,
     ].join(' ');
 
