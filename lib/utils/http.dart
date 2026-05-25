@@ -4,12 +4,11 @@ import 'dart:io';
 
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
-// ignore: implementation_imports
-import 'package:dio/src/transformers/util/consolidate_bytes.dart';
+import 'package:dio/src/transformers/util/consolidate_bytes.dart'; // ignore: implementation_imports
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:intl/intl.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
 export 'package:dio/dio.dart';
@@ -103,7 +102,7 @@ class PlainTextTransformer extends BackgroundTransformer {
 class LogInterceptor extends Interceptor {
   static final _compactFormat = NumberFormat.compact().format;
 
-    static String _requestLog(RequestOptions options) {
+  static String _requestLog(RequestOptions options) {
     final parameters = options.queryParameters.length;
     final requestBodyLength = switch (options.data) {
       String s => s.length,
@@ -112,13 +111,13 @@ class LogInterceptor extends Interceptor {
       Map m => m.length,
       _ => null,
     };
-return [
+    return [
       options.method,
       '${options.uri.origin}${options.uri.path}',
       if (parameters > 0) "$parameters param${parameters != 1 ? 's' : ''}",
       if (requestBodyLength case final l?) '${_compactFormat(l)}B',
     ].join(' ');
-}
+  }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
@@ -175,10 +174,27 @@ CookieJar? _cookieJar;
 /// Shared CookieJar instance for maintaining session across clients.
 CookieJar get cookieJar => _cookieJar ??= CookieJar();
 
+/// Strips null-valued headers that [CookieManager] injects.
+///
+/// `dio_cookie_manager` explicitly sets `Cookie: null` when no cookies exist
+/// for a URL. Native HTTP adapters forward this as the literal header
+/// `Cookie: null`, which NTUT's BigIP ASM flags as bot behavior (HTTP 403).
+class NullHeaderInterceptor extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    options.headers.removeWhere(
+      (_, value) => value == null || value.toString() == 'null',
+    );
+    handler.next(options);
+  }
+}
+
 /// Creates a new Dio instance with configured interceptors.
 ///
-/// To debug with a self-signed certificate, pass
-/// --dart-define=ALLOW_BAD_CERTIFICATES=true to flutter run.
+/// On Android and iOS, HTTPS requests ride on the platform's native TLS stack
+/// via [NativeAdapter] (Cronet on Android, URLSession on iOS). Campus Wi-Fi
+/// has a TLS DPI that RSTs connections whose ClientHello fingerprint isn't on
+/// its allowlist; dart:io's BoringSSL fails, but Cronet and URLSession pass.
 ///
 /// Cookies are shared across all clients via the global [cookieJar].
 Dio createDio() {
@@ -188,17 +204,13 @@ Dio createDio() {
       followRedirects: false,
     );
 
-  const allowBadCertificates = bool.fromEnvironment('ALLOW_BAD_CERTIFICATES');
-  if (allowBadCertificates) {
-    dio.httpClientAdapter = IOHttpClientAdapter(
-      createHttpClient: () => HttpClient()
-        ..badCertificateCallback =
-            (X509Certificate cert, String host, int port) => true,
-    );
+  if (Platform.isAndroid || Platform.isIOS) {
+    dio.httpClientAdapter = NativeAdapter();
   }
 
   dio.interceptors.addAll([
     CookieManager(cookieJar), // Store cookies
+    NullHeaderInterceptor(), // Strip Cookie: null from dio_cookie_manager
     HttpsInterceptor(), // Enforce HTTPS
     RedirectInterceptor(() => dio), // Handle redirects within this Dio instance
     LogInterceptor(), // Log requests and responses
