@@ -48,7 +48,7 @@ class HttpsInterceptor extends Interceptor {
 /// into a single header entry. This interceptor splits them before validation
 /// so that one invalid cookie doesn't take down the entire Set-Cookie header.
 class InvalidCookieFilter extends Interceptor {
-  static final _setCookieReg = RegExp(r',(?=[^;]+?=)');
+  static final _setCookieReg = RegExp(r',(?=[^;,]+?=)');
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
