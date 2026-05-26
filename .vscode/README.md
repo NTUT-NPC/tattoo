@@ -18,16 +18,16 @@ Install recommended extensions (VS Code will prompt you, or search `@recommended
 Shared launch configurations for the project:
 
 | Configuration | Mode | Flags |
-|---|---|---|
-| Debug | debug | `ALLOW_BAD_CERTIFICATES=true` |
-| Debug with Firebase | debug | `ALLOW_BAD_CERTIFICATES=true`, `USE_FIREBASE=true` |
-| Profile | profile | — |
-| Profile with Firebase | profile | `USE_FIREBASE=true` |
-| Release | release | — |
-| Release with Firebase | release | `USE_FIREBASE=true` |
+| --- | --- | --- |
+| Debug | debug | `cronetHttpNoPlay=true` |
+| Debug with Firebase | debug | `USE_FIREBASE=true`, `cronetHttpNoPlay=true` |
+| Profile | profile | `cronetHttpNoPlay=true` |
+| Profile with Firebase | profile | `USE_FIREBASE=true`, `cronetHttpNoPlay=true` |
+| Release | release | `cronetHttpNoPlay=true` |
+| Release with Firebase | release | `USE_FIREBASE=true`, `cronetHttpNoPlay=true` |
 
-- **`ALLOW_BAD_CERTIFICATES`** — allows self-signed certificates for MITM proxy debugging (e.g., Proxyman, Charles)
 - **`USE_FIREBASE`** — enables Firebase Analytics and Crashlytics (requires Firebase configs from `tool/credentials.dart`)
+- **`cronetHttpNoPlay`** — bundles Cronet directly instead of using Google Play Services (~2MB APK increase), so AOSP devices (e.g., GrapheneOS) work on campus Wi-Fi
 
 ## Optional Configuration
 
