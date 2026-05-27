@@ -135,7 +135,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                             context: context,
                             applicationLegalese: t.about.copyright,
                             applicationName: t.general.appTitle,
-                            applicationVersion: packageInfoAsync.value,
+                            applicationVersion: packageInfoAsync.value ?? '...',
                           ),
                         ),
                         OptionEntryTile.icon(
