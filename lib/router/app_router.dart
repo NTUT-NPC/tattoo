@@ -9,6 +9,7 @@ import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/kiosk_login/kiosk_login_qr_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
+import 'package:tattoo/screens/main/profile/ntut_wifi_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';
@@ -31,6 +32,7 @@ abstract class AppRoutes {
   static const about = '/about';
   static const scanner = '/scanner';
   static const kioskLoginQr = '/kiosk-login-qr';
+  static const ntutWifi = '/ntut-8021x';
 }
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
@@ -91,6 +93,10 @@ GoRouter createAppRouter({
     GoRoute(
       path: AppRoutes.kioskLoginQr,
       builder: (context, state) => const KioskLoginQrScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.ntutWifi,
+      builder: (context, state) => const NtutWifiScreen(),
     ),
     StatefulShellRoute(
       builder: (context, state, navigationShell) =>

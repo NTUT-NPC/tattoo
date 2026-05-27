@@ -1,14 +1,17 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
 
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/login_exception.dart';
+import 'package:tattoo/services/campus_wifi/campus_wifi_platform.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
@@ -36,6 +39,11 @@ class _AuthFailedException implements Exception {
 }
 
 const _secureStorage = FlutterSecureStorage();
+
+void _logCampusWifi(String message) {
+  log(message, name: 'CampusWifi');
+  debugPrint('[CampusWifi] $message');
+}
 
 /// Whether the user has an active authenticated session.
 ///
@@ -90,6 +98,22 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     onSessionDestroyed: ([exception]) {
       ref.read(sessionProvider.notifier).destroy(exception);
     },
+    onCredentialsUpdated:
+        ({
+          required username,
+          required password,
+          previousUsername,
+          previousPassword,
+        }) async {
+          await ref
+              .read(ntut8021xAutoReprovisionProvider)
+              .reprovisionIfEnabled(
+                identity: username,
+                password: password,
+                previousIdentity: previousUsername,
+                previousPassword: previousPassword,
+              );
+        },
   );
 });
 
@@ -115,6 +139,13 @@ class AuthRepository {
   final bool _isDemo;
   final void Function() _onSessionCreated;
   final void Function([LoginException?]) _onSessionDestroyed;
+  final Future<void> Function({
+    required String username,
+    required String password,
+    String? previousUsername,
+    String? previousPassword,
+  })?
+  _onCredentialsUpdated;
 
   final _ssoCache = <PortalServiceCode>{};
   final _ssoInFlight = <PortalServiceCode, Completer<void>>{};
@@ -131,13 +162,21 @@ class AuthRepository {
     required bool isDemo,
     required void Function() onSessionCreated,
     required void Function([LoginException?]) onSessionDestroyed,
+    Future<void> Function({
+      required String username,
+      required String password,
+      String? previousUsername,
+      String? previousPassword,
+    })?
+    onCredentialsUpdated,
   }) : _portalService = portalService,
        _studentQueryService = studentQueryService,
        _database = database,
        _secureStorage = secureStorage,
        _isDemo = isDemo,
        _onSessionCreated = onSessionCreated,
-       _onSessionDestroyed = onSessionDestroyed;
+       _onSessionDestroyed = onSessionDestroyed,
+       _onCredentialsUpdated = onCredentialsUpdated;
 
   /// Authenticates with NTUT Portal and saves the user profile.
   ///
@@ -146,6 +185,9 @@ class AuthRepository {
   /// On success, credentials are stored securely for auto-login.
   Future<User> login(String username, String password) async {
     final isDemo = isDemoCredentials(username, password);
+    final ({String username, String password})? previousCredentials = isDemo
+        ? null
+        : await getStoredCredentials();
 
     final UserDto userDto;
     if (isDemo) {
@@ -162,7 +204,7 @@ class AuthRepository {
 
     // Save credentials for auto-login.
     //
-    // Demo mode deliberately skips secure storage — demo sessions persist
+    // Demo mode deliberately skips secure storage: demo sessions persist
     // across restarts via the DB user row instead:
     // - main.dart restores isDemoProvider by matching studentId == demoUsername
     // - _reauthenticate() falls back to the demo username when secure
@@ -187,6 +229,14 @@ class AuthRepository {
     });
 
     _onSessionCreated();
+    if (!isDemo) {
+      await _maybeRefreshNtut8021x(
+        username: username,
+        password: password,
+        previousUsername: previousCredentials?.username,
+        previousPassword: previousCredentials?.password,
+      );
+    }
     return user;
   }
 
@@ -332,6 +382,19 @@ class AuthRepository {
   /// has expired.
   Future<Uri> getSsoUrl(String serviceCode) async {
     return withAuth(() => _portalService.getSsoUrl(serviceCode));
+  }
+
+  /// Returns the cached signed-in user without refreshing from the network.
+  Future<User?> getLocalUser() {
+    return _database.select(_database.users).getSingleOrNull();
+  }
+
+  /// Returns the stored portal credentials, or `null` if either value is missing.
+  Future<({String username, String password})?> getStoredCredentials() async {
+    final username = await _secureStorage.read(key: _usernameKey);
+    final password = await _secureStorage.read(key: _passwordKey);
+    if (username == null || password == null) return null;
+    return (username: username, password: password);
   }
 
   /// Gets the current user with automatic cache refresh.
@@ -547,6 +610,13 @@ class AuthRepository {
     // Update stored credentials so auto-login uses the new password
     await _secureStorage.write(key: _passwordKey, value: newPassword);
 
+    await _maybeRefreshNtut8021x(
+      username: user.studentId,
+      password: newPassword,
+      previousUsername: user.studentId,
+      previousPassword: currentPassword,
+    );
+
     // Best-effort re-login to refresh session and passwordExpiresInDays.
     // The password is already changed at this point, so don't fail if
     // the re-login hits a transient error.
@@ -628,6 +698,30 @@ class AuthRepository {
     final avatarDir = Directory('${cacheDir.path}/avatars');
     if (await avatarDir.exists()) {
       await avatarDir.delete(recursive: true);
+    }
+  }
+
+  Future<void> _maybeRefreshNtut8021x({
+    required String username,
+    required String password,
+    String? previousUsername,
+    String? previousPassword,
+  }) async {
+    _logCampusWifi(
+      'Credential update detected for NTUT-802.1X refresh; '
+      'hasPreviousCredentials=${previousUsername != null && previousPassword != null}',
+    );
+    try {
+      await _onCredentialsUpdated?.call(
+        username: username,
+        password: password,
+        previousUsername: previousUsername,
+        previousPassword: previousPassword,
+      );
+      _logCampusWifi('Credential-triggered NTUT-802.1X refresh completed');
+    } catch (_) {
+      // Wi-Fi suggestion refresh is best-effort and must not block auth flows.
+      _logCampusWifi('Credential-triggered NTUT-802.1X refresh failed');
     }
   }
 }

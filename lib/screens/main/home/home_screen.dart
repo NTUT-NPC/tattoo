@@ -49,6 +49,13 @@ class MainHomeScreen extends StatelessWidget {
         title: t.scanner.loginIStudy,
         onTap: () => context.push(AppRoutes.scanner),
       ),
+      if (Theme.of(context).platform == .android)
+        OptionEntryTile.icon(
+          icon: Icons.wifi,
+          title: t.ntutWifi.title,
+          description: t.ntutWifi.entryDescription,
+          onTap: () => context.push(AppRoutes.ntutWifi),
+        ),
       OptionEntryTile.icon(
         icon: Icons.switch_access_shortcut_outlined,
         title: t.nav.portal,
