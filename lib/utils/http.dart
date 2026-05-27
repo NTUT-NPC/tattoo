@@ -43,7 +43,13 @@ class HttpsInterceptor extends Interceptor {
 /// [Interceptor] to filter out invalid Set-Cookie headers from responses.
 ///
 /// [ISchoolPlusService] sets cookies with invalid names, causing parsing errors.
+///
+/// [NativeAdapter] (Cronet/URLSession) comma-joins multiple Set-Cookie values
+/// into a single header entry. This interceptor splits them before validation
+/// so that one invalid cookie doesn't take down the entire Set-Cookie header.
 class InvalidCookieFilter extends Interceptor {
+  static final _setCookieReg = RegExp(r',(?=[^;,]+?=)');
+
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     final setCookieHeaders = response.headers[HttpHeaders.setCookieHeader];
@@ -53,13 +59,16 @@ class InvalidCookieFilter extends Interceptor {
     }
 
     final validCookies = <String>[];
-    for (final header in setCookieHeaders) {
+    for (final cookie in setCookieHeaders.expand(
+      (h) => h.split(_setCookieReg),
+    )) {
+      if (cookie.isEmpty) continue;
+      final trimmed = cookie.trimLeft();
       try {
-        Cookie.fromSetCookieValue(header);
-        validCookies.add(header);
+        Cookie.fromSetCookieValue(trimmed);
+        validCookies.add(trimmed);
       } on FormatException {
-        // Ignore invalid cookie
-        log('Filtered invalid Set-Cookie header: $header', name: 'HTTP');
+        log('Filtered invalid Set-Cookie header: $trimmed', name: 'HTTP');
       }
     }
     response.headers.set(HttpHeaders.setCookieHeader, validCookies);
