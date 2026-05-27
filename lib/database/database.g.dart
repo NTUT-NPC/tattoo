@@ -10518,6 +10518,13 @@ class CourseOfferingOverview extends DataClass {
   final String? remarks;
   final int? enrolled;
   final int? withdrawn;
+  final DateTime? fetchedAt;
+  final DateTime? syllabusUpdatedAt;
+  final String? objective;
+  final String? weeklyPlan;
+  final String? evaluation;
+  final String? textbooks;
+  final String? syllabusRemarks;
   const CourseOfferingOverview({
     required this.id,
     this.courseCode,
@@ -10534,6 +10541,13 @@ class CourseOfferingOverview extends DataClass {
     this.remarks,
     this.enrolled,
     this.withdrawn,
+    this.fetchedAt,
+    this.syllabusUpdatedAt,
+    this.objective,
+    this.weeklyPlan,
+    this.evaluation,
+    this.textbooks,
+    this.syllabusRemarks,
   });
   factory CourseOfferingOverview.fromJson(
     Map<String, dynamic> json, {
@@ -10558,6 +10572,15 @@ class CourseOfferingOverview extends DataClass {
       remarks: serializer.fromJson<String?>(json['remarks']),
       enrolled: serializer.fromJson<int?>(json['enrolled']),
       withdrawn: serializer.fromJson<int?>(json['withdrawn']),
+      fetchedAt: serializer.fromJson<DateTime?>(json['fetchedAt']),
+      syllabusUpdatedAt: serializer.fromJson<DateTime?>(
+        json['syllabusUpdatedAt'],
+      ),
+      objective: serializer.fromJson<String?>(json['objective']),
+      weeklyPlan: serializer.fromJson<String?>(json['weeklyPlan']),
+      evaluation: serializer.fromJson<String?>(json['evaluation']),
+      textbooks: serializer.fromJson<String?>(json['textbooks']),
+      syllabusRemarks: serializer.fromJson<String?>(json['syllabusRemarks']),
     );
   }
   @override
@@ -10581,6 +10604,13 @@ class CourseOfferingOverview extends DataClass {
       'remarks': serializer.toJson<String?>(remarks),
       'enrolled': serializer.toJson<int?>(enrolled),
       'withdrawn': serializer.toJson<int?>(withdrawn),
+      'fetchedAt': serializer.toJson<DateTime?>(fetchedAt),
+      'syllabusUpdatedAt': serializer.toJson<DateTime?>(syllabusUpdatedAt),
+      'objective': serializer.toJson<String?>(objective),
+      'weeklyPlan': serializer.toJson<String?>(weeklyPlan),
+      'evaluation': serializer.toJson<String?>(evaluation),
+      'textbooks': serializer.toJson<String?>(textbooks),
+      'syllabusRemarks': serializer.toJson<String?>(syllabusRemarks),
     };
   }
 
@@ -10600,6 +10630,13 @@ class CourseOfferingOverview extends DataClass {
     Value<String?> remarks = const Value.absent(),
     Value<int?> enrolled = const Value.absent(),
     Value<int?> withdrawn = const Value.absent(),
+    Value<DateTime?> fetchedAt = const Value.absent(),
+    Value<DateTime?> syllabusUpdatedAt = const Value.absent(),
+    Value<String?> objective = const Value.absent(),
+    Value<String?> weeklyPlan = const Value.absent(),
+    Value<String?> evaluation = const Value.absent(),
+    Value<String?> textbooks = const Value.absent(),
+    Value<String?> syllabusRemarks = const Value.absent(),
   }) => CourseOfferingOverview(
     id: id ?? this.id,
     courseCode: courseCode.present ? courseCode.value : this.courseCode,
@@ -10616,6 +10653,17 @@ class CourseOfferingOverview extends DataClass {
     remarks: remarks.present ? remarks.value : this.remarks,
     enrolled: enrolled.present ? enrolled.value : this.enrolled,
     withdrawn: withdrawn.present ? withdrawn.value : this.withdrawn,
+    fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
+    syllabusUpdatedAt: syllabusUpdatedAt.present
+        ? syllabusUpdatedAt.value
+        : this.syllabusUpdatedAt,
+    objective: objective.present ? objective.value : this.objective,
+    weeklyPlan: weeklyPlan.present ? weeklyPlan.value : this.weeklyPlan,
+    evaluation: evaluation.present ? evaluation.value : this.evaluation,
+    textbooks: textbooks.present ? textbooks.value : this.textbooks,
+    syllabusRemarks: syllabusRemarks.present
+        ? syllabusRemarks.value
+        : this.syllabusRemarks,
   );
   @override
   String toString() {
@@ -10634,13 +10682,20 @@ class CourseOfferingOverview extends DataClass {
           ..write('language: $language, ')
           ..write('remarks: $remarks, ')
           ..write('enrolled: $enrolled, ')
-          ..write('withdrawn: $withdrawn')
+          ..write('withdrawn: $withdrawn, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('syllabusUpdatedAt: $syllabusUpdatedAt, ')
+          ..write('objective: $objective, ')
+          ..write('weeklyPlan: $weeklyPlan, ')
+          ..write('evaluation: $evaluation, ')
+          ..write('textbooks: $textbooks, ')
+          ..write('syllabusRemarks: $syllabusRemarks')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     courseCode,
     semester,
@@ -10656,7 +10711,14 @@ class CourseOfferingOverview extends DataClass {
     remarks,
     enrolled,
     withdrawn,
-  );
+    fetchedAt,
+    syllabusUpdatedAt,
+    objective,
+    weeklyPlan,
+    evaluation,
+    textbooks,
+    syllabusRemarks,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -10675,7 +10737,14 @@ class CourseOfferingOverview extends DataClass {
           other.language == this.language &&
           other.remarks == this.remarks &&
           other.enrolled == this.enrolled &&
-          other.withdrawn == this.withdrawn);
+          other.withdrawn == this.withdrawn &&
+          other.fetchedAt == this.fetchedAt &&
+          other.syllabusUpdatedAt == this.syllabusUpdatedAt &&
+          other.objective == this.objective &&
+          other.weeklyPlan == this.weeklyPlan &&
+          other.evaluation == this.evaluation &&
+          other.textbooks == this.textbooks &&
+          other.syllabusRemarks == this.syllabusRemarks);
 }
 
 class $CourseOfferingOverviewsView
@@ -10705,6 +10774,13 @@ class $CourseOfferingOverviewsView
     remarks,
     enrolled,
     withdrawn,
+    fetchedAt,
+    syllabusUpdatedAt,
+    objective,
+    weeklyPlan,
+    evaluation,
+    textbooks,
+    syllabusRemarks,
   ];
   @override
   String get aliasedName => _alias ?? entityName;
@@ -10779,6 +10855,34 @@ class $CourseOfferingOverviewsView
       withdrawn: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}withdrawn'],
+      ),
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      ),
+      syllabusUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}syllabus_updated_at'],
+      ),
+      objective: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}objective'],
+      ),
+      weeklyPlan: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}weekly_plan'],
+      ),
+      evaluation: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}evaluation'],
+      ),
+      textbooks: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}textbooks'],
+      ),
+      syllabusRemarks: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}syllabus_remarks'],
       ),
     );
   }
@@ -10900,6 +11004,56 @@ class $CourseOfferingOverviewsView
     true,
     generatedAs: GeneratedAs(courseOfferings.withdrawn, false),
     type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.fetchedAt, false),
+    type: DriftSqlType.dateTime,
+  );
+  late final GeneratedColumn<DateTime> syllabusUpdatedAt =
+      GeneratedColumn<DateTime>(
+        'syllabus_updated_at',
+        aliasedName,
+        true,
+        generatedAs: GeneratedAs(courseOfferings.syllabusUpdatedAt, false),
+        type: DriftSqlType.dateTime,
+      );
+  late final GeneratedColumn<String> objective = GeneratedColumn<String>(
+    'objective',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.objective, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> weeklyPlan = GeneratedColumn<String>(
+    'weekly_plan',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.weeklyPlan, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> evaluation = GeneratedColumn<String>(
+    'evaluation',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.evaluation, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> textbooks = GeneratedColumn<String>(
+    'textbooks',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.textbooks, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> syllabusRemarks = GeneratedColumn<String>(
+    'syllabus_remarks',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.syllabusRemarks, false),
+    type: DriftSqlType.string,
   );
   @override
   $CourseOfferingOverviewsView createAlias(String alias) {
