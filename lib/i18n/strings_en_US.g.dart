@@ -291,6 +291,8 @@ class _TranslationsAboutEnUs extends TranslationsAboutZhTw {
 	@override String get privacyPolicy => 'Privacy Policy';
 	@override String get privacyPolicyUrl => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md';
 	@override String get viewPrivacyPolicy => 'View our privacy policy';
+	@override String get openSourceLicenses => 'Open Source Licenses';
+	@override String get viewOpenSourceLicenses => 'TAT\'s implementation is made possible by the open source community';
 	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
 }
 
@@ -759,6 +761,8 @@ extension on TranslationsEnUs {
 			'about.privacyPolicy' => 'Privacy Policy',
 			'about.privacyPolicyUrl' => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md',
 			'about.viewPrivacyPolicy' => 'View our privacy policy',
+			'about.openSourceLicenses' => 'Open Source Licenses',
+			'about.viewOpenSourceLicenses' => 'TAT\'s implementation is made possible by the open source community',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
 			_ => null,
 		};

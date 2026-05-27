@@ -214,4 +214,6 @@ about:
   privacyPolicy: 隱私權政策
   privacyPolicyUrl: https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md
   viewPrivacyPolicy: 查看隱私權政策
+  openSourceLicenses: 開放原始碼授權
+  viewOpenSourceLicenses: TAT的實作歸功於開放原始碼社群
   copyright: © 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出

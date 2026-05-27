@@ -214,4 +214,6 @@ about:
   privacyPolicy: Privacy Policy
   privacyPolicyUrl: https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md
   viewPrivacyPolicy: View our privacy policy
+  openSourceLicenses: Open Source Licenses
+  viewOpenSourceLicenses: TAT's implementation is made possible by the open source community
   copyright: "© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0"

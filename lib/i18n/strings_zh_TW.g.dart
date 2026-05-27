@@ -438,6 +438,12 @@ class TranslationsAboutZhTw {
 	/// zh-TW: '查看隱私權政策'
 	String get viewPrivacyPolicy => '查看隱私權政策';
 
+	/// zh-TW: '開放原始碼授權'
+	String get openSourceLicenses => '開放原始碼授權';
+
+	/// zh-TW: 'TAT的實作歸功於開放原始碼社群'
+	String get viewOpenSourceLicenses => 'TAT的實作歸功於開放原始碼社群';
+
 	/// zh-TW: '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出'
 	String get copyright => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
 }
@@ -1073,6 +1079,8 @@ extension on Translations {
 			'about.privacyPolicy' => '隱私權政策',
 			'about.privacyPolicyUrl' => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md',
 			'about.viewPrivacyPolicy' => '查看隱私權政策',
+			'about.openSourceLicenses' => '開放原始碼授權',
+			'about.viewOpenSourceLicenses' => 'TAT的實作歸功於開放原始碼社群',
 			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
 			_ => null,
 		};
