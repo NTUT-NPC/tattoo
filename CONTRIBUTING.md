@@ -18,7 +18,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 - `test` — adding or updating tests
 - `docs` — documentation only, including dart doc comments (`///`)
 
-**Scopes (optional):** use `android` or `ios` when the change is platform-specific.
+**Scopes (optional):** only `android` or `ios`, for platform-specific changes. Omit the scope otherwise.
 
 **Examples:**
 
@@ -32,18 +32,16 @@ Use kebab-case: `add-student-query-service`, `fix-login-crash`
 
 ## Code Style
 
-Dart 3 idioms — prefer these over traditional alternatives:
+Dart 3 idioms not yet covered by linter rules (see [#288](https://github.com/NTUT-NPC/tattoo/issues/288)):
 
 - **Switch expressions** over `if`/`else` chains for producing values: `final x = switch (y) { ... };`
-- **Dot shorthands** where type is inferred: `.externalApplication` not `LaunchMode.externalApplication`
-- **Null-aware elements** in collection literals: `[?x]` not `[if (x case final x?) x]`
 - **If-case null checks** outside collections: `if (x case final x?)` not `if (x != null)`
 - **`.nonNulls` over `.whereType<T>()`** when filtering nulls from a known type: `.map(...).nonNulls` not `.map(...).whereType<String>()`
 - **Formatter workaround:** Wrap enhanced enums (with fields/methods) in `// dart format off` / `// dart format on` — the formatter splits the last value's trailing `;` onto its own line
 
 ## Typography & i18n
 
-- **No CJK–Latin spaces:** Do not insert literal spaces between CJK and alphanumeric characters. Spacing is a rendering concern.
+- **No CJK–Latin spaces (in-app only):** Do not insert literal spaces between CJK and alphanumeric characters in i18n strings or UI text. Spacing is a rendering concern. GitHub discussions should still use spaces for readability.
 
 ## Git and GitHub Workflows
 
