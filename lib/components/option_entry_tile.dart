@@ -149,7 +149,7 @@ class OptionEntryTile extends StatelessWidget {
             ),
           ),
           child: Padding(
-            padding: const .symmetric(horizontal: 12, vertical: 12),
+            padding: const .symmetric(horizontal: 12, vertical: 4),
             child: Row(
               spacing: 12,
               children: [
@@ -158,24 +158,22 @@ class OptionEntryTile extends StatelessWidget {
                 ),
 
                 Expanded(
-                  child: Column(
-                    mainAxisAlignment: .center,
-                    crossAxisAlignment: .start,
-                    spacing: 4,
-                    children: [
-                      Text(
-                        title,
-                        style: theme.textTheme.titleMedium,
-                      ),
-                      if (description case final description?) ...[
-                        Text(
-                          description,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
+                  child: ListTile(
+                    visualDensity: .compact,
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      title,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    subtitle: description == null
+                        ? null
+                        : Text(
+                            description!,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                           ),
-                        ),
-                      ],
-                    ],
                   ),
                 ),
 
