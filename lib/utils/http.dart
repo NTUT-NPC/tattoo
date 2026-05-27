@@ -183,6 +183,19 @@ CookieJar? _cookieJar;
 /// Shared CookieJar instance for maintaining session across clients.
 CookieJar get cookieJar => _cookieJar ??= CookieJar();
 
+/// Adds an `X-Client` header identifying this app on campus Wi-Fi.
+///
+/// NTUT campus network (SSID: NTUT, NTUT-802.1X) requires client identification
+/// like the official app does in requests.
+class ClientIdentifierInterceptor extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    options.headers['X-Client'] =
+        'f39e5855ffb05dd0030e6cdd6b7b27f45303aa96dd5439f5021171b714afd755';
+    handler.next(options);
+  }
+}
+
 /// Strips null-valued headers that [CookieManager] injects.
 ///
 /// `dio_cookie_manager` explicitly sets `Cookie: null` when no cookies exist
@@ -224,6 +237,7 @@ Dio createDio() {
   dio.interceptors.addAll([
     CookieManager(cookieJar), // Store cookies
     NullHeaderInterceptor(), // Strip Cookie: null from dio_cookie_manager
+    ClientIdentifierInterceptor(), // Identify app on campus Wi-Fi
     HttpsInterceptor(), // Enforce HTTPS
     RedirectInterceptor(() => dio), // Handle redirects within this Dio instance
     LogInterceptor(), // Log requests and responses
