@@ -1455,13 +1455,15 @@ class Semester extends DataClass implements Insertable<Semester> {
   /// Term number within the year (0=Pre-study, 1=Fall, 2=Spring, 3=Summer).
   final int term;
 
-  /// Whether this semester appeared in the course semester list API response.
+  /// Whether this semester is currently in the course semester list API
+  /// response.
   ///
-  /// Distinguishes semesters fetched by [CourseRepository.getSemesters] from
-  /// those created as side effects by other flows (e.g., auth, scores).
+  /// Distinguishes semesters fetched by [CourseRepository.refreshSemesters]
+  /// from those created as side effects by other flows (e.g., auth, scores).
   final bool inCourseSemesterList;
 
-  /// Whether this semester appeared in the score semester list API response.
+  /// Whether this semester is currently in the score semester list API
+  /// response.
   ///
   /// Distinguishes semesters fetched by [StudentRepository.refreshSemesterRecords]
   /// from those created as side effects by other flows (e.g., auth, courses).
