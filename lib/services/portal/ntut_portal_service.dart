@@ -28,7 +28,11 @@ class NtutPortalService implements PortalService {
   Future<UserDto> login(String username, String password) async {
     final response = await _portalDio.post(
       'login.do',
-      queryParameters: {'muid': username, 'mpassword': password},
+      queryParameters: {
+        'muid': username,
+        'mpassword': password,
+        'thetime': DateTime.now().millisecondsSinceEpoch.toString(),
+      },
     );
 
     final body = jsonDecode(response.data);
