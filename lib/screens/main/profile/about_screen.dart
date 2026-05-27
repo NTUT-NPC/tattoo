@@ -128,6 +128,17 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                           ),
                         ),
                         OptionEntryTile.icon(
+                          icon: Icons.article_outlined,
+                          title: t.about.openSourceLicenses,
+                          description: t.about.viewOpenSourceLicenses,
+                          onTap: () => showLicensePage(
+                            context: context,
+                            applicationLegalese: t.about.copyright,
+                            applicationName: t.general.appTitle,
+                            applicationVersion: packageInfoAsync.value ?? '...',
+                          ),
+                        ),
+                        OptionEntryTile.icon(
                           icon: Icons.translate,
                           title: 'Crowdin',
                           description: t.about.helpTranslate,
