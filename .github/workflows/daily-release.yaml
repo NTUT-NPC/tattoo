@@ -124,7 +124,7 @@ jobs:
           ---
           > [!WARNING]
           > Installing via the provided APK or IPA below is **discouraged**.
-          > Please use **Firebase App Distribution** (Android) or **TestFlight** (iOS) for the best experience and automatic updates.
+          > Please use **Google Play** (Android) or **TestFlight** (iOS) for the best experience and automatic updates.
           BODY_EOF
           )
 
@@ -195,16 +195,15 @@ jobs:
             ### Android
             You can join the testing program here:
 
-            - **Google Play (Recommended):** [Join the testing program](https://play.google.com/apps/testing/club.ntut.tattoo)
-            - **Firebase App Distribution (For Internal Testers):** [Join the program](${{ vars.FIREBASE_PUBLIC_LINK }})
-
-            [Install build ${{ needs.prepare.outputs.build_number }} in Firebase](${{ steps.build.outputs.testing_uri }})
+            - **Google Play (Recommended):** [Join the testing program](${{ vars.GOOGLEPLAY_PUBLIC_LINK }})
+            - **Firebase App Distribution (For Internal Testers): ** [Install build ${{ needs.prepare.outputs.build_number }} in Firebase](${{ steps.build.outputs.testing_uri }})
 
             > [!NOTE]
             > We are migrating our daily build distribution to Google Play.
             > The build will be available on Google Play within 30 minutes after the Google Play review process.
             > Please use Google Play for the best experience and automatic updates.
             > Firebase remains available for internal testers.
+            > Public testers on Firebase will not receive new builds, please switch to Google Play.
 
   ios:
     runs-on: macos-26
