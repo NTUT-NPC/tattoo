@@ -47,6 +47,15 @@ Dart 3 idioms not yet covered by linter rules (see [#288](https://github.com/NTU
 
 - **No CJK–Latin spaces (in-app only):** Do not insert literal spaces between CJK and alphanumeric characters in i18n strings or UI text. Spacing is a rendering concern. GitHub discussions should still use spaces for readability.
 
+## HTML Snapshot Capture
+
+- Use `dart run tool/html_snapshot.dart list` to inspect supported raw HTML/XML capture presets.
+- Use `dart run tool/html_snapshot.dart capture <preset> [<preset>...]` to capture one or more known pages.
+- Use `dart run tool/html_snapshot.dart capture -a` to capture every preset that can be resolved without explicit IDs.
+- Captures are written to `tmp/html_snapshot/` and are local-only. Never commit raw captures because they may contain personal data.
+- Before promoting a captured page into tests, documentation, or fixtures, de-identify it and review the result manually.
+- When adding or changing a Service-layer HTML/XML parser request, check whether `tool/html_snapshot_presets.dart` should gain or update a preset for that request.
+
 ## Git and GitHub Workflows
 
 - Updating a branch with the base branch: prefer rebase, but use merge if the branch contains commits by other contributors (rebase rewrites authorship) or if there are conflicts.
