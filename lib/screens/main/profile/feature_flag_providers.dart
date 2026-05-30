@@ -49,18 +49,3 @@ class FeatureFlagsNotifier extends AsyncNotifier<List<FeatureFlag>> {
     ref.invalidateSelf();
   }
 }
-
-/// A convenience provider to retrieve the value of a specific feature flag by its [key].
-///
-/// Throws an [ArgumentError] if the key is not found in the loaded flags.
-final featureFlagValueProvider = FutureProvider.family<dynamic, String>((
-  ref,
-  key,
-) async {
-  final flags = await ref.watch(featureFlagsProvider.future);
-  final flag = flags.firstWhere(
-    (f) => f.key == key,
-    orElse: () => throw ArgumentError('Flag $key not found'),
-  );
-  return flag.value;
-});

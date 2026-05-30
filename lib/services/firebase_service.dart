@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer' as dev;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -180,5 +181,83 @@ class FirebaseService {
       value: val.asString(),
       isRemote: val.source == .valueRemote,
     );
+  }
+
+  /// Retrieves a Remote Config value with type-aware casting based on [defaultValue].
+  ({dynamic value, bool isRemote}) getRemoteConfigValue(
+    String key,
+    dynamic defaultValue,
+  ) {
+    final rc = remoteConfig;
+    if (rc == null) {
+      return (value: defaultValue, isRemote: false);
+    }
+
+    final val = rc.getValue(key);
+    final isRemote = val.source == .valueRemote;
+
+    dev.log(
+      'Resolving Remote Config key: $key (source: ${val.source}, isRemote: $isRemote)',
+      name: 'FirebaseService',
+    );
+
+    if (!isRemote) {
+      return (value: defaultValue, isRemote: false);
+    }
+
+    dynamic value;
+    if (defaultValue is bool) {
+      value = val.asBool();
+    } else if (defaultValue is int) {
+      value = val.asInt();
+    } else if (defaultValue is double) {
+      value = val.asDouble();
+    } else if (defaultValue is String) {
+      value = val.asString();
+    } else if (defaultValue is Map || defaultValue is List) {
+      try {
+        value = jsonDecode(val.asString());
+      } catch (_) {
+        // If it's not valid JSON, but the Remote Config source is remote,
+        // it might be a plain string (e.g. comma-separated list).
+        value = isRemote ? val.asString() : defaultValue;
+      }
+    } else {
+      value = val.asString();
+    }
+
+    return (value: value, isRemote: isRemote);
+  }
+
+  /// Returns all Remote Config values as a map.
+  Map<String, ({dynamic value, bool isRemote})> getAllRemoteConfigValues() {
+    final rc = remoteConfig;
+    if (rc == null) return {};
+
+    return rc.getAll().map((key, val) {
+      final isRemote = val.source == .valueRemote;
+      dynamic value = val.asString();
+
+      // Try to parse as JSON if it looks like a Map or List
+      if (value.startsWith('{') || value.startsWith('[')) {
+        try {
+          value = jsonDecode(value);
+        } catch (_) {
+          // Keep as string if not valid JSON
+        }
+      } else if (value == 'true') {
+        value = true;
+      } else if (value == 'false') {
+        value = false;
+      } else {
+        // Try parsing as number
+        final numValue = num.tryParse(value);
+        if (numValue != null) {
+          value = numValue;
+        }
+      }
+
+      return MapEntry(key, (value: value, isRemote: isRemote));
+    });
   }
 }

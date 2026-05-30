@@ -476,6 +476,9 @@ class TranslationsFeatureFlagsZhTw {
 	String get reset => '重設為預設值';
 
 	late final TranslationsFeatureFlagsStatusZhTw status = TranslationsFeatureFlagsStatusZhTw.internal(_root);
+
+	/// zh-TW: '輸入格式錯誤'
+	String get invalidInput => '輸入格式錯誤';
 }
 
 // Path: intro.features
@@ -876,8 +879,8 @@ class TranslationsFeatureFlagsStatusZhTw {
 	/// zh-TW: '使用者覆寫'
 	String get localOverride => '使用者覆寫';
 
-	/// zh-TW: '強制覆寫 (遠端)'
-	String get remoteOverride => '強制覆寫 (遠端)';
+	/// zh-TW: '強制覆寫（遠端）'
+	String get remoteOverride => '強制覆寫（遠端）';
 }
 
 // Path: intro.features.courseTable
@@ -1142,7 +1145,8 @@ extension on Translations {
 			'featureFlags.status.local' => '預設值',
 			'featureFlags.status.remote' => '雲端設定',
 			'featureFlags.status.localOverride' => '使用者覆寫',
-			'featureFlags.status.remoteOverride' => '強制覆寫 (遠端)',
+			'featureFlags.status.remoteOverride' => '強制覆寫（遠端）',
+			'featureFlags.invalidInput' => '輸入格式錯誤',
 			_ => null,
 		};
 	}

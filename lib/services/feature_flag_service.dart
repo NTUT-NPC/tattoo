@@ -29,38 +29,29 @@ class FeatureFlagService {
     final jsonString = await loadLocalJson();
     final localDefaults = jsonDecode(jsonString) as Map<String, dynamic>;
 
-    final result = firebaseService.getRemoteConfigString('feature_flags');
-    final remoteString = result.value;
-    final isRemote = result.isRemote;
-
     final finalFlags = <String, FeatureFlagData>{};
-
-    Map<String, dynamic> remoteJson = {};
-    if (remoteString.isNotEmpty) {
-      try {
-        remoteJson = jsonDecode(remoteString) as Map<String, dynamic>;
-      } catch (e) {
-        firebaseService.log('Failed to decode feature_flags remote config: $e');
-      }
-    }
 
     for (final entry in localDefaults.entries) {
       final key = entry.key;
       final localValue = entry.value;
 
-      if (isRemote && remoteJson.containsKey(key)) {
-        finalFlags[key] = (value: remoteJson[key], isRemote: true);
-      } else {
-        finalFlags[key] = (value: localValue, isRemote: false);
+      dynamic defaultValueToMatch = localValue;
+      if (localValue is Map && localValue['_type'] == 'option') {
+        defaultValueToMatch = localValue['value'];
       }
+
+      final result = firebaseService.getRemoteConfigValue(
+        key,
+        defaultValueToMatch,
+      );
+      finalFlags[key] = (value: result.value, isRemote: result.isRemote);
     }
 
     // Add any keys that are ONLY in remote
-    if (isRemote) {
-      for (final entry in remoteJson.entries) {
-        if (!finalFlags.containsKey(entry.key)) {
-          finalFlags[entry.key] = (value: entry.value, isRemote: true);
-        }
+    final allRemote = firebaseService.getAllRemoteConfigValues();
+    for (final entry in allRemote.entries) {
+      if (!finalFlags.containsKey(entry.key) && entry.value.isRemote) {
+        finalFlags[entry.key] = entry.value;
       }
     }
 

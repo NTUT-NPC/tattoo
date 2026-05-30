@@ -193,7 +193,7 @@ class _FlagTile extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.errors.occurred),
-        content: const Text('Invalid input'), // TODO: localized
+        content: Text(t.featureFlags.invalidInput),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -286,6 +286,7 @@ class _FlagTrailingAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isOverridden = flag.source == .override;
+    final isForced = flag.source == .forced;
 
     return Row(
       mainAxisSize: .min,
@@ -300,11 +301,15 @@ class _FlagTrailingAction extends ConsumerWidget {
         if (flag.type == bool)
           Switch(
             value: flag.value as bool,
-            onChanged: (val) {
-              ref.read(featureFlagsProvider.notifier).setFlag(flag.key, val);
-            },
+            onChanged: isForced
+                ? null
+                : (val) {
+                    ref
+                        .read(featureFlagsProvider.notifier)
+                        .setFlag(flag.key, val);
+                  },
           )
-        else
+        else if (!isForced)
           const Icon(Icons.edit),
       ],
     );

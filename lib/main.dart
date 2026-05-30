@@ -46,11 +46,6 @@ Future<void> main() async {
     }
   }
 
-  final container = ProviderContainer();
-
-  // Initialize feature flags early
-  await container.read(featureFlagRepositoryProvider).init();
-
   void showErrorDialog(
     Object error, {
     ErrorType type = .unknown,
@@ -121,6 +116,11 @@ Future<void> main() async {
   firebaseService.analytics?.logAppOpen();
 
   await LocaleSettings.useDeviceLocale();
+
+  final container = ProviderContainer();
+
+  // Initialize feature flags
+  await container.read(featureFlagRepositoryProvider).init();
 
   final database = container.read(databaseProvider);
   final user = await database.select(database.users).getSingleOrNull();

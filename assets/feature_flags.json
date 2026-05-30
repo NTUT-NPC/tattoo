@@ -1,16 +1,20 @@
 {
-  "enable_dummy_feature": false,
-  "dummy_string_value": "Hello World",
-  "dummy_num_lock": 42,
-  "dummy_num_unlock": 3.14159,
-  "dummy_theme": {
-    "value": "system",
+  "enable_dummy_feature": true,
+  "show_crowdin_button": false,
+  "dummy_string": "Config from local",
+  "dummy_num_lock": 1919810,
+  "dummy_num_app_default": 666666,
+  "dummy_num": 3.14159,
+  "dummy_option": {
+    "_type": "option",
+    "value": "light",
     "options": [
       "light",
       "dark",
       "system"
     ]
   },
-  "dummy_not_in_remote": "Local Default",
-  "_force_override_flags": ""
+  "_force_override_flags": [
+    "dummy_num_lock"
+  ]
 }

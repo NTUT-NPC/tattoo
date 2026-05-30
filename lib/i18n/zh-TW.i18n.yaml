@@ -228,4 +228,5 @@ featureFlags:
     local: 預設值
     remote: 雲端設定
     localOverride: 使用者覆寫
-    remoteOverride: 強制覆寫 (遠端)
+    remoteOverride: 強制覆寫（遠端）
+  invalidInput: 輸入格式錯誤

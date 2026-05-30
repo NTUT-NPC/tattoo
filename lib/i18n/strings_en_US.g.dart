@@ -311,6 +311,7 @@ class _TranslationsFeatureFlagsEnUs extends TranslationsFeatureFlagsZhTw {
 	@override String get refreshed => 'Feature flags refreshed';
 	@override String get reset => 'Reset to default';
 	@override late final _TranslationsFeatureFlagsStatusEnUs status = _TranslationsFeatureFlagsStatusEnUs._(_root);
+	@override String get invalidInput => 'Invalid input';
 }
 
 // Path: intro.features
@@ -804,6 +805,7 @@ extension on TranslationsEnUs {
 			'featureFlags.status.remote' => 'Remote Config',
 			'featureFlags.status.localOverride' => 'User Override',
 			'featureFlags.status.remoteOverride' => 'Forced (Remote)',
+			'featureFlags.invalidInput' => 'Invalid input',
 			_ => null,
 		};
 	}

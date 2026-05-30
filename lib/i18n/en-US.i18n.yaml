@@ -229,3 +229,4 @@ featureFlags:
     remote: Remote Config
     localOverride: User Override
     remoteOverride: Forced (Remote)
+  invalidInput: Invalid input
