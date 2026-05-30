@@ -54,6 +54,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsKioskLoginZhTw kioskLogin = TranslationsKioskLoginZhTw.internal(_root);
 	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
 	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
+	late final TranslationsFeatureFlagsZhTw featureFlags = TranslationsFeatureFlagsZhTw.internal(_root);
 }
 
 // Path: general
@@ -93,6 +94,9 @@ class TranslationsGeneralZhTw {
 
 	/// zh-TW: '確定'
 	String get ok => '確定';
+
+	/// zh-TW: '取消'
+	String get cancel => '取消';
 }
 
 // Path: errors
@@ -446,6 +450,35 @@ class TranslationsAboutZhTw {
 
 	/// zh-TW: '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出'
 	String get copyright => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
+}
+
+// Path: featureFlags
+class TranslationsFeatureFlagsZhTw {
+	TranslationsFeatureFlagsZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '功能開關'
+	String get title => '功能開關';
+
+	/// zh-TW: '從遠端獲取'
+	String get fetchFlags => '從遠端獲取';
+
+	/// zh-TW: '沒有功能開關'
+	String get noFlag => '沒有功能開關';
+
+	/// zh-TW: '功能開關已更新'
+	String get refreshed => '功能開關已更新';
+
+	/// zh-TW: '重設為預設值'
+	String get reset => '重設為預設值';
+
+	late final TranslationsFeatureFlagsStatusZhTw status = TranslationsFeatureFlagsStatusZhTw.internal(_root);
+
+	/// zh-TW: '輸入格式錯誤'
+	String get invalidInput => '輸入格式錯誤';
 }
 
 // Path: intro.features
@@ -829,6 +862,27 @@ class TranslationsScannerGuideZhTw {
 	String get button => '我知道了';
 }
 
+// Path: featureFlags.status
+class TranslationsFeatureFlagsStatusZhTw {
+	TranslationsFeatureFlagsStatusZhTw.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '預設值'
+	String get local => '預設值';
+
+	/// zh-TW: '雲端設定'
+	String get remote => '雲端設定';
+
+	/// zh-TW: '使用者覆寫'
+	String get localOverride => '使用者覆寫';
+
+	/// zh-TW: '強制覆寫（遠端）'
+	String get remoteOverride => '強制覆寫（遠端）';
+}
+
 // Path: intro.features.courseTable
 class TranslationsIntroFeaturesCourseTableZhTw {
 	TranslationsIntroFeaturesCourseTableZhTw.internal(this._root);
@@ -916,6 +970,7 @@ extension on Translations {
 			'general.copied' => '已複製',
 			'general.back' => '返回',
 			'general.ok' => '確定',
+			'general.cancel' => '取消',
 			'errors.occurred' => '發生錯誤',
 			'errors.flutterError' => '發生Flutter錯誤',
 			'errors.asyncError' => '發生非同步錯誤',
@@ -1082,6 +1137,16 @@ extension on Translations {
 			'about.openSourceLicenses' => '開放原始碼授權',
 			'about.viewOpenSourceLicenses' => 'TAT的實作歸功於開放原始碼社群',
 			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
+			'featureFlags.title' => '功能開關',
+			'featureFlags.fetchFlags' => '從遠端獲取',
+			'featureFlags.noFlag' => '沒有功能開關',
+			'featureFlags.refreshed' => '功能開關已更新',
+			'featureFlags.reset' => '重設為預設值',
+			'featureFlags.status.local' => '預設值',
+			'featureFlags.status.remote' => '雲端設定',
+			'featureFlags.status.localOverride' => '使用者覆寫',
+			'featureFlags.status.remoteOverride' => '強制覆寫（遠端）',
+			'featureFlags.invalidInput' => '輸入格式錯誤',
 			_ => null,
 		};
 	}

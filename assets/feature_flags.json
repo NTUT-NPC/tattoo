@@ -1,0 +1,20 @@
+{
+  "enable_dummy_feature": true,
+  "show_crowdin_button": false,
+  "dummy_string": "Config from local",
+  "dummy_num_lock": 1919810,
+  "dummy_num_app_default": 666666,
+  "dummy_num": 3.14159,
+  "dummy_option": {
+    "_type": "option",
+    "value": "light",
+    "options": [
+      "light",
+      "dark",
+      "system"
+    ]
+  },
+  "_force_override_flags": [
+    "dummy_num_lock"
+  ]
+}

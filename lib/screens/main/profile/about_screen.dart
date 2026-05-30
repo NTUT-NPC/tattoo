@@ -6,7 +6,9 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/feature_flag_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/screens/main/profile/feature_flag_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/services/github_service.dart';
 import 'package:tattoo/utils/launch_url.dart';
@@ -61,6 +63,18 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
   Widget build(BuildContext context) {
     final contributorsAsync = ref.watch(contributorsProvider);
     final packageInfoAsync = ref.watch(packageInfoProvider);
+    final showCrowdinButton = ref.watch(
+      featureFlagsProvider.select(
+        (asyncFlags) => asyncFlags.maybeWhen(
+          data: (flags) => flags.any(
+            (f) =>
+                f.key == FeatureFlagKey.showCrowdinButton.name &&
+                f.value == true,
+          ),
+          orElse: () => false,
+        ),
+      ),
+    );
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -138,14 +152,15 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                             applicationVersion: packageInfoAsync.value ?? '...',
                           ),
                         ),
-                        OptionEntryTile.icon(
-                          icon: Icons.translate,
-                          title: 'Crowdin',
-                          description: t.about.helpTranslate,
-                          onTap: () => launchUrl(
-                            .parse('https://translate.ntut.club'),
+                        if (showCrowdinButton)
+                          OptionEntryTile.icon(
+                            icon: Icons.translate,
+                            title: 'Crowdin',
+                            description: t.about.helpTranslate,
+                            onTap: () => launchUrl(
+                              .parse('https://translate.ntut.club'),
+                            ),
                           ),
-                        ),
                         OptionEntryTile.icon(
                           icon: Icons.privacy_tip,
                           title: t.about.privacyPolicy,
