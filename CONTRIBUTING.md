@@ -39,6 +39,10 @@ Dart 3 idioms not yet covered by linter rules (see [#288](https://github.com/NTU
 - **`.nonNulls` over `.whereType<T>()`** when filtering nulls from a known type: `.map(...).nonNulls` not `.map(...).whereType<String>()`
 - **Formatter workaround:** Wrap enhanced enums (with fields/methods) in `// dart format off` / `// dart format on` — the formatter splits the last value's trailing `;` onto its own line
 
+## Doc Comments
+
+- **Reference typedef record fields with backticks, not brackets:** `` `UserDto.avatarFilename` `` not `[UserDto.avatarFilename]`. `dart doc` can't resolve `.field` on records (only on classes/enums) and will warn with "unresolved doc reference". The typedef itself (`[UserDto]`) still works in brackets.
+
 ## Typography & i18n
 
 - **No CJK–Latin spaces (in-app only):** Do not insert literal spaces between CJK and alphanumeric characters in i18n strings or UI text. Spacing is a rendering concern. GitHub discussions should still use spaces for readability.

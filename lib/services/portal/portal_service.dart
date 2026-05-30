@@ -28,7 +28,7 @@ typedef UserDto = ({
 ///
 /// Weekend markers (`isHoliday == '1'`) are filtered out by
 /// [PortalService.getCalendar] before mapping to this type.
-/// Some non-holiday events may still have a null [id].
+/// Some non-holiday events may still have a null `id`.
 typedef CalendarEventDto = ({
   /// Event ID from the portal.
   ///
@@ -132,7 +132,7 @@ abstract interface class PortalService {
   /// Uploads a new profile photo to NTUT Portal, replacing the current one.
   ///
   /// [oldFilename] should be the current avatar filename
-  /// (from [UserDto.avatarFilename], or empty string if none).
+  /// (from `UserDto.avatarFilename`, or empty string if none).
   ///
   /// Returns the new avatar filename assigned by the server.
   Future<String> uploadAvatar(Uint8List imageBytes, String? oldFilename);

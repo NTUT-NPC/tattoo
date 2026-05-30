@@ -83,6 +83,8 @@ class InvalidCookieFilter extends Interceptor {
 /// like "text/html;;charset=UTF-8" which cause MediaType.parse() to fail.
 /// This transformer bypasses all JSON/MIME type handling and returns raw strings.
 class PlainTextTransformer extends BackgroundTransformer {
+  /// Skips MIME validation and returns the response body as a raw string
+  /// (or stream/bytes when those response types are requested).
   @override
   Future transformResponse(
     RequestOptions options,
