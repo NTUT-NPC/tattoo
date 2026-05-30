@@ -12,40 +12,17 @@ final featureFlagsProvider =
 
 /// Notifier that manages the state of all feature flags.
 ///
-/// It listens for updates from the [FeatureFlagRepository] and provides
-/// methods to refresh, set, and reset flag values.
+/// It listens for updates from the [FeatureFlagRepository].
 class FeatureFlagsNotifier extends AsyncNotifier<List<FeatureFlag>> {
   @override
   Future<List<FeatureFlag>> build() async {
     final repo = ref.watch(featureFlagRepositoryProvider);
 
     // Automatically invalidate the provider when the repository reports an update
-    // (e.g., from a Remote Config sync).
+    // (e.g., from a Remote Config sync or local override change).
     final subscription = repo.onUpdated.listen((_) => ref.invalidateSelf());
     ref.onDispose(subscription.cancel);
 
     return repo.getAllFlags();
-  }
-
-  /// Forces a fresh fetch of feature flags from the remote source.
-  Future<void> refreshFlags() async {
-    state = const .loading();
-    state = await .guard(() {
-      return ref
-          .read(featureFlagRepositoryProvider)
-          .getAllFlags(forceRefresh: true);
-    });
-  }
-
-  /// Updates the value of a specific feature flag.
-  Future<void> setFlag(String key, dynamic value) async {
-    await ref.read(featureFlagRepositoryProvider).setFlag(key, value);
-    ref.invalidateSelf();
-  }
-
-  /// Resets a specific feature flag to its default or remote value.
-  Future<void> resetFlag(String key) async {
-    await ref.read(featureFlagRepositoryProvider).resetFlag(key);
-    ref.invalidateSelf();
   }
 }

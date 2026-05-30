@@ -20,11 +20,13 @@ class FeatureFlagScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.cloud_download),
             tooltip: t.featureFlags.fetchFlags,
-            onPressed: () {
-              ref.read(featureFlagsProvider.notifier).refreshFlags();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(t.featureFlags.refreshed)),
-              );
+            onPressed: () async {
+              await ref.read(featureFlagRepositoryProvider).refreshFlags();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(t.featureFlags.refreshed)),
+                );
+              }
             },
           ),
         ],
@@ -79,7 +81,7 @@ class _FlagTile extends ConsumerWidget {
   void _onTap(BuildContext context, WidgetRef ref) {
     if (flag.type == bool) {
       ref
-          .read(featureFlagsProvider.notifier)
+          .read(featureFlagRepositoryProvider)
           .setFlag(flag.key, !(flag.value as bool));
     } else {
       _editValue(context, ref, flag);
@@ -126,7 +128,7 @@ class _FlagTile extends ConsumerWidget {
 
               if (newValue != null) {
                 ref
-                    .read(featureFlagsProvider.notifier)
+                    .read(featureFlagRepositoryProvider)
                     .setFlag(flag.key, newValue);
                 Navigator.of(context).pop();
               } else {
@@ -160,7 +162,7 @@ class _FlagTile extends ConsumerWidget {
               onChanged: (newValue) {
                 if (newValue != null) {
                   ref
-                      .read(featureFlagsProvider.notifier)
+                      .read(featureFlagRepositoryProvider)
                       .setFlag(flag.key, newValue);
                 }
                 Navigator.of(context).pop();
@@ -296,7 +298,7 @@ class _FlagTrailingAction extends ConsumerWidget {
             icon: const Icon(Icons.refresh),
             tooltip: t.featureFlags.reset,
             onPressed: () =>
-                ref.read(featureFlagsProvider.notifier).resetFlag(flag.key),
+                ref.read(featureFlagRepositoryProvider).resetFlag(flag.key),
           ),
         if (flag.type == bool)
           Switch(
@@ -305,7 +307,7 @@ class _FlagTrailingAction extends ConsumerWidget {
                 ? null
                 : (val) {
                     ref
-                        .read(featureFlagsProvider.notifier)
+                        .read(featureFlagRepositoryProvider)
                         .setFlag(flag.key, val);
                   },
           )

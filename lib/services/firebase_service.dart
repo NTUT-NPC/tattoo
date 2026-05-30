@@ -214,6 +214,15 @@ class FirebaseService {
       value = val.asDouble();
     } else if (defaultValue is String) {
       value = val.asString();
+
+      // Try to parse as JSON if it looks like a Map or List
+      if (value.startsWith('{') || value.startsWith('[')) {
+        try {
+          value = jsonDecode(value);
+        } catch (_) {
+          // Keep as string if not valid JSON
+        }
+      }
     } else if (defaultValue is Map || defaultValue is List) {
       try {
         value = jsonDecode(val.asString());

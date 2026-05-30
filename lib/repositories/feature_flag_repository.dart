@@ -147,6 +147,12 @@ class FeatureFlagRepository {
   /// A stream that emits whenever feature flags are updated from a remote source.
   Stream<void> get onUpdated => _updateController.stream;
 
+  /// Forces a fresh fetch of feature flags from the remote server.
+  Future<void> refreshFlags() async {
+    await getAllFlags(forceRefresh: true);
+    _updateController.add(null);
+  }
+
   /// Gets a feature flag value, returning the key's default if not set.
   Future<T> get<T>(FeatureFlagKey<T> key) async {
     final flags = await getAllFlags();
@@ -262,12 +268,15 @@ class FeatureFlagRepository {
             options ??= localValue['options'] as List?;
           }
 
-          // Fallback for Riley's original bundled options
-          if (defVal is Map<String, dynamic> &&
-              defVal.containsKey('value') &&
-              defVal.containsKey('options')) {
-            options ??= defVal['options'] as List?;
-            defVal = defVal['value'];
+          // Unbundle values and extract options if it's an 'option' structure.
+          // This handles cases where Remote Config might return the full Map.
+          if (defVal is Map<String, dynamic>) {
+            if (defVal['_type'] == 'option' ||
+                (defVal.containsKey('value') &&
+                    defVal.containsKey('options'))) {
+              options ??= defVal['options'] as List?;
+              defVal = defVal['value'];
+            }
           }
 
           final isForced = forceOverrides.contains(key);
