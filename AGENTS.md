@@ -18,7 +18,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Credentials:** `tool/credentials.dart` manages encrypted credentials from the `tattoo-credentials` Git repo. Run `dart run tool/credentials.dart fetch` to decrypt and place Firebase configs, Android keystore, and service account. Config from env vars or `.env` file.
 
-**HTML snapshot capture:** `tool/html_snapshot.dart` captures raw NTUT HTML/XML responses for parser development. Presets live in `tool/html_snapshot_presets.dart`. The CLI reads `test/test_config.json` and writes local-only files under `tmp/html_snapshot/`. `capture <preset> [<preset>...] -m "<message>"` captures one or more known pages, and `capture -a -m "<message>"` captures presets that can be resolved without explicit IDs. Raw captures may contain personal data and must not be committed before de-identification. Promoted snapshots must keep a meaningful metadata `message`; message-less snapshots are not accepted.
+**HTML snapshot capture:** `tool/html_snapshot.dart` captures raw NTUT HTML/XML responses for parser development. Presets live in `tool/html_snapshot_presets.dart`. The CLI reads `test/test_config.json` and writes local-only files under `tmp/html_snapshot/`. `capture <preset> [<preset>...] -m "<message>"` captures one or more known pages, and `capture -a -m "<message>"` captures presets that can be resolved without explicit IDs. Raw captures may contain personal data and must not be committed before de-identification. Promoted snapshots must keep a meaningful metadata `message`; replace the generated TODO placeholder before promotion because message-less snapshots are not accepted.
 
 **Structure:**
 

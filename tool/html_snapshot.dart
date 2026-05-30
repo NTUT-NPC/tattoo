@@ -28,6 +28,10 @@ part 'html_snapshot_presets.dart';
 
 const _defaultConfigPath = 'test/test_config.json';
 const _defaultOutputDir = 'tmp/html_snapshot';
+const _snapshotWarning =
+    'Do not commit this raw snapshot without de-identification and a metadata message.';
+const _defaultSnapshotMessage =
+    'TODO: Add the expected parse result after the HTML-based test code is complete.';
 
 void main(List<String> args) async {
   final runner =
@@ -345,7 +349,7 @@ abstract class SnapshotCommand extends Command<int> {
     stdout.writeln('Captured ${snapshot.label}');
     stdout.writeln('Wrote ${file.absolute.path}');
     stdout.writeln(
-      'Do not commit this raw snapshot without de-identification and a metadata message.',
+      _snapshotWarning,
     );
   }
 
@@ -867,10 +871,17 @@ String _snapshotBodyWithMetadata(
       .replaceAll(RegExp(r'[\r\n]+'), ' ')
       .replaceAll('--', '- -')
       .trim();
+  final metadataMessage = safeMessage.isEmpty
+      ? _defaultSnapshotMessage
+      : safeMessage;
   final metadata = [
     '<!--',
+    'warning: $_snapshotWarning',
+    '',
     'fetchtime: ${_formatMetadataTimestamp(fetchedAt)}',
-    'message: $safeMessage',
+    'message:',
+    metadataMessage,
+    '',
     '-->',
   ].join('\n');
   return '$metadata\n$body';

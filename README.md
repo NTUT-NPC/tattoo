@@ -100,7 +100,7 @@ dart run tool/html_snapshot.dart raw QryBasisData.jsp --service student_query -m
 
 The tool reads `test/test_config.json`. If the file is missing, copy `test/test_config.json.example` to `test/test_config.json` and fill in `NTUT_TEST_USERNAME` and `NTUT_TEST_PASSWORD`.
 
-Captured files are written under `tmp/html_snapshot/` with the service name prefixed in the file name. Each file starts with a commented metadata block containing `fetchtime` and `message`; use `-m/--message` to describe why the sample was kept. This directory is local-only and ignored by git. Do not commit raw captures; de-identify them before promoting any sample into a fixture or documentation, and do not submit a promoted snapshot without a meaningful `message`. `capture -a` skips presets that require explicit identifiers, such as a course, teacher, classroom, or syllabus ID.
+Captured files are written under `tmp/html_snapshot/` with the service name prefixed in the file name. Each file starts with a commented metadata block containing a raw-capture warning, `fetchtime`, and `message`; use `-m/--message` to describe why the sample was kept. If no message is provided, the tool writes a TODO placeholder that must be replaced before promotion. This directory is local-only and ignored by git. Do not commit raw captures; de-identify them before promoting any sample into a fixture or documentation, and do not submit a promoted snapshot without a meaningful `message`. `capture -a` skips presets that require explicit identifiers, such as a course, teacher, classroom, or syllabus ID.
 
 When adding new Service-layer parser requests, add or update capture presets in `tool/html_snapshot_presets.dart`.
 
