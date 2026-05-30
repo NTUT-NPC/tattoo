@@ -4,52 +4,7 @@ Flutter app for NTUT students: course schedules, scores, enrollment, announcemen
 
 Follow @CONTRIBUTING.md for git operation guidelines.
 
-**Last updated:** 2026-03-21. If stale (>7 days), verify Status section against codebase.
-
-## Status
-
-**Done:**
-
-- PortalService (auth+SSO, getSsoUrl for system browser auth, changePassword, getAvatar, uploadAvatar, getCalendar), CourseService (HTML parsing), ISchoolPlusService (getStudents, getMaterials, getMaterial), StudentQueryService (getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile, getGpa), GitHubService
-- Service integration tests (copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`)
-- Drift database schema with all tables, views (ScoreDetails, UserAcademicSummaries)
-- Service DTOs migrated to Dart 3 records
-- AuthRepository implementation (login, logout, lazy auth via `withAuth<T>()`, session persistence via flutter_secure_storage, SSO coalescing via Completer, re-auth coalescing via Completer), PreferencesRepository, CourseRepository: watchSemesters, watchCourseTable (stream-based with TTL), getCourse (single course lookup with TTL)
-- Session-scoped providers: `sessionProvider` (bool) drives router guard and repository lifecycle. Auth failure destroys session → router redirects to login → session-scoped repositories are recreated with fresh state
-- StudentRepository: watchSemesterRecords (stream-based with TTL, parallel course code resolution)
-- Session expiry detection: per-service Dio interceptors detect NTUT fake-200 expired sessions, throw `SessionExpiredException` for `withAuth` retry
-- Riverpod setup (manual providers, no codegen)
-- go_router navigation setup
-- UI: intro screen, login screen, home screen with bottom navigation bar and three tabs (table, score, profile), about, easter egg, ShowcaseShell. Home uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
-- i18n (zh_TW, en_US) via slang
-- Mock NTUT service implementations (MockPortalService, MockCourseService, MockISchoolPlusService, MockStudentQueryService) for repository unit tests and future demo/offline mode
-
-**Todo - Service Layer:**
-
-- ISchoolPlusService: getCourseAnnouncement, getCourseAnnouncementDetail, courseSubscribe, getCourseSubscribe, getSubscribeNotice
-- CourseService: getDepartmentMap, getCourseCategory
-- CourseService (English): Parse English Course System (`/course/en/`) for English names (syllabus, teacher profiles)
-- StudentQueryService (sa_003_oauth - 學生查詢專區):
-  - getMidtermWarnings (期中預警查詢)
-  - getStudentAffairs (獎懲、缺曠課、請假查詢)
-  - getStudentLoan (就學貸款資料查詢)
-  - getGeneralEducationDimension (查詢已修讀博雅課程向度)
-  - getEnglishProficiency (查詢英語畢業門檻登錄資料)
-  - getExamScores (查詢會考電腦閱卷成績)
-  - getClassAndMentor (註冊編班與導師查詢)
-  - updateContactInfo (維護個人聯絡資料)
-  - getGraduationQualifications (查詢畢業資格審查)
-
-**Todo - Repository Layer:**
-
-- Implement remaining CourseRepository methods (materials, rosters, announcements)
-- Implement remaining StudentRepository methods (midterm warnings, student affairs, graduation status)
-
-**Todo - App:**
-
-- UI: course table, course detail, scores
-- File downloads (progress tracking, notifications, cancellation)
-- Global `connectivityProvider` for offline state (e.g., connectivity banner) — separate from auth
+When making changes that add, remove, or alter conventions, patterns, or architectural structure described here, update this document in the same PR.
 
 ## Architecture
 
@@ -65,16 +20,16 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Structure:**
 
-- `lib/components/` - Reusable UI widgets (AppSkeleton, notices, OptionEntryTile, SectionHeader)
-- `lib/database/` - Drift schema and database class
+- `lib/components/` - Reusable UI widgets
+- `lib/database/` - Drift schema, database class, and views
 - `lib/i18n/` - slang i18n YAML sources and generated strings
-- `lib/models/` - Shared domain enums (DayOfWeek, Period, CourseType, ScoreStatus)
+- `lib/models/` - Shared domain enums and types
 - `lib/repositories/` - Repository class + constructor provider (DI wiring)
-- `lib/router/` - go_router config and AnimatedShellContainer for tab transitions
-- `lib/screens/` - Screen widgets organized by feature (welcome/, main/). Home uses `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation and cross-fade transitions. Each tab owns its own `Scaffold`.
-- `lib/services/` - Clients that talk to external systems (NTUT HTTP services, Firebase, etc.)
+- `lib/router/` - go_router config (`app_router.dart`)
+- `lib/screens/` - Screen widgets organized by feature: `welcome/` (intro, login) and `main/` (home, course_table, score, calendar, portal, scanner, kiosk_login, profile). 4-tab `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation. Each tab owns its own `Scaffold`.
+- `lib/services/` - Clients that talk to external systems (NTUT HTTP services, Firebase, etc.) and `demo_mode.dart`
 - `lib/shells/` - Layout shells (AnimatedShellContainer for tab transitions, ShowcaseShell for onboarding)
-- `lib/utils/` - HTTP utilities (cookie jar, interceptors)
+- `lib/utils/` - HTTP utilities (cookie jar, interceptors, native adapter), localization, avatar payload
 - `tool/` - Dart CLI tools (credentials management)
 
 **Provider placement:**
@@ -98,28 +53,30 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Services:**
 
-- **Architecture:** NTUT services (Portal, Course, ISchoolPlus, StudentQuery) use `abstract interface class` with concrete implementations (e.g., `NtutPortalService`) to enable mock implementations for repository unit tests and future demo/offline mode. Files are grouped by subdirectory (e.g., `lib/services/portal/`). Interfaces, DTOs, and providers live in the interface file, while logic lives in the implementation file. Consumers only import the interface file.
-- PortalService - Portal auth, SSO (auth+SSO, getSsoUrl, changePassword, getAvatar, uploadAvatar, getCalendar - academic calendar events via calModeApp.do JSON API)
-- CourseService - 課程系統 (`aa_0010-oauth`) — HTML parsing
-- ISchoolPlusService - 北科i學園PLUS (`ischool_plus_oauth`) — getStudents, getMaterials, getMaterial
-- StudentQueryService - 學生查詢專區 (`sa_003_oauth`) — getAcademicPerformance, getRegistrationRecords, getGradeRanking, getStudentProfile, getGpa
-- GitHubService - fetches repo contributors, filters bots
-- FirebaseService - Unified wrapper for Firebase Analytics and Crashlytics. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`)
+- **Architecture:** NTUT services (Portal, Course, ISchoolPlus, StudentQuery) use `abstract interface class` with concrete implementations (e.g., `NtutPortalService`). Files are grouped by subdirectory (e.g., `lib/services/portal/`). Interfaces, DTOs, and providers live in the interface file, while logic lives in the implementation file. Consumers only import the interface file. Service providers check `isDemoProvider` — when true, they return mock implementations instead of real NTUT clients.
+- PortalService — Portal auth, SSO, user profile (avatar, password). Also serves academic calendar events (calModeApp.do JSON API)
+- CourseService — 課程系統 (`aa_0010-oauth`). Course catalog, schedules, teacher profiles, syllabi. All HTML-parsed.
+- ISchoolPlusService — 北科i學園PLUS (`ischool_plus_oauth`). Course rosters and materials.
+- StudentQueryService — 學生查詢專區 (`sa_003_oauth`). Academic records, GPA, rankings, registration history.
+- GitHubService — fetches repo contributors, filters bots
+- FirebaseService — Unified wrapper for Firebase Analytics and Crashlytics. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`)
 - NTUT services share single cookie jar (NTUT session state)
-- NTUT services return DTOs as records (UserDto, SemesterDto, ScheduleDto, etc.) - no database writes
+- NTUT services return DTOs as records — no database writes
 - DTOs are typedef'd records co-located with service interfaces
 - **Integration tests:** copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`
 
 **Repositories:**
 
-- AuthRepository - User identity, session, profile. Implemented: login, logout, `withAuth<T>()` (lazy auth with re-auth coalescing, never-completing future on auth failure), session persistence via flutter_secure_storage
-- PreferencesRepository - Typed `PrefKey<T>` enum with SharedPreferencesAsync
-- CourseRepository - Implemented: watchSemesters/refreshSemesters, watchCourseTable/refreshCourseTable (stream-based with TTL, DB persistence, bilingual names), getCourse (single course lookup with inline TTL). Stubs: getCourseOffering, getCourseDetails, getMaterials, getStudents
-- StudentRepository - Implemented: watchSemesterRecords/refreshSemesterRecords (stream-based with TTL, parallel course code resolution via CourseRepository.getCourse). Uses Drift views (ScoreDetails, UserAcademicSummaries) as domain models.
-- Transform DTOs into relational DB tables
-- Return DTOs or domain models to UI
-- Handle data persistence and caching strategies
-- **Method pattern:** `watchX()` returns a `Stream` backed by Drift `.watch()` — emits cached data immediately, then background-fetches if empty or stale (each method has its own hard-coded TTL `const`). Network errors are absorbed (stale data preferred over errors). `refreshX()` is the imperative counterpart for pull-to-refresh — fetches from network, writes to DB, and lets the stream re-emit. Special cases that only need partial data (e.g., `getAvatar()` only needs `avatarFilename`) query DB directly. `getCourse()` is an exception — it's a Future-based per-code lookup with inline TTL, used internally for batch resolution.
+- AuthRepository — User identity, session, profile. Lazy auth via `withAuth<T>()` with SSO and re-auth coalescing (Completer pattern). Session persistence via flutter_secure_storage. Never-completing future on auth failure (harmless — session-scoped providers are already being disposed).
+- PreferencesRepository — Typed `PrefKey<T>` enum with SharedPreferencesAsync. Cloud sync via avatar payload.
+- CourseRepository — Course catalog, schedules, and offering details. Normalizes bilingual names from multiple sources (catalog vs offering). Layout computation for course table grid (multi-period spans, noon-crossing, unscheduled courses).
+- CalendarRepository — Academic calendar events from NTUT portal. Sliding window caching keyed to enrolled semesters.
+- StudentRepository — Academic records, GPA, rankings. Parallel course code resolution via CourseRepository.getCourse().
+- **Method pattern:** `watchX()` returns a `Stream` backed by Drift `.watch()` — emits cached data immediately, then background-fetches if empty or stale (each method has its own hard-coded TTL `const`). Network errors are absorbed (stale data preferred over errors). `refreshX()` is the imperative counterpart for pull-to-refresh — fetches from network, writes to DB, and lets the stream re-emit.
+
+**Demo mode:**
+
+`isDemoProvider` (`Notifier<bool>`) toggles demo mode at runtime. Enabled when logging in with `demoUsername` ('111592347' — structurally invalid NTUT ID, any password accepted). When active, all four NTUT service providers return mock implementations with realistic per-semester data. Demo mode deliberately skips secure storage — session persists via DB user row check instead.
 
 ## Database
 
@@ -142,14 +99,14 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 ## Testing Strategy
 
 | Layer | Test type | Mock strategy | Runs in CI |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | NTUT services | Integration (real server) | None — tests hit real NTUT | Only with credentials |
 | Repositories | Unit | Mock NTUT service interfaces (return canned DTOs) | Always |
 | Utils | Unit | None needed (pure functions) | Always |
 | Database views | Unit (in-memory SQLite) | None needed (Drift test utilities) | Always |
 | Widgets | Widget tests | Low priority | Always |
 
-- **NTUT services** (Portal, Course, ISchoolPlus, StudentQuery) have `abstract interface class` — mock implementations return canned DTOs for repository unit tests and future demo/offline mode
+- **NTUT services** (Portal, Course, ISchoolPlus, StudentQuery) have `abstract interface class` — mock implementations return canned DTOs for repository unit tests and demo mode
 - **Non-NTUT services** (GitHubService, FirebaseService) do not need mock implementations — they have stable API contracts
 - **No fixtures:** Service-layer tests stay integration-only against real NTUT servers. Fixtures (HTML snapshots) would go stale silently; integration tests are the source of truth for parsing correctness.
 
@@ -173,12 +130,20 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Session Lifecycle:** `sessionProvider` (`Notifier<bool>`) drives auth state. `true` = authenticated, `false` = unauthenticated. Router guard watches it for redirect. Repository providers `ref.watch(sessionProvider)` to be recreated with fresh state when the session ends. On auth failure, `withAuth` destroys the session and returns a never-completing `Completer<T>().future` — session-scoped providers are already being disposed by the time callers would stall, so the hanging future is harmless. Callers only need to handle `DioException` for network failures.
 
-**InvalidCookieFilter:** iSchool+ returns malformed cookies; custom interceptor filters them.
+**Campus Wi-Fi TLS DPI Bypass:** `native_dio_adapter` routes HTTPS through Cronet (Android) and URLSession (iOS), whose TLS ClientHello fingerprints pass campus DPI. Dart's default BoringSSL gets RST'd. Only active on Android/iOS — desktop and web use dart:io's default client.
+
+**NullHeaderInterceptor:** `dio_cookie_manager` injects `Cookie: null` when no cookies exist for a domain. NTUT's BigIP ASM flags this as bot behavior (HTTP 403). The interceptor strips null-value Cookie headers before requests are sent.
+
+**InvalidCookieFilter:** iSchool+ returns malformed cookies. Additionally, NativeAdapter (Cronet/URLSession) comma-joins multiple Set-Cookie values into a single header entry. The interceptor splits them before validation so one invalid cookie doesn't discard valid ones.
 
 **Connection: close:** PortalService uses `Connection: close` header. NTUT portal servers close keep-alive connections after multipart uploads, causing stale socket errors if Dart's HTTP client tries to reuse them.
 
 ### NTUT Portal apOu Codes
 
-All available SSO service codes are in to `doc/ntut_sso_codes.md`.
+All available SSO service codes are in `doc/ntut_sso_codes.md`.
 
 These apOu codes are the SSO target identifiers used by PortalService to obtain service-specific entry URLs/tickets for each NTUT subsystem.
+
+## Backlog
+
+Open work is tracked in [GitHub Issues](https://github.com/NTUT-NPC/tattoo/issues). Key areas: remaining NTUT service methods (ISchoolPlus announcements, StudentQuery extensions), repository layer gaps (materials, rosters), and file download infrastructure.

@@ -897,7 +897,7 @@ class CourseRepository {
 
   /// Gets the download URL for a material.
   ///
-  /// The returned [MaterialDto.referer] must be included as a Referer header
+  /// The returned `MaterialDto.referer` must be included as a Referer header
   /// when downloading, if non-null.
   ///
   /// Throws [Exception] on network failure.

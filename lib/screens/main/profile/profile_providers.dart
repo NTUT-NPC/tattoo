@@ -14,7 +14,7 @@ final activeRegistrationProvider =
       return ref.watch(authRepositoryProvider).watchActiveRegistration();
     });
 
-/// Random action string from [t.profile.dangerZone.actions] for the easter egg button.
+/// Random action string from `t.profile.dangerZone.actions` for the easter egg button.
 /// Invalidate to pick a new action.
 final dangerZoneActionProvider = Provider.autoDispose<String>((ref) {
   final actions = t.profile.dangerZone.actions;
