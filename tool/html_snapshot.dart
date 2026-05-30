@@ -5,6 +5,7 @@
 //   dart run tool/html_snapshot.dart capture student_query.profile
 //   dart run tool/html_snapshot.dart capture student_query.profile course.semester_list
 //   dart run tool/html_snapshot.dart capture -a
+//   dart run tool/html_snapshot.dart capture student_query.profile -m "teaching evaluation block page"
 //   dart run tool/html_snapshot.dart raw course/tw/Select.jsp --service course
 
 import 'dart:convert';
@@ -61,6 +62,7 @@ class SnapshotCommandRunner extends CommandRunner<int> {
       'Common usage:',
       '  dart run tool/html_snapshot.dart capture <preset> [<preset>...]',
       '  dart run tool/html_snapshot.dart capture -a',
+      '  dart run tool/html_snapshot.dart capture <preset> -m "<message>"',
       '  dart run tool/html_snapshot.dart list',
       '  dart run tool/html_snapshot.dart raw <path-or-url> --service <service>',
       '',
@@ -127,6 +129,7 @@ class CaptureCommand extends SnapshotCommand {
       '  dart run tool/html_snapshot.dart capture student_query.profile',
       '  dart run tool/html_snapshot.dart capture student_query.profile course.semester_list',
       '  dart run tool/html_snapshot.dart capture -a',
+      '  dart run tool/html_snapshot.dart capture student_query.profile -m "teaching evaluation block page"',
       '',
       'Run `dart run tool/html_snapshot.dart list` to see available presets.',
     ].join('\n');
@@ -313,6 +316,12 @@ abstract class SnapshotCommand extends Command<int> {
       ..addOption(
         'name',
         help: 'Extra slug to include in the output file name.',
+      )
+      ..addOption(
+        'message',
+        abbr: 'm',
+        defaultsTo: '',
+        help: 'Metadata note written into the snapshot comment block.',
       );
   }
 
@@ -326,15 +335,17 @@ abstract class SnapshotCommand extends Command<int> {
   Future<void> writeSnapshot(Snapshot snapshot) async {
     final outputDir = argResults!['output-dir'];
     final extraName = argResults!['name'];
+    final message = argResults!['message'];
     final file = await snapshot.writeTo(
       outputDir: outputDir,
       extraName: extraName,
+      message: message,
     );
 
     stdout.writeln('Captured ${snapshot.label}');
     stdout.writeln('Wrote ${file.absolute.path}');
     stdout.writeln(
-      'Do not commit this raw snapshot. De-identify it before promoting it to a fixture.',
+      'Do not commit this raw snapshot without de-identification and a metadata message.',
     );
   }
 
@@ -544,11 +555,13 @@ class Snapshot {
   Future<File> writeTo({
     required String outputDir,
     required String? extraName,
+    required String message,
   }) async {
     final normalizedExtraName = extraName?.isNotEmpty == true
         ? extraName
         : null;
-    final timestamp = _formatTimestamp(.now());
+    final fetchedAt = DateTime.now();
+    final timestamp = _formatFileTimestamp(fetchedAt);
     final parts = [
       _serviceFilePrefix(service),
       ...fileParts,
@@ -558,7 +571,9 @@ class Snapshot {
 
     final file = File('$outputDir/${parts.join('_')}.$extension');
     file.parent.createSync(recursive: true);
-    await file.writeAsString(body);
+    await file.writeAsString(
+      _snapshotBodyWithMetadata(body, fetchedAt, message),
+    );
     return file;
   }
 }
@@ -813,7 +828,7 @@ String _slug(String value) {
   return value.replaceAll(RegExp(r'[^A-Za-z0-9_-]+'), '_');
 }
 
-String _formatTimestamp(DateTime time) {
+String _formatFileTimestamp(DateTime time) {
   String two(int value) => value.toString().padLeft(2, '0');
   return [
     time.year.toString().padLeft(4, '0'),
@@ -824,6 +839,41 @@ String _formatTimestamp(DateTime time) {
     two(time.minute),
     two(time.second),
   ].join();
+}
+
+String _formatMetadataTimestamp(DateTime time) {
+  String two(int value) => value.toString().padLeft(2, '0');
+  return [
+    time.year.toString().padLeft(4, '0'),
+    '-',
+    two(time.month),
+    '-',
+    two(time.day),
+    ' ',
+    two(time.hour),
+    ':',
+    two(time.minute),
+    ':',
+    two(time.second),
+  ].join();
+}
+
+String _snapshotBodyWithMetadata(
+  String body,
+  DateTime fetchedAt,
+  String message,
+) {
+  final safeMessage = message
+      .replaceAll(RegExp(r'[\r\n]+'), ' ')
+      .replaceAll('--', '- -')
+      .trim();
+  final metadata = [
+    '<!--',
+    'fetchtime: ${_formatMetadataTimestamp(fetchedAt)}',
+    'message: $safeMessage',
+    '-->',
+  ].join('\n');
+  return '$metadata\n$body';
 }
 
 String _missingConfigMessage(String path) {

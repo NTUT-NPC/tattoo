@@ -50,10 +50,10 @@ Dart 3 idioms not yet covered by linter rules (see [#288](https://github.com/NTU
 ## HTML Snapshot Capture
 
 - Use `dart run tool/html_snapshot.dart list` to inspect supported raw HTML/XML capture presets.
-- Use `dart run tool/html_snapshot.dart capture <preset> [<preset>...]` to capture one or more known pages.
-- Use `dart run tool/html_snapshot.dart capture -a` to capture every preset that can be resolved without explicit IDs.
+- Use `dart run tool/html_snapshot.dart capture <preset> [<preset>...] -m "<message>"` to capture one or more known pages.
+- Use `dart run tool/html_snapshot.dart capture -a -m "<message>"` to capture every preset that can be resolved without explicit IDs.
 - Captures are written to `tmp/html_snapshot/` and are local-only. Never commit raw captures because they may contain personal data.
-- Before promoting a captured page into tests, documentation, or fixtures, de-identify it and review the result manually.
+- Each capture starts with a commented metadata block. Before promoting a captured page into tests, documentation, or fixtures, de-identify it, review the result manually, and keep a meaningful `message`; snapshots without a message are not accepted for submission.
 - When adding or changing a Service-layer HTML/XML parser request, check whether `tool/html_snapshot_presets.dart` should gain or update a preset for that request.
 
 ## Git and GitHub Workflows
