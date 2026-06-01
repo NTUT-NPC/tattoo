@@ -904,8 +904,7 @@ String _snapshotBodyWithMetadata(
     'request_url: $safeRequestUrl',
     '',
     'fetchtime: ${_formatMetadataTimestamp(fetchedAt)}',
-    'message:',
-    metadataMessage,
+    'message: $metadataMessage',
     '',
     '-->',
   ].join('\n');
