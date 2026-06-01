@@ -916,7 +916,9 @@ String _missingConfigMessage(String path) {
 Missing or incomplete test credentials: $path
 
 Create the config file before running this tool:
-  copy test\\test_config.json.example test\\test_config.json
+  cp test/test_config.json.example test/test_config.json
+  # Windows (PowerShell)
+  copy test\test_config.json.example test\test_config.json
 
 Then fill in:
 {
