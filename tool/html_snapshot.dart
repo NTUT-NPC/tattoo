@@ -544,6 +544,8 @@ class SnapshotPreset {
 class Snapshot {
   final SnapshotService service;
   final String label;
+  final String preset;
+  final String requestUrl;
   final String body;
   final String extension;
   final List<String> fileParts;
@@ -551,6 +553,8 @@ class Snapshot {
   const Snapshot({
     required this.service,
     required this.label,
+    required this.preset,
+    required this.requestUrl,
     required this.body,
     required this.extension,
     required this.fileParts,
@@ -576,7 +580,13 @@ class Snapshot {
     final file = File('$outputDir/${parts.join('_')}.$extension');
     file.parent.createSync(recursive: true);
     await file.writeAsString(
-      _snapshotBodyWithMetadata(body, fetchedAt, message),
+      _snapshotBodyWithMetadata(
+        body,
+        fetchedAt,
+        message,
+        preset: preset,
+        requestUrl: requestUrl,
+      ),
     );
     return file;
   }
@@ -660,6 +670,8 @@ Future<Snapshot> _captureRaw(
   return Snapshot(
     service: request.service,
     label: 'raw ${request.target}',
+    preset: 'raw',
+    requestUrl: response.requestOptions.uri.toString(),
     body: _responseBodyAsString(response.data),
     extension: extension,
     fileParts: ['raw', _rawTargetSlug(request.target)],
@@ -865,9 +877,19 @@ String _formatMetadataTimestamp(DateTime time) {
 String _snapshotBodyWithMetadata(
   String body,
   DateTime fetchedAt,
-  String message,
-) {
+  String message, {
+  required String preset,
+  required String requestUrl,
+}) {
   final safeMessage = message
+      .replaceAll(RegExp(r'[\r\n]+'), ' ')
+      .replaceAll('--', '- -')
+      .trim();
+  final safePreset = preset
+      .replaceAll(RegExp(r'[\r\n]+'), ' ')
+      .replaceAll('--', '- -')
+      .trim();
+  final safeRequestUrl = requestUrl
       .replaceAll(RegExp(r'[\r\n]+'), ' ')
       .replaceAll('--', '- -')
       .trim();
@@ -877,6 +899,9 @@ String _snapshotBodyWithMetadata(
   final metadata = [
     '<!--',
     'warning: $_snapshotWarning',
+    '',
+    'preset: $safePreset',
+    'request_url: $safeRequestUrl',
     '',
     'fetchtime: ${_formatMetadataTimestamp(fetchedAt)}',
     'message:',

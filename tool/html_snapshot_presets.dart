@@ -79,14 +79,14 @@ final _presetList = <SnapshotPreset>[
   SnapshotPreset(
     name: 'student_query.profile',
     service: .studentQuery,
-    description: 'QryBasisData.jsp',
+    description: 'Student Query profile page.',
     includeInAll: true,
     buildRequest: _simple(.studentQuery, 'QryBasisData.jsp'),
   ),
   SnapshotPreset(
     name: 'student_query.academic_performance',
     service: .studentQuery,
-    description: 'QryScore.jsp?format=-2',
+    description: 'Student Query academic performance page.',
     includeInAll: true,
     buildRequest: _simple(
       .studentQuery,
@@ -97,51 +97,49 @@ final _presetList = <SnapshotPreset>[
   SnapshotPreset(
     name: 'student_query.gpa',
     service: .studentQuery,
-    description: 'QryGPA.jsp',
+    description: 'Student Query GPA summary page.',
     includeInAll: true,
     buildRequest: _simple(.studentQuery, 'QryGPA.jsp'),
   ),
   SnapshotPreset(
     name: 'student_query.grade_ranking',
     service: .studentQuery,
-    description: 'QryRank.jsp',
+    description: 'Student Query ranking page.',
     includeInAll: true,
     buildRequest: _simple(.studentQuery, 'QryRank.jsp'),
   ),
   SnapshotPreset(
     name: 'student_query.registration_records',
     service: .studentQuery,
-    description: 'QryRegist.jsp',
+    description: 'Student Query registration history page.',
     includeInAll: true,
     buildRequest: _simple(.studentQuery, 'QryRegist.jsp'),
   ),
   SnapshotPreset(
     name: 'course.semester_list',
     service: .course,
-    description: 'tw/Select.jsp',
+    description: 'Course system semester selector page.',
     includeInAll: true,
     buildRequest: _simple(.course, 'tw/Select.jsp'),
   ),
   SnapshotPreset(
     name: 'course.table_zh',
     service: .course,
-    description:
-        'tw/Select.jsp?format=-2&code=<username>&year=<year>&sem=<term>',
+    description: 'Course timetable (Chinese). Optional: --year --term.',
     includeInAll: true,
     buildRequest: _courseTable('tw/Select.jsp'),
   ),
   SnapshotPreset(
     name: 'course.table_en',
     service: .course,
-    description:
-        'en/Select.jsp?format=-2&code=<username>&year=<year>&sem=<term>',
+    description: 'Course timetable (English). Optional: --year --term.',
     includeInAll: true,
     buildRequest: _courseTable('en/Select.jsp'),
   ),
   SnapshotPreset(
     name: 'course.detail',
     service: .course,
-    description: 'tw/Curr.jsp?format=-2&code=<course-id>',
+    description: 'Course detail page. Required: --course-id.',
     allSkipReason: 'requires --course-id',
     buildRequest: _courseRequiredId(
       path: 'tw/Curr.jsp',
@@ -154,7 +152,7 @@ final _presetList = <SnapshotPreset>[
     name: 'course.teacher_profile',
     service: .course,
     description:
-        'tw/Teach.jsp?format=-3&year=<year>&sem=<term>&code=<teacher-id>',
+        'Teacher profile page. Required: --teacher-id. Optional: --year --term.',
     allSkipReason: 'requires --teacher-id',
     buildRequest: _courseSemesterRequiredId(
       path: 'tw/Teach.jsp',
@@ -167,7 +165,7 @@ final _presetList = <SnapshotPreset>[
     name: 'course.teacher_office_hours',
     service: .course,
     description:
-        'tw/Teach.jsp?format=-6&year=<year>&sem=<term>&code=<teacher-id>',
+        'Teacher office hours page. Required: --teacher-id. Optional: --year --term.',
     allSkipReason: 'requires --teacher-id',
     buildRequest: _courseSemesterRequiredId(
       path: 'tw/Teach.jsp',
@@ -180,7 +178,7 @@ final _presetList = <SnapshotPreset>[
     name: 'course.classroom',
     service: .course,
     description:
-        'tw/Croom.jsp?format=-3&year=<year>&sem=<term>&code=<classroom-id>',
+        'Classroom info page. Required: --classroom-id. Optional: --year --term.',
     allSkipReason: 'requires --classroom-id',
     buildRequest: _courseSemesterRequiredId(
       path: 'tw/Croom.jsp',
@@ -192,28 +190,31 @@ final _presetList = <SnapshotPreset>[
   SnapshotPreset(
     name: 'course.syllabus',
     service: .course,
-    description: 'tw/ShowSyllabus.jsp?snum=<course-number>&code=<syllabus-id>',
+    description:
+        'Course syllabus page. Required: --course-number --syllabus-id.',
     allSkipReason: 'requires --course-number and --syllabus-id',
     buildRequest: _syllabus,
   ),
   SnapshotPreset(
     name: 'ischool.course_list',
     service: .ischool,
-    description: 'mooc_sysbar.php',
+    description: 'iSchool+ course list page.',
     includeInAll: true,
     buildRequest: _simple(.ischool, 'mooc_sysbar.php'),
   ),
   SnapshotPreset(
     name: 'ischool.students',
     service: .ischool,
-    description: 'goto_course.php, then learn_ranking.php',
+    description:
+        'iSchool+ student ranking page. Optional: --course-internal-id --course-number.',
     includeInAll: true,
     buildRequest: _ischoolCoursePage('learn_ranking.php'),
   ),
   SnapshotPreset(
     name: 'ischool.materials',
     service: .ischool,
-    description: 'goto_course.php, then path/SCORM_loadCA.php',
+    description:
+        'iSchool+ course materials page. Optional: --course-internal-id --course-number.',
     includeInAll: true,
     buildRequest: _ischoolCoursePage(
       'path/SCORM_loadCA.php',
@@ -255,6 +256,8 @@ Future<Snapshot> _captureRequest(
   return Snapshot(
     service: request.service,
     label: label,
+    preset: label,
+    requestUrl: response.requestOptions.uri.toString(),
     body: _responseBodyAsString(response.data),
     extension: request.extension,
     fileParts: [_shortPresetName(label), ...request.fileParts],
