@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer' as dev;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:tattoo/utils/pref_type.dart';
 
 /// Global toggle for Firebase features.
 ///
@@ -167,106 +167,29 @@ class FirebaseService {
     }
   }
 
-  /// Retrieves a summary of a Remote Config string value.
+  /// Reads a Remote Config value cast to the given [PrefType].
   ///
-  /// Returns a record containing the string value and whether it came from
-  /// a remote source.
-  ({String value, bool isRemote}) getRemoteConfigString(String key) {
-    final rc = remoteConfig;
-    if (rc == null) {
-      return (value: '', isRemote: false);
-    }
-    final val = rc.getValue(key);
-    return (
-      value: val.asString(),
-      isRemote: val.source == .valueRemote,
-    );
-  }
-
-  /// Retrieves a Remote Config value with type-aware casting based on [defaultValue].
-  ({dynamic value, bool isRemote}) getRemoteConfigValue(
+  /// Returns `(value: null, isRemote: false)` when Firebase is disabled or the
+  /// key has no remotely-fetched value, so callers can fall through to their
+  /// own defaults. When a remote value is present it is cast directly off
+  /// [type] — no type sniffing, since the caller already knows the type.
+  ({Object? value, bool isRemote}) getRemoteConfigTyped(
     String key,
-    dynamic defaultValue,
+    PrefType type,
   ) {
     final rc = remoteConfig;
-    if (rc == null) {
-      return (value: defaultValue, isRemote: false);
-    }
+    if (rc == null) return (value: null, isRemote: false);
 
     final val = rc.getValue(key);
-    final isRemote = val.source == .valueRemote;
+    if (val.source != .valueRemote) return (value: null, isRemote: false);
 
-    dev.log(
-      'Resolving Remote Config key: $key (source: ${val.source}, isRemote: $isRemote)',
-      name: 'FirebaseService',
-    );
-
-    if (!isRemote) {
-      return (value: defaultValue, isRemote: false);
-    }
-
-    dynamic value;
-    if (defaultValue is bool) {
-      value = val.asBool();
-    } else if (defaultValue is int) {
-      value = val.asInt();
-    } else if (defaultValue is double) {
-      value = val.asDouble();
-    } else if (defaultValue is String) {
-      value = val.asString();
-
-      // Try to parse as JSON if it looks like a Map or List
-      if (value.startsWith('{') || value.startsWith('[')) {
-        try {
-          value = jsonDecode(value);
-        } catch (_) {
-          // Keep as string if not valid JSON
-        }
-      }
-    } else if (defaultValue is Map || defaultValue is List) {
-      try {
-        value = jsonDecode(val.asString());
-      } catch (_) {
-        // If it's not valid JSON, but the Remote Config source is remote,
-        // it might be a plain string (e.g. comma-separated list).
-        value = isRemote ? val.asString() : defaultValue;
-      }
-    } else {
-      value = val.asString();
-    }
-
-    return (value: value, isRemote: isRemote);
-  }
-
-  /// Returns all Remote Config values as a map.
-  Map<String, ({dynamic value, bool isRemote})> getAllRemoteConfigValues() {
-    final rc = remoteConfig;
-    if (rc == null) return {};
-
-    return rc.getAll().map((key, val) {
-      final isRemote = val.source == .valueRemote;
-      dynamic value = val.asString();
-
-      // Try to parse as JSON if it looks like a Map or List
-      if (value.startsWith('{') || value.startsWith('[')) {
-        try {
-          value = jsonDecode(value);
-        } catch (_) {
-          // Keep as string if not valid JSON
-        }
-      } else if (value == 'true') {
-        value = true;
-      } else if (value == 'false') {
-        value = false;
-      } else {
-        // Try parsing as number
-        final numValue = num.tryParse(value);
-        if (numValue != null) {
-          value = numValue;
-        }
-      }
-
-      return MapEntry(key, (value: value, isRemote: isRemote));
-    });
+    final value = switch (type) {
+      .boolean => val.asBool(),
+      .integer => val.asInt(),
+      .double => val.asDouble(),
+      .string => val.asString(),
+      .stringList => val.asString().split(','),
+    };
+    return (value: value, isRemote: true);
   }
 }
