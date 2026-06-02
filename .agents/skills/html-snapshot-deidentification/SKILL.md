@@ -23,19 +23,31 @@ Use this skill only to de-identify the selected snapshot and perform the require
 
 ## De-identify
 
+- Before editing, build a private replacement ledger of exact original sensitive values found in the whole file, including metadata, `request_url`, hidden fields, scripts, comments, and roster tables. Include variant forms such as URL-encoded IDs or repeated address fragments.
 - Review the whole file, including metadata, `request_url`, hidden inputs, scripts, comments, links, and visible text.
 - Replace each sensitive value consistently across the entire file with search-and-replace tooling.
-- Remove or replace names, student IDs, accounts, emails, phone numbers, ID numbers, birth dates, addresses, avatar/file names, classmates, grades, rankings, course-private materials, and personal academic records.
 - Prefer realistic fake values from `lib/services/*/mock_*.dart`, including course names, course numbers, teacher names, student names, and IDs. Do not use placeholder-like fake data such as `Course ABCD`, `Teacher A`, `Test Department`, or sequential dummy names.
 - If no mock value fits, synthesize realistic format-preserving fake values: invent plausible departments, teacher names, course names, and IDs that match the original style.
 - Replace department/program names only when they are not part of the page's meaningful scenario. Keep them when department-specific differences may affect the snapshot, such as course-table pages. Replace them on generic personal-profile pages.
 - For course-table snapshots, replace course names, course numbers, and teacher names unless the user asks otherwise. Preserve credits, class times, classrooms, periods, hours, department/program context, and other course metadata. Keep the teacher count unchanged.
+
+## Sensitive Data
+
+Remove or replace these when present:
+
+- Identity: names, English names, aliases, usernames, accounts, student IDs, roster IDs, national ID numbers, user/profile/internal person IDs, teacher/employee IDs.
+- Contact and address: emails, phone numbers, postal codes, addresses, address fragments, household-registration fields, guardian/emergency-contact fields.
+- Auth and hidden state: cookies, SSO/OAuth codes, session tickets, CSRF tokens, hidden auth fields, IDs embedded in URLs, query strings, forms, scripts, comments, or metadata.
+- Academic private data: grades, GPA, rankings, graduation eligibility, missing credits, failed/retaken courses, academic warnings, enrollment status, registration history, conduct scores.
+- Course-private data: classmates, rosters, attendance, assignment/exam links, material titles, material URLs/tokens, file IDs, avatar/file names.
+- Administrative or sensitive status: tuition/payment records, scholarship/aid/refund status, dormitory, leave, discipline, counseling, disability accommodations, military-service records.
 
 ## Preserve
 
 - Preserve DOM structure, table columns, element attributes, CSS selectors, form shape, parser anchors, status text, and error messages.
 - Preserve non-personal test metadata such as classrooms, periods, credits, hours, teacher count, semester markers, and system-state wording.
 - Do not prettify, reformat, translate, or rewrite unrelated HTML.
+- After editing, search for every original sensitive value from the replacement ledger. If any remain, replace them and search again before promotion.
 
 ## Promote
 
@@ -47,6 +59,8 @@ Use this skill only to de-identify the selected snapshot and perform the require
    test/fixtures/<service>/<query_item>_<serial>_<short_message>.html
    ```
 
-   Use the queried item/page name for `<query_item>`, a three-digit serial such as `001`, and a very short English `<short_message>` of a few words. Choose the serial by checking the target `<service>` folder for existing files with the same `<query_item>_` prefix, then use the next number. Use `usual` only when the user explicitly says the snapshot is a normal case. Example: `test/fixtures/student_query/graduation_check_001_graduate_eligible.html`.
-4. Re-scan the promoted file for sensitive data before staging. Do not stage raw files from `tmp/html_snapshot/`.
+   Derive `<service>` from the snapshot preset/request context and repo naming, checking `lib/services/` and existing `test/fixtures/` folders when needed. Do not invent abbreviations or alternate service folder names.
+
+   Use the queried item/page name for `<query_item>`, a three-digit serial such as `001`, and a very short English `<short_message>` of a few words. Choose the serial by checking the target `<service>` folder for existing files with the same `<query_item>_` prefix, then use the next number. Use `usual` only when the user explicitly says the snapshot is a normal case; never infer `usual` from a missing or weak message. Example: `test/fixtures/student_query/graduation_check_001_graduate_eligible.html`.
+4. Re-scan the promoted file for sensitive data and every ledger value before staging. Do not stage raw files from `tmp/html_snapshot/`.
 5. After promotion is complete, the only allowed closing question is whether to delete the just-processed raw source file in `tmp/html_snapshot/`. Do not ask about or suggest anything else. Do not delete the original file without explicit user authorization. Never delete the raw file unless the user explicitly confirms deletion, and never delete the whole `tmp/html_snapshot/` folder.
