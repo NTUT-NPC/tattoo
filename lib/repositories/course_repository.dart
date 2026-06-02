@@ -164,18 +164,13 @@ class CourseRepository {
   final FirebaseService _firebaseService;
 
   CourseRepository({
-    required PortalService portalService,
-    required CourseService courseService,
-    required ISchoolPlusService iSchoolPlusService,
-    required AppDatabase database,
-    required AuthRepository authRepository,
-    required FirebaseService firebaseService,
-  }) : _portalService = portalService,
-       _courseService = courseService,
-       _iSchoolPlusService = iSchoolPlusService,
-       _database = database,
-       _authRepository = authRepository,
-       _firebaseService = firebaseService;
+    required this._portalService,
+    required this._courseService,
+    required this._iSchoolPlusService,
+    required this._database,
+    required this._authRepository,
+    required this._firebaseService,
+  });
 
   /// Watches available semesters for the authenticated student.
   ///

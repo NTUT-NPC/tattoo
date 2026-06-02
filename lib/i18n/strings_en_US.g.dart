@@ -39,25 +39,25 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	TranslationsEnUs $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsEnUs(meta: meta ?? this.$meta);
 
 	// Translations
-	@override late final _TranslationsGeneralEnUs general = _TranslationsGeneralEnUs._(_root);
-	@override late final _TranslationsErrorsEnUs errors = _TranslationsErrorsEnUs._(_root);
-	@override late final _TranslationsIntroEnUs intro = _TranslationsIntroEnUs._(_root);
-	@override late final _TranslationsLoginEnUs login = _TranslationsLoginEnUs._(_root);
-	@override late final _TranslationsNavEnUs nav = _TranslationsNavEnUs._(_root);
-	@override late final _TranslationsHomeEnUs home = _TranslationsHomeEnUs._(_root);
-	@override late final _TranslationsScoreEnUs score = _TranslationsScoreEnUs._(_root);
-	@override late final _TranslationsCalendarEnUs calendar = _TranslationsCalendarEnUs._(_root);
-	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
-	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
-	@override late final _TranslationsScannerEnUs scanner = _TranslationsScannerEnUs._(_root);
-	@override late final _TranslationsKioskLoginEnUs kioskLogin = _TranslationsKioskLoginEnUs._(_root);
-	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
-	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
+	@override late final _Translations$general$en_US general = _Translations$general$en_US._(_root);
+	@override late final _Translations$errors$en_US errors = _Translations$errors$en_US._(_root);
+	@override late final _Translations$intro$en_US intro = _Translations$intro$en_US._(_root);
+	@override late final _Translations$login$en_US login = _Translations$login$en_US._(_root);
+	@override late final _Translations$nav$en_US nav = _Translations$nav$en_US._(_root);
+	@override late final _Translations$home$en_US home = _Translations$home$en_US._(_root);
+	@override late final _Translations$score$en_US score = _Translations$score$en_US._(_root);
+	@override late final _Translations$calendar$en_US calendar = _Translations$calendar$en_US._(_root);
+	@override late final _Translations$courseTable$en_US courseTable = _Translations$courseTable$en_US._(_root);
+	@override late final _Translations$profile$en_US profile = _Translations$profile$en_US._(_root);
+	@override late final _Translations$scanner$en_US scanner = _Translations$scanner$en_US._(_root);
+	@override late final _Translations$kioskLogin$en_US kioskLogin = _Translations$kioskLogin$en_US._(_root);
+	@override late final _Translations$enrollmentStatus$en_US enrollmentStatus = _Translations$enrollmentStatus$en_US._(_root);
+	@override late final _Translations$about$en_US about = _Translations$about$en_US._(_root);
 }
 
 // Path: general
-class _TranslationsGeneralEnUs extends TranslationsGeneralZhTw {
-	_TranslationsGeneralEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$general$en_US extends Translations$general$zh_TW {
+	_Translations$general$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -75,8 +75,8 @@ class _TranslationsGeneralEnUs extends TranslationsGeneralZhTw {
 }
 
 // Path: errors
-class _TranslationsErrorsEnUs extends TranslationsErrorsZhTw {
-	_TranslationsErrorsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$errors$en_US extends Translations$errors$zh_TW {
+	_Translations$errors$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -90,20 +90,20 @@ class _TranslationsErrorsEnUs extends TranslationsErrorsZhTw {
 }
 
 // Path: intro
-class _TranslationsIntroEnUs extends TranslationsIntroZhTw {
-	_TranslationsIntroEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$intro$en_US extends Translations$intro$zh_TW {
+	_Translations$intro$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override late final _TranslationsIntroFeaturesEnUs features = _TranslationsIntroFeaturesEnUs._(_root);
+	@override late final _Translations$intro$features$en_US features = _Translations$intro$features$en_US._(_root);
 	@override String get developedBy => 'Developed by NTUT NPC Club\nAll information is for reference only. Please refer to the official university system.';
 	@override String get kContinue => 'Continue';
 }
 
 // Path: login
-class _TranslationsLoginEnUs extends TranslationsLoginZhTw {
-	_TranslationsLoginEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$login$en_US extends Translations$login$zh_TW {
+	_Translations$login$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -123,12 +123,12 @@ class _TranslationsLoginEnUs extends TranslationsLoginZhTw {
 		privacyPolicy('Privacy Policy'),
 		const TextSpan(text: '.'),
 	]);
-	@override late final _TranslationsLoginErrorsEnUs errors = _TranslationsLoginErrorsEnUs._(_root);
+	@override late final _Translations$login$errors$en_US errors = _Translations$login$errors$en_US._(_root);
 }
 
 // Path: nav
-class _TranslationsNavEnUs extends TranslationsNavZhTw {
-	_TranslationsNavEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$nav$en_US extends Translations$nav$zh_TW {
+	_Translations$nav$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -143,21 +143,21 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 }
 
 // Path: home
-class _TranslationsHomeEnUs extends TranslationsHomeZhTw {
-	_TranslationsHomeEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$home$en_US extends Translations$home$zh_TW {
+	_Translations$home$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override late final _TranslationsHomeProjectTattooEnUs projectTattoo = _TranslationsHomeProjectTattooEnUs._(_root);
-	@override late final _TranslationsHomeIdeationEnUs ideation = _TranslationsHomeIdeationEnUs._(_root);
-	@override late final _TranslationsHomeNpcClubEnUs npcClub = _TranslationsHomeNpcClubEnUs._(_root);
-	@override late final _TranslationsHomeVoteEnUs vote = _TranslationsHomeVoteEnUs._(_root);
+	@override late final _Translations$home$projectTattoo$en_US projectTattoo = _Translations$home$projectTattoo$en_US._(_root);
+	@override late final _Translations$home$ideation$en_US ideation = _Translations$home$ideation$en_US._(_root);
+	@override late final _Translations$home$npcClub$en_US npcClub = _Translations$home$npcClub$en_US._(_root);
+	@override late final _Translations$home$vote$en_US vote = _Translations$home$vote$en_US._(_root);
 }
 
 // Path: score
-class _TranslationsScoreEnUs extends TranslationsScoreZhTw {
-	_TranslationsScoreEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$score$en_US extends Translations$score$zh_TW {
+	_Translations$score$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -168,13 +168,13 @@ class _TranslationsScoreEnUs extends TranslationsScoreZhTw {
 	@override String get noScoresThisSemester => 'No scores for this semester';
 	@override String courseNumber({required Object number, required Object code}) => 'No: ${number}  Code: ${code}';
 	@override String get none => 'N/A';
-	@override late final _TranslationsScoreSummaryEnUs summary = _TranslationsScoreSummaryEnUs._(_root);
-	@override late final _TranslationsScoreStatusEnUs status = _TranslationsScoreStatusEnUs._(_root);
+	@override late final _Translations$score$summary$en_US summary = _Translations$score$summary$en_US._(_root);
+	@override late final _Translations$score$status$en_US status = _Translations$score$status$en_US._(_root);
 }
 
 // Path: calendar
-class _TranslationsCalendarEnUs extends TranslationsCalendarZhTw {
-	_TranslationsCalendarEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$calendar$en_US extends Translations$calendar$zh_TW {
+	_Translations$calendar$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -183,16 +183,16 @@ class _TranslationsCalendarEnUs extends TranslationsCalendarZhTw {
 }
 
 // Path: courseTable
-class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
-	_TranslationsCourseTableEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$courseTable$en_US extends Translations$courseTable$zh_TW {
+	_Translations$courseTable$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
 	@override String get notFound => 'Course table not found';
 	@override String get unscheduled => 'Unscheduled Courses';
-	@override late final _TranslationsCourseTableSummaryEnUs summary = _TranslationsCourseTableSummaryEnUs._(_root);
-	@override late final _TranslationsCourseTableActionsEnUs actions = _TranslationsCourseTableActionsEnUs._(_root);
+	@override late final _Translations$courseTable$summary$en_US summary = _Translations$courseTable$summary$en_US._(_root);
+	@override late final _Translations$courseTable$actions$en_US actions = _Translations$courseTable$actions$en_US._(_root);
 	@override Map<String, String> get dayOfWeek => {
 		'sunday': 'Sun',
 		'monday': 'Mon',
@@ -205,23 +205,23 @@ class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
 }
 
 // Path: profile
-class _TranslationsProfileEnUs extends TranslationsProfileZhTw {
-	_TranslationsProfileEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$en_US extends Translations$profile$zh_TW {
+	_Translations$profile$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
 	@override String get dataDisclaimer => 'Reference only. Not official.';
-	@override late final _TranslationsProfilePasswordExpiryEnUs passwordExpiry = _TranslationsProfilePasswordExpiryEnUs._(_root);
-	@override late final _TranslationsProfileSectionsEnUs sections = _TranslationsProfileSectionsEnUs._(_root);
-	@override late final _TranslationsProfileOptionsEnUs options = _TranslationsProfileOptionsEnUs._(_root);
-	@override late final _TranslationsProfileAvatarEnUs avatar = _TranslationsProfileAvatarEnUs._(_root);
-	@override late final _TranslationsProfileDangerZoneEnUs dangerZone = _TranslationsProfileDangerZoneEnUs._(_root);
+	@override late final _Translations$profile$passwordExpiry$en_US passwordExpiry = _Translations$profile$passwordExpiry$en_US._(_root);
+	@override late final _Translations$profile$sections$en_US sections = _Translations$profile$sections$en_US._(_root);
+	@override late final _Translations$profile$options$en_US options = _Translations$profile$options$en_US._(_root);
+	@override late final _Translations$profile$avatar$en_US avatar = _Translations$profile$avatar$en_US._(_root);
+	@override late final _Translations$profile$dangerZone$en_US dangerZone = _Translations$profile$dangerZone$en_US._(_root);
 }
 
 // Path: scanner
-class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
-	_TranslationsScannerEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$scanner$en_US extends Translations$scanner$zh_TW {
+	_Translations$scanner$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -246,13 +246,13 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 		'unknown': 'Login failed. Please check the QR code or refresh the page.',
 	};
 	@override String get howTo => 'Open i.ntut.club on your computer and select QR code login';
-	@override late final _TranslationsScannerGuideEnUs guide = _TranslationsScannerGuideEnUs._(_root);
+	@override late final _Translations$scanner$guide$en_US guide = _Translations$scanner$guide$en_US._(_root);
 	@override String get invalidUrl => 'Invalid URL';
 }
 
 // Path: kioskLogin
-class _TranslationsKioskLoginEnUs extends TranslationsKioskLoginZhTw {
-	_TranslationsKioskLoginEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$kioskLogin$en_US extends Translations$kioskLogin$zh_TW {
+	_Translations$kioskLogin$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -265,8 +265,8 @@ class _TranslationsKioskLoginEnUs extends TranslationsKioskLoginZhTw {
 }
 
 // Path: enrollmentStatus
-class _TranslationsEnrollmentStatusEnUs extends TranslationsEnrollmentStatusZhTw {
-	_TranslationsEnrollmentStatusEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$enrollmentStatus$en_US extends Translations$enrollmentStatus$zh_TW {
+	_Translations$enrollmentStatus$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -277,8 +277,8 @@ class _TranslationsEnrollmentStatusEnUs extends TranslationsEnrollmentStatusZhTw
 }
 
 // Path: about
-class _TranslationsAboutEnUs extends TranslationsAboutZhTw {
-	_TranslationsAboutEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$about$en_US extends Translations$about$zh_TW {
+	_Translations$about$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -297,20 +297,20 @@ class _TranslationsAboutEnUs extends TranslationsAboutZhTw {
 }
 
 // Path: intro.features
-class _TranslationsIntroFeaturesEnUs extends TranslationsIntroFeaturesZhTw {
-	_TranslationsIntroFeaturesEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$intro$features$en_US extends Translations$intro$features$zh_TW {
+	_Translations$intro$features$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override late final _TranslationsIntroFeaturesCourseTableEnUs courseTable = _TranslationsIntroFeaturesCourseTableEnUs._(_root);
-	@override late final _TranslationsIntroFeaturesScoresEnUs scores = _TranslationsIntroFeaturesScoresEnUs._(_root);
-	@override late final _TranslationsIntroFeaturesCampusLifeEnUs campusLife = _TranslationsIntroFeaturesCampusLifeEnUs._(_root);
+	@override late final _Translations$intro$features$courseTable$en_US courseTable = _Translations$intro$features$courseTable$en_US._(_root);
+	@override late final _Translations$intro$features$scores$en_US scores = _Translations$intro$features$scores$en_US._(_root);
+	@override late final _Translations$intro$features$campusLife$en_US campusLife = _Translations$intro$features$campusLife$en_US._(_root);
 }
 
 // Path: login.errors
-class _TranslationsLoginErrorsEnUs extends TranslationsLoginErrorsZhTw {
-	_TranslationsLoginErrorsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$login$errors$en_US extends Translations$login$errors$zh_TW {
+	_Translations$login$errors$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -325,8 +325,8 @@ class _TranslationsLoginErrorsEnUs extends TranslationsLoginErrorsZhTw {
 }
 
 // Path: home.projectTattoo
-class _TranslationsHomeProjectTattooEnUs extends TranslationsHomeProjectTattooZhTw {
-	_TranslationsHomeProjectTattooEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$home$projectTattoo$en_US extends Translations$home$projectTattoo$zh_TW {
+	_Translations$home$projectTattoo$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -337,8 +337,8 @@ class _TranslationsHomeProjectTattooEnUs extends TranslationsHomeProjectTattooZh
 }
 
 // Path: home.ideation
-class _TranslationsHomeIdeationEnUs extends TranslationsHomeIdeationZhTw {
-	_TranslationsHomeIdeationEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$home$ideation$en_US extends Translations$home$ideation$zh_TW {
+	_Translations$home$ideation$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -349,8 +349,8 @@ class _TranslationsHomeIdeationEnUs extends TranslationsHomeIdeationZhTw {
 }
 
 // Path: home.npcClub
-class _TranslationsHomeNpcClubEnUs extends TranslationsHomeNpcClubZhTw {
-	_TranslationsHomeNpcClubEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$home$npcClub$en_US extends Translations$home$npcClub$zh_TW {
+	_Translations$home$npcClub$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -361,8 +361,8 @@ class _TranslationsHomeNpcClubEnUs extends TranslationsHomeNpcClubZhTw {
 }
 
 // Path: home.vote
-class _TranslationsHomeVoteEnUs extends TranslationsHomeVoteZhTw {
-	_TranslationsHomeVoteEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$home$vote$en_US extends Translations$home$vote$zh_TW {
+	_Translations$home$vote$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -371,8 +371,8 @@ class _TranslationsHomeVoteEnUs extends TranslationsHomeVoteZhTw {
 }
 
 // Path: score.summary
-class _TranslationsScoreSummaryEnUs extends TranslationsScoreSummaryZhTw {
-	_TranslationsScoreSummaryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$score$summary$en_US extends Translations$score$summary$zh_TW {
+	_Translations$score$summary$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -385,8 +385,8 @@ class _TranslationsScoreSummaryEnUs extends TranslationsScoreSummaryZhTw {
 }
 
 // Path: score.status
-class _TranslationsScoreStatusEnUs extends TranslationsScoreStatusZhTw {
-	_TranslationsScoreStatusEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$score$status$en_US extends Translations$score$status$zh_TW {
+	_Translations$score$status$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -400,8 +400,8 @@ class _TranslationsScoreStatusEnUs extends TranslationsScoreStatusZhTw {
 }
 
 // Path: courseTable.summary
-class _TranslationsCourseTableSummaryEnUs extends TranslationsCourseTableSummaryZhTw {
-	_TranslationsCourseTableSummaryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$courseTable$summary$en_US extends Translations$courseTable$summary$zh_TW {
+	_Translations$courseTable$summary$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -417,8 +417,8 @@ class _TranslationsCourseTableSummaryEnUs extends TranslationsCourseTableSummary
 }
 
 // Path: courseTable.actions
-class _TranslationsCourseTableActionsEnUs extends TranslationsCourseTableActionsZhTw {
-	_TranslationsCourseTableActionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$courseTable$actions$en_US extends Translations$courseTable$actions$zh_TW {
+	_Translations$courseTable$actions$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -428,8 +428,8 @@ class _TranslationsCourseTableActionsEnUs extends TranslationsCourseTableActions
 }
 
 // Path: profile.passwordExpiry
-class _TranslationsProfilePasswordExpiryEnUs extends TranslationsProfilePasswordExpiryZhTw {
-	_TranslationsProfilePasswordExpiryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$passwordExpiry$en_US extends Translations$profile$passwordExpiry$zh_TW {
+	_Translations$profile$passwordExpiry$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -442,8 +442,8 @@ class _TranslationsProfilePasswordExpiryEnUs extends TranslationsProfilePassword
 }
 
 // Path: profile.sections
-class _TranslationsProfileSectionsEnUs extends TranslationsProfileSectionsZhTw {
-	_TranslationsProfileSectionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$sections$en_US extends Translations$profile$sections$zh_TW {
+	_Translations$profile$sections$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -454,8 +454,8 @@ class _TranslationsProfileSectionsEnUs extends TranslationsProfileSectionsZhTw {
 }
 
 // Path: profile.options
-class _TranslationsProfileOptionsEnUs extends TranslationsProfileOptionsZhTw {
-	_TranslationsProfileOptionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$options$en_US extends Translations$profile$options$zh_TW {
+	_Translations$profile$options$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -470,8 +470,8 @@ class _TranslationsProfileOptionsEnUs extends TranslationsProfileOptionsZhTw {
 }
 
 // Path: profile.avatar
-class _TranslationsProfileAvatarEnUs extends TranslationsProfileAvatarZhTw {
-	_TranslationsProfileAvatarEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$avatar$en_US extends Translations$profile$avatar$zh_TW {
+	_Translations$profile$avatar$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -484,8 +484,8 @@ class _TranslationsProfileAvatarEnUs extends TranslationsProfileAvatarZhTw {
 }
 
 // Path: profile.dangerZone
-class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZhTw {
-	_TranslationsProfileDangerZoneEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$dangerZone$en_US extends Translations$profile$dangerZone$zh_TW {
+	_Translations$profile$dangerZone$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -515,12 +515,12 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 	@override String get clearUserData => 'Clear User Data';
 	@override String cleared({required Object item}) => '${item} cleared';
 	@override String clearFailed({required Object item}) => 'Failed to clear ${item}';
-	@override late final _TranslationsProfileDangerZoneItemsEnUs items = _TranslationsProfileDangerZoneItemsEnUs._(_root);
+	@override late final _Translations$profile$dangerZone$items$en_US items = _Translations$profile$dangerZone$items$en_US._(_root);
 }
 
 // Path: scanner.guide
-class _TranslationsScannerGuideEnUs extends TranslationsScannerGuideZhTw {
-	_TranslationsScannerGuideEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$scanner$guide$en_US extends Translations$scanner$guide$zh_TW {
+	_Translations$scanner$guide$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -534,8 +534,8 @@ class _TranslationsScannerGuideEnUs extends TranslationsScannerGuideZhTw {
 }
 
 // Path: intro.features.courseTable
-class _TranslationsIntroFeaturesCourseTableEnUs extends TranslationsIntroFeaturesCourseTableZhTw {
-	_TranslationsIntroFeaturesCourseTableEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$intro$features$courseTable$en_US extends Translations$intro$features$courseTable$zh_TW {
+	_Translations$intro$features$courseTable$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -545,8 +545,8 @@ class _TranslationsIntroFeaturesCourseTableEnUs extends TranslationsIntroFeature
 }
 
 // Path: intro.features.scores
-class _TranslationsIntroFeaturesScoresEnUs extends TranslationsIntroFeaturesScoresZhTw {
-	_TranslationsIntroFeaturesScoresEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$intro$features$scores$en_US extends Translations$intro$features$scores$zh_TW {
+	_Translations$intro$features$scores$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -556,8 +556,8 @@ class _TranslationsIntroFeaturesScoresEnUs extends TranslationsIntroFeaturesScor
 }
 
 // Path: intro.features.campusLife
-class _TranslationsIntroFeaturesCampusLifeEnUs extends TranslationsIntroFeaturesCampusLifeZhTw {
-	_TranslationsIntroFeaturesCampusLifeEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$intro$features$campusLife$en_US extends Translations$intro$features$campusLife$zh_TW {
+	_Translations$intro$features$campusLife$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -567,8 +567,8 @@ class _TranslationsIntroFeaturesCampusLifeEnUs extends TranslationsIntroFeatures
 }
 
 // Path: profile.dangerZone.items
-class _TranslationsProfileDangerZoneItemsEnUs extends TranslationsProfileDangerZoneItemsZhTw {
-	_TranslationsProfileDangerZoneItemsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$dangerZone$items$en_US extends Translations$profile$dangerZone$items$zh_TW {
+	_Translations$profile$dangerZone$items$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
