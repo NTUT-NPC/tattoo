@@ -251,4 +251,24 @@ extension DatabaseActions on AppDatabase {
       ),
     )).id;
   }
+
+  /// Returns the ID of an existing student row, or creates/updates one.
+  ///
+  /// A null [name] never overwrites a previously recorded name — some
+  /// I-School Plus rosters omit the name for certain students.
+  Future<int> upsertStudent({
+    required String studentId,
+    String? name,
+  }) async {
+    return (await into(students).insertReturning(
+      StudentsCompanion.insert(
+        studentId: studentId,
+        name: Value(name),
+      ),
+      onConflict: DoUpdate(
+        (old) => StudentsCompanion(name: .absentIfNull(name)),
+        target: [students.studentId],
+      ),
+    )).id;
+  }
 }

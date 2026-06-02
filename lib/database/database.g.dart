@@ -3950,6 +3950,18 @@ class $CourseOfferingsTable extends CourseOfferings
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _rosterFetchedAtMeta = const VerificationMeta(
+    'rosterFetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> rosterFetchedAt =
+      GeneratedColumn<DateTime>(
+        'roster_fetched_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3975,6 +3987,7 @@ class $CourseOfferingsTable extends CourseOfferings
     evaluation,
     textbooks,
     syllabusRemarks,
+    rosterFetchedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4127,6 +4140,15 @@ class $CourseOfferingsTable extends CourseOfferings
         ),
       );
     }
+    if (data.containsKey('roster_fetched_at')) {
+      context.handle(
+        _rosterFetchedAtMeta,
+        rosterFetchedAt.isAcceptableOrUnknown(
+          data['roster_fetched_at']!,
+          _rosterFetchedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -4233,6 +4255,10 @@ class $CourseOfferingsTable extends CourseOfferings
       syllabusRemarks: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}syllabus_remarks'],
+      ),
+      rosterFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}roster_fetched_at'],
       ),
     );
   }
@@ -4359,6 +4385,10 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
 
   /// Teacher-authored remarks from the syllabus page (備註).
   final String? syllabusRemarks;
+
+  /// When the I-School Plus roster (classmates) was last fetched for this
+  /// offering. Null until the first roster fetch.
+  final DateTime? rosterFetchedAt;
   const CourseOffering({
     required this.id,
     this.fetchedAt,
@@ -4383,6 +4413,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     this.evaluation,
     this.textbooks,
     this.syllabusRemarks,
+    this.rosterFetchedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4452,6 +4483,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     if (!nullToAbsent || syllabusRemarks != null) {
       map['syllabus_remarks'] = Variable<String>(syllabusRemarks);
     }
+    if (!nullToAbsent || rosterFetchedAt != null) {
+      map['roster_fetched_at'] = Variable<DateTime>(rosterFetchedAt);
+    }
     return map;
   }
 
@@ -4520,6 +4554,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       syllabusRemarks: syllabusRemarks == null && nullToAbsent
           ? const Value.absent()
           : Value(syllabusRemarks),
+      rosterFetchedAt: rosterFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rosterFetchedAt),
     );
   }
 
@@ -4556,6 +4593,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       evaluation: serializer.fromJson<String?>(json['evaluation']),
       textbooks: serializer.fromJson<String?>(json['textbooks']),
       syllabusRemarks: serializer.fromJson<String?>(json['syllabusRemarks']),
+      rosterFetchedAt: serializer.fromJson<DateTime?>(json['rosterFetchedAt']),
     );
   }
   @override
@@ -4587,6 +4625,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       'evaluation': serializer.toJson<String?>(evaluation),
       'textbooks': serializer.toJson<String?>(textbooks),
       'syllabusRemarks': serializer.toJson<String?>(syllabusRemarks),
+      'rosterFetchedAt': serializer.toJson<DateTime?>(rosterFetchedAt),
     };
   }
 
@@ -4614,6 +4653,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     Value<String?> evaluation = const Value.absent(),
     Value<String?> textbooks = const Value.absent(),
     Value<String?> syllabusRemarks = const Value.absent(),
+    Value<DateTime?> rosterFetchedAt = const Value.absent(),
   }) => CourseOffering(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
@@ -4642,6 +4682,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     syllabusRemarks: syllabusRemarks.present
         ? syllabusRemarks.value
         : this.syllabusRemarks,
+    rosterFetchedAt: rosterFetchedAt.present
+        ? rosterFetchedAt.value
+        : this.rosterFetchedAt,
   );
   CourseOffering copyWithCompanion(CourseOfferingsCompanion data) {
     return CourseOffering(
@@ -4682,6 +4725,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       syllabusRemarks: data.syllabusRemarks.present
           ? data.syllabusRemarks.value
           : this.syllabusRemarks,
+      rosterFetchedAt: data.rosterFetchedAt.present
+          ? data.rosterFetchedAt.value
+          : this.rosterFetchedAt,
     );
   }
 
@@ -4710,7 +4756,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           ..write('weeklyPlan: $weeklyPlan, ')
           ..write('evaluation: $evaluation, ')
           ..write('textbooks: $textbooks, ')
-          ..write('syllabusRemarks: $syllabusRemarks')
+          ..write('syllabusRemarks: $syllabusRemarks, ')
+          ..write('rosterFetchedAt: $rosterFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -4740,6 +4787,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     evaluation,
     textbooks,
     syllabusRemarks,
+    rosterFetchedAt,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -4767,7 +4815,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           other.weeklyPlan == this.weeklyPlan &&
           other.evaluation == this.evaluation &&
           other.textbooks == this.textbooks &&
-          other.syllabusRemarks == this.syllabusRemarks);
+          other.syllabusRemarks == this.syllabusRemarks &&
+          other.rosterFetchedAt == this.rosterFetchedAt);
 }
 
 class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
@@ -4794,6 +4843,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   final Value<String?> evaluation;
   final Value<String?> textbooks;
   final Value<String?> syllabusRemarks;
+  final Value<DateTime?> rosterFetchedAt;
   const CourseOfferingsCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
@@ -4818,6 +4868,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.evaluation = const Value.absent(),
     this.textbooks = const Value.absent(),
     this.syllabusRemarks = const Value.absent(),
+    this.rosterFetchedAt = const Value.absent(),
   });
   CourseOfferingsCompanion.insert({
     this.id = const Value.absent(),
@@ -4843,6 +4894,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.evaluation = const Value.absent(),
     this.textbooks = const Value.absent(),
     this.syllabusRemarks = const Value.absent(),
+    this.rosterFetchedAt = const Value.absent(),
   }) : semester = Value(semester),
        nameZh = Value(nameZh);
   static Insertable<CourseOffering> custom({
@@ -4869,6 +4921,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Expression<String>? evaluation,
     Expression<String>? textbooks,
     Expression<String>? syllabusRemarks,
+    Expression<DateTime>? rosterFetchedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -4894,6 +4947,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       if (evaluation != null) 'evaluation': evaluation,
       if (textbooks != null) 'textbooks': textbooks,
       if (syllabusRemarks != null) 'syllabus_remarks': syllabusRemarks,
+      if (rosterFetchedAt != null) 'roster_fetched_at': rosterFetchedAt,
     });
   }
 
@@ -4921,6 +4975,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Value<String?>? evaluation,
     Value<String?>? textbooks,
     Value<String?>? syllabusRemarks,
+    Value<DateTime?>? rosterFetchedAt,
   }) {
     return CourseOfferingsCompanion(
       id: id ?? this.id,
@@ -4946,6 +5001,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       evaluation: evaluation ?? this.evaluation,
       textbooks: textbooks ?? this.textbooks,
       syllabusRemarks: syllabusRemarks ?? this.syllabusRemarks,
+      rosterFetchedAt: rosterFetchedAt ?? this.rosterFetchedAt,
     );
   }
 
@@ -5023,6 +5079,9 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     if (syllabusRemarks.present) {
       map['syllabus_remarks'] = Variable<String>(syllabusRemarks.value);
     }
+    if (rosterFetchedAt.present) {
+      map['roster_fetched_at'] = Variable<DateTime>(rosterFetchedAt.value);
+    }
     return map;
   }
 
@@ -5051,7 +5110,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
           ..write('weeklyPlan: $weeklyPlan, ')
           ..write('evaluation: $evaluation, ')
           ..write('textbooks: $textbooks, ')
-          ..write('syllabusRemarks: $syllabusRemarks')
+          ..write('syllabusRemarks: $syllabusRemarks, ')
+          ..write('rosterFetchedAt: $rosterFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -15726,6 +15786,7 @@ typedef $$CourseOfferingsTableCreateCompanionBuilder =
       Value<String?> evaluation,
       Value<String?> textbooks,
       Value<String?> syllabusRemarks,
+      Value<DateTime?> rosterFetchedAt,
     });
 typedef $$CourseOfferingsTableUpdateCompanionBuilder =
     CourseOfferingsCompanion Function({
@@ -15752,6 +15813,7 @@ typedef $$CourseOfferingsTableUpdateCompanionBuilder =
       Value<String?> evaluation,
       Value<String?> textbooks,
       Value<String?> syllabusRemarks,
+      Value<DateTime?> rosterFetchedAt,
     });
 
 final class $$CourseOfferingsTableReferences
@@ -16051,6 +16113,11 @@ class $$CourseOfferingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<DateTime> get rosterFetchedAt => $composableBuilder(
+    column: $table.rosterFetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$SemestersTableFilterComposer get semester {
     final $$SemestersTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -16347,6 +16414,11 @@ class $$CourseOfferingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get rosterFetchedAt => $composableBuilder(
+    column: $table.rosterFetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$SemestersTableOrderingComposer get semester {
     final $$SemestersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -16458,6 +16530,11 @@ class $$CourseOfferingsTableAnnotationComposer
 
   GeneratedColumn<String> get syllabusRemarks => $composableBuilder(
     column: $table.syllabusRemarks,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get rosterFetchedAt => $composableBuilder(
+    column: $table.rosterFetchedAt,
     builder: (column) => column,
   );
 
@@ -16699,6 +16776,7 @@ class $$CourseOfferingsTableTableManager
                 Value<String?> evaluation = const Value.absent(),
                 Value<String?> textbooks = const Value.absent(),
                 Value<String?> syllabusRemarks = const Value.absent(),
+                Value<DateTime?> rosterFetchedAt = const Value.absent(),
               }) => CourseOfferingsCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -16723,6 +16801,7 @@ class $$CourseOfferingsTableTableManager
                 evaluation: evaluation,
                 textbooks: textbooks,
                 syllabusRemarks: syllabusRemarks,
+                rosterFetchedAt: rosterFetchedAt,
               ),
           createCompanionCallback:
               ({
@@ -16749,6 +16828,7 @@ class $$CourseOfferingsTableTableManager
                 Value<String?> evaluation = const Value.absent(),
                 Value<String?> textbooks = const Value.absent(),
                 Value<String?> syllabusRemarks = const Value.absent(),
+                Value<DateTime?> rosterFetchedAt = const Value.absent(),
               }) => CourseOfferingsCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -16773,6 +16853,7 @@ class $$CourseOfferingsTableTableManager
                 evaluation: evaluation,
                 textbooks: textbooks,
                 syllabusRemarks: syllabusRemarks,
+                rosterFetchedAt: rosterFetchedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
