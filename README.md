@@ -102,7 +102,7 @@ The tool reads `test/test_config.json`. If the file is missing, copy `test/test_
 
 Captured files are written under `tmp/html_snapshot/` with the service name prefixed in the file name. Each file starts with a commented metadata block containing a raw-capture warning, `preset`, `request_url`, `fetchtime`, and `message`; use `-m/--message` to describe why the sample was kept. If no message is provided, the tool writes a TODO placeholder that must be replaced before promotion. This directory is local-only and ignored by git. Do not commit raw captures; de-identify them before promoting any sample into a fixture or documentation, and do not submit a promoted snapshot without a meaningful `message`. `capture -a` skips presets that require explicit identifiers, such as a course, teacher, classroom, or syllabus ID.
 
-When adding new Service-layer parser requests, add or update capture presets in `tool/html_snapshot_presets.dart`.
+When adding new Service-layer parser requests, add or update capture presets in `tool/html_snapshot/presets.dart`.
 
 ## Local Development
 

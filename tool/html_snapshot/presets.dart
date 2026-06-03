@@ -1,4 +1,4 @@
-part of 'html_snapshot.dart';
+part of '../html_snapshot.dart';
 
 class SemesterRef {
   final int year;

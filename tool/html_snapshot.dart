@@ -23,8 +23,8 @@ import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
 
-part 'html_snapshot_http.dart';
-part 'html_snapshot_presets.dart';
+part 'html_snapshot/http.dart';
+part 'html_snapshot/presets.dart';
 
 const _defaultConfigPath = 'test/test_config.json';
 const _defaultOutputDir = 'tmp/html_snapshot';
@@ -202,6 +202,7 @@ class CaptureCommand extends SnapshotCommand {
         'Finished capture: $successfulCount succeeded, ${failures.length} failed.',
       );
     }
+    printSnapshotWarningIfNeeded();
     return failures.isEmpty ? 0 : 1;
   }
 
@@ -300,11 +301,14 @@ class RawCommand extends SnapshotCommand {
     );
     final snapshot = await _captureRaw(context, request);
     await writeSnapshot(snapshot);
+    printSnapshotWarningIfNeeded();
     return 0;
   }
 }
 
 abstract class SnapshotCommand extends Command<int> {
+  bool _wroteSnapshot = false;
+
   void addCommonOptions(ArgParser parser) {
     parser
       ..addOption(
@@ -348,9 +352,13 @@ abstract class SnapshotCommand extends Command<int> {
 
     stdout.writeln('Captured ${snapshot.label}');
     stdout.writeln('Wrote ${file.absolute.path}');
-    stdout.writeln(
-      _snapshotWarning,
-    );
+    _wroteSnapshot = true;
+  }
+
+  void printSnapshotWarningIfNeeded() {
+    if (!_wroteSnapshot) return;
+    stdout.writeln('');
+    stdout.writeln(_snapshotWarning);
   }
 
   String _singleRestValue(String label) {
@@ -893,9 +901,9 @@ String _snapshotBodyWithMetadata(
       .replaceAll(RegExp(r'[\r\n]+'), ' ')
       .replaceAll('--', '- -')
       .trim();
-  final metadataMessage = safeMessage.isEmpty
-      ? _defaultSnapshotMessage
-      : safeMessage;
+  final messageMetadata = safeMessage.isEmpty
+      ? 'message:\n$_defaultSnapshotMessage'
+      : 'message: $safeMessage';
   final metadata = [
     '<!--',
     'warning: $_snapshotWarning',
@@ -904,7 +912,7 @@ String _snapshotBodyWithMetadata(
     'request_url: $safeRequestUrl',
     '',
     'fetchtime: ${_formatMetadataTimestamp(fetchedAt)}',
-    'message: $metadataMessage',
+    messageMetadata,
     '',
     '-->',
   ].join('\n');
