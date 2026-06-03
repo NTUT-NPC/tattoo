@@ -52,8 +52,9 @@ Dart 3 idioms not yet covered by linter rules (see [#288](https://github.com/NTU
 - Use `dart run tool/html_snapshot.dart list` to inspect supported raw HTML/XML capture presets.
 - Use `dart run tool/html_snapshot.dart capture <preset> [<preset>...] -m "<message>"` to capture one or more known pages.
 - Use `dart run tool/html_snapshot.dart capture -a -m "<message>"` to capture every preset that can be resolved without explicit IDs.
+- Add `-q` / `--quiet` to capture commands when request paths or errors may expose sensitive URL content; this suppresses HTTP request logs and redacts request URLs in quiet-mode Dio errors.
 - Captures are written to `tmp/html_snapshot/` and are local-only. Never commit raw captures because they may contain personal data.
-- Each capture starts with a commented metadata block containing a raw-capture warning, `preset`, `request_url`, `fetchtime`, and `message`. Before promoting a captured page into tests, documentation, or fixtures, de-identify it, review the result manually, and replace any TODO placeholder with a meaningful `message`; snapshots without a message are not accepted for submission.
+- Each capture starts with a commented metadata block containing a raw-capture warning, `preset`, `request_url`, `fetchtime`, `message`, and a parser expected-result TODO. Before promoting a captured page into tests, documentation, or fixtures, de-identify it, review the result manually, and replace any `message:` TODO placeholder with a meaningful `message`; snapshots without a message are not accepted for submission. The parser expected-result TODO may remain until the HTML-based test code is complete.
 - When adding or changing a Service-layer HTML/XML parser request, check whether `tool/html_snapshot/presets.dart` should gain or update a preset for that request.
 
 ## Git and GitHub Workflows

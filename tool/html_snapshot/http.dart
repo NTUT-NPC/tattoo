@@ -4,7 +4,7 @@ CookieJar? _snapshotCookieJar;
 
 CookieJar get _cookieJar => _snapshotCookieJar ??= CookieJar();
 
-Dio _createDio(SnapshotService service) {
+Dio _createDio(SnapshotService service, {required bool quiet}) {
   final dio = Dio()
     ..options = BaseOptions(
       baseUrl: service.baseUrl,
@@ -25,7 +25,7 @@ Dio _createDio(SnapshotService service) {
     _ClientIdentifierInterceptor(),
     _HttpsInterceptor(),
     RedirectInterceptor(() => dio),
-    _SnapshotLogInterceptor(),
+    if (!quiet) _SnapshotLogInterceptor(),
   ]);
 
   if (service == .ischool) {
