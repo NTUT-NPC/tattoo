@@ -19,7 +19,16 @@ Use this skill only to de-identify the selected snapshot and perform the require
    dart run tool/html_snapshot.dart capture <preset> -m "<short English reason>"
    ```
 
-4. Read the commented metadata block at the top of the fetched HTML/XML. Ignore any TODO about future HTML-based test expectations; that TODO may stay until the test code exists. Require only the `message` field to contain a meaningful short English reason that describes the sample's state. If the message has usable content, rewrite it into concise English and fix grammar, spelling, or Chinese wording. Treat the snapshot as usual when the message says this is a standard, normal, common, typical, usual, regular, or general page, unless the message also describes an error, edge case, unusual state, or other abnormal condition. Ask the user what special state this snapshot represents only when the message has no usable information, then summarize the answer into the metadata `message`. For usual pages, write a usual-page message, such as `This is a usual graduation check page.`
+4. Resolve the metadata `message` before de-identifying:
+   - Read the commented metadata block at the top of the fetched HTML/XML.
+   - Ignore any TODO about future HTML-based test expectations; that TODO may stay until the test code exists.
+   - Require only the `message` field to contain a meaningful short English reason that describes the sample's state.
+   - If the message has usable content, rewrite it into concise English and fix grammar, spelling, or Chinese wording.
+   - Treat the snapshot as usual only when the message itself says this is a standard, normal, common, typical, usual, regular, or general page, unless the message also describes an error, edge case, unusual state, or other abnormal condition.
+   - If the message is empty, TODO-only, placeholder-only, or otherwise has no usable information, inspect the page body for obvious states such as blocking notices, required questionnaire warnings, empty results, errors, redirects, or login/session failures, then write a concise English message for that observed state.
+   - If the state is not obvious after inspecting the page, ask the user what state this snapshot represents and summarize the answer into the metadata `message`.
+   - Never turn a missing, empty, TODO-only, placeholder-only, or weak message into a usual-page message.
+   - For confirmed usual pages, write a usual-page message, such as `This is a usual graduation check page.`
 
 ## De-identify
 
@@ -63,4 +72,9 @@ Remove or replace these when present:
 
    Use the queried item/page name for `<query_item>`, a three-digit serial such as `001`, and a very short English `<short_message>` of a few words. Choose the serial by checking the target `<service>` folder for existing files with the same `<query_item>_` prefix, then use the next number. Use `usual` when the metadata message says this is a standard, normal, common, typical, usual, regular, or general page, unless it also describes an abnormal condition. Never infer `usual` from a missing or weak message. Example: `test/fixtures/student_query/graduation_check_001_graduate_eligible.html`.
 4. Re-scan the promoted file for sensitive data and every ledger value before staging. Do not stage raw files from `tmp/html_snapshot/`.
-5. After promotion is complete, the only allowed closing question is whether to delete the just-processed raw source file in `tmp/html_snapshot/`. Do not ask about or suggest anything else. Do not delete the original file without explicit user authorization. Never delete the raw file unless the user explicitly confirms deletion, and never delete the whole `tmp/html_snapshot/` folder.
+5. Resolve raw source cleanup after promotion:
+   - Always ask whether to delete the just-processed raw source file in `tmp/html_snapshot/` or leave it in place.
+   - This is the only allowed closing question; do not ask about or suggest anything else.
+   - Default to leaving the raw file untouched when the user does not answer or gives an unclear answer.
+   - It is strictly forbidden to delete any raw source file without explicit user confirmation.
+   - Never delete the whole `tmp/html_snapshot/` folder.
