@@ -40,7 +40,7 @@ runs:
         set -uo pipefail
 
         emit_changelog() {            # multiline-safe $GITHUB_OUTPUT
-          local delim="EOF_changelog"
+          local delim="EOF_changelog_$RANDOM"  # unique to guard against delimiter injection
           {
             echo "changelog<<$delim"
             printf '%s\n' "$1"
