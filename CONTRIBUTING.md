@@ -45,7 +45,7 @@ Dart 3 idioms not yet covered by linter rules (see [#288](https://github.com/NTU
 
 ## Typography & i18n
 
-- **No CJK–Latin spaces (in-app only):** Do not insert literal spaces between CJK and alphanumeric characters in i18n strings or UI text. Spacing is a rendering concern. GitHub discussions should still use spaces for readability.
+- **No CJK–Latin spaces in source; space at render time:** Never put literal spaces between CJK and alphanumeric characters in i18n strings or UI text — spacing is a rendering concern. Instead apply the `String.spaced` extension (`lib/utils/auto_spacing.dart`) where CJK-mixed text is displayed (i18n and dynamic NTUT content); for parameterized strings call it on the interpolated result. GitHub discussions should still use spaces for readability.
 
 ## Git and GitHub Workflows
 

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 class MainHomeScreen extends StatelessWidget {
@@ -14,14 +15,14 @@ class MainHomeScreen extends StatelessWidget {
       OptionEntryTile.svg(
         svgIconAsset: "assets/tat_icon.svg",
         actionIcon: .exitToApp,
-        title: t.home.projectTattoo.title,
+        title: t.home.projectTattoo.title.spaced,
         description: t.home.projectTattoo.description,
         onTap: () => launchUrl(.parse(t.home.projectTattoo.url)),
       ),
       OptionEntryTile.icon(
         icon: Icons.explore_outlined,
         actionIcon: .exitToApp,
-        title: t.home.ideation.title,
+        title: t.home.ideation.title.spaced,
         description: t.home.ideation.description,
         onTap: () => launchUrl(
           .parse(t.home.ideation.url),
@@ -39,14 +40,14 @@ class MainHomeScreen extends StatelessWidget {
               OptionEntryTile.icon(
                 icon: Icons.how_to_vote_outlined,
                 title: t.nav.vote,
-                description: t.home.vote.description,
+                description: t.home.vote.description.spaced,
                 onTap: () => context.push(AppRoutes.kioskLoginQr),
               ),
             ]
           : <Widget>[]),
       OptionEntryTile.icon(
         icon: Icons.qr_code_scanner,
-        title: t.scanner.loginIStudy,
+        title: t.scanner.loginIStudy.spaced,
         onTap: () => context.push(AppRoutes.scanner),
       ),
       OptionEntryTile.icon(
