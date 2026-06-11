@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 import java.io.FileInputStream
 
@@ -7,7 +6,6 @@ plugins {
     // START: FlutterFire Configuration
     // firebase plugins should be managed by the conditional apply below.
     // END: FlutterFire Configuration
-    id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -62,6 +60,12 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
 // Conditionally apply google-services plugin to avoid mismatch errors in debug build
 val isRelease = project.gradle.startParameter.taskNames.any {
     it.contains("release", ignoreCase = true) || it.contains("bundle", ignoreCase = true)
@@ -69,12 +73,6 @@ val isRelease = project.gradle.startParameter.taskNames.any {
 if (isRelease) {
     apply(plugin = "com.google.gms.google-services")
     apply(plugin = "com.google.firebase.crashlytics")
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget = JvmTarget.fromTarget("17")
-    }
 }
 
 dependencies {
