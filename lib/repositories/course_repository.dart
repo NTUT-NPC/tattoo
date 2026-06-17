@@ -758,9 +758,15 @@ class CourseRepository {
       if (refresh && syllabus.fetchedAt == null) {
         try {
           await refreshSyllabus(id);
+          final refreshedRow = await (_database.select(
+            _database.syllabuses,
+          )..where((s) => s.id.equals(id))).getSingleOrNull();
+          yield refreshedRow ?? syllabus;
         } catch (_) {
-          // Absorb: yield the stub below so UI exits loading state
+          // Absorb: yield the stub so the UI exits its loading state
+          yield syllabus;
         }
+        continue;
       }
 
       yield syllabus;
