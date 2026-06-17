@@ -664,13 +664,13 @@ class CourseRepository {
   }
 
   /// Watches the syllabus authored by [teacherId] for offering [offeringId],
-  /// always fetching fresh content once per subscription rather than caching.
+  /// refreshing it once per subscription (no staleness gate).
   ///
-  /// Emits cached content immediately, then refreshes in the background; with
-  /// no cached row it blocks on the first fetch instead, so the UI shows
-  /// content (or a definitive "no syllabus") rather than flashing empty. The
-  /// stream re-emits when the DB is updated. Emits `null` when the teacher
-  /// hasn't submitted a syllabus (尚未登錄) or is unknown.
+  /// Emits the cached row immediately when present, then refreshes in the
+  /// background; with no cached row it blocks on the first fetch instead, so
+  /// the UI shows content (or a definitive "no syllabus") rather than flashing
+  /// empty. The stream re-emits when the DB is updated. Emits `null` when the
+  /// teacher hasn't submitted a syllabus (尚未登錄) or is unknown.
   Stream<Syllabus?> watchSyllabus({
     required int offeringId,
     required String teacherId,
@@ -697,6 +697,10 @@ class CourseRepository {
         refreshed = true;
         try {
           await refreshSyllabus(offeringId: offeringId, teacherId: teacherId);
+          // Emit the freshly fetched row (or null on 尚未登錄) rather than the
+          // stale null snapshot, before the stream re-emits.
+          yield await query.getSingleOrNull();
+          continue;
         } catch (_) {
           // Absorb: yield null below so the UI exits its loading state
         }
