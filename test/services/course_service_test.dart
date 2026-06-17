@@ -394,7 +394,7 @@ void main() {
         final course = coursesWithSyllabus.pickRandom();
         final syllabus = await courseService.getSyllabus(
           courseNumber: course.number!,
-          syllabusId: course.syllabusIds!.first,
+          syllabusId: course.syllabusIds!.pickRandom(),
         );
 
         // Verify course type is a valid enum value
@@ -452,7 +452,7 @@ void main() {
         final course = coursesWithSyllabus.pickRandom();
         final syllabus = await courseService.getSyllabus(
           courseNumber: course.number!,
-          syllabusId: course.syllabusIds!.first,
+          syllabusId: course.syllabusIds!.pickRandom(),
         );
 
         // At least some content fields should be populated
@@ -502,7 +502,7 @@ void main() {
         final course = coursesWithSyllabus.pickRandom();
         final syllabus = await courseService.getSyllabus(
           courseNumber: course.number!,
-          syllabusId: course.syllabusIds!.first,
+          syllabusId: course.syllabusIds!.pickRandom(),
         );
 
         // Email should contain @ if present
