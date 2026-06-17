@@ -541,7 +541,11 @@ void main() {
 
         final course = coursesWithTeacher.pickRandom();
         final teacher = await courseService.getTeacher(
-          teacherId: course.teachers!.firstWhere((t) => t.id != null).id!,
+          teacherId: course.teachers!
+              .where((t) => t.id != null)
+              .toList()
+              .pickRandom()
+              .id!,
           semester: semester,
         );
 
@@ -617,7 +621,11 @@ void main() {
 
         final course = coursesWithTeacher.pickRandom();
         final teacher = await courseService.getTeacher(
-          teacherId: course.teachers!.firstWhere((t) => t.id != null).id!,
+          teacherId: course.teachers!
+              .where((t) => t.id != null)
+              .toList()
+              .pickRandom()
+              .id!,
           semester: semester,
         );
 
