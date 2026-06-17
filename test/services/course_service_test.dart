@@ -190,7 +190,7 @@ void main() {
         );
 
         final coursesWithEnTeacher = regularCourses
-            .where((s) => s.teacher?.nameEn != null)
+            .where((s) => s.teachers?.any((t) => t.nameEn != null) ?? false)
             .toList();
         expect(
           coursesWithEnTeacher,
@@ -198,7 +198,14 @@ void main() {
           reason: 'At least one course should have an English teacher name',
         );
         for (final course in coursesWithEnTeacher) {
-          expect(course.teacher!.nameEn, isNotEmpty);
+          final namesEn = course.teachers!
+              .map((t) => t.nameEn)
+              .nonNulls
+              .toList();
+          expect(namesEn, isNotEmpty);
+          for (final nameEn in namesEn) {
+            expect(nameEn, isNotEmpty);
+          }
         }
       });
 
@@ -520,7 +527,10 @@ void main() {
 
         // Find a course with a teacher ID
         final coursesWithTeacher = courseTable
-            .where((schedule) => schedule.teacher?.id != null)
+            .where(
+              (schedule) =>
+                  schedule.teachers?.any((t) => t.id != null) ?? false,
+            )
             .toList();
 
         expect(
@@ -531,7 +541,7 @@ void main() {
 
         final course = coursesWithTeacher.pickRandom();
         final teacher = await courseService.getTeacher(
-          teacherId: course.teacher!.id!,
+          teacherId: course.teachers!.firstWhere((t) => t.id != null).id!,
           semester: semester,
         );
 
@@ -593,7 +603,10 @@ void main() {
         );
 
         final coursesWithTeacher = courseTable
-            .where((schedule) => schedule.teacher?.id != null)
+            .where(
+              (schedule) =>
+                  schedule.teachers?.any((t) => t.id != null) ?? false,
+            )
             .toList();
 
         expect(
@@ -604,7 +617,7 @@ void main() {
 
         final course = coursesWithTeacher.pickRandom();
         final teacher = await courseService.getTeacher(
-          teacherId: course.teacher!.id!,
+          teacherId: course.teachers!.firstWhere((t) => t.id != null).id!,
           semester: semester,
         );
 

@@ -9,7 +9,7 @@ import 'package:tattoo/utils/http.dart';
 typedef _EnglishCourseNames = ({
   String? number,
   String? courseName,
-  String? teacherName,
+  List<String> teacherNames,
   List<ReferenceDto> classes,
 });
 
@@ -87,6 +87,20 @@ class NtutCourseService implements CourseService {
           : enNumberless.elementAtOrNull(numberlessIndex++);
       if (en == null) return dto;
 
+      // English teacher names are matched to Chinese teachers positionally,
+      // and only when the two pages list the same number of teachers. For
+      // team-taught courses the English page gives no per-teacher anchors
+      // (unlike classes, which we match by id), so its names collapse into a
+      // single concatenated entry while the Chinese page links each teacher —
+      // the counts then differ and we skip the merge. Even when counts happen
+      // to agree, the English page can order teachers differently from the
+      // Chinese page, so we only trust the positional match for the common
+      // single-teacher case. On any mismatch, leave the names null; they are
+      // filled later from the teacher detail page rather than risk mis-attribution.
+      final teacherNamesEn = en.teacherNames;
+      final matchTeacherNames =
+          dto.teachers != null && teacherNamesEn.length == dto.teachers!.length;
+
       return (
         number: dto.number,
         course: (
@@ -98,11 +112,15 @@ class NtutCourseService implements CourseService {
         credits: dto.credits,
         hours: dto.hours,
         type: dto.type,
-        teacher: (
-          id: dto.teacher?.id,
-          nameZh: dto.teacher?.nameZh,
-          nameEn: en.teacherName,
-        ),
+        teachers: dto.teachers?.indexed
+            .map(
+              (entry) => (
+                id: entry.$2.id,
+                nameZh: entry.$2.nameZh,
+                nameEn: matchTeacherNames ? teacherNamesEn[entry.$1] : null,
+              ),
+            )
+            .toList(),
         classes: dto.classes
             ?.map(
               (c) => (
@@ -231,7 +249,7 @@ class NtutCourseService implements CourseService {
       final credits = double.tryParse(cells[3].text.trim());
       final hours = int.tryParse(cells[4].text.trim());
       final type = _parseCellText(cells[5]);
-      final teacher = _parseCellRef(cells[6]); // TODO: Handle multiple teachers
+      final teachers = _parseCellRefs(cells[6]);
       final classes = _parseCellRefs(cells[7]);
 
       // Look up schedule+classroom from the timetable grid by course name
@@ -249,7 +267,11 @@ class NtutCourseService implements CourseService {
         credits: credits,
         hours: hours,
         type: type,
-        teacher: (id: teacher.id, nameZh: teacher.name, nameEn: null),
+        teachers: teachers
+            ?.map<LocalizedRefDto>(
+              (t) => (id: t.id, nameZh: t.name, nameEn: null),
+            )
+            .toList(),
         classes: classes
             ?.map<LocalizedRefDto>(
               (c) => (id: c.id, nameZh: c.name, nameEn: null),
@@ -284,7 +306,9 @@ class NtutCourseService implements CourseService {
 
       final number = cells.isNotEmpty ? _parseCellText(cells[0]) : null;
       final courseName = cells.length > 1 ? _parseCellText(cells[1]) : null;
-      final teacherName = cells.length > 4 ? _parseCellText(cells[4]) : null;
+      final teacherNames = cells.length > 4
+          ? _parseTeacherNames(cells[4])
+          : <String>[];
       final classes = cells.length > 5
           ? cells[5].querySelectorAll('a').map(_parseAnchorRef).toList()
           : <ReferenceDto>[];
@@ -292,7 +316,7 @@ class NtutCourseService implements CourseService {
       return (
         number: number,
         courseName: courseName,
-        teacherName: teacherName,
+        teacherNames: teacherNames,
         classes: classes,
       );
     }).toList();
@@ -558,6 +582,22 @@ class NtutCourseService implements CourseService {
   String? _parseCellText(Element cell) {
     final text = cell.text.trim();
     return text.isNotEmpty ? text : null;
+  }
+
+  /// Parses teacher names from an English course-list cell.
+  ///
+  /// Prefers per-teacher anchors (mirroring the Chinese page's links); falls
+  /// back to the whole cell text for single-teacher rows with no links.
+  List<String> _parseTeacherNames(Element cell) {
+    final anchors = cell.querySelectorAll('a');
+    if (anchors.isNotEmpty) {
+      return anchors
+          .map((a) => a.text.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+    }
+    final text = cell.text.trim();
+    return text.isNotEmpty ? [text] : <String>[];
   }
 
   ReferenceDto _parseAnchorRef(Element anchor) {

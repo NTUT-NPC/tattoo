@@ -37,7 +37,7 @@ class MockCourseService implements CourseService {
           credits: null,
           hours: null,
           type: null,
-          teacher: (id: null, nameZh: null, nameEn: null),
+          teachers: null,
           classes: null,
           schedule: [
             (day: .tuesday, period: .third, classroom: null),
@@ -59,7 +59,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '12442', nameZh: '崔紘嘉', nameEn: 'Horng-Jia Tsue'),
+          teachers: [(id: '12442', nameZh: '崔紘嘉', nameEn: 'Horng-Jia Tsue')],
           classes: [(id: '2905', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (
@@ -94,7 +94,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11437', nameZh: '黃士嘉', nameEn: 'Shih-Chia Huang'),
+          teachers: [(id: '11437', nameZh: '黃士嘉', nameEn: 'Shih-Chia Huang')],
           classes: [(id: '2905', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (
@@ -129,12 +129,18 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 6,
           type: '必',
-          teacher: (
-            id: '10605',
-            nameZh: '余政杰\n李昭賢\n林信標\n段裘慶\n范育成\n陳晏笙\n陳維昌\n黃育賢\n楊濠瞬\n潘孟鉉',
-            nameEn:
-                'CHYON-CHING TUANCHENG-CHEN YUHSIN-PIAO LINHuang Yu-HsienYU-CHENG FANLee, Chao-HsienYen-Sheng ChenHao-Shun YangWEI-CHANG, CHENMeng-Shiuan Pan',
-          ),
+          teachers: [
+            (id: '10605', nameZh: '余政杰', nameEn: null),
+            (id: '11636', nameZh: '李昭賢', nameEn: null),
+            (id: '10823', nameZh: '林信標', nameEn: null),
+            (id: '10459', nameZh: '段裘慶', nameEn: null),
+            (id: '11246', nameZh: '范育成', nameEn: null),
+            (id: '11678', nameZh: '陳晏笙', nameEn: null),
+            (id: '11991', nameZh: '陳維昌', nameEn: null),
+            (id: '11130', nameZh: '黃育賢', nameEn: null),
+            (id: '11894', nameZh: '楊濠瞬', nameEn: null),
+            (id: '12231', nameZh: '潘孟鉉', nameEn: null),
+          ],
           classes: [(id: '2905', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: null,
           status: null,
@@ -153,7 +159,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 2,
           type: '必',
-          teacher: (id: '11232', nameZh: '邱弘緯', nameEn: 'CHIU HUNG WEI'),
+          teachers: [(id: '11232', nameZh: '邱弘緯', nameEn: 'CHIU HUNG WEI')],
           classes: [(id: '2905', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (day: .wednesday, period: .seventh, classroom: null),
@@ -175,7 +181,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan'),
+          teachers: [(id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan')],
           classes: [
             (id: '2905', nameZh: '電子三甲', nameEn: '4EN3A'),
             (id: '2906', nameZh: '電子三乙', nameEn: '4EN3B'),
@@ -213,7 +219,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12605', nameZh: '吳亦超', nameEn: 'Yi-Chao Wu'),
+          teachers: [(id: '12605', nameZh: '吳亦超', nameEn: 'Yi-Chao Wu')],
           classes: [
             (id: '2905', nameZh: '電子三甲', nameEn: '4EN3A'),
             (id: '2906', nameZh: '電子三乙', nameEn: '4EN3B'),
@@ -251,7 +257,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11678', nameZh: '陳晏笙', nameEn: 'Yen-Sheng Chen'),
+          teachers: [(id: '11678', nameZh: '陳晏笙', nameEn: 'Yen-Sheng Chen')],
           classes: [(id: '3022', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -282,7 +288,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '24588', nameZh: '林建洲', nameEn: 'Lin Chien-Chou'),
+          teachers: [(id: '24588', nameZh: '林建洲', nameEn: 'Lin Chien-Chou')],
           classes: [(id: '3129', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -317,7 +323,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '24627', nameZh: '楊欣茹', nameEn: 'Hsin-Ju Yang'),
+          teachers: [(id: '24627', nameZh: '楊欣茹', nameEn: 'Hsin-Ju Yang')],
           classes: [
             (id: '2883', nameZh: '博雅課程(十)', nameEn: 'Core Curriculum (X)'),
           ],
@@ -349,7 +355,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '必',
-          teacher: (id: null, nameZh: null, nameEn: null),
+          teachers: null,
           classes: [
             (
               id: '589',
@@ -375,7 +381,7 @@ class MockCourseService implements CourseService {
           credits: null,
           hours: null,
           type: null,
-          teacher: (id: null, nameZh: null, nameEn: null),
+          teachers: null,
           classes: null,
           schedule: [
             (day: .tuesday, period: .third, classroom: null),
@@ -397,7 +403,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan'),
+          teachers: [(id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan')],
           classes: [
             (id: '2788', nameZh: '電子三甲', nameEn: '4EN3A'),
             (id: '2789', nameZh: '電子三乙', nameEn: '4EN3B'),
@@ -435,7 +441,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 2,
           type: '必',
-          teacher: (id: '10496', nameZh: '李文達', nameEn: 'LEE NEW-TA'),
+          teachers: [(id: '10496', nameZh: '李文達', nameEn: 'LEE NEW-TA')],
           classes: [(id: '2788', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (day: .wednesday, period: .seventh, classroom: null),
@@ -457,12 +463,17 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 6,
           type: '必',
-          teacher: (
-            id: '10605',
-            nameZh: '余政杰\n林信標\n段裘慶\n胡心卉\n郭宏源\n黃育賢\n潘孟鉉\n賴建宏\n鍾明桉',
-            nameEn:
-                'CHYON-CHING TUANCHENG-CHEN YUHSIN-PIAO LINHuang Yu-HsienHsin-Hui HuMeng-Shiuan PanMing-An ChungChien-Hung LaiKuo,Hung-Yuan',
-          ),
+          teachers: [
+            (id: '10605', nameZh: '余政杰', nameEn: null),
+            (id: '10823', nameZh: '林信標', nameEn: null),
+            (id: '10459', nameZh: '段裘慶', nameEn: null),
+            (id: '11467', nameZh: '胡心卉', nameEn: null),
+            (id: '12376', nameZh: '郭宏源', nameEn: null),
+            (id: '11130', nameZh: '黃育賢', nameEn: null),
+            (id: '12231', nameZh: '潘孟鉉', nameEn: null),
+            (id: '12245', nameZh: '賴建宏', nameEn: null),
+            (id: '12232', nameZh: '鍾明桉', nameEn: null),
+          ],
           classes: [(id: '2788', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: null,
           status: null,
@@ -481,7 +492,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '10459', nameZh: '段裘慶', nameEn: 'CHYON-CHING TUAN'),
+          teachers: [(id: '10459', nameZh: '段裘慶', nameEn: 'CHYON-CHING TUAN')],
           classes: [
             (id: '2788', nameZh: '電子三甲', nameEn: '4EN3A'),
             (id: '2789', nameZh: '電子三乙', nameEn: '4EN3B'),
@@ -519,7 +530,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12384', nameZh: '張世豪', nameEn: 'Chang, Shih-Hao'),
+          teachers: [(id: '12384', nameZh: '張世豪', nameEn: 'Chang, Shih-Hao')],
           classes: [(id: '2798', nameZh: '資工三', nameEn: '4CSIE3')],
           schedule: [
             (
@@ -554,7 +565,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11130', nameZh: '黃育賢', nameEn: 'Huang Yu-Hsien'),
+          teachers: [(id: '11130', nameZh: '黃育賢', nameEn: 'Huang Yu-Hsien')],
           classes: [(id: '2905', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -589,7 +600,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11635', nameZh: '曾柏軒', nameEn: 'Po-Hsuan Tseng'),
+          teachers: [(id: '11635', nameZh: '曾柏軒', nameEn: 'Po-Hsuan Tseng')],
           classes: [(id: '2906', nameZh: '電子二乙', nameEn: '4EN2B')],
           schedule: [
             (
@@ -624,7 +635,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 3,
           type: '必',
-          teacher: (id: '12380', nameZh: '吳宙霖', nameEn: 'Carter,Jon Robert'),
+          teachers: [(id: '12380', nameZh: '吳宙霖', nameEn: 'Carter,Jon Robert')],
           classes: [(id: '3039', nameZh: '資財一', nameEn: '4IFM1')],
           schedule: [
             (
@@ -659,7 +670,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12245', nameZh: '賴建宏', nameEn: 'Chien-Hung Lai'),
+          teachers: [(id: '12245', nameZh: '賴建宏', nameEn: 'Chien-Hung Lai')],
           classes: [
             (id: '2788', nameZh: '電子三甲', nameEn: '4EN3A'),
             (id: '2789', nameZh: '電子三乙', nameEn: '4EN3B'),
@@ -697,7 +708,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '24602', nameZh: '陳正中', nameEn: 'Cheng,jeng-chung'),
+          teachers: [(id: '24602', nameZh: '陳正中', nameEn: 'Cheng,jeng-chung')],
           classes: [
             (id: '2760', nameZh: '博雅課程(四)', nameEn: 'Core Curriculum (IV)'),
           ],
@@ -729,7 +740,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '24530', nameZh: '何俊頤', nameEn: 'Chun-Yi Ho'),
+          teachers: [(id: '24530', nameZh: '何俊頤', nameEn: 'Chun-Yi Ho')],
           classes: [
             (id: '2884', nameZh: '博雅課程(十一)', nameEn: 'Core Curriculum (XI)'),
           ],
@@ -759,7 +770,7 @@ class MockCourseService implements CourseService {
           credits: null,
           hours: null,
           type: null,
-          teacher: (id: null, nameZh: null, nameEn: null),
+          teachers: null,
           classes: null,
           schedule: [
             (day: .tuesday, period: .third, classroom: null),
@@ -781,7 +792,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '12442', nameZh: '崔紘嘉', nameEn: 'Horng-Jia Tsue'),
+          teachers: [(id: '12442', nameZh: '崔紘嘉', nameEn: 'Horng-Jia Tsue')],
           classes: [(id: '2788', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (
@@ -816,7 +827,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11437', nameZh: '黃士嘉', nameEn: 'Shih-Chia Huang'),
+          teachers: [(id: '11437', nameZh: '黃士嘉', nameEn: 'Shih-Chia Huang')],
           classes: [(id: '2788', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (
@@ -851,12 +862,17 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 6,
           type: '必',
-          teacher: (
-            id: '10605',
-            nameZh: '余政杰\n段裘慶\n范育成\n孫卓勳\n郭宏源\n黃育賢\n潘孟鉉\n鄭瑞清\n賴建宏',
-            nameEn:
-                'CHYON-CHING TUANCHENG-CHEN YUJWO-SHIUN SUNHuang Yu-HsienYU-CHENG FANJui-Ching ChengMeng-Shiuan PanChien-Hung LaiKuo,Hung-Yuan',
-          ),
+          teachers: [
+            (id: '10605', nameZh: '余政杰', nameEn: null),
+            (id: '10459', nameZh: '段裘慶', nameEn: null),
+            (id: '11246', nameZh: '范育成', nameEn: null),
+            (id: '10618', nameZh: '孫卓勳', nameEn: null),
+            (id: '12376', nameZh: '郭宏源', nameEn: null),
+            (id: '11130', nameZh: '黃育賢', nameEn: null),
+            (id: '12231', nameZh: '潘孟鉉', nameEn: null),
+            (id: '11682', nameZh: '鄭瑞清', nameEn: null),
+            (id: '12245', nameZh: '賴建宏', nameEn: null),
+          ],
           classes: [(id: '2788', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: null,
           status: null,
@@ -875,7 +891,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 2,
           type: '必',
-          teacher: (id: '10496', nameZh: '李文達', nameEn: 'LEE NEW-TA'),
+          teachers: [(id: '10496', nameZh: '李文達', nameEn: 'LEE NEW-TA')],
           classes: [(id: '2788', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (day: .wednesday, period: .seventh, classroom: null),
@@ -897,7 +913,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan'),
+          teachers: [(id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan')],
           classes: [
             (id: '2788', nameZh: '電子三甲', nameEn: '4EN3A'),
             (id: '2789', nameZh: '電子三乙', nameEn: '4EN3B'),
@@ -935,7 +951,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12239', nameZh: '陳柏端', nameEn: 'Po-Tuan Cheng'),
+          teachers: [(id: '12239', nameZh: '陳柏端', nameEn: 'Po-Tuan Cheng')],
           classes: [(id: '2925', nameZh: '技優專班二', nameEn: '4CMEE2')],
           schedule: [
             (
@@ -970,7 +986,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 4,
           type: '選',
-          teacher: (id: '23969', nameZh: '洪祥', nameEn: 'HUNG CHEN HSIANG'),
+          teachers: [(id: '23969', nameZh: '洪祥', nameEn: 'HUNG CHEN HSIANG')],
           classes: [
             (
               id: '2402',
@@ -1016,7 +1032,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '24363', nameZh: '陳雪芳', nameEn: 'Hsueh-Fang Chen'),
+          teachers: [(id: '24363', nameZh: '陳雪芳', nameEn: 'Hsueh-Fang Chen')],
           classes: [
             (id: '2760', nameZh: '博雅課程(四)', nameEn: 'Core Curriculum (IV)'),
           ],
@@ -1048,7 +1064,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '22465', nameZh: '陳雪燕', nameEn: 'Hsueh-Yen Chen'),
+          teachers: [(id: '22465', nameZh: '陳雪燕', nameEn: 'Hsueh-Yen Chen')],
           classes: [
             (id: '2883', nameZh: '博雅課程(十)', nameEn: 'Core Curriculum (X)'),
           ],
@@ -1078,7 +1094,7 @@ class MockCourseService implements CourseService {
           credits: null,
           hours: null,
           type: null,
-          teacher: (id: null, nameZh: null, nameEn: null),
+          teachers: null,
           classes: null,
           schedule: [
             (day: .tuesday, period: .third, classroom: null),
@@ -1100,7 +1116,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11635', nameZh: '曾柏軒', nameEn: 'Po-Hsuan Tseng'),
+          teachers: [(id: '11635', nameZh: '曾柏軒', nameEn: 'Po-Hsuan Tseng')],
           classes: [(id: '2788', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -1135,7 +1151,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11391', nameZh: '王多柏', nameEn: 'To-Po Wang'),
+          teachers: [(id: '11391', nameZh: '王多柏', nameEn: 'To-Po Wang')],
           classes: [(id: '2788', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -1170,7 +1186,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11246', nameZh: '范育成', nameEn: 'YU-CHENG FAN'),
+          teachers: [(id: '11246', nameZh: '范育成', nameEn: 'YU-CHENG FAN')],
           classes: [(id: '2788', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -1205,7 +1221,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11010', nameZh: '曾恕銘', nameEn: 'Tseng Shu-ming'),
+          teachers: [(id: '11010', nameZh: '曾恕銘', nameEn: 'Tseng Shu-ming')],
           classes: [(id: '2788', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -1240,7 +1256,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '10605', nameZh: '余政杰', nameEn: 'CHENG-CHEN YU'),
+          teachers: [(id: '10605', nameZh: '余政杰', nameEn: 'CHENG-CHEN YU')],
           classes: [(id: '2788', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -1275,7 +1291,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '11636', nameZh: '李昭賢', nameEn: 'Lee, Chao-Hsien'),
+          teachers: [(id: '11636', nameZh: '李昭賢', nameEn: 'Lee, Chao-Hsien')],
           classes: [
             (id: '2788', nameZh: '電子二甲', nameEn: '4EN2A'),
             (id: '2789', nameZh: '電子二乙', nameEn: '4EN2B'),
@@ -1313,7 +1329,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan'),
+          teachers: [(id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan')],
           classes: [
             (id: '2788', nameZh: '電子二甲', nameEn: '4EN2A'),
             (id: '2789', nameZh: '電子二乙', nameEn: '4EN2B'),
@@ -1352,7 +1368,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '必',
-          teacher: (id: '11967', nameZh: '郭政淳', nameEn: 'Jonathan Kuo'),
+          teachers: [(id: '11967', nameZh: '郭政淳', nameEn: 'Jonathan Kuo')],
           classes: [
             (
               id: '2156',
@@ -1388,7 +1404,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '23915', nameZh: '吳奇靜', nameEn: 'Chi-ching Wu'),
+          teachers: [(id: '23915', nameZh: '吳奇靜', nameEn: 'Chi-ching Wu')],
           classes: [
             (id: '2760', nameZh: '博雅課程(四)', nameEn: 'Core Curriculum (IV)'),
           ],
@@ -1420,7 +1436,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '24489', nameZh: '陳郁芬', nameEn: 'CHEN YU FEN'),
+          teachers: [(id: '24489', nameZh: '陳郁芬', nameEn: 'CHEN YU FEN')],
           classes: [
             (id: '2884', nameZh: '博雅課程(十一)', nameEn: 'Core Curriculum (XI)'),
           ],
@@ -1450,7 +1466,7 @@ class MockCourseService implements CourseService {
           credits: null,
           hours: null,
           type: null,
-          teacher: (id: null, nameZh: null, nameEn: null),
+          teachers: null,
           classes: null,
           schedule: [
             (day: .tuesday, period: .third, classroom: null),
@@ -1472,7 +1488,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 3,
           type: '必',
-          teacher: (id: '24112', nameZh: '章慧琴', nameEn: 'Hui-chin Chang'),
+          teachers: [(id: '24112', nameZh: '章慧琴', nameEn: 'Hui-chin Chang')],
           classes: [(id: '2894', nameZh: '電機一甲', nameEn: '4EE1A')],
           schedule: [
             (
@@ -1507,7 +1523,7 @@ class MockCourseService implements CourseService {
           credits: 0.0,
           hours: 1,
           type: '必',
-          teacher: (id: '24294', nameZh: '簡明昱', nameEn: 'Jeremiah Chien'),
+          teachers: [(id: '24294', nameZh: '簡明昱', nameEn: 'Jeremiah Chien')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1533,7 +1549,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 2,
           type: '必',
-          teacher: (id: '12491', nameZh: '劉凱鈞', nameEn: 'Kai-Chun Liu'),
+          teachers: [(id: '12491', nameZh: '劉凱鈞', nameEn: 'Kai-Chun Liu')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1559,7 +1575,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '必',
-          teacher: (id: '12079', nameZh: '黃琛傑', nameEn: 'HUANG CHEN-CHIEH'),
+          teachers: [(id: '12079', nameZh: '黃琛傑', nameEn: 'HUANG CHEN-CHIEH')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1585,7 +1601,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11145', nameZh: '洪春凰', nameEn: 'Hong Chen-Huang'),
+          teachers: [(id: '11145', nameZh: '洪春凰', nameEn: 'Hong Chen-Huang')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1616,7 +1632,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11067', nameZh: '洪魏寬', nameEn: 'WEI-KUAN HUNG'),
+          teachers: [(id: '11067', nameZh: '洪魏寬', nameEn: 'WEI-KUAN HUNG')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1651,7 +1667,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11067', nameZh: '洪魏寬', nameEn: 'WEI-KUAN HUNG'),
+          teachers: [(id: '11067', nameZh: '洪魏寬', nameEn: 'WEI-KUAN HUNG')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1686,7 +1702,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11391', nameZh: '王多柏', nameEn: 'To-Po Wang'),
+          teachers: [(id: '11391', nameZh: '王多柏', nameEn: 'To-Po Wang')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1721,7 +1737,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11437', nameZh: '黃士嘉', nameEn: 'Shih-Chia Huang'),
+          teachers: [(id: '11437', nameZh: '黃士嘉', nameEn: 'Shih-Chia Huang')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1756,7 +1772,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan'),
+          teachers: [(id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1791,7 +1807,7 @@ class MockCourseService implements CourseService {
           credits: 0.0,
           hours: 2,
           type: '必',
-          teacher: (id: '11172', nameZh: '林威玲', nameEn: 'Lin Wei Ling'),
+          teachers: [(id: '11172', nameZh: '林威玲', nameEn: 'Lin Wei Ling')],
           classes: [
             (id: '447', nameZh: '體育專項(一)', nameEn: 'PE courses-1'),
           ],

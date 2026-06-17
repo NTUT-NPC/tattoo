@@ -24,8 +24,12 @@ typedef ScheduleDto = ({
   /// Type of course (e.g., "必", "選", "通", "輔").
   String? type,
 
-  /// Reference to the instructor with bilingual name.
-  LocalizedRefDto? teacher,
+  /// References to the instructors with bilingual names.
+  ///
+  /// A course offering may be team-taught by multiple teachers. English names
+  /// are matched positionally against the English course page and may be null
+  /// when the two pages disagree on teacher count.
+  List<LocalizedRefDto>? teachers,
 
   /// List of class/program references with bilingual names.
   List<LocalizedRefDto>? classes,
