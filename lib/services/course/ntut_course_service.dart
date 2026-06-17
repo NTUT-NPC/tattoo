@@ -135,7 +135,6 @@ class NtutCourseService implements CourseService {
         schedule: dto.schedule,
         status: dto.status,
         language: dto.language,
-        syllabusIds: dto.syllabusIds,
         remarks: dto.remarks,
       );
     }).toList();
@@ -259,7 +258,6 @@ class NtutCourseService implements CourseService {
 
       final status = _parseCellText(cells[16]);
       final language = _parseCellText(cells[17]);
-      final syllabusIds = _parseSyllabusIds(cells[18]);
       final remarks = _parseCellText(cells[19]);
 
       return (
@@ -282,7 +280,6 @@ class NtutCourseService implements CourseService {
         schedule: schedule,
         status: status,
         language: language,
-        syllabusIds: syllabusIds,
         remarks: remarks,
       );
     }).toList();
@@ -512,7 +509,7 @@ class NtutCourseService implements CourseService {
   }
 
   @override
-  Future<SyllabusDto> getSyllabus({
+  Future<SyllabusDto?> getSyllabus({
     required String courseNumber,
     required String syllabusId,
   }) async {
@@ -522,6 +519,14 @@ class NtutCourseService implements CourseService {
     );
 
     final document = parse(response.data);
+
+    // When the teacher hasn't submitted a syllabus, the page shows a red
+    // "尚未登錄" marker in place of the 教學大綱與進度 content.
+    final notSubmitted = document
+        .querySelectorAll('font')
+        .any((f) => f.text.trim() == '尚未登錄');
+    if (notSubmitted) return null;
+
     final tables = document.querySelectorAll('table');
     if (tables.length < 2) {
       throw Exception('Syllabus tables not found.');
@@ -606,18 +611,6 @@ class NtutCourseService implements CourseService {
   ///
   /// Each anchor links to a teacher's syllabus; its `code` query parameter is
   /// the authoring teacher's id. Returns null when no syllabus is available.
-  List<String>? _parseSyllabusIds(Element cell) {
-    final ids = cell
-        .querySelectorAll('a')
-        .map((a) {
-          final href = a.attributes['href'];
-          return href != null ? Uri.parse(href).queryParameters['code'] : null;
-        })
-        .nonNulls
-        .toList();
-    return ids.isNotEmpty ? ids : null;
-  }
-
   ReferenceDto _parseAnchorRef(Element anchor) {
     final name = anchor.text.trim();
     final href = anchor.attributes['href'];

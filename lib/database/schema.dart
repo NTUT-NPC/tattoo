@@ -393,8 +393,7 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
 
   // Syllabus header fields (課程基本資料): identical on every syllabus page, so
   // they live on the offering. Populated lazily by the syllabus refresh, which
-  // also sets `fetchedAt` (a last-populated marker here, not a fetch gate —
-  // per-syllabus content is gated by Syllabuses.fetchedAt).
+  // also sets `fetchedAt` (a last-populated marker here, not a fetch gate).
 
   /// Number of enrolled students (人).
   late final enrolled = integer().nullable()();
@@ -502,11 +501,11 @@ class Schedules extends Table with AutoIncrementId {
 /// keyed by the authoring teacher's code (hence the [Teachers] reference;
 /// per-semester teacher details live on [TeacherSemesters]). Fields shared
 /// across an offering's syllabi (course type, enrolled, withdrawn) stay on
-/// [CourseOfferings]. Rows start as stubs (`fetchedAt == null`) and are
-/// populated lazily.
+/// [CourseOfferings]. A row exists only for a teacher who has submitted a
+/// syllabus; it is created lazily on first fetch and always refetched fresh.
 // Without @DataClassName, Drift names the row class 'Syllabuse'.
 @DataClassName('Syllabus')
-class Syllabuses extends Table with AutoIncrementId, Fetchable {
+class Syllabuses extends Table with AutoIncrementId {
   /// Reference to the course offering this syllabus belongs to.
   late final courseOffering = integer().references(
     CourseOfferings,

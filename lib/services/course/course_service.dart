@@ -49,14 +49,6 @@ typedef ScheduleDto = ({
   /// Language of instruction.
   String? language,
 
-  /// Syllabus identifiers available for this offering, one per teacher who
-  /// submitted a syllabus (the 查詢 links in the course list).
-  ///
-  /// Each identifier is the authoring teacher's code, so it matches one of the
-  /// `teachers` ids. May be fewer than `teachers` — not every teacher submits
-  /// a syllabus.
-  List<String>? syllabusIds,
-
   /// Additional remarks or notes about the course.
   String? remarks,
 });
@@ -250,14 +242,15 @@ abstract interface class CourseService {
   /// Fetches the detailed syllabus for a course offering.
   ///
   /// Returns syllabus information including course objectives, textbooks,
-  /// grading policy, and weekly plan.
+  /// grading policy, and weekly plan, or `null` when the authoring teacher
+  /// hasn't submitted one yet (the page shows 尚未登錄).
   ///
   /// The [courseNumber] should be a course offering number (e.g., "346774"),
-  /// and [syllabusId] should be one of the `syllabusIds` of a [ScheduleDto]
-  /// (equivalently, an authoring teacher's code).
+  /// and [syllabusId] is the authoring teacher's code (one of the `teachers`
+  /// ids of a [ScheduleDto]).
   ///
   /// Throws an [Exception] if the syllabus tables are not found.
-  Future<SyllabusDto> getSyllabus({
+  Future<SyllabusDto?> getSyllabus({
     required String courseNumber,
     required String syllabusId,
   });

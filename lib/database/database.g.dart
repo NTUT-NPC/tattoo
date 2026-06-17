@@ -6418,17 +6418,6 @@ class $SyllabusesTable extends Syllabuses
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
-    'fetchedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
-    'fetched_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-  );
   static const VerificationMeta _courseOfferingMeta = const VerificationMeta(
     'courseOffering',
   );
@@ -6526,7 +6515,6 @@ class $SyllabusesTable extends Syllabuses
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    fetchedAt,
     courseOffering,
     teacher,
     updatedAt,
@@ -6550,12 +6538,6 @@ class $SyllabusesTable extends Syllabuses
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('fetched_at')) {
-      context.handle(
-        _fetchedAtMeta,
-        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
-      );
     }
     if (data.containsKey('course_offering')) {
       context.handle(
@@ -6629,10 +6611,6 @@ class $SyllabusesTable extends Syllabuses
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      fetchedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}fetched_at'],
-      ),
       courseOffering: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}course_offering'],
@@ -6678,16 +6656,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
   /// Auto-incrementing primary key.
   final int id;
 
-  /// Timestamp of when complete data was last fetched from the server.
-  ///
-  /// - `null`: Only partial/basic information is available (e.g., name + ID from a list page)
-  /// - `non-null`: Complete details have been fetched (e.g., full profile from detail page)
-  ///
-  /// Use this field to:
-  /// - Determine if a detail fetch is needed (null = need to fetch)
-  /// - Implement cache expiration (old timestamp = stale, re-fetch)
-  final DateTime? fetchedAt;
-
   /// Reference to the course offering this syllabus belongs to.
   final int courseOffering;
 
@@ -6716,7 +6684,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
   final String? remarks;
   const Syllabus({
     required this.id,
-    this.fetchedAt,
     required this.courseOffering,
     required this.teacher,
     this.updatedAt,
@@ -6730,9 +6697,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    if (!nullToAbsent || fetchedAt != null) {
-      map['fetched_at'] = Variable<DateTime>(fetchedAt);
-    }
     map['course_offering'] = Variable<int>(courseOffering);
     map['teacher'] = Variable<int>(teacher);
     if (!nullToAbsent || updatedAt != null) {
@@ -6759,9 +6723,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
   SyllabusesCompanion toCompanion(bool nullToAbsent) {
     return SyllabusesCompanion(
       id: Value(id),
-      fetchedAt: fetchedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(fetchedAt),
       courseOffering: Value(courseOffering),
       teacher: Value(teacher),
       updatedAt: updatedAt == null && nullToAbsent
@@ -6792,7 +6753,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Syllabus(
       id: serializer.fromJson<int>(json['id']),
-      fetchedAt: serializer.fromJson<DateTime?>(json['fetchedAt']),
       courseOffering: serializer.fromJson<int>(json['courseOffering']),
       teacher: serializer.fromJson<int>(json['teacher']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
@@ -6808,7 +6768,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'fetchedAt': serializer.toJson<DateTime?>(fetchedAt),
       'courseOffering': serializer.toJson<int>(courseOffering),
       'teacher': serializer.toJson<int>(teacher),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
@@ -6822,7 +6781,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
 
   Syllabus copyWith({
     int? id,
-    Value<DateTime?> fetchedAt = const Value.absent(),
     int? courseOffering,
     int? teacher,
     Value<DateTime?> updatedAt = const Value.absent(),
@@ -6833,7 +6791,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
     Value<String?> remarks = const Value.absent(),
   }) => Syllabus(
     id: id ?? this.id,
-    fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
     courseOffering: courseOffering ?? this.courseOffering,
     teacher: teacher ?? this.teacher,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
@@ -6846,7 +6803,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
   Syllabus copyWithCompanion(SyllabusesCompanion data) {
     return Syllabus(
       id: data.id.present ? data.id.value : this.id,
-      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
       courseOffering: data.courseOffering.present
           ? data.courseOffering.value
           : this.courseOffering,
@@ -6868,7 +6824,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
   String toString() {
     return (StringBuffer('Syllabus(')
           ..write('id: $id, ')
-          ..write('fetchedAt: $fetchedAt, ')
           ..write('courseOffering: $courseOffering, ')
           ..write('teacher: $teacher, ')
           ..write('updatedAt: $updatedAt, ')
@@ -6884,7 +6839,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
   @override
   int get hashCode => Object.hash(
     id,
-    fetchedAt,
     courseOffering,
     teacher,
     updatedAt,
@@ -6899,7 +6853,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
       identical(this, other) ||
       (other is Syllabus &&
           other.id == this.id &&
-          other.fetchedAt == this.fetchedAt &&
           other.courseOffering == this.courseOffering &&
           other.teacher == this.teacher &&
           other.updatedAt == this.updatedAt &&
@@ -6912,7 +6865,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
 
 class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
   final Value<int> id;
-  final Value<DateTime?> fetchedAt;
   final Value<int> courseOffering;
   final Value<int> teacher;
   final Value<DateTime?> updatedAt;
@@ -6923,7 +6875,6 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
   final Value<String?> remarks;
   const SyllabusesCompanion({
     this.id = const Value.absent(),
-    this.fetchedAt = const Value.absent(),
     this.courseOffering = const Value.absent(),
     this.teacher = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -6935,7 +6886,6 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
   });
   SyllabusesCompanion.insert({
     this.id = const Value.absent(),
-    this.fetchedAt = const Value.absent(),
     required int courseOffering,
     required int teacher,
     this.updatedAt = const Value.absent(),
@@ -6948,7 +6898,6 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
        teacher = Value(teacher);
   static Insertable<Syllabus> custom({
     Expression<int>? id,
-    Expression<DateTime>? fetchedAt,
     Expression<int>? courseOffering,
     Expression<int>? teacher,
     Expression<DateTime>? updatedAt,
@@ -6960,7 +6909,6 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (fetchedAt != null) 'fetched_at': fetchedAt,
       if (courseOffering != null) 'course_offering': courseOffering,
       if (teacher != null) 'teacher': teacher,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -6974,7 +6922,6 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
 
   SyllabusesCompanion copyWith({
     Value<int>? id,
-    Value<DateTime?>? fetchedAt,
     Value<int>? courseOffering,
     Value<int>? teacher,
     Value<DateTime?>? updatedAt,
@@ -6986,7 +6933,6 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
   }) {
     return SyllabusesCompanion(
       id: id ?? this.id,
-      fetchedAt: fetchedAt ?? this.fetchedAt,
       courseOffering: courseOffering ?? this.courseOffering,
       teacher: teacher ?? this.teacher,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -7003,9 +6949,6 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
-    }
-    if (fetchedAt.present) {
-      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
     }
     if (courseOffering.present) {
       map['course_offering'] = Variable<int>(courseOffering.value);
@@ -7038,7 +6981,6 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
   String toString() {
     return (StringBuffer('SyllabusesCompanion(')
           ..write('id: $id, ')
-          ..write('fetchedAt: $fetchedAt, ')
           ..write('courseOffering: $courseOffering, ')
           ..write('teacher: $teacher, ')
           ..write('updatedAt: $updatedAt, ')
@@ -19566,7 +19508,6 @@ typedef $$SchedulesTableProcessedTableManager =
 typedef $$SyllabusesTableCreateCompanionBuilder =
     SyllabusesCompanion Function({
       Value<int> id,
-      Value<DateTime?> fetchedAt,
       required int courseOffering,
       required int teacher,
       Value<DateTime?> updatedAt,
@@ -19579,7 +19520,6 @@ typedef $$SyllabusesTableCreateCompanionBuilder =
 typedef $$SyllabusesTableUpdateCompanionBuilder =
     SyllabusesCompanion Function({
       Value<int> id,
-      Value<DateTime?> fetchedAt,
       Value<int> courseOffering,
       Value<int> teacher,
       Value<DateTime?> updatedAt,
@@ -19641,11 +19581,6 @@ class $$SyllabusesTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
-    column: $table.fetchedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -19740,11 +19675,6 @@ class $$SyllabusesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
-    column: $table.fetchedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -19833,9 +19763,6 @@ class $$SyllabusesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get fetchedAt =>
-      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -19935,7 +19862,6 @@ class $$SyllabusesTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<DateTime?> fetchedAt = const Value.absent(),
                 Value<int> courseOffering = const Value.absent(),
                 Value<int> teacher = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -19946,7 +19872,6 @@ class $$SyllabusesTableTableManager
                 Value<String?> remarks = const Value.absent(),
               }) => SyllabusesCompanion(
                 id: id,
-                fetchedAt: fetchedAt,
                 courseOffering: courseOffering,
                 teacher: teacher,
                 updatedAt: updatedAt,
@@ -19959,7 +19884,6 @@ class $$SyllabusesTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<DateTime?> fetchedAt = const Value.absent(),
                 required int courseOffering,
                 required int teacher,
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -19970,7 +19894,6 @@ class $$SyllabusesTableTableManager
                 Value<String?> remarks = const Value.absent(),
               }) => SyllabusesCompanion.insert(
                 id: id,
-                fetchedAt: fetchedAt,
                 courseOffering: courseOffering,
                 teacher: teacher,
                 updatedAt: updatedAt,

@@ -28,10 +28,10 @@ final courseTableProvider = StreamProvider.autoDispose
 
 /// Provides the detailed data for a single course offering.
 ///
-/// Reads composed offering detail (overview + schedule + teachers + classes +
-/// available syllabi) directly from the database; [refreshCourseTable] keeps
-/// it current. No network fetch — syllabus content is fetched lazily and
-/// separately via [syllabusProvider]. Emits `null` until the offering exists.
+/// Reads composed offering detail (overview + schedule + teachers + classes)
+/// directly from the database; [refreshCourseTable] keeps it current. No
+/// network fetch — a teacher's syllabus is fetched lazily and separately via
+/// [syllabusProvider]. Emits `null` until the offering exists.
 final courseOfferingProvider = StreamProvider.autoDispose
     .family<CourseOfferingDetail?, int>((ref, offeringId) {
       return ref
@@ -39,15 +39,20 @@ final courseOfferingProvider = StreamProvider.autoDispose
           .watchCourseOffering(offeringId);
     });
 
-/// Provides a single syllabus's content, fetched lazily on first watch.
+/// Provides a teacher's syllabus for an offering, fetched lazily on first
+/// watch.
 ///
-/// Keyed by the syllabus row id (from [CourseOfferingDetail.syllabi]). Emits
-/// the stub row immediately when content is cached, blocks on the first fetch
-/// otherwise, and re-emits when a background refresh lands. The detail UI
-/// shows the first syllabus for now.
-final syllabusProvider = StreamProvider.autoDispose.family<Syllabus?, int>((
-  ref,
-  syllabusId,
-) {
-  return ref.watch(courseRepositoryProvider).watchSyllabus(syllabusId);
-});
+/// Keyed by the offering id and the authoring teacher's code (from
+/// [CourseOfferingDetail.teachers]). Emits cached content immediately when
+/// present, blocks on the first fetch otherwise, and emits `null` when the
+/// teacher hasn't submitted a syllabus. The detail UI shows the first
+/// teacher's syllabus for now.
+final syllabusProvider = StreamProvider.autoDispose
+    .family<Syllabus?, ({int offeringId, String teacherId})>((ref, key) {
+      return ref
+          .watch(courseRepositoryProvider)
+          .watchSyllabus(
+            offeringId: key.offeringId,
+            teacherId: key.teacherId,
+          );
+    });

@@ -368,34 +368,34 @@ void main() {
     });
 
     group('getSyllabus', () {
-      test('should parse syllabus fields correctly', () async {
+      // A syllabus's code is its author's teacher code, so any teacher may have
+      // one. Scans the course table for the first teacher who has submitted a
+      // syllabus (others return null — the page shows 尚未登錄).
+      Future<SyllabusDto> firstSyllabus() async {
         final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
         );
+        for (final schedule in courseTable) {
+          final number = schedule.number;
+          if (number == null || number.isEmpty) continue;
+          for (final teacher in schedule.teachers ?? const []) {
+            final code = teacher.id;
+            if (code == null) continue;
+            await respectfulDelay();
+            final syllabus = await courseService.getSyllabus(
+              courseNumber: number,
+              syllabusId: code,
+            );
+            if (syllabus != null) return syllabus;
+          }
+        }
+        fail('No submitted syllabus found in the selected semester');
+      }
 
-        // Find a course with a syllabus ID
-        final coursesWithSyllabus = courseTable
-            .where(
-              (schedule) =>
-                  schedule.number != null &&
-                  schedule.number!.isNotEmpty &&
-                  (schedule.syllabusIds?.isNotEmpty ?? false),
-            )
-            .toList();
-
-        expect(
-          coursesWithSyllabus,
-          isNotEmpty,
-          reason: 'Should have at least one course with a syllabus',
-        );
-
-        final course = coursesWithSyllabus.pickRandom();
-        final syllabus = await courseService.getSyllabus(
-          courseNumber: course.number!,
-          syllabusId: course.syllabusIds!.pickRandom(),
-        );
+      test('should parse syllabus fields correctly', () async {
+        final syllabus = await firstSyllabus();
 
         // Verify course type is a valid enum value
         expect(
@@ -434,26 +434,7 @@ void main() {
       });
 
       test('should parse syllabus content fields', () async {
-        final semesters = await courseService.getCourseSemesterList();
-        final courseTable = await courseService.getCourseTable(
-          username: TestCredentials.username,
-          semester: semesters.pickRandom(),
-        );
-
-        final coursesWithSyllabus = courseTable
-            .where(
-              (schedule) =>
-                  schedule.number != null &&
-                  schedule.number!.isNotEmpty &&
-                  (schedule.syllabusIds?.isNotEmpty ?? false),
-            )
-            .toList();
-
-        final course = coursesWithSyllabus.pickRandom();
-        final syllabus = await courseService.getSyllabus(
-          courseNumber: course.number!,
-          syllabusId: course.syllabusIds!.pickRandom(),
-        );
+        final syllabus = await firstSyllabus();
 
         // At least some content fields should be populated
         final hasContent =
@@ -484,26 +465,7 @@ void main() {
       });
 
       test('should parse email when available', () async {
-        final semesters = await courseService.getCourseSemesterList();
-        final courseTable = await courseService.getCourseTable(
-          username: TestCredentials.username,
-          semester: semesters.pickRandom(),
-        );
-
-        final coursesWithSyllabus = courseTable
-            .where(
-              (schedule) =>
-                  schedule.number != null &&
-                  schedule.number!.isNotEmpty &&
-                  (schedule.syllabusIds?.isNotEmpty ?? false),
-            )
-            .toList();
-
-        final course = coursesWithSyllabus.pickRandom();
-        final syllabus = await courseService.getSyllabus(
-          courseNumber: course.number!,
-          syllabusId: course.syllabusIds!.pickRandom(),
-        );
+        final syllabus = await firstSyllabus();
 
         // Email should contain @ if present
         if (syllabus.email != null) {
