@@ -223,8 +223,8 @@ abstract interface class CourseService {
   /// Returns teacher profile information including department, title, and
   /// office hours for the given [teacherId] in a specific [semester].
   ///
-  /// The [teacherId] should be a teacher code obtained from the `teacher.id`
-  /// field of a [ScheduleDto].
+  /// The [teacherId] should be a teacher code obtained from the id of an entry
+  /// in the `teachers` field of a [ScheduleDto].
   Future<TeacherDto> getTeacher({
     required String teacherId,
     required SemesterDto semester,
