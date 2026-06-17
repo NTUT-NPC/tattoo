@@ -26,9 +26,10 @@ typedef ScheduleDto = ({
 
   /// References to the instructors with bilingual names.
   ///
-  /// A course offering may be team-taught by multiple teachers. English names
-  /// are matched positionally against the English course page and may be null
-  /// when the two pages disagree on teacher count.
+  /// A course offering may have multiple teachers. An English name is merged
+  /// only when the offering has a single teacher and the English page lists
+  /// exactly one name; otherwise it is null and filled later from the teacher
+  /// detail page.
   List<LocalizedRefDto>? teachers,
 
   /// List of class/program references with bilingual names.
