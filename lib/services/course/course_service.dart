@@ -49,8 +49,13 @@ typedef ScheduleDto = ({
   /// Language of instruction.
   String? language,
 
-  /// Syllabus identifier for fetching course syllabus.
-  String? syllabusId,
+  /// Syllabus identifiers available for this offering, one per teacher who
+  /// submitted a syllabus (the 查詢 links in the course list).
+  ///
+  /// Each identifier is the authoring teacher's code, so it matches one of the
+  /// `teachers` ids. May be fewer than `teachers` — not every teacher submits
+  /// a syllabus.
+  List<String>? syllabusIds,
 
   /// Additional remarks or notes about the course.
   String? remarks,
@@ -248,8 +253,8 @@ abstract interface class CourseService {
   /// grading policy, and weekly plan.
   ///
   /// The [courseNumber] should be a course offering number (e.g., "346774"),
-  /// and [syllabusId] should be obtained from the `syllabusId` field of a
-  /// [ScheduleDto].
+  /// and [syllabusId] should be one of the `syllabusIds` of a [ScheduleDto]
+  /// (equivalently, an authoring teacher's code).
   ///
   /// Throws an [Exception] if the syllabus tables are not found.
   Future<SyllabusDto> getSyllabus({

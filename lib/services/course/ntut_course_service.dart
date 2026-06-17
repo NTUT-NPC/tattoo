@@ -135,7 +135,7 @@ class NtutCourseService implements CourseService {
         schedule: dto.schedule,
         status: dto.status,
         language: dto.language,
-        syllabusId: dto.syllabusId,
+        syllabusIds: dto.syllabusIds,
         remarks: dto.remarks,
       );
     }).toList();
@@ -259,7 +259,7 @@ class NtutCourseService implements CourseService {
 
       final status = _parseCellText(cells[16]);
       final language = _parseCellText(cells[17]);
-      final syllabusId = _parseCellRef(cells[18]).id;
+      final syllabusIds = _parseSyllabusIds(cells[18]);
       final remarks = _parseCellText(cells[19]);
 
       return (
@@ -282,7 +282,7 @@ class NtutCourseService implements CourseService {
         schedule: schedule,
         status: status,
         language: language,
-        syllabusId: syllabusId,
+        syllabusIds: syllabusIds,
         remarks: remarks,
       );
     }).toList();
@@ -600,6 +600,22 @@ class NtutCourseService implements CourseService {
     }
     final text = cell.text.trim();
     return text.isNotEmpty ? [text] : <String>[];
+  }
+
+  /// Parses the available syllabus identifiers from the 查詢 column.
+  ///
+  /// Each anchor links to a teacher's syllabus; its `code` query parameter is
+  /// the authoring teacher's id. Returns null when no syllabus is available.
+  List<String>? _parseSyllabusIds(Element cell) {
+    final ids = cell
+        .querySelectorAll('a')
+        .map((a) {
+          final href = a.attributes['href'];
+          return href != null ? Uri.parse(href).queryParameters['code'] : null;
+        })
+        .nonNulls
+        .toList();
+    return ids.isNotEmpty ? ids : null;
   }
 
   ReferenceDto _parseAnchorRef(Element anchor) {
