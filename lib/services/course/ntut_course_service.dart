@@ -99,7 +99,9 @@ class NtutCourseService implements CourseService {
       // filled later from the teacher detail page rather than risk mis-attribution.
       final teacherNamesEn = en.teacherNames;
       final matchTeacherNames =
-          dto.teachers != null && teacherNamesEn.length == dto.teachers!.length;
+          dto.teachers != null &&
+          dto.teachers!.length == 1 &&
+          teacherNamesEn.length == dto.teachers!.length;
 
       return (
         number: dto.number,
