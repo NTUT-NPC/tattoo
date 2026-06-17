@@ -381,7 +381,7 @@ void main() {
               (schedule) =>
                   schedule.number != null &&
                   schedule.number!.isNotEmpty &&
-                  schedule.syllabusId != null,
+                  (schedule.syllabusIds?.isNotEmpty ?? false),
             )
             .toList();
 
@@ -394,7 +394,7 @@ void main() {
         final course = coursesWithSyllabus.pickRandom();
         final syllabus = await courseService.getSyllabus(
           courseNumber: course.number!,
-          syllabusId: course.syllabusId!,
+          syllabusId: course.syllabusIds!.first,
         );
 
         // Verify course type is a valid enum value
@@ -445,14 +445,14 @@ void main() {
               (schedule) =>
                   schedule.number != null &&
                   schedule.number!.isNotEmpty &&
-                  schedule.syllabusId != null,
+                  (schedule.syllabusIds?.isNotEmpty ?? false),
             )
             .toList();
 
         final course = coursesWithSyllabus.pickRandom();
         final syllabus = await courseService.getSyllabus(
           courseNumber: course.number!,
-          syllabusId: course.syllabusId!,
+          syllabusId: course.syllabusIds!.first,
         );
 
         // At least some content fields should be populated
@@ -495,14 +495,14 @@ void main() {
               (schedule) =>
                   schedule.number != null &&
                   schedule.number!.isNotEmpty &&
-                  schedule.syllabusId != null,
+                  (schedule.syllabusIds?.isNotEmpty ?? false),
             )
             .toList();
 
         final course = coursesWithSyllabus.pickRandom();
         final syllabus = await courseService.getSyllabus(
           courseNumber: course.number!,
-          syllabusId: course.syllabusId!,
+          syllabusId: course.syllabusIds!.first,
         );
 
         // Email should contain @ if present

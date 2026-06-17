@@ -45,7 +45,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: null,
+          syllabusIds: null,
           remarks: null,
         ),
         (
@@ -80,7 +80,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12442',
+          syllabusIds: ['12442'],
           remarks: null,
         ),
         (
@@ -115,7 +115,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11437',
+          syllabusIds: ['11437'],
           remarks: '計中電腦教室',
         ),
         (
@@ -145,7 +145,17 @@ class MockCourseService implements CourseService {
           schedule: null,
           status: null,
           language: null,
-          syllabusId: '10605',
+          // Not every teacher submits a syllabus: 8 of the 10 here.
+          syllabusIds: [
+            '10605',
+            '11636',
+            '10823',
+            '10459',
+            '11246',
+            '11678',
+            '11130',
+            '12231',
+          ],
           remarks: null,
         ),
         (
@@ -167,7 +177,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11232',
+          syllabusIds: ['11232'],
           remarks: null,
         ),
         (
@@ -205,7 +215,7 @@ class MockCourseService implements CourseService {
           ],
           status: '撤選',
           language: '中英雙語',
-          syllabusId: '12376',
+          syllabusIds: ['12376'],
           remarks: '電子大三合開',
         ),
         (
@@ -243,7 +253,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12605',
+          syllabusIds: ['12605'],
           remarks: '電子大三合開',
         ),
         (
@@ -278,7 +288,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: '英語',
-          syllabusId: '11678',
+          syllabusIds: ['11678'],
           remarks: '半導體二和電子二甲合開',
         ),
         (
@@ -309,7 +319,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24588',
+          syllabusIds: ['24588'],
           remarks: null,
         ),
         (
@@ -341,7 +351,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24627',
+          syllabusIds: ['24627'],
           remarks: '創新與創業向度',
         ),
         (
@@ -369,7 +379,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: null,
+          syllabusIds: null,
           remarks: '北醫/自然與科學/教師邱子恒/3001教室',
         ),
       ],
@@ -389,7 +399,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: null,
+          syllabusIds: null,
           remarks: null,
         ),
         (
@@ -427,7 +437,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12376',
+          syllabusIds: ['12376'],
           remarks: '電子大三合開',
         ),
         (
@@ -449,7 +459,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '10496',
+          syllabusIds: ['10496'],
           remarks: null,
         ),
         (
@@ -478,7 +488,17 @@ class MockCourseService implements CourseService {
           schedule: null,
           status: null,
           language: null,
-          syllabusId: '10605',
+          syllabusIds: [
+            '10605',
+            '10823',
+            '10459',
+            '11467',
+            '12376',
+            '11130',
+            '12231',
+            '12245',
+            '12232',
+          ],
           remarks: null,
         ),
         (
@@ -516,7 +536,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '10459',
+          syllabusIds: ['10459'],
           remarks: '電子大三合開',
         ),
         (
@@ -551,7 +571,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12384',
+          syllabusIds: ['12384'],
           remarks: null,
         ),
         (
@@ -586,7 +606,7 @@ class MockCourseService implements CourseService {
           ],
           status: '撤選',
           language: null,
-          syllabusId: '11130',
+          syllabusIds: ['11130'],
           remarks: null,
         ),
         (
@@ -621,7 +641,7 @@ class MockCourseService implements CourseService {
           ],
           status: '撤選',
           language: '英語',
-          syllabusId: '11635',
+          syllabusIds: ['11635'],
           remarks: null,
         ),
         (
@@ -656,7 +676,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12380',
+          syllabusIds: ['12380'],
           remarks: '高級B',
         ),
         (
@@ -694,7 +714,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12245',
+          syllabusIds: ['12245'],
           remarks: '電子大三合開',
         ),
         (
@@ -726,7 +746,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24602',
+          syllabusIds: ['24602'],
           remarks: '創新與創業向度',
         ),
         (
@@ -758,7 +778,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24530',
+          syllabusIds: ['24530'],
           remarks: '社會與法治向度',
         ),
       ],
@@ -778,7 +798,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: null,
+          syllabusIds: null,
           remarks: null,
         ),
         (
@@ -813,7 +833,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12442',
+          syllabusIds: ['12442'],
           remarks: null,
         ),
         (
@@ -848,7 +868,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11437',
+          syllabusIds: ['11437'],
           remarks: '計中電腦教室',
         ),
         (
@@ -877,7 +897,17 @@ class MockCourseService implements CourseService {
           schedule: null,
           status: null,
           language: null,
-          syllabusId: '10605',
+          syllabusIds: [
+            '10605',
+            '10459',
+            '11246',
+            '10618',
+            '12376',
+            '11130',
+            '12231',
+            '11682',
+            '12245',
+          ],
           remarks: null,
         ),
         (
@@ -899,7 +929,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '10496',
+          syllabusIds: ['10496'],
           remarks: null,
         ),
         (
@@ -937,7 +967,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: '中英雙語',
-          syllabusId: '12376',
+          syllabusIds: ['12376'],
           remarks: '電子大三合開',
         ),
         (
@@ -972,7 +1002,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12239',
+          syllabusIds: ['12239'],
           remarks: '限技優專班同學。',
         ),
         (
@@ -1018,7 +1048,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '23969',
+          syllabusIds: ['23969'],
           remarks: '◎限技優學生修習',
         ),
         (
@@ -1050,7 +1080,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24363',
+          syllabusIds: ['24363'],
           remarks: '人文與藝術向度',
         ),
         (
@@ -1082,7 +1112,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '22465',
+          syllabusIds: ['22465'],
           remarks: '人文與藝術向度',
         ),
       ],
@@ -1102,7 +1132,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: null,
+          syllabusIds: null,
           remarks: null,
         ),
         (
@@ -1137,7 +1167,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: '英語',
-          syllabusId: '11635',
+          syllabusIds: ['11635'],
           remarks: '與電資二合開',
         ),
         (
@@ -1172,7 +1202,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11391',
+          syllabusIds: ['11391'],
           remarks: null,
         ),
         (
@@ -1207,7 +1237,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11246',
+          syllabusIds: ['11246'],
           remarks: null,
         ),
         (
@@ -1242,7 +1272,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11010',
+          syllabusIds: ['11010'],
           remarks: null,
         ),
         (
@@ -1277,7 +1307,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '10605',
+          syllabusIds: ['10605'],
           remarks: null,
         ),
         (
@@ -1315,7 +1345,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11636',
+          syllabusIds: ['11636'],
           remarks: '電子二甲乙合開',
         ),
         (
@@ -1353,7 +1383,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: '中英雙語',
-          syllabusId: '12376',
+          syllabusIds: ['12376'],
           remarks: '電子二甲乙合開',
         ),
         (
@@ -1390,7 +1420,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11967',
+          syllabusIds: ['11967'],
           remarks: '高級',
         ),
         (
@@ -1422,7 +1452,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '23915',
+          syllabusIds: ['23915'],
           remarks: '106-108：創新與創業核心。109(含)後：創新與創業',
         ),
         (
@@ -1454,7 +1484,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24489',
+          syllabusIds: ['24489'],
           remarks: '106-108：民主與法治選修。109(含)後：社會與法治',
         ),
       ],
@@ -1474,7 +1504,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: null,
+          syllabusIds: null,
           remarks: null,
         ),
         (
@@ -1509,7 +1539,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24112',
+          syllabusIds: ['24112'],
           remarks: '初級',
         ),
         (
@@ -1534,7 +1564,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24294',
+          syllabusIds: ['24294'],
           remarks: '*第一週必到，課程地點公告至「北科服務學習網」。',
         ),
         (
@@ -1565,7 +1595,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12491',
+          syllabusIds: ['12491'],
           remarks: '9/22職能測驗於共科B1',
         ),
         (
@@ -1591,7 +1621,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12079',
+          syllabusIds: ['12079'],
           remarks: null,
         ),
         (
@@ -1622,7 +1652,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11145',
+          syllabusIds: ['11145'],
           remarks: null,
         ),
         (
@@ -1653,7 +1683,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11067',
+          syllabusIds: ['11067'],
           remarks: null,
         ),
         (
@@ -1688,7 +1718,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11067',
+          syllabusIds: ['11067'],
           remarks: null,
         ),
         (
@@ -1723,7 +1753,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: '英語',
-          syllabusId: '11391',
+          syllabusIds: ['11391'],
           remarks: 'EMI英文',
         ),
         (
@@ -1758,7 +1788,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11437',
+          syllabusIds: ['11437'],
           remarks: '計中電腦教室',
         ),
         (
@@ -1793,7 +1823,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12376',
+          syllabusIds: ['12376'],
           remarks: null,
         ),
         (
@@ -1817,7 +1847,7 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11172',
+          syllabusIds: ['11172'],
           remarks: '*肢體美學A',
         ),
       ],
