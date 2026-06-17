@@ -72,10 +72,15 @@ platform :ios do
 
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
+    # upload-symbols is located in Pods/ for CocoaPods, and in the SPM checkout for SPM.
+    # Flutter 3.44+ uses SPM by default.
+    spm_binary_path = Dir["#{Dir.home}/Library/Developer/Xcode/DerivedData/Runner-*/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols"].first
+    upload_symbols_binary_path = spm_binary_path || "ios/Pods/FirebaseCrashlytics/upload-symbols"
+
     upload_symbols_to_crashlytics(
       dsym_path: lane_context[SharedValues::DSYM_OUTPUT_PATH],
       gsp_path: "ios/Runner/GoogleService-Info.plist",
-      binary_path: "ios/Pods/FirebaseCrashlytics/upload-symbols",
+      binary_path: upload_symbols_binary_path,
     )
 
     app_store_connect_api_key(
