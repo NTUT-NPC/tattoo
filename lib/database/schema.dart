@@ -391,39 +391,15 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   /// Not a [Fetchable] field.
   late final remarks = text().nullable()();
 
-  /// Syllabus ID for fetching detailed syllabus information.
-  ///
-  /// Not a [Fetchable] field.
-  late final syllabusId = text().nullable()();
-
-  // Syllabus fields (教學大綱與進度)
-
-  /// When the syllabus was last updated (最後更新時間).
-  late final syllabusUpdatedAt = dateTime().nullable()();
+  // Syllabus header fields (課程基本資料): identical on every syllabus page, so
+  // they live on the offering. Populated lazily by the syllabus refresh, which
+  // also sets `fetchedAt` (a last-populated marker here, not a fetch gate).
 
   /// Number of enrolled students (人).
   late final enrolled = integer().nullable()();
 
   /// Number of withdrawn students (撤).
   late final withdrawn = integer().nullable()();
-
-  /// Course objective/outline (課程大綱).
-  late final objective = text().nullable()();
-
-  /// Weekly plan describing topics covered each week (課程進度).
-  ///
-  /// Note: Called "Course Schedule" on English page, but refers to weekly
-  /// topics, not class meeting times.
-  late final weeklyPlan = text().nullable()();
-
-  /// Evaluation and grading policy (評量方式與標準).
-  late final evaluation = text().nullable()();
-
-  /// Textbooks and reference materials (使用教材、參考書目或其他).
-  late final textbooks = text().nullable()();
-
-  /// Teacher-authored remarks from the syllabus page (備註).
-  late final syllabusRemarks = text().nullable()();
 
   @override
   List<Set<Column>> get uniqueKeys => [
@@ -516,6 +492,54 @@ class Schedules extends Table with AutoIncrementId {
   @override
   List<Set<Column>> get uniqueKeys => [
     {courseOffering, dayOfWeek, period},
+  ];
+}
+
+/// A teacher-authored syllabus for a course offering (教學大綱與進度).
+///
+/// An offering can have multiple syllabi — one per teacher who submits one,
+/// keyed by the authoring teacher's code (hence the [Teachers] reference;
+/// per-semester teacher details live on [TeacherSemesters]). Fields shared
+/// across an offering's syllabi (course type, enrolled, withdrawn) stay on
+/// [CourseOfferings]. A row exists only for a teacher who has submitted a
+/// syllabus; it is created lazily on first fetch and always refetched fresh.
+// Without @DataClassName, Drift names the row class 'Syllabuse'.
+@DataClassName('Syllabus')
+class Syllabuses extends Table with AutoIncrementId {
+  /// Reference to the course offering this syllabus belongs to.
+  late final courseOffering = integer().references(
+    CourseOfferings,
+    #id,
+    onDelete: .cascade,
+  )();
+
+  /// Reference to the authoring teacher (the syllabus's code is their code).
+  late final teacher = integer().references(Teachers, #id)();
+
+  /// When this syllabus was last updated by the teacher (最後更新時間).
+  late final updatedAt = dateTime().nullable()();
+
+  /// Course objective/outline (課程大綱).
+  late final objective = text().nullable()();
+
+  /// Weekly plan describing topics covered each week (課程進度).
+  ///
+  /// Note: Called "Course Schedule" on the English page, but refers to weekly
+  /// topics, not class meeting times.
+  late final weeklyPlan = text().nullable()();
+
+  /// Evaluation and grading policy (評量方式與標準).
+  late final evaluation = text().nullable()();
+
+  /// Textbooks and reference materials (使用教材、參考書目或其他).
+  late final textbooks = text().nullable()();
+
+  /// Teacher-authored remarks from the syllabus page (備註).
+  late final remarks = text().nullable()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {courseOffering, teacher},
   ];
 }
 

@@ -28,14 +28,31 @@ final courseTableProvider = StreamProvider.autoDispose
 
 /// Provides the detailed data for a single course offering.
 ///
-/// On a previously-fetched offering, emits cached DB data immediately and
-/// re-emits when the background syllabus refresh lands. On an offering with
-/// no syllabus cached yet, awaits the first refresh before emitting (to
-/// avoid rendering null syllabus fields). Errors during refresh are absorbed
-/// — the stream stays on cached data.
+/// Reads composed offering detail (overview + schedule + teachers + classes)
+/// directly from the database; [refreshCourseTable] keeps it current. No
+/// network fetch — a teacher's syllabus is fetched lazily and separately via
+/// [syllabusProvider]. Emits `null` until the offering exists.
 final courseOfferingProvider = StreamProvider.autoDispose
     .family<CourseOfferingDetail?, int>((ref, offeringId) {
       return ref
           .watch(courseRepositoryProvider)
           .watchCourseOffering(offeringId);
+    });
+
+/// Provides a teacher's syllabus for an offering, fetched lazily on first
+/// watch.
+///
+/// Keyed by the offering id and the authoring teacher's code (from
+/// [CourseOfferingDetail.teachers]). Emits cached content immediately when
+/// present, blocks on the first fetch otherwise, and emits `null` when the
+/// teacher hasn't submitted a syllabus. The detail UI shows the first
+/// teacher's syllabus for now.
+final syllabusProvider = StreamProvider.autoDispose
+    .family<Syllabus?, ({int offeringId, String teacherId})>((ref, key) {
+      return ref
+          .watch(courseRepositoryProvider)
+          .watchSyllabus(
+            offeringId: key.offeringId,
+            teacherId: key.teacherId,
+          );
     });
