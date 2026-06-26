@@ -12,6 +12,7 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -56,7 +57,7 @@ class ProfileScreen extends ConsumerWidget {
 
   String _mapChangeAvatarError(Object error) {
     return switch (error) {
-      AvatarTooLargeException() => t.profile.avatar.tooLarge,
+      AvatarTooLargeException() => t.profile.avatar.tooLarge.spaced,
       FormatException() => t.profile.avatar.invalidFormat,
       DioException() => t.errors.connectionFailed,
       _ => t.profile.avatar.uploadFailed,
@@ -110,7 +111,7 @@ class ProfileScreen extends ConsumerWidget {
       ),
       OptionEntryTile.icon(
         icon: Icons.info_outline,
-        title: t.profile.options.about,
+        title: t.profile.options.about.spaced,
         onTap: () => context.push(AppRoutes.about),
       ),
       OptionEntryTile.svg(

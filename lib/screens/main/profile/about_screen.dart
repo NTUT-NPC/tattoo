@@ -9,6 +9,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/services/github_service.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 final packageInfoProvider = FutureProvider.autoDispose<String>((ref) async {
@@ -65,7 +66,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.profile.options.about),
+        title: Text(t.profile.options.about.spaced),
       ),
       body: SafeArea(
         child: CustomScrollView(
@@ -130,10 +131,10 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                         OptionEntryTile.icon(
                           icon: Icons.article_outlined,
                           title: t.about.openSourceLicenses,
-                          description: t.about.viewOpenSourceLicenses,
+                          description: t.about.viewOpenSourceLicenses.spaced,
                           onTap: () => showLicensePage(
                             context: context,
-                            applicationLegalese: t.about.copyright,
+                            applicationLegalese: t.about.copyright.spaced,
                             applicationName: t.general.appTitle,
                             applicationVersion: packageInfoAsync.value ?? '...',
                           ),
@@ -141,7 +142,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                         OptionEntryTile.icon(
                           icon: Icons.translate,
                           title: 'Crowdin',
-                          description: t.about.helpTranslate,
+                          description: t.about.helpTranslate.spaced,
                           onTap: () => launchUrl(
                             .parse('https://translate.ntut.club'),
                           ),
@@ -237,7 +238,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
 
                     // Copyright
                     Text.rich(
-                      TextSpan(text: t.about.copyright),
+                      TextSpan(text: t.about.copyright.spaced),
                       style: theme.textTheme.bodySmall?.copyWith(
                         height: 1.6,
                         color: Colors.grey[600],

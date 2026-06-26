@@ -8,6 +8,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 const _kioskLoginServiceCode = 'per_001_oauth';
 const _kioskLoginHost = 'ntut.app';
@@ -196,7 +197,7 @@ class _KioskLoginQrContentState extends State<_KioskLoginQrContent>
       onRefresh: widget.onExpired,
       child: _KioskLoginQrContainer(
         child: Semantics(
-          label: t.kioskLogin.qrCode,
+          label: t.kioskLogin.qrCode.spaced,
           child: QrImageView(
             data: widget.uri.toString(),
             version: QrVersions.auto,
@@ -341,7 +342,7 @@ class _KioskLoginQrNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClearNoticeVertical(
       text: TextSpan(
-        text: t.kioskLogin.notice,
+        text: t.kioskLogin.notice.spaced,
       ),
     );
   }
@@ -381,8 +382,8 @@ class _KioskLoginQrError extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final message = switch (error) {
       DioException() => t.errors.connectionFailed,
-      FormatException() => t.kioskLogin.invalidSsoUrl,
-      _ => t.kioskLogin.loadFailed,
+      FormatException() => t.kioskLogin.invalidSsoUrl.spaced,
+      _ => t.kioskLogin.loadFailed.spaced,
     };
 
     return _KioskLoginQrLayout(
