@@ -1,0 +1,147 @@
+name: Generate Changelog
+description: Summarize merged PR bodies between two refs into a bilingual changelog via GitHub Models, with commit-subject fallback
+
+inputs:
+  github_token:
+    description: 'Token with contents:read and models:read'
+    required: true
+  last_sha:
+    description: 'Previous release commit (empty = no baseline)'
+    required: false
+  head_ref:
+    description: 'Head ref being released (SHA or branch name)'
+    required: true
+  fallback_message:
+    description: 'Commit subject used when summarization is unavailable'
+    required: true
+  repository:
+    description: 'owner/repo'
+    required: false
+    default: ${{ github.repository }}
+
+outputs:
+  changelog:
+    description: 'Markdown changelog (always non-empty; falls back to fallback_message)'
+    value: ${{ steps.generate.outputs.changelog }}
+
+runs:
+  using: composite
+  steps:
+    - name: Generate changelog
+      id: generate
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+        REPO: ${{ inputs.repository }}
+        BASE: ${{ inputs.last_sha }}
+        HEAD_REF: ${{ inputs.head_ref }}
+        FALLBACK: ${{ inputs.fallback_message }}
+      run: |
+        set -uo pipefail
+
+        emit_changelog() {            # multiline-safe $GITHUB_OUTPUT
+          local delim="EOF_changelog_$RANDOM"  # unique to guard against delimiter injection
+          {
+            echo "changelog<<$delim"
+            printf '%s\n' "$1"
+            echo "$delim"
+          } >> "$GITHUB_OUTPUT"
+        }
+
+        # Any unexpected non-zero exit still produces the fallback and succeeds.
+        trap 'rc=$?; if [ "$rc" -ne 0 ]; then emit_changelog "$FALLBACK"; exit 0; fi' EXIT
+
+        # No baseline (first release, or force_build short-circuit) -> fallback.
+        if [ -z "$BASE" ]; then
+          echo "No baseline commit; falling back."
+          emit_changelog "$FALLBACK"
+          exit 0
+        fi
+
+        # Enumerate PRs via ONE compare call; pull #<n> from merge-commit subjects.
+        PR_NUMBERS=$(gh api "repos/$REPO/compare/$BASE...$HEAD_REF" \
+          --jq '.commits[].commit.message | split("\n")[0]
+                | capture("Merge pull request #(?<n>[0-9]+)").n' 2>/dev/null | sort -un)
+        if [ -z "$PR_NUMBERS" ]; then
+          echo "No merged PRs in range; falling back."
+          emit_changelog "$FALLBACK"
+          exit 0
+        fi
+
+        # Fetch title+body only (no diff/stats/comments).
+        PR_BODIES=""
+        for n in $PR_NUMBERS; do
+          BLOCK=$(gh pr view "$n" --repo "$REPO" --json title,body \
+            --jq '"### " + .title + "\n\n" + (.body // "")' 2>/dev/null) || continue
+          PR_BODIES+="$BLOCK"$'\n\n'
+        done
+
+        # Clean: HTML comments, md images, md links (keep text), HTML tags, bare URLs; collapse blanks.
+        CLEANED=$(printf '%s' "$PR_BODIES" | perl -0777 -pe '
+          s/<!--.*?-->//gs;
+          s/!\[[^\]]*\]\([^)]*\)//g;
+          s/\[([^\]]*)\]\([^)]*\)/$1/g;
+          s/<[^>]+>//g;
+          s{https?://\S+}{}g;
+          s/\n{3,}/\n\n/g;')
+
+        # Nothing meaningful left -> fallback.
+        if ! printf '%s' "$CLEANED" | grep -q '[^[:space:]]'; then
+          echo "No PR content to summarize; falling back."
+          emit_changelog "$FALLBACK"
+          exit 0
+        fi
+
+        # Guard size (rarely hit for a daily delta).
+        MAX_CHARS=24000
+        if [ "${#CLEANED}" -gt "$MAX_CHARS" ]; then
+          CLEANED="${CLEANED:0:$MAX_CHARS}"$'\n\n[...truncated...]'
+        fi
+
+        SYSTEM='You write release notes for a Flutter app used by NTUT student testers.
+        Summarize the merged pull request descriptions into a short, user-facing changelog.
+        Output GitHub-flavored Markdown with EXACTLY two labeled groups, in this order:
+        a plain line "繁體中文：" then a bullet list, a blank line, then a plain line
+        "English:" then a bullet list.
+        Both lists describe the SAME changes (translations of each other), max 6 bullets each.
+        A change is user-facing ONLY if a tester would notice it while using the app:
+        new screens or features, visible UI changes, bug fixes to app behavior, performance.
+        NOT user-facing (never mention these): dependency or tooling updates, CI/workflow
+        changes, release process changes, documentation (including contributor docs and code
+        comments), refactors, tests, translations infrastructure.
+        Each bullet = one concise sentence describing what the tester SEES or EXPERIENCES,
+        never how it was implemented. No PR numbers, author names, class/widget names, or
+        technical terms (streaming, provider, component, refactor) — say "頁面/page",
+        "畫面/screen", "更即時/updates faster" instead. Never copy widget or class names
+        from PR titles (e.g. "ListTile") — describe the visible result in plain words, or
+        if the only effect is an internal style/widget swap, treat the PR as not user-facing.
+        Do not embellish or infer benefits beyond what the PR states. Do not add a top-level heading.
+        If no PR is user-facing, output EXACTLY one bullet per language: "本次更新僅包含內部改進。"
+        and "This update contains only internal improvements." — do not list the chores.'
+
+        REQ=$(jq -n --arg model "openai/gpt-4.1" --arg sys "$SYSTEM" --arg usr "$CLEANED" \
+          '{model:$model, temperature:0.2,
+            messages:[{role:"system",content:$sys},{role:"user",content:$usr}]}')
+
+        OUT=$(mktemp)
+        CODE=$(curl -sS -o "$OUT" -w '%{http_code}' --max-time 60 \
+          -X POST "https://models.github.ai/inference/chat/completions" \
+          -H "Authorization: Bearer $GH_TOKEN" \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/vnd.github+json" \
+          -d "$REQ" || echo "000")
+
+        if [ "$CODE" != "200" ]; then
+          echo "Models API HTTP $CODE; falling back." >&2
+          emit_changelog "$FALLBACK"
+          exit 0
+        fi
+
+        SUMMARY=$(jq -r '.choices[0].message.content // empty' "$OUT")
+        if [ -z "$SUMMARY" ]; then
+          echo "Empty model response; falling back." >&2
+          emit_changelog "$FALLBACK"
+          exit 0
+        fi
+
+        emit_changelog "$SUMMARY"

@@ -34,6 +34,9 @@ permissions:
 jobs:
   prepare:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      models: read
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number }}
       version_suffix: ${{ steps.version-suffix.outputs.suffix }}
@@ -81,6 +84,7 @@ jobs:
           if gh release view daily &>/dev/null; then
             LAST_SHA=$(gh release view daily --json targetCommitish -q .targetCommitish)
             CURRENT_SHA=$(git rev-parse HEAD)
+            echo "last_sha=$LAST_SHA" >> $GITHUB_OUTPUT
             if [ "$LAST_SHA" = "$CURRENT_SHA" ]; then
               echo "skip=true" >> $GITHUB_OUTPUT
               echo "No changes since last daily build ($LAST_SHA). Skipping."
@@ -107,16 +111,31 @@ jobs:
           title: "Release Builds"
           build_number: ${{ steps.build-number.outputs.build_number }}
 
+      - name: Generate changelog
+        if: steps.check-changes.outputs.skip != 'true'
+        id: changelog
+        uses: ./.github/actions/generate-changelog
+        with:
+          github_token: ${{ github.token }}
+          last_sha: ${{ steps.check-changes.outputs.last_sha }}
+          head_ref: ${{ steps.set-ref.outputs.ref }}
+          fallback_message: ${{ steps.summary.outputs.message }}
+
       - name: Find or create pre-release
         if: steps.check-changes.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          CHANGELOG: ${{ steps.changelog.outputs.changelog }}
         run: |
-          BODY=$(cat <<'BODY_EOF'
+          STATIC_TOP=$(cat <<'BODY_EOF'
           **Build Number:** ${{ steps.build-number.outputs.build_number }}
           **Commit:** ${{ steps.summary.outputs.sha }}
-          **Message:** ${{ steps.summary.outputs.message }}
 
+          ## What's changed
+          BODY_EOF
+          )
+
+          STATIC_BOTTOM=$(cat <<'BODY_EOF'
           <!--android-build-->
 
           <!--ios-build-->
@@ -127,6 +146,8 @@ jobs:
           > Please use **Google Play** (Android) or **TestFlight** (iOS) for the best experience and automatic updates.
           BODY_EOF
           )
+
+          BODY=$(printf '%s\n\n%s\n\n%s\n' "$STATIC_TOP" "$CHANGELOG" "$STATIC_BOTTOM")
 
           if gh release view daily &>/dev/null; then
             gh release delete daily --yes --cleanup-tag
