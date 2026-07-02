@@ -126,6 +126,227 @@ typedef StudentProfileDto = ({
   String? departmentEn,
 });
 
+/// A course entry from the mid-term warning inquiry page (期中預警查詢).
+typedef MidtermWarningDto = ({
+  /// Course catalog code or offering number.
+  String? courseNumber,
+
+  /// Whether the course is required (true) or elective (false).
+  bool? required,
+
+  /// Course name in Chinese.
+  String? courseNameZh,
+
+  /// Course name in English.
+  String? courseNameEn,
+
+  /// Number of credits.
+  double? credits,
+
+  /// Additional remarks or restrictions.
+  String? note,
+
+  /// Whether the student is marked for poor learning performance in this subject.
+  bool isPoorLearning,
+
+  /// Whether the teacher has not yet entered warning records.
+  bool isUndelivered,
+
+  /// Ratio of poorly warned students in the class (e.g., "3 / 90").
+  String? warnedRatio,
+});
+
+/// A reward or punishment detailed record from the student affairs page (考勤、獎懲查詢).
+typedef RewardPunishmentRecordDto = ({
+  /// Date of the event.
+  DateTime? date,
+
+  /// Classification (e.g., "嘉獎", "申誡").
+  String classification,
+
+  /// Number of times/units.
+  int times,
+
+  /// Description of the facts or reasons.
+  String? reason,
+});
+
+/// An absenteeism or leave record from the student affairs page.
+typedef AttendanceRecordDto = ({
+  /// Week number of the semester.
+  int? week,
+
+  /// Date of the leave or absence.
+  DateTime? date,
+
+  /// Period/session number of the day.
+  int? period,
+
+  /// Roll call list number.
+  String? rollCallNumber,
+
+  /// Leave or absence classification (e.g., "公假", "曠課", "事假").
+  String classification,
+
+  /// Additional remarks.
+  String? note,
+});
+
+/// Comprehensive student affairs data including rewards, punishments, and attendance.
+typedef StudentAffairsDto = ({
+  /// Summary counts of rewards and punishments by classification.
+  Map<String, int> rewardPunishmentSummary,
+
+  /// Detailed list of rewards and punishments.
+  List<RewardPunishmentRecordDto> rewardPunishmentRecords,
+
+  /// Summary counts of absenteeism and leaves by classification.
+  Map<String, int> attendanceSummary,
+
+  /// Detailed list of absenteeism and leaves.
+  List<AttendanceRecordDto> attendanceRecords,
+});
+
+/// A student loan record from the student loan inquiry page (就學貸款資料查詢).
+typedef StudentLoanDto = ({
+  /// Semester identifier.
+  SemesterDto? semester,
+
+  /// Type or category of the loan.
+  String? loanType,
+
+  /// Loan amount in NTD.
+  double? amount,
+
+  /// Review status or notes.
+  String? status,
+});
+
+/// A course taken within a general education dimension (博雅課程).
+typedef GeneralEducationCourseDto = ({
+  /// Semester when the course was taken.
+  SemesterDto? semester,
+
+  /// Whether the course counts toward the core requirement (true) or elective (false).
+  bool? isCore,
+
+  /// Course catalog code.
+  String? courseCode,
+
+  /// Course name in Chinese.
+  String? courseNameZh,
+
+  /// Course name in English.
+  String? courseNameEn,
+
+  /// Credits earned.
+  double? credits,
+
+  /// Final grade achieved.
+  int? score,
+});
+
+/// Summary and course list for a general education dimension (查詢已修讀博雅課程向度).
+typedef GeneralEducationDimensionDto = ({
+  /// Dimension name in Chinese (e.g., "自然與科學向度").
+  String dimensionZh,
+
+  /// Dimension name in English (e.g., "Liberal Arts Education-Nature").
+  String? dimensionEn,
+
+  /// Credits required for this dimension.
+  double? requiredCredits,
+
+  /// Core credits already taken.
+  double? coreCreditsTaken,
+
+  /// Elective credits already taken.
+  double? electiveCreditsTaken,
+
+  /// Courses taken within this dimension over the years.
+  List<GeneralEducationCourseDto> courses,
+});
+
+/// An English graduation requirement verification record (查詢英語畢業門檻登錄資料).
+typedef EnglishProficiencyDto = ({
+  /// Semester identifier when recorded.
+  SemesterDto? semester,
+
+  /// Sequence number.
+  int? sequenceNumber,
+
+  /// Class name at the time of recording.
+  String? className,
+
+  /// Overall score or grade achieved.
+  double? grade,
+
+  /// Level or tier assigned.
+  String? level,
+
+  /// Name of the examination or certificate submitted.
+  String? certificate,
+
+  /// Final review result (e.g., "通過英文畢業門檻").
+  String? reviewResult,
+});
+
+/// A section or total score entry for a coordinate subject exam (會考成績).
+typedef ExamSectionScoreDto = ({
+  /// Section name (e.g., "聽力測驗Listening test", "總成績Total Score").
+  String? sectionName,
+
+  /// Score achieved.
+  double? score,
+});
+
+/// Results for a university coordinate subject exam (查詢會考電腦閱卷成績).
+typedef ExamScoreDto = ({
+  /// Name of the coordinate exam.
+  String? examName,
+
+  /// Date the examination was held.
+  DateTime? date,
+
+  /// Test paper version or form (e.g., "A").
+  String? testPaper,
+
+  /// Section scores and total score.
+  List<ExamSectionScoreDto> sectionScores,
+});
+
+/// Student personal contact information from the contact maintenance page (維護個人聯絡資料).
+typedef ContactInfoDto = ({
+  /// Mobile phone number.
+  String? mobilePhone,
+
+  /// Primary email address.
+  String? email,
+
+  /// Transportation modes used to commute to school (e.g., ["住校", "捷運"]).
+  List<String> commuteModes,
+
+  /// Rental house address (if applicable).
+  String? rentalAddress,
+
+  /// Landlord's name (if applicable).
+  String? landlordName,
+
+  /// Landlord's phone number (if applicable).
+  String? landlordPhone,
+});
+
+/// Graduation qualification review status (查詢畢業資格審查).
+///
+/// Note: This data is typically only available to graduating seniors.
+typedef GraduationQualificationDto = ({
+  /// Status summary or review result.
+  String? status,
+
+  /// Detailed checks or requirements breakdown.
+  List<({String requirement, bool passed, String? note})> details,
+});
+
 /// Provides the singleton [StudentQueryService] instance.
 final studentQueryServiceProvider = Provider<StudentQueryService>(
   (ref) => NtutStudentQueryService(),
@@ -167,4 +388,33 @@ abstract interface class StudentQueryService {
   /// Returns a list of [RegistrationRecordDto] ordered from most recent to
   /// oldest.
   Future<List<RegistrationRecordDto>> getRegistrationRecords();
+
+  /// Fetches mid-term warning records for the current semester (期中預警查詢).
+  Future<List<MidtermWarningDto>> getMidtermWarnings();
+
+  /// Fetches student affairs records including rewards, punishments, and attendance (考勤、獎懲查詢).
+  Future<StudentAffairsDto> getStudentAffairs();
+
+  /// Fetches student loan records (就學貸款資料查詢).
+  Future<List<StudentLoanDto>> getStudentLoan();
+
+  /// Fetches general education dimension course summary and records (查詢已修讀博雅課程向度).
+  Future<List<GeneralEducationDimensionDto>> getGeneralEducationDimension();
+
+  /// Fetches English graduation proficiency requirement records (查詢英語畢業門檻登錄資料).
+  Future<List<EnglishProficiencyDto>> getEnglishProficiency();
+
+  /// Fetches coordinate subject computer-graded exam scores (查詢會考電腦閱卷成績).
+  Future<List<ExamScoreDto>> getExamScores();
+
+  /// Fetches personal contact information (維護個人聯絡資料).
+  Future<ContactInfoDto> getContactInfo();
+
+  /// Updates personal contact information on NTUT servers.
+  Future<void> updateContactInfo(ContactInfoDto info);
+
+  /// Fetches graduation qualification review status (查詢畢業資格審查).
+  ///
+  /// Returns null if the graduation review function is not available for the current student.
+  Future<GraduationQualificationDto?> getGraduationQualifications();
 }

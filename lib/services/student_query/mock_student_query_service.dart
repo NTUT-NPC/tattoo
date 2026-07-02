@@ -270,4 +270,140 @@ class MockStudentQueryService implements StudentQueryService {
           ),
         ];
   }
+
+  @override
+  Future<List<MidtermWarningDto>> getMidtermWarnings() async {
+    return [
+      (
+        courseNumber: '354067',
+        required: false,
+        courseNameZh: '通訊系統',
+        courseNameEn: 'Communication Systems',
+        credits: 3.0,
+        note: '電機三乙丙合開',
+        isPoorLearning: true,
+        isUndelivered: false,
+        warnedRatio: '3 / 90',
+      ),
+    ];
+  }
+
+  @override
+  Future<StudentAffairsDto> getStudentAffairs() async {
+    return (
+      rewardPunishmentSummary: {'嘉獎': 2},
+      rewardPunishmentRecords: [
+        (
+          date: DateTime(2025, 5, 20),
+          classification: '嘉獎',
+          times: 2,
+          reason: '擔任班幹部認真負責',
+        ),
+      ],
+      attendanceSummary: {'公假': 7},
+      attendanceRecords: [
+        (
+          week: 10,
+          date: DateTime(2025, 5, 29),
+          period: 1,
+          rollCallNumber: null,
+          classification: '公假',
+          note: null,
+        ),
+      ],
+    );
+  }
+
+  @override
+  Future<List<StudentLoanDto>> getStudentLoan() async {
+    return [
+      (
+        semester: (year: 113, term: 1),
+        loanType: '學雜費貸款',
+        amount: 28000.0,
+        status: '審查通過',
+      ),
+    ];
+  }
+
+  @override
+  Future<List<GeneralEducationDimensionDto>>
+  getGeneralEducationDimension() async {
+    return [
+      (
+        dimensionZh: '自然與科學向度',
+        dimensionEn: 'Liberal Arts Education-Nature',
+        requiredCredits: 4.0,
+        coreCreditsTaken: null,
+        electiveCreditsTaken: 4.0,
+        courses: [
+          (
+            semester: (year: 112, term: 1),
+            isCore: false,
+            courseCode: '1416009',
+            courseNameZh: '環境與自然保育',
+            courseNameEn: 'Environment and Conservation',
+            credits: 2.0,
+            score: 94,
+          ),
+        ],
+      ),
+    ];
+  }
+
+  @override
+  Future<List<EnglishProficiencyDto>> getEnglishProficiency() async {
+    return [
+      (
+        semester: (year: 113, term: 2),
+        sequenceNumber: 1,
+        className: '電機二甲',
+        grade: 0.0,
+        level: 'A',
+        certificate: '校內英語畢業門檻鑑定考',
+        reviewResult: '通過英文畢業門檻',
+      ),
+    ];
+  }
+
+  @override
+  Future<List<ExamScoreDto>> getExamScores() async {
+    return [
+      (
+        examName: '113學年度第二學期 英文教學期中會考',
+        date: DateTime(2025, 4, 15),
+        testPaper: 'A',
+        sectionScores: [
+          (sectionName: '聽力測驗Listening test', score: 46.70),
+          (sectionName: '閱讀測驗Reading test', score: 43.30),
+          (sectionName: '總成績Total Score', score: 90.00),
+        ],
+      ),
+    ];
+  }
+
+  @override
+  Future<ContactInfoDto> getContactInfo() async {
+    return (
+      mobilePhone: '0912345678',
+      email: 'student@ntut.edu.tw',
+      commuteModes: ['住校', '捷運'],
+      rentalAddress: null,
+      landlordName: null,
+      landlordPhone: null,
+    );
+  }
+
+  @override
+  Future<void> updateContactInfo(ContactInfoDto info) async {}
+
+  @override
+  Future<GraduationQualificationDto?> getGraduationQualifications() async {
+    return (
+      status: '審查通過',
+      details: [
+        (requirement: '應修總學分', passed: true, note: '已達標'),
+      ],
+    );
+  }
 }
