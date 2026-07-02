@@ -149,6 +149,10 @@ class NtutCourseService implements CourseService {
     final document = parse(html);
     final tables = document.querySelectorAll('table');
     if (tables.length < 2) {
+      final htmlText = document.querySelector('iframe')?.outerHtml ?? html;
+      if (htmlText.isNotEmpty) {
+        throw ActionRequiredException(htmlText);
+      }
       throw Exception('Expected timetable grid and course list tables.');
     }
 
