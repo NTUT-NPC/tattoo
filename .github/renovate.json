@@ -48,6 +48,11 @@
       ],
       "groupName": "CI dependencies",
       "groupSlug": "ci"
+    },
+    {
+      "matchDepNames": ["flutter"],
+      "groupName": "Flutter SDK",
+      "groupSlug": "flutter"
     }
   ]
 }
