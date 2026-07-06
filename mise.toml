@@ -1,4 +1,4 @@
 [tools]
-flutter = "3.44.1"
+flutter = "3.44.4"
 java = "temurin-17" # Required by Android build
 ruby = "4.0.5"      # For Fastlane and CocoaPods
