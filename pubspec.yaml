@@ -21,7 +21,7 @@ dependencies:
   html: ^0.15.6
   dio_redirect_interceptor: ^1.0.1
   collection: ^1.19.1
-  intl: ^0.20.3
+  intl: ^0.20.2
   flutter_svg: ^2.3.0
   drift: ^2.34.0
   drift_flutter: ^0.3.0
@@ -39,7 +39,7 @@ dependencies:
   slang_flutter: ^4.18.0
   http_parser: ^4.1.2
   shared_preferences: ^2.5.5
-  drift_dev: ^2.34.1+1 # TODO: move back to dev_dependencies after first release
+  drift_dev: ^2.34.0 # TODO: move back to dev_dependencies after first release
   flutter_image_compress: ^2.4.0
   msgpack_dart: ^1.0.1
   firebase_core: ^4.11.0
