@@ -330,11 +330,6 @@ abstract class SnapshotCommand extends Command<int> {
         help: 'Path to test config JSON.',
       )
       ..addOption(
-        'output-dir',
-        defaultsTo: _defaultOutputDir,
-        help: 'Directory for captured snapshots.',
-      )
-      ..addOption(
         'name',
         help: 'Extra slug to include in the output file name.',
       )
@@ -354,11 +349,10 @@ abstract class SnapshotCommand extends Command<int> {
   }
 
   Future<void> writeSnapshot(Snapshot snapshot) async {
-    final outputDir = argResults!['output-dir'];
     final extraName = argResults!['name'];
     final message = argResults!['message'];
     final file = await snapshot.writeTo(
-      outputDir: outputDir,
+      outputDir: _defaultOutputDir,
       extraName: extraName,
       message: message,
     );
