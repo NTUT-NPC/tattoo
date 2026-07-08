@@ -77,6 +77,33 @@ If you need to reconfigure Firebase:
 3. Run `flutterfire configure` to update `lib/firebase_options.dart`.
 4. Encrypt and push new config files using `dart run tool/credentials.dart encrypt <file> <path_in_repo>`.
 
+## HTML Snapshot Capture
+
+Developers can capture raw NTUT HTML/XML responses for parser work:
+
+```bash
+# List supported Service-layer capture presets
+dart run tool/html_snapshot.dart list
+
+# Capture a known page using test/test_config.json
+dart run tool/html_snapshot.dart capture student_query.profile -m "profile parser baseline"
+
+# Capture multiple known pages
+dart run tool/html_snapshot.dart capture student_query.profile course.semester_list -m "semester start samples"
+
+# Capture every preset that can be resolved without explicit IDs
+dart run tool/html_snapshot.dart capture -a -m "routine parser refresh"
+
+# Capture a custom request with the same service client settings
+dart run tool/html_snapshot.dart raw QryBasisData.jsp --service student_query -m "custom profile page check"
+```
+
+The tool reads `test/test_config.json`. If the file is missing, copy `test/test_config.json.example` to `test/test_config.json` and fill in `NTUT_TEST_USERNAME` and `NTUT_TEST_PASSWORD`.
+
+Captured files are written under `tmp/html_snapshot/` with the service name prefixed in the file name. Each file starts with a commented metadata block containing a raw-capture warning, `preset`, `request_url`, `fetchtime`, `message`, and a parser expected-result TODO; use `-m/--message` to describe why the sample was kept. If no message is provided, the tool writes a `message:` TODO placeholder that must be replaced before promotion. The parser expected-result TODO is separate from `message` and may remain until the HTML-based test code is complete. This directory is local-only and ignored by git. Do not commit raw captures; de-identify them before promoting any sample into a fixture or documentation, and do not submit a promoted snapshot without a meaningful `message`. `capture -a` skips presets that require explicit identifiers, such as a course, teacher, classroom, or syllabus ID.
+
+When adding new Service-layer parser requests, add or update capture presets in `tool/html_snapshot/presets.dart`.
+
 ## Local Development
 
 **Android SDK:** Install [Android Studio](https://developer.android.com/studio) or let Flutter download SDK components automatically on first build.

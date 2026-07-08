@@ -18,6 +18,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Credentials:** `tool/credentials.dart` manages encrypted credentials from the `tattoo-credentials` Git repo. Run `dart run tool/credentials.dart fetch` to decrypt and place Firebase configs, Android keystore, and service account. Config from env vars or `.env` file.
 
+**HTML snapshot capture:** `tool/html_snapshot.dart` captures raw NTUT HTML/XML responses for parser development. Supporting part files live under `tool/html_snapshot/`; presets live in `tool/html_snapshot/presets.dart`. The CLI reads `test/test_config.json` and writes local-only files under `tmp/html_snapshot/`. `capture <preset> [<preset>...] -m "<message>"` captures one or more known pages, and `capture -a -m "<message>"` captures presets that can be resolved without explicit IDs. Raw captures may contain personal data and must not be committed before de-identification. Promoted snapshots must keep a meaningful metadata `message`; replace a `message:` TODO placeholder before promotion because message-less snapshots are not accepted. The parser expected-result TODO is separate from `message` and may remain until the HTML-based test code is complete.
+
 **Structure:**
 
 - `lib/components/` - Reusable UI widgets
@@ -30,7 +32,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - `lib/services/` - Clients that talk to external systems (NTUT HTTP services, Firebase, etc.) and `demo_mode.dart`
 - `lib/shells/` - Layout shells (AnimatedShellContainer for tab transitions, ShowcaseShell for onboarding)
 - `lib/utils/` - HTTP utilities (cookie jar, interceptors, native adapter), localization, avatar payload
-- `tool/` - Dart CLI tools (credentials management)
+- `tool/` - Dart CLI tools (credentials management, HTML/XML snapshot capture)
 
 **Provider placement:**
 
@@ -64,6 +66,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - NTUT services return DTOs as records — no database writes
 - DTOs are typedef'd records co-located with service interfaces
 - **Integration tests:** copy `test/test_config.json.example` to `test/test_config.json`, then run `flutter test --dart-define-from-file=test/test_config.json -r failures-only`
+- **Capture presets:** when adding or changing a Service-layer HTML/XML request or parser, check related integration tests and update `tool/html_snapshot/presets.dart` presets if the request is not already covered.
 
 **Repositories:**
 
@@ -108,7 +111,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 - **NTUT services** (Portal, Course, ISchoolPlus, StudentQuery) have `abstract interface class` — mock implementations return canned DTOs for repository unit tests and demo mode
 - **Non-NTUT services** (GitHubService, FirebaseService) do not need mock implementations — they have stable API contracts
-- **No fixtures:** Service-layer tests stay integration-only against real NTUT servers. Fixtures (HTML snapshots) would go stale silently; integration tests are the source of truth for parsing correctness.
+- **No fixtures for live service tests:** Service-layer integration tests stay integration-only against real NTUT servers — inline HTML fixtures would go stale silently, so integration tests are the source of truth for live parsing correctness. Exception: de-identified snapshots promoted from `tmp/html_snapshot/` into `test/fixtures/` (see **HTML snapshot capture** above) back separate HTML-based parser tests, not the live integration tests.
 
 ## NTUT-Specific Patterns
 
