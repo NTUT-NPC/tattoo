@@ -111,7 +111,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 - **NTUT services** (Portal, Course, ISchoolPlus, StudentQuery) have `abstract interface class` — mock implementations return canned DTOs for repository unit tests and demo mode
 - **Non-NTUT services** (GitHubService, FirebaseService) do not need mock implementations — they have stable API contracts
-- **No fixtures:** Service-layer tests stay integration-only against real NTUT servers. Fixtures (HTML snapshots) would go stale silently; integration tests are the source of truth for parsing correctness.
+- **No fixtures for live service tests:** Service-layer integration tests stay integration-only against real NTUT servers — inline HTML fixtures would go stale silently, so integration tests are the source of truth for live parsing correctness. Exception: de-identified snapshots promoted from `tmp/html_snapshot/` into `test/fixtures/` (see **HTML snapshot capture** above) back separate HTML-based parser tests, not the live integration tests.
 
 ## NTUT-Specific Patterns
 
