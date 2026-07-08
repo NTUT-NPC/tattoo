@@ -453,6 +453,14 @@ Future<ISchoolCourseRef> _resolveISchoolCourse(
   if (courses.isEmpty) {
     throw CliException('No iSchool+ courses found for this account.');
   }
+  if (courseNumber is String && courseNumber.isNotEmpty) {
+    for (final course in courses) {
+      if (course.courseNumber == courseNumber) return course;
+    }
+    throw CliException(
+      'No iSchool+ course matches --course-number $courseNumber.',
+    );
+  }
   return courses.first;
 }
 
