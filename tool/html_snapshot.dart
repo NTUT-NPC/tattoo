@@ -295,13 +295,23 @@ class RawCommand extends SnapshotCommand {
       await context.ensureSso(sso);
     }
 
+    final method = argResults!['method'] as String;
+    final body = argResults!['body'] as String?;
+    final formData = _parseKeyValueOptions(argResults!.multiOption('data'));
+    if (body != null && formData.isNotEmpty) {
+      throw CliException('Provide either --body or --data, not both.');
+    }
+    if ((body != null || formData.isNotEmpty) && method != 'POST') {
+      throw CliException('--body/--data require --method POST.');
+    }
+
     final request = RawRequest(
       target: target,
       service: service,
-      method: argResults!['method'],
+      method: method,
       query: _parseKeyValueOptions(argResults!.multiOption('query')),
-      formData: _parseKeyValueOptions(argResults!.multiOption('data')),
-      body: argResults!['body'],
+      formData: formData,
+      body: body,
       contentType: argResults!['content-type'],
     );
     final snapshot = await _captureRaw(context, request);
@@ -739,11 +749,17 @@ class ISchoolSessionCheckInterceptor extends Interceptor {
 }
 
 Map<String, dynamic> _decodeJsonObject(Object? data) {
-  final decoded = switch (data) {
-    final String text => jsonDecode(text),
-    final Map<String, dynamic> map => map,
-    _ => throw CliException('Expected JSON object, got ${data.runtimeType}.'),
-  };
+  if (data is Map<String, dynamic>) return data;
+  final Object? decoded;
+  if (data is String) {
+    try {
+      decoded = jsonDecode(data);
+    } on FormatException {
+      throw CliException('Expected JSON object, got non-JSON response.');
+    }
+  } else {
+    throw CliException('Expected JSON object, got ${data.runtimeType}.');
+  }
   if (decoded is! Map<String, dynamic>) {
     throw CliException('Expected JSON object, got ${decoded.runtimeType}.');
   }
