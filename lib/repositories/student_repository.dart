@@ -41,16 +41,12 @@ class StudentRepository {
   Completer<void>? _refreshSemesterRecordsInFlight;
 
   StudentRepository({
-    required AppDatabase database,
-    required AuthRepository authRepository,
-    required CourseRepository courseRepository,
-    required FirebaseService firebaseService,
-    required StudentQueryService studentQueryService,
-  }) : _database = database,
-       _authRepository = authRepository,
-       _courseRepository = courseRepository,
-       _firebaseService = firebaseService,
-       _studentQueryService = studentQueryService;
+    required this._database,
+    required this._authRepository,
+    required this._courseRepository,
+    required this._firebaseService,
+    required this._studentQueryService,
+  });
 
   /// Watches score-available semesters for the authenticated student.
   ///

@@ -77,6 +77,8 @@ class OptionEntryTile extends StatelessWidget {
     this.color,
     this.borderColor,
   }) : _leading = null,
+       // Keep the non-nullable `icon` param; the field is nullable by design.
+       // ignore: prefer_initializing_formals
        _icon = icon,
        _svgIconAsset = null;
 
@@ -93,6 +95,8 @@ class OptionEntryTile extends StatelessWidget {
     this.borderColor,
   }) : _leading = null,
        _icon = null,
+       // Keep the non-nullable `svgIconAsset` param; the field is nullable by design.
+       // ignore: prefer_initializing_formals
        _svgIconAsset = svgIconAsset;
 
   /// Custom leading widget shown at the start of the row.

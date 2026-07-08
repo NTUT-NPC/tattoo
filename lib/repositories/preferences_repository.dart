@@ -52,14 +52,11 @@ class PreferencesRepository {
   static const _dirtyKey = '_prefsSyncDirty';
 
   PreferencesRepository({
-    required SharedPreferencesAsync prefs,
-    required PortalService portalService,
-    required AppDatabase database,
-    required AuthRepository authRepository,
-  }) : _prefs = prefs,
-       _portalService = portalService,
-       _database = database,
-       _authRepository = authRepository;
+    required this._prefs,
+    required this._portalService,
+    required this._database,
+    required this._authRepository,
+  });
 
   /// Gets a preference value, returning the key's default if not set.
   Future<T> get<T>(PrefKey<T> key) async {

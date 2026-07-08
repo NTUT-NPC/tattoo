@@ -164,18 +164,13 @@ class CourseRepository {
   final FirebaseService _firebaseService;
 
   CourseRepository({
-    required PortalService portalService,
-    required CourseService courseService,
-    required ISchoolPlusService iSchoolPlusService,
-    required AppDatabase database,
-    required AuthRepository authRepository,
-    required FirebaseService firebaseService,
-  }) : _portalService = portalService,
-       _courseService = courseService,
-       _iSchoolPlusService = iSchoolPlusService,
-       _database = database,
-       _authRepository = authRepository,
-       _firebaseService = firebaseService;
+    required this._portalService,
+    required this._courseService,
+    required this._iSchoolPlusService,
+    required this._database,
+    required this._authRepository,
+    required this._firebaseService,
+  });
 
   /// Watches available semesters for the authenticated student.
   ///
@@ -405,23 +400,27 @@ class CourseRepository {
           _database.schedules,
         )..where((t) => t.courseOffering.equals(offeringId))).go();
 
-        // Teacher
-        if (dto.teacher case LocalizedRefDto(:final id?, :final nameZh?)) {
-          final teacherSemesterId = await _database.upsertTeacherSemester(
-            code: id,
-            semesterId: semester.id,
-            nameZh: nameZh,
-            nameEn: dto.teacher?.nameEn,
-          );
-          await _database
-              .into(_database.courseOfferingTeachers)
-              .insert(
-                CourseOfferingTeachersCompanion.insert(
-                  courseOffering: offeringId,
-                  teacherSemester: teacherSemesterId,
-                ),
-                mode: .insertOrIgnore,
+        // Teachers
+        if (dto.teachers case final teachers?) {
+          for (final t in teachers) {
+            if (t case LocalizedRefDto(:final id?, :final nameZh?)) {
+              final teacherSemesterId = await _database.upsertTeacherSemester(
+                code: id,
+                semesterId: semester.id,
+                nameZh: nameZh,
+                nameEn: t.nameEn,
               );
+              await _database
+                  .into(_database.courseOfferingTeachers)
+                  .insert(
+                    CourseOfferingTeachersCompanion.insert(
+                      courseOffering: offeringId,
+                      teacherSemester: teacherSemesterId,
+                    ),
+                    mode: .insertOrIgnore,
+                  );
+            }
+          }
         }
 
         // Classes

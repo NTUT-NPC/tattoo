@@ -39,12 +39,10 @@ class CalendarRepository {
   Completer<void>? _refreshInFlight;
 
   CalendarRepository({
-    required PortalService portalService,
-    required AppDatabase database,
-    required AuthRepository authRepository,
-  }) : _portalService = portalService,
-       _database = database,
-       _authRepository = authRepository;
+    required this._portalService,
+    required this._database,
+    required this._authRepository,
+  });
 
   /// Watches calendar events overlapping the given date range.
   ///
