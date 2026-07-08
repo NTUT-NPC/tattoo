@@ -6,7 +6,7 @@
 //   dart run tool/html_snapshot.dart capture student_query.profile course.semester_list
 //   dart run tool/html_snapshot.dart capture -a
 //   dart run tool/html_snapshot.dart capture student_query.profile -m "teaching evaluation block page"
-//   dart run tool/html_snapshot.dart capture student_query.profile --quiet
+//   dart run tool/html_snapshot.dart capture student_query.profile --verbose
 //   dart run tool/html_snapshot.dart raw course/tw/Select.jsp --service course
 
 import 'dart:convert';
@@ -37,7 +37,6 @@ const _expectedParseResultTodo =
     'TODO: Add the expected parse result after the HTML-based test code is complete.';
 
 void main(List<String> args) async {
-  final quiet = _hasQuietFlag(args);
   final runner =
       SnapshotCommandRunner(
           'html_snapshot',
@@ -56,13 +55,9 @@ void main(List<String> args) async {
     stderr.writeln(error.message);
     exitCode = error.code;
   } on DioException catch (error) {
-    stderr.writeln(_formatDioException(error, quiet: quiet));
+    stderr.writeln(_formatDioException(error));
     exitCode = 1;
   }
-}
-
-bool _hasQuietFlag(List<String> args) {
-  return args.any((arg) => arg == '-q' || arg == '--quiet');
 }
 
 class SnapshotCommandRunner extends CommandRunner<int> {
@@ -75,7 +70,7 @@ class SnapshotCommandRunner extends CommandRunner<int> {
       '  dart run tool/html_snapshot.dart capture <preset> [<preset>...]',
       '  dart run tool/html_snapshot.dart capture -a',
       '  dart run tool/html_snapshot.dart capture <preset> -m "<message>"',
-      '  dart run tool/html_snapshot.dart capture <preset> --quiet',
+      '  dart run tool/html_snapshot.dart capture <preset> --verbose',
       '  dart run tool/html_snapshot.dart list',
       '  dart run tool/html_snapshot.dart raw <path-or-url> --service <service>',
       '',
@@ -143,7 +138,7 @@ class CaptureCommand extends SnapshotCommand {
       '  dart run tool/html_snapshot.dart capture student_query.profile course.semester_list',
       '  dart run tool/html_snapshot.dart capture -a',
       '  dart run tool/html_snapshot.dart capture student_query.profile -m "teaching evaluation block page"',
-      '  dart run tool/html_snapshot.dart capture student_query.profile --quiet',
+      '  dart run tool/html_snapshot.dart capture student_query.profile --verbose',
       '',
       'Run `dart run tool/html_snapshot.dart list` to see available presets.',
     ].join('\n');
@@ -196,7 +191,7 @@ class CaptureCommand extends SnapshotCommand {
         final snapshot = await preset.capture(context, argResults!);
         await writeSnapshot(snapshot);
       } on DioException catch (error) {
-        final message = _formatDioException(error, quiet: quiet);
+        final message = _formatDioException(error);
         failures.add('${preset.name}: $message');
         stderr.writeln('Failed ${preset.name}:\n${_indent(message)}');
       } on Object catch (error) {
@@ -319,15 +314,15 @@ class RawCommand extends SnapshotCommand {
 abstract class SnapshotCommand extends Command<int> {
   bool _wroteSnapshot = false;
 
-  bool get quiet => argResults!.flag('quiet');
+  bool get verbose => argResults!.flag('verbose');
 
   void addCommonOptions(ArgParser parser) {
     parser
       ..addFlag(
-        'quiet',
-        abbr: 'q',
+        'verbose',
+        abbr: 'v',
         negatable: false,
-        help: 'Suppress HTTP request logs that may expose sensitive URLs.',
+        help: 'Show per-request HTTP logs (method, origin/path, counts).',
       )
       ..addOption(
         'config',
@@ -353,7 +348,7 @@ abstract class SnapshotCommand extends Command<int> {
 
   Future<SnapshotContext> createContext() async {
     final credentials = TestCredentials.load(argResults!['config']);
-    final context = SnapshotContext(credentials, quiet: quiet);
+    final context = SnapshotContext(credentials, verbose: verbose);
     await context.login();
     return context;
   }
@@ -429,13 +424,13 @@ class TestCredentials {
 
 class SnapshotContext {
   final TestCredentials credentials;
-  final bool quiet;
+  final bool verbose;
   final _PortalClient _portal;
   final _clients = <SnapshotService, Dio>{};
   final _ssoTargets = <SnapshotService>{};
 
-  SnapshotContext(this.credentials, {required this.quiet})
-    : _portal = _PortalClient(quiet: quiet);
+  SnapshotContext(this.credentials, {required this.verbose})
+    : _portal = _PortalClient(verbose: verbose);
 
   Future<void> login() async {
     await _portal.login(credentials.username, credentials.password);
@@ -452,7 +447,7 @@ class SnapshotContext {
   Dio client(SnapshotService service) {
     return _clients.putIfAbsent(
       service,
-      () => _createDio(service, quiet: quiet),
+      () => _createDio(service, verbose: verbose),
     );
   }
 
@@ -478,8 +473,8 @@ class SnapshotContext {
 class _PortalClient {
   final Dio _dio;
 
-  _PortalClient({required bool quiet})
-    : _dio = _createDio(.portal, quiet: quiet);
+  _PortalClient({required bool verbose})
+    : _dio = _createDio(.portal, verbose: verbose);
 
   Future<void> login(String username, String password) async {
     final response = await _dio.post(
@@ -817,12 +812,11 @@ String _extensionFromResponse(Response response) {
   return 'html';
 }
 
-String _formatDioException(DioException error, {bool quiet = false}) {
+String _formatDioException(DioException error) {
   final response = error.response;
   final status = response?.statusCode;
-  final requestTarget = quiet
-      ? '${error.requestOptions.method} ${_redactedRequestUrl(error.requestOptions.uri)}'
-      : '${error.requestOptions.method} ${error.requestOptions.uri}';
+  final requestTarget =
+      '${error.requestOptions.method} ${_redactedRequestUrl(error.requestOptions.uri)}';
   final statusLine = status == null ? null : 'Status: $status';
   return [
     'HTTP request failed: $requestTarget',

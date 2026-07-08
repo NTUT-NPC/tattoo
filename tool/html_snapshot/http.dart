@@ -4,7 +4,7 @@ CookieJar? _snapshotCookieJar;
 
 CookieJar get _cookieJar => _snapshotCookieJar ??= CookieJar();
 
-Dio _createDio(SnapshotService service, {required bool quiet}) {
+Dio _createDio(SnapshotService service, {required bool verbose}) {
   final dio = Dio()
     ..options = BaseOptions(
       baseUrl: service.baseUrl,
@@ -25,7 +25,7 @@ Dio _createDio(SnapshotService service, {required bool quiet}) {
     _ClientIdentifierInterceptor(),
     _HttpsInterceptor(),
     RedirectInterceptor(() => dio),
-    if (!quiet) _SnapshotLogInterceptor(),
+    if (verbose) _SnapshotLogInterceptor(),
   ]);
 
   if (service == .ischool) {
@@ -168,9 +168,8 @@ class _SnapshotLogInterceptor extends Interceptor {
         "$count cookie${count != 1 ? 's' : ''}",
     ].join(' ');
 
-    log(
-      '${_requestLog(response.requestOptions)} => $responseLog',
-      name: 'HTTP',
+    stderr.writeln(
+      '[HTTP] ${_requestLog(response.requestOptions)} => $responseLog',
     );
     handler.next(response);
   }
@@ -181,7 +180,7 @@ class _SnapshotLogInterceptor extends Interceptor {
       err.type.name,
       ?err.response?.statusCode,
     ].join(' ');
-    log('${_requestLog(err.requestOptions)} => $errorLog', name: 'HTTP');
+    stderr.writeln('[HTTP] ${_requestLog(err.requestOptions)} => $errorLog');
     handler.next(err);
   }
 }
