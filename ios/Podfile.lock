@@ -1,7 +1,4 @@
 PODS:
-  - cupertino_http (0.0.1):
-    - Flutter
-    - FlutterMacOS
   - Flutter (1.0.0)
   - flutter_image_compress_common (1.0.0):
     - Flutter
@@ -31,7 +28,6 @@ PODS:
     - SDWebImage/Core (~> 5.17)
 
 DEPENDENCIES:
-  - cupertino_http (from `.symlinks/plugins/cupertino_http/darwin`)
   - Flutter (from `Flutter`)
   - flutter_image_compress_common (from `.symlinks/plugins/flutter_image_compress_common/ios`)
 
@@ -43,15 +39,12 @@ SPEC REPOS:
     - SDWebImageWebPCoder
 
 EXTERNAL SOURCES:
-  cupertino_http:
-    :path: ".symlinks/plugins/cupertino_http/darwin"
   Flutter:
     :path: Flutter
   flutter_image_compress_common:
     :path: ".symlinks/plugins/flutter_image_compress_common/ios"
 
 SPEC CHECKSUMS:
-  cupertino_http: 94ac07f5ff090b8effa6c5e2c47871d48ab7c86c
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_image_compress_common: 1697a328fd72bfb335507c6bca1a65fa5ad87df1
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8

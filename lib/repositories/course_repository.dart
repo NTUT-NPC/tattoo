@@ -400,23 +400,27 @@ class CourseRepository {
           _database.schedules,
         )..where((t) => t.courseOffering.equals(offeringId))).go();
 
-        // Teacher
-        if (dto.teacher case LocalizedRefDto(:final id?, :final nameZh?)) {
-          final teacherSemesterId = await _database.upsertTeacherSemester(
-            code: id,
-            semesterId: semester.id,
-            nameZh: nameZh,
-            nameEn: dto.teacher?.nameEn,
-          );
-          await _database
-              .into(_database.courseOfferingTeachers)
-              .insert(
-                CourseOfferingTeachersCompanion.insert(
-                  courseOffering: offeringId,
-                  teacherSemester: teacherSemesterId,
-                ),
-                mode: .insertOrIgnore,
+        // Teachers
+        if (dto.teachers case final teachers?) {
+          for (final t in teachers) {
+            if (t case LocalizedRefDto(:final id?, :final nameZh?)) {
+              final teacherSemesterId = await _database.upsertTeacherSemester(
+                code: id,
+                semesterId: semester.id,
+                nameZh: nameZh,
+                nameEn: t.nameEn,
               );
+              await _database
+                  .into(_database.courseOfferingTeachers)
+                  .insert(
+                    CourseOfferingTeachersCompanion.insert(
+                      courseOffering: offeringId,
+                      teacherSemester: teacherSemesterId,
+                    ),
+                    mode: .insertOrIgnore,
+                  );
+            }
+          }
         }
 
         // Classes

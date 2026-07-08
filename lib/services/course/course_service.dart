@@ -24,8 +24,13 @@ typedef ScheduleDto = ({
   /// Type of course (e.g., "必", "選", "通", "輔").
   String? type,
 
-  /// Reference to the instructor with bilingual name.
-  LocalizedRefDto? teacher,
+  /// References to the instructors with bilingual names.
+  ///
+  /// A course offering may have multiple teachers. An English name is merged
+  /// only when the offering has a single teacher and the English page lists
+  /// exactly one name; otherwise it is null and filled later from the teacher
+  /// detail page.
+  List<LocalizedRefDto>? teachers,
 
   /// List of class/program references with bilingual names.
   List<LocalizedRefDto>? classes,
@@ -219,8 +224,8 @@ abstract interface class CourseService {
   /// Returns teacher profile information including department, title, and
   /// office hours for the given [teacherId] in a specific [semester].
   ///
-  /// The [teacherId] should be a teacher code obtained from the `teacher.id`
-  /// field of a [ScheduleDto].
+  /// The [teacherId] should be a teacher code obtained from the id of an entry
+  /// in the `teachers` field of a [ScheduleDto].
   Future<TeacherDto> getTeacher({
     required String teacherId,
     required SemesterDto semester,
