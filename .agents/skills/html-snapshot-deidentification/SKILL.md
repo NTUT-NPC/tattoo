@@ -32,7 +32,7 @@ Use this skill only to de-identify the selected snapshot and perform the require
 
 ## De-identify
 
-- Before editing, build a private replacement ledger of exact original sensitive values found in the whole file, including metadata, `request_url`, hidden fields, scripts, comments, and roster tables. Include variant forms such as URL-encoded IDs or repeated address fragments.
+- Before editing, build a private replacement ledger of exact original sensitive values found in the whole file, including metadata, `request_url`, hidden fields, scripts, comments, and roster tables. Include every variant form of a value so each one enters the ledger: URL-encoded IDs, repeated address fragments, and dates of birth in all calendar forms (ROC year such as `92年05月12日` and Gregorian such as `2003/5/12`) plus any copy duplicated inside `<script>` variables (for example an 8-digit `birth8` like `20030512`). The same value often appears in the visible table and again in a script or hidden field.
 - Review the whole file, including metadata, `request_url`, hidden inputs, scripts, comments, links, and visible text.
 - Replace each sensitive value consistently across the entire file with search-and-replace tooling.
 - Prefer realistic fake values from `lib/services/*/mock_*.dart`, including course names, course numbers, teacher names, student names, and IDs. Do not use placeholder-like fake data such as `Course ABCD`, `Teacher A`, `Test Department`, or sequential dummy names.
@@ -44,7 +44,7 @@ Use this skill only to de-identify the selected snapshot and perform the require
 
 Remove or replace these when present:
 
-- Identity: names, English names, aliases, usernames, accounts, student IDs, roster IDs, national ID numbers, user/profile/internal person IDs, teacher/employee IDs.
+- Identity: names, English names, aliases, usernames, accounts, student IDs, roster IDs, national ID numbers, dates of birth, birthplaces, user/profile/internal person IDs, teacher/employee IDs.
 - Contact and address: emails, phone numbers, postal codes, addresses, address fragments, household-registration fields, guardian/emergency-contact fields.
 - Auth and hidden state: cookies, SSO/OAuth codes, session tickets, CSRF tokens, hidden auth fields, IDs embedded in URLs, query strings, forms, scripts, comments, or metadata.
 - Academic private data: grades, GPA, rankings, graduation eligibility, missing credits, failed/retaken courses, academic warnings, enrollment status, registration history, conduct scores.
@@ -56,7 +56,8 @@ Remove or replace these when present:
 - Preserve DOM structure, table columns, element attributes, CSS selectors, form shape, parser anchors, status text, and error messages.
 - Preserve non-personal test metadata such as classrooms, periods, credits, hours, teacher count, semester markers, and system-state wording.
 - Do not prettify, reformat, translate, or rewrite unrelated HTML.
-- After editing, search for every original sensitive value from the replacement ledger. If any remain, replace them and search again before promotion.
+- After editing, verify by sweeping for every original value in the replacement ledger, not a hand-written pattern list. A regex or field-type checklist misses whatever the ledger did not anticipate; the ledger built from this specific file is the source of truth, so grep the file for each of its original values in turn.
+- Confirm every replacement actually changed the text. A fake that happens to equal the original leaves the real value in place with no visible diff, so treat any ledger value still present after editing as unremoved. If any remain, replace them with a value that differs from the original and sweep again before promotion.
 
 ## Promote
 
