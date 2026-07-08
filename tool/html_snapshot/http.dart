@@ -75,7 +75,7 @@ class _InvalidCookieFilter extends Interceptor {
         Cookie.fromSetCookieValue(trimmed);
         validCookies.add(trimmed);
       } on FormatException {
-        log('Filtered invalid Set-Cookie header: $trimmed', name: 'HTTP');
+        log('Filtered an invalid Set-Cookie header.', name: 'HTTP');
       }
     }
     response.headers.set(HttpHeaders.setCookieHeader, validCookies);

@@ -701,7 +701,7 @@ Future<Snapshot> _captureRaw(
     service: request.service,
     label: 'raw ${request.target}',
     preset: 'raw',
-    requestUrl: response.requestOptions.uri.toString(),
+    requestUrl: _redactedRequestUrl(response.requestOptions.uri),
     body: _responseBodyAsString(response.data),
     extension: extension,
     fileParts: ['raw', _rawTargetSlug(request.target)],

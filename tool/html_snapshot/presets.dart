@@ -257,7 +257,7 @@ Future<Snapshot> _captureRequest(
     service: request.service,
     label: label,
     preset: label,
-    requestUrl: response.requestOptions.uri.toString(),
+    requestUrl: _redactedRequestUrl(response.requestOptions.uri),
     body: _responseBodyAsString(response.data),
     extension: request.extension,
     fileParts: [_shortPresetName(label), ...request.fileParts],
