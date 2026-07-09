@@ -367,7 +367,7 @@ class _ScoreTile extends StatelessWidget {
       visualDensity: .compact,
       contentPadding: const .symmetric(horizontal: 8, vertical: 0),
       title: Text(
-        localized(score.nameZh, score.nameEn),
+        localized(score.nameZh, score.nameEn).spaced,
         style: Theme.of(context).textTheme.titleMedium,
       ),
       subtitle: Text(

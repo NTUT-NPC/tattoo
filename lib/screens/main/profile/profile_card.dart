@@ -8,6 +8,7 @@ import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 const _placeholderProfile = User(
   id: 0,
@@ -167,9 +168,10 @@ class ProfileContent extends StatelessWidget {
                         // fix horizontal alignment with other text
                         offset: Offset(-height * 0.01, 0),
                         child: Text(
-                          profile.nameZh.isNotEmpty
-                              ? profile.nameZh
-                              : t.general.unknown,
+                          (profile.nameZh.isNotEmpty
+                                  ? profile.nameZh
+                                  : t.general.unknown)
+                              .spaced,
                           maxLines: 1,
                           overflow: .ellipsis,
                           style: textTheme.titleMedium?.copyWith(
@@ -182,7 +184,7 @@ class ProfileContent extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        profile.departmentZh ?? '',
+                        (profile.departmentZh ?? '').spaced,
                         maxLines: 1,
                         overflow: .ellipsis,
                       ),
@@ -194,6 +196,7 @@ class ProfileContent extends StatelessWidget {
                       Text(
                         registration != null
                             ? '${registration!.year}-${registration!.term} ${registration!.className ?? ''}'
+                                  .spaced
                             : '',
                         maxLines: 1,
                         overflow: .ellipsis,
