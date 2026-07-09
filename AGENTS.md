@@ -29,7 +29,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - `lib/screens/` - Screen widgets organized by feature: `welcome/` (intro, login) and `main/` (home, course_table, score, calendar, portal, scanner, kiosk_login, profile). 4-tab `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation. Each tab owns its own `Scaffold`.
 - `lib/services/` - Clients that talk to external systems (NTUT HTTP services, Firebase, etc.) and `demo_mode.dart`
 - `lib/shells/` - Layout shells (AnimatedShellContainer for tab transitions, ShowcaseShell for onboarding)
-- `lib/utils/` - HTTP utilities (cookie jar, interceptors, native adapter), localization, avatar payload
+- `lib/utils/` - HTTP utilities (cookie jar, interceptors, native adapter), localization, avatar payload, the `PrefType` SharedPreferences value-type enum
 - `tool/` - Dart CLI tools (credentials management)
 
 **Provider placement:**
@@ -59,7 +59,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - ISchoolPlusService — 北科i學園PLUS (`ischool_plus_oauth`). Course rosters and materials.
 - StudentQueryService — 學生查詢專區 (`sa_003_oauth`). Academic records, GPA, rankings, registration history.
 - GitHubService — fetches repo contributors, filters bots
-- FirebaseService — Unified wrapper for Firebase Analytics and Crashlytics. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`)
+- FirebaseService — Unified wrapper for Firebase Analytics, Crashlytics, and Remote Config. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`). `getRemoteConfigTyped(key, PrefType)` casts a Remote Config value to the caller's declared type (no sniffing), returning `(value: null, isRemote: false)` when disabled or not remotely set.
 - NTUT services share single cookie jar (NTUT session state)
 - NTUT services return DTOs as records — no database writes
 - DTOs are typedef'd records co-located with service interfaces
@@ -68,7 +68,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 **Repositories:**
 
 - AuthRepository — User identity, session, profile. Lazy auth via `withAuth<T>()` with SSO and re-auth coalescing (Completer pattern). Session persistence via flutter_secure_storage. Never-completing future on auth failure (harmless — session-scoped providers are already being disposed).
-- PreferencesRepository — Typed `PrefKey<T>` enum with SharedPreferencesAsync. Cloud sync via avatar payload.
+- PreferencesRepository — Typed `PrefKey<T>` enum resolved through a source stack (forced > local override > Remote Config > declared default). Feature flags are unified here: Remote Config is a control layer over `PrefKey`, not a separate system. App-scoped; cloud sync embeds only the user's explicitly-set values in the avatar payload, and runs only while logged in.
 - CourseRepository — Course catalog, schedules, and offering details. Normalizes bilingual names from multiple sources (catalog vs offering). Layout computation for course table grid (multi-period spans, noon-crossing, unscheduled courses).
 - CalendarRepository — Academic calendar events from NTUT portal. Sliding window caching keyed to enrolled semesters.
 - StudentRepository — Academic records, GPA, rankings. Parallel course code resolution via CourseRepository.getCourse().

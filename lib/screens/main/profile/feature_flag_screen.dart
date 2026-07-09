@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/repositories/feature_flag_repository.dart';
-import 'package:tattoo/screens/main/profile/feature_flag_providers.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
 
-/// A screen that displays all available feature flags, allowing users (typically
-/// developers or testers) to view and override flag values.
+/// A screen that displays all preferences and their resolved source, allowing
+/// users (typically developers or testers) to view and override values.
 class FeatureFlagScreen extends ConsumerWidget {
   const FeatureFlagScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final flagsAsync = ref.watch(featureFlagsProvider);
+    final prefsAsync = ref.watch(preferencesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -21,7 +21,7 @@ class FeatureFlagScreen extends ConsumerWidget {
             icon: const Icon(Icons.cloud_download),
             tooltip: t.featureFlags.fetchFlags,
             onPressed: () async {
-              await ref.read(featureFlagRepositoryProvider).refreshFlags();
+              await ref.read(preferencesRepositoryProvider).refresh();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(t.featureFlags.refreshed)),
@@ -31,10 +31,10 @@ class FeatureFlagScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: flagsAsync.when(
-        data: (flags) => flags.isEmpty
+      body: prefsAsync.when(
+        data: (prefs) => prefs.isEmpty
             ? Center(child: Text(t.featureFlags.noFlag))
-            : _FlagList(flags: flags),
+            : _PrefList(prefs: prefs),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text(t.errors.occurred)),
       ),
@@ -42,73 +42,65 @@ class FeatureFlagScreen extends ConsumerWidget {
   }
 }
 
-/// A scrollable list of feature flag tiles.
-class _FlagList extends StatelessWidget {
-  final List<FeatureFlag> flags;
+/// A scrollable list of preference tiles.
+class _PrefList extends StatelessWidget {
+  final List<ResolvedPreference> prefs;
 
-  const _FlagList({required this.flags});
+  const _PrefList({required this.prefs});
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: flags.length,
-      itemBuilder: (context, index) => _FlagTile(flag: flags[index]),
+      itemCount: prefs.length,
+      itemBuilder: (context, index) => _PrefTile(pref: prefs[index]),
     );
   }
 }
 
-/// A single row representing a feature flag, its current value, and its source.
-class _FlagTile extends ConsumerWidget {
-  final FeatureFlag flag;
+/// A single row representing a preference, its current value, and its source.
+class _PrefTile extends ConsumerWidget {
+  final ResolvedPreference pref;
 
-  const _FlagTile({required this.flag});
+  const _PrefTile({required this.pref});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isForced = flag.source == .forced;
-
     return ListTile(
-      title: Text(flag.key),
-      subtitle: _FlagSubtitle(flag: flag),
-      trailing: isForced
+      title: Text(pref.name),
+      subtitle: _PrefSubtitle(pref: pref),
+      trailing: pref.isForced
           ? const Icon(Icons.lock_outline)
-          : _FlagTrailingAction(flag: flag),
-      onTap: isForced ? null : () => _onTap(context, ref),
+          : _PrefTrailingAction(pref: pref),
+      onTap: pref.isForced ? null : () => _onTap(context, ref),
     );
   }
 
-  /// Toggles boolean flags or opens an editor for other types.
+  /// Toggles boolean preferences or opens an editor for other types.
   void _onTap(BuildContext context, WidgetRef ref) {
-    if (flag.type == bool) {
+    if (pref.type == .boolean) {
       ref
-          .read(featureFlagRepositoryProvider)
-          .setFlag(flag.key, !(flag.value as bool));
+          .read(preferencesRepositoryProvider)
+          .set(pref.key, !(pref.value as bool));
     } else {
-      _editValue(context, ref, flag);
+      _editValue(context, ref, pref);
     }
   }
 
-  /// Displays an appropriate editor (dialog or option list) for the flag's value.
-  void _editValue(BuildContext context, WidgetRef ref, FeatureFlag flag) {
-    if (flag.options != null) {
-      _showOptionsDialog(
-        context,
-        ref,
-        flag,
-        flag.options!,
-      );
-      return;
-    }
-
-    final controller = TextEditingController(text: flag.value.toString());
+  /// Displays a text editor dialog for the value.
+  void _editValue(
+    BuildContext context,
+    WidgetRef ref,
+    ResolvedPreference pref,
+  ) {
+    final controller = TextEditingController(text: pref.value.toString());
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${flag.key} (${flag.type})'),
+        title: Text('${pref.name} (${pref.type.name})'),
         content: TextField(
           controller: controller,
           autofocus: true,
-          keyboardType: (flag.type == int || flag.type == double)
+          keyboardType: (pref.type == .integer || pref.type == .double)
               ? const TextInputType.numberWithOptions(decimal: true)
               : TextInputType.text,
         ),
@@ -119,17 +111,15 @@ class _FlagTile extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () {
-              final newValue = switch (flag.type) {
-                const (int) => int.tryParse(controller.text),
-                const (double) => double.tryParse(controller.text),
-                const (String) => controller.text,
-                _ => null,
+              final newValue = switch (pref.type) {
+                .integer => int.tryParse(controller.text),
+                .double => double.tryParse(controller.text),
+                .string => controller.text,
+                .boolean || .stringList => null,
               };
 
               if (newValue != null) {
-                ref
-                    .read(featureFlagRepositoryProvider)
-                    .setFlag(flag.key, newValue);
+                ref.read(preferencesRepositoryProvider).set(pref.key, newValue);
                 Navigator.of(context).pop();
               } else {
                 _showError(context);
@@ -139,53 +129,6 @@ class _FlagTile extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-
-  /// Shows a selection dialog when a list of permitted values is available.
-  void _showOptionsDialog(
-    BuildContext context,
-    WidgetRef ref,
-    FeatureFlag flag,
-    List<dynamic> options,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        final currentValue = options.contains(flag.value) ? flag.value : null;
-
-        return AlertDialog(
-          title: Text(flag.key),
-          content: SingleChildScrollView(
-            child: RadioGroup<dynamic>(
-              groupValue: currentValue,
-              onChanged: (newValue) {
-                if (newValue != null) {
-                  ref
-                      .read(featureFlagRepositoryProvider)
-                      .setFlag(flag.key, newValue);
-                }
-                Navigator.of(context).pop();
-              },
-              child: Column(
-                mainAxisSize: .min,
-                children: options.map((option) {
-                  return RadioListTile<dynamic>(
-                    title: Text(option.toString()),
-                    value: option,
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(t.general.cancel),
-            ),
-          ],
-        );
-      },
     );
   }
 
@@ -207,11 +150,12 @@ class _FlagTile extends ConsumerWidget {
   }
 }
 
-/// Displays the current source (local, remote, override) and effective value of a flag.
-class _FlagSubtitle extends StatelessWidget {
-  final FeatureFlag flag;
+/// Displays the current source (local, remote, override, forced) and effective
+/// value of a preference.
+class _PrefSubtitle extends StatelessWidget {
+  final ResolvedPreference pref;
 
-  const _FlagSubtitle({required this.flag});
+  const _PrefSubtitle({required this.pref});
 
   @override
   Widget build(BuildContext context) {
@@ -240,7 +184,7 @@ class _FlagSubtitle extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              flag.value.toString(),
+              pref.value.toString(),
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyMedium?.color,
               ),
@@ -252,9 +196,9 @@ class _FlagSubtitle extends StatelessWidget {
     );
   }
 
-  /// Returns visual styling and localized text based on the flag's source.
+  /// Returns visual styling and localized text based on the source.
   ({String text, Color bgColor, Color textColor}) _getStatusMetadata() {
-    return switch (flag.source) {
+    return switch (pref.source) {
       .override => (
         text: t.featureFlags.status.localOverride,
         bgColor: Colors.blue.withValues(alpha: 0.15),
@@ -280,15 +224,14 @@ class _FlagSubtitle extends StatelessWidget {
 }
 
 /// Provides interaction elements like switches (for booleans) or reset buttons.
-class _FlagTrailingAction extends ConsumerWidget {
-  final FeatureFlag flag;
+class _PrefTrailingAction extends ConsumerWidget {
+  final ResolvedPreference pref;
 
-  const _FlagTrailingAction({required this.flag});
+  const _PrefTrailingAction({required this.pref});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isOverridden = flag.source == .override;
-    final isForced = flag.source == .forced;
+    final isOverridden = pref.source == .override;
 
     return Row(
       mainAxisSize: .min,
@@ -298,20 +241,16 @@ class _FlagTrailingAction extends ConsumerWidget {
             icon: const Icon(Icons.refresh),
             tooltip: t.featureFlags.reset,
             onPressed: () =>
-                ref.read(featureFlagRepositoryProvider).resetFlag(flag.key),
+                ref.read(preferencesRepositoryProvider).reset(pref.key),
           ),
-        if (flag.type == bool)
+        if (pref.type == .boolean)
           Switch(
-            value: flag.value as bool,
-            onChanged: isForced
-                ? null
-                : (val) {
-                    ref
-                        .read(featureFlagRepositoryProvider)
-                        .setFlag(flag.key, val);
-                  },
+            value: pref.value as bool,
+            onChanged: (val) {
+              ref.read(preferencesRepositoryProvider).set(pref.key, val);
+            },
           )
-        else if (!isForced)
+        else
           const Icon(Icons.edit),
       ],
     );
