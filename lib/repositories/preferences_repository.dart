@@ -306,7 +306,9 @@ class PreferencesRepository {
   ///
   /// Clears the dirty flag on success.
   Future<void> syncUp() async {
-    final user = await _database.select(_database.users).getSingle();
+    final user = await _database.select(_database.users).getSingleOrNull();
+    // No user row (e.g. logged out mid-sync) — keep _dirty set for a later retry
+    if (user == null) return;
     final filename = user.avatarFilename;
 
     final avatarBytes = await _authRepository.withAuth(
