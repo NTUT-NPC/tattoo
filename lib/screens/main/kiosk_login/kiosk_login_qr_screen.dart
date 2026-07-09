@@ -197,7 +197,7 @@ class _KioskLoginQrContentState extends State<_KioskLoginQrContent>
       onRefresh: widget.onExpired,
       child: _KioskLoginQrContainer(
         child: Semantics(
-          label: t.kioskLogin.qrCode.spaced,
+          label: t.kioskLogin.qrCode,
           child: QrImageView(
             data: widget.uri.toString(),
             version: QrVersions.auto,
