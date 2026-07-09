@@ -165,16 +165,12 @@ class PreferencesRepository {
   static const _forceOverrideKey = '_force_override_flags';
 
   PreferencesRepository({
-    required TypedPreferenceStore store,
-    required PortalService portalService,
-    required AppDatabase database,
-    required AuthRepository authRepository,
-    required bool Function() isLoggedIn,
-  }) : _store = store,
-       _portalService = portalService,
-       _database = database,
-       _authRepository = authRepository,
-       _isLoggedIn = isLoggedIn;
+    required this._store,
+    required this._portalService,
+    required this._database,
+    required this._authRepository,
+    required this._isLoggedIn,
+  });
 
   /// Emits whenever a resolved value may have changed (override set/reset or a
   /// Remote Config update).

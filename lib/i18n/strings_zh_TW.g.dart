@@ -40,26 +40,26 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
-	late final TranslationsGeneralZhTw general = TranslationsGeneralZhTw.internal(_root);
-	late final TranslationsErrorsZhTw errors = TranslationsErrorsZhTw.internal(_root);
-	late final TranslationsIntroZhTw intro = TranslationsIntroZhTw.internal(_root);
-	late final TranslationsLoginZhTw login = TranslationsLoginZhTw.internal(_root);
-	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
-	late final TranslationsHomeZhTw home = TranslationsHomeZhTw.internal(_root);
-	late final TranslationsScoreZhTw score = TranslationsScoreZhTw.internal(_root);
-	late final TranslationsCalendarZhTw calendar = TranslationsCalendarZhTw.internal(_root);
-	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
-	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
-	late final TranslationsScannerZhTw scanner = TranslationsScannerZhTw.internal(_root);
-	late final TranslationsKioskLoginZhTw kioskLogin = TranslationsKioskLoginZhTw.internal(_root);
-	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
-	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
-	late final TranslationsFeatureFlagsZhTw featureFlags = TranslationsFeatureFlagsZhTw.internal(_root);
+	late final Translations$general$zh_TW general = Translations$general$zh_TW.internal(_root);
+	late final Translations$errors$zh_TW errors = Translations$errors$zh_TW.internal(_root);
+	late final Translations$intro$zh_TW intro = Translations$intro$zh_TW.internal(_root);
+	late final Translations$login$zh_TW login = Translations$login$zh_TW.internal(_root);
+	late final Translations$nav$zh_TW nav = Translations$nav$zh_TW.internal(_root);
+	late final Translations$home$zh_TW home = Translations$home$zh_TW.internal(_root);
+	late final Translations$score$zh_TW score = Translations$score$zh_TW.internal(_root);
+	late final Translations$calendar$zh_TW calendar = Translations$calendar$zh_TW.internal(_root);
+	late final Translations$courseTable$zh_TW courseTable = Translations$courseTable$zh_TW.internal(_root);
+	late final Translations$profile$zh_TW profile = Translations$profile$zh_TW.internal(_root);
+	late final Translations$scanner$zh_TW scanner = Translations$scanner$zh_TW.internal(_root);
+	late final Translations$kioskLogin$zh_TW kioskLogin = Translations$kioskLogin$zh_TW.internal(_root);
+	late final Translations$enrollmentStatus$zh_TW enrollmentStatus = Translations$enrollmentStatus$zh_TW.internal(_root);
+	late final Translations$about$zh_TW about = Translations$about$zh_TW.internal(_root);
+	late final Translations$featureFlags$zh_TW featureFlags = Translations$featureFlags$zh_TW.internal(_root);
 }
 
 // Path: general
-class TranslationsGeneralZhTw {
-	TranslationsGeneralZhTw.internal(this._root);
+class Translations$general$zh_TW {
+	Translations$general$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -100,8 +100,8 @@ class TranslationsGeneralZhTw {
 }
 
 // Path: errors
-class TranslationsErrorsZhTw {
-	TranslationsErrorsZhTw.internal(this._root);
+class Translations$errors$zh_TW {
+	Translations$errors$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -127,13 +127,13 @@ class TranslationsErrorsZhTw {
 }
 
 // Path: intro
-class TranslationsIntroZhTw {
-	TranslationsIntroZhTw.internal(this._root);
+class Translations$intro$zh_TW {
+	Translations$intro$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	late final TranslationsIntroFeaturesZhTw features = TranslationsIntroFeaturesZhTw.internal(_root);
+	late final Translations$intro$features$zh_TW features = Translations$intro$features$zh_TW.internal(_root);
 
 	/// zh-TW: '由北科程式設計研究社開發\n所有資訊僅供參考，請以學校官方系統為準'
 	String get developedBy => '由北科程式設計研究社開發\n所有資訊僅供參考，請以學校官方系統為準';
@@ -143,8 +143,8 @@ class TranslationsIntroZhTw {
 }
 
 // Path: login
-class TranslationsLoginZhTw {
-	TranslationsLoginZhTw.internal(this._root);
+class Translations$login$zh_TW {
+	Translations$login$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -178,12 +178,12 @@ class TranslationsLoginZhTw {
 		privacyPolicy('隱私條款'),
 	]);
 
-	late final TranslationsLoginErrorsZhTw errors = TranslationsLoginErrorsZhTw.internal(_root);
+	late final Translations$login$errors$zh_TW errors = Translations$login$errors$zh_TW.internal(_root);
 }
 
 // Path: nav
-class TranslationsNavZhTw {
-	TranslationsNavZhTw.internal(this._root);
+class Translations$nav$zh_TW {
+	Translations$nav$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -212,21 +212,21 @@ class TranslationsNavZhTw {
 }
 
 // Path: home
-class TranslationsHomeZhTw {
-	TranslationsHomeZhTw.internal(this._root);
+class Translations$home$zh_TW {
+	Translations$home$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	late final TranslationsHomeProjectTattooZhTw projectTattoo = TranslationsHomeProjectTattooZhTw.internal(_root);
-	late final TranslationsHomeIdeationZhTw ideation = TranslationsHomeIdeationZhTw.internal(_root);
-	late final TranslationsHomeNpcClubZhTw npcClub = TranslationsHomeNpcClubZhTw.internal(_root);
-	late final TranslationsHomeVoteZhTw vote = TranslationsHomeVoteZhTw.internal(_root);
+	late final Translations$home$projectTattoo$zh_TW projectTattoo = Translations$home$projectTattoo$zh_TW.internal(_root);
+	late final Translations$home$ideation$zh_TW ideation = Translations$home$ideation$zh_TW.internal(_root);
+	late final Translations$home$npcClub$zh_TW npcClub = Translations$home$npcClub$zh_TW.internal(_root);
+	late final Translations$home$vote$zh_TW vote = Translations$home$vote$zh_TW.internal(_root);
 }
 
 // Path: score
-class TranslationsScoreZhTw {
-	TranslationsScoreZhTw.internal(this._root);
+class Translations$score$zh_TW {
+	Translations$score$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -250,13 +250,13 @@ class TranslationsScoreZhTw {
 	/// zh-TW: '無'
 	String get none => '無';
 
-	late final TranslationsScoreSummaryZhTw summary = TranslationsScoreSummaryZhTw.internal(_root);
-	late final TranslationsScoreStatusZhTw status = TranslationsScoreStatusZhTw.internal(_root);
+	late final Translations$score$summary$zh_TW summary = Translations$score$summary$zh_TW.internal(_root);
+	late final Translations$score$status$zh_TW status = Translations$score$status$zh_TW.internal(_root);
 }
 
 // Path: calendar
-class TranslationsCalendarZhTw {
-	TranslationsCalendarZhTw.internal(this._root);
+class Translations$calendar$zh_TW {
+	Translations$calendar$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -267,8 +267,8 @@ class TranslationsCalendarZhTw {
 }
 
 // Path: courseTable
-class TranslationsCourseTableZhTw {
-	TranslationsCourseTableZhTw.internal(this._root);
+class Translations$courseTable$zh_TW {
+	Translations$courseTable$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -280,8 +280,8 @@ class TranslationsCourseTableZhTw {
 	/// zh-TW: '未安排時間的課程'
 	String get unscheduled => '未安排時間的課程';
 
-	late final TranslationsCourseTableSummaryZhTw summary = TranslationsCourseTableSummaryZhTw.internal(_root);
-	late final TranslationsCourseTableActionsZhTw actions = TranslationsCourseTableActionsZhTw.internal(_root);
+	late final Translations$courseTable$summary$zh_TW summary = Translations$courseTable$summary$zh_TW.internal(_root);
+	late final Translations$courseTable$actions$zh_TW actions = Translations$courseTable$actions$zh_TW.internal(_root);
 	Map<String, String> get dayOfWeek => {
 		'sunday': '日',
 		'monday': '一',
@@ -294,8 +294,8 @@ class TranslationsCourseTableZhTw {
 }
 
 // Path: profile
-class TranslationsProfileZhTw {
-	TranslationsProfileZhTw.internal(this._root);
+class Translations$profile$zh_TW {
+	Translations$profile$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -304,16 +304,16 @@ class TranslationsProfileZhTw {
 	/// zh-TW: '僅供參考，非正式文件'
 	String get dataDisclaimer => '僅供參考，非正式文件';
 
-	late final TranslationsProfilePasswordExpiryZhTw passwordExpiry = TranslationsProfilePasswordExpiryZhTw.internal(_root);
-	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
-	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
-	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
-	late final TranslationsProfileDangerZoneZhTw dangerZone = TranslationsProfileDangerZoneZhTw.internal(_root);
+	late final Translations$profile$passwordExpiry$zh_TW passwordExpiry = Translations$profile$passwordExpiry$zh_TW.internal(_root);
+	late final Translations$profile$sections$zh_TW sections = Translations$profile$sections$zh_TW.internal(_root);
+	late final Translations$profile$options$zh_TW options = Translations$profile$options$zh_TW.internal(_root);
+	late final Translations$profile$avatar$zh_TW avatar = Translations$profile$avatar$zh_TW.internal(_root);
+	late final Translations$profile$dangerZone$zh_TW dangerZone = Translations$profile$dangerZone$zh_TW.internal(_root);
 }
 
 // Path: scanner
-class TranslationsScannerZhTw {
-	TranslationsScannerZhTw.internal(this._root);
+class Translations$scanner$zh_TW {
+	Translations$scanner$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -362,15 +362,15 @@ class TranslationsScannerZhTw {
 	/// zh-TW: '在電腦開啟i.ntut.club並點選QR code登入'
 	String get howTo => '在電腦開啟i.ntut.club並點選QR code登入';
 
-	late final TranslationsScannerGuideZhTw guide = TranslationsScannerGuideZhTw.internal(_root);
+	late final Translations$scanner$guide$zh_TW guide = Translations$scanner$guide$zh_TW.internal(_root);
 
 	/// zh-TW: '無效的網址'
 	String get invalidUrl => '無效的網址';
 }
 
 // Path: kioskLogin
-class TranslationsKioskLoginZhTw {
-	TranslationsKioskLoginZhTw.internal(this._root);
+class Translations$kioskLogin$zh_TW {
+	Translations$kioskLogin$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -393,8 +393,8 @@ class TranslationsKioskLoginZhTw {
 }
 
 // Path: enrollmentStatus
-class TranslationsEnrollmentStatusZhTw {
-	TranslationsEnrollmentStatusZhTw.internal(this._root);
+class Translations$enrollmentStatus$zh_TW {
+	Translations$enrollmentStatus$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -411,8 +411,8 @@ class TranslationsEnrollmentStatusZhTw {
 }
 
 // Path: about
-class TranslationsAboutZhTw {
-	TranslationsAboutZhTw.internal(this._root);
+class Translations$about$zh_TW {
+	Translations$about$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -453,8 +453,8 @@ class TranslationsAboutZhTw {
 }
 
 // Path: featureFlags
-class TranslationsFeatureFlagsZhTw {
-	TranslationsFeatureFlagsZhTw.internal(this._root);
+class Translations$featureFlags$zh_TW {
+	Translations$featureFlags$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -475,27 +475,27 @@ class TranslationsFeatureFlagsZhTw {
 	/// zh-TW: '重設為預設值'
 	String get reset => '重設為預設值';
 
-	late final TranslationsFeatureFlagsStatusZhTw status = TranslationsFeatureFlagsStatusZhTw.internal(_root);
+	late final Translations$featureFlags$status$zh_TW status = Translations$featureFlags$status$zh_TW.internal(_root);
 
 	/// zh-TW: '輸入格式錯誤'
 	String get invalidInput => '輸入格式錯誤';
 }
 
 // Path: intro.features
-class TranslationsIntroFeaturesZhTw {
-	TranslationsIntroFeaturesZhTw.internal(this._root);
+class Translations$intro$features$zh_TW {
+	Translations$intro$features$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	late final TranslationsIntroFeaturesCourseTableZhTw courseTable = TranslationsIntroFeaturesCourseTableZhTw.internal(_root);
-	late final TranslationsIntroFeaturesScoresZhTw scores = TranslationsIntroFeaturesScoresZhTw.internal(_root);
-	late final TranslationsIntroFeaturesCampusLifeZhTw campusLife = TranslationsIntroFeaturesCampusLifeZhTw.internal(_root);
+	late final Translations$intro$features$courseTable$zh_TW courseTable = Translations$intro$features$courseTable$zh_TW.internal(_root);
+	late final Translations$intro$features$scores$zh_TW scores = Translations$intro$features$scores$zh_TW.internal(_root);
+	late final Translations$intro$features$campusLife$zh_TW campusLife = Translations$intro$features$campusLife$zh_TW.internal(_root);
 }
 
 // Path: login.errors
-class TranslationsLoginErrorsZhTw {
-	TranslationsLoginErrorsZhTw.internal(this._root);
+class Translations$login$errors$zh_TW {
+	Translations$login$errors$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -524,8 +524,8 @@ class TranslationsLoginErrorsZhTw {
 }
 
 // Path: home.projectTattoo
-class TranslationsHomeProjectTattooZhTw {
-	TranslationsHomeProjectTattooZhTw.internal(this._root);
+class Translations$home$projectTattoo$zh_TW {
+	Translations$home$projectTattoo$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -542,8 +542,8 @@ class TranslationsHomeProjectTattooZhTw {
 }
 
 // Path: home.ideation
-class TranslationsHomeIdeationZhTw {
-	TranslationsHomeIdeationZhTw.internal(this._root);
+class Translations$home$ideation$zh_TW {
+	Translations$home$ideation$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -560,8 +560,8 @@ class TranslationsHomeIdeationZhTw {
 }
 
 // Path: home.npcClub
-class TranslationsHomeNpcClubZhTw {
-	TranslationsHomeNpcClubZhTw.internal(this._root);
+class Translations$home$npcClub$zh_TW {
+	Translations$home$npcClub$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -578,8 +578,8 @@ class TranslationsHomeNpcClubZhTw {
 }
 
 // Path: home.vote
-class TranslationsHomeVoteZhTw {
-	TranslationsHomeVoteZhTw.internal(this._root);
+class Translations$home$vote$zh_TW {
+	Translations$home$vote$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -590,8 +590,8 @@ class TranslationsHomeVoteZhTw {
 }
 
 // Path: score.summary
-class TranslationsScoreSummaryZhTw {
-	TranslationsScoreSummaryZhTw.internal(this._root);
+class Translations$score$summary$zh_TW {
+	Translations$score$summary$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -614,8 +614,8 @@ class TranslationsScoreSummaryZhTw {
 }
 
 // Path: score.status
-class TranslationsScoreStatusZhTw {
-	TranslationsScoreStatusZhTw.internal(this._root);
+class Translations$score$status$zh_TW {
+	Translations$score$status$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -641,8 +641,8 @@ class TranslationsScoreStatusZhTw {
 }
 
 // Path: courseTable.summary
-class TranslationsCourseTableSummaryZhTw {
-	TranslationsCourseTableSummaryZhTw.internal(this._root);
+class Translations$courseTable$summary$zh_TW {
+	Translations$courseTable$summary$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -662,8 +662,8 @@ class TranslationsCourseTableSummaryZhTw {
 }
 
 // Path: courseTable.actions
-class TranslationsCourseTableActionsZhTw {
-	TranslationsCourseTableActionsZhTw.internal(this._root);
+class Translations$courseTable$actions$zh_TW {
+	Translations$courseTable$actions$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -677,8 +677,8 @@ class TranslationsCourseTableActionsZhTw {
 }
 
 // Path: profile.passwordExpiry
-class TranslationsProfilePasswordExpiryZhTw {
-	TranslationsProfilePasswordExpiryZhTw.internal(this._root);
+class Translations$profile$passwordExpiry$zh_TW {
+	Translations$profile$passwordExpiry$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -695,8 +695,8 @@ class TranslationsProfilePasswordExpiryZhTw {
 }
 
 // Path: profile.sections
-class TranslationsProfileSectionsZhTw {
-	TranslationsProfileSectionsZhTw.internal(this._root);
+class Translations$profile$sections$zh_TW {
+	Translations$profile$sections$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -713,8 +713,8 @@ class TranslationsProfileSectionsZhTw {
 }
 
 // Path: profile.options
-class TranslationsProfileOptionsZhTw {
-	TranslationsProfileOptionsZhTw.internal(this._root);
+class Translations$profile$options$zh_TW {
+	Translations$profile$options$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -743,8 +743,8 @@ class TranslationsProfileOptionsZhTw {
 }
 
 // Path: profile.avatar
-class TranslationsProfileAvatarZhTw {
-	TranslationsProfileAvatarZhTw.internal(this._root);
+class Translations$profile$avatar$zh_TW {
+	Translations$profile$avatar$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -767,8 +767,8 @@ class TranslationsProfileAvatarZhTw {
 }
 
 // Path: profile.dangerZone
-class TranslationsProfileDangerZoneZhTw {
-	TranslationsProfileDangerZoneZhTw.internal(this._root);
+class Translations$profile$dangerZone$zh_TW {
+	Translations$profile$dangerZone$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -832,12 +832,12 @@ class TranslationsProfileDangerZoneZhTw {
 	/// zh-TW: '清除${item}失敗'
 	String clearFailed({required Object item}) => '清除${item}失敗';
 
-	late final TranslationsProfileDangerZoneItemsZhTw items = TranslationsProfileDangerZoneItemsZhTw.internal(_root);
+	late final Translations$profile$dangerZone$items$zh_TW items = Translations$profile$dangerZone$items$zh_TW.internal(_root);
 }
 
 // Path: scanner.guide
-class TranslationsScannerGuideZhTw {
-	TranslationsScannerGuideZhTw.internal(this._root);
+class Translations$scanner$guide$zh_TW {
+	Translations$scanner$guide$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -863,8 +863,8 @@ class TranslationsScannerGuideZhTw {
 }
 
 // Path: featureFlags.status
-class TranslationsFeatureFlagsStatusZhTw {
-	TranslationsFeatureFlagsStatusZhTw.internal(this._root);
+class Translations$featureFlags$status$zh_TW {
+	Translations$featureFlags$status$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -884,8 +884,8 @@ class TranslationsFeatureFlagsStatusZhTw {
 }
 
 // Path: intro.features.courseTable
-class TranslationsIntroFeaturesCourseTableZhTw {
-	TranslationsIntroFeaturesCourseTableZhTw.internal(this._root);
+class Translations$intro$features$courseTable$zh_TW {
+	Translations$intro$features$courseTable$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -899,8 +899,8 @@ class TranslationsIntroFeaturesCourseTableZhTw {
 }
 
 // Path: intro.features.scores
-class TranslationsIntroFeaturesScoresZhTw {
-	TranslationsIntroFeaturesScoresZhTw.internal(this._root);
+class Translations$intro$features$scores$zh_TW {
+	Translations$intro$features$scores$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -914,8 +914,8 @@ class TranslationsIntroFeaturesScoresZhTw {
 }
 
 // Path: intro.features.campusLife
-class TranslationsIntroFeaturesCampusLifeZhTw {
-	TranslationsIntroFeaturesCampusLifeZhTw.internal(this._root);
+class Translations$intro$features$campusLife$zh_TW {
+	Translations$intro$features$campusLife$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -929,8 +929,8 @@ class TranslationsIntroFeaturesCampusLifeZhTw {
 }
 
 // Path: profile.dangerZone.items
-class TranslationsProfileDangerZoneItemsZhTw {
-	TranslationsProfileDangerZoneItemsZhTw.internal(this._root);
+class Translations$profile$dangerZone$items$zh_TW {
+	Translations$profile$dangerZone$items$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 

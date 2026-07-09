@@ -12470,7 +12470,7 @@ final class $$UsersTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.scores,
-    aliasName: $_aliasNameGenerator(db.users.id, db.scores.user),
+    aliasName: 'users__id__scores__user',
   );
 
   $$ScoresTableProcessedTableManager get scoresRefs {
@@ -12492,10 +12492,7 @@ final class $$UsersTableReferences
   _userSemesterSummariesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.userSemesterSummaries,
-        aliasName: $_aliasNameGenerator(
-          db.users.id,
-          db.userSemesterSummaries.user,
-        ),
+        aliasName: 'users__id__user_semester_summaries__user',
       );
 
   $$UserSemesterSummariesTableProcessedTableManager
@@ -13067,10 +13064,7 @@ final class $$StudentsTableReferences
   _courseOfferingStudentsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.courseOfferingStudents,
-        aliasName: $_aliasNameGenerator(
-          db.students.id,
-          db.courseOfferingStudents.student,
-        ),
+        aliasName: 'students__id__course_offering_students__student',
       );
 
   $$CourseOfferingStudentsTableProcessedTableManager
@@ -13335,7 +13329,7 @@ final class $$SemestersTableReferences
   static MultiTypedResultKey<$ClassesTable, List<ClassesData>>
   _classesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.classes,
-    aliasName: $_aliasNameGenerator(db.semesters.id, db.classes.semester),
+    aliasName: 'semesters__id__classes__semester',
   );
 
   $$ClassesTableProcessedTableManager get classesRefs {
@@ -13353,10 +13347,7 @@ final class $$SemestersTableReferences
   static MultiTypedResultKey<$CourseOfferingsTable, List<CourseOffering>>
   _courseOfferingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.courseOfferings,
-    aliasName: $_aliasNameGenerator(
-      db.semesters.id,
-      db.courseOfferings.semester,
-    ),
+    aliasName: 'semesters__id__course_offerings__semester',
   );
 
   $$CourseOfferingsTableProcessedTableManager get courseOfferingsRefs {
@@ -13376,10 +13367,7 @@ final class $$SemestersTableReferences
   static MultiTypedResultKey<$TeacherSemestersTable, List<TeacherSemester>>
   _teacherSemestersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.teacherSemesters,
-    aliasName: $_aliasNameGenerator(
-      db.semesters.id,
-      db.teacherSemesters.semester,
-    ),
+    aliasName: 'semesters__id__teacher_semesters__semester',
   );
 
   $$TeacherSemestersTableProcessedTableManager get teacherSemestersRefs {
@@ -13400,7 +13388,7 @@ final class $$SemestersTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.scores,
-    aliasName: $_aliasNameGenerator(db.semesters.id, db.scores.semester),
+    aliasName: 'semesters__id__scores__semester',
   );
 
   $$ScoresTableProcessedTableManager get scoresRefs {
@@ -13422,10 +13410,7 @@ final class $$SemestersTableReferences
   _userSemesterSummariesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.userSemesterSummaries,
-        aliasName: $_aliasNameGenerator(
-          db.semesters.id,
-          db.userSemesterSummaries.semester,
-        ),
+        aliasName: 'semesters__id__user_semester_summaries__semester',
       );
 
   $$UserSemesterSummariesTableProcessedTableManager
@@ -14068,7 +14053,7 @@ final class $$CoursesTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.scores,
-    aliasName: $_aliasNameGenerator(db.courses.id, db.scores.course),
+    aliasName: 'courses__id__scores__course',
   );
 
   $$ScoresTableProcessedTableManager get scoresRefs {
@@ -14425,10 +14410,7 @@ final class $$DepartmentsTableReferences
   static MultiTypedResultKey<$TeacherSemestersTable, List<TeacherSemester>>
   _teacherSemestersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.teacherSemesters,
-    aliasName: $_aliasNameGenerator(
-      db.departments.id,
-      db.teacherSemesters.department,
-    ),
+    aliasName: 'departments__id__teacher_semesters__department',
   );
 
   $$TeacherSemestersTableProcessedTableManager get teacherSemestersRefs {
@@ -14708,10 +14690,7 @@ final class $$TeachersTableReferences
   static MultiTypedResultKey<$TeacherSemestersTable, List<TeacherSemester>>
   _teacherSemestersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.teacherSemesters,
-    aliasName: $_aliasNameGenerator(
-      db.teachers.id,
-      db.teacherSemesters.teacher,
-    ),
+    aliasName: 'teachers__id__teacher_semesters__teacher',
   );
 
   $$TeacherSemestersTableProcessedTableManager get teacherSemestersRefs {
@@ -14991,8 +14970,8 @@ final class $$ClassesTableReferences
     extends BaseReferences<_$AppDatabase, $ClassesTable, ClassesData> {
   $$ClassesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $SemestersTable _semesterTable(_$AppDatabase db) => db.semesters
-      .createAlias($_aliasNameGenerator(db.classes.semester, db.semesters.id));
+  static $SemestersTable _semesterTable(_$AppDatabase db) =>
+      db.semesters.createAlias('classes__semester__semesters__id');
 
   $$SemestersTableProcessedTableManager get semester {
     final $_column = $_itemColumn<int>('semester')!;
@@ -15015,10 +14994,7 @@ final class $$ClassesTableReferences
   _courseOfferingClassesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.courseOfferingClasses,
-        aliasName: $_aliasNameGenerator(
-          db.classes.id,
-          db.courseOfferingClasses.classEntity,
-        ),
+        aliasName: 'classes__id__course_offering_classes__class_entity',
       );
 
   $$CourseOfferingClassesTableProcessedTableManager
@@ -15430,7 +15406,7 @@ final class $$ClassroomsTableReferences
   static MultiTypedResultKey<$SchedulesTable, List<Schedule>>
   _schedulesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.schedules,
-    aliasName: $_aliasNameGenerator(db.classrooms.id, db.schedules.classroom),
+    aliasName: 'classrooms__id__schedules__classroom',
   );
 
   $$SchedulesTableProcessedTableManager get schedulesRefs {
@@ -15764,9 +15740,7 @@ final class $$CourseOfferingsTableReferences
   );
 
   static $SemestersTable _semesterTable(_$AppDatabase db) =>
-      db.semesters.createAlias(
-        $_aliasNameGenerator(db.courseOfferings.semester, db.semesters.id),
-      );
+      db.semesters.createAlias('course_offerings__semester__semesters__id');
 
   $$SemestersTableProcessedTableManager get semester {
     final $_column = $_itemColumn<int>('semester')!;
@@ -15789,10 +15763,8 @@ final class $$CourseOfferingsTableReferences
   _courseOfferingTeachersRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.courseOfferingTeachers,
-        aliasName: $_aliasNameGenerator(
-          db.courseOfferings.id,
-          db.courseOfferingTeachers.courseOffering,
-        ),
+        aliasName:
+            'course_offerings__id__course_offering_teachers__course_offering',
       );
 
   $$CourseOfferingTeachersTableProcessedTableManager
@@ -15817,10 +15789,8 @@ final class $$CourseOfferingsTableReferences
   _courseOfferingClassesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.courseOfferingClasses,
-        aliasName: $_aliasNameGenerator(
-          db.courseOfferings.id,
-          db.courseOfferingClasses.courseOffering,
-        ),
+        aliasName:
+            'course_offerings__id__course_offering_classes__course_offering',
       );
 
   $$CourseOfferingClassesTableProcessedTableManager
@@ -15845,10 +15815,8 @@ final class $$CourseOfferingsTableReferences
   _courseOfferingStudentsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.courseOfferingStudents,
-        aliasName: $_aliasNameGenerator(
-          db.courseOfferings.id,
-          db.courseOfferingStudents.courseOffering,
-        ),
+        aliasName:
+            'course_offerings__id__course_offering_students__course_offering',
       );
 
   $$CourseOfferingStudentsTableProcessedTableManager
@@ -15869,10 +15837,7 @@ final class $$CourseOfferingsTableReferences
   static MultiTypedResultKey<$SchedulesTable, List<Schedule>>
   _schedulesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.schedules,
-    aliasName: $_aliasNameGenerator(
-      db.courseOfferings.id,
-      db.schedules.courseOffering,
-    ),
+    aliasName: 'course_offerings__id__schedules__course_offering',
   );
 
   $$SchedulesTableProcessedTableManager get schedulesRefs {
@@ -15890,10 +15855,7 @@ final class $$CourseOfferingsTableReferences
   static MultiTypedResultKey<$MaterialsTable, List<CourseMaterial>>
   _materialsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.materials,
-    aliasName: $_aliasNameGenerator(
-      db.courseOfferings.id,
-      db.materials.courseOffering,
-    ),
+    aliasName: 'course_offerings__id__materials__course_offering',
   );
 
   $$MaterialsTableProcessedTableManager get materialsRefs {
@@ -15912,10 +15874,7 @@ final class $$CourseOfferingsTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.scores,
-    aliasName: $_aliasNameGenerator(
-      db.courseOfferings.id,
-      db.scores.courseOffering,
-    ),
+    aliasName: 'course_offerings__id__scores__course_offering',
   );
 
   $$ScoresTableProcessedTableManager get scoresRefs {
@@ -17029,9 +16988,7 @@ final class $$TeacherSemestersTableReferences
   );
 
   static $TeachersTable _teacherTable(_$AppDatabase db) =>
-      db.teachers.createAlias(
-        $_aliasNameGenerator(db.teacherSemesters.teacher, db.teachers.id),
-      );
+      db.teachers.createAlias('teacher_semesters__teacher__teachers__id');
 
   $$TeachersTableProcessedTableManager get teacher {
     final $_column = $_itemColumn<int>('teacher')!;
@@ -17048,9 +17005,7 @@ final class $$TeacherSemestersTableReferences
   }
 
   static $SemestersTable _semesterTable(_$AppDatabase db) =>
-      db.semesters.createAlias(
-        $_aliasNameGenerator(db.teacherSemesters.semester, db.semesters.id),
-      );
+      db.semesters.createAlias('teacher_semesters__semester__semesters__id');
 
   $$SemestersTableProcessedTableManager get semester {
     final $_column = $_itemColumn<int>('semester')!;
@@ -17066,10 +17021,8 @@ final class $$TeacherSemestersTableReferences
     );
   }
 
-  static $DepartmentsTable _departmentTable(_$AppDatabase db) =>
-      db.departments.createAlias(
-        $_aliasNameGenerator(db.teacherSemesters.department, db.departments.id),
-      );
+  static $DepartmentsTable _departmentTable(_$AppDatabase db) => db.departments
+      .createAlias('teacher_semesters__department__departments__id');
 
   $$DepartmentsTableProcessedTableManager? get department {
     final $_column = $_itemColumn<int>('department');
@@ -17092,10 +17045,8 @@ final class $$TeacherSemestersTableReferences
   _courseOfferingTeachersRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.courseOfferingTeachers,
-        aliasName: $_aliasNameGenerator(
-          db.teacherSemesters.id,
-          db.courseOfferingTeachers.teacherSemester,
-        ),
+        aliasName:
+            'teacher_semesters__id__course_offering_teachers__teacher_semester',
       );
 
   $$CourseOfferingTeachersTableProcessedTableManager
@@ -17117,10 +17068,8 @@ final class $$TeacherSemestersTableReferences
   _teacherOfficeHoursRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.teacherOfficeHours,
-        aliasName: $_aliasNameGenerator(
-          db.teacherSemesters.id,
-          db.teacherOfficeHours.teacherSemester,
-        ),
+        aliasName:
+            'teacher_semesters__id__teacher_office_hours__teacher_semester',
       );
 
   $$TeacherOfficeHoursTableProcessedTableManager get teacherOfficeHoursRefs {
@@ -17141,14 +17090,13 @@ final class $$TeacherSemestersTableReferences
     $UserSemesterSummaryTutorsTable,
     List<UserSemesterSummaryTutor>
   >
-  _userSemesterSummaryTutorsRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.userSemesterSummaryTutors,
-        aliasName: $_aliasNameGenerator(
-          db.teacherSemesters.id,
-          db.userSemesterSummaryTutors.teacherSemester,
-        ),
-      );
+  _userSemesterSummaryTutorsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.userSemesterSummaryTutors,
+    aliasName:
+        'teacher_semesters__id__user_semester_summary_tutors__teacher_semester',
+  );
 
   $$UserSemesterSummaryTutorsTableProcessedTableManager
   get userSemesterSummaryTutorsRefs {
@@ -17932,10 +17880,7 @@ final class $$CourseOfferingTeachersTableReferences
 
   static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
       db.courseOfferings.createAlias(
-        $_aliasNameGenerator(
-          db.courseOfferingTeachers.courseOffering,
-          db.courseOfferings.id,
-        ),
+        'course_offering_teachers__course_offering__course_offerings__id',
       );
 
   $$CourseOfferingsTableProcessedTableManager get courseOffering {
@@ -17954,10 +17899,7 @@ final class $$CourseOfferingTeachersTableReferences
 
   static $TeacherSemestersTable _teacherSemesterTable(_$AppDatabase db) =>
       db.teacherSemesters.createAlias(
-        $_aliasNameGenerator(
-          db.courseOfferingTeachers.teacherSemester,
-          db.teacherSemesters.id,
-        ),
+        'course_offering_teachers__teacher_semester__teacher_semesters__id',
       );
 
   $$TeacherSemestersTableProcessedTableManager get teacherSemester {
@@ -18313,10 +18255,7 @@ final class $$CourseOfferingClassesTableReferences
 
   static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
       db.courseOfferings.createAlias(
-        $_aliasNameGenerator(
-          db.courseOfferingClasses.courseOffering,
-          db.courseOfferings.id,
-        ),
+        'course_offering_classes__course_offering__course_offerings__id',
       );
 
   $$CourseOfferingsTableProcessedTableManager get courseOffering {
@@ -18333,13 +18272,8 @@ final class $$CourseOfferingClassesTableReferences
     );
   }
 
-  static $ClassesTable _classEntityTable(_$AppDatabase db) =>
-      db.classes.createAlias(
-        $_aliasNameGenerator(
-          db.courseOfferingClasses.classEntity,
-          db.classes.id,
-        ),
-      );
+  static $ClassesTable _classEntityTable(_$AppDatabase db) => db.classes
+      .createAlias('course_offering_classes__class_entity__classes__id');
 
   $$ClassesTableProcessedTableManager get classEntity {
     final $_column = $_itemColumn<int>('class_entity')!;
@@ -18694,10 +18628,7 @@ final class $$CourseOfferingStudentsTableReferences
 
   static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
       db.courseOfferings.createAlias(
-        $_aliasNameGenerator(
-          db.courseOfferingStudents.courseOffering,
-          db.courseOfferings.id,
-        ),
+        'course_offering_students__course_offering__course_offerings__id',
       );
 
   $$CourseOfferingsTableProcessedTableManager get courseOffering {
@@ -18714,10 +18645,8 @@ final class $$CourseOfferingStudentsTableReferences
     );
   }
 
-  static $StudentsTable _studentTable(_$AppDatabase db) =>
-      db.students.createAlias(
-        $_aliasNameGenerator(db.courseOfferingStudents.student, db.students.id),
-      );
+  static $StudentsTable _studentTable(_$AppDatabase db) => db.students
+      .createAlias('course_offering_students__student__students__id');
 
   $$StudentsTableProcessedTableManager get student {
     final $_column = $_itemColumn<int>('student')!;
@@ -19064,13 +18993,9 @@ final class $$SchedulesTableReferences
     extends BaseReferences<_$AppDatabase, $SchedulesTable, Schedule> {
   $$SchedulesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
-      db.courseOfferings.createAlias(
-        $_aliasNameGenerator(
-          db.schedules.courseOffering,
-          db.courseOfferings.id,
-        ),
-      );
+  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) => db
+      .courseOfferings
+      .createAlias('schedules__course_offering__course_offerings__id');
 
   $$CourseOfferingsTableProcessedTableManager get courseOffering {
     final $_column = $_itemColumn<int>('course_offering')!;
@@ -19087,9 +19012,7 @@ final class $$SchedulesTableReferences
   }
 
   static $ClassroomsTable _classroomTable(_$AppDatabase db) =>
-      db.classrooms.createAlias(
-        $_aliasNameGenerator(db.schedules.classroom, db.classrooms.id),
-      );
+      db.classrooms.createAlias('schedules__classroom__classrooms__id');
 
   $$ClassroomsTableProcessedTableManager? get classroom {
     final $_column = $_itemColumn<int>('classroom');
@@ -19468,13 +19391,9 @@ final class $$MaterialsTableReferences
     extends BaseReferences<_$AppDatabase, $MaterialsTable, CourseMaterial> {
   $$MaterialsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
-      db.courseOfferings.createAlias(
-        $_aliasNameGenerator(
-          db.materials.courseOffering,
-          db.courseOfferings.id,
-        ),
-      );
+  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) => db
+      .courseOfferings
+      .createAlias('materials__course_offering__course_offerings__id');
 
   $$CourseOfferingsTableProcessedTableManager get courseOffering {
     final $_column = $_itemColumn<int>('course_offering')!;
@@ -19782,10 +19701,7 @@ final class $$TeacherOfficeHoursTableReferences
 
   static $TeacherSemestersTable _teacherSemesterTable(_$AppDatabase db) =>
       db.teacherSemesters.createAlias(
-        $_aliasNameGenerator(
-          db.teacherOfficeHours.teacherSemester,
-          db.teacherSemesters.id,
-        ),
+        'teacher_office_hours__teacher_semester__teacher_semesters__id',
       );
 
   $$TeacherSemestersTableProcessedTableManager get teacherSemester {
@@ -20145,7 +20061,7 @@ final class $$ScoresTableReferences
   $$ScoresTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $UsersTable _userTable(_$AppDatabase db) =>
-      db.users.createAlias($_aliasNameGenerator(db.scores.user, db.users.id));
+      db.users.createAlias('scores__user__users__id');
 
   $$UsersTableProcessedTableManager get user {
     final $_column = $_itemColumn<int>('user')!;
@@ -20161,8 +20077,8 @@ final class $$ScoresTableReferences
     );
   }
 
-  static $SemestersTable _semesterTable(_$AppDatabase db) => db.semesters
-      .createAlias($_aliasNameGenerator(db.scores.semester, db.semesters.id));
+  static $SemestersTable _semesterTable(_$AppDatabase db) =>
+      db.semesters.createAlias('scores__semester__semesters__id');
 
   $$SemestersTableProcessedTableManager get semester {
     final $_column = $_itemColumn<int>('semester')!;
@@ -20178,9 +20094,8 @@ final class $$ScoresTableReferences
     );
   }
 
-  static $CoursesTable _courseTable(_$AppDatabase db) => db.courses.createAlias(
-    $_aliasNameGenerator(db.scores.course, db.courses.id),
-  );
+  static $CoursesTable _courseTable(_$AppDatabase db) =>
+      db.courses.createAlias('scores__course__courses__id');
 
   $$CoursesTableProcessedTableManager get course {
     final $_column = $_itemColumn<int>('course')!;
@@ -20196,10 +20111,9 @@ final class $$ScoresTableReferences
     );
   }
 
-  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
-      db.courseOfferings.createAlias(
-        $_aliasNameGenerator(db.scores.courseOffering, db.courseOfferings.id),
-      );
+  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) => db
+      .courseOfferings
+      .createAlias('scores__course_offering__course_offerings__id');
 
   $$CourseOfferingsTableProcessedTableManager? get courseOffering {
     final $_column = $_itemColumn<int>('course_offering');
@@ -20790,9 +20704,8 @@ final class $$UserSemesterSummariesTableReferences
     super.$_typedResult,
   );
 
-  static $UsersTable _userTable(_$AppDatabase db) => db.users.createAlias(
-    $_aliasNameGenerator(db.userSemesterSummaries.user, db.users.id),
-  );
+  static $UsersTable _userTable(_$AppDatabase db) =>
+      db.users.createAlias('user_semester_summaries__user__users__id');
 
   $$UsersTableProcessedTableManager get user {
     final $_column = $_itemColumn<int>('user')!;
@@ -20808,13 +20721,8 @@ final class $$UserSemesterSummariesTableReferences
     );
   }
 
-  static $SemestersTable _semesterTable(_$AppDatabase db) =>
-      db.semesters.createAlias(
-        $_aliasNameGenerator(
-          db.userSemesterSummaries.semester,
-          db.semesters.id,
-        ),
-      );
+  static $SemestersTable _semesterTable(_$AppDatabase db) => db.semesters
+      .createAlias('user_semester_summaries__semester__semesters__id');
 
   $$SemestersTableProcessedTableManager get semester {
     final $_column = $_itemColumn<int>('semester')!;
@@ -20834,14 +20742,13 @@ final class $$UserSemesterSummariesTableReferences
     $UserSemesterSummaryTutorsTable,
     List<UserSemesterSummaryTutor>
   >
-  _userSemesterSummaryTutorsRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.userSemesterSummaryTutors,
-        aliasName: $_aliasNameGenerator(
-          db.userSemesterSummaries.id,
-          db.userSemesterSummaryTutors.summary,
-        ),
-      );
+  _userSemesterSummaryTutorsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.userSemesterSummaryTutors,
+    aliasName:
+        'user_semester_summaries__id__user_semester_summary_tutors__summary',
+  );
 
   $$UserSemesterSummaryTutorsTableProcessedTableManager
   get userSemesterSummaryTutorsRefs {
@@ -20862,14 +20769,13 @@ final class $$UserSemesterSummariesTableReferences
     $UserSemesterSummaryCadreRolesTable,
     List<UserSemesterSummaryCadreRole>
   >
-  _userSemesterSummaryCadreRolesRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.userSemesterSummaryCadreRoles,
-        aliasName: $_aliasNameGenerator(
-          db.userSemesterSummaries.id,
-          db.userSemesterSummaryCadreRoles.summary,
-        ),
-      );
+  _userSemesterSummaryCadreRolesRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.userSemesterSummaryCadreRoles,
+    aliasName:
+        'user_semester_summaries__id__user_semester_summary_cadre_roles__summary',
+  );
 
   $$UserSemesterSummaryCadreRolesTableProcessedTableManager
   get userSemesterSummaryCadreRolesRefs {
@@ -20893,10 +20799,8 @@ final class $$UserSemesterSummariesTableReferences
   _userSemesterRankingsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.userSemesterRankings,
-        aliasName: $_aliasNameGenerator(
-          db.userSemesterSummaries.id,
-          db.userSemesterRankings.summary,
-        ),
+        aliasName:
+            'user_semester_summaries__id__user_semester_rankings__summary',
       );
 
   $$UserSemesterRankingsTableProcessedTableManager
@@ -21702,10 +21606,7 @@ final class $$UserSemesterSummaryTutorsTableReferences
 
   static $UserSemesterSummariesTable _summaryTable(_$AppDatabase db) =>
       db.userSemesterSummaries.createAlias(
-        $_aliasNameGenerator(
-          db.userSemesterSummaryTutors.summary,
-          db.userSemesterSummaries.id,
-        ),
+        'user_semester_summary_tutors__summary__user_semester_summaries__id',
       );
 
   $$UserSemesterSummariesTableProcessedTableManager get summary {
@@ -21724,10 +21625,7 @@ final class $$UserSemesterSummaryTutorsTableReferences
 
   static $TeacherSemestersTable _teacherSemesterTable(_$AppDatabase db) =>
       db.teacherSemesters.createAlias(
-        $_aliasNameGenerator(
-          db.userSemesterSummaryTutors.teacherSemester,
-          db.teacherSemesters.id,
-        ),
+        'user_semester_summary_tutors__teacher_semester__teacher_semesters__id',
       );
 
   $$TeacherSemestersTableProcessedTableManager get teacherSemester {
@@ -22086,13 +21984,11 @@ final class $$UserSemesterSummaryCadreRolesTableReferences
     super.$_typedResult,
   );
 
-  static $UserSemesterSummariesTable _summaryTable(_$AppDatabase db) =>
-      db.userSemesterSummaries.createAlias(
-        $_aliasNameGenerator(
-          db.userSemesterSummaryCadreRoles.summary,
-          db.userSemesterSummaries.id,
-        ),
-      );
+  static $UserSemesterSummariesTable _summaryTable(
+    _$AppDatabase db,
+  ) => db.userSemesterSummaries.createAlias(
+    'user_semester_summary_cadre_roles__summary__user_semester_summaries__id',
+  );
 
   $$UserSemesterSummariesTableProcessedTableManager get summary {
     final $_column = $_itemColumn<int>('summary')!;
@@ -22405,10 +22301,7 @@ final class $$UserSemesterRankingsTableReferences
 
   static $UserSemesterSummariesTable _summaryTable(_$AppDatabase db) =>
       db.userSemesterSummaries.createAlias(
-        $_aliasNameGenerator(
-          db.userSemesterRankings.summary,
-          db.userSemesterSummaries.id,
-        ),
+        'user_semester_rankings__summary__user_semester_summaries__id',
       );
 
   $$UserSemesterSummariesTableProcessedTableManager get summary {

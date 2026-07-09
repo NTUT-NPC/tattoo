@@ -124,20 +124,14 @@ class AuthRepository {
   static const _passwordKey = 'password';
 
   AuthRepository({
-    required PortalService portalService,
-    required StudentQueryService studentQueryService,
-    required AppDatabase database,
-    required FlutterSecureStorage secureStorage,
-    required bool isDemo,
-    required void Function() onSessionCreated,
-    required void Function([LoginException?]) onSessionDestroyed,
-  }) : _portalService = portalService,
-       _studentQueryService = studentQueryService,
-       _database = database,
-       _secureStorage = secureStorage,
-       _isDemo = isDemo,
-       _onSessionCreated = onSessionCreated,
-       _onSessionDestroyed = onSessionDestroyed;
+    required this._portalService,
+    required this._studentQueryService,
+    required this._database,
+    required this._secureStorage,
+    required this._isDemo,
+    required this._onSessionCreated,
+    required this._onSessionDestroyed,
+  });
 
   /// Authenticates with NTUT Portal and saves the user profile.
   ///
