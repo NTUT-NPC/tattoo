@@ -1,5 +1,5 @@
 name: Generate Changelog
-description: Summarize merged PR bodies between two refs into a bilingual changelog via GitHub Models, with commit-subject fallback
+description: Summarize merged PR bodies between two refs into bilingual release notes via GitHub Models, with commit-subject fallback
 
 inputs:
   github_token:
@@ -21,8 +21,11 @@ inputs:
 
 outputs:
   changelog:
-    description: 'Markdown changelog (always non-empty; falls back to fallback_message)'
+    description: 'Bilingual Markdown changelog for the GitHub release body (always non-empty; falls back to fallback_message)'
     value: ${{ steps.generate.outputs.changelog }}
+  store_changelog:
+    description: 'Plain-text zh-TW release notes for store submissions, capped for Google Play (always non-empty; falls back to fallback_message)'
+    value: ${{ steps.generate.outputs.store_changelog }}
 
 runs:
   using: composite
@@ -39,23 +42,34 @@ runs:
       run: |
         set -uo pipefail
 
-        emit_changelog() {            # multiline-safe $GITHUB_OUTPUT
-          local delim="EOF_changelog_$RANDOM"  # unique to guard against delimiter injection
+        emit_output() {               # multiline-safe $GITHUB_OUTPUT
+          local name="$1"
+          local delim="EOF_${name}_$RANDOM"  # unique to guard against delimiter injection
           {
-            echo "changelog<<$delim"
-            printf '%s\n' "$1"
+            echo "${name}<<$delim"
+            printf '%s\n' "$2"
             echo "$delim"
           } >> "$GITHUB_OUTPUT"
         }
 
+        emit_all() {                  # $1=github markdown, $2=store plain text (pre-cap)
+          emit_output changelog "$1"
+          # Google Play allows up to 500 Unicode characters per language. jq slices by
+          # codepoint (unlike bash ${#}, which counts bytes under a C locale).
+          local store
+          store=$(printf '%s' "$2" | jq -Rrs '.[0:500]')
+          emit_output store_changelog "$store"
+        }
+
+        fallback() { emit_all "$FALLBACK" "$FALLBACK"; exit 0; }
+
         # Any unexpected non-zero exit still produces the fallback and succeeds.
-        trap 'rc=$?; if [ "$rc" -ne 0 ]; then emit_changelog "$FALLBACK"; exit 0; fi' EXIT
+        trap 'rc=$?; if [ "$rc" -ne 0 ]; then emit_all "$FALLBACK" "$FALLBACK"; exit 0; fi' EXIT
 
         # No baseline (first release, or force_build short-circuit) -> fallback.
         if [ -z "$BASE" ]; then
           echo "No baseline commit; falling back."
-          emit_changelog "$FALLBACK"
-          exit 0
+          fallback
         fi
 
         # Enumerate PRs via ONE compare call; pull #<n> from merge-commit subjects.
@@ -64,32 +78,36 @@ runs:
                 | capture("Merge pull request #(?<n>[0-9]+)").n' 2>/dev/null | sort -un)
         if [ -z "$PR_NUMBERS" ]; then
           echo "No merged PRs in range; falling back."
-          emit_changelog "$FALLBACK"
-          exit 0
+          fallback
         fi
 
-        # Fetch title+body only (no diff/stats/comments).
+        # Fetch title + author; include the body only for human PRs. Bot PRs (renovate,
+        # dependabot) attach long dependency changelogs that drown out user-facing changes
+        # — keep the title for context, omit the body. gh reports bots via author.is_bot
+        # (the login is "app/renovate", with no "[bot]" suffix to match on).
         PR_BODIES=""
         for n in $PR_NUMBERS; do
-          BLOCK=$(gh pr view "$n" --repo "$REPO" --json title,body \
-            --jq '"### " + .title + "\n\n" + (.body // "")' 2>/dev/null) || continue
+          BLOCK=$(gh pr view "$n" --repo "$REPO" --json title,body,author \
+            --jq '"===== PR: " + .title + " =====\n\n"
+                  + (if (.author.is_bot // false) then "" else (.body // "") end)' 2>/dev/null) || continue
           PR_BODIES+="$BLOCK"$'\n\n'
         done
 
-        # Clean: HTML comments, md images, md links (keep text), HTML tags, bare URLs; collapse blanks.
+        # Clean: HTML comments, md images, md links (keep text), HTML tags, bare URLs,
+        # heading markers (so no body heading rivals the ===== PR boundary); collapse blanks.
         CLEANED=$(printf '%s' "$PR_BODIES" | perl -0777 -pe '
           s/<!--.*?-->//gs;
           s/!\[[^\]]*\]\([^)]*\)//g;
           s/\[([^\]]*)\]\([^)]*\)/$1/g;
           s/<[^>]+>//g;
           s{https?://\S+}{}g;
+          s/^[ \t]*#{1,6}[ \t]+//mg;
           s/\n{3,}/\n\n/g;')
 
         # Nothing meaningful left -> fallback.
         if ! printf '%s' "$CLEANED" | grep -q '[^[:space:]]'; then
           echo "No PR content to summarize; falling back."
-          emit_changelog "$FALLBACK"
-          exit 0
+          fallback
         fi
 
         # Guard size (rarely hit for a daily delta).
@@ -100,27 +118,44 @@ runs:
 
         SYSTEM='You write release notes for a Flutter app used by NTUT student testers.
         Summarize the merged pull request descriptions into a short, user-facing changelog.
-        Output GitHub-flavored Markdown with EXACTLY two labeled groups, in this order:
-        a plain line "繁體中文：" then a bullet list, a blank line, then a plain line
-        "English:" then a bullet list.
-        Both lists describe the SAME changes (translations of each other), max 6 bullets each.
+        Return two bullet lists, "zh" (繁體中文) and "en" (English), that describe the SAME
+        changes (translations of each other), max 6 bullets each. Each bullet is one concise
+        sentence with no leading marker or numbering.
         A change is user-facing ONLY if a tester would notice it while using the app:
         new screens or features, visible UI changes, bug fixes to app behavior, performance.
         NOT user-facing (never mention these): dependency or tooling updates, CI/workflow
         changes, release process changes, documentation (including contributor docs and code
         comments), refactors, tests, translations infrastructure.
-        Each bullet = one concise sentence describing what the tester SEES or EXPERIENCES,
-        never how it was implemented. No PR numbers, author names, class/widget names, or
-        technical terms (streaming, provider, component, refactor) — say "頁面/page",
-        "畫面/screen", "更即時/updates faster" instead. Never copy widget or class names
-        from PR titles (e.g. "ListTile") — describe the visible result in plain words, or
-        if the only effect is an internal style/widget swap, treat the PR as not user-facing.
-        Do not embellish or infer benefits beyond what the PR states. Do not add a top-level heading.
-        If no PR is user-facing, output EXACTLY one bullet per language: "本次更新僅包含內部改進。"
+        Each bullet describes what the tester SEES or EXPERIENCES, never how it was implemented.
+        No PR numbers, author names, class/widget names, or technical terms (streaming, provider,
+        component, refactor) — say "頁面/page", "畫面/screen", "更即時/updates faster" instead.
+        Never copy widget or class names from PR titles (e.g. "ListTile") — describe the visible
+        result in plain words, or if the only effect is an internal style/widget swap, treat the
+        PR as not user-facing.
+        Do not embellish or infer benefits beyond what the PR states.
+        If no PR is user-facing, return EXACTLY one bullet per language: "本次更新僅包含內部改進。"
         and "This update contains only internal improvements." — do not list the chores.'
 
+        SCHEMA='{
+          "type": "json_schema",
+          "json_schema": {
+            "name": "changelog",
+            "strict": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["zh", "en"],
+              "properties": {
+                "zh": {"type": "array", "maxItems": 6, "items": {"type": "string"}},
+                "en": {"type": "array", "maxItems": 6, "items": {"type": "string"}}
+              }
+            }
+          }
+        }'
+
         REQ=$(jq -n --arg model "openai/gpt-4.1" --arg sys "$SYSTEM" --arg usr "$CLEANED" \
-          '{model:$model, temperature:0.2,
+          --argjson fmt "$SCHEMA" \
+          '{model:$model, temperature:0.2, response_format:$fmt,
             messages:[{role:"system",content:$sys},{role:"user",content:$usr}]}')
 
         OUT=$(mktemp)
@@ -133,15 +168,22 @@ runs:
 
         if [ "$CODE" != "200" ]; then
           echo "Models API HTTP $CODE; falling back." >&2
-          emit_changelog "$FALLBACK"
-          exit 0
+          fallback
         fi
 
-        SUMMARY=$(jq -r '.choices[0].message.content // empty' "$OUT")
-        if [ -z "$SUMMARY" ]; then
-          echo "Empty model response; falling back." >&2
-          emit_changelog "$FALLBACK"
-          exit 0
+        # response_format guarantees message.content is a JSON string matching SCHEMA.
+        DATA=$(jq -r '.choices[0].message.content // empty' "$OUT")
+        if ! printf '%s' "$DATA" | jq -e '.zh and .en' >/dev/null 2>&1; then
+          echo "Missing or malformed model response; falling back." >&2
+          fallback
         fi
 
-        emit_changelog "$SUMMARY"
+        # GitHub release body: bilingual Markdown.
+        GITHUB_MD=$(printf '%s' "$DATA" | jq -r '
+          "繁體中文：\n" + (.zh | map("- " + .) | join("\n")) +
+          "\n\nEnglish:\n" + (.en | map("- " + .) | join("\n"))')
+
+        # Store notes: plain zh-TW, one bullet per line.
+        STORE_ZH=$(printf '%s' "$DATA" | jq -r '.zh | map("- " + .) | join("\n")')
+
+        emit_all "$GITHUB_MD" "$STORE_ZH"

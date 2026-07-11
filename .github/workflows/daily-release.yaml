@@ -45,6 +45,7 @@ jobs:
       commit_message: ${{ steps.summary.outputs.message }}
       target_ref: ${{ steps.set-ref.outputs.ref }}
       skip_build: ${{ steps.check-changes.outputs.skip }}
+      store_changelog: ${{ steps.changelog.outputs.store_changelog }}
     steps:
       - name: Checkout Actions
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
@@ -174,6 +175,7 @@ jobs:
       PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+      CHANGELOG: ${{ needs.prepare.outputs.store_changelog }}
       FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
     timeout-minutes: 30
     steps:
@@ -246,6 +248,7 @@ jobs:
       PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+      CHANGELOG: ${{ needs.prepare.outputs.store_changelog }}
       PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
     timeout-minutes: 30
     steps:
