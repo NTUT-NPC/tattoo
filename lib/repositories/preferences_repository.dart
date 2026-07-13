@@ -235,6 +235,10 @@ class PreferencesRepository {
   ///
   /// No-op for forced preferences.
   Future<void> set<T>(PrefKey<T> key, T value) async {
+    log(
+      'Setting preference "${key.name}" to $value',
+      name: 'PreferencesRepository',
+    );
     if (_readForcedSet().contains(key.name)) {
       log(
         'Preference "${key.name}" is forced and cannot be overridden',
@@ -279,7 +283,10 @@ class PreferencesRepository {
       .string,
     );
     if (result.value is! String) return const {};
-
+    log(
+      "Forced override flags: ${result.value}",
+      name: 'PreferencesRepository',
+    );
     final raw = result.value as String;
     try {
       if (jsonDecode(raw) case final List<dynamic> decoded) {
