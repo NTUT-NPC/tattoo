@@ -72,10 +72,12 @@ runs:
           fallback
         fi
 
-        # Enumerate PRs via ONE compare call; pull #<n> from merge-commit subjects.
-        PR_NUMBERS=$(gh api "repos/$REPO/compare/$BASE...$HEAD_REF" \
-          --jq '.commits[].commit.message | split("\n")[0]
-                | capture("Merge pull request #(?<n>[0-9]+)").n' 2>/dev/null | sort -un)
+        # Enumerate PRs by resolving each commit in the range to its associated PR(s).
+        PR_NUMBERS=$(gh api "repos/$REPO/compare/$BASE...$HEAD_REF" --jq '.commits[].sha' 2>/dev/null \
+          | while read -r sha; do
+              gh api "repos/$REPO/commits/$sha/pulls" \
+                --jq '.[] | select(.merged_at != null) | .number' 2>/dev/null
+            done | sort -un)
         if [ -z "$PR_NUMBERS" ]; then
           echo "No merged PRs in range; falling back."
           fallback
@@ -146,8 +148,8 @@ runs:
               "additionalProperties": false,
               "required": ["zh", "en"],
               "properties": {
-                "zh": {"type": "array", "maxItems": 6, "items": {"type": "string"}},
-                "en": {"type": "array", "maxItems": 6, "items": {"type": "string"}}
+                "zh": {"type": "array", "minItems": 1, "maxItems": 6, "items": {"type": "string"}},
+                "en": {"type": "array", "minItems": 1, "maxItems": 6, "items": {"type": "string"}}
               }
             }
           }
@@ -173,8 +175,8 @@ runs:
 
         # response_format guarantees message.content is a JSON string matching SCHEMA.
         DATA=$(jq -r '.choices[0].message.content // empty' "$OUT")
-        if ! printf '%s' "$DATA" | jq -e '.zh and .en' >/dev/null 2>&1; then
-          echo "Missing or malformed model response; falling back." >&2
+        if ! printf '%s' "$DATA" | jq -e '(.zh | type=="array" and length>0) and (.en | type=="array" and length>0)' >/dev/null 2>&1; then
+          echo "Missing, malformed, or empty model response; falling back." >&2
           fallback
         fi
 
