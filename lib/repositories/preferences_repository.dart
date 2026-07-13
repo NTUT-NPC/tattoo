@@ -30,10 +30,7 @@ enum PrefKey<T> {
   showDangerZone<bool>(.boolean, false),
 
   /// Whether the Crowdin button is shown on the about page.
-  showCrowdinButton<bool>(.boolean, false),
-
-  /// Whether there are unsynced offline preference edits.
-  preferencesDirty<bool>(.boolean, false);
+  showCrowdinButton<bool>(.boolean, false);
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;
@@ -100,6 +97,9 @@ class TypedPreferenceStore {
 
   const TypedPreferenceStore(this._prefs);
 
+  /// Exposes the underlying [SharedPreferencesAsync] for direct, raw key access.
+  SharedPreferencesAsync get prefs => _prefs;
+
   /// Reads the value stored for [key], or `null` if absent.
   Future<T?> read<T>(PrefKey<T> key) async {
     final value = switch (key.type) {
@@ -158,13 +158,16 @@ class PreferencesRepository {
   final _updateController = StreamController<void>.broadcast();
   bool _syncing = false;
 
+  /// The raw SharedPreferences key used to track unsynced local edits.
+  static const _preferencesDirtyKey = 'preferencesDirty';
+
   /// Whether locally-set values have changed since the last successful sync.
   Future<bool> _isDirty() async {
-    return await _store.read(PrefKey.preferencesDirty) ?? false;
+    return await _store.prefs.getBool(_preferencesDirtyKey) ?? false;
   }
 
   Future<void> _setDirty(bool value) async {
-    await _store.write(PrefKey.preferencesDirty, value);
+    await _store.prefs.setBool(_preferencesDirtyKey, value);
   }
 
   /// Remote Config key holding the list of forced preference names.
@@ -254,20 +257,16 @@ class PreferencesRepository {
     }
 
     await _store.write(key, value);
-    if (key != PrefKey.preferencesDirty) {
-      await _setDirty(true);
-      _maybeSyncUp();
-    }
+    await _setDirty(true);
+    _maybeSyncUp();
     _updateController.add(null);
   }
 
   /// Removes a preference's local value, reverting to remote/default.
   Future<void> reset(PrefKey key) async {
     await _store.remove(key);
-    if (key != PrefKey.preferencesDirty) {
-      await _setDirty(true);
-      _maybeSyncUp();
-    }
+    await _setDirty(true);
+    _maybeSyncUp();
     _updateController.add(null);
   }
 
@@ -383,7 +382,6 @@ class PreferencesRepository {
   Future<Map<String, dynamic>> _toMap() async {
     final map = <String, dynamic>{};
     for (final key in PrefKey.values) {
-      if (key == PrefKey.preferencesDirty) continue;
       if (await _store.read(key) case final value?) {
         map[key.name] = value;
       }
@@ -398,8 +396,7 @@ class PreferencesRepository {
   Future<void> _fromMap(Map<String, dynamic> map) async {
     await Future.wait([
       for (final key in PrefKey.values)
-        if (key != PrefKey.preferencesDirty)
-          if (map[key.name] case final value?) _store.write(key, value),
+        if (map[key.name] case final value?) _store.write(key, value),
     ]);
   }
 
