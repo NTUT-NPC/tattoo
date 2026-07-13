@@ -7,6 +7,7 @@ import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/screens/main/scanner/scanner_guide_bottom_sheet.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/http.dart';
 
 class ScannerScreen extends ConsumerStatefulWidget {
@@ -251,7 +252,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
 
     switch (error.errorCode) {
       case .permissionDenied:
-        message = t.scanner.permissionDenied;
+        message = t.scanner.permissionDenied.spaced;
         description = t.scanner.permissionDeniedDescription;
         icon = Icons.no_photography_outlined;
       case .unsupported:

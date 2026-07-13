@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 Future<void> showCourseTableDetailSheet(
   BuildContext context, {
@@ -46,9 +47,10 @@ class CourseTableDetailSheet extends StatelessWidget {
                 crossAxisAlignment: .center,
                 children: [
                   Text(
-                    cell.courseName.isNotEmpty
-                        ? cell.courseName
-                        : cell.number ?? t.general.unknown,
+                    (cell.courseName.isNotEmpty
+                            ? cell.courseName
+                            : cell.number ?? t.general.unknown)
+                        .spaced,
                     style: theme.textTheme.titleLarge,
                   ),
                 ],
@@ -72,7 +74,7 @@ class CourseTableDetailSheet extends StatelessWidget {
                     children: [
                       // TODO: replace with course name when available
                       if (cell.number case final number?) Text('課號: $number'),
-                      Text('教室: ${cell.classroomName ?? '-'}'),
+                      Text('教室: ${cell.classroomName ?? '-'}'.spaced),
                       Text('學分: ${cell.credits}'),
                       Text('時數: ${cell.hours}'),
                       Text('連續節數: ${cell.span}'),

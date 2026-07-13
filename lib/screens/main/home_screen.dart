@@ -5,6 +5,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -40,7 +41,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(t.profile.passwordExpiry.warning(days: days)),
+          content: Text(
+            t.profile.passwordExpiry.warning(days: days).spaced,
+          ),
           // SnackBar defaults persist=true when an action is set; we want the
           // warning to auto-dismiss so the user isn't left staring at it.
           persist: false,

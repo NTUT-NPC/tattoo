@@ -16,6 +16,7 @@ import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/firebase_service.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 enum ErrorType {
   flutter,
@@ -59,7 +60,7 @@ Future<void> main() async {
       if (stackTrace != null) stackTrace.toString(),
     ].join('\n');
     final errorTitle = switch (type) {
-      .flutter => t.errors.flutterError,
+      .flutter => t.errors.flutterError.spaced,
       .async => t.errors.asyncError,
       .unknown => t.errors.occurred,
     };
