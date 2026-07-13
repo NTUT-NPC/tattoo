@@ -425,6 +425,10 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   /// Teacher-authored remarks from the syllabus page (備註).
   late final syllabusRemarks = text().nullable()();
 
+  /// When the I-School Plus roster (classmates) was last fetched for this
+  /// offering. Null until the first roster fetch.
+  late final rosterFetchedAt = dateTime().nullable()();
+
   @override
   List<Set<Column>> get uniqueKeys => [
     {semester, number},

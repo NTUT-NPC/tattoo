@@ -72,7 +72,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 - AuthRepository — User identity, session, profile. Lazy auth via `withAuth<T>()` with SSO and re-auth coalescing (Completer pattern). Session persistence via flutter_secure_storage. Never-completing future on auth failure (harmless — session-scoped providers are already being disposed).
 - PreferencesRepository — Typed `PrefKey<T>` enum with SharedPreferencesAsync. Cloud sync via avatar payload.
-- CourseRepository — Course catalog, schedules, and offering details. Normalizes bilingual names from multiple sources (catalog vs offering). Layout computation for course table grid (multi-period spans, noon-crossing, unscheduled courses).
+- CourseRepository — Course catalog, schedules, offering details, and related I-School Plus data. Normalizes bilingual names from multiple sources (catalog vs offering). Layout computation for course table grid (multi-period spans, noon-crossing, unscheduled courses).
 - CalendarRepository — Academic calendar events from NTUT portal. Sliding window caching keyed to enrolled semesters.
 - StudentRepository — Academic records, GPA, rankings. Parallel course code resolution via CourseRepository.getCourse().
 - **Method pattern:** `watchX()` returns a `Stream` backed by Drift `.watch()` — emits cached data immediately, then background-fetches if empty or stale (each method has its own hard-coded TTL `const`). Network errors are absorbed (stale data preferred over errors). `refreshX()` is the imperative counterpart for pull-to-refresh — fetches from network, writes to DB, and lets the stream re-emit.
@@ -149,4 +149,4 @@ These apOu codes are the SSO target identifiers used by PortalService to obtain 
 
 ## Backlog
 
-Open work is tracked in [GitHub Issues](https://github.com/NTUT-NPC/tattoo/issues). Key areas: remaining NTUT service methods (ISchoolPlus announcements, StudentQuery extensions), repository layer gaps (materials, rosters), and file download infrastructure.
+Open work is tracked in [GitHub Issues](https://github.com/NTUT-NPC/tattoo/issues). Key areas: remaining NTUT service methods (ISchoolPlus announcements, StudentQuery extensions), repository layer gaps (materials), and file download infrastructure.
