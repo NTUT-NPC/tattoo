@@ -29,8 +29,8 @@ enum PrefKey<T> {
   /// Whether the danger zone section is shown on the profile screen.
   showDangerZone<bool>(.boolean, false),
 
-  /// Whether the Crowdin button is shown on the about page.
-  showCrowdinButton<bool>(.boolean, false);
+  /// Whether the Weblate button is shown on the about page.
+  showWeblateButton<bool>(.boolean, false);
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;
