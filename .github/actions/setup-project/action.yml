@@ -55,7 +55,7 @@ runs:
       if: ${{ inputs.platform == 'android' }}
       uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
       with:
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/*.gradle*', 'android/**/gradle.properties', 'android/gradle/wrapper/gradle-wrapper.properties') }}
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
@@ -74,9 +74,23 @@ runs:
           ${{ runner.os }}-android-sdk-
 
     - name: Select Xcode version
+      id: xcode_version
       if: ${{ inputs.platform == 'ios' }}
       shell: bash
-      run: sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
+      run: |
+        sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
+        XCODE_VERSION=$(xcodebuild -version | sed -n 's/^Xcode //p')
+        echo "xcode_version=$XCODE_VERSION" >> "$GITHUB_OUTPUT"
+
+    - name: Setup Swift Package Manager cache
+      if: ${{ inputs.platform == 'ios' }}
+      uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+      with:
+        key: ${{ runner.os }}-spm-${{ runner.arch }}-xcode-${{ steps.xcode_version.outputs.xcode_version }}-${{ hashFiles('ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+        path: ~/Library/Developer/Xcode/DerivedData/*/SourcePackages
+        restore-keys: |
+          ${{ runner.os }}-spm-${{ runner.arch }}-xcode-${{ steps.xcode_version.outputs.xcode_version }}-
+          ${{ runner.os }}-spm-${{ runner.arch }}-
 
     - name: Setup CocoaPods cache
       if: ${{ inputs.platform == 'ios' }}
