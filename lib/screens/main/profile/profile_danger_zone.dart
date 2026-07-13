@@ -11,6 +11,7 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/http.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
 
@@ -29,14 +30,20 @@ class ProfileDangerZone extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.profile.dangerZone.clearFailed(item: item))),
+          SnackBar(
+            content: Text(
+              t.profile.dangerZone.clearFailed(item: item).spaced,
+            ),
+          ),
         );
       }
       rethrow;
     }
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.profile.dangerZone.cleared(item: item))),
+        SnackBar(
+          content: Text(t.profile.dangerZone.cleared(item: item).spaced),
+        ),
       );
     }
   }
@@ -124,14 +131,14 @@ class ProfileDangerZone extends ConsumerWidget {
             ),
             OptionEntryTile.icon(
               icon: Icons.sports_bar_outlined,
-              title: t.profile.dangerZone.goAction(action: action),
+              title: t.profile.dangerZone.goAction(action: action).spaced,
               color: dangerColor,
               borderColor: dangerColor,
               onTap: () => _goAction(action),
             ),
             OptionEntryTile.icon(
               icon: Icons.bug_report_outlined,
-              title: t.profile.dangerZone.nonFlutterCrash,
+              title: t.profile.dangerZone.nonFlutterCrash.spaced,
               color: dangerColor,
               borderColor: dangerColor,
               onTap: _triggerNonFlutterCrash,
@@ -145,7 +152,7 @@ class ProfileDangerZone extends ConsumerWidget {
             ),
             OptionEntryTile.icon(
               icon: Icons.cookie_outlined,
-              title: t.profile.dangerZone.clearCookies,
+              title: t.profile.dangerZone.clearCookies.spaced,
               color: dangerColor,
               borderColor: dangerColor,
               onTap: () => _clearCookies(context),

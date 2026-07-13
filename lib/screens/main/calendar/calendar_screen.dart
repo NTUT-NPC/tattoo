@@ -5,6 +5,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/screens/main/calendar/calendar_providers.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 final _dateFormatter = DateFormat('yyyy-MM-dd');
 
@@ -132,13 +133,13 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               final subtitle = start == end ? start : '$start – $end';
 
               return ListTile(
-                title: Text(event.title ?? t.general.unknown),
+                title: Text((event.title ?? t.general.unknown).spaced),
                 subtitle: Text(subtitle),
                 trailing: switch (event.place) {
                   final place? => ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 120),
                     child: Text(
-                      place,
+                      place.spaced,
                       overflow: .ellipsis,
                       textAlign: .end,
                     ),
