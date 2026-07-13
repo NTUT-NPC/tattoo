@@ -30,7 +30,10 @@ enum PrefKey<T> {
   showDangerZone<bool>(.boolean, false),
 
   /// Whether the Crowdin button is shown on the about page.
-  showCrowdinButton<bool>(.boolean, false);
+  showCrowdinButton<bool>(.boolean, false),
+
+  /// Whether there are unsynced offline preference edits.
+  preferencesDirty<bool>(.boolean, false);
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;
@@ -156,10 +159,13 @@ class PreferencesRepository {
   bool _syncing = false;
 
   /// Whether locally-set values have changed since the last successful sync.
-  ///
-  /// In-memory only: an unsynced edit (made offline or logged out) is not
-  /// retried after a restart.
-  bool _dirty = false;
+  Future<bool> _isDirty() async {
+    return await _store.read(PrefKey.preferencesDirty) ?? false;
+  }
+
+  Future<void> _setDirty(bool value) async {
+    await _store.write(PrefKey.preferencesDirty, value);
+  }
 
   /// Remote Config key holding the list of forced preference names.
   static const _forceOverrideKey = '_force_override_flags';
@@ -248,16 +254,20 @@ class PreferencesRepository {
     }
 
     await _store.write(key, value);
-    _dirty = true;
-    _maybeSyncUp();
+    if (key != PrefKey.preferencesDirty) {
+      await _setDirty(true);
+      _maybeSyncUp();
+    }
     _updateController.add(null);
   }
 
   /// Removes a preference's local value, reverting to remote/default.
   Future<void> reset(PrefKey key) async {
     await _store.remove(key);
-    _dirty = true;
-    _maybeSyncUp();
+    if (key != PrefKey.preferencesDirty) {
+      await _setDirty(true);
+      _maybeSyncUp();
+    }
     _updateController.add(null);
   }
 
@@ -314,7 +324,7 @@ class PreferencesRepository {
   /// Clears the dirty flag on success.
   Future<void> syncUp() async {
     final user = await _database.select(_database.users).getSingleOrNull();
-    // No user row (e.g. logged out mid-sync) — keep _dirty set for a later retry
+    // No user row (e.g. logged out mid-sync) — keep dirty flag set for a later retry
     if (user == null) return;
     final filename = user.avatarFilename;
 
@@ -336,7 +346,7 @@ class PreferencesRepository {
           ..where((u) => u.id.equals(user.id)))
         .write(UsersCompanion(avatarFilename: Value(newFilename)));
 
-    _dirty = false;
+    await _setDirty(false);
   }
 
   /// Syncs preferences with the cloud on app launch.
@@ -345,7 +355,7 @@ class PreferencesRepository {
   /// to avoid overwriting them. Then syncs down to pull any cloud changes.
   Future<void> syncOnLaunch() async {
     if (!_isLoggedIn()) return;
-    if (_dirty) await syncUp();
+    if (await _isDirty()) await syncUp();
     await syncDown();
   }
 
@@ -362,6 +372,7 @@ class PreferencesRepository {
     if (data == null || version != 0x00) return;
 
     await _fromMap(data);
+    _updateController.add(null);
   }
 
   /// Serializes the user's explicitly-set preferences for cloud sync.
@@ -372,6 +383,7 @@ class PreferencesRepository {
   Future<Map<String, dynamic>> _toMap() async {
     final map = <String, dynamic>{};
     for (final key in PrefKey.values) {
+      if (key == PrefKey.preferencesDirty) continue;
       if (await _store.read(key) case final value?) {
         map[key.name] = value;
       }
@@ -386,7 +398,8 @@ class PreferencesRepository {
   Future<void> _fromMap(Map<String, dynamic> map) async {
     await Future.wait([
       for (final key in PrefKey.values)
-        if (map[key.name] case final value?) _store.write(key, value),
+        if (key != PrefKey.preferencesDirty)
+          if (map[key.name] case final value?) _store.write(key, value),
     ]);
   }
 
@@ -398,11 +411,14 @@ class PreferencesRepository {
     if (!_isLoggedIn() || _syncing) return;
     _syncing = true;
     try {
-      while (_dirty) {
+      while (await _isDirty()) {
         await syncUp();
       }
     } on DioException catch (_) {
       // Network failures are fine — dirty flag persists for next attempt
+    } catch (e) {
+      log("Failed to sync preferences: $e", name: 'PreferencesRepository');
+      // dirty flag persists for next attempt
     } finally {
       _syncing = false;
     }

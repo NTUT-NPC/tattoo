@@ -104,7 +104,15 @@ class FirebaseService {
         'Remote Config updated: ${event.updatedKeys}',
         name: 'FirebaseService',
       );
-      await rc.activate();
+      try {
+        await rc.activate();
+      } catch (e) {
+        dev.log(
+          'Failed to activate Remote Config: $e',
+          name: 'FirebaseService',
+        );
+        return;
+      }
       _updateController.add(null);
     });
   }
