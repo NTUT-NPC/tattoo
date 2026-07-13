@@ -324,7 +324,9 @@ class PreferencesRepository {
   Future<void> syncUp() async {
     final user = await _database.select(_database.users).getSingleOrNull();
     // No user row (e.g. logged out mid-sync) — keep dirty flag set for a later retry
-    if (user == null) return;
+    if (user == null) {
+      throw StateError('No user row — cannot sync preferences');
+    }
     final filename = user.avatarFilename;
 
     final avatarBytes = await _authRepository.withAuth(
