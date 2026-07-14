@@ -126,12 +126,6 @@ abstract class CourseOfferingOverviews extends View {
         courseOfferings.enrolled,
         courseOfferings.withdrawn,
         courseOfferings.fetchedAt,
-        courseOfferings.syllabusUpdatedAt,
-        courseOfferings.objective,
-        courseOfferings.weeklyPlan,
-        courseOfferings.evaluation,
-        courseOfferings.textbooks,
-        courseOfferings.syllabusRemarks,
       ]).from(courseOfferings).join([
         leftOuterJoin(
           courses,

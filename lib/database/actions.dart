@@ -217,7 +217,6 @@ extension DatabaseActions on AppDatabase {
     String? status,
     String? language,
     String? remarks,
-    String? syllabusId,
   }) async {
     return (await into(courseOfferings).insertReturning(
       CourseOfferingsCompanion.insert(
@@ -232,7 +231,6 @@ extension DatabaseActions on AppDatabase {
         status: Value(status),
         language: Value(language),
         remarks: Value(remarks),
-        syllabusId: Value(syllabusId),
       ),
       onConflict: DoUpdate(
         (old) => CourseOfferingsCompanion(
@@ -245,7 +243,6 @@ extension DatabaseActions on AppDatabase {
           status: Value(status),
           language: Value(language),
           remarks: Value(remarks),
-          syllabusId: Value(syllabusId),
         ),
         target: [courseOfferings.semester, courseOfferings.number],
       ),
