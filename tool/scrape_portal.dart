@@ -147,6 +147,9 @@ void main(List<String> args) async {
   } on DioException catch (e) {
     stderr.writeln('Error: Failed to fetch aptreeMain.do: ${e.message}');
     exit(1);
+  } catch (e) {
+    stderr.writeln('Error: Unexpected failure fetching aptreeMain.do: $e');
+    exit(1);
   }
 
   // Step 3: Parse the HTML tree
@@ -215,7 +218,7 @@ void main(List<String> args) async {
         ).resolve(href).toString();
       }
 
-      final signature = '$currentFolder|$name|$code';
+      final signature = '$currentFolder|$name|$code|$fullUrl';
       if (seen.contains(signature)) continue;
       seen.add(signature);
 
