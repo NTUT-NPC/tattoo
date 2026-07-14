@@ -408,6 +408,9 @@ class Translations$enrollmentStatus$zh_TW {
 
 	/// zh-TW: '退學'
 	String get droppedOut => '退學';
+
+	/// zh-TW: '畢業'
+	String get graduated => '畢業';
 }
 
 // Path: about
@@ -1126,6 +1129,7 @@ extension on Translations {
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
+			'enrollmentStatus.graduated' => '畢業',
 			'about.description' => 'Project Tattoo (TAT)是國立臺北科技大學(NTUT)的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。',
 			'about.developers' => '開發團隊',
 			'about.helpTranslate' => '幫助我們翻譯TAT!',

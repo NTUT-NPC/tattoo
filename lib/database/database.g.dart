@@ -12116,11 +12116,13 @@ class UserRegistration extends DataClass {
   final int term;
   final String? className;
   final EnrollmentStatus? enrollmentStatus;
+  final bool? graduated;
   const UserRegistration({
     required this.year,
     required this.term,
     this.className,
     this.enrollmentStatus,
+    this.graduated,
   });
   factory UserRegistration.fromJson(
     Map<String, dynamic> json, {
@@ -12133,6 +12135,7 @@ class UserRegistration extends DataClass {
       className: serializer.fromJson<String?>(json['className']),
       enrollmentStatus: $UserSemesterSummariesTable.$converterenrollmentStatusn
           .fromJson(serializer.fromJson<String?>(json['enrollmentStatus'])),
+      graduated: serializer.fromJson<bool?>(json['graduated']),
     );
   }
   @override
@@ -12147,6 +12150,7 @@ class UserRegistration extends DataClass {
           enrollmentStatus,
         ),
       ),
+      'graduated': serializer.toJson<bool?>(graduated),
     };
   }
 
@@ -12155,6 +12159,7 @@ class UserRegistration extends DataClass {
     int? term,
     Value<String?> className = const Value.absent(),
     Value<EnrollmentStatus?> enrollmentStatus = const Value.absent(),
+    Value<bool?> graduated = const Value.absent(),
   }) => UserRegistration(
     year: year ?? this.year,
     term: term ?? this.term,
@@ -12162,6 +12167,7 @@ class UserRegistration extends DataClass {
     enrollmentStatus: enrollmentStatus.present
         ? enrollmentStatus.value
         : this.enrollmentStatus,
+    graduated: graduated.present ? graduated.value : this.graduated,
   );
   @override
   String toString() {
@@ -12169,13 +12175,15 @@ class UserRegistration extends DataClass {
           ..write('year: $year, ')
           ..write('term: $term, ')
           ..write('className: $className, ')
-          ..write('enrollmentStatus: $enrollmentStatus')
+          ..write('enrollmentStatus: $enrollmentStatus, ')
+          ..write('graduated: $graduated')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(year, term, className, enrollmentStatus);
+  int get hashCode =>
+      Object.hash(year, term, className, enrollmentStatus, graduated);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -12183,7 +12191,8 @@ class UserRegistration extends DataClass {
           other.year == this.year &&
           other.term == this.term &&
           other.className == this.className &&
-          other.enrollmentStatus == this.enrollmentStatus);
+          other.enrollmentStatus == this.enrollmentStatus &&
+          other.graduated == this.graduated);
 }
 
 class $UserRegistrationsView
@@ -12202,6 +12211,7 @@ class $UserRegistrationsView
     term,
     className,
     enrollmentStatus,
+    graduated,
   ];
   @override
   String get aliasedName => _alias ?? entityName;
@@ -12234,6 +12244,10 @@ class $UserRegistrationsView
               data['${effectivePrefix}enrollment_status'],
             ),
           ),
+      graduated: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}graduated'],
+      ),
     );
   }
 
@@ -12269,6 +12283,16 @@ class $UserRegistrationsView
       ).withConverter<EnrollmentStatus?>(
         $UserSemesterSummariesTable.$converterenrollmentStatusn,
       );
+  late final GeneratedColumn<bool> graduated = GeneratedColumn<bool>(
+    'graduated',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(userSemesterSummaries.graduated, false),
+    type: DriftSqlType.bool,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("graduated" IN (0, 1))',
+    ),
+  );
   @override
   $UserRegistrationsView createAlias(String alias) {
     return $UserRegistrationsView(attachedDatabase, alias);
