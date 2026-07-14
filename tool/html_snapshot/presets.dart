@@ -116,6 +116,13 @@ final _presetList = <SnapshotPreset>[
     buildRequest: _simple(.studentQuery, 'QryRegist.jsp'),
   ),
   SnapshotPreset(
+    name: 'student_query.graduation_eligibility',
+    service: .studentQuery,
+    description: 'Student Query graduation eligibility page.',
+    includeInAll: true,
+    buildRequest: _simple(.studentQuery, 'QryGraCertLog.jsp'),
+  ),
+  SnapshotPreset(
     name: 'course.semester_list',
     service: .course,
     description: 'Course system semester selector page.',
