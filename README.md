@@ -118,8 +118,8 @@ dart run tool/scrape_portal.dart -f json
 # Scrape and write output directly to a JSON file
 dart run tool/scrape_portal.dart -f json -o tmp/portal_endpoints.json
 
-# Pass credentials explicitly via command line arguments
-dart run tool/scrape_portal.dart -u <username> -p <password>
+# Pass username via command line and password via environment variable
+NTUT_PORTAL_PASSWORD=<password> dart run tool/scrape_portal.dart -u <username>
 ```
 
 The scraper logs in to the NTUT portal using the mobile App User-Agent flow to bypass the web login captcha, fetches the portal tree page (`aptreeMain.do`), extracts the SSO targets, and deduplicates the results automatically.
@@ -134,12 +134,13 @@ dart run tool/scrape_portal.dart [arguments]
 
 #### Available Arguments:
 
-- `-u, --username`: NTUT portal username.
-- `-p, --password`: NTUT portal password.
-- `-c, --config`: Path to config JSON (defaults to `test/test_config.json` if credentials aren't passed via CLI arguments).
+- `-u, --username`: NTUT portal username (can also be set via `NTUT_PORTAL_USERNAME` or `NTUT_TEST_USERNAME` environment variables).
+- `-c, --config`: Path to config JSON (defaults to `test/test_config.json` if credentials aren't passed via CLI or env variables).
 - `-f, --format`: Output format, either `text` (default) or `json`.
 - `-o, --output`: Path to write the output content. Prints to standard output if omitted.
 - `-h, --help`: Displays help info.
+
+Password must be supplied either via the config file or via the `NTUT_PORTAL_PASSWORD` / `NTUT_TEST_PASSWORD` environment variables to prevent command history leaks.
 
 ## Local Development
 

@@ -12,7 +12,6 @@ import 'package:html/parser.dart' as hp;
 void main(List<String> args) async {
   final parser = ArgParser()
     ..addOption('username', abbr: 'u', help: 'NTUT portal username (muid)')
-    ..addOption('password', abbr: 'p', help: 'NTUT portal password')
     ..addOption(
       'config',
       abbr: 'c',
@@ -38,7 +37,14 @@ void main(List<String> args) async {
       help: 'Show this help usage',
     );
 
-  final argResults = parser.parse(args);
+  final ArgResults argResults;
+  try {
+    argResults = parser.parse(args);
+  } on FormatException catch (e) {
+    stderr.writeln('Error: ${e.message}\n');
+    stderr.writeln(parser.usage);
+    exit(1);
+  }
 
   if (argResults['help'] as bool) {
     stdout.writeln('NTUT Portal Scraper Tool');
@@ -52,7 +58,13 @@ void main(List<String> args) async {
 
   // Resolve credentials
   String? username = argResults['username'];
-  String? password = argResults['password'];
+  username ??=
+      Platform.environment['NTUT_PORTAL_USERNAME'] ??
+      Platform.environment['NTUT_TEST_USERNAME'];
+
+  String? password =
+      Platform.environment['NTUT_PORTAL_PASSWORD'] ??
+      Platform.environment['NTUT_TEST_PASSWORD'];
 
   if (username == null || password == null) {
     final configPath = argResults['config'] as String;
@@ -76,7 +88,7 @@ void main(List<String> args) async {
       password == null ||
       password.isEmpty) {
     stderr.writeln(
-      'Error: Credentials are required. Specify them via --username/--password or in a config file.',
+      'Error: Credentials are required. Specify them via --username argument, environment variables (NTUT_PORTAL_USERNAME/NTUT_PORTAL_PASSWORD), or in a config file.',
     );
     exit(1);
   }
@@ -167,10 +179,117 @@ void main(List<String> args) async {
   final scrapedItems = <Map<String, String>>[];
   final seen = <String>{};
 
-  String currentFolder = 'Root';
   final ssoLogAddRegexp = RegExp(
     r"ssoLogAdd\s*\(\s*'([^']+)'\s*,\s*'([^']+)'\s*\)",
   );
+  final nextPopRegexp = RegExp(
+    r"aptreeNextPop\s*\(\s*'([^']*)'\s*,\s*'([^']*)'",
+  );
+  final subListRegexp = RegExp(
+    r"aptreeSubList\s*\(\s*'([^']*)'\s*,\s*'([^']*)'",
+  );
+
+  Future<void> scrapeSubtree(
+    String rootFolderDn,
+    String apDn,
+    String category,
+  ) async {
+    final subUrl =
+        'https://nportal.ntut.edu.tw/aptree6List.do?rootFolderDn=${Uri.encodeComponent(rootFolderDn)}&apDn=${Uri.encodeComponent(apDn)}';
+    stderr.writeln('Fetching subfolder items: $category...');
+    try {
+      final response = await dio.get(
+        subUrl,
+        queryParameters: {
+          'thetime': DateTime.now().millisecondsSinceEpoch.toString(),
+        },
+      );
+      final subDoc = hp.parse(response.data.toString());
+      final aTags = subDoc.querySelectorAll('ul.aptreeSystemA a');
+
+      for (final a in aTags) {
+        final name = a.text.trim();
+        if (name.isEmpty) continue;
+
+        final href = a.attributes['href'] ?? '';
+        final onclick = a.attributes['onclick'] ?? '';
+
+        // Check if this child itself is a subfolder
+        String? childRootFolderDn;
+        String? childApDn;
+
+        final nextPopMatch =
+            nextPopRegexp.firstMatch(href) ?? nextPopRegexp.firstMatch(onclick);
+        if (nextPopMatch != null) {
+          childRootFolderDn = nextPopMatch.group(1);
+          childApDn = nextPopMatch.group(2);
+        } else {
+          final subListMatch =
+              subListRegexp.firstMatch(href) ??
+              subListRegexp.firstMatch(onclick);
+          if (subListMatch != null) {
+            childRootFolderDn = subListMatch.group(1);
+            childApDn = subListMatch.group(2);
+          }
+        }
+
+        if (childRootFolderDn != null && childApDn != null) {
+          await scrapeSubtree(
+            childRootFolderDn,
+            childApDn,
+            '$category - $name',
+          );
+        } else {
+          String? code;
+
+          // Try to find the apOu code in ssoLogAdd call in parents or the element itself
+          dom.Element? current = a;
+          while (current != null) {
+            final currentOnclick = current.attributes['onclick'] ?? '';
+            final match = ssoLogAddRegexp.firstMatch(currentOnclick);
+            if (match != null) {
+              code = match.group(1);
+              break;
+            }
+            current = current.parent;
+          }
+
+          // Fallback: extract apOu from query parameters of the href URL
+          if (code == null && href.isNotEmpty) {
+            try {
+              final uri = Uri.parse(href);
+              code = uri.queryParameters['apOu'];
+            } catch (_) {}
+          }
+
+          // Build full URL
+          String fullUrl = href;
+          if (href.isNotEmpty &&
+              !href.startsWith('http') &&
+              !href.startsWith('javascript:')) {
+            fullUrl = Uri.parse(
+              'https://nportal.ntut.edu.tw/',
+            ).resolve(href).toString();
+          }
+
+          final signature = '$category|$name|$code|$fullUrl';
+          if (seen.contains(signature)) continue;
+          seen.add(signature);
+
+          scrapedItems.add({
+            'category': category,
+            'name': name,
+            'code': code ?? '',
+            'url': fullUrl,
+          });
+        }
+      }
+    } catch (e) {
+      stderr.writeln('Warning: Failed to fetch subfolder $subUrl: $e');
+    }
+  }
+
+  String currentFolder = 'Root';
 
   for (final row in rows) {
     if (row.classes.contains('eipItem')) {
@@ -186,48 +305,72 @@ void main(List<String> args) async {
       if (name.isEmpty) continue;
 
       final href = a.attributes['href'] ?? '';
-      String? code;
+      final onclick = a.attributes['onclick'] ?? '';
 
-      // Try to find the apOu code in ssoLogAdd call in parents or the element itself
-      dom.Element? current = a;
-      while (current != null && current != row) {
-        final onclick = current.attributes['onclick'] ?? '';
-        final match = ssoLogAddRegexp.firstMatch(onclick);
-        if (match != null) {
-          code = match.group(1);
-          break;
+      // Check if this item is a subfolder tree
+      String? subFolderDn;
+      String? apDn;
+
+      final nextPopMatch =
+          nextPopRegexp.firstMatch(href) ?? nextPopRegexp.firstMatch(onclick);
+      if (nextPopMatch != null) {
+        subFolderDn = nextPopMatch.group(1);
+        apDn = nextPopMatch.group(2);
+      } else {
+        final subListMatch =
+            subListRegexp.firstMatch(href) ?? subListRegexp.firstMatch(onclick);
+        if (subListMatch != null) {
+          subFolderDn = subListMatch.group(1);
+          apDn = subListMatch.group(2);
         }
-        current = current.parent;
       }
 
-      // Fallback: extract apOu from query parameters of the href URL
-      if (code == null && href.isNotEmpty) {
-        try {
-          final uri = Uri.parse(href);
-          code = uri.queryParameters['apOu'];
-        } catch (_) {}
+      if (subFolderDn != null && apDn != null) {
+        await scrapeSubtree(subFolderDn, apDn, '$currentFolder - $name');
+      } else {
+        String? code;
+
+        // Try to find the apOu code in ssoLogAdd call in parents or the element itself
+        dom.Element? current = a;
+        while (current != null && current != row) {
+          final currentOnclick = current.attributes['onclick'] ?? '';
+          final match = ssoLogAddRegexp.firstMatch(currentOnclick);
+          if (match != null) {
+            code = match.group(1);
+            break;
+          }
+          current = current.parent;
+        }
+
+        // Fallback: extract apOu from query parameters of the href URL
+        if (code == null && href.isNotEmpty) {
+          try {
+            final uri = Uri.parse(href);
+            code = uri.queryParameters['apOu'];
+          } catch (_) {}
+        }
+
+        // Build full URL
+        String fullUrl = href;
+        if (href.isNotEmpty &&
+            !href.startsWith('http') &&
+            !href.startsWith('javascript:')) {
+          fullUrl = Uri.parse(
+            'https://nportal.ntut.edu.tw/',
+          ).resolve(href).toString();
+        }
+
+        final signature = '$currentFolder|$name|$code|$fullUrl';
+        if (seen.contains(signature)) continue;
+        seen.add(signature);
+
+        scrapedItems.add({
+          'category': currentFolder,
+          'name': name,
+          'code': code ?? '',
+          'url': fullUrl,
+        });
       }
-
-      // Build full URL
-      String fullUrl = href;
-      if (href.isNotEmpty &&
-          !href.startsWith('http') &&
-          !href.startsWith('javascript:')) {
-        fullUrl = Uri.parse(
-          'https://nportal.ntut.edu.tw/',
-        ).resolve(href).toString();
-      }
-
-      final signature = '$currentFolder|$name|$code|$fullUrl';
-      if (seen.contains(signature)) continue;
-      seen.add(signature);
-
-      scrapedItems.add({
-        'category': currentFolder,
-        'name': name,
-        'code': code ?? '',
-        'url': fullUrl,
-      });
     }
   }
 
