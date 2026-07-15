@@ -75,7 +75,7 @@ class FirebaseService {
     if (rc == null) return;
 
     if (_isInitialized) {
-      if (defaults != null) await setDefaults(defaults);
+      if (defaults != null) await _setDefaults(defaults);
       return;
     }
 
@@ -94,7 +94,7 @@ class FirebaseService {
   }
 
   /// Updates the in-app default values for Remote Config.
-  Future<void> setDefaults(Map<String, dynamic> defaults) async {
+  Future<void> _setDefaults(Map<String, dynamic> defaults) async {
     await remoteConfig?.setDefaults(defaults);
   }
 
@@ -140,7 +140,7 @@ class FirebaseService {
         await rc.setConfigSettings(
           RemoteConfigSettings(
             fetchTimeout: const Duration(minutes: 1),
-            minimumFetchInterval: const Duration(minutes: 1),
+            minimumFetchInterval: const Duration(hours: 12),
           ),
         );
       }

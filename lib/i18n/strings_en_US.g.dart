@@ -53,7 +53,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$kioskLogin$en_US kioskLogin = _Translations$kioskLogin$en_US._(_root);
 	@override late final _Translations$enrollmentStatus$en_US enrollmentStatus = _Translations$enrollmentStatus$en_US._(_root);
 	@override late final _Translations$about$en_US about = _Translations$about$en_US._(_root);
-	@override late final _Translations$featureFlags$en_US featureFlags = _Translations$featureFlags$en_US._(_root);
+	@override late final _Translations$experiments$en_US experiments = _Translations$experiments$en_US._(_root);
 }
 
 // Path: general
@@ -298,19 +298,19 @@ class _Translations$about$en_US extends Translations$about$zh_TW {
 	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
 }
 
-// Path: featureFlags
-class _Translations$featureFlags$en_US extends Translations$featureFlags$zh_TW {
-	_Translations$featureFlags$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+// Path: experiments
+class _Translations$experiments$en_US extends Translations$experiments$zh_TW {
+	_Translations$experiments$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Feature Flags';
-	@override String get fetchFlags => 'Fetch from remote';
-	@override String get noFlag => 'No Feature Flags';
-	@override String get refreshed => 'Feature flags refreshed';
+	@override String get title => 'Experiments';
+	@override String get fetch => 'Fetch from remote';
+	@override String get noExperiment => 'No Experiments';
+	@override String get refreshed => 'Experiments refreshed';
 	@override String get reset => 'Reset to default';
-	@override late final _Translations$featureFlags$status$en_US status = _Translations$featureFlags$status$en_US._(_root);
+	@override late final _Translations$experiments$status$en_US status = _Translations$experiments$status$en_US._(_root);
 	@override String get invalidInput => 'Invalid input';
 }
 
@@ -551,9 +551,9 @@ class _Translations$scanner$guide$en_US extends Translations$scanner$guide$zh_TW
 	@override String get button => 'Got it';
 }
 
-// Path: featureFlags.status
-class _Translations$featureFlags$status$en_US extends Translations$featureFlags$status$zh_TW {
-	_Translations$featureFlags$status$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+// Path: experiments.status
+class _Translations$experiments$status$en_US extends Translations$experiments$status$zh_TW {
+	_Translations$experiments$status$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -796,16 +796,16 @@ extension on TranslationsEnUs {
 			'about.openSourceLicenses' => 'Open Source Licenses',
 			'about.viewOpenSourceLicenses' => 'TAT\'s implementation is made possible by the open source community',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
-			'featureFlags.title' => 'Feature Flags',
-			'featureFlags.fetchFlags' => 'Fetch from remote',
-			'featureFlags.noFlag' => 'No Feature Flags',
-			'featureFlags.refreshed' => 'Feature flags refreshed',
-			'featureFlags.reset' => 'Reset to default',
-			'featureFlags.status.local' => 'Local Default',
-			'featureFlags.status.remote' => 'Remote Config',
-			'featureFlags.status.localOverride' => 'User Override',
-			'featureFlags.status.remoteOverride' => 'Forced (Remote)',
-			'featureFlags.invalidInput' => 'Invalid input',
+			'experiments.title' => 'Experiments',
+			'experiments.fetch' => 'Fetch from remote',
+			'experiments.noExperiment' => 'No Experiments',
+			'experiments.refreshed' => 'Experiments refreshed',
+			'experiments.reset' => 'Reset to default',
+			'experiments.status.local' => 'Local Default',
+			'experiments.status.remote' => 'Remote Config',
+			'experiments.status.localOverride' => 'User Override',
+			'experiments.status.remoteOverride' => 'Forced (Remote)',
+			'experiments.invalidInput' => 'Invalid input',
 			_ => null,
 		};
 	}

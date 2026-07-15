@@ -146,11 +146,11 @@ class ProfileDangerZone extends ConsumerWidget {
               onTap: _triggerNonFlutterCrash,
             ),
             OptionEntryTile.icon(
-              icon: Icons.flag_outlined,
-              title: t.featureFlags.title,
+              icon: Icons.science_outlined,
+              title: t.experiments.title,
               color: dangerColor,
               borderColor: dangerColor,
-              onTap: () => context.push(AppRoutes.featureFlags),
+              onTap: () => context.push(AppRoutes.experiments),
             ),
             OptionEntryTile.icon(
               icon: Icons.cached_outlined,

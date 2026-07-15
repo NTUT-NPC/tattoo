@@ -6,8 +6,8 @@ import 'package:tattoo/screens/main/profile/preference_providers.dart';
 
 /// A screen that displays all preferences and their resolved source, allowing
 /// users (typically developers or testers) to view and override values.
-class FeatureFlagScreen extends ConsumerWidget {
-  const FeatureFlagScreen({super.key});
+class ExperimentsScreen extends ConsumerWidget {
+  const ExperimentsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,16 +15,16 @@ class FeatureFlagScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.featureFlags.title),
+        title: Text(t.experiments.title),
         actions: [
           IconButton(
             icon: const Icon(Icons.cloud_download),
-            tooltip: t.featureFlags.fetchFlags,
+            tooltip: t.experiments.fetch,
             onPressed: () async {
               await ref.read(preferencesRepositoryProvider).refresh();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(t.featureFlags.refreshed)),
+                  SnackBar(content: Text(t.experiments.refreshed)),
                 );
               }
             },
@@ -33,7 +33,7 @@ class FeatureFlagScreen extends ConsumerWidget {
       ),
       body: prefsAsync.when(
         data: (prefs) => prefs.isEmpty
-            ? Center(child: Text(t.featureFlags.noFlag))
+            ? Center(child: Text(t.experiments.noExperiment))
             : _PrefList(prefs: prefs),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text(t.errors.occurred)),
@@ -138,7 +138,7 @@ class _PrefTile extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.errors.occurred),
-        content: Text(t.featureFlags.invalidInput),
+        content: Text(t.experiments.invalidInput),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -200,22 +200,22 @@ class _PrefSubtitle extends StatelessWidget {
   ({String text, Color bgColor, Color textColor}) _getStatusMetadata() {
     return switch (pref.source) {
       .override => (
-        text: t.featureFlags.status.localOverride,
+        text: t.experiments.status.localOverride,
         bgColor: Colors.blue.withValues(alpha: 0.15),
         textColor: Colors.blue.shade800,
       ),
       .remote => (
-        text: t.featureFlags.status.remote,
+        text: t.experiments.status.remote,
         bgColor: Colors.purple.withValues(alpha: 0.15),
         textColor: Colors.purple.shade800,
       ),
       .local => (
-        text: t.featureFlags.status.local,
+        text: t.experiments.status.local,
         bgColor: Colors.grey.withValues(alpha: 0.2),
         textColor: Colors.grey.shade800,
       ),
       .forced => (
-        text: t.featureFlags.status.remoteOverride,
+        text: t.experiments.status.remoteOverride,
         bgColor: Colors.red.withValues(alpha: 0.15),
         textColor: Colors.red.shade800,
       ),
@@ -239,7 +239,7 @@ class _PrefTrailingAction extends ConsumerWidget {
         if (isOverridden)
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: t.featureFlags.reset,
+            tooltip: t.experiments.reset,
             onPressed: () =>
                 ref.read(preferencesRepositoryProvider).reset(pref.key),
           ),

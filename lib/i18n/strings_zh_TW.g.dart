@@ -54,7 +54,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$kioskLogin$zh_TW kioskLogin = Translations$kioskLogin$zh_TW.internal(_root);
 	late final Translations$enrollmentStatus$zh_TW enrollmentStatus = Translations$enrollmentStatus$zh_TW.internal(_root);
 	late final Translations$about$zh_TW about = Translations$about$zh_TW.internal(_root);
-	late final Translations$featureFlags$zh_TW featureFlags = Translations$featureFlags$zh_TW.internal(_root);
+	late final Translations$experiments$zh_TW experiments = Translations$experiments$zh_TW.internal(_root);
 }
 
 // Path: general
@@ -452,30 +452,30 @@ class Translations$about$zh_TW {
 	String get copyright => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
 }
 
-// Path: featureFlags
-class Translations$featureFlags$zh_TW {
-	Translations$featureFlags$zh_TW.internal(this._root);
+// Path: experiments
+class Translations$experiments$zh_TW {
+	Translations$experiments$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
 
-	/// zh-TW: '功能開關'
-	String get title => '功能開關';
+	/// zh-TW: '實驗功能'
+	String get title => '實驗功能';
 
 	/// zh-TW: '從遠端獲取'
-	String get fetchFlags => '從遠端獲取';
+	String get fetch => '從遠端獲取';
 
-	/// zh-TW: '沒有功能開關'
-	String get noFlag => '沒有功能開關';
+	/// zh-TW: '沒有實驗功能'
+	String get noExperiment => '沒有實驗功能';
 
-	/// zh-TW: '功能開關已更新'
-	String get refreshed => '功能開關已更新';
+	/// zh-TW: '實驗功能已更新'
+	String get refreshed => '實驗功能已更新';
 
 	/// zh-TW: '重設為預設值'
 	String get reset => '重設為預設值';
 
-	late final Translations$featureFlags$status$zh_TW status = Translations$featureFlags$status$zh_TW.internal(_root);
+	late final Translations$experiments$status$zh_TW status = Translations$experiments$status$zh_TW.internal(_root);
 
 	/// zh-TW: '輸入格式錯誤'
 	String get invalidInput => '輸入格式錯誤';
@@ -862,9 +862,9 @@ class Translations$scanner$guide$zh_TW {
 	String get button => '我知道了';
 }
 
-// Path: featureFlags.status
-class Translations$featureFlags$status$zh_TW {
-	Translations$featureFlags$status$zh_TW.internal(this._root);
+// Path: experiments.status
+class Translations$experiments$status$zh_TW {
+	Translations$experiments$status$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1137,16 +1137,16 @@ extension on Translations {
 			'about.openSourceLicenses' => '開放原始碼授權',
 			'about.viewOpenSourceLicenses' => 'TAT的實作歸功於開放原始碼社群',
 			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
-			'featureFlags.title' => '功能開關',
-			'featureFlags.fetchFlags' => '從遠端獲取',
-			'featureFlags.noFlag' => '沒有功能開關',
-			'featureFlags.refreshed' => '功能開關已更新',
-			'featureFlags.reset' => '重設為預設值',
-			'featureFlags.status.local' => '預設值',
-			'featureFlags.status.remote' => '雲端設定',
-			'featureFlags.status.localOverride' => '使用者覆寫',
-			'featureFlags.status.remoteOverride' => '強制覆寫（遠端）',
-			'featureFlags.invalidInput' => '輸入格式錯誤',
+			'experiments.title' => '實驗功能',
+			'experiments.fetch' => '從遠端獲取',
+			'experiments.noExperiment' => '沒有實驗功能',
+			'experiments.refreshed' => '實驗功能已更新',
+			'experiments.reset' => '重設為預設值',
+			'experiments.status.local' => '預設值',
+			'experiments.status.remote' => '雲端設定',
+			'experiments.status.localOverride' => '使用者覆寫',
+			'experiments.status.remoteOverride' => '強制覆寫（遠端）',
+			'experiments.invalidInput' => '輸入格式錯誤',
 			_ => null,
 		};
 	}
