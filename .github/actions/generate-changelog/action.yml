@@ -3,7 +3,10 @@ description: Summarize merged PR bodies between two refs into bilingual release 
 
 inputs:
   github_token:
-    description: 'Token with contents:read and models:read'
+    description: 'GitHub Token with contents:read'
+    required: true
+  gemini_api_key:
+    description: 'Google Gemini API key'
     required: true
   last_sha:
     description: 'Previous release commit (empty = no baseline)'
@@ -35,6 +38,7 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github_token }}
+        GEMINI_API_KEY: ${{ inputs.gemini_api_key }}
         REPO: ${{ inputs.repository }}
         BASE: ${{ inputs.last_sha }}
         HEAD_REF: ${{ inputs.head_ref }}
@@ -139,42 +143,51 @@ runs:
         and "This update contains only internal improvements." — do not list the chores.'
 
         SCHEMA='{
-          "type": "json_schema",
-          "json_schema": {
-            "name": "changelog",
-            "strict": true,
-            "schema": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["zh", "en"],
-              "properties": {
-                "zh": {"type": "array", "minItems": 1, "maxItems": 6, "items": {"type": "string"}},
-                "en": {"type": "array", "minItems": 1, "maxItems": 6, "items": {"type": "string"}}
-              }
+          "type": "object",
+          "properties": {
+            "zh": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "en": {
+              "type": "array",
+              "items": { "type": "string" }
             }
-          }
+          },
+          "required": ["zh", "en"],
+          "additionalProperties": false
         }'
 
-        REQ=$(jq -n --arg model "openai/gpt-4.1" --arg sys "$SYSTEM" --arg usr "$CLEANED" \
-          --argjson fmt "$SCHEMA" \
-          '{model:$model, temperature:0.2, response_format:$fmt,
-            messages:[{role:"system",content:$sys},{role:"user",content:$usr}]}')
+        REQ=$(jq -n --arg sys "$SYSTEM" --arg usr "$CLEANED" --argjson schema "$SCHEMA" \
+          '{
+            system_instruction: {
+              parts: [{ text: $sys }]
+            },
+            contents: [{
+              role: "user",
+              parts: [{ text: $usr }]
+            }],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: "application/json",
+              responseSchema: $schema
+            }
+          }')
 
         OUT=$(mktemp)
         CODE=$(curl -sS -o "$OUT" -w '%{http_code}' --max-time 60 \
-          -X POST "https://models.github.ai/inference/chat/completions" \
-          -H "Authorization: Bearer $GH_TOKEN" \
+          -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
           -H "Content-Type: application/json" \
-          -H "Accept: application/vnd.github+json" \
           -d "$REQ" || echo "000")
 
         if [ "$CODE" != "200" ]; then
-          echo "Models API HTTP $CODE; falling back." >&2
+          echo "Gemini API HTTP $CODE; falling back." >&2
+          cat "$OUT" >&2
           fallback
         fi
 
-        # response_format guarantees message.content is a JSON string matching SCHEMA.
-        DATA=$(jq -r '.choices[0].message.content // empty' "$OUT")
+        # responseMimeType + responseSchema guarantees candidate text is a JSON string matching SCHEMA.
+        DATA=$(jq -r '.candidates[0].content.parts[0].text // empty' "$OUT")
         if ! printf '%s' "$DATA" | jq -e '(.zh | type=="array" and length>0) and (.en | type=="array" and length>0)' >/dev/null 2>&1; then
           echo "Missing, malformed, or empty model response; falling back." >&2
           fallback
