@@ -36,7 +36,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      models: read
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number }}
       version_suffix: ${{ steps.version-suffix.outputs.suffix }}
@@ -118,6 +117,7 @@ jobs:
         uses: ./.github/actions/generate-changelog
         with:
           github_token: ${{ github.token }}
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           last_sha: ${{ steps.check-changes.outputs.last_sha }}
           head_ref: ${{ steps.set-ref.outputs.ref }}
           fallback_message: ${{ steps.summary.outputs.message }}
