@@ -390,7 +390,16 @@ void main(List<String> args) async {
   final String outputString;
 
   if (format == 'json') {
-    outputString = const JsonEncoder.withIndent('  ').convert(scrapedItems);
+    final grouped = <String, List<Map<String, String>>>{};
+    for (final item in scrapedItems) {
+      final category = item['category']!;
+      grouped.putIfAbsent(category, () => []).add({
+        'name': item['name']!,
+        'code': item['code']!,
+        'url': item['url']!,
+      });
+    }
+    outputString = const JsonEncoder.withIndent('  ').convert(grouped);
   } else {
     // Plain text table format
     final buffer = StringBuffer();
