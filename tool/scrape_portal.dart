@@ -271,6 +271,12 @@ void main(List<String> args) async {
               'https://nportal.ntut.edu.tw/',
             ).resolve(href).toString();
           }
+          fullUrl = _normalizeUrl(fullUrl);
+
+          if (!fullUrl.startsWith('http://') &&
+              !fullUrl.startsWith('https://')) {
+            continue;
+          }
 
           final signature = '$category|$name|$code|$fullUrl';
           if (seen.contains(signature)) continue;
@@ -359,6 +365,11 @@ void main(List<String> args) async {
             'https://nportal.ntut.edu.tw/',
           ).resolve(href).toString();
         }
+        fullUrl = _normalizeUrl(fullUrl);
+
+        if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
+          continue;
+        }
 
         final signature = '$currentFolder|$name|$code|$fullUrl';
         if (seen.contains(signature)) continue;
@@ -412,4 +423,18 @@ void main(List<String> args) async {
   } else {
     stdout.write(outputString);
   }
+}
+
+String _normalizeUrl(String url) {
+  try {
+    final uri = Uri.parse(url);
+    if (uri.queryParameters.containsKey('datetime1') ||
+        uri.queryParameters.containsKey('thetime')) {
+      final params = Map<String, String>.from(uri.queryParameters)
+        ..remove('datetime1')
+        ..remove('thetime');
+      return uri.replace(queryParameters: params).toString();
+    }
+  } catch (_) {}
+  return url;
 }
