@@ -60,8 +60,9 @@ runs:
           emit_output changelog "$1"
           # Google Play allows up to 500 Unicode characters per language. jq slices by
           # codepoint (unlike bash ${#}, which counts bytes under a C locale).
+          # Slice at 475 to leave room for Daily Build prefix prepended in workflow.
           local store
-          store=$(printf '%s' "$2" | jq -Rrs '.[0:500]')
+          store=$(printf '%s' "$2" | jq -Rrs '.[0:475]')
           emit_output store_changelog "$store"
         }
 

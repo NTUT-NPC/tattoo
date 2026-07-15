@@ -175,7 +175,9 @@ jobs:
       PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      CHANGELOG: ${{ needs.prepare.outputs.store_changelog }}
+      CHANGELOG: |
+        Daily Build ${{ needs.prepare.outputs.date }}
+        ${{ needs.prepare.outputs.store_changelog }}
       FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
     timeout-minutes: 30
     steps:
@@ -248,7 +250,9 @@ jobs:
       PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      CHANGELOG: ${{ needs.prepare.outputs.store_changelog }}
+      CHANGELOG: |
+        Daily Build ${{ needs.prepare.outputs.date }}
+        ${{ needs.prepare.outputs.store_changelog }}
       PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
     timeout-minutes: 30
     steps:
