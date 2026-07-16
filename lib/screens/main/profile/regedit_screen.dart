@@ -100,10 +100,16 @@ class _PrefTile extends ConsumerWidget {
         content: TextField(
           controller: controller,
           autofocus: true,
-          keyboardType:
-              (pref.type == PrefType.integer || pref.type == PrefType.double)
-              ? const TextInputType.numberWithOptions(decimal: true)
-              : TextInputType.text,
+          keyboardType: switch (pref.type) {
+            PrefType.integer => const TextInputType.numberWithOptions(
+              signed: true,
+            ),
+            PrefType.double => const TextInputType.numberWithOptions(
+              signed: true,
+              decimal: true,
+            ),
+            _ => TextInputType.text,
+          },
         ),
         actions: [
           TextButton(
