@@ -1,0 +1,984 @@
+<!--
+
+preset: student_query.academic_performance
+request_url: https://aps-stu.ntut.edu.tw/StuQuery/QryScore.jsp?1 parameter
+
+fetchtime: 2026-07-14 17:50:19
+message: This academic performance page has several populated semesters with passing scores and standard credit totals.
+
+TODO: Add the expected parse result after the HTML-based test code is complete.
+
+-->
+
+
+
+
+
+
+<HTML>
+<HEAD>
+<TITLE>學生查詢專區--學業成績查詢</TITLE>
+<Script src="https://font.ntut.edu.tw/wfs/js/lib/wfs.js" type="text/javascript" ></script>
+<Script Language=JavaScript>
+<!--
+function toQuery(form, code) {
+  form.format.value = code;
+  form.submit();
+}
+-->
+</Script>
+</HEAD>
+
+<BODY bgcolor=#ffffdf background="./image/grey918y.gif" text=#003398>
+<form name="FormQ" action="" method="post">
+<font size=5><b>學業成績查詢 (Query Academic Performance)</b></font><br>
+  <input type="hidden" name="format" value="-1">　
+  <input type="button" name="QrySem" value="查詢本學期 (Query this semester)"   onClick="toQuery(FormQ, -1);">　
+  <input type="button" name="QryAll" value="查詢歷年記錄(Query historical records)" onClick="toQuery(FormQ, -2);">
+</form>
+
+ <br><H3><img src=./image/or_ball.gif>學生畢業需符合大學部英文畢業門檻，相關畢業標準請至教務處網站查詢。<br>Please connect to Office of Academic Affairs website to inquire guidelines for minimum english proficiency requirements for graduation.</H3>
+  <br>
+<form action='StuScorePDF' method='get'><img src='./image/or_ball.gif'><input type='submit' value='114 學年度 第 2 學期 (2026 - Spring)'  style='border: 0; display: inline; font-size: 1.17em; margin-block-start: 1em; margin-block-end: 1em; margin-inline-start: 0px;  margin-inline-end: 0px; font-weight: bold; unicode-bidi: isolate; background-color: unset; cursor: pointer; color: currentColor;  font-family: auto;'/><input type='hidden' name='sbj_year' value='114'/><input type='hidden' name='sbj_sem' value='2'/></form>
+<table border=1 BGCOLOR=#CCFFFF>
+
+<tr><th BGCOLOR=99FF99>課　號<br>Course Number <th BGCOLOR=99FF99>修<br>Required or Elective<th BGCOLOR=99FF99>課 程 名 稱<th BGCOLOR=99FF99>English Course Name<th BGCOLOR=99FF99>課程編碼<br>Course Code<th BGCOLOR=99FF99>階段<br>Stage<th BGCOLOR=99FF99>學分<br>Credits<th BGCOLOR=99FF99>成績<br>Score<th BGCOLOR=99FF99>備  註<br>Remarks
+<tr><th align=Right>353866
+    <th>選<BR>Elective
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5904334">電腦圖學</a>
+    <th align=Left>Computer Graphics
+    <th align=Center>5904334
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 89
+    <td>電子四甲
+<tr><th align=Right>354659
+    <th>選<BR>Elective
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903321">iOS 應用程式開發</a>
+    <th align=Left>iOS App development
+    <th align=Center>5903321
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 87
+    <td>電子三甲
+<tr><th align=Right>360063
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1001002">體育</a>
+    <th align=Left>Physical Education
+    <th align=Center>1001002
+    <th align=Center>2
+    <th align=Center>0.0<font color=red></font>
+    <th align=Right> 81
+    <td><B>肢體美學B</B><BR>體育專項(四)
+<tr><th align=Right>360179
+    <th>通<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1411021">生活美學</a>
+    <th align=Left>Aesthetics of living
+    <th align=Center>1411021
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 89
+    <td>博雅課程(二)
+<tr><th align=Right>360269
+    <th>通<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1411022">音樂概論</a>
+    <th align=Left>Introduction to Music
+    <th align=Center>1411022
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 89
+    <td>博雅課程(十二)
+<tr><th colspan=9>
+<tr><th colspan=9 BGCOLOR=FFCCCC>學　期　成　績<br>This Semester Score
+<tr><th colspan=2 BGCOLOR=99FF99>總 平 均<br>Average<td colspan=7 align=center>87.6
+<tr><th colspan=2 BGCOLOR=99FF99>操行成績<br> Conduct<td colspan=7 align=center>80
+<tr><th colspan=2 BGCOLOR=99FF99>修習總學分數<br>Total Credits<td colspan=7 align=center>10.0
+<tr><th colspan=2 BGCOLOR=99FF99>實得學分數<br>Credits Passed<td colspan=7 align=center>10.0
+<tr><th colspan=2 BGCOLOR=99FF99>備註<br>Note<td colspan=7 align=center>　
+</table>
+<P>說明：Ｎ : 未輸入　Ｗ : 撤選　＃ : 未送成績　Ｐ : 通過　Ｆ : 不通過　<font color=red>#表示全英語授課課程(EMI)</font><br>
+Notes：N：Not entered ; W：Withdraw ; #：Undelivered ; P：Pass ; F：Fail ; <font color=red>#：English as a Medium of Instruction</font></P>
+
+<P><font color=red>※本成績查詢頁面僅供參考之用，同學之學期成績以教務處印製之學期成績單為準。<br>
+※The above information is for reference only. Semester grades are based on the official transcript printed by Office of Academic Affairs.</font></P>
+
+<script>
+	// 113.04.10 顯示點擊的學期成績資料
+	function showSemester(semesterId) {
+		var semesterContent = document.getElementById(semesterId).innerHTML;
+		var stuName = '王大同';
+		var stuRgno = '111590001';
+		var semesterText = '114' + " 學年度 第 " + '2'
+		  + " 學期 (" + '2026' + " - " + 'Spring' + ") ";
+		var stuClass = '電子四甲';
+		
+		// 開一個新視窗
+		var newWindow = window.open("", "_blank");
+		// 設定新視窗內容
+		var newWindowContent = "<!DOCTYPE html>"
+				+ "<html lang='en'>"
+				+ "<head>"
+				+ "<meta charset='UTF-8'>"
+				+ "<title>"
+				+ semesterId
+				+ "</title>"
+				+ "<style>"
+				+ "a { color: black; text-decoration: none; } "
+				+ "table { border-collapse: collapse; }"
+				+ "#printBtn { margin-top: 20px; }"
+				+ "body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; flex-direction: column; }"
+				+ "h3 { margin-block-start: 0; margin-block-end: 10px; font-family: 標楷體; font-size: 12pt; text-align: center; font-weight: normal;}"
+				+ ".student-info { text-align: left; width: 100%; font-size: 12pt; font-family: 標楷體; margin-bottom: 10px; }"
+				+ ".ntutlogo {width: 70%; height: auto; display: none; position: fixed; top: 50%; transform: translateY(-50%); opacity: 0.3; z-index: 50;}"
+				+ ".watermark { display: none;  margin-left: 5vw; position: fixed; bottom: 20px; right: 20px; z-index: 50; opacity: 0.8;}"
+				+ " h2 { margin: 10px; font-family: 標楷體; font-size: 20pt; text-align: center; font-weight: normal; }"
+				+ "</style>"
+				+ "</head>"
+				+ "<body>"
+				+ "<button id='printBtn'>列印成績單&PDF檔</button>"
+				+ "<h2>國立臺北科技大學學生成績單</h2>"
+				+ "<h3>" + semesterText + "</h3>"
+				+ "<h3 class='student-info'>姓名：" + stuName + "</h3>"
+			    + "<h3 class='student-info'>學號：" + stuRgno + "</h3>"
+			    + "<h3 class='student-info'>班級：" + stuClass + "</h3>"
+				+ semesterContent.replace(/<img[^>]*>/g, '')
+// 				+ "<div class='student-info'>班級：" + studentClass + "</div>"
+				
+				+ "<img src='image/ntut_logo-removebg-preview.png' id='ntutlogo' class='ntutlogo'>"
+				+ "<img src='image/seal_matting-removebg-preview.png' id='watermark' class='watermark'>"
+				
+				+ "</body>" + "</html>";
+
+		// 寫進新視窗
+		newWindow.document.write(newWindowContent);
+
+		// 設定script(設定浮水印在列印模式時顯示，列印按鈕隱藏)
+		var scriptElement = newWindow.document.createElement('script');
+		scriptElement.textContent = "document.getElementById('printBtn').addEventListener('click', function() {"
+				+ "   document.getElementById('watermark').style.display = 'block';"
+				+ "   document.getElementById('ntutlogo').style.display = 'block';"
+				+ "   document.getElementById('ntutlogo').style.display = 'block';"
+				+ "   history.pushState({}, '', '/');"
+				+ "   this.style.display = 'none';"
+				+ "   window.print();"
+				+ "});"
+				+ "window.onafterprint = function() {"
+				+ "   document.getElementById('watermark').style.display = 'none';"
+				+ "   document.getElementById('ntutlogo').style.display = 'none';"
+				+ "   document.getElementById('printBtn').style.display = 'block';"
+				+ "};";
+		newWindow.document.body.appendChild(scriptElement);
+	}
+</script>
+  <br>
+<form action='StuScorePDF' method='get'><img src='./image/or_ball.gif'><input type='submit' value='114 學年度 第 1 學期 (2025 - Fall)'  style='border: 0; display: inline; font-size: 1.17em; margin-block-start: 1em; margin-block-end: 1em; margin-inline-start: 0px;  margin-inline-end: 0px; font-weight: bold; unicode-bidi: isolate; background-color: unset; cursor: pointer; color: currentColor;  font-family: auto;'/><input type='hidden' name='sbj_year' value='114'/><input type='hidden' name='sbj_sem' value='1'/></form>
+<table border=1 BGCOLOR=#CCFFFF>
+
+<tr><th BGCOLOR=99FF99>課　號<br>Course Number <th BGCOLOR=99FF99>修<br>Required or Elective<th BGCOLOR=99FF99>課 程 名 稱<th BGCOLOR=99FF99>English Course Name<th BGCOLOR=99FF99>課程編碼<br>Course Code<th BGCOLOR=99FF99>階段<br>Stage<th BGCOLOR=99FF99>學分<br>Credits<th BGCOLOR=99FF99>成績<br>Score<th BGCOLOR=99FF99>備  註<br>Remarks
+<tr><th align=Right>347316
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5904202">實務專題(三)</a>
+    <th align=Left>Special Project(III)
+    <th align=Center>5904202
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 81
+    <td>電子四甲
+<tr><th align=Right>347345
+    <th>選<BR>Elective
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5904375">軟體安全與逆向工程</a>
+    <th align=Left>Software security and reverse engineering
+    <th align=Center>5904375
+    <th align=Center>1
+    <th align=Center>3.0<font color=red>#</font>
+    <th align=Right> 85
+    <td>電子四甲
+<tr><th align=Right>347998
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903209">微算機系統實習</a>
+    <th align=Left>Microprocessor-Based-System Lab.
+    <th align=Center>5903209
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 86
+    <td>電子三甲
+<tr><th align=Right>348010
+    <th>選<BR>Elective
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903324">遊戲程式開發</a>
+    <th align=Left>Game development
+    <th align=Center>5903324
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 85
+    <td>電子三甲
+<tr><th align=Right>348069
+    <th>選<BR>Elective
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=AB03045">區塊鏈應用設計</a>
+    <th align=Left>Blockchain Applications
+    <th align=Center>AB03045
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 83
+    <td>電機三甲
+<tr><th align=Right>348486
+    <th>選<BR>Elective
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5704049">人際關係與溝通</a>
+    <th align=Left>Interpersonal Relationship and communication
+    <th align=Center>5704049
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 80
+    <td>電機二甲
+<tr><th align=Right>348491
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5901206">物件導向程式設計</a>
+    <th align=Left>Object-Oriented Programming
+    <th align=Center>5901206
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 89
+    <td>電子二甲
+<tr><th align=Right>349013
+    <th>選<BR>Elective
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5701003">管理學</a>
+    <th align=Left>Management
+    <th align=Center>5701003
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 89
+    <td>電機一甲
+<tr><th align=Right>349081
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1101007">全民國防教育</a>
+    <th align=Left>All-Out Defense Education
+    <th align=Center>1101007
+    <th align=Center>1
+    <th align=Center>0.0<font color=red></font>
+    <th align=Right> 84
+    <td>電機一甲
+<tr><th align=Right>350843
+    <th>選<BR>Elective
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903320">Android應用程式開發</a>
+    <th align=Left>Android Application Development
+    <th align=Center>5903320
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 85
+    <td>電子二甲
+<tr><th align=Right>352587
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=14E3072">進階專業英文- 電資(一)</a>
+    <th align=Left>Advanced ESP (Electrical Engineering and Computer Science) I
+    <th align=Center>14E3072
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 85
+    <td>電子二甲
+<tr><th align=Right>357707
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1400029">校外實習</a>
+    <th align=Left>Internship
+    <th align=Center>1400029
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 80
+    <td>校院級課程(大)
+<tr><th colspan=9>
+<tr><th colspan=9 BGCOLOR=FFCCCC>學　期　成　績<br>This Semester Score
+<tr><th colspan=2 BGCOLOR=99FF99>總 平 均<br>Average<td colspan=7 align=center>86.5
+<tr><th colspan=2 BGCOLOR=99FF99>操行成績<br> Conduct<td colspan=7 align=center>80
+<tr><th colspan=2 BGCOLOR=99FF99>修習總學分數<br>Total Credits<td colspan=7 align=center>29.0
+<tr><th colspan=2 BGCOLOR=99FF99>實得學分數<br>Credits Passed<td colspan=7 align=center>29.0
+<tr><th colspan=2 BGCOLOR=99FF99>備註<br>Note<td colspan=7 align=center>　
+</table>
+<P>說明：Ｎ : 未輸入　Ｗ : 撤選　＃ : 未送成績　Ｐ : 通過　Ｆ : 不通過　<font color=red>#表示全英語授課課程(EMI)</font><br>
+Notes：N：Not entered ; W：Withdraw ; #：Undelivered ; P：Pass ; F：Fail ; <font color=red>#：English as a Medium of Instruction</font></P>
+
+<P><font color=red>※本成績查詢頁面僅供參考之用，同學之學期成績以教務處印製之學期成績單為準。<br>
+※The above information is for reference only. Semester grades are based on the official transcript printed by Office of Academic Affairs.</font></P>
+
+<script>
+	// 113.04.10 顯示點擊的學期成績資料
+	function showSemester(semesterId) {
+		var semesterContent = document.getElementById(semesterId).innerHTML;
+		var stuName = '王大同';
+		var stuRgno = '111590001';
+		var semesterText = '114' + " 學年度 第 " + '1'
+		  + " 學期 (" + '2025' + " - " + 'Fall' + ") ";
+		var stuClass = '電子四甲';
+		
+		// 開一個新視窗
+		var newWindow = window.open("", "_blank");
+		// 設定新視窗內容
+		var newWindowContent = "<!DOCTYPE html>"
+				+ "<html lang='en'>"
+				+ "<head>"
+				+ "<meta charset='UTF-8'>"
+				+ "<title>"
+				+ semesterId
+				+ "</title>"
+				+ "<style>"
+				+ "a { color: black; text-decoration: none; } "
+				+ "table { border-collapse: collapse; }"
+				+ "#printBtn { margin-top: 20px; }"
+				+ "body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; flex-direction: column; }"
+				+ "h3 { margin-block-start: 0; margin-block-end: 10px; font-family: 標楷體; font-size: 12pt; text-align: center; font-weight: normal;}"
+				+ ".student-info { text-align: left; width: 100%; font-size: 12pt; font-family: 標楷體; margin-bottom: 10px; }"
+				+ ".ntutlogo {width: 70%; height: auto; display: none; position: fixed; top: 50%; transform: translateY(-50%); opacity: 0.3; z-index: 50;}"
+				+ ".watermark { display: none;  margin-left: 5vw; position: fixed; bottom: 20px; right: 20px; z-index: 50; opacity: 0.8;}"
+				+ " h2 { margin: 10px; font-family: 標楷體; font-size: 20pt; text-align: center; font-weight: normal; }"
+				+ "</style>"
+				+ "</head>"
+				+ "<body>"
+				+ "<button id='printBtn'>列印成績單&PDF檔</button>"
+				+ "<h2>國立臺北科技大學學生成績單</h2>"
+				+ "<h3>" + semesterText + "</h3>"
+				+ "<h3 class='student-info'>姓名：" + stuName + "</h3>"
+			    + "<h3 class='student-info'>學號：" + stuRgno + "</h3>"
+			    + "<h3 class='student-info'>班級：" + stuClass + "</h3>"
+				+ semesterContent.replace(/<img[^>]*>/g, '')
+// 				+ "<div class='student-info'>班級：" + studentClass + "</div>"
+				
+				+ "<img src='image/ntut_logo-removebg-preview.png' id='ntutlogo' class='ntutlogo'>"
+				+ "<img src='image/seal_matting-removebg-preview.png' id='watermark' class='watermark'>"
+				
+				+ "</body>" + "</html>";
+
+		// 寫進新視窗
+		newWindow.document.write(newWindowContent);
+
+		// 設定script(設定浮水印在列印模式時顯示，列印按鈕隱藏)
+		var scriptElement = newWindow.document.createElement('script');
+		scriptElement.textContent = "document.getElementById('printBtn').addEventListener('click', function() {"
+				+ "   document.getElementById('watermark').style.display = 'block';"
+				+ "   document.getElementById('ntutlogo').style.display = 'block';"
+				+ "   document.getElementById('ntutlogo').style.display = 'block';"
+				+ "   history.pushState({}, '', '/');"
+				+ "   this.style.display = 'none';"
+				+ "   window.print();"
+				+ "});"
+				+ "window.onafterprint = function() {"
+				+ "   document.getElementById('watermark').style.display = 'none';"
+				+ "   document.getElementById('ntutlogo').style.display = 'none';"
+				+ "   document.getElementById('printBtn').style.display = 'block';"
+				+ "};";
+		newWindow.document.body.appendChild(scriptElement);
+	}
+</script>
+  <br>
+<form action='StuScorePDF' method='get'><img src='./image/or_ball.gif'><input type='submit' value='113 學年度 第 2 學期 (2025 - Spring)'  style='border: 0; display: inline; font-size: 1.17em; margin-block-start: 1em; margin-block-end: 1em; margin-inline-start: 0px;  margin-inline-end: 0px; font-weight: bold; unicode-bidi: isolate; background-color: unset; cursor: pointer; color: currentColor;  font-family: auto;'/><input type='hidden' name='sbj_year' value='113'/><input type='hidden' name='sbj_sem' value='2'/></form>
+<table border=1 BGCOLOR=#CCFFFF>
+
+<tr><th BGCOLOR=99FF99>課　號<br>Course Number <th BGCOLOR=99FF99>修<br>Required or Elective<th BGCOLOR=99FF99>課 程 名 稱<th BGCOLOR=99FF99>English Course Name<th BGCOLOR=99FF99>課程編碼<br>Course Code<th BGCOLOR=99FF99>階段<br>Stage<th BGCOLOR=99FF99>學分<br>Credits<th BGCOLOR=99FF99>成績<br>Score<th BGCOLOR=99FF99>備  註<br>Remarks
+<tr><th align=Right>340676
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903206">作業系統</a>
+    <th align=Left>Operating Systems
+    <th align=Center>5903206
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 83
+    <td>電子三甲
+<tr><th align=Right>340677
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903208">實務專題(二)</a>
+    <th align=Left>Special Project(II)
+    <th align=Center>5903208
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 78
+    <td>電子三甲
+<tr><th align=Right>340678
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903210">專題討論</a>
+    <th align=Left>Undergraduate Seminars
+    <th align=Center>5903210
+    <th align=Center>2
+    <th align=Center>1.0<font color=red></font>
+    <th align=Right> 81
+    <td>電子三甲
+<tr><th align=Right>341223
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5902207">微算機系統</a>
+    <th align=Left>Microprocessor-Based Systems
+    <th align=Center>5902207
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 88
+    <td>電子二甲
+<tr><th align=Right>341224
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5902209">物件導向程式設計實習</a>
+    <th align=Left>Object-Oriented Programming Labs
+    <th align=Center>5902209
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 80
+    <td>電子二甲
+<tr><th align=Right>341754
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5901210">計算機程式設計(二)</a>
+    <th align=Left>Computer Programming(Ⅱ)
+    <th align=Center>5901210
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 80
+    <td>電子一乙、電資一
+<tr><th align=Right>341848
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1400039">英文溝通與應用(二)</a>
+    <th align=Left>English Communication and Application II (ECA Courses)
+    <th align=Center>1400039
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 69
+    <td>應用英文一
+<tr><th align=Right>345263
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=14E1019">基礎英文閱讀與字彙(二)</a>
+    <th align=Left>Basic English Reading and Vocabulary II
+    <th align=Center>14E1019
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 87
+    <td>電子二甲
+<tr><th align=Right>346122
+    <th>通<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1418004">創業與財務概論</a>
+    <th align=Left>Introduction to Entrepreneurship and Finance
+    <th align=Center>1418004
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 85
+    <td>博雅課程(二)
+<tr><th align=Right>346166
+    <th>通<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1418003">創業概論</a>
+    <th align=Left>Introduction to Entrepreneurial
+    <th align=Center>1418003
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 92
+    <td>博雅課程(七)
+<tr><th colspan=9>
+<tr><th colspan=9 BGCOLOR=FFCCCC>學　期　成　績<br>This Semester Score
+<tr><th colspan=2 BGCOLOR=99FF99>總 平 均<br>Average<td colspan=7 align=center>83.8
+<tr><th colspan=2 BGCOLOR=99FF99>操行成績<br> Conduct<td colspan=7 align=center>81
+<tr><th colspan=2 BGCOLOR=99FF99>修習總學分數<br>Total Credits<td colspan=7 align=center>23.0
+<tr><th colspan=2 BGCOLOR=99FF99>實得學分數<br>Credits Passed<td colspan=7 align=center>23.0
+<tr><th colspan=2 BGCOLOR=99FF99>備註<br>Note<td colspan=7 align=center>　
+</table>
+<P>說明：Ｎ : 未輸入　Ｗ : 撤選　＃ : 未送成績　Ｐ : 通過　Ｆ : 不通過　<font color=red>#表示全英語授課課程(EMI)</font><br>
+Notes：N：Not entered ; W：Withdraw ; #：Undelivered ; P：Pass ; F：Fail ; <font color=red>#：English as a Medium of Instruction</font></P>
+
+<P><font color=red>※本成績查詢頁面僅供參考之用，同學之學期成績以教務處印製之學期成績單為準。<br>
+※The above information is for reference only. Semester grades are based on the official transcript printed by Office of Academic Affairs.</font></P>
+
+<script>
+	// 113.04.10 顯示點擊的學期成績資料
+	function showSemester(semesterId) {
+		var semesterContent = document.getElementById(semesterId).innerHTML;
+		var stuName = '王大同';
+		var stuRgno = '111590001';
+		var semesterText = '113' + " 學年度 第 " + '2'
+		  + " 學期 (" + '2025' + " - " + 'Spring' + ") ";
+		var stuClass = '電子三甲';
+		
+		// 開一個新視窗
+		var newWindow = window.open("", "_blank");
+		// 設定新視窗內容
+		var newWindowContent = "<!DOCTYPE html>"
+				+ "<html lang='en'>"
+				+ "<head>"
+				+ "<meta charset='UTF-8'>"
+				+ "<title>"
+				+ semesterId
+				+ "</title>"
+				+ "<style>"
+				+ "a { color: black; text-decoration: none; } "
+				+ "table { border-collapse: collapse; }"
+				+ "#printBtn { margin-top: 20px; }"
+				+ "body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; flex-direction: column; }"
+				+ "h3 { margin-block-start: 0; margin-block-end: 10px; font-family: 標楷體; font-size: 12pt; text-align: center; font-weight: normal;}"
+				+ ".student-info { text-align: left; width: 100%; font-size: 12pt; font-family: 標楷體; margin-bottom: 10px; }"
+				+ ".ntutlogo {width: 70%; height: auto; display: none; position: fixed; top: 50%; transform: translateY(-50%); opacity: 0.3; z-index: 50;}"
+				+ ".watermark { display: none;  margin-left: 5vw; position: fixed; bottom: 20px; right: 20px; z-index: 50; opacity: 0.8;}"
+				+ " h2 { margin: 10px; font-family: 標楷體; font-size: 20pt; text-align: center; font-weight: normal; }"
+				+ "</style>"
+				+ "</head>"
+				+ "<body>"
+				+ "<button id='printBtn'>列印成績單&PDF檔</button>"
+				+ "<h2>國立臺北科技大學學生成績單</h2>"
+				+ "<h3>" + semesterText + "</h3>"
+				+ "<h3 class='student-info'>姓名：" + stuName + "</h3>"
+			    + "<h3 class='student-info'>學號：" + stuRgno + "</h3>"
+			    + "<h3 class='student-info'>班級：" + stuClass + "</h3>"
+				+ semesterContent.replace(/<img[^>]*>/g, '')
+// 				+ "<div class='student-info'>班級：" + studentClass + "</div>"
+				
+				+ "<img src='image/ntut_logo-removebg-preview.png' id='ntutlogo' class='ntutlogo'>"
+				+ "<img src='image/seal_matting-removebg-preview.png' id='watermark' class='watermark'>"
+				
+				+ "</body>" + "</html>";
+
+		// 寫進新視窗
+		newWindow.document.write(newWindowContent);
+
+		// 設定script(設定浮水印在列印模式時顯示，列印按鈕隱藏)
+		var scriptElement = newWindow.document.createElement('script');
+		scriptElement.textContent = "document.getElementById('printBtn').addEventListener('click', function() {"
+				+ "   document.getElementById('watermark').style.display = 'block';"
+				+ "   document.getElementById('ntutlogo').style.display = 'block';"
+				+ "   document.getElementById('ntutlogo').style.display = 'block';"
+				+ "   history.pushState({}, '', '/');"
+				+ "   this.style.display = 'none';"
+				+ "   window.print();"
+				+ "});"
+				+ "window.onafterprint = function() {"
+				+ "   document.getElementById('watermark').style.display = 'none';"
+				+ "   document.getElementById('ntutlogo').style.display = 'none';"
+				+ "   document.getElementById('printBtn').style.display = 'block';"
+				+ "};";
+		newWindow.document.body.appendChild(scriptElement);
+	}
+</script>
+  <br>
+<form action='StuScorePDF' method='get'><img src='./image/or_ball.gif'><input type='submit' value='113 學年度 第 1 學期 (2024 - Fall)'  style='border: 0; display: inline; font-size: 1.17em; margin-block-start: 1em; margin-block-end: 1em; margin-inline-start: 0px;  margin-inline-end: 0px; font-weight: bold; unicode-bidi: isolate; background-color: unset; cursor: pointer; color: currentColor;  font-family: auto;'/><input type='hidden' name='sbj_year' value='113'/><input type='hidden' name='sbj_sem' value='1'/></form>
+<table border=1 BGCOLOR=#CCFFFF>
+
+<tr><th BGCOLOR=99FF99>課　號<br>Course Number <th BGCOLOR=99FF99>修<br>Required or Elective<th BGCOLOR=99FF99>課 程 名 稱<th BGCOLOR=99FF99>English Course Name<th BGCOLOR=99FF99>課程編碼<br>Course Code<th BGCOLOR=99FF99>階段<br>Stage<th BGCOLOR=99FF99>學分<br>Credits<th BGCOLOR=99FF99>成績<br>Score<th BGCOLOR=99FF99>備  註<br>Remarks
+<tr><th align=Right>334222
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5902206">資料庫系統</a>
+    <th align=Left>Database Systems
+    <th align=Center>5902206
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 69
+    <td>電子三甲
+<tr><th align=Right>334223
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903203">計算機網路</a>
+    <th align=Left>Computer Networks
+    <th align=Center>5903203
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 78
+    <td>電子三甲
+<tr><th align=Right>334224
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903204">實務專題(一)</a>
+    <th align=Left>Special Project(I)
+    <th align=Center>5903204
+    <th align=Center>1
+    <th align=Center>1.0<font color=red></font>
+    <th align=Right> 81
+    <td>電子三甲
+<tr><th align=Right>334225
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903210">專題討論</a>
+    <th align=Left>Undergraduate Seminars
+    <th align=Center>5903210
+    <th align=Center>1
+    <th align=Center>1.0<font color=red></font>
+    <th align=Right> 81
+    <td>電子三甲
+<tr><th align=Right>334227
+    <th>選<BR>Elective
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903301">視窗程式設計</a>
+    <th align=Left>Windows Programming
+    <th align=Center>5903301
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 88
+    <td>電子三甲
+<tr><th align=Right>335221
+    <th>必<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1400102">大學入門與工程倫理</a>
+    <th align=Left>First step to achieving the goals of universities and Engineering Ethics
+    <th align=Center>1400102
+    <th align=Center>1
+    <th align=Center>1.0<font color=red></font>
+    <th align=Right> 85
+    <td>電子一乙
+<tr><th align=Right>337847
+    <th>選<BR>Elective
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5904310">資訊安全</a>
+    <th align=Left>Information Security
+    <th align=Center>5904310
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 89
+    <td>電子三甲
+<tr><th align=Right>337848
+    <th>選<BR>Elective
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5904315">人工智慧</a>
+    <th align=Left>Artificial Intelligence
+    <th align=Center>5904315
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> 87
+    <td>電子三甲
+<tr><th align=Right>337849
+    <th>選<BR>Elective
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903329">教育數據探勘與應用</a>
+    <th align=Left>Educational Data Mining and Applications
+    <th align=Center>5903329
+    <th align=Center>1
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right> Ｗ
+    <td>電子三甲
+<tr><th align=Right>338976
+    <th>通<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1414003">資訊法律</a>
+    <th align=Left>Information Laws
+    <th align=Center>1414003
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 89
+    <td>博雅課程(四)
+<tr><th align=Right>339004
+    <th>通<BR>Required
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1416002">現代科技概論</a>
+    <th align=Left>Introduction to Modern Technology
+    <th align=Center>1416002
+    <th align=Center>1
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right> 83
+    <td>博雅課程(七)
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1001002">體育</a>
+    <th align=Left>Physical Education
+    <th align=Center>1001002
+    <th align=Center>1
+    <th align=Center>0.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：運動與健康一
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1001002">體育</a>
+    <th align=Left>Physical Education
+    <th align=Center>1001002
+    <th align=Center>2
+    <th align=Center>0.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：運動與健康二
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1001002">體育</a>
+    <th align=Left>Physical Education
+    <th align=Center>1001002
+    <th align=Center>3
+    <th align=Center>0.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：體育三 游泳AC
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1400038">英文溝通與應用(一)</a>
+    <th align=Left>English Communication and Application I (ECA Courses)
+    <th align=Center>1400038
+    <th align=Center>全
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：大一英文(二)進階級　大一英文(一)進階級
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1400099">服務學習</a>
+    <th align=Left>Service Learning
+    <th align=Center>1400099
+    <th align=Center>全
+    <th align=Center>0.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：服務學習一
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1400100">勞作教育</a>
+    <th align=Left>Campus Custodial Services
+    <th align=Center>1400100
+    <th align=Center>全
+    <th align=Center>0.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：服務學習二
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1401032">微積分</a>
+    <th align=Left>Calculus
+    <th align=Center>1401032
+    <th align=Center>全
+    <th align=Center>6.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：微積分一　微積分二
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1401043">物理實驗</a>
+    <th align=Left>Physics Lab.
+    <th align=Center>1401043
+    <th align=Center>全
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：普通物理實驗二　普通物理實驗一
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1404006">國文</a>
+    <th align=Left>Chinese
+    <th align=Center>1404006
+    <th align=Center>全
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：中文閱讀與寫作一
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1404007">國語文實務應用</a>
+    <th align=Left>Practical Application of Chinese Language
+    <th align=Center>1404007
+    <th align=Center>全
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：中文閱讀與寫作二
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1410098">解讀電影</a>
+    <th align=Left>Understand Movies
+    <th align=Center>1410098
+    <th align=Center>全
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：電影製作藝術
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1415001">經濟學概論</a>
+    <th align=Left>Introduction to Economics
+    <th align=Center>1415001
+    <th align=Center>全
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：經濟學概論
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=1416009">環境與自然保育</a>
+    <th align=Left>Environment and Conservation
+    <th align=Center>1416009
+    <th align=Center>全
+    <th align=Center>2.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：全球環境變遷與永續發展
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5901201">離散數學</a>
+    <th align=Left>Discrete Mathematics
+    <th align=Center>5901201
+    <th align=Center>全
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：離散數學
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5901202">計算機概論</a>
+    <th align=Left>Introduction to Computer Science
+    <th align=Center>5901202
+    <th align=Center>全
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：計算機概論
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5901205">線性代數</a>
+    <th align=Left>Linear Algebra
+    <th align=Center>5901205
+    <th align=Center>全
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：線性代數
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5901207">數位邏輯設計</a>
+    <th align=Left>Digital Logic Design
+    <th align=Center>5901207
+    <th align=Center>全
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：數位邏輯設計　數位邏輯設計實驗
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5901209">計算機程式設計(一)</a>
+    <th align=Left>Computer Programming(Ⅰ)
+    <th align=Center>5901209
+    <th align=Center>全
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：程式設計一
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5901212">物理</a>
+    <th align=Left>Physics
+    <th align=Center>5901212
+    <th align=Center>全
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：普通物理一
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5901213">數位邏輯設計實習</a>
+    <th align=Left>Digital Logic Design Lab.
+    <th align=Center>5901213
+    <th align=Center>全
+    <th align=Center>1.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：數位邏輯設計實驗
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5902201">資料結構</a>
+    <th align=Left>Data Structure
+    <th align=Center>5902201
+    <th align=Center>全
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：資料結構
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5902204">計算機組織</a>
+    <th align=Left>Computer Organization
+    <th align=Center>5902204
+    <th align=Center>全
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：計算機組織與組合語言
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5902304">計算機演算法</a>
+    <th align=Left>Computer Algorithms
+    <th align=Center>5902304
+    <th align=Center>全
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：演算法
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903201">機率</a>
+    <th align=Left>Probability
+    <th align=Center>5903201
+    <th align=Center>全
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：機率
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5903322">網頁程式設計</a>
+    <th align=Left>Web Programming
+    <th align=Center>5903322
+    <th align=Center>全
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：互動式網頁設計
+<tr><th align=Right>　
+    <th>　<BR>　
+    <th align=Left><a href="http://aps.ntut.edu.tw/course/tw/Curr.jsp?format=-2&code=5904305">編譯器原理</a>
+    <th align=Left>Compilers
+    <th align=Center>5904305
+    <th align=Center>全
+    <th align=Center>3.0<font color=red></font>
+    <th align=Right>抵免
+    <th align=Left>原修讀課程：程式語言與編譯器
+<tr><th colspan=9>
+<tr><th colspan=9 BGCOLOR=FFCCCC>學　期　成　績<br>This Semester Score
+<tr><th colspan=2 BGCOLOR=99FF99>總 平 均<br>Average<td colspan=7 align=center>82.4
+<tr><th colspan=2 BGCOLOR=99FF99>操行成績<br> Conduct<td colspan=7 align=center>83
+<tr><th colspan=2 BGCOLOR=99FF99>修習總學分數<br>Total Credits<td colspan=7 align=center>22.0
+<tr><th colspan=2 BGCOLOR=99FF99>實得學分數<br>Credits Passed<td colspan=7 align=center>79.0
+<tr><th colspan=2 BGCOLOR=99FF99>備註<br>Note<td colspan=7 align=center>　
+</table>
+<P>說明：Ｎ : 未輸入　Ｗ : 撤選　＃ : 未送成績　Ｐ : 通過　Ｆ : 不通過　<font color=red>#表示全英語授課課程(EMI)</font><br>
+Notes：N：Not entered ; W：Withdraw ; #：Undelivered ; P：Pass ; F：Fail ; <font color=red>#：English as a Medium of Instruction</font></P>
+
+<P><font color=red>※本成績查詢頁面僅供參考之用，同學之學期成績以教務處印製之學期成績單為準。<br>
+※The above information is for reference only. Semester grades are based on the official transcript printed by Office of Academic Affairs.</font></P>
+
+<script>
+	// 113.04.10 顯示點擊的學期成績資料
+	function showSemester(semesterId) {
+		var semesterContent = document.getElementById(semesterId).innerHTML;
+		var stuName = '王大同';
+		var stuRgno = '111590001';
+		var semesterText = '113' + " 學年度 第 " + '1'
+		  + " 學期 (" + '2024' + " - " + 'Fall' + ") ";
+		var stuClass = '電子三甲';
+		
+		// 開一個新視窗
+		var newWindow = window.open("", "_blank");
+		// 設定新視窗內容
+		var newWindowContent = "<!DOCTYPE html>"
+				+ "<html lang='en'>"
+				+ "<head>"
+				+ "<meta charset='UTF-8'>"
+				+ "<title>"
+				+ semesterId
+				+ "</title>"
+				+ "<style>"
+				+ "a { color: black; text-decoration: none; } "
+				+ "table { border-collapse: collapse; }"
+				+ "#printBtn { margin-top: 20px; }"
+				+ "body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; flex-direction: column; }"
+				+ "h3 { margin-block-start: 0; margin-block-end: 10px; font-family: 標楷體; font-size: 12pt; text-align: center; font-weight: normal;}"
+				+ ".student-info { text-align: left; width: 100%; font-size: 12pt; font-family: 標楷體; margin-bottom: 10px; }"
+				+ ".ntutlogo {width: 70%; height: auto; display: none; position: fixed; top: 50%; transform: translateY(-50%); opacity: 0.3; z-index: 50;}"
+				+ ".watermark { display: none;  margin-left: 5vw; position: fixed; bottom: 20px; right: 20px; z-index: 50; opacity: 0.8;}"
+				+ " h2 { margin: 10px; font-family: 標楷體; font-size: 20pt; text-align: center; font-weight: normal; }"
+				+ "</style>"
+				+ "</head>"
+				+ "<body>"
+				+ "<button id='printBtn'>列印成績單&PDF檔</button>"
+				+ "<h2>國立臺北科技大學學生成績單</h2>"
+				+ "<h3>" + semesterText + "</h3>"
+				+ "<h3 class='student-info'>姓名：" + stuName + "</h3>"
+			    + "<h3 class='student-info'>學號：" + stuRgno + "</h3>"
+			    + "<h3 class='student-info'>班級：" + stuClass + "</h3>"
+				+ semesterContent.replace(/<img[^>]*>/g, '')
+// 				+ "<div class='student-info'>班級：" + studentClass + "</div>"
+				
+				+ "<img src='image/ntut_logo-removebg-preview.png' id='ntutlogo' class='ntutlogo'>"
+				+ "<img src='image/seal_matting-removebg-preview.png' id='watermark' class='watermark'>"
+				
+				+ "</body>" + "</html>";
+
+		// 寫進新視窗
+		newWindow.document.write(newWindowContent);
+
+		// 設定script(設定浮水印在列印模式時顯示，列印按鈕隱藏)
+		var scriptElement = newWindow.document.createElement('script');
+		scriptElement.textContent = "document.getElementById('printBtn').addEventListener('click', function() {"
+				+ "   document.getElementById('watermark').style.display = 'block';"
+				+ "   document.getElementById('ntutlogo').style.display = 'block';"
+				+ "   document.getElementById('ntutlogo').style.display = 'block';"
+				+ "   history.pushState({}, '', '/');"
+				+ "   this.style.display = 'none';"
+				+ "   window.print();"
+				+ "});"
+				+ "window.onafterprint = function() {"
+				+ "   document.getElementById('watermark').style.display = 'none';"
+				+ "   document.getElementById('ntutlogo').style.display = 'none';"
+				+ "   document.getElementById('printBtn').style.display = 'block';"
+				+ "};";
+		newWindow.document.body.appendChild(scriptElement);
+	}
+</script>
+  
+<Center><Font size=4 color=red></Font></Center>
+
+<P>備註：</P>
+<OL>
+<LI>本資料係由本校教務處、進修部、進修學院及計網中心所共同提供。</LI>
+<LI>本資料僅供參考，不作其他證明之用，正式資料仍以教務處、進修部、進修學院所登錄之書面資料為準。</LI>
+<LI>對於上述資料，如有任何疑義，請備妥相關證明文件至各部處成績管理單位查詢。</LI>
+</OL>
+
+<P>Remarks :</P>
+<OL>
+<LI>The above information is for reference only. Official information is based on Office of Academic Affairs, 
+    Office of Continuing Education and Computer and Network Center.</LI>
+<LI>If have any question for academic performance, please inquire about relevant administration units of 
+    the Office of Academic Affairs (day school students) or the Office of Continuing Education (night school students)</LI>
+</OL>
+
+</BODY>
+</HTML>
