@@ -21,6 +21,11 @@ inputs:
     description: 'owner/repo'
     required: false
     default: ${{ github.repository }}
+  model:
+    description: 'Google Gemini model to use'
+    required: false
+    default: 'gemini-3.5-flash'
+
 
 outputs:
   changelog:
@@ -43,6 +48,7 @@ runs:
         BASE: ${{ inputs.last_sha }}
         HEAD_REF: ${{ inputs.head_ref }}
         FALLBACK: ${{ inputs.fallback_message }}
+        MODEL: ${{ inputs.model }}
       run: |
         set -uo pipefail
 
@@ -181,7 +187,7 @@ runs:
 
         OUT=$(mktemp)
         CODE=$(curl -sS -o "$OUT" -w '%{http_code}' --max-time 60 \
-          -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=$GEMINI_API_KEY" \
+          -X POST "https://generativelanguage.googleapis.com/v1beta/models/$MODEL:generateContent?key=$GEMINI_API_KEY" \
           -H "Content-Type: application/json" \
           -d "$REQ" || echo "000")
 
