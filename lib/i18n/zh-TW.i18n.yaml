@@ -218,11 +218,11 @@ about:
   openSourceLicenses: 開放原始碼授權
   viewOpenSourceLicenses: TAT的實作歸功於開放原始碼社群
   copyright: © 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出
-experiments:
-  title: 實驗功能
+regedit:
+  title: 登錄編輯程式
   fetch: 從遠端獲取
-  noExperiment: 沒有實驗功能
-  refreshed: 實驗功能已更新
+  noRegistry: 沒有登錄項目
+  refreshed: 登錄檔已更新
   reset: 重設為預設值
   status:
     local: 預設值

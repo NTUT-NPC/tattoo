@@ -9,8 +9,8 @@ import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/kiosk_login/kiosk_login_qr_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
-import 'package:tattoo/screens/main/profile/experiments_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
+import 'package:tattoo/screens/main/profile/regedit_screen.dart';
 import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
@@ -32,7 +32,7 @@ abstract class AppRoutes {
   static const about = '/about';
   static const scanner = '/scanner';
   static const kioskLoginQr = '/kiosk-login-qr';
-  static const experiments = '/experiments';
+  static const regedit = '/regedit';
 }
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
@@ -87,8 +87,8 @@ GoRouter createAppRouter({
       builder: (context, state) => const ScannerScreen(),
     ),
     GoRoute(
-      path: AppRoutes.experiments,
-      builder: (context, state) => const ExperimentsScreen(),
+      path: AppRoutes.regedit,
+      builder: (context, state) => const RegeditScreen(),
     ),
     GoRoute(
       path: AppRoutes.portal,

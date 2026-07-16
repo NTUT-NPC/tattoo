@@ -145,12 +145,12 @@ class ProfileDangerZone extends ConsumerWidget {
               borderColor: dangerColor,
               onTap: _triggerNonFlutterCrash,
             ),
-            OptionEntryTile.icon(
-              icon: Icons.science_outlined,
-              title: t.experiments.title,
+            OptionEntryTile.svg(
+              svgIconAsset: 'assets/windows95.svg',
+              title: t.regedit.title,
               color: dangerColor,
               borderColor: dangerColor,
-              onTap: () => context.push(AppRoutes.experiments),
+              onTap: () => context.push(AppRoutes.regedit),
             ),
             OptionEntryTile.icon(
               icon: Icons.cached_outlined,

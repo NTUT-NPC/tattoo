@@ -6,8 +6,8 @@ import 'package:tattoo/screens/main/profile/preference_providers.dart';
 
 /// A screen that displays all preferences and their resolved source, allowing
 /// users (typically developers or testers) to view and override values.
-class ExperimentsScreen extends ConsumerWidget {
-  const ExperimentsScreen({super.key});
+class RegeditScreen extends ConsumerWidget {
+  const RegeditScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,16 +15,16 @@ class ExperimentsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.experiments.title),
+        title: Text(t.regedit.title),
         actions: [
           IconButton(
             icon: const Icon(Icons.cloud_download),
-            tooltip: t.experiments.fetch,
+            tooltip: t.regedit.fetch,
             onPressed: () async {
               await ref.read(preferencesRepositoryProvider).refresh();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(t.experiments.refreshed)),
+                  SnackBar(content: Text(t.regedit.refreshed)),
                 );
               }
             },
@@ -33,7 +33,7 @@ class ExperimentsScreen extends ConsumerWidget {
       ),
       body: prefsAsync.when(
         data: (prefs) => prefs.isEmpty
-            ? Center(child: Text(t.experiments.noExperiment))
+            ? Center(child: Text(t.regedit.noRegistry))
             : _PrefList(prefs: prefs),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text(t.errors.occurred)),
@@ -77,7 +77,7 @@ class _PrefTile extends ConsumerWidget {
 
   /// Toggles boolean preferences or opens an editor for other types.
   void _onTap(BuildContext context, WidgetRef ref) {
-    if (pref.type == .boolean) {
+    if (pref.type == PrefType.boolean) {
       ref
           .read(preferencesRepositoryProvider)
           .set(pref.key, !(pref.value as bool));
@@ -100,7 +100,8 @@ class _PrefTile extends ConsumerWidget {
         content: TextField(
           controller: controller,
           autofocus: true,
-          keyboardType: (pref.type == .integer || pref.type == .double)
+          keyboardType:
+              (pref.type == PrefType.integer || pref.type == PrefType.double)
               ? const TextInputType.numberWithOptions(decimal: true)
               : TextInputType.text,
         ),
@@ -112,10 +113,10 @@ class _PrefTile extends ConsumerWidget {
           TextButton(
             onPressed: () {
               final newValue = switch (pref.type) {
-                .integer => int.tryParse(controller.text),
-                .double => double.tryParse(controller.text),
-                .string => controller.text,
-                .boolean || .stringList => null,
+                PrefType.integer => int.tryParse(controller.text),
+                PrefType.double => double.tryParse(controller.text),
+                PrefType.string => controller.text,
+                PrefType.boolean || PrefType.stringList => null,
               };
 
               if (newValue != null) {
@@ -138,7 +139,7 @@ class _PrefTile extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t.errors.occurred),
-        content: Text(t.experiments.invalidInput),
+        content: Text(t.regedit.invalidInput),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -162,22 +163,22 @@ class _PrefSubtitle extends StatelessWidget {
     final status = _getStatusMetadata();
 
     return Padding(
-      padding: const .only(top: 4),
+      padding: const EdgeInsets.only(top: 4),
       child: Row(
-        mainAxisSize: .min,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const .symmetric(horizontal: 8, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
               color: status.bgColor,
-              borderRadius: .circular(12),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               status.text,
               style: TextStyle(
                 fontSize: 12,
                 color: status.textColor,
-                fontWeight: .w500,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -188,7 +189,7 @@ class _PrefSubtitle extends StatelessWidget {
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyMedium?.color,
               ),
-              overflow: .ellipsis,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -200,22 +201,22 @@ class _PrefSubtitle extends StatelessWidget {
   ({String text, Color bgColor, Color textColor}) _getStatusMetadata() {
     return switch (pref.source) {
       .override => (
-        text: t.experiments.status.localOverride,
+        text: t.regedit.status.localOverride,
         bgColor: Colors.blue.withValues(alpha: 0.15),
         textColor: Colors.blue.shade800,
       ),
       .remote => (
-        text: t.experiments.status.remote,
+        text: t.regedit.status.remote,
         bgColor: Colors.purple.withValues(alpha: 0.15),
         textColor: Colors.purple.shade800,
       ),
       .local => (
-        text: t.experiments.status.local,
+        text: t.regedit.status.local,
         bgColor: Colors.grey.withValues(alpha: 0.2),
         textColor: Colors.grey.shade800,
       ),
       .forced => (
-        text: t.experiments.status.remoteOverride,
+        text: t.regedit.status.remoteOverride,
         bgColor: Colors.red.withValues(alpha: 0.15),
         textColor: Colors.red.shade800,
       ),
@@ -234,16 +235,16 @@ class _PrefTrailingAction extends ConsumerWidget {
     final isOverridden = pref.source == .override;
 
     return Row(
-      mainAxisSize: .min,
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (isOverridden)
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: t.experiments.reset,
+            tooltip: t.regedit.reset,
             onPressed: () =>
                 ref.read(preferencesRepositoryProvider).reset(pref.key),
           ),
-        if (pref.type == .boolean)
+        if (pref.type == PrefType.boolean)
           Switch(
             value: pref.value as bool,
             onChanged: (val) {

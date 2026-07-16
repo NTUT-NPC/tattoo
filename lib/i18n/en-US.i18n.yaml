@@ -218,11 +218,11 @@ about:
   openSourceLicenses: Open Source Licenses
   viewOpenSourceLicenses: TAT's implementation is made possible by the open source community
   copyright: "© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0"
-experiments:
-  title: Experiments
+regedit:
+  title: Registry Editor
   fetch: Fetch from remote
-  noExperiment: No Experiments
-  refreshed: Experiments refreshed
+  noRegistry: No Registry Keys
+  refreshed: Registry refreshed
   reset: Reset to default
   status:
     local: Local Default
