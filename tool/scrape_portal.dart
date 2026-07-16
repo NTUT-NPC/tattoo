@@ -11,7 +11,6 @@ import 'package:html/parser.dart' as hp;
 
 void main(List<String> args) async {
   final parser = ArgParser()
-    ..addOption('username', abbr: 'u', help: 'NTUT portal username (muid)')
     ..addOption(
       'config',
       abbr: 'c',
@@ -56,39 +55,19 @@ void main(List<String> args) async {
     return;
   }
 
-  // Resolve credentials
-  String? username = argResults['username'];
-  username ??=
-      Platform.environment['NTUT_PORTAL_USERNAME'] ??
-      Platform.environment['NTUT_TEST_USERNAME'];
-
-  String? password =
-      Platform.environment['NTUT_PORTAL_PASSWORD'] ??
-      Platform.environment['NTUT_TEST_PASSWORD'];
-
-  if (username == null || password == null) {
-    final configPath = argResults['config'] as String;
-    final configFile = File(configPath);
-    if (configFile.existsSync()) {
-      try {
-        final config =
-            jsonDecode(configFile.readAsStringSync()) as Map<String, dynamic>;
-        username ??= config['NTUT_TEST_USERNAME'];
-        password ??= config['NTUT_TEST_PASSWORD'];
-      } catch (e) {
-        stderr.writeln(
-          'Warning: Failed to parse config file at $configPath: $e',
-        );
-      }
-    }
-  }
+  // Read credentials from the config file.
+  final configPath = argResults['config'] as String;
+  final config =
+      jsonDecode(File(configPath).readAsStringSync()) as Map<String, dynamic>;
+  final username = config['NTUT_TEST_USERNAME'] as String?;
+  final password = config['NTUT_TEST_PASSWORD'] as String?;
 
   if (username == null ||
       username.isEmpty ||
       password == null ||
       password.isEmpty) {
     stderr.writeln(
-      'Error: Credentials are required. Specify them via --username argument, environment variables (NTUT_PORTAL_USERNAME/NTUT_PORTAL_PASSWORD), or in a config file.',
+      'Error: $configPath must contain "NTUT_TEST_USERNAME" and "NTUT_TEST_PASSWORD".',
     );
     exit(1);
   }
