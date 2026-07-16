@@ -157,6 +157,7 @@ void main(List<String> args) async {
   final rows = table.querySelectorAll('tr');
   final scrapedItems = <Map<String, String>>[];
   final seen = <String>{};
+  final activeFolders = <String>{};
 
   final ssoLogAddRegexp = RegExp(
     r"ssoLogAdd\s*\(\s*'([^']+)'\s*,\s*'([^']+)'\s*\)",
@@ -173,6 +174,9 @@ void main(List<String> args) async {
     String apDn,
     String category,
   ) async {
+    // Skip folders already on the current traversal path to avoid cycles.
+    final folderKey = '$rootFolderDn|$apDn';
+    if (!activeFolders.add(folderKey)) return;
     final subUrl =
         'https://nportal.ntut.edu.tw/aptree6List.do?rootFolderDn=${Uri.encodeComponent(rootFolderDn)}&apDn=${Uri.encodeComponent(apDn)}';
     stderr.writeln('Fetching subfolder items: $category...');
@@ -271,6 +275,8 @@ void main(List<String> args) async {
       }
     } catch (e) {
       stderr.writeln('Warning: Failed to fetch subfolder $subUrl: $e');
+    } finally {
+      activeFolders.remove(folderKey);
     }
   }
 
@@ -418,7 +424,7 @@ String _normalizeUrl(String url) {
     final uri = Uri.parse(url);
     if (uri.queryParameters.containsKey('datetime1') ||
         uri.queryParameters.containsKey('thetime')) {
-      final params = Map<String, String>.from(uri.queryParameters)
+      final params = Map<String, List<String>>.from(uri.queryParametersAll)
         ..remove('datetime1')
         ..remove('thetime');
       return uri.replace(queryParameters: params).toString();
