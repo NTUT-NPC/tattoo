@@ -14,12 +14,17 @@ on:
         required: false
         type: string
       include_public_testers:
-        description: 'Upload to external public testers (TestFlight)'
+        description: 'Upload to external public testers (TestFlight & Google Play)'
         required: false
         type: boolean
         default: false
       force_build:
         description: 'Force build even if no changes'
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: 'Dry run (build only, do not upload/release)'
         required: false
         type: boolean
         default: false
@@ -36,7 +41,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      models: read
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number }}
       version_suffix: ${{ steps.version-suffix.outputs.suffix }}
@@ -46,6 +50,7 @@ jobs:
       target_ref: ${{ steps.set-ref.outputs.ref }}
       skip_build: ${{ steps.check-changes.outputs.skip }}
       store_changelog: ${{ steps.changelog.outputs.store_changelog }}
+      dry_run: ${{ inputs.dry_run == true }}
     steps:
       - name: Checkout Actions
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
@@ -118,12 +123,13 @@ jobs:
         uses: ./.github/actions/generate-changelog
         with:
           github_token: ${{ github.token }}
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           last_sha: ${{ steps.check-changes.outputs.last_sha }}
           head_ref: ${{ steps.set-ref.outputs.ref }}
           fallback_message: ${{ steps.summary.outputs.message }}
 
       - name: Find or create pre-release
-        if: steps.check-changes.outputs.skip != 'true'
+        if: steps.check-changes.outputs.skip != 'true' && inputs.dry_run != true
         env:
           GH_TOKEN: ${{ github.token }}
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
@@ -175,8 +181,11 @@ jobs:
       PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      CHANGELOG: ${{ needs.prepare.outputs.store_changelog }}
+      CHANGELOG: |
+        Daily Build ${{ needs.prepare.outputs.date }}
+        ${{ needs.prepare.outputs.store_changelog }}
       FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
+      PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
     timeout-minutes: 30
     steps:
       - name: Checkout code
@@ -193,23 +202,41 @@ jobs:
         id: build
         run: |
           bundle exec fastlane android build_apk
-          bundle exec fastlane android release
+          if [ "${{ needs.prepare.outputs.dry_run }}" = "true" ]; then
+            bundle exec fastlane android release skip_upload_playstore:true skip_upload_firebase:true
+          elif [ "$PUBLIC_TESTERS" != "true" ]; then
+            bundle exec fastlane android release skip_upload_playstore:true
+          else
+            bundle exec fastlane android release
+          fi
           APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" -not -name "*sha1" | head -n 1)
           echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload APK to Release
+        if: needs.prepare.outputs.dry_run != 'true'
         run: gh release upload daily "${{ steps.build.outputs.apk_path }}#tattoo-${{ needs.prepare.outputs.build_number }}-android.apk" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
 
       - name: Write Android Job Summary
+        if: needs.prepare.outputs.dry_run != 'true'
         uses: ./.github/actions/android-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
           type: release
           testing_uri: ${{ steps.build.outputs.testing_uri }}
 
+      - name: Write Dry Run Android Summary
+        if: needs.prepare.outputs.dry_run == 'true'
+        shell: bash
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ### Android (Dry Run)
+          Build **${{ needs.prepare.outputs.build_number }}** successfully compiled but NOT uploaded (dry run option enabled).
+          EOF
+
       - name: Append Android result to pre-release
+        if: needs.prepare.outputs.dry_run != 'true'
         uses: ./.github/actions/append-release-notes
         with:
           github_token: ${{ github.token }}
@@ -248,7 +275,9 @@ jobs:
       PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      CHANGELOG: ${{ needs.prepare.outputs.store_changelog }}
+      CHANGELOG: |
+        Daily Build ${{ needs.prepare.outputs.date }}
+        ${{ needs.prepare.outputs.store_changelog }}
       PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
     timeout-minutes: 30
     steps:
@@ -265,21 +294,37 @@ jobs:
       - name: Build iOS
         id: build
         run: |
-          bundle exec fastlane ios upload_testflight
+          if [ "${{ needs.prepare.outputs.dry_run }}" = "true" ]; then
+            bundle exec fastlane ios upload_testflight skip_upload:true
+          else
+            bundle exec fastlane ios upload_testflight
+          fi
           IPA_PATH=$(find . -maxdepth 2 -name "*.ipa" | head -n 1)
           echo "ipa_path=$IPA_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload iOS to Release
+        if: needs.prepare.outputs.dry_run != 'true'
         run: gh release upload daily "${{ steps.build.outputs.ipa_path }}#tattoo-${{ needs.prepare.outputs.build_number }}-ios.ipa" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
 
       - name: Write iOS Job Summary
+        if: needs.prepare.outputs.dry_run != 'true'
         uses: ./.github/actions/ios-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
 
+      - name: Write Dry Run iOS Summary
+        if: needs.prepare.outputs.dry_run == 'true'
+        shell: bash
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ### iOS (Dry Run)
+          Build **${{ needs.prepare.outputs.build_number }}** successfully compiled but NOT uploaded (dry run option enabled).
+          EOF
+
       - name: Append iOS result to pre-release
+        if: needs.prepare.outputs.dry_run != 'true'
         uses: ./.github/actions/append-release-notes
         with:
           github_token: ${{ github.token }}
