@@ -7,6 +7,7 @@ import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/services/github_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
@@ -62,6 +63,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
   Widget build(BuildContext context) {
     final contributorsAsync = ref.watch(contributorsProvider);
     final packageInfoAsync = ref.watch(packageInfoProvider);
+    final showWeblateButton = ref.pref(PrefKey.showWeblateButton);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -139,14 +141,15 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                             applicationVersion: packageInfoAsync.value ?? '...',
                           ),
                         ),
-                        OptionEntryTile.icon(
-                          icon: Icons.translate,
-                          title: 'Crowdin',
-                          description: t.about.helpTranslate.spaced,
-                          onTap: () => launchUrl(
-                            .parse('https://translate.ntut.club'),
+                        if (showWeblateButton)
+                          OptionEntryTile.icon(
+                            icon: Icons.translate,
+                            title: 'Weblate',
+                            description: t.about.helpTranslate.spaced,
+                            onTap: () => launchUrl(
+                              .parse('https://translate.ntut.app'),
+                            ),
                           ),
-                        ),
                         OptionEntryTile.icon(
                           icon: Icons.privacy_tip,
                           title: t.about.privacyPolicy,

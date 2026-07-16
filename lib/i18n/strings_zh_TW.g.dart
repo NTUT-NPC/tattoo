@@ -54,6 +54,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$kioskLogin$zh_TW kioskLogin = Translations$kioskLogin$zh_TW.internal(_root);
 	late final Translations$enrollmentStatus$zh_TW enrollmentStatus = Translations$enrollmentStatus$zh_TW.internal(_root);
 	late final Translations$about$zh_TW about = Translations$about$zh_TW.internal(_root);
+	late final Translations$regedit$zh_TW regedit = Translations$regedit$zh_TW.internal(_root);
 }
 
 // Path: general
@@ -93,6 +94,9 @@ class Translations$general$zh_TW {
 
 	/// zh-TW: '確定'
 	String get ok => '確定';
+
+	/// zh-TW: '取消'
+	String get cancel => '取消';
 }
 
 // Path: errors
@@ -404,6 +408,9 @@ class Translations$enrollmentStatus$zh_TW {
 
 	/// zh-TW: '退學'
 	String get droppedOut => '退學';
+
+	/// zh-TW: '畢業'
+	String get graduated => '畢業';
 }
 
 // Path: about
@@ -446,6 +453,35 @@ class Translations$about$zh_TW {
 
 	/// zh-TW: '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出'
 	String get copyright => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
+}
+
+// Path: regedit
+class Translations$regedit$zh_TW {
+	Translations$regedit$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '登錄編輯程式'
+	String get title => '登錄編輯程式';
+
+	/// zh-TW: '從遠端獲取'
+	String get fetch => '從遠端獲取';
+
+	/// zh-TW: '沒有登錄項目'
+	String get noRegistry => '沒有登錄項目';
+
+	/// zh-TW: '登錄檔已更新'
+	String get refreshed => '登錄檔已更新';
+
+	/// zh-TW: '重設為預設值'
+	String get reset => '重設為預設值';
+
+	late final Translations$regedit$status$zh_TW status = Translations$regedit$status$zh_TW.internal(_root);
+
+	/// zh-TW: '輸入格式錯誤'
+	String get invalidInput => '輸入格式錯誤';
 }
 
 // Path: intro.features
@@ -829,6 +865,27 @@ class Translations$scanner$guide$zh_TW {
 	String get button => '我知道了';
 }
 
+// Path: regedit.status
+class Translations$regedit$status$zh_TW {
+	Translations$regedit$status$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '預設值'
+	String get local => '預設值';
+
+	/// zh-TW: '雲端設定'
+	String get remote => '雲端設定';
+
+	/// zh-TW: '使用者覆寫'
+	String get localOverride => '使用者覆寫';
+
+	/// zh-TW: '強制覆寫（遠端）'
+	String get remoteOverride => '強制覆寫（遠端）';
+}
+
 // Path: intro.features.courseTable
 class Translations$intro$features$courseTable$zh_TW {
 	Translations$intro$features$courseTable$zh_TW.internal(this._root);
@@ -916,6 +973,7 @@ extension on Translations {
 			'general.copied' => '已複製',
 			'general.back' => '返回',
 			'general.ok' => '確定',
+			'general.cancel' => '取消',
 			'errors.occurred' => '發生錯誤',
 			'errors.flutterError' => '發生Flutter錯誤',
 			'errors.asyncError' => '發生非同步錯誤',
@@ -1071,6 +1129,7 @@ extension on Translations {
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
+			'enrollmentStatus.graduated' => '畢業',
 			'about.description' => 'Project Tattoo (TAT)是國立臺北科技大學(NTUT)的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。',
 			'about.developers' => '開發團隊',
 			'about.helpTranslate' => '幫助我們翻譯TAT!',
@@ -1082,6 +1141,16 @@ extension on Translations {
 			'about.openSourceLicenses' => '開放原始碼授權',
 			'about.viewOpenSourceLicenses' => 'TAT的實作歸功於開放原始碼社群',
 			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
+			'regedit.title' => '登錄編輯程式',
+			'regedit.fetch' => '從遠端獲取',
+			'regedit.noRegistry' => '沒有登錄項目',
+			'regedit.refreshed' => '登錄檔已更新',
+			'regedit.reset' => '重設為預設值',
+			'regedit.status.local' => '預設值',
+			'regedit.status.remote' => '雲端設定',
+			'regedit.status.localOverride' => '使用者覆寫',
+			'regedit.status.remoteOverride' => '強制覆寫（遠端）',
+			'regedit.invalidInput' => '輸入格式錯誤',
 			_ => null,
 		};
 	}

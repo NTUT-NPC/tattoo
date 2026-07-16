@@ -23,13 +23,13 @@
     alt="Works on my machine"
     src="https://img.shields.io/badge/works_on-my_machine-dark_green"
   >
-  <a href="https://translate.ntut.club"><img
-    alt="Crowdin Translation Progress"
-    src="https://badges.crowdin.net/project-tattoo/localized.svg"
+  <a href="https://translate.ntut.app"><img
+    alt="Weblate Translation Progress"
+    src="https://hosted.weblate.org/widget/tattoo/svg-badge.svg"
   ></a>
 </p>
   
-**Help us translate!** We use [Crowdin](https://translate.ntut.club) to manage localizations. Join the project and help us bring Tattoo to your language!
+**Help us translate!** We use [Weblate](https://translate.ntut.app) to manage localizations. Join the project and help us bring Tattoo to your language!
   
 ## What is this?
 

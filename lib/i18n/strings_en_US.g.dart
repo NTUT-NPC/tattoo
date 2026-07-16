@@ -53,6 +53,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$kioskLogin$en_US kioskLogin = _Translations$kioskLogin$en_US._(_root);
 	@override late final _Translations$enrollmentStatus$en_US enrollmentStatus = _Translations$enrollmentStatus$en_US._(_root);
 	@override late final _Translations$about$en_US about = _Translations$about$en_US._(_root);
+	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
 }
 
 // Path: general
@@ -72,6 +73,7 @@ class _Translations$general$en_US extends Translations$general$zh_TW {
 	@override String get copied => 'Copied';
 	@override String get back => 'Back';
 	@override String get ok => 'OK';
+	@override String get cancel => 'Cancel';
 }
 
 // Path: errors
@@ -274,6 +276,7 @@ class _Translations$enrollmentStatus$en_US extends Translations$enrollmentStatus
 	@override String get learning => 'Enrolled';
 	@override String get leaveOfAbsence => 'Leave of Absence';
 	@override String get droppedOut => 'Withdrawn';
+	@override String get graduated => 'Graduated';
 }
 
 // Path: about
@@ -294,6 +297,22 @@ class _Translations$about$en_US extends Translations$about$zh_TW {
 	@override String get openSourceLicenses => 'Open Source Licenses';
 	@override String get viewOpenSourceLicenses => 'TAT\'s implementation is made possible by the open source community';
 	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
+}
+
+// Path: regedit
+class _Translations$regedit$en_US extends Translations$regedit$zh_TW {
+	_Translations$regedit$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Registry Editor';
+	@override String get fetch => 'Fetch from remote';
+	@override String get noRegistry => 'No Registry Keys';
+	@override String get refreshed => 'Registry refreshed';
+	@override String get reset => 'Reset to default';
+	@override late final _Translations$regedit$status$en_US status = _Translations$regedit$status$en_US._(_root);
+	@override String get invalidInput => 'Invalid input';
 }
 
 // Path: intro.features
@@ -533,6 +552,19 @@ class _Translations$scanner$guide$en_US extends Translations$scanner$guide$zh_TW
 	@override String get button => 'Got it';
 }
 
+// Path: regedit.status
+class _Translations$regedit$status$en_US extends Translations$regedit$status$zh_TW {
+	_Translations$regedit$status$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get local => 'Local Default';
+	@override String get remote => 'Remote Config';
+	@override String get localOverride => 'User Override';
+	@override String get remoteOverride => 'Forced (Remote)';
+}
+
 // Path: intro.features.courseTable
 class _Translations$intro$features$courseTable$en_US extends Translations$intro$features$courseTable$zh_TW {
 	_Translations$intro$features$courseTable$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -598,6 +630,7 @@ extension on TranslationsEnUs {
 			'general.copied' => 'Copied',
 			'general.back' => 'Back',
 			'general.ok' => 'OK',
+			'general.cancel' => 'Cancel',
 			'errors.occurred' => 'An error occurred',
 			'errors.flutterError' => 'A Flutter error occurred',
 			'errors.asyncError' => 'An async error occurred',
@@ -753,6 +786,7 @@ extension on TranslationsEnUs {
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
 			'enrollmentStatus.droppedOut' => 'Withdrawn',
+			'enrollmentStatus.graduated' => 'Graduated',
 			'about.description' => 'Project Tattoo (TAT) is an unofficial campus life assistant for National Taipei University of Technology (NTUT). Our goal is to provide a better student experience through a modern and user-friendly interface.',
 			'about.developers' => 'Developers',
 			'about.helpTranslate' => 'Help us translate TAT!',
@@ -764,6 +798,16 @@ extension on TranslationsEnUs {
 			'about.openSourceLicenses' => 'Open Source Licenses',
 			'about.viewOpenSourceLicenses' => 'TAT\'s implementation is made possible by the open source community',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
+			'regedit.title' => 'Registry Editor',
+			'regedit.fetch' => 'Fetch from remote',
+			'regedit.noRegistry' => 'No Registry Keys',
+			'regedit.refreshed' => 'Registry refreshed',
+			'regedit.reset' => 'Reset to default',
+			'regedit.status.local' => 'Local Default',
+			'regedit.status.remote' => 'Remote Config',
+			'regedit.status.localOverride' => 'User Override',
+			'regedit.status.remoteOverride' => 'Forced (Remote)',
+			'regedit.invalidInput' => 'Invalid input',
 			_ => null,
 		};
 	}
