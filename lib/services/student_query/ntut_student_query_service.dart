@@ -334,7 +334,7 @@ class NtutStudentQueryService implements StudentQueryService {
       final className = _parseCellText(cells[1]);
       final enrollmentStatus = _parseEnrollmentStatus(_parseCellText(cells[2]));
       final registered = cells[3].text.contains('※');
-      final graduated = cells[4].text.contains('※');
+      final graduated = cells[4].text.contains('◎');
 
       // Tutor names are <a> links to CourseService's Teach.jsp with ?code=teacherId
       final tutors = cells[5].querySelectorAll('a').map((a) {

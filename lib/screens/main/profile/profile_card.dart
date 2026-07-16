@@ -134,8 +134,10 @@ class ProfileContent extends StatelessWidget {
                 right: width * 0.095,
                 top: height * 0.018,
                 child: Text(
-                  registration?.enrollmentStatus?.toLabel() ??
-                      t.general.student,
+                  registration?.graduated == true
+                      ? t.enrollmentStatus.graduated
+                      : (registration?.enrollmentStatus?.toLabel() ??
+                            t.general.student),
                   textAlign: .left,
                   style: textTheme.bodyMedium?.copyWith(
                     color: Color(0xFF3B3B3B),

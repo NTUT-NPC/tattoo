@@ -14,6 +14,7 @@ abstract class UserRegistrations extends View {
         semesters.term,
         userSemesterSummaries.className,
         userSemesterSummaries.enrollmentStatus,
+        userSemesterSummaries.graduated,
       ]).from(userSemesterSummaries).join([
         innerJoin(
           semesters,
