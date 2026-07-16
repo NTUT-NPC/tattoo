@@ -12,6 +12,7 @@ import 'package:tattoo/database/database.dart';
 import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/firebase_service.dart';
@@ -45,8 +46,6 @@ Future<void> main() async {
       log(e.toString(), name: 'Firebase Initialization');
     }
   }
-
-  final container = ProviderContainer();
 
   void showErrorDialog(
     Object error, {
@@ -118,6 +117,11 @@ Future<void> main() async {
   firebaseService.analytics?.logAppOpen();
 
   await LocaleSettings.useDeviceLocale();
+
+  final container = ProviderContainer();
+
+  // Initialize Remote Config and preference defaults
+  await container.read(preferencesRepositoryProvider).init();
 
   final database = container.read(databaseProvider);
   final user = await database.select(database.users).getSingleOrNull();
