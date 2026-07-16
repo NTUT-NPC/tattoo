@@ -63,7 +63,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
   Widget build(BuildContext context) {
     final contributorsAsync = ref.watch(contributorsProvider);
     final packageInfoAsync = ref.watch(packageInfoProvider);
-    final showCrowdinButton = ref.pref(PrefKey.showCrowdinButton);
+    final showWeblateButton = ref.pref(PrefKey.showWeblateButton);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -141,13 +141,13 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                             applicationVersion: packageInfoAsync.value ?? '...',
                           ),
                         ),
-                        if (showCrowdinButton)
+                        if (showWeblateButton)
                           OptionEntryTile.icon(
                             icon: Icons.translate,
-                            title: 'Crowdin',
+                            title: 'Weblate',
                             description: t.about.helpTranslate.spaced,
                             onTap: () => launchUrl(
-                              .parse('https://translate.ntut.club'),
+                              .parse('https://translate.ntut.app'),
                             ),
                           ),
                         OptionEntryTile.icon(
