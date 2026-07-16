@@ -127,6 +127,7 @@ jobs:
           last_sha: ${{ steps.check-changes.outputs.last_sha }}
           head_ref: ${{ steps.set-ref.outputs.ref }}
           fallback_message: ${{ steps.summary.outputs.message }}
+          model: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash' }}
 
       - name: Find or create pre-release
         if: steps.check-changes.outputs.skip != 'true' && inputs.dry_run != true
