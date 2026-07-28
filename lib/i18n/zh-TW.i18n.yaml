@@ -33,11 +33,11 @@ intro:
 login:
   welcomeLine1: 歡迎加入
   welcomeLine2: 北科生活
-  instruction(rich): "請使用${portalLink(北科校園入口網站)}的帳號密碼登入。"
+  instruction(rich): 請使用${portalLink(北科校園入口網站)}的帳號密碼登入。
   studentId: 學號
   password: 密碼
   loginButton: 登入
-  privacyNotice(rich): "登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的${privacyPolicy(隱私條款)}"
+  privacyNotice(rich): 登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的${privacyPolicy(隱私條款)}
   errors:
     emptyFields: 請填寫學號與密碼
     useStudentId: 請直接使用學號登入，不要使用電子郵件
@@ -146,7 +146,7 @@ profile:
     fireMessage: 酒吧陷入火海
     barOpen: 酒吧開門了
     barClosed: 酒吧倒閉了
-    goAction: "去酒吧${action}"
+    goAction: 去酒吧${action}
     actions:
       - 點0杯啤酒
       - 點999999999杯啤酒
@@ -187,13 +187,13 @@ scanner:
     '205': 已登入，要切換使用者必須先登出網頁
     '206': QR code已過期，請在電腦上重新整理頁面
     unknown: 登入失敗，請確認 QR code 是否正確或從電腦頁面刷新
-  howTo: "在電腦開啟i.ntut.club並點選QR code登入"
+  howTo: 在電腦開啟i.ntut.club並點選QR code登入
   guide:
     title: 如何掃碼登入？
-    step1: "1. 電腦前往下列網址："
+    step1: 1. 電腦前往下列網址：
     url: https://i.ntut.club
-    step2: "2. 點擊導覽列的「外校人士登入」"
-    step3: "3. 點擊「QR Code 登入」"
+    step2: 2. 點擊導覽列的「外校人士登入」
+    step3: 3. 點擊「QR Code 登入」
     button: 我知道了
   invalidUrl: 無效的網址
 kioskLogin:

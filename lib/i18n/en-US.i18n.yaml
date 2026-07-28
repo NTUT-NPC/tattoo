@@ -33,11 +33,11 @@ intro:
 login:
   welcomeLine1: Welcome to
   welcomeLine2: Campus Life
-  instruction(rich): "Sign in with your ${portalLink(NTUT Portal)} account credentials."
+  instruction(rich): Sign in with your ${portalLink(NTUT Portal)} account credentials.
   studentId: Student ID
   password: Password
   loginButton: Sign In
-  privacyNotice(rich): "Your credentials are stored securely on your device\nBy signing in, you agree to our ${privacyPolicy(Privacy Policy)}."
+  privacyNotice(rich): Your credentials are stored securely on your device\nBy signing in, you agree to our ${privacyPolicy(Privacy Policy)}.
   errors:
     emptyFields: Please enter your student ID and password
     useStudentId: Please use your student ID to sign in, not an email address
@@ -146,7 +146,7 @@ profile:
     fireMessage: Bar is on fire
     barOpen: The bar is now open
     barClosed: The bar has closed down
-    goAction: "Go to the bar and ${action}"
+    goAction: Go to the bar and ${action}
     actions:
       - order 0 beers
       - order 999999999 beers
@@ -160,7 +160,7 @@ profile:
     clearPreferences: Clear Preferences
     clearCredentials: Clear Credentials
     clearUserData: Clear User Data
-    cleared: "${item} cleared"
+    cleared: ${item} cleared
     clearFailed: Failed to clear ${item}
     items:
       cache: Cache
@@ -187,7 +187,7 @@ scanner:
     '205': Already logged in. Log out from the portal first to switch users.
     '206': The QR code has expired. Please refresh the page on your computer.
     unknown: Login failed. Please check the QR code or refresh the page.
-  howTo: "Open i.ntut.club on your computer and select QR code login"
+  howTo: Open i.ntut.club on your computer and select QR code login
   guide:
     title: How to login?
     step1: "1. Go to the following URL on your computer:"
@@ -218,7 +218,7 @@ about:
   viewPrivacyPolicy: View our privacy policy
   openSourceLicenses: Open Source Licenses
   viewOpenSourceLicenses: TAT's implementation is made possible by the open source community
-  copyright: "© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0"
+  copyright: © 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0
 regedit:
   title: Registry Editor
   fetch: Fetch from remote

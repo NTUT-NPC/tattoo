@@ -172,7 +172,7 @@ class Translations$login$zh_TW {
 	/// zh-TW: '登入'
 	String get loginButton => '登入';
 
-	/// zh-TW: '登入資訊將被安全地儲存在您的裝置中 登入即表示您同意我們的${privacyPolicy(隱私條款)}'
+	/// zh-TW: '登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的${privacyPolicy(隱私條款)}'
 	TextSpan privacyNotice({required InlineSpanBuilder privacyPolicy}) => TextSpan(children: [
 		const TextSpan(text: '登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的'),
 		privacyPolicy('隱私條款'),
