@@ -275,7 +275,7 @@ class _Translations$enrollmentStatus$en_US extends Translations$enrollmentStatus
 	// Translations
 	@override String get learning => 'Enrolled';
 	@override String get leaveOfAbsence => 'Leave of Absence';
-	@override String get droppedOut => 'Withdrawn';
+	@override String get droppedOut => 'Dropped Out';
 	@override String get graduated => 'Graduated';
 }
 
@@ -785,7 +785,7 @@ extension on TranslationsEnUs {
 			'kioskLogin.invalidSsoUrl' => 'The login URL is invalid. Unable to generate the login code.',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
-			'enrollmentStatus.droppedOut' => 'Withdrawn',
+			'enrollmentStatus.droppedOut' => 'Dropped Out',
 			'enrollmentStatus.graduated' => 'Graduated',
 			'about.description' => 'Project Tattoo (TAT) is an unofficial campus life assistant for National Taipei University of Technology (NTUT). Our goal is to provide a better student experience through a modern and user-friendly interface.',
 			'about.developers' => 'Developers',
