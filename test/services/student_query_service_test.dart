@@ -407,5 +407,74 @@ void main() {
         }
       });
     });
+
+    group('getMidtermWarnings', () {
+      test('should fetch midterm warnings without error', () async {
+        final warnings = await studentQueryService.getMidtermWarnings();
+        expect(warnings, isA<List>());
+      });
+    });
+
+    group('getStudentAffairs', () {
+      test('should fetch student affairs data correctly', () async {
+        final affairs = await studentQueryService.getStudentAffairs();
+        expect(affairs.rewardPunishmentSummary, isNotNull);
+        expect(affairs.rewardPunishmentRecords, isA<List>());
+        expect(affairs.attendanceSummary, isNotNull);
+        expect(affairs.attendanceRecords, isA<List>());
+      });
+    });
+
+    group('getStudentLoan', () {
+      test('should fetch student loan records without error', () async {
+        final loans = await studentQueryService.getStudentLoan();
+        expect(loans, isA<List>());
+      });
+    });
+
+    group('getGeneralEducationDimension', () {
+      test('should fetch general education dimensions correctly', () async {
+        final dims = await studentQueryService.getGeneralEducationDimension();
+        expect(dims, isA<List>());
+        for (final d in dims) {
+          expect(d.dimensionZh, isNotEmpty);
+          expect(d.courses, isA<List>());
+        }
+      });
+    });
+
+    group('getEnglishProficiency', () {
+      test('should fetch english proficiency records without error', () async {
+        final records = await studentQueryService.getEnglishProficiency();
+        expect(records, isA<List>());
+      });
+    });
+
+    group('getExamScores', () {
+      test('should fetch exam scores without error', () async {
+        final scores = await studentQueryService.getExamScores();
+        expect(scores, isA<List>());
+        for (final s in scores) {
+          expect(s.examName, isNotEmpty);
+          expect(s.sectionScores, isA<List>());
+        }
+      });
+    });
+
+    group('getContactInfo', () {
+      test('should fetch contact info correctly', () async {
+        final info = await studentQueryService.getContactInfo();
+        expect(info.commuteModes, isA<List<String>>());
+      });
+    });
+
+    group('getGraduationQualifications', () {
+      test('should fetch graduation qualifications without error', () async {
+        final qual = await studentQueryService.getGraduationQualifications();
+        if (qual != null) {
+          expect(qual.details, isA<List>());
+        }
+      });
+    });
   });
 }
