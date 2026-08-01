@@ -6,6 +6,7 @@
     "schedule:monthly"
   ],
   "timezone": "Asia/Taipei",
+  "prHourlyLimit": 0,
   "constraints": {
     "flutter": "3.44.4"
   },
