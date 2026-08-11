@@ -10,6 +10,7 @@ class MockPortalService implements PortalService {
   String? uploadAvatarResult;
   Uri? ssoUrlResult;
   List<CalendarEventDto>? calendarResult;
+  List<PortalApplicationCategoryDto>? applicationCatalogResult;
 
   @override
   Future<UserDto> login(String username, String password) async {
@@ -143,6 +144,45 @@ class MockPortalService implements PortalService {
             content: null,
             ownerName: '學校行事曆',
             creatorName: '教務處',
+          ),
+        ];
+  }
+
+  @override
+  Future<List<PortalApplicationCategoryDto>> getApplicationCatalog() async {
+    return applicationCatalogResult ??
+        [
+          (
+            distinguishedName: 'OU=aa,OU=aproot',
+            name: '教務系統',
+            applications: [
+              (
+                code: PortalServiceCode.courseService.code,
+                name: '課程系統',
+                iconUrl: null,
+              ),
+              (
+                code: PortalServiceCode.iSchoolPlusService.code,
+                name: '北科i學園PLUS（校外連線請用VPN）',
+                iconUrl: null,
+              ),
+            ],
+          ),
+          (
+            distinguishedName: 'OU=sa,OU=aproot',
+            name: '學務系統',
+            applications: [
+              (
+                code: PortalServiceCode.studentQueryService.code,
+                name: '學生查詢專區',
+                iconUrl: null,
+              ),
+              (
+                code: 'sa_010_oauth',
+                name: '學生請假系統',
+                iconUrl: null,
+              ),
+            ],
           ),
         ];
   }

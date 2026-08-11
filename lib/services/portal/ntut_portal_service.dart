@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
+import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
@@ -10,6 +11,10 @@ import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
 
 class NtutPortalService implements PortalService {
+  static final _folderCallPattern = RegExp(
+    r"apPopupSubEip5\('([^']+)','apMap','([^']*)'\)",
+  );
+
   late final Dio _portalDio;
 
   NtutPortalService() {
@@ -272,5 +277,160 @@ class NtutPortalService implements PortalService {
           ),
         )
         .toList();
+  }
+
+  @override
+  Future<List<PortalApplicationCategoryDto>> getApplicationCatalog() async {
+    final response = await _getApplicationPage(queryParameters: {'init': ''});
+    final document = _parseApplicationPage(response.data!);
+    final categories = _parseApplicationCategories(document);
+    if (categories.isEmpty) {
+      throw const FormatException(
+        'No application categories found in NTUT Portal response.',
+      );
+    }
+
+    final result = <PortalApplicationCategoryDto>[];
+    for (final category in categories) {
+      final applications = await _getCategoryApplications(
+        category.distinguishedName,
+        visitedFolders: <String>{},
+      );
+      result.add((
+        distinguishedName: category.distinguishedName,
+        name: category.name,
+        applications: applications,
+      ));
+    }
+    return result;
+  }
+
+  Future<Response<String>> _getApplicationPage({
+    required Map<String, dynamic> queryParameters,
+  }) {
+    return _portalDio.get<String>(
+      'apPopupFull.do',
+      queryParameters: queryParameters,
+      options: Options(
+        responseType: .plain,
+        headers: const {'X-Requested-With': 'XMLHttpRequest'},
+      ),
+    );
+  }
+
+  Document _parseApplicationPage(String html) {
+    final document = parse(html);
+    final text = document.body?.text ?? '';
+    if (document.querySelector('title')?.text.trim() == '請重新登入' ||
+        text.contains('請重新登入') ||
+        text.contains('您目前已和伺服器中斷連線') ||
+        text.contains('You have been disconnected from the server')) {
+      throw const SessionExpiredException('NTUT Portal session expired');
+    }
+    return document;
+  }
+
+  List<({String distinguishedName, String name})> _parseApplicationCategories(
+    Document document,
+  ) {
+    final categories = <({String distinguishedName, String name})>[];
+    final seen = <String>{};
+    for (final anchor in document.querySelectorAll('a.dropdown-item[href]')) {
+      final folder = _parseFolderCall(anchor.attributes['href']);
+      if (folder == null || !seen.add(folder.distinguishedName)) continue;
+      categories.add(folder);
+    }
+    return categories;
+  }
+
+  Future<List<PortalApplicationDto>> _getCategoryApplications(
+    String distinguishedName, {
+    required Set<String> visitedFolders,
+  }) async {
+    if (!visitedFolders.add(distinguishedName)) return const [];
+
+    final response = await _getApplicationPage(
+      queryParameters: {
+        'apView': 'apMap',
+        'apDn': distinguishedName,
+      },
+    );
+    final document = _parseApplicationPage(response.data!);
+    final applications = <PortalApplicationDto>[];
+    final seenCodes = <String>{};
+
+    for (final item in document.querySelectorAll('.apt-icon')) {
+      final application = _parseApplication(
+        item,
+        response.requestOptions.uri,
+      );
+      if (application != null) {
+        if (seenCodes.add(application.code)) applications.add(application);
+        continue;
+      }
+
+      final folder = _parseFolderCall(item.attributes['onclick']);
+      if (folder == null) continue;
+      final nested = await _getCategoryApplications(
+        folder.distinguishedName,
+        visitedFolders: visitedFolders,
+      );
+      for (final application in nested) {
+        if (seenCodes.add(application.code)) applications.add(application);
+      }
+    }
+
+    return applications;
+  }
+
+  PortalApplicationDto? _parseApplication(Element item, Uri responseUri) {
+    Element? link;
+    for (final candidate in item.querySelectorAll('a[href]')) {
+      final href = candidate.attributes['href'];
+      if (href == null) continue;
+      final uri = Uri.tryParse(href);
+      if (uri == null ||
+          (uri.path != 'ssoIndex.do' && uri.path != 'ssoFromOu.do') ||
+          !uri.queryParameters.containsKey('apOu')) {
+        continue;
+      }
+      link = candidate;
+      break;
+    }
+    if (link == null) return null;
+
+    final href = Uri.parse(link.attributes['href']!);
+    final code = href.queryParameters['apOu'];
+    if (code == null || code.isEmpty) return null;
+
+    final name =
+        item
+            .querySelector('[data-bs-original-title]')
+            ?.attributes['data-bs-original-title']
+            ?.trim() ??
+        item.querySelector('[title]')?.attributes['title']?.trim() ??
+        link.text.trim();
+    if (name.isEmpty) return null;
+
+    final iconPath = item.querySelector('img[src]')?.attributes['src'];
+    return (
+      code: code,
+      name: name,
+      iconUrl: iconPath == null || iconPath.isEmpty
+          ? null
+          : responseUri.resolve(iconPath).toString(),
+    );
+  }
+
+  ({String distinguishedName, String name})? _parseFolderCall(
+    String? script,
+  ) {
+    if (script == null) return null;
+    final match = _folderCallPattern.firstMatch(script);
+    if (match == null) return null;
+    return (
+      distinguishedName: match.group(1)!,
+      name: match.group(2)!,
+    );
   }
 }

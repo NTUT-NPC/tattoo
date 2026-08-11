@@ -62,6 +62,33 @@ typedef CalendarEventDto = ({
   String? creatorName,
 });
 
+/// Represents an application exposed by the NTUT Portal application catalog.
+typedef PortalApplicationDto = ({
+  /// Portal SSO target identifier (`apOu`).
+  String code,
+
+  /// Display name supplied by the portal.
+  String name,
+
+  /// Absolute URL of the icon supplied by the portal, when present.
+  String? iconUrl,
+});
+
+/// Represents one top-level NTUT Portal application category.
+///
+/// Nested portal folders are flattened into their top-level category so UI
+/// consumers receive only categories and browser-openable applications.
+typedef PortalApplicationCategoryDto = ({
+  /// LDAP distinguished name used to fetch the category from the portal.
+  String distinguishedName,
+
+  /// Display name supplied by the portal.
+  String name,
+
+  /// Applications in portal display order.
+  List<PortalApplicationDto> applications,
+});
+
 // dart format off
 /// Identification codes for NTUT services used in SSO authentication.
 ///
@@ -178,4 +205,14 @@ abstract interface class PortalService {
     DateTime startDate,
     DateTime endDate,
   );
+
+  /// Fetches every application category and browser-openable application
+  /// available to the current portal account.
+  ///
+  /// Portal folders are traversed recursively. The portal's own bookmark
+  /// state is intentionally not read or changed; favorites in Tattoo are
+  /// app-local data managed by the repository.
+  ///
+  /// Requires an active portal session (call [login] first).
+  Future<List<PortalApplicationCategoryDto>> getApplicationCatalog();
 }

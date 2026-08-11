@@ -77,6 +77,28 @@ enum SnapshotService {
 
 final _presetList = <SnapshotPreset>[
   SnapshotPreset(
+    name: 'portal.application_categories',
+    service: .portal,
+    description: 'NTUT Portal application category page.',
+    includeInAll: true,
+    buildRequest: _simple(.portal, 'apPopupFull.do', query: {'init': ''}),
+  ),
+  SnapshotPreset(
+    name: 'portal.academic_applications',
+    service: .portal,
+    description: 'NTUT Portal academic application list.',
+    includeInAll: true,
+    buildRequest: _simple(
+      .portal,
+      'apPopupFull.do',
+      query: {
+        'apView': 'apMap',
+        'apDn':
+            'OU=aa,OU=aproot,OU=ldaproot,OU=ldapConfig,DC=campus,DC=cnc,DC=ntut,DC=edu,DC=tw',
+      },
+    ),
+  ),
+  SnapshotPreset(
     name: 'student_query.profile',
     service: .studentQuery,
     description: 'Student Query profile page.',

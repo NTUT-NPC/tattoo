@@ -275,5 +275,55 @@ void main() {
         },
       );
     });
+
+    group('getApplicationCatalog', () {
+      test('should return categorized browser-openable applications', () async {
+        await portalService.login(
+          TestCredentials.username,
+          TestCredentials.password,
+        );
+        await respectfulDelay();
+
+        final categories = await portalService.getApplicationCatalog();
+
+        expect(categories, isNotEmpty);
+        final applications = categories
+            .expand((category) => category.applications)
+            .toList();
+        expect(
+          applications,
+          contains(
+            isA<PortalApplicationDto>().having(
+              (application) => application.code,
+              'code',
+              PortalServiceCode.courseService.code,
+            ),
+          ),
+        );
+        expect(
+          applications,
+          contains(
+            isA<PortalApplicationDto>().having(
+              (application) => application.code,
+              'nested English course system code',
+              'en_v_1_oauth',
+            ),
+          ),
+        );
+        final courseSystem = applications.firstWhere(
+          (application) =>
+              application.code == PortalServiceCode.courseService.code,
+        );
+        expect(courseSystem.iconUrl, startsWith('https://app.ntut.edu.tw/'));
+        for (final category in categories) {
+          expect(category.distinguishedName, isNotEmpty);
+          expect(category.name, isNotEmpty);
+          for (final application in category.applications) {
+            expect(application.code, isNotEmpty);
+            expect(application.name, isNotEmpty);
+          }
+        }
+      });
+    });
   });
 }
