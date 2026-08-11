@@ -101,6 +101,77 @@ class Users extends Table with AutoIncrementId, Fetchable {
 
   /// When the academic calendar was last fetched from the portal.
   late final calendarFetchedAt = dateTime().nullable()();
+
+  /// When the portal application catalog was last fetched.
+  late final applicationCatalogFetchedAt = dateTime().nullable()();
+}
+
+/// A top-level application category available to one portal user.
+///
+/// Data source: PortalService.getApplicationCatalog()
+class PortalApplicationCategories extends Table with AutoIncrementId {
+  /// User whose portal account exposed this category.
+  late final user = integer().references(Users, #id, onDelete: .cascade)();
+
+  /// LDAP distinguished name used by the portal to fetch this category.
+  late final distinguishedName = text()();
+
+  /// Category display name supplied by the portal.
+  late final name = text()();
+
+  /// Display order supplied by the portal.
+  late final position = integer()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {user, distinguishedName},
+  ];
+}
+
+/// A browser-openable application in a portal category.
+///
+/// Nested portal folders are flattened by PortalService into their top-level
+/// category before these rows are cached.
+class PortalApplications extends Table with AutoIncrementId {
+  /// Category containing this application.
+  late final category = integer().references(
+    PortalApplicationCategories,
+    #id,
+    onDelete: .cascade,
+  )();
+
+  /// Portal SSO target identifier (`apOu`).
+  late final code = text()();
+
+  /// Application display name supplied by the portal.
+  late final name = text()();
+
+  /// Absolute URL of the portal-provided application icon.
+  late final iconUrl = text().nullable()();
+
+  /// Display order within the category.
+  late final position = integer()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {category, code},
+  ];
+}
+
+/// A user's app-local portal application favorite.
+///
+/// Favorites deliberately reference an application code instead of a cached
+/// [PortalApplications] row. This preserves the preference when a refresh
+/// moves an application to another category or temporarily removes it.
+class PortalApplicationFavorites extends Table {
+  /// User who selected this favorite.
+  late final user = integer().references(Users, #id, onDelete: .cascade)();
+
+  /// Portal SSO target identifier (`apOu`).
+  late final applicationCode = text()();
+
+  @override
+  Set<Column> get primaryKey => {user, applicationCode};
 }
 
 /// Student seen in an I-School Plus course roster.

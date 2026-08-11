@@ -181,6 +181,17 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _applicationCatalogFetchedAtMeta =
+      const VerificationMeta('applicationCatalogFetchedAt');
+  @override
+  late final GeneratedColumn<DateTime> applicationCatalogFetchedAt =
+      GeneratedColumn<DateTime>(
+        'application_catalog_fetched_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -199,6 +210,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     semestersFetchedAt,
     scoreDataFetchedAt,
     calendarFetchedAt,
+    applicationCatalogFetchedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -337,6 +349,15 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         ),
       );
     }
+    if (data.containsKey('application_catalog_fetched_at')) {
+      context.handle(
+        _applicationCatalogFetchedAtMeta,
+        applicationCatalogFetchedAt.isAcceptableOrUnknown(
+          data['application_catalog_fetched_at']!,
+          _applicationCatalogFetchedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -410,6 +431,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}calendar_fetched_at'],
       ),
+      applicationCatalogFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}application_catalog_fetched_at'],
+      ),
     );
   }
 
@@ -477,6 +502,9 @@ class User extends DataClass implements Insertable<User> {
 
   /// When the academic calendar was last fetched from the portal.
   final DateTime? calendarFetchedAt;
+
+  /// When the portal application catalog was last fetched.
+  final DateTime? applicationCatalogFetchedAt;
   const User({
     required this.id,
     this.fetchedAt,
@@ -494,6 +522,7 @@ class User extends DataClass implements Insertable<User> {
     this.semestersFetchedAt,
     this.scoreDataFetchedAt,
     this.calendarFetchedAt,
+    this.applicationCatalogFetchedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -535,6 +564,11 @@ class User extends DataClass implements Insertable<User> {
     }
     if (!nullToAbsent || calendarFetchedAt != null) {
       map['calendar_fetched_at'] = Variable<DateTime>(calendarFetchedAt);
+    }
+    if (!nullToAbsent || applicationCatalogFetchedAt != null) {
+      map['application_catalog_fetched_at'] = Variable<DateTime>(
+        applicationCatalogFetchedAt,
+      );
     }
     return map;
   }
@@ -579,6 +613,10 @@ class User extends DataClass implements Insertable<User> {
       calendarFetchedAt: calendarFetchedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(calendarFetchedAt),
+      applicationCatalogFetchedAt:
+          applicationCatalogFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(applicationCatalogFetchedAt),
     );
   }
 
@@ -612,6 +650,9 @@ class User extends DataClass implements Insertable<User> {
       calendarFetchedAt: serializer.fromJson<DateTime?>(
         json['calendarFetchedAt'],
       ),
+      applicationCatalogFetchedAt: serializer.fromJson<DateTime?>(
+        json['applicationCatalogFetchedAt'],
+      ),
     );
   }
   @override
@@ -634,6 +675,9 @@ class User extends DataClass implements Insertable<User> {
       'semestersFetchedAt': serializer.toJson<DateTime?>(semestersFetchedAt),
       'scoreDataFetchedAt': serializer.toJson<DateTime?>(scoreDataFetchedAt),
       'calendarFetchedAt': serializer.toJson<DateTime?>(calendarFetchedAt),
+      'applicationCatalogFetchedAt': serializer.toJson<DateTime?>(
+        applicationCatalogFetchedAt,
+      ),
     };
   }
 
@@ -654,6 +698,7 @@ class User extends DataClass implements Insertable<User> {
     Value<DateTime?> semestersFetchedAt = const Value.absent(),
     Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
     Value<DateTime?> calendarFetchedAt = const Value.absent(),
+    Value<DateTime?> applicationCatalogFetchedAt = const Value.absent(),
   }) => User(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
@@ -679,6 +724,9 @@ class User extends DataClass implements Insertable<User> {
     calendarFetchedAt: calendarFetchedAt.present
         ? calendarFetchedAt.value
         : this.calendarFetchedAt,
+    applicationCatalogFetchedAt: applicationCatalogFetchedAt.present
+        ? applicationCatalogFetchedAt.value
+        : this.applicationCatalogFetchedAt,
   );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -714,6 +762,9 @@ class User extends DataClass implements Insertable<User> {
       calendarFetchedAt: data.calendarFetchedAt.present
           ? data.calendarFetchedAt.value
           : this.calendarFetchedAt,
+      applicationCatalogFetchedAt: data.applicationCatalogFetchedAt.present
+          ? data.applicationCatalogFetchedAt.value
+          : this.applicationCatalogFetchedAt,
     );
   }
 
@@ -735,7 +786,8 @@ class User extends DataClass implements Insertable<User> {
           ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
           ..write('semestersFetchedAt: $semestersFetchedAt, ')
           ..write('scoreDataFetchedAt: $scoreDataFetchedAt, ')
-          ..write('calendarFetchedAt: $calendarFetchedAt')
+          ..write('calendarFetchedAt: $calendarFetchedAt, ')
+          ..write('applicationCatalogFetchedAt: $applicationCatalogFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -758,6 +810,7 @@ class User extends DataClass implements Insertable<User> {
     semestersFetchedAt,
     scoreDataFetchedAt,
     calendarFetchedAt,
+    applicationCatalogFetchedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -778,7 +831,9 @@ class User extends DataClass implements Insertable<User> {
           other.passwordExpiresInDays == this.passwordExpiresInDays &&
           other.semestersFetchedAt == this.semestersFetchedAt &&
           other.scoreDataFetchedAt == this.scoreDataFetchedAt &&
-          other.calendarFetchedAt == this.calendarFetchedAt);
+          other.calendarFetchedAt == this.calendarFetchedAt &&
+          other.applicationCatalogFetchedAt ==
+              this.applicationCatalogFetchedAt);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -798,6 +853,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<DateTime?> semestersFetchedAt;
   final Value<DateTime?> scoreDataFetchedAt;
   final Value<DateTime?> calendarFetchedAt;
+  final Value<DateTime?> applicationCatalogFetchedAt;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
@@ -815,6 +871,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.semestersFetchedAt = const Value.absent(),
     this.scoreDataFetchedAt = const Value.absent(),
     this.calendarFetchedAt = const Value.absent(),
+    this.applicationCatalogFetchedAt = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
@@ -833,6 +890,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.semestersFetchedAt = const Value.absent(),
     this.scoreDataFetchedAt = const Value.absent(),
     this.calendarFetchedAt = const Value.absent(),
+    this.applicationCatalogFetchedAt = const Value.absent(),
   }) : studentId = Value(studentId),
        nameZh = Value(nameZh),
        avatarFilename = Value(avatarFilename),
@@ -854,6 +912,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<DateTime>? semestersFetchedAt,
     Expression<DateTime>? scoreDataFetchedAt,
     Expression<DateTime>? calendarFetchedAt,
+    Expression<DateTime>? applicationCatalogFetchedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -875,6 +934,8 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (scoreDataFetchedAt != null)
         'score_data_fetched_at': scoreDataFetchedAt,
       if (calendarFetchedAt != null) 'calendar_fetched_at': calendarFetchedAt,
+      if (applicationCatalogFetchedAt != null)
+        'application_catalog_fetched_at': applicationCatalogFetchedAt,
     });
   }
 
@@ -895,6 +956,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<DateTime?>? semestersFetchedAt,
     Value<DateTime?>? scoreDataFetchedAt,
     Value<DateTime?>? calendarFetchedAt,
+    Value<DateTime?>? applicationCatalogFetchedAt,
   }) {
     return UsersCompanion(
       id: id ?? this.id,
@@ -914,6 +976,8 @@ class UsersCompanion extends UpdateCompanion<User> {
       semestersFetchedAt: semestersFetchedAt ?? this.semestersFetchedAt,
       scoreDataFetchedAt: scoreDataFetchedAt ?? this.scoreDataFetchedAt,
       calendarFetchedAt: calendarFetchedAt ?? this.calendarFetchedAt,
+      applicationCatalogFetchedAt:
+          applicationCatalogFetchedAt ?? this.applicationCatalogFetchedAt,
     );
   }
 
@@ -974,6 +1038,11 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (calendarFetchedAt.present) {
       map['calendar_fetched_at'] = Variable<DateTime>(calendarFetchedAt.value);
     }
+    if (applicationCatalogFetchedAt.present) {
+      map['application_catalog_fetched_at'] = Variable<DateTime>(
+        applicationCatalogFetchedAt.value,
+      );
+    }
     return map;
   }
 
@@ -995,7 +1064,1042 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
           ..write('semestersFetchedAt: $semestersFetchedAt, ')
           ..write('scoreDataFetchedAt: $scoreDataFetchedAt, ')
-          ..write('calendarFetchedAt: $calendarFetchedAt')
+          ..write('calendarFetchedAt: $calendarFetchedAt, ')
+          ..write('applicationCatalogFetchedAt: $applicationCatalogFetchedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PortalApplicationCategoriesTable extends PortalApplicationCategories
+    with
+        TableInfo<
+          $PortalApplicationCategoriesTable,
+          PortalApplicationCategory
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PortalApplicationCategoriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _userMeta = const VerificationMeta('user');
+  @override
+  late final GeneratedColumn<int> user = GeneratedColumn<int>(
+    'user',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES users (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _distinguishedNameMeta = const VerificationMeta(
+    'distinguishedName',
+  );
+  @override
+  late final GeneratedColumn<String> distinguishedName =
+      GeneratedColumn<String>(
+        'distinguished_name',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta(
+    'position',
+  );
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    user,
+    distinguishedName,
+    name,
+    position,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'portal_application_categories';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PortalApplicationCategory> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user')) {
+      context.handle(
+        _userMeta,
+        user.isAcceptableOrUnknown(data['user']!, _userMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userMeta);
+    }
+    if (data.containsKey('distinguished_name')) {
+      context.handle(
+        _distinguishedNameMeta,
+        distinguishedName.isAcceptableOrUnknown(
+          data['distinguished_name']!,
+          _distinguishedNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_distinguishedNameMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {user, distinguishedName},
+  ];
+  @override
+  PortalApplicationCategory map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PortalApplicationCategory(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      user: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user'],
+      )!,
+      distinguishedName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}distinguished_name'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+    );
+  }
+
+  @override
+  $PortalApplicationCategoriesTable createAlias(String alias) {
+    return $PortalApplicationCategoriesTable(attachedDatabase, alias);
+  }
+}
+
+class PortalApplicationCategory extends DataClass
+    implements Insertable<PortalApplicationCategory> {
+  /// Auto-incrementing primary key.
+  final int id;
+
+  /// User whose portal account exposed this category.
+  final int user;
+
+  /// LDAP distinguished name used by the portal to fetch this category.
+  final String distinguishedName;
+
+  /// Category display name supplied by the portal.
+  final String name;
+
+  /// Display order supplied by the portal.
+  final int position;
+  const PortalApplicationCategory({
+    required this.id,
+    required this.user,
+    required this.distinguishedName,
+    required this.name,
+    required this.position,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['user'] = Variable<int>(user);
+    map['distinguished_name'] = Variable<String>(distinguishedName);
+    map['name'] = Variable<String>(name);
+    map['position'] = Variable<int>(position);
+    return map;
+  }
+
+  PortalApplicationCategoriesCompanion toCompanion(bool nullToAbsent) {
+    return PortalApplicationCategoriesCompanion(
+      id: Value(id),
+      user: Value(user),
+      distinguishedName: Value(distinguishedName),
+      name: Value(name),
+      position: Value(position),
+    );
+  }
+
+  factory PortalApplicationCategory.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PortalApplicationCategory(
+      id: serializer.fromJson<int>(json['id']),
+      user: serializer.fromJson<int>(json['user']),
+      distinguishedName: serializer.fromJson<String>(json['distinguishedName']),
+      name: serializer.fromJson<String>(json['name']),
+      position: serializer.fromJson<int>(json['position']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'user': serializer.toJson<int>(user),
+      'distinguishedName': serializer.toJson<String>(distinguishedName),
+      'name': serializer.toJson<String>(name),
+      'position': serializer.toJson<int>(position),
+    };
+  }
+
+  PortalApplicationCategory copyWith({
+    int? id,
+    int? user,
+    String? distinguishedName,
+    String? name,
+    int? position,
+  }) => PortalApplicationCategory(
+    id: id ?? this.id,
+    user: user ?? this.user,
+    distinguishedName: distinguishedName ?? this.distinguishedName,
+    name: name ?? this.name,
+    position: position ?? this.position,
+  );
+  PortalApplicationCategory copyWithCompanion(
+    PortalApplicationCategoriesCompanion data,
+  ) {
+    return PortalApplicationCategory(
+      id: data.id.present ? data.id.value : this.id,
+      user: data.user.present ? data.user.value : this.user,
+      distinguishedName: data.distinguishedName.present
+          ? data.distinguishedName.value
+          : this.distinguishedName,
+      name: data.name.present ? data.name.value : this.name,
+      position: data.position.present ? data.position.value : this.position,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortalApplicationCategory(')
+          ..write('id: $id, ')
+          ..write('user: $user, ')
+          ..write('distinguishedName: $distinguishedName, ')
+          ..write('name: $name, ')
+          ..write('position: $position')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, user, distinguishedName, name, position);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PortalApplicationCategory &&
+          other.id == this.id &&
+          other.user == this.user &&
+          other.distinguishedName == this.distinguishedName &&
+          other.name == this.name &&
+          other.position == this.position);
+}
+
+class PortalApplicationCategoriesCompanion
+    extends UpdateCompanion<PortalApplicationCategory> {
+  final Value<int> id;
+  final Value<int> user;
+  final Value<String> distinguishedName;
+  final Value<String> name;
+  final Value<int> position;
+  const PortalApplicationCategoriesCompanion({
+    this.id = const Value.absent(),
+    this.user = const Value.absent(),
+    this.distinguishedName = const Value.absent(),
+    this.name = const Value.absent(),
+    this.position = const Value.absent(),
+  });
+  PortalApplicationCategoriesCompanion.insert({
+    this.id = const Value.absent(),
+    required int user,
+    required String distinguishedName,
+    required String name,
+    required int position,
+  }) : user = Value(user),
+       distinguishedName = Value(distinguishedName),
+       name = Value(name),
+       position = Value(position);
+  static Insertable<PortalApplicationCategory> custom({
+    Expression<int>? id,
+    Expression<int>? user,
+    Expression<String>? distinguishedName,
+    Expression<String>? name,
+    Expression<int>? position,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (user != null) 'user': user,
+      if (distinguishedName != null) 'distinguished_name': distinguishedName,
+      if (name != null) 'name': name,
+      if (position != null) 'position': position,
+    });
+  }
+
+  PortalApplicationCategoriesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? user,
+    Value<String>? distinguishedName,
+    Value<String>? name,
+    Value<int>? position,
+  }) {
+    return PortalApplicationCategoriesCompanion(
+      id: id ?? this.id,
+      user: user ?? this.user,
+      distinguishedName: distinguishedName ?? this.distinguishedName,
+      name: name ?? this.name,
+      position: position ?? this.position,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (user.present) {
+      map['user'] = Variable<int>(user.value);
+    }
+    if (distinguishedName.present) {
+      map['distinguished_name'] = Variable<String>(distinguishedName.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortalApplicationCategoriesCompanion(')
+          ..write('id: $id, ')
+          ..write('user: $user, ')
+          ..write('distinguishedName: $distinguishedName, ')
+          ..write('name: $name, ')
+          ..write('position: $position')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PortalApplicationsTable extends PortalApplications
+    with TableInfo<$PortalApplicationsTable, PortalApplication> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PortalApplicationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<int> category = GeneratedColumn<int>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES portal_application_categories (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _iconUrlMeta = const VerificationMeta(
+    'iconUrl',
+  );
+  @override
+  late final GeneratedColumn<String> iconUrl = GeneratedColumn<String>(
+    'icon_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta(
+    'position',
+  );
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    category,
+    code,
+    name,
+    iconUrl,
+    position,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'portal_applications';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PortalApplication> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+        _codeMeta,
+        code.isAcceptableOrUnknown(data['code']!, _codeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('icon_url')) {
+      context.handle(
+        _iconUrlMeta,
+        iconUrl.isAcceptableOrUnknown(data['icon_url']!, _iconUrlMeta),
+      );
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {category, code},
+  ];
+  @override
+  PortalApplication map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PortalApplication(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}category'],
+      )!,
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      iconUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon_url'],
+      ),
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+    );
+  }
+
+  @override
+  $PortalApplicationsTable createAlias(String alias) {
+    return $PortalApplicationsTable(attachedDatabase, alias);
+  }
+}
+
+class PortalApplication extends DataClass
+    implements Insertable<PortalApplication> {
+  /// Auto-incrementing primary key.
+  final int id;
+
+  /// Category containing this application.
+  final int category;
+
+  /// Portal SSO target identifier (`apOu`).
+  final String code;
+
+  /// Application display name supplied by the portal.
+  final String name;
+
+  /// Absolute URL of the portal-provided application icon.
+  final String? iconUrl;
+
+  /// Display order within the category.
+  final int position;
+  const PortalApplication({
+    required this.id,
+    required this.category,
+    required this.code,
+    required this.name,
+    this.iconUrl,
+    required this.position,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['category'] = Variable<int>(category);
+    map['code'] = Variable<String>(code);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || iconUrl != null) {
+      map['icon_url'] = Variable<String>(iconUrl);
+    }
+    map['position'] = Variable<int>(position);
+    return map;
+  }
+
+  PortalApplicationsCompanion toCompanion(bool nullToAbsent) {
+    return PortalApplicationsCompanion(
+      id: Value(id),
+      category: Value(category),
+      code: Value(code),
+      name: Value(name),
+      iconUrl: iconUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iconUrl),
+      position: Value(position),
+    );
+  }
+
+  factory PortalApplication.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PortalApplication(
+      id: serializer.fromJson<int>(json['id']),
+      category: serializer.fromJson<int>(json['category']),
+      code: serializer.fromJson<String>(json['code']),
+      name: serializer.fromJson<String>(json['name']),
+      iconUrl: serializer.fromJson<String?>(json['iconUrl']),
+      position: serializer.fromJson<int>(json['position']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'category': serializer.toJson<int>(category),
+      'code': serializer.toJson<String>(code),
+      'name': serializer.toJson<String>(name),
+      'iconUrl': serializer.toJson<String?>(iconUrl),
+      'position': serializer.toJson<int>(position),
+    };
+  }
+
+  PortalApplication copyWith({
+    int? id,
+    int? category,
+    String? code,
+    String? name,
+    Value<String?> iconUrl = const Value.absent(),
+    int? position,
+  }) => PortalApplication(
+    id: id ?? this.id,
+    category: category ?? this.category,
+    code: code ?? this.code,
+    name: name ?? this.name,
+    iconUrl: iconUrl.present ? iconUrl.value : this.iconUrl,
+    position: position ?? this.position,
+  );
+  PortalApplication copyWithCompanion(PortalApplicationsCompanion data) {
+    return PortalApplication(
+      id: data.id.present ? data.id.value : this.id,
+      category: data.category.present ? data.category.value : this.category,
+      code: data.code.present ? data.code.value : this.code,
+      name: data.name.present ? data.name.value : this.name,
+      iconUrl: data.iconUrl.present ? data.iconUrl.value : this.iconUrl,
+      position: data.position.present ? data.position.value : this.position,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortalApplication(')
+          ..write('id: $id, ')
+          ..write('category: $category, ')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('iconUrl: $iconUrl, ')
+          ..write('position: $position')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, category, code, name, iconUrl, position);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PortalApplication &&
+          other.id == this.id &&
+          other.category == this.category &&
+          other.code == this.code &&
+          other.name == this.name &&
+          other.iconUrl == this.iconUrl &&
+          other.position == this.position);
+}
+
+class PortalApplicationsCompanion extends UpdateCompanion<PortalApplication> {
+  final Value<int> id;
+  final Value<int> category;
+  final Value<String> code;
+  final Value<String> name;
+  final Value<String?> iconUrl;
+  final Value<int> position;
+  const PortalApplicationsCompanion({
+    this.id = const Value.absent(),
+    this.category = const Value.absent(),
+    this.code = const Value.absent(),
+    this.name = const Value.absent(),
+    this.iconUrl = const Value.absent(),
+    this.position = const Value.absent(),
+  });
+  PortalApplicationsCompanion.insert({
+    this.id = const Value.absent(),
+    required int category,
+    required String code,
+    required String name,
+    this.iconUrl = const Value.absent(),
+    required int position,
+  }) : category = Value(category),
+       code = Value(code),
+       name = Value(name),
+       position = Value(position);
+  static Insertable<PortalApplication> custom({
+    Expression<int>? id,
+    Expression<int>? category,
+    Expression<String>? code,
+    Expression<String>? name,
+    Expression<String>? iconUrl,
+    Expression<int>? position,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (category != null) 'category': category,
+      if (code != null) 'code': code,
+      if (name != null) 'name': name,
+      if (iconUrl != null) 'icon_url': iconUrl,
+      if (position != null) 'position': position,
+    });
+  }
+
+  PortalApplicationsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? category,
+    Value<String>? code,
+    Value<String>? name,
+    Value<String?>? iconUrl,
+    Value<int>? position,
+  }) {
+    return PortalApplicationsCompanion(
+      id: id ?? this.id,
+      category: category ?? this.category,
+      code: code ?? this.code,
+      name: name ?? this.name,
+      iconUrl: iconUrl ?? this.iconUrl,
+      position: position ?? this.position,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<int>(category.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (iconUrl.present) {
+      map['icon_url'] = Variable<String>(iconUrl.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortalApplicationsCompanion(')
+          ..write('id: $id, ')
+          ..write('category: $category, ')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('iconUrl: $iconUrl, ')
+          ..write('position: $position')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PortalApplicationFavoritesTable extends PortalApplicationFavorites
+    with
+        TableInfo<$PortalApplicationFavoritesTable, PortalApplicationFavorite> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PortalApplicationFavoritesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userMeta = const VerificationMeta('user');
+  @override
+  late final GeneratedColumn<int> user = GeneratedColumn<int>(
+    'user',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES users (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _applicationCodeMeta = const VerificationMeta(
+    'applicationCode',
+  );
+  @override
+  late final GeneratedColumn<String> applicationCode = GeneratedColumn<String>(
+    'application_code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [user, applicationCode];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'portal_application_favorites';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PortalApplicationFavorite> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user')) {
+      context.handle(
+        _userMeta,
+        user.isAcceptableOrUnknown(data['user']!, _userMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userMeta);
+    }
+    if (data.containsKey('application_code')) {
+      context.handle(
+        _applicationCodeMeta,
+        applicationCode.isAcceptableOrUnknown(
+          data['application_code']!,
+          _applicationCodeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_applicationCodeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {user, applicationCode};
+  @override
+  PortalApplicationFavorite map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PortalApplicationFavorite(
+      user: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user'],
+      )!,
+      applicationCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}application_code'],
+      )!,
+    );
+  }
+
+  @override
+  $PortalApplicationFavoritesTable createAlias(String alias) {
+    return $PortalApplicationFavoritesTable(attachedDatabase, alias);
+  }
+}
+
+class PortalApplicationFavorite extends DataClass
+    implements Insertable<PortalApplicationFavorite> {
+  /// User who selected this favorite.
+  final int user;
+
+  /// Portal SSO target identifier (`apOu`).
+  final String applicationCode;
+  const PortalApplicationFavorite({
+    required this.user,
+    required this.applicationCode,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user'] = Variable<int>(user);
+    map['application_code'] = Variable<String>(applicationCode);
+    return map;
+  }
+
+  PortalApplicationFavoritesCompanion toCompanion(bool nullToAbsent) {
+    return PortalApplicationFavoritesCompanion(
+      user: Value(user),
+      applicationCode: Value(applicationCode),
+    );
+  }
+
+  factory PortalApplicationFavorite.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PortalApplicationFavorite(
+      user: serializer.fromJson<int>(json['user']),
+      applicationCode: serializer.fromJson<String>(json['applicationCode']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'user': serializer.toJson<int>(user),
+      'applicationCode': serializer.toJson<String>(applicationCode),
+    };
+  }
+
+  PortalApplicationFavorite copyWith({int? user, String? applicationCode}) =>
+      PortalApplicationFavorite(
+        user: user ?? this.user,
+        applicationCode: applicationCode ?? this.applicationCode,
+      );
+  PortalApplicationFavorite copyWithCompanion(
+    PortalApplicationFavoritesCompanion data,
+  ) {
+    return PortalApplicationFavorite(
+      user: data.user.present ? data.user.value : this.user,
+      applicationCode: data.applicationCode.present
+          ? data.applicationCode.value
+          : this.applicationCode,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortalApplicationFavorite(')
+          ..write('user: $user, ')
+          ..write('applicationCode: $applicationCode')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(user, applicationCode);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PortalApplicationFavorite &&
+          other.user == this.user &&
+          other.applicationCode == this.applicationCode);
+}
+
+class PortalApplicationFavoritesCompanion
+    extends UpdateCompanion<PortalApplicationFavorite> {
+  final Value<int> user;
+  final Value<String> applicationCode;
+  final Value<int> rowid;
+  const PortalApplicationFavoritesCompanion({
+    this.user = const Value.absent(),
+    this.applicationCode = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PortalApplicationFavoritesCompanion.insert({
+    required int user,
+    required String applicationCode,
+    this.rowid = const Value.absent(),
+  }) : user = Value(user),
+       applicationCode = Value(applicationCode);
+  static Insertable<PortalApplicationFavorite> custom({
+    Expression<int>? user,
+    Expression<String>? applicationCode,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (user != null) 'user': user,
+      if (applicationCode != null) 'application_code': applicationCode,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PortalApplicationFavoritesCompanion copyWith({
+    Value<int>? user,
+    Value<String>? applicationCode,
+    Value<int>? rowid,
+  }) {
+    return PortalApplicationFavoritesCompanion(
+      user: user ?? this.user,
+      applicationCode: applicationCode ?? this.applicationCode,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (user.present) {
+      map['user'] = Variable<int>(user.value);
+    }
+    if (applicationCode.present) {
+      map['application_code'] = Variable<String>(applicationCode.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortalApplicationFavoritesCompanion(')
+          ..write('user: $user, ')
+          ..write('applicationCode: $applicationCode, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -12316,6 +13420,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $UsersTable users = $UsersTable(this);
+  late final $PortalApplicationCategoriesTable portalApplicationCategories =
+      $PortalApplicationCategoriesTable(this);
+  late final $PortalApplicationsTable portalApplications =
+      $PortalApplicationsTable(this);
+  late final $PortalApplicationFavoritesTable portalApplicationFavorites =
+      $PortalApplicationFavoritesTable(this);
   late final $StudentsTable students = $StudentsTable(this);
   late final $SemestersTable semesters = $SemestersTable(this);
   late final $CoursesTable courses = $CoursesTable(this);
@@ -12403,6 +13513,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     users,
+    portalApplicationCategories,
+    portalApplications,
+    portalApplicationFavorites,
     students,
     semesters,
     courses,
@@ -12442,6 +13555,31 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'users',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('portal_application_categories', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'portal_application_categories',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('portal_applications', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'users',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('portal_application_favorites', kind: UpdateKind.delete),
+      ],
+    ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'course_offerings',
@@ -12551,6 +13689,7 @@ typedef $$UsersTableCreateCompanionBuilder =
       Value<DateTime?> semestersFetchedAt,
       Value<DateTime?> scoreDataFetchedAt,
       Value<DateTime?> calendarFetchedAt,
+      Value<DateTime?> applicationCatalogFetchedAt,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
     UsersCompanion Function({
@@ -12570,11 +13709,62 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<DateTime?> semestersFetchedAt,
       Value<DateTime?> scoreDataFetchedAt,
       Value<DateTime?> calendarFetchedAt,
+      Value<DateTime?> applicationCatalogFetchedAt,
     });
 
 final class $$UsersTableReferences
     extends BaseReferences<_$AppDatabase, $UsersTable, User> {
   $$UsersTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<
+    $PortalApplicationCategoriesTable,
+    List<PortalApplicationCategory>
+  >
+  _portalApplicationCategoriesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.portalApplicationCategories,
+        aliasName: 'users__id__portal_application_categories__user',
+      );
+
+  $$PortalApplicationCategoriesTableProcessedTableManager
+  get portalApplicationCategoriesRefs {
+    final manager = $$PortalApplicationCategoriesTableTableManager(
+      $_db,
+      $_db.portalApplicationCategories,
+    ).filter((f) => f.user.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _portalApplicationCategoriesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $PortalApplicationFavoritesTable,
+    List<PortalApplicationFavorite>
+  >
+  _portalApplicationFavoritesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.portalApplicationFavorites,
+        aliasName: 'users__id__portal_application_favorites__user',
+      );
+
+  $$PortalApplicationFavoritesTableProcessedTableManager
+  get portalApplicationFavoritesRefs {
+    final manager = $$PortalApplicationFavoritesTableTableManager(
+      $_db,
+      $_db.portalApplicationFavorites,
+    ).filter((f) => f.user.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _portalApplicationFavoritesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 
   static MultiTypedResultKey<$ScoresTable, List<Score>> _scoresRefsTable(
     _$AppDatabase db,
@@ -12708,6 +13898,67 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
     column: $table.calendarFetchedAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<DateTime> get applicationCatalogFetchedAt => $composableBuilder(
+    column: $table.applicationCatalogFetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> portalApplicationCategoriesRefs(
+    Expression<bool> Function(
+      $$PortalApplicationCategoriesTableFilterComposer f,
+    )
+    f,
+  ) {
+    final $$PortalApplicationCategoriesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.portalApplicationCategories,
+          getReferencedColumn: (t) => t.user,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationCategoriesTableFilterComposer(
+                $db: $db,
+                $table: $db.portalApplicationCategories,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> portalApplicationFavoritesRefs(
+    Expression<bool> Function($$PortalApplicationFavoritesTableFilterComposer f)
+    f,
+  ) {
+    final $$PortalApplicationFavoritesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.portalApplicationFavorites,
+          getReferencedColumn: (t) => t.user,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationFavoritesTableFilterComposer(
+                $db: $db,
+                $table: $db.portalApplicationFavorites,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 
   Expression<bool> scoresRefs(
     Expression<bool> Function($$ScoresTableFilterComposer f) f,
@@ -12849,6 +14100,12 @@ class $$UsersTableOrderingComposer
     column: $table.calendarFetchedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get applicationCatalogFetchedAt =>
+      $composableBuilder(
+        column: $table.applicationCatalogFetchedAt,
+        builder: (column) => ColumnOrderings(column),
+      );
 }
 
 class $$UsersTableAnnotationComposer
@@ -12924,6 +14181,70 @@ class $$UsersTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<DateTime> get applicationCatalogFetchedAt =>
+      $composableBuilder(
+        column: $table.applicationCatalogFetchedAt,
+        builder: (column) => column,
+      );
+
+  Expression<T> portalApplicationCategoriesRefs<T extends Object>(
+    Expression<T> Function(
+      $$PortalApplicationCategoriesTableAnnotationComposer a,
+    )
+    f,
+  ) {
+    final $$PortalApplicationCategoriesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.portalApplicationCategories,
+          getReferencedColumn: (t) => t.user,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationCategoriesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.portalApplicationCategories,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> portalApplicationFavoritesRefs<T extends Object>(
+    Expression<T> Function(
+      $$PortalApplicationFavoritesTableAnnotationComposer a,
+    )
+    f,
+  ) {
+    final $$PortalApplicationFavoritesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.portalApplicationFavorites,
+          getReferencedColumn: (t) => t.user,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationFavoritesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.portalApplicationFavorites,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> scoresRefs<T extends Object>(
     Expression<T> Function($$ScoresTableAnnotationComposer a) f,
   ) {
@@ -12990,6 +14311,8 @@ class $$UsersTableTableManager
           (User, $$UsersTableReferences),
           User,
           PrefetchHooks Function({
+            bool portalApplicationCategoriesRefs,
+            bool portalApplicationFavoritesRefs,
             bool scoresRefs,
             bool userSemesterSummariesRefs,
           })
@@ -13023,6 +14346,8 @@ class $$UsersTableTableManager
                 Value<DateTime?> semestersFetchedAt = const Value.absent(),
                 Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
                 Value<DateTime?> calendarFetchedAt = const Value.absent(),
+                Value<DateTime?> applicationCatalogFetchedAt =
+                    const Value.absent(),
               }) => UsersCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -13040,6 +14365,7 @@ class $$UsersTableTableManager
                 semestersFetchedAt: semestersFetchedAt,
                 scoreDataFetchedAt: scoreDataFetchedAt,
                 calendarFetchedAt: calendarFetchedAt,
+                applicationCatalogFetchedAt: applicationCatalogFetchedAt,
               ),
           createCompanionCallback:
               ({
@@ -13059,6 +14385,8 @@ class $$UsersTableTableManager
                 Value<DateTime?> semestersFetchedAt = const Value.absent(),
                 Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
                 Value<DateTime?> calendarFetchedAt = const Value.absent(),
+                Value<DateTime?> applicationCatalogFetchedAt =
+                    const Value.absent(),
               }) => UsersCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -13076,6 +14404,7 @@ class $$UsersTableTableManager
                 semestersFetchedAt: semestersFetchedAt,
                 scoreDataFetchedAt: scoreDataFetchedAt,
                 calendarFetchedAt: calendarFetchedAt,
+                applicationCatalogFetchedAt: applicationCatalogFetchedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -13084,16 +14413,67 @@ class $$UsersTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({scoresRefs = false, userSemesterSummariesRefs = false}) {
+              ({
+                portalApplicationCategoriesRefs = false,
+                portalApplicationFavoritesRefs = false,
+                scoresRefs = false,
+                userSemesterSummariesRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
+                    if (portalApplicationCategoriesRefs)
+                      db.portalApplicationCategories,
+                    if (portalApplicationFavoritesRefs)
+                      db.portalApplicationFavorites,
                     if (scoresRefs) db.scores,
                     if (userSemesterSummariesRefs) db.userSemesterSummaries,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
+                      if (portalApplicationCategoriesRefs)
+                        await $_getPrefetchedData<
+                          User,
+                          $UsersTable,
+                          PortalApplicationCategory
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._portalApplicationCategoriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).portalApplicationCategoriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.user == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (portalApplicationFavoritesRefs)
+                        await $_getPrefetchedData<
+                          User,
+                          $UsersTable,
+                          PortalApplicationFavorite
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._portalApplicationFavoritesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).portalApplicationFavoritesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.user == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (scoresRefs)
                         await $_getPrefetchedData<User, $UsersTable, Score>(
                           currentTable: table,
@@ -13148,7 +14528,1084 @@ typedef $$UsersTableProcessedTableManager =
       $$UsersTableUpdateCompanionBuilder,
       (User, $$UsersTableReferences),
       User,
-      PrefetchHooks Function({bool scoresRefs, bool userSemesterSummariesRefs})
+      PrefetchHooks Function({
+        bool portalApplicationCategoriesRefs,
+        bool portalApplicationFavoritesRefs,
+        bool scoresRefs,
+        bool userSemesterSummariesRefs,
+      })
+    >;
+typedef $$PortalApplicationCategoriesTableCreateCompanionBuilder =
+    PortalApplicationCategoriesCompanion Function({
+      Value<int> id,
+      required int user,
+      required String distinguishedName,
+      required String name,
+      required int position,
+    });
+typedef $$PortalApplicationCategoriesTableUpdateCompanionBuilder =
+    PortalApplicationCategoriesCompanion Function({
+      Value<int> id,
+      Value<int> user,
+      Value<String> distinguishedName,
+      Value<String> name,
+      Value<int> position,
+    });
+
+final class $$PortalApplicationCategoriesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $PortalApplicationCategoriesTable,
+          PortalApplicationCategory
+        > {
+  $$PortalApplicationCategoriesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $UsersTable _userTable(_$AppDatabase db) =>
+      db.users.createAlias('portal_application_categories__user__users__id');
+
+  $$UsersTableProcessedTableManager get user {
+    final $_column = $_itemColumn<int>('user')!;
+
+    final manager = $$UsersTableTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$PortalApplicationsTable, List<PortalApplication>>
+  _portalApplicationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.portalApplications,
+        aliasName:
+            'portal_application_categories__id__portal_applications__category',
+      );
+
+  $$PortalApplicationsTableProcessedTableManager get portalApplicationsRefs {
+    final manager = $$PortalApplicationsTableTableManager(
+      $_db,
+      $_db.portalApplications,
+    ).filter((f) => f.category.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _portalApplicationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$PortalApplicationCategoriesTableFilterComposer
+    extends Composer<_$AppDatabase, $PortalApplicationCategoriesTable> {
+  $$PortalApplicationCategoriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get distinguishedName => $composableBuilder(
+    column: $table.distinguishedName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UsersTableFilterComposer get user {
+    final $$UsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.user,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> portalApplicationsRefs(
+    Expression<bool> Function($$PortalApplicationsTableFilterComposer f) f,
+  ) {
+    final $$PortalApplicationsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.portalApplications,
+      getReferencedColumn: (t) => t.category,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PortalApplicationsTableFilterComposer(
+            $db: $db,
+            $table: $db.portalApplications,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PortalApplicationCategoriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PortalApplicationCategoriesTable> {
+  $$PortalApplicationCategoriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get distinguishedName => $composableBuilder(
+    column: $table.distinguishedName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UsersTableOrderingComposer get user {
+    final $$UsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.user,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PortalApplicationCategoriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PortalApplicationCategoriesTable> {
+  $$PortalApplicationCategoriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get distinguishedName => $composableBuilder(
+    column: $table.distinguishedName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  $$UsersTableAnnotationComposer get user {
+    final $$UsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.user,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> portalApplicationsRefs<T extends Object>(
+    Expression<T> Function($$PortalApplicationsTableAnnotationComposer a) f,
+  ) {
+    final $$PortalApplicationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.portalApplications,
+          getReferencedColumn: (t) => t.category,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.portalApplications,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$PortalApplicationCategoriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PortalApplicationCategoriesTable,
+          PortalApplicationCategory,
+          $$PortalApplicationCategoriesTableFilterComposer,
+          $$PortalApplicationCategoriesTableOrderingComposer,
+          $$PortalApplicationCategoriesTableAnnotationComposer,
+          $$PortalApplicationCategoriesTableCreateCompanionBuilder,
+          $$PortalApplicationCategoriesTableUpdateCompanionBuilder,
+          (
+            PortalApplicationCategory,
+            $$PortalApplicationCategoriesTableReferences,
+          ),
+          PortalApplicationCategory,
+          PrefetchHooks Function({bool user, bool portalApplicationsRefs})
+        > {
+  $$PortalApplicationCategoriesTableTableManager(
+    _$AppDatabase db,
+    $PortalApplicationCategoriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PortalApplicationCategoriesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$PortalApplicationCategoriesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PortalApplicationCategoriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> user = const Value.absent(),
+                Value<String> distinguishedName = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<int> position = const Value.absent(),
+              }) => PortalApplicationCategoriesCompanion(
+                id: id,
+                user: user,
+                distinguishedName: distinguishedName,
+                name: name,
+                position: position,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int user,
+                required String distinguishedName,
+                required String name,
+                required int position,
+              }) => PortalApplicationCategoriesCompanion.insert(
+                id: id,
+                user: user,
+                distinguishedName: distinguishedName,
+                name: name,
+                position: position,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PortalApplicationCategoriesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({user = false, portalApplicationsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (portalApplicationsRefs) db.portalApplications,
+              ],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (user) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.user,
+                                referencedTable:
+                                    $$PortalApplicationCategoriesTableReferences
+                                        ._userTable(db),
+                                referencedColumn:
+                                    $$PortalApplicationCategoriesTableReferences
+                                        ._userTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (portalApplicationsRefs)
+                    await $_getPrefetchedData<
+                      PortalApplicationCategory,
+                      $PortalApplicationCategoriesTable,
+                      PortalApplication
+                    >(
+                      currentTable: table,
+                      referencedTable:
+                          $$PortalApplicationCategoriesTableReferences
+                              ._portalApplicationsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$PortalApplicationCategoriesTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).portalApplicationsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.category == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PortalApplicationCategoriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PortalApplicationCategoriesTable,
+      PortalApplicationCategory,
+      $$PortalApplicationCategoriesTableFilterComposer,
+      $$PortalApplicationCategoriesTableOrderingComposer,
+      $$PortalApplicationCategoriesTableAnnotationComposer,
+      $$PortalApplicationCategoriesTableCreateCompanionBuilder,
+      $$PortalApplicationCategoriesTableUpdateCompanionBuilder,
+      (PortalApplicationCategory, $$PortalApplicationCategoriesTableReferences),
+      PortalApplicationCategory,
+      PrefetchHooks Function({bool user, bool portalApplicationsRefs})
+    >;
+typedef $$PortalApplicationsTableCreateCompanionBuilder =
+    PortalApplicationsCompanion Function({
+      Value<int> id,
+      required int category,
+      required String code,
+      required String name,
+      Value<String?> iconUrl,
+      required int position,
+    });
+typedef $$PortalApplicationsTableUpdateCompanionBuilder =
+    PortalApplicationsCompanion Function({
+      Value<int> id,
+      Value<int> category,
+      Value<String> code,
+      Value<String> name,
+      Value<String?> iconUrl,
+      Value<int> position,
+    });
+
+final class $$PortalApplicationsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $PortalApplicationsTable,
+          PortalApplication
+        > {
+  $$PortalApplicationsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $PortalApplicationCategoriesTable _categoryTable(_$AppDatabase db) =>
+      db.portalApplicationCategories.createAlias(
+        'portal_applications__category__portal_application_categories__id',
+      );
+
+  $$PortalApplicationCategoriesTableProcessedTableManager get category {
+    final $_column = $_itemColumn<int>('category')!;
+
+    final manager = $$PortalApplicationCategoriesTableTableManager(
+      $_db,
+      $_db.portalApplicationCategories,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_categoryTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PortalApplicationsTableFilterComposer
+    extends Composer<_$AppDatabase, $PortalApplicationsTable> {
+  $$PortalApplicationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get iconUrl => $composableBuilder(
+    column: $table.iconUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PortalApplicationCategoriesTableFilterComposer get category {
+    final $$PortalApplicationCategoriesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.category,
+          referencedTable: $db.portalApplicationCategories,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationCategoriesTableFilterComposer(
+                $db: $db,
+                $table: $db.portalApplicationCategories,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$PortalApplicationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PortalApplicationsTable> {
+  $$PortalApplicationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get iconUrl => $composableBuilder(
+    column: $table.iconUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PortalApplicationCategoriesTableOrderingComposer get category {
+    final $$PortalApplicationCategoriesTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.category,
+          referencedTable: $db.portalApplicationCategories,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationCategoriesTableOrderingComposer(
+                $db: $db,
+                $table: $db.portalApplicationCategories,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$PortalApplicationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PortalApplicationsTable> {
+  $$PortalApplicationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get iconUrl =>
+      $composableBuilder(column: $table.iconUrl, builder: (column) => column);
+
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  $$PortalApplicationCategoriesTableAnnotationComposer get category {
+    final $$PortalApplicationCategoriesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.category,
+          referencedTable: $db.portalApplicationCategories,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationCategoriesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.portalApplicationCategories,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$PortalApplicationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PortalApplicationsTable,
+          PortalApplication,
+          $$PortalApplicationsTableFilterComposer,
+          $$PortalApplicationsTableOrderingComposer,
+          $$PortalApplicationsTableAnnotationComposer,
+          $$PortalApplicationsTableCreateCompanionBuilder,
+          $$PortalApplicationsTableUpdateCompanionBuilder,
+          (PortalApplication, $$PortalApplicationsTableReferences),
+          PortalApplication,
+          PrefetchHooks Function({bool category})
+        > {
+  $$PortalApplicationsTableTableManager(
+    _$AppDatabase db,
+    $PortalApplicationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PortalApplicationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PortalApplicationsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PortalApplicationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> category = const Value.absent(),
+                Value<String> code = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> iconUrl = const Value.absent(),
+                Value<int> position = const Value.absent(),
+              }) => PortalApplicationsCompanion(
+                id: id,
+                category: category,
+                code: code,
+                name: name,
+                iconUrl: iconUrl,
+                position: position,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int category,
+                required String code,
+                required String name,
+                Value<String?> iconUrl = const Value.absent(),
+                required int position,
+              }) => PortalApplicationsCompanion.insert(
+                id: id,
+                category: category,
+                code: code,
+                name: name,
+                iconUrl: iconUrl,
+                position: position,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PortalApplicationsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({category = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (category) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.category,
+                                referencedTable:
+                                    $$PortalApplicationsTableReferences
+                                        ._categoryTable(db),
+                                referencedColumn:
+                                    $$PortalApplicationsTableReferences
+                                        ._categoryTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PortalApplicationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PortalApplicationsTable,
+      PortalApplication,
+      $$PortalApplicationsTableFilterComposer,
+      $$PortalApplicationsTableOrderingComposer,
+      $$PortalApplicationsTableAnnotationComposer,
+      $$PortalApplicationsTableCreateCompanionBuilder,
+      $$PortalApplicationsTableUpdateCompanionBuilder,
+      (PortalApplication, $$PortalApplicationsTableReferences),
+      PortalApplication,
+      PrefetchHooks Function({bool category})
+    >;
+typedef $$PortalApplicationFavoritesTableCreateCompanionBuilder =
+    PortalApplicationFavoritesCompanion Function({
+      required int user,
+      required String applicationCode,
+      Value<int> rowid,
+    });
+typedef $$PortalApplicationFavoritesTableUpdateCompanionBuilder =
+    PortalApplicationFavoritesCompanion Function({
+      Value<int> user,
+      Value<String> applicationCode,
+      Value<int> rowid,
+    });
+
+final class $$PortalApplicationFavoritesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $PortalApplicationFavoritesTable,
+          PortalApplicationFavorite
+        > {
+  $$PortalApplicationFavoritesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $UsersTable _userTable(_$AppDatabase db) =>
+      db.users.createAlias('portal_application_favorites__user__users__id');
+
+  $$UsersTableProcessedTableManager get user {
+    final $_column = $_itemColumn<int>('user')!;
+
+    final manager = $$UsersTableTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PortalApplicationFavoritesTableFilterComposer
+    extends Composer<_$AppDatabase, $PortalApplicationFavoritesTable> {
+  $$PortalApplicationFavoritesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get applicationCode => $composableBuilder(
+    column: $table.applicationCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UsersTableFilterComposer get user {
+    final $$UsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.user,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PortalApplicationFavoritesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PortalApplicationFavoritesTable> {
+  $$PortalApplicationFavoritesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get applicationCode => $composableBuilder(
+    column: $table.applicationCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UsersTableOrderingComposer get user {
+    final $$UsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.user,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PortalApplicationFavoritesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PortalApplicationFavoritesTable> {
+  $$PortalApplicationFavoritesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get applicationCode => $composableBuilder(
+    column: $table.applicationCode,
+    builder: (column) => column,
+  );
+
+  $$UsersTableAnnotationComposer get user {
+    final $$UsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.user,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PortalApplicationFavoritesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PortalApplicationFavoritesTable,
+          PortalApplicationFavorite,
+          $$PortalApplicationFavoritesTableFilterComposer,
+          $$PortalApplicationFavoritesTableOrderingComposer,
+          $$PortalApplicationFavoritesTableAnnotationComposer,
+          $$PortalApplicationFavoritesTableCreateCompanionBuilder,
+          $$PortalApplicationFavoritesTableUpdateCompanionBuilder,
+          (
+            PortalApplicationFavorite,
+            $$PortalApplicationFavoritesTableReferences,
+          ),
+          PortalApplicationFavorite,
+          PrefetchHooks Function({bool user})
+        > {
+  $$PortalApplicationFavoritesTableTableManager(
+    _$AppDatabase db,
+    $PortalApplicationFavoritesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PortalApplicationFavoritesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$PortalApplicationFavoritesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PortalApplicationFavoritesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> user = const Value.absent(),
+                Value<String> applicationCode = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PortalApplicationFavoritesCompanion(
+                user: user,
+                applicationCode: applicationCode,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int user,
+                required String applicationCode,
+                Value<int> rowid = const Value.absent(),
+              }) => PortalApplicationFavoritesCompanion.insert(
+                user: user,
+                applicationCode: applicationCode,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PortalApplicationFavoritesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({user = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (user) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.user,
+                                referencedTable:
+                                    $$PortalApplicationFavoritesTableReferences
+                                        ._userTable(db),
+                                referencedColumn:
+                                    $$PortalApplicationFavoritesTableReferences
+                                        ._userTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PortalApplicationFavoritesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PortalApplicationFavoritesTable,
+      PortalApplicationFavorite,
+      $$PortalApplicationFavoritesTableFilterComposer,
+      $$PortalApplicationFavoritesTableOrderingComposer,
+      $$PortalApplicationFavoritesTableAnnotationComposer,
+      $$PortalApplicationFavoritesTableCreateCompanionBuilder,
+      $$PortalApplicationFavoritesTableUpdateCompanionBuilder,
+      (PortalApplicationFavorite, $$PortalApplicationFavoritesTableReferences),
+      PortalApplicationFavorite,
+      PrefetchHooks Function({bool user})
     >;
 typedef $$StudentsTableCreateCompanionBuilder =
     StudentsCompanion Function({
@@ -23571,6 +26028,20 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$UsersTableTableManager get users =>
       $$UsersTableTableManager(_db, _db.users);
+  $$PortalApplicationCategoriesTableTableManager
+  get portalApplicationCategories =>
+      $$PortalApplicationCategoriesTableTableManager(
+        _db,
+        _db.portalApplicationCategories,
+      );
+  $$PortalApplicationsTableTableManager get portalApplications =>
+      $$PortalApplicationsTableTableManager(_db, _db.portalApplications);
+  $$PortalApplicationFavoritesTableTableManager
+  get portalApplicationFavorites =>
+      $$PortalApplicationFavoritesTableTableManager(
+        _db,
+        _db.portalApplicationFavorites,
+      );
   $$StudentsTableTableManager get students =>
       $$StudentsTableTableManager(_db, _db.students);
   $$SemestersTableTableManager get semesters =>
