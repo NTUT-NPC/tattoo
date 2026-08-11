@@ -1118,14 +1118,23 @@ class $PortalApplicationCategoriesTable extends PortalApplicationCategories
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       );
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  static const VerificationMeta _nameZhMeta = const VerificationMeta('nameZh');
   @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
+  late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
+    'name_zh',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameEnMeta = const VerificationMeta('nameEn');
+  @override
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _positionMeta = const VerificationMeta(
     'position',
@@ -1143,7 +1152,8 @@ class $PortalApplicationCategoriesTable extends PortalApplicationCategories
     id,
     user,
     distinguishedName,
-    name,
+    nameZh,
+    nameEn,
     position,
   ];
   @override
@@ -1180,13 +1190,19 @@ class $PortalApplicationCategoriesTable extends PortalApplicationCategories
     } else if (isInserting) {
       context.missing(_distinguishedNameMeta);
     }
-    if (data.containsKey('name')) {
+    if (data.containsKey('name_zh')) {
       context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+        _nameZhMeta,
+        nameZh.isAcceptableOrUnknown(data['name_zh']!, _nameZhMeta),
       );
     } else if (isInserting) {
-      context.missing(_nameMeta);
+      context.missing(_nameZhMeta);
+    }
+    if (data.containsKey('name_en')) {
+      context.handle(
+        _nameEnMeta,
+        nameEn.isAcceptableOrUnknown(data['name_en']!, _nameEnMeta),
+      );
     }
     if (data.containsKey('position')) {
       context.handle(
@@ -1224,10 +1240,14 @@ class $PortalApplicationCategoriesTable extends PortalApplicationCategories
         DriftSqlType.string,
         data['${effectivePrefix}distinguished_name'],
       )!,
-      name: attachedDatabase.typeMapping.read(
+      nameZh: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}name'],
+        data['${effectivePrefix}name_zh'],
       )!,
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      ),
       position: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}position'],
@@ -1252,8 +1272,11 @@ class PortalApplicationCategory extends DataClass
   /// LDAP distinguished name used by the portal to fetch this category.
   final String distinguishedName;
 
-  /// Category display name supplied by the portal.
-  final String name;
+  /// Chinese category display name supplied by the portal.
+  final String nameZh;
+
+  /// English category display name supplied by the portal.
+  final String? nameEn;
 
   /// Display order supplied by the portal.
   final int position;
@@ -1261,7 +1284,8 @@ class PortalApplicationCategory extends DataClass
     required this.id,
     required this.user,
     required this.distinguishedName,
-    required this.name,
+    required this.nameZh,
+    this.nameEn,
     required this.position,
   });
   @override
@@ -1270,7 +1294,10 @@ class PortalApplicationCategory extends DataClass
     map['id'] = Variable<int>(id);
     map['user'] = Variable<int>(user);
     map['distinguished_name'] = Variable<String>(distinguishedName);
-    map['name'] = Variable<String>(name);
+    map['name_zh'] = Variable<String>(nameZh);
+    if (!nullToAbsent || nameEn != null) {
+      map['name_en'] = Variable<String>(nameEn);
+    }
     map['position'] = Variable<int>(position);
     return map;
   }
@@ -1280,7 +1307,10 @@ class PortalApplicationCategory extends DataClass
       id: Value(id),
       user: Value(user),
       distinguishedName: Value(distinguishedName),
-      name: Value(name),
+      nameZh: Value(nameZh),
+      nameEn: nameEn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nameEn),
       position: Value(position),
     );
   }
@@ -1294,7 +1324,8 @@ class PortalApplicationCategory extends DataClass
       id: serializer.fromJson<int>(json['id']),
       user: serializer.fromJson<int>(json['user']),
       distinguishedName: serializer.fromJson<String>(json['distinguishedName']),
-      name: serializer.fromJson<String>(json['name']),
+      nameZh: serializer.fromJson<String>(json['nameZh']),
+      nameEn: serializer.fromJson<String?>(json['nameEn']),
       position: serializer.fromJson<int>(json['position']),
     );
   }
@@ -1305,7 +1336,8 @@ class PortalApplicationCategory extends DataClass
       'id': serializer.toJson<int>(id),
       'user': serializer.toJson<int>(user),
       'distinguishedName': serializer.toJson<String>(distinguishedName),
-      'name': serializer.toJson<String>(name),
+      'nameZh': serializer.toJson<String>(nameZh),
+      'nameEn': serializer.toJson<String?>(nameEn),
       'position': serializer.toJson<int>(position),
     };
   }
@@ -1314,13 +1346,15 @@ class PortalApplicationCategory extends DataClass
     int? id,
     int? user,
     String? distinguishedName,
-    String? name,
+    String? nameZh,
+    Value<String?> nameEn = const Value.absent(),
     int? position,
   }) => PortalApplicationCategory(
     id: id ?? this.id,
     user: user ?? this.user,
     distinguishedName: distinguishedName ?? this.distinguishedName,
-    name: name ?? this.name,
+    nameZh: nameZh ?? this.nameZh,
+    nameEn: nameEn.present ? nameEn.value : this.nameEn,
     position: position ?? this.position,
   );
   PortalApplicationCategory copyWithCompanion(
@@ -1332,7 +1366,8 @@ class PortalApplicationCategory extends DataClass
       distinguishedName: data.distinguishedName.present
           ? data.distinguishedName.value
           : this.distinguishedName,
-      name: data.name.present ? data.name.value : this.name,
+      nameZh: data.nameZh.present ? data.nameZh.value : this.nameZh,
+      nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
       position: data.position.present ? data.position.value : this.position,
     );
   }
@@ -1343,14 +1378,16 @@ class PortalApplicationCategory extends DataClass
           ..write('id: $id, ')
           ..write('user: $user, ')
           ..write('distinguishedName: $distinguishedName, ')
-          ..write('name: $name, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
           ..write('position: $position')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, user, distinguishedName, name, position);
+  int get hashCode =>
+      Object.hash(id, user, distinguishedName, nameZh, nameEn, position);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1358,7 +1395,8 @@ class PortalApplicationCategory extends DataClass
           other.id == this.id &&
           other.user == this.user &&
           other.distinguishedName == this.distinguishedName &&
-          other.name == this.name &&
+          other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn &&
           other.position == this.position);
 }
 
@@ -1367,37 +1405,42 @@ class PortalApplicationCategoriesCompanion
   final Value<int> id;
   final Value<int> user;
   final Value<String> distinguishedName;
-  final Value<String> name;
+  final Value<String> nameZh;
+  final Value<String?> nameEn;
   final Value<int> position;
   const PortalApplicationCategoriesCompanion({
     this.id = const Value.absent(),
     this.user = const Value.absent(),
     this.distinguishedName = const Value.absent(),
-    this.name = const Value.absent(),
+    this.nameZh = const Value.absent(),
+    this.nameEn = const Value.absent(),
     this.position = const Value.absent(),
   });
   PortalApplicationCategoriesCompanion.insert({
     this.id = const Value.absent(),
     required int user,
     required String distinguishedName,
-    required String name,
+    required String nameZh,
+    this.nameEn = const Value.absent(),
     required int position,
   }) : user = Value(user),
        distinguishedName = Value(distinguishedName),
-       name = Value(name),
+       nameZh = Value(nameZh),
        position = Value(position);
   static Insertable<PortalApplicationCategory> custom({
     Expression<int>? id,
     Expression<int>? user,
     Expression<String>? distinguishedName,
-    Expression<String>? name,
+    Expression<String>? nameZh,
+    Expression<String>? nameEn,
     Expression<int>? position,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (user != null) 'user': user,
       if (distinguishedName != null) 'distinguished_name': distinguishedName,
-      if (name != null) 'name': name,
+      if (nameZh != null) 'name_zh': nameZh,
+      if (nameEn != null) 'name_en': nameEn,
       if (position != null) 'position': position,
     });
   }
@@ -1406,14 +1449,16 @@ class PortalApplicationCategoriesCompanion
     Value<int>? id,
     Value<int>? user,
     Value<String>? distinguishedName,
-    Value<String>? name,
+    Value<String>? nameZh,
+    Value<String?>? nameEn,
     Value<int>? position,
   }) {
     return PortalApplicationCategoriesCompanion(
       id: id ?? this.id,
       user: user ?? this.user,
       distinguishedName: distinguishedName ?? this.distinguishedName,
-      name: name ?? this.name,
+      nameZh: nameZh ?? this.nameZh,
+      nameEn: nameEn ?? this.nameEn,
       position: position ?? this.position,
     );
   }
@@ -1430,8 +1475,11 @@ class PortalApplicationCategoriesCompanion
     if (distinguishedName.present) {
       map['distinguished_name'] = Variable<String>(distinguishedName.value);
     }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
+    if (nameZh.present) {
+      map['name_zh'] = Variable<String>(nameZh.value);
+    }
+    if (nameEn.present) {
+      map['name_en'] = Variable<String>(nameEn.value);
     }
     if (position.present) {
       map['position'] = Variable<int>(position.value);
@@ -1445,7 +1493,8 @@ class PortalApplicationCategoriesCompanion
           ..write('id: $id, ')
           ..write('user: $user, ')
           ..write('distinguishedName: $distinguishedName, ')
-          ..write('name: $name, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
           ..write('position: $position')
           ..write(')'))
         .toString();
@@ -1494,14 +1543,23 @@ class $PortalApplicationsTable extends PortalApplications
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  static const VerificationMeta _nameZhMeta = const VerificationMeta('nameZh');
   @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
+  late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
+    'name_zh',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameEnMeta = const VerificationMeta('nameEn');
+  @override
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _iconUrlMeta = const VerificationMeta(
     'iconUrl',
@@ -1530,7 +1588,8 @@ class $PortalApplicationsTable extends PortalApplications
     id,
     category,
     code,
-    name,
+    nameZh,
+    nameEn,
     iconUrl,
     position,
   ];
@@ -1565,13 +1624,19 @@ class $PortalApplicationsTable extends PortalApplications
     } else if (isInserting) {
       context.missing(_codeMeta);
     }
-    if (data.containsKey('name')) {
+    if (data.containsKey('name_zh')) {
       context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+        _nameZhMeta,
+        nameZh.isAcceptableOrUnknown(data['name_zh']!, _nameZhMeta),
       );
     } else if (isInserting) {
-      context.missing(_nameMeta);
+      context.missing(_nameZhMeta);
+    }
+    if (data.containsKey('name_en')) {
+      context.handle(
+        _nameEnMeta,
+        nameEn.isAcceptableOrUnknown(data['name_en']!, _nameEnMeta),
+      );
     }
     if (data.containsKey('icon_url')) {
       context.handle(
@@ -1612,10 +1677,14 @@ class $PortalApplicationsTable extends PortalApplications
         DriftSqlType.string,
         data['${effectivePrefix}code'],
       )!,
-      name: attachedDatabase.typeMapping.read(
+      nameZh: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}name'],
+        data['${effectivePrefix}name_zh'],
       )!,
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      ),
       iconUrl: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}icon_url'],
@@ -1644,8 +1713,11 @@ class PortalApplication extends DataClass
   /// Portal SSO target identifier (`apOu`).
   final String code;
 
-  /// Application display name supplied by the portal.
-  final String name;
+  /// Chinese application display name supplied by the portal.
+  final String nameZh;
+
+  /// English application display name supplied by the portal.
+  final String? nameEn;
 
   /// Absolute URL of the portal-provided application icon.
   final String? iconUrl;
@@ -1656,7 +1728,8 @@ class PortalApplication extends DataClass
     required this.id,
     required this.category,
     required this.code,
-    required this.name,
+    required this.nameZh,
+    this.nameEn,
     this.iconUrl,
     required this.position,
   });
@@ -1666,7 +1739,10 @@ class PortalApplication extends DataClass
     map['id'] = Variable<int>(id);
     map['category'] = Variable<int>(category);
     map['code'] = Variable<String>(code);
-    map['name'] = Variable<String>(name);
+    map['name_zh'] = Variable<String>(nameZh);
+    if (!nullToAbsent || nameEn != null) {
+      map['name_en'] = Variable<String>(nameEn);
+    }
     if (!nullToAbsent || iconUrl != null) {
       map['icon_url'] = Variable<String>(iconUrl);
     }
@@ -1679,7 +1755,10 @@ class PortalApplication extends DataClass
       id: Value(id),
       category: Value(category),
       code: Value(code),
-      name: Value(name),
+      nameZh: Value(nameZh),
+      nameEn: nameEn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nameEn),
       iconUrl: iconUrl == null && nullToAbsent
           ? const Value.absent()
           : Value(iconUrl),
@@ -1696,7 +1775,8 @@ class PortalApplication extends DataClass
       id: serializer.fromJson<int>(json['id']),
       category: serializer.fromJson<int>(json['category']),
       code: serializer.fromJson<String>(json['code']),
-      name: serializer.fromJson<String>(json['name']),
+      nameZh: serializer.fromJson<String>(json['nameZh']),
+      nameEn: serializer.fromJson<String?>(json['nameEn']),
       iconUrl: serializer.fromJson<String?>(json['iconUrl']),
       position: serializer.fromJson<int>(json['position']),
     );
@@ -1708,7 +1788,8 @@ class PortalApplication extends DataClass
       'id': serializer.toJson<int>(id),
       'category': serializer.toJson<int>(category),
       'code': serializer.toJson<String>(code),
-      'name': serializer.toJson<String>(name),
+      'nameZh': serializer.toJson<String>(nameZh),
+      'nameEn': serializer.toJson<String?>(nameEn),
       'iconUrl': serializer.toJson<String?>(iconUrl),
       'position': serializer.toJson<int>(position),
     };
@@ -1718,14 +1799,16 @@ class PortalApplication extends DataClass
     int? id,
     int? category,
     String? code,
-    String? name,
+    String? nameZh,
+    Value<String?> nameEn = const Value.absent(),
     Value<String?> iconUrl = const Value.absent(),
     int? position,
   }) => PortalApplication(
     id: id ?? this.id,
     category: category ?? this.category,
     code: code ?? this.code,
-    name: name ?? this.name,
+    nameZh: nameZh ?? this.nameZh,
+    nameEn: nameEn.present ? nameEn.value : this.nameEn,
     iconUrl: iconUrl.present ? iconUrl.value : this.iconUrl,
     position: position ?? this.position,
   );
@@ -1734,7 +1817,8 @@ class PortalApplication extends DataClass
       id: data.id.present ? data.id.value : this.id,
       category: data.category.present ? data.category.value : this.category,
       code: data.code.present ? data.code.value : this.code,
-      name: data.name.present ? data.name.value : this.name,
+      nameZh: data.nameZh.present ? data.nameZh.value : this.nameZh,
+      nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
       iconUrl: data.iconUrl.present ? data.iconUrl.value : this.iconUrl,
       position: data.position.present ? data.position.value : this.position,
     );
@@ -1746,7 +1830,8 @@ class PortalApplication extends DataClass
           ..write('id: $id, ')
           ..write('category: $category, ')
           ..write('code: $code, ')
-          ..write('name: $name, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
           ..write('iconUrl: $iconUrl, ')
           ..write('position: $position')
           ..write(')'))
@@ -1754,7 +1839,8 @@ class PortalApplication extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, category, code, name, iconUrl, position);
+  int get hashCode =>
+      Object.hash(id, category, code, nameZh, nameEn, iconUrl, position);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1762,7 +1848,8 @@ class PortalApplication extends DataClass
           other.id == this.id &&
           other.category == this.category &&
           other.code == this.code &&
-          other.name == this.name &&
+          other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn &&
           other.iconUrl == this.iconUrl &&
           other.position == this.position);
 }
@@ -1771,14 +1858,16 @@ class PortalApplicationsCompanion extends UpdateCompanion<PortalApplication> {
   final Value<int> id;
   final Value<int> category;
   final Value<String> code;
-  final Value<String> name;
+  final Value<String> nameZh;
+  final Value<String?> nameEn;
   final Value<String?> iconUrl;
   final Value<int> position;
   const PortalApplicationsCompanion({
     this.id = const Value.absent(),
     this.category = const Value.absent(),
     this.code = const Value.absent(),
-    this.name = const Value.absent(),
+    this.nameZh = const Value.absent(),
+    this.nameEn = const Value.absent(),
     this.iconUrl = const Value.absent(),
     this.position = const Value.absent(),
   });
@@ -1786,18 +1875,20 @@ class PortalApplicationsCompanion extends UpdateCompanion<PortalApplication> {
     this.id = const Value.absent(),
     required int category,
     required String code,
-    required String name,
+    required String nameZh,
+    this.nameEn = const Value.absent(),
     this.iconUrl = const Value.absent(),
     required int position,
   }) : category = Value(category),
        code = Value(code),
-       name = Value(name),
+       nameZh = Value(nameZh),
        position = Value(position);
   static Insertable<PortalApplication> custom({
     Expression<int>? id,
     Expression<int>? category,
     Expression<String>? code,
-    Expression<String>? name,
+    Expression<String>? nameZh,
+    Expression<String>? nameEn,
     Expression<String>? iconUrl,
     Expression<int>? position,
   }) {
@@ -1805,7 +1896,8 @@ class PortalApplicationsCompanion extends UpdateCompanion<PortalApplication> {
       if (id != null) 'id': id,
       if (category != null) 'category': category,
       if (code != null) 'code': code,
-      if (name != null) 'name': name,
+      if (nameZh != null) 'name_zh': nameZh,
+      if (nameEn != null) 'name_en': nameEn,
       if (iconUrl != null) 'icon_url': iconUrl,
       if (position != null) 'position': position,
     });
@@ -1815,7 +1907,8 @@ class PortalApplicationsCompanion extends UpdateCompanion<PortalApplication> {
     Value<int>? id,
     Value<int>? category,
     Value<String>? code,
-    Value<String>? name,
+    Value<String>? nameZh,
+    Value<String?>? nameEn,
     Value<String?>? iconUrl,
     Value<int>? position,
   }) {
@@ -1823,7 +1916,8 @@ class PortalApplicationsCompanion extends UpdateCompanion<PortalApplication> {
       id: id ?? this.id,
       category: category ?? this.category,
       code: code ?? this.code,
-      name: name ?? this.name,
+      nameZh: nameZh ?? this.nameZh,
+      nameEn: nameEn ?? this.nameEn,
       iconUrl: iconUrl ?? this.iconUrl,
       position: position ?? this.position,
     );
@@ -1841,8 +1935,11 @@ class PortalApplicationsCompanion extends UpdateCompanion<PortalApplication> {
     if (code.present) {
       map['code'] = Variable<String>(code.value);
     }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
+    if (nameZh.present) {
+      map['name_zh'] = Variable<String>(nameZh.value);
+    }
+    if (nameEn.present) {
+      map['name_en'] = Variable<String>(nameEn.value);
     }
     if (iconUrl.present) {
       map['icon_url'] = Variable<String>(iconUrl.value);
@@ -1859,7 +1956,8 @@ class PortalApplicationsCompanion extends UpdateCompanion<PortalApplication> {
           ..write('id: $id, ')
           ..write('category: $category, ')
           ..write('code: $code, ')
-          ..write('name: $name, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
           ..write('iconUrl: $iconUrl, ')
           ..write('position: $position')
           ..write(')'))
@@ -14540,7 +14638,8 @@ typedef $$PortalApplicationCategoriesTableCreateCompanionBuilder =
       Value<int> id,
       required int user,
       required String distinguishedName,
-      required String name,
+      required String nameZh,
+      Value<String?> nameEn,
       required int position,
     });
 typedef $$PortalApplicationCategoriesTableUpdateCompanionBuilder =
@@ -14548,7 +14647,8 @@ typedef $$PortalApplicationCategoriesTableUpdateCompanionBuilder =
       Value<int> id,
       Value<int> user,
       Value<String> distinguishedName,
-      Value<String> name,
+      Value<String> nameZh,
+      Value<String?> nameEn,
       Value<int> position,
     });
 
@@ -14624,8 +14724,13 @@ class $$PortalApplicationCategoriesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
+  ColumnFilters<String> get nameZh => $composableBuilder(
+    column: $table.nameZh,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14702,8 +14807,13 @@ class $$PortalApplicationCategoriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
+  ColumnOrderings<String> get nameZh => $composableBuilder(
+    column: $table.nameZh,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -14753,8 +14863,11 @@ class $$PortalApplicationCategoriesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
+  GeneratedColumn<String> get nameZh =>
+      $composableBuilder(column: $table.nameZh, builder: (column) => column);
+
+  GeneratedColumn<String> get nameEn =>
+      $composableBuilder(column: $table.nameEn, builder: (column) => column);
 
   GeneratedColumn<int> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
@@ -14854,13 +14967,15 @@ class $$PortalApplicationCategoriesTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> user = const Value.absent(),
                 Value<String> distinguishedName = const Value.absent(),
-                Value<String> name = const Value.absent(),
+                Value<String> nameZh = const Value.absent(),
+                Value<String?> nameEn = const Value.absent(),
                 Value<int> position = const Value.absent(),
               }) => PortalApplicationCategoriesCompanion(
                 id: id,
                 user: user,
                 distinguishedName: distinguishedName,
-                name: name,
+                nameZh: nameZh,
+                nameEn: nameEn,
                 position: position,
               ),
           createCompanionCallback:
@@ -14868,13 +14983,15 @@ class $$PortalApplicationCategoriesTableTableManager
                 Value<int> id = const Value.absent(),
                 required int user,
                 required String distinguishedName,
-                required String name,
+                required String nameZh,
+                Value<String?> nameEn = const Value.absent(),
                 required int position,
               }) => PortalApplicationCategoriesCompanion.insert(
                 id: id,
                 user: user,
                 distinguishedName: distinguishedName,
-                name: name,
+                nameZh: nameZh,
+                nameEn: nameEn,
                 position: position,
               ),
           withReferenceMapper: (p0) => p0
@@ -14974,7 +15091,8 @@ typedef $$PortalApplicationsTableCreateCompanionBuilder =
       Value<int> id,
       required int category,
       required String code,
-      required String name,
+      required String nameZh,
+      Value<String?> nameEn,
       Value<String?> iconUrl,
       required int position,
     });
@@ -14983,7 +15101,8 @@ typedef $$PortalApplicationsTableUpdateCompanionBuilder =
       Value<int> id,
       Value<int> category,
       Value<String> code,
-      Value<String> name,
+      Value<String> nameZh,
+      Value<String?> nameEn,
       Value<String?> iconUrl,
       Value<int> position,
     });
@@ -15040,8 +15159,13 @@ class $$PortalApplicationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
+  ColumnFilters<String> get nameZh => $composableBuilder(
+    column: $table.nameZh,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15099,8 +15223,13 @@ class $$PortalApplicationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
+  ColumnOrderings<String> get nameZh => $composableBuilder(
+    column: $table.nameZh,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -15154,8 +15283,11 @@ class $$PortalApplicationsTableAnnotationComposer
   GeneratedColumn<String> get code =>
       $composableBuilder(column: $table.code, builder: (column) => column);
 
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
+  GeneratedColumn<String> get nameZh =>
+      $composableBuilder(column: $table.nameZh, builder: (column) => column);
+
+  GeneratedColumn<String> get nameEn =>
+      $composableBuilder(column: $table.nameEn, builder: (column) => column);
 
   GeneratedColumn<String> get iconUrl =>
       $composableBuilder(column: $table.iconUrl, builder: (column) => column);
@@ -15224,14 +15356,16 @@ class $$PortalApplicationsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> category = const Value.absent(),
                 Value<String> code = const Value.absent(),
-                Value<String> name = const Value.absent(),
+                Value<String> nameZh = const Value.absent(),
+                Value<String?> nameEn = const Value.absent(),
                 Value<String?> iconUrl = const Value.absent(),
                 Value<int> position = const Value.absent(),
               }) => PortalApplicationsCompanion(
                 id: id,
                 category: category,
                 code: code,
-                name: name,
+                nameZh: nameZh,
+                nameEn: nameEn,
                 iconUrl: iconUrl,
                 position: position,
               ),
@@ -15240,14 +15374,16 @@ class $$PortalApplicationsTableTableManager
                 Value<int> id = const Value.absent(),
                 required int category,
                 required String code,
-                required String name,
+                required String nameZh,
+                Value<String?> nameEn = const Value.absent(),
                 Value<String?> iconUrl = const Value.absent(),
                 required int position,
               }) => PortalApplicationsCompanion.insert(
                 id: id,
                 category: category,
                 code: code,
-                name: name,
+                nameZh: nameZh,
+                nameEn: nameEn,
                 iconUrl: iconUrl,
                 position: position,
               ),

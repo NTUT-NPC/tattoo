@@ -315,12 +315,19 @@ void main() {
               application.code == PortalServiceCode.courseService.code,
         );
         expect(courseSystem.iconUrl, startsWith('https://app.ntut.edu.tw/'));
+        expect(courseSystem.nameZh, isNotEmpty);
+        expect(courseSystem.nameEn, isNotEmpty);
+        expect(
+          applications.where((application) => application.nameEn != null),
+          isNotEmpty,
+          reason: 'English catalog should enrich the Chinese catalog',
+        );
         for (final category in categories) {
           expect(category.distinguishedName, isNotEmpty);
-          expect(category.name, isNotEmpty);
+          expect(category.nameZh, isNotEmpty);
           for (final application in category.applications) {
             expect(application.code, isNotEmpty);
-            expect(application.name, isNotEmpty);
+            expect(application.nameZh, isNotEmpty);
           }
         }
       });

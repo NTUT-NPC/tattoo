@@ -116,8 +116,11 @@ class PortalApplicationCategories extends Table with AutoIncrementId {
   /// LDAP distinguished name used by the portal to fetch this category.
   late final distinguishedName = text()();
 
-  /// Category display name supplied by the portal.
-  late final name = text()();
+  /// Chinese category display name supplied by the portal.
+  late final nameZh = text()();
+
+  /// English category display name supplied by the portal.
+  late final nameEn = text().nullable()();
 
   /// Display order supplied by the portal.
   late final position = integer()();
@@ -143,8 +146,11 @@ class PortalApplications extends Table with AutoIncrementId {
   /// Portal SSO target identifier (`apOu`).
   late final code = text()();
 
-  /// Application display name supplied by the portal.
-  late final name = text()();
+  /// Chinese application display name supplied by the portal.
+  late final nameZh = text()();
+
+  /// English application display name supplied by the portal.
+  late final nameEn = text().nullable()();
 
   /// Absolute URL of the portal-provided application icon.
   late final iconUrl = text().nullable()();

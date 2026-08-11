@@ -53,7 +53,12 @@ void main() {
         categoryDn: 'OU=aa,OU=aproot',
         categoryName: '教務系統',
         applications: [
-          (code: 'aa_0010-oauth', name: '課程系統', iconUrl: 'https://icon'),
+          (
+            code: 'aa_0010-oauth',
+            nameZh: '課程系統',
+            nameEn: 'Curriculum System',
+            iconUrl: 'https://icon',
+          ),
         ],
       );
 
@@ -63,7 +68,8 @@ void main() {
           .timeout(const Duration(seconds: 5));
 
       expect(portalService.catalogCalls, 1);
-      expect(catalog.single.category.name, '教務系統');
+      expect(catalog.single.category.nameZh, '教務系統');
+      expect(catalog.single.category.nameEn, 'System of Academic Affairs');
       expect(
         catalog.single.applications.single.application.code,
         'aa_0010-oauth',
@@ -84,7 +90,12 @@ void main() {
           categoryDn: 'OU=aa,OU=aproot',
           categoryName: '教務系統',
           applications: [
-            (code: 'shared_oauth', name: '共用系統', iconUrl: null),
+            (
+              code: 'shared_oauth',
+              nameZh: '共用系統',
+              nameEn: 'Shared System',
+              iconUrl: null,
+            ),
           ],
         );
         await repository.refreshApplicationCatalog();
@@ -107,14 +118,26 @@ void main() {
           categoryDn: 'OU=inf,OU=aproot',
           categoryName: '資訊服務',
           applications: [
-            (code: 'shared_oauth', name: '共用系統新名稱', iconUrl: null),
+            (
+              code: 'shared_oauth',
+              nameZh: '共用系統新名稱',
+              nameEn: null,
+              iconUrl: null,
+            ),
           ],
         );
         await repository.refreshApplicationCatalog();
 
         final moved = await repository.watchApplicationCatalog().first;
-        expect(moved.single.category.name, '資訊服務');
-        expect(moved.single.applications.single.application.name, '共用系統新名稱');
+        expect(moved.single.category.nameZh, '資訊服務');
+        expect(
+          moved.single.applications.single.application.nameZh,
+          '共用系統新名稱',
+        );
+        expect(
+          moved.single.applications.single.application.nameEn,
+          'Shared System',
+        );
         expect(moved.single.applications.single.isFavorite, isTrue);
 
         await database.deleteCachedData();
@@ -137,14 +160,24 @@ void main() {
           categoryDn: 'OU=aa,OU=aproot',
           categoryName: '教務系統',
           applications: [
-            (code: 'old_oauth', name: '舊系統', iconUrl: null),
+            (
+              code: 'old_oauth',
+              nameZh: '舊系統',
+              nameEn: 'Old System',
+              iconUrl: null,
+            ),
           ],
         ),
         ..._catalog(
           categoryDn: 'OU=sa,OU=aproot',
           categoryName: '學務系統',
           applications: [
-            (code: 'removed_oauth', name: '移除系統', iconUrl: null),
+            (
+              code: 'removed_oauth',
+              nameZh: '移除系統',
+              nameEn: 'Removed System',
+              iconUrl: null,
+            ),
           ],
         ),
       ];
@@ -159,9 +192,54 @@ void main() {
 
       final catalog = await repository.watchApplicationCatalog().first;
       expect(catalog, hasLength(1));
-      expect(catalog.single.category.name, '教務資訊');
+      expect(catalog.single.category.nameZh, '教務資訊');
       expect(catalog.single.applications, isEmpty);
       expect(await database.select(database.portalApplications).get(), isEmpty);
+    });
+
+    test('missing English enrichment keeps cached translations', () async {
+      portalService.catalog = _catalog(
+        categoryDn: 'OU=aa,OU=aproot',
+        categoryName: '教務系統',
+        applications: [
+          (
+            code: 'aa_0010-oauth',
+            nameZh: '課程系統',
+            nameEn: 'Curriculum System',
+            iconUrl: null,
+          ),
+        ],
+      );
+      await repository.refreshApplicationCatalog();
+
+      portalService.catalog = [
+        (
+          distinguishedName: 'OU=aa,OU=aproot',
+          nameZh: '教務資訊系統',
+          nameEn: null,
+          applications: [
+            (
+              code: 'aa_0010-oauth',
+              nameZh: '課程系統新版',
+              nameEn: null,
+              iconUrl: null,
+            ),
+          ],
+        ),
+      ];
+      await repository.refreshApplicationCatalog();
+
+      final catalog = await repository.watchApplicationCatalog().first;
+      expect(catalog.single.category.nameZh, '教務資訊系統');
+      expect(catalog.single.category.nameEn, 'System of Academic Affairs');
+      expect(
+        catalog.single.applications.single.application.nameZh,
+        '課程系統新版',
+      );
+      expect(
+        catalog.single.applications.single.application.nameEn,
+        'Curriculum System',
+      );
     });
 
     test('concurrent refresh calls share one portal request', () async {
@@ -190,7 +268,12 @@ void main() {
         categoryDn: 'OU=aa,OU=aproot',
         categoryName: '教務系統',
         applications: [
-          (code: 'cached_oauth', name: '快取系統', iconUrl: null),
+          (
+            code: 'cached_oauth',
+            nameZh: '快取系統',
+            nameEn: 'Cached System',
+            iconUrl: null,
+          ),
         ],
       );
       await repository.refreshApplicationCatalog();
@@ -231,7 +314,12 @@ List<PortalApplicationCategoryDto> _catalog({
   return [
     (
       distinguishedName: categoryDn,
-      name: categoryName,
+      nameZh: categoryName,
+      nameEn: switch (categoryName) {
+        '教務系統' => 'System of Academic Affairs',
+        '學務系統' => 'Student Affairs System',
+        _ => null,
+      },
       applications: applications,
     ),
   ];

@@ -149,6 +149,31 @@ class PortalRepository {
     );
 
     await _database.transaction(() async {
+      final cachedEnglishNames =
+          await (_database
+                  .select(
+                    _database.portalApplications,
+                  )
+                  .join([
+                    innerJoin(
+                      _database.portalApplicationCategories,
+                      _database.portalApplicationCategories.id.equalsExp(
+                        _database.portalApplications.category,
+                      ),
+                    ),
+                  ])
+                ..where(
+                  _database.portalApplicationCategories.user.equals(user.id),
+                ))
+              .get();
+      final cachedApplicationNameEnByCode = <String, String>{};
+      for (final row in cachedEnglishNames) {
+        final application = row.readTable(_database.portalApplications);
+        if (application.nameEn case final name?) {
+          cachedApplicationNameEnByCode[application.code] = name;
+        }
+      }
+
       final fetchedCategoryIds = <int>{};
       for (final (categoryPosition, categoryDto) in catalog.indexed) {
         final category = await _database
@@ -157,12 +182,14 @@ class PortalRepository {
               PortalApplicationCategoriesCompanion.insert(
                 user: user.id,
                 distinguishedName: categoryDto.distinguishedName,
-                name: categoryDto.name,
+                nameZh: categoryDto.nameZh,
+                nameEn: Value(categoryDto.nameEn),
                 position: categoryPosition,
               ),
               onConflict: DoUpdate(
                 (old) => PortalApplicationCategoriesCompanion(
-                  name: Value(categoryDto.name),
+                  nameZh: Value(categoryDto.nameZh),
+                  nameEn: .absentIfNull(categoryDto.nameEn),
                   position: Value(categoryPosition),
                 ),
                 target: [
@@ -176,19 +203,24 @@ class PortalRepository {
         final fetchedApplicationIds = <int>{};
         for (final (applicationPosition, applicationDto)
             in categoryDto.applications.indexed) {
+          final nameEn =
+              applicationDto.nameEn ??
+              cachedApplicationNameEnByCode[applicationDto.code];
           final application = await _database
               .into(_database.portalApplications)
               .insertReturning(
                 PortalApplicationsCompanion.insert(
                   category: category.id,
                   code: applicationDto.code,
-                  name: applicationDto.name,
+                  nameZh: applicationDto.nameZh,
+                  nameEn: Value(nameEn),
                   iconUrl: Value(applicationDto.iconUrl),
                   position: applicationPosition,
                 ),
                 onConflict: DoUpdate(
                   (old) => PortalApplicationsCompanion(
-                    name: Value(applicationDto.name),
+                    nameZh: Value(applicationDto.nameZh),
+                    nameEn: .absentIfNull(nameEn),
                     iconUrl: Value(applicationDto.iconUrl),
                     position: Value(applicationPosition),
                   ),

@@ -67,8 +67,11 @@ typedef PortalApplicationDto = ({
   /// Portal SSO target identifier (`apOu`).
   String code,
 
-  /// Display name supplied by the portal.
-  String name,
+  /// Chinese display name supplied by the portal.
+  String nameZh,
+
+  /// English display name supplied by the portal, when present.
+  String? nameEn,
 
   /// Absolute URL of the icon supplied by the portal, when present.
   String? iconUrl,
@@ -82,8 +85,11 @@ typedef PortalApplicationCategoryDto = ({
   /// LDAP distinguished name used to fetch the category from the portal.
   String distinguishedName,
 
-  /// Display name supplied by the portal.
-  String name,
+  /// Chinese display name supplied by the portal.
+  String nameZh,
+
+  /// English display name supplied by the portal, when present.
+  String? nameEn,
 
   /// Applications in portal display order.
   List<PortalApplicationDto> applications,
@@ -207,11 +213,15 @@ abstract interface class PortalService {
   );
 
   /// Fetches every application category and browser-openable application
-  /// available to the current portal account.
+  /// available to the current portal account in Chinese and English.
   ///
-  /// Portal folders are traversed recursively. The portal's own bookmark
-  /// state is intentionally not read or changed; favorites in Tattoo are
-  /// app-local data managed by the repository.
+  /// The portal stores language in the server session, so implementations
+  /// switch and fetch the two languages sequentially, merge by stable portal
+  /// identifiers, and restore Chinese before returning. English is optional:
+  /// when that fetch is unavailable, Chinese data is still returned. Portal
+  /// folders are traversed recursively. The portal's own bookmark state is
+  /// intentionally not read or changed; favorites in Tattoo are app-local
+  /// data managed by the repository.
   ///
   /// Requires an active portal session (call [login] first).
   Future<List<PortalApplicationCategoryDto>> getApplicationCatalog();

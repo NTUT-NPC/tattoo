@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -10,12 +11,27 @@ import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
 
+typedef _PortalApplicationPageDto = ({
+  String code,
+  String name,
+  String? iconUrl,
+});
+
+typedef _PortalApplicationCategoryPageDto = ({
+  String distinguishedName,
+  String name,
+  List<_PortalApplicationPageDto> applications,
+});
+
 class NtutPortalService implements PortalService {
+  static const _chineseLocale = 'zh_TW';
+  static const _englishLocale = 'en';
   static final _folderCallPattern = RegExp(
     r"apPopupSubEip5\('([^']+)','apMap','([^']*)'\)",
   );
 
   late final Dio _portalDio;
+  Future<void> _catalogLocaleOperation = Future.value();
 
   NtutPortalService() {
     // Emulate the NTUT iOS app's HTTP client
@@ -280,7 +296,44 @@ class NtutPortalService implements PortalService {
   }
 
   @override
-  Future<List<PortalApplicationCategoryDto>> getApplicationCatalog() async {
+  Future<List<PortalApplicationCategoryDto>> getApplicationCatalog() {
+    return _withCatalogLocaleLock(() async {
+      await _setPortalLocale(_chineseLocale);
+      final chinese = await _getApplicationCatalogForCurrentLocale();
+
+      List<_PortalApplicationCategoryPageDto> english = const [];
+      Object? operationError;
+      try {
+        await _setPortalLocale(_englishLocale);
+        english = await _getApplicationCatalogForCurrentLocale();
+      } on SessionExpiredException catch (error) {
+        operationError = error;
+        rethrow;
+      } catch (_) {
+        // Match CourseService's bilingual behavior: English enriches the
+        // canonical Chinese response, but its instability must not make the
+        // complete catalog unavailable.
+      } finally {
+        // The portal locale is server-side session state. Always restore the
+        // app's established Chinese source state, including failure paths.
+        try {
+          await _setPortalLocale(_chineseLocale);
+        } catch (restoreError, restoreStackTrace) {
+          // Preserve the root failure when both the crawl and cleanup fail.
+          // If the crawl succeeded, fail the refresh so the repository does
+          // not mark an uncertain portal session state as freshly cached.
+          if (operationError == null) {
+            Error.throwWithStackTrace(restoreError, restoreStackTrace);
+          }
+        }
+      }
+
+      return _mergeApplicationCatalog(chinese, english);
+    });
+  }
+
+  Future<List<_PortalApplicationCategoryPageDto>>
+  _getApplicationCatalogForCurrentLocale() async {
     final response = await _getApplicationPage(queryParameters: {'init': ''});
     final document = _parseApplicationPage(response.data!);
     final categories = _parseApplicationCategories(document);
@@ -290,7 +343,7 @@ class NtutPortalService implements PortalService {
       );
     }
 
-    final result = <PortalApplicationCategoryDto>[];
+    final result = <_PortalApplicationCategoryPageDto>[];
     for (final category in categories) {
       final applications = await _getCategoryApplications(
         category.distinguishedName,
@@ -303,6 +356,44 @@ class NtutPortalService implements PortalService {
       ));
     }
     return result;
+  }
+
+  Future<void> _setPortalLocale(String locale) async {
+    final response = await _portalDio.post<String>(
+      'localeModify.do',
+      data: {'localeId': locale},
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        responseType: .plain,
+        headers: const {'X-Requested-With': 'XMLHttpRequest'},
+      ),
+    );
+    final body = response.data?.trim() ?? '';
+    _throwIfPortalSessionExpired(body);
+    if (body != locale) {
+      throw FormatException(
+        'NTUT Portal did not confirm locale $locale.',
+      );
+    }
+
+    final reload = await _portalDio.get<String>(
+      'localeReload.do',
+      queryParameters: {'locale': body},
+      options: Options(responseType: .plain),
+    );
+    _throwIfPortalSessionExpired(reload.data ?? '');
+  }
+
+  Future<T> _withCatalogLocaleLock<T>(Future<T> Function() operation) async {
+    final previous = _catalogLocaleOperation;
+    final release = Completer<void>();
+    _catalogLocaleOperation = release.future;
+    await previous;
+    try {
+      return await operation();
+    } finally {
+      release.complete();
+    }
   }
 
   Future<Response<String>> _getApplicationPage({
@@ -319,15 +410,17 @@ class NtutPortalService implements PortalService {
   }
 
   Document _parseApplicationPage(String html) {
+    _throwIfPortalSessionExpired(html);
     final document = parse(html);
-    final text = document.body?.text ?? '';
-    if (document.querySelector('title')?.text.trim() == '請重新登入' ||
-        text.contains('請重新登入') ||
-        text.contains('您目前已和伺服器中斷連線') ||
-        text.contains('You have been disconnected from the server')) {
+    return document;
+  }
+
+  void _throwIfPortalSessionExpired(String body) {
+    if (body.contains('請重新登入') ||
+        body.contains('您目前已和伺服器中斷連線') ||
+        body.contains('You have been disconnected from the server')) {
       throw const SessionExpiredException('NTUT Portal session expired');
     }
-    return document;
   }
 
   List<({String distinguishedName, String name})> _parseApplicationCategories(
@@ -343,7 +436,7 @@ class NtutPortalService implements PortalService {
     return categories;
   }
 
-  Future<List<PortalApplicationDto>> _getCategoryApplications(
+  Future<List<_PortalApplicationPageDto>> _getCategoryApplications(
     String distinguishedName, {
     required Set<String> visitedFolders,
   }) async {
@@ -356,7 +449,7 @@ class NtutPortalService implements PortalService {
       },
     );
     final document = _parseApplicationPage(response.data!);
-    final applications = <PortalApplicationDto>[];
+    final applications = <_PortalApplicationPageDto>[];
     final seenCodes = <String>{};
 
     for (final item in document.querySelectorAll('.apt-icon')) {
@@ -383,7 +476,10 @@ class NtutPortalService implements PortalService {
     return applications;
   }
 
-  PortalApplicationDto? _parseApplication(Element item, Uri responseUri) {
+  _PortalApplicationPageDto? _parseApplication(
+    Element item,
+    Uri responseUri,
+  ) {
     Element? link;
     for (final candidate in item.querySelectorAll('a[href]')) {
       final href = candidate.attributes['href'];
@@ -419,6 +515,49 @@ class NtutPortalService implements PortalService {
       iconUrl: iconPath == null || iconPath.isEmpty
           ? null
           : responseUri.resolve(iconPath).toString(),
+    );
+  }
+
+  List<PortalApplicationCategoryDto> _mergeApplicationCatalog(
+    List<_PortalApplicationCategoryPageDto> chinese,
+    List<_PortalApplicationCategoryPageDto> english,
+  ) {
+    final englishByDn = {
+      for (final category in english) category.distinguishedName: category,
+    };
+    final englishApplicationsByCode = {
+      for (final category in english)
+        for (final application in category.applications)
+          application.code: application,
+    };
+    return [
+      for (final category in chinese)
+        _mergeApplicationCategory(
+          chinese: category,
+          english: englishByDn[category.distinguishedName],
+          englishApplicationsByCode: englishApplicationsByCode,
+        ),
+    ];
+  }
+
+  PortalApplicationCategoryDto _mergeApplicationCategory({
+    required _PortalApplicationCategoryPageDto chinese,
+    _PortalApplicationCategoryPageDto? english,
+    required Map<String, _PortalApplicationPageDto> englishApplicationsByCode,
+  }) {
+    return (
+      distinguishedName: chinese.distinguishedName,
+      nameZh: chinese.name,
+      nameEn: english?.name,
+      applications: [
+        for (final application in chinese.applications)
+          (
+            code: application.code,
+            nameZh: application.name,
+            nameEn: englishApplicationsByCode[application.code]?.name,
+            iconUrl: application.iconUrl,
+          ),
+      ],
     );
   }
 

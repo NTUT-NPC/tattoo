@@ -154,32 +154,38 @@ class MockPortalService implements PortalService {
         [
           (
             distinguishedName: 'OU=aa,OU=aproot',
-            name: '教務系統',
+            nameZh: '教務系統',
+            nameEn: 'System of Academic Affairs',
             applications: [
               (
                 code: PortalServiceCode.courseService.code,
-                name: '課程系統',
+                nameZh: '課程系統',
+                nameEn: 'Curriculum System',
                 iconUrl: null,
               ),
               (
                 code: PortalServiceCode.iSchoolPlusService.code,
-                name: '北科i學園PLUS（校外連線請用VPN）',
+                nameZh: '北科i學園PLUS（校外連線請用VPN）',
+                nameEn: 'ischool_plus（Please use VPN for off-campus）',
                 iconUrl: null,
               ),
             ],
           ),
           (
             distinguishedName: 'OU=sa,OU=aproot',
-            name: '學務系統',
+            nameZh: '學務系統',
+            nameEn: 'Student Affairs System',
             applications: [
               (
                 code: PortalServiceCode.studentQueryService.code,
-                name: '學生查詢專區',
+                nameZh: '學生查詢專區',
+                nameEn: 'Student Inquiry System',
                 iconUrl: null,
               ),
               (
                 code: 'sa_010_oauth',
-                name: '學生請假系統',
+                nameZh: '學生請假系統',
+                nameEn: 'Student Leave System',
                 iconUrl: null,
               ),
             ],
