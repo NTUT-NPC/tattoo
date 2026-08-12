@@ -281,11 +281,15 @@ void main() {
 
     test('concurrent refresh calls share one portal request', () async {
       final gate = Completer<List<PortalApplicationCategoryDto>>();
-      portalService.catalogHandler = () => gate.future;
+      final callStarted = Completer<void>();
+      portalService.catalogHandler = () {
+        if (!callStarted.isCompleted) callStarted.complete();
+        return gate.future;
+      };
 
       final first = repository.refreshApplicationCatalog();
-      await Future<void>.delayed(Duration.zero);
       final second = repository.refreshApplicationCatalog();
+      await callStarted.future.timeout(const Duration(seconds: 5));
       expect(portalService.catalogCalls, 1);
 
       gate.complete(
