@@ -325,6 +325,7 @@ void main() {
         for (final category in categories) {
           expect(category.distinguishedName, isNotEmpty);
           expect(category.nameZh, isNotEmpty);
+          expect(category.nameZh, category.nameZh.trim());
           for (final application in category.applications) {
             expect(application.code, isNotEmpty);
             expect(application.nameZh, isNotEmpty);

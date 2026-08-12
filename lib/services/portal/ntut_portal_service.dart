@@ -430,8 +430,15 @@ class NtutPortalService implements PortalService {
     final seen = <String>{};
     for (final anchor in document.querySelectorAll('a.dropdown-item[href]')) {
       final folder = _parseFolderCall(anchor.attributes['href']);
-      if (folder == null || !seen.add(folder.distinguishedName)) continue;
-      categories.add(folder);
+      if (folder == null ||
+          folder.name.trim().isEmpty ||
+          !seen.add(folder.distinguishedName)) {
+        continue;
+      }
+      categories.add((
+        distinguishedName: folder.distinguishedName,
+        name: folder.name.trim(),
+      ));
     }
     return categories;
   }
