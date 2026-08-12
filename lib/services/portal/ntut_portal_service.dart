@@ -561,8 +561,9 @@ class NtutPortalService implements PortalService {
       final href = candidate.attributes['href'];
       if (href == null) continue;
       final uri = Uri.tryParse(href);
+      final endpoint = uri?.path.split('/').last;
       if (uri == null ||
-          (uri.path != 'ssoIndex.do' && uri.path != 'ssoFromOu.do') ||
+          (endpoint != 'ssoIndex.do' && endpoint != 'ssoFromOu.do') ||
           !uri.queryParameters.containsKey('apOu')) {
         continue;
       }
