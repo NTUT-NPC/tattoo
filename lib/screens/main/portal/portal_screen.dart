@@ -5,118 +5,14 @@ import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/portal_repository.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
+import 'package:tattoo/utils/localized.dart';
 
-// TODO: Fetch portal services from backend instead of hardcoding.
-final _portalSections =
-    <
-      ({
-        String title,
-        List<({String title, String serviceCode})> services,
-      })
-    >[
-      (
-        title: '學務系統',
-        services: [
-          (
-            title: '學生查詢系統',
-            serviceCode: 'sa_003_oauth',
-          ),
-          (
-            title: '學生請假系統',
-            serviceCode: 'sa_010_oauth',
-          ),
-          (
-            title: '學雜費減免及弱勢助學申請系統',
-            serviceCode: 'NTUT_exemption_oauth',
-          ),
-          (
-            title: '就學貸款申請系統',
-            serviceCode: 'sa_SLAS_oauth',
-          ),
-          (
-            title: '諮商預約系統',
-            serviceCode: 'counseling_oauth',
-          ),
-        ],
-      ),
-      (
-        title: '教務系統',
-        services: [
-          (
-            title: '課程系統',
-            serviceCode: 'aa_0010-oauth',
-          ),
-          (
-            title: '期末網路教學評量系統',
-            serviceCode: 'aa_009_oauth',
-          ),
-          (
-            title: '期末網路預選系統',
-            serviceCode: 'aa_011_oauth',
-          ),
-          (
-            title: '暑修需求登錄',
-            serviceCode: 'aa_015_oauth',
-          ),
-          (
-            title: '期中網路撤選系統（學生）',
-            serviceCode: 'aa_Online+Course+Withdrawal+System_stu_oauth',
-          ),
-        ],
-      ),
-      (
-        title: '總務系統',
-        services: [
-          (
-            title: '建物與設備維修通報單錄案系統',
-            serviceCode: 'ga_008_oauth',
-          ),
-          (
-            title: '化學物質GHS管理系統',
-            serviceCode: 'ga_ghs_oauth',
-          ),
-          (
-            title: '線上繳費系統',
-            serviceCode: 'OnlinePayment_oauth',
-          ),
-        ],
-      ),
-      (
-        title: '資訊服務',
-        services: [
-          (
-            title: '網路投票系統',
-            serviceCode: 'per_001_oauth',
-          ),
-          (
-            title: '網路與資訊安全管理系統',
-            serviceCode: 'ipmac_oauth',
-          ),
-          (
-            title: '校園授權軟體',
-            serviceCode: 'inf001_oauth',
-          ),
-          (
-            title: '電子郵件/網路郵局WebMail',
-            serviceCode: 'zimbrasso_oauth',
-          ),
-          (
-            title: '臺北科大小郵差',
-            serviceCode: 'test_postman',
-          ),
-        ],
-      ),
-      (
-        title: '圖書館系統',
-        services: [
-          (
-            title: '圖書館系統',
-            serviceCode: 'lib_002_oauth',
-          ),
-        ],
-      ),
-    ];
+final _portalApplicationCatalogProvider = StreamProvider(
+  (ref) => ref.watch(portalRepositoryProvider).watchApplicationCatalog(),
+);
 
 class PortalScreen extends ConsumerWidget {
   const PortalScreen({super.key});
@@ -141,50 +37,189 @@ class PortalScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _setFavorite(
+    BuildContext context,
+    WidgetRef ref,
+    String applicationCode,
+    bool isFavorite,
+  ) async {
+    try {
+      await ref
+          .read(portalRepositoryProvider)
+          .setApplicationFavorite(
+            applicationCode: applicationCode,
+            isFavorite: isFavorite,
+          );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(t.errors.occurred)));
+    }
+  }
+
+  Future<void> _refresh(BuildContext context, WidgetRef ref) async {
+    try {
+      await ref.read(portalRepositoryProvider).refreshApplicationCatalog();
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(t.errors.occurred)));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: Text(t.nav.portal)),
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverPadding(
-              padding: const .all(16),
-              sliver: SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: .center,
-                  spacing: 12,
-                  children: [
-                    ClearNotice(text: "此功能尚在實驗階段，未讀取可用功能，與實際系統可能有差異"),
-                    // TODO: auto-login to nportal
-                    _PortalCard(
-                      title: "打開校園入口網站",
-                      onTap: () => launchUrl(
-                        .parse('https://nportal.ntut.edu.tw'),
-                      ),
-                    ),
-                    for (final section in _portalSections)
-                      Column(
-                        crossAxisAlignment: .center,
-                        spacing: 4,
-                        children: [
-                          SectionHeader(title: section.title),
-                          for (final service in section.services)
-                            _PortalCard(
-                              title: service.title,
-                              onTap: () => _openNtutService(
-                                context,
-                                ref,
-                                service.serviceCode,
-                              ),
-                            ),
-                        ],
-                      ),
-                  ],
-                ),
+        child: ref
+            .watch(_portalApplicationCatalogProvider)
+            .when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, _) => Center(child: Text(t.errors.connectionFailed)),
+              data: (categories) => _PortalCatalog(
+                categories: categories,
+                onRefresh: () => _refresh(context, ref),
+                onOpen: (code) => _openNtutService(context, ref, code),
+                onFavoriteChanged: (code, favorite) =>
+                    _setFavorite(context, ref, code, favorite),
               ),
             ),
-          ],
+      ),
+    );
+  }
+}
+
+class _PortalCatalog extends StatelessWidget {
+  const _PortalCatalog({
+    required this.categories,
+    required this.onRefresh,
+    required this.onOpen,
+    required this.onFavoriteChanged,
+  });
+
+  final List<PortalApplicationCategoryData> categories;
+  final RefreshCallback onRefresh;
+  final ValueChanged<String> onOpen;
+  final Future<void> Function(String code, bool favorite) onFavoriteChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final visibleCategories = categories
+        .where((category) => category.applications.isNotEmpty)
+        .toList();
+    final favorites = visibleCategories
+        .expand((category) => category.applications)
+        .where((application) => application.isFavorite)
+        .toList();
+
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverPadding(
+            padding: const .all(16),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: .center,
+                spacing: 12,
+                children: [
+                  ClearNotice(text: t.portal.sourceNotice.spaced),
+                  _PortalCard(
+                    title: t.portal.openPortal,
+                    onTap: () => launchUrl(
+                      .parse('https://nportal.ntut.edu.tw'),
+                    ),
+                  ),
+                  if (visibleCategories.isEmpty)
+                    ClearNotice(text: t.portal.empty),
+                  if (favorites.isNotEmpty) ...[
+                    SectionHeader(title: t.portal.favorites),
+                    for (final favorite in favorites)
+                      _ApplicationCard(
+                        application: favorite,
+                        onOpen: onOpen,
+                        onFavoriteChanged: onFavoriteChanged,
+                      ),
+                  ],
+                  for (final category in visibleCategories)
+                    Column(
+                      crossAxisAlignment: .center,
+                      spacing: 4,
+                      children: [
+                        SectionHeader(
+                          title: localized(
+                            category.category.nameZh,
+                            category.category.nameEn,
+                          ).spaced,
+                        ),
+                        for (final application in category.applications)
+                          _ApplicationCard(
+                            application: application,
+                            onOpen: onOpen,
+                            onFavoriteChanged: onFavoriteChanged,
+                          ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ApplicationCard extends StatelessWidget {
+  const _ApplicationCard({
+    required this.application,
+    required this.onOpen,
+    required this.onFavoriteChanged,
+  });
+
+  final PortalApplicationData application;
+  final ValueChanged<String> onOpen;
+  final Future<void> Function(String code, bool favorite) onFavoriteChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final data = application.application;
+    return Card(
+      clipBehavior: .antiAlias,
+      child: InkWell(
+        onTap: () => onOpen(data.code),
+        child: Padding(
+          padding: const .only(left: 16, top: 4, bottom: 4),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  localized(data.nameZh, data.nameEn).spaced,
+                  maxLines: 2,
+                  overflow: .ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              IconButton(
+                tooltip: application.isFavorite
+                    ? t.portal.removeFavorite
+                    : t.portal.addFavorite,
+                onPressed: () async {
+                  await onFavoriteChanged(
+                    data.code,
+                    !application.isFavorite,
+                  );
+                },
+                icon: Icon(
+                  application.isFavorite ? Icons.star : Icons.star_border,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
