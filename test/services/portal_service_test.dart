@@ -332,6 +332,99 @@ void main() {
           }
         }
       });
+
+      test(
+        'should preserve English portal locale while SSO waits for refresh',
+        () async {
+          await portalService.login(
+            TestCredentials.username,
+            TestCredentials.password,
+          );
+
+          final probeDio = createDio()
+            ..options.baseUrl = 'https://app.ntut.edu.tw/'
+            ..options.headers = {
+              'User-Agent': 'Direk ios App',
+              'Connection': 'close',
+            };
+
+          Future<void> setLocale(String locale) async {
+            await probeDio.post<String>(
+              'localeModify.do',
+              data: {'localeId': locale},
+              options: Options(
+                contentType: Headers.formUrlEncodedContentType,
+                responseType: .plain,
+                headers: const {'X-Requested-With': 'XMLHttpRequest'},
+              ),
+            );
+            await probeDio.get<String>(
+              'localeReload.do',
+              queryParameters: {'locale': locale},
+              options: Options(responseType: .plain),
+            );
+          }
+
+          Future<String> getCategoryPage() async {
+            final response = await probeDio.get<String>(
+              'apPopupFull.do',
+              queryParameters: {'init': ''},
+              options: Options(
+                responseType: .plain,
+                headers: const {'X-Requested-With': 'XMLHttpRequest'},
+              ),
+            );
+            return response.data!;
+          }
+
+          final originalCategoryPage = await getCategoryPage();
+          final originalLocale = switch ((
+            originalCategoryPage.contains('System of Academic Affairs'),
+            originalCategoryPage.contains('教務系統'),
+          )) {
+            (true, _) => 'en',
+            (_, true) => 'zh_TW',
+            _ => fail('Could not determine the original portal locale.'),
+          };
+          try {
+            await setLocale('en');
+            expect(
+              await getCategoryPage(),
+              contains('System of Academic Affairs'),
+            );
+            final baselineSsoUrl = await portalService.getSsoUrl(
+              PortalServiceCode.courseService.code,
+            );
+
+            final completions = <String>[];
+            final catalogFuture = portalService.getApplicationCatalog().then((
+              catalog,
+            ) {
+              completions.add('catalog');
+              return catalog;
+            });
+            await Future<void>.delayed(const Duration(milliseconds: 100));
+            final ssoUrlFuture = portalService
+                .getSsoUrl(PortalServiceCode.courseService.code)
+                .then((url) {
+                  completions.add('sso');
+                  return url;
+                });
+
+            expect(await catalogFuture, isNotEmpty);
+            final ssoUrl = await ssoUrlFuture;
+            expect(completions, ['catalog', 'sso']);
+            expect(ssoUrl.origin, baselineSsoUrl.origin);
+            expect(ssoUrl.path, baselineSsoUrl.path);
+            expect(
+              await getCategoryPage(),
+              contains('System of Academic Affairs'),
+            );
+          } finally {
+            await setLocale(originalLocale);
+          }
+        },
+      );
     });
   });
 }

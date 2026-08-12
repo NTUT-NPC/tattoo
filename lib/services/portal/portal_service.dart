@@ -217,10 +217,12 @@ abstract interface class PortalService {
   ///
   /// The portal stores language in the server session, so implementations
   /// switch and fetch the two languages sequentially, merge by stable portal
-  /// identifiers, and restore Chinese before returning. English is optional:
-  /// when that fetch is unavailable, Chinese data is still returned. Portal
-  /// folders are traversed recursively. The portal's own bookmark state is
-  /// intentionally not read or changed; favorites in Tattoo are app-local
+  /// identifiers, and restore the user's original portal language before
+  /// returning. SSO operations are serialized with these temporary switches
+  /// so browser handoff keeps its established language behavior. English is
+  /// optional: when that fetch is unavailable, Chinese data is still returned.
+  /// Portal folders are traversed recursively. The portal's own bookmark state
+  /// is intentionally not read or changed; favorites in Tattoo are app-local
   /// data managed by the repository.
   ///
   /// Requires an active portal session (call [login] first).

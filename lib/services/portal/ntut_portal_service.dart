@@ -26,12 +26,18 @@ typedef _PortalApplicationCategoryPageDto = ({
 class NtutPortalService implements PortalService {
   static const _chineseLocale = 'zh_TW';
   static const _englishLocale = 'en';
+  // The mobile home endpoint is a JSON feed and exposes no locale marker.
+  // This category has a stable DN and is translated in both portal locales.
+  static const _academicCategoryDnPrefix = 'OU=aa,';
+  static const _chineseAcademicCategoryName = '教務系統';
+  static const _englishAcademicCategoryName = 'System of Academic Affairs';
   static final _folderCallPattern = RegExp(
     r"apPopupSubEip5\('([^']+)','apMap','([^']*)'\)",
   );
 
   late final Dio _portalDio;
-  Future<void> _catalogLocaleOperation = Future.value();
+  Future<void> _portalLocaleOperation = Future.value();
+  bool _portalLocaleStateUncertain = false;
 
   NtutPortalService() {
     // Emulate the NTUT iOS app's HTTP client
@@ -73,6 +79,7 @@ class NtutPortalService implements PortalService {
     }
 
     final String? passwordExpiredRemind = body['passwordExpiredRemind'];
+    _portalLocaleStateUncertain = false;
 
     // Normalize empty strings to null for consistency
     String? normalizeEmpty(String? value) =>
@@ -154,56 +161,60 @@ class NtutPortalService implements PortalService {
   }
 
   @override
-  Future<void> sso(String serviceCode) async {
-    final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
+  Future<void> sso(String serviceCode) {
+    return _withPortalLocaleLock(() async {
+      final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
 
-    // Prepend the invalid cookie filter interceptor for i-School Plus SSO
-    if (serviceCode == PortalServiceCode.iSchoolPlusService.code) {
-      _portalDio.interceptors.insert(0, InvalidCookieFilter());
-      _portalDio.transformer = PlainTextTransformer();
-    }
+      // Prepend the invalid cookie filter interceptor for i-School Plus SSO
+      if (serviceCode == PortalServiceCode.iSchoolPlusService.code) {
+        _portalDio.interceptors.insert(0, InvalidCookieFilter());
+        _portalDio.transformer = PlainTextTransformer();
+      }
 
-    // Submit the SSO form and follow redirects
-    // Sets the necessary cookies for the target service
-    await _portalDio.post(
-      actionUrl,
-      data: formData,
-      options: Options(contentType: Headers.formUrlEncodedContentType),
-    );
+      // Submit the SSO form and follow redirects
+      // Sets the necessary cookies for the target service
+      await _portalDio.post(
+        actionUrl,
+        data: formData,
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+      );
+    });
   }
 
   @override
-  Future<Uri> getSsoUrl(String serviceCode) async {
-    final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
+  Future<Uri> getSsoUrl(String serviceCode) {
+    return _withPortalLocaleLock(() async {
+      final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
 
-    // Clone and strip RedirectInterceptor so we can capture the 302 Location
-    // instead of following it.
-    final dioWithoutRedirects = _portalDio.clone()
-      ..interceptors.removeWhere(
-        (interceptor) => interceptor is RedirectInterceptor,
+      // Clone and strip RedirectInterceptor so we can capture the 302 Location
+      // instead of following it.
+      final dioWithoutRedirects = _portalDio.clone()
+        ..interceptors.removeWhere(
+          (interceptor) => interceptor is RedirectInterceptor,
+        );
+
+      final response = await dioWithoutRedirects.post(
+        actionUrl,
+        data: formData,
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+          followRedirects: false,
+          validateStatus: (status) => status != null && status < 400,
+        ),
       );
 
-    final response = await dioWithoutRedirects.post(
-      actionUrl,
-      data: formData,
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-        followRedirects: false,
-        validateStatus: (status) => status != null && status < 400,
-      ),
-    );
+      final location = response.headers.value('location');
+      if (location == null) {
+        throw Exception('SSO redirect not received. Are you logged in?');
+      }
 
-    final location = response.headers.value('location');
-    if (location == null) {
-      throw Exception('SSO redirect not received. Are you logged in?');
-    }
-
-    // The portal may return http:// URLs; upgrade to https://
-    var uri = Uri.parse(location);
-    if (uri.scheme == 'http') {
-      uri = uri.replace(scheme: 'https');
-    }
-    return uri;
+      // The portal may return http:// URLs; upgrade to https://
+      var uri = Uri.parse(location);
+      if (uri.scheme == 'http') {
+        uri = uri.replace(scheme: 'https');
+      }
+      return uri;
+    });
   }
 
   /// Fetches and parses the SSO form for a given apOu code.
@@ -297,45 +308,98 @@ class NtutPortalService implements PortalService {
 
   @override
   Future<List<PortalApplicationCategoryDto>> getApplicationCatalog() {
-    return _withCatalogLocaleLock(() async {
-      await _setPortalLocale(_chineseLocale);
-      final chinese = await _getApplicationCatalogForCurrentLocale();
-
-      List<_PortalApplicationCategoryPageDto> english = const [];
+    return _withPortalLocaleLock(() async {
+      final initialResponse = await _getApplicationPage(
+        queryParameters: {'init': ''},
+      );
+      final initialDocument = _parseApplicationPage(initialResponse.data!);
+      final originalLocale = _parsePortalLocale(initialDocument);
+      var localeMutationAttempted = false;
       Object? operationError;
       try {
-        await _setPortalLocale(_englishLocale);
-        english = await _getApplicationCatalogForCurrentLocale();
-      } on SessionExpiredException catch (error) {
+        List<_PortalApplicationCategoryPageDto> english = const [];
+        late final List<_PortalApplicationCategoryPageDto> chinese;
+        if (originalLocale == _englishLocale) {
+          try {
+            english = await _getApplicationCatalogForCurrentLocale(
+              categoryDocument: initialDocument,
+            );
+          } on SessionExpiredException {
+            rethrow;
+          } catch (_) {
+            // English is optional; continue with the canonical Chinese crawl.
+          }
+          localeMutationAttempted = true;
+          await _setPortalLocale(_chineseLocale);
+          chinese = await _getApplicationCatalogForCurrentLocale();
+        } else {
+          chinese = await _getApplicationCatalogForCurrentLocale(
+            categoryDocument: initialDocument,
+          );
+          localeMutationAttempted = true;
+          await _setPortalLocale(_englishLocale);
+          try {
+            english = await _getApplicationCatalogForCurrentLocale();
+          } on SessionExpiredException {
+            rethrow;
+          } catch (_) {
+            // Match CourseService's bilingual behavior: English enriches the
+            // canonical Chinese response, but its instability must not make
+            // the complete catalog unavailable.
+          }
+        }
+
+        return _mergeApplicationCatalog(chinese, english);
+      } catch (error) {
         operationError = error;
         rethrow;
-      } catch (_) {
-        // Match CourseService's bilingual behavior: English enriches the
-        // canonical Chinese response, but its instability must not make the
-        // complete catalog unavailable.
       } finally {
-        // The portal locale is server-side session state. Always restore the
-        // app's established Chinese source state, including failure paths.
-        try {
-          await _setPortalLocale(_chineseLocale);
-        } catch (restoreError, restoreStackTrace) {
-          // Preserve the root failure when both the crawl and cleanup fail.
-          // If the crawl succeeded, fail the refresh so the repository does
-          // not mark an uncertain portal session state as freshly cached.
-          if (operationError == null) {
-            Error.throwWithStackTrace(restoreError, restoreStackTrace);
+        if (localeMutationAttempted) {
+          try {
+            await _setPortalLocale(originalLocale);
+          } catch (restoreError, restoreStackTrace) {
+            _portalLocaleStateUncertain = true;
+            // Preserve the root failure when both the crawl and cleanup fail.
+            // If the crawl succeeded, fail the refresh so the repository does
+            // not mark an uncertain portal session state as freshly cached.
+            if (operationError == null) {
+              Error.throwWithStackTrace(restoreError, restoreStackTrace);
+            }
           }
         }
       }
-
-      return _mergeApplicationCatalog(chinese, english);
     });
   }
 
+  String _parsePortalLocale(Document document) {
+    for (final category in _parseApplicationCategories(document)) {
+      if (!category.distinguishedName.startsWith(_academicCategoryDnPrefix)) {
+        continue;
+      }
+      return switch (category.name) {
+        _chineseAcademicCategoryName => _chineseLocale,
+        _englishAcademicCategoryName => _englishLocale,
+        _ => throw FormatException(
+          'Unknown NTUT Portal academic category name: ${category.name}',
+        ),
+      };
+    }
+    throw const FormatException(
+      'NTUT Portal academic category was not found.',
+    );
+  }
+
   Future<List<_PortalApplicationCategoryPageDto>>
-  _getApplicationCatalogForCurrentLocale() async {
-    final response = await _getApplicationPage(queryParameters: {'init': ''});
-    final document = _parseApplicationPage(response.data!);
+  _getApplicationCatalogForCurrentLocale({Document? categoryDocument}) async {
+    final Document document;
+    if (categoryDocument case final cached?) {
+      document = cached;
+    } else {
+      final response = await _getApplicationPage(
+        queryParameters: {'init': ''},
+      );
+      document = _parseApplicationPage(response.data!);
+    }
     final categories = _parseApplicationCategories(document);
     if (categories.isEmpty) {
       throw const FormatException(
@@ -384,12 +448,17 @@ class NtutPortalService implements PortalService {
     _throwIfPortalSessionExpired(reload.data ?? '');
   }
 
-  Future<T> _withCatalogLocaleLock<T>(Future<T> Function() operation) async {
-    final previous = _catalogLocaleOperation;
+  Future<T> _withPortalLocaleLock<T>(Future<T> Function() operation) async {
+    final previous = _portalLocaleOperation;
     final release = Completer<void>();
-    _catalogLocaleOperation = release.future;
+    _portalLocaleOperation = release.future;
     await previous;
     try {
+      if (_portalLocaleStateUncertain) {
+        throw const SessionExpiredException(
+          'NTUT Portal locale state could not be restored',
+        );
+      }
       return await operation();
     } finally {
       release.complete();
