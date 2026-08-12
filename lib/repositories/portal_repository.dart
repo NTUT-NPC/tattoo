@@ -56,6 +56,15 @@ class PortalRepository {
       return;
     }
 
+    final attemptedInitialRefresh = user.applicationCatalogFetchedAt == null;
+    if (attemptedInitialRefresh) {
+      try {
+        await refreshApplicationCatalog();
+      } catch (_) {
+        // Absorb: the initial query snapshot below yields empty or stale data.
+      }
+    }
+
     final categories = _database.portalApplicationCategories;
     final applications = _database.portalApplications;
     final favorites = _database.portalApplicationFavorites;
@@ -87,19 +96,9 @@ class PortalRepository {
         return;
       }
 
-      var refreshedMissingCache = false;
-      if (currentUser.applicationCatalogFetchedAt == null) {
-        refreshedMissingCache = true;
-        try {
-          await refreshApplicationCatalog();
-        } catch (_) {
-          // Absorb: yield empty or stale data below.
-        }
-      }
-
       yield data;
 
-      if (refreshedMissingCache) continue;
+      if (attemptedInitialRefresh) continue;
       final freshUser = await (_database.select(
         _database.users,
       )..where((row) => row.id.equals(user.id))).getSingleOrNull();
@@ -279,7 +278,8 @@ class PortalRepository {
       );
     }
 
-    final user = await _database.select(_database.users).getSingle();
+    final user = await _database.select(_database.users).getSingleOrNull();
+    if (user == null) return;
     if (isFavorite) {
       await _database
           .into(_database.portalApplicationFavorites)

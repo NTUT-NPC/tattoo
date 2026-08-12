@@ -62,10 +62,9 @@ void main() {
         ],
       );
 
-      final catalog = await repository
-          .watchApplicationCatalog()
-          .firstWhere((categories) => categories.isNotEmpty)
-          .timeout(const Duration(seconds: 5));
+      final catalog = await repository.watchApplicationCatalog().first.timeout(
+        const Duration(seconds: 5),
+      );
 
       expect(portalService.catalogCalls, 1);
       expect(catalog.single.category.nameZh, '教務系統');
@@ -241,6 +240,44 @@ void main() {
         'Curriculum System',
       );
     });
+
+    test('favorite update is a no-op after the user is removed', () async {
+      await database.delete(database.users).go();
+
+      await expectLater(
+        repository.setApplicationFavorite(
+          applicationCode: 'aa_0010-oauth',
+          isFavorite: true,
+        ),
+        completes,
+      );
+      expect(
+        await database.select(database.portalApplicationFavorites).get(),
+        isEmpty,
+      );
+    });
+
+    test(
+      'failed cold stream refresh emits empty only after one attempt',
+      () async {
+        portalService.catalogHandler = () => Future.error(
+          DioException(
+            requestOptions: RequestOptions(path: 'apPopupFull.do'),
+            type: DioExceptionType.connectionError,
+          ),
+        );
+
+        final catalog = await repository
+            .watchApplicationCatalog()
+            .first
+            .timeout(
+              const Duration(seconds: 5),
+            );
+
+        expect(catalog, isEmpty);
+        expect(portalService.catalogCalls, 1);
+      },
+    );
 
     test('concurrent refresh calls share one portal request', () async {
       final gate = Completer<List<PortalApplicationCategoryDto>>();
