@@ -56,8 +56,8 @@ class PortalRepository {
       return;
     }
 
-    final attemptedInitialRefresh = user.applicationCatalogFetchedAt == null;
-    if (attemptedInitialRefresh) {
+    var skipNextStalenessCheck = user.applicationCatalogFetchedAt == null;
+    if (skipNextStalenessCheck) {
       try {
         await refreshApplicationCatalog();
       } catch (_) {
@@ -98,7 +98,10 @@ class PortalRepository {
 
       yield data;
 
-      if (attemptedInitialRefresh) continue;
+      if (skipNextStalenessCheck) {
+        skipNextStalenessCheck = false;
+        continue;
+      }
       final freshUser = await (_database.select(
         _database.users,
       )..where((row) => row.id.equals(user.id))).getSingleOrNull();

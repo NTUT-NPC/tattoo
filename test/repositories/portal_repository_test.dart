@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -278,6 +279,61 @@ void main() {
         expect(portalService.catalogCalls, 1);
       },
     );
+
+    test('cold stream checks staleness after its initial snapshot', () async {
+      portalService.catalog = _catalog(
+        categoryDn: 'OU=aa,OU=aproot',
+        categoryName: '教務系統',
+        applications: [
+          (
+            code: 'aa_0010-oauth',
+            nameZh: '課程系統',
+            nameEn: 'Curriculum System',
+            iconUrl: null,
+          ),
+        ],
+      );
+      final catalog = StreamIterator(repository.watchApplicationCatalog());
+      addTearDown(catalog.cancel);
+
+      expect(await catalog.moveNext(), isTrue);
+      expect(portalService.catalogCalls, 1);
+
+      await database
+          .update(database.users)
+          .write(
+            UsersCompanion(
+              applicationCatalogFetchedAt: Value(
+                DateTime.now().subtract(const Duration(days: 2)),
+              ),
+            ),
+          );
+      final favoriteEmission = catalog.moveNext();
+      await repository.setApplicationFavorite(
+        applicationCode: 'aa_0010-oauth',
+        isFavorite: true,
+      );
+      expect(
+        await favoriteEmission.timeout(const Duration(seconds: 5)),
+        isTrue,
+      );
+
+      final refreshStarted = Completer<void>();
+      final refreshGate = Completer<List<PortalApplicationCategoryDto>>();
+      portalService.catalogHandler = () {
+        refreshStarted.complete();
+        return refreshGate.future;
+      };
+      final refreshedEmission = catalog.moveNext();
+
+      await refreshStarted.future.timeout(const Duration(seconds: 5));
+      expect(portalService.catalogCalls, 2);
+      refreshGate.complete(portalService.catalog);
+      expect(
+        await refreshedEmission.timeout(const Duration(seconds: 5)),
+        isTrue,
+      );
+    });
 
     test('concurrent refresh calls share one portal request', () async {
       final gate = Completer<List<PortalApplicationCategoryDto>>();
