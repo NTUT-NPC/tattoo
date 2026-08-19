@@ -291,7 +291,7 @@ class PortalRepository {
               user: user.id,
               applicationCode: applicationCode,
             ),
-            mode: InsertMode.insertOrIgnore,
+            mode: .insertOrIgnore,
           );
       return;
     }
