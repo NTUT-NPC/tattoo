@@ -8,29 +8,7 @@ import 'package:tattoo/utils/localized.dart';
 
 Future<void> showCourseTableDetailSheet(
   BuildContext context, {
-  required int offeringId,
-}) {
-  return _showCourseTableDetailSheet(
-    context,
-    child: CourseTableDetailSheet.byOfferingId(offeringId: offeringId),
-  );
-}
-
-Future<void> showCourseTableDetailSheetByCourseNumber(
-  BuildContext context, {
-  required String courseNumber,
-}) {
-  return _showCourseTableDetailSheet(
-    context,
-    child: CourseTableDetailSheet.byCourseNumber(
-      courseNumber: courseNumber,
-    ),
-  );
-}
-
-Future<void> _showCourseTableDetailSheet(
-  BuildContext context, {
-  required Widget child,
+  required String number,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -41,33 +19,19 @@ Future<void> _showCourseTableDetailSheet(
       minWidth: MediaQuery.sizeOf(context).width,
       maxWidth: MediaQuery.sizeOf(context).width,
     ),
-    builder: (context) => child,
+    builder: (context) => CourseTableDetailSheet(number: number),
   );
 }
 
 class CourseTableDetailSheet extends ConsumerWidget {
-  CourseTableDetailSheet.byOfferingId({
-    super.key,
-    required int offeringId,
-  }) : _target = _OfferingIdTarget(offeringId);
+  const CourseTableDetailSheet({super.key, required this.number});
 
-  CourseTableDetailSheet.byCourseNumber({
-    super.key,
-    required String courseNumber,
-  }) : _target = _CourseNumberTarget(courseNumber);
-
-  final _CourseTableDetailTarget _target;
+  /// The course number (課號) identifying the offering to show.
+  final String number;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final detailAsync = switch (_target) {
-      _OfferingIdTarget(:final offeringId) => ref.watch(
-        courseOfferingProvider(offeringId),
-      ),
-      _CourseNumberTarget(:final courseNumber) => ref.watch(
-        courseOfferingByNumberProvider(courseNumber),
-      ),
-    };
+    final detailAsync = ref.watch(courseOfferingProvider(number));
 
     return SafeArea(
       top: false,
@@ -93,22 +57,6 @@ class CourseTableDetailSheet extends ConsumerWidget {
       ),
     );
   }
-}
-
-sealed class _CourseTableDetailTarget {
-  const _CourseTableDetailTarget();
-}
-
-final class _OfferingIdTarget extends _CourseTableDetailTarget {
-  const _OfferingIdTarget(this.offeringId);
-
-  final int offeringId;
-}
-
-final class _CourseNumberTarget extends _CourseTableDetailTarget {
-  const _CourseNumberTarget(this.courseNumber);
-
-  final String courseNumber;
 }
 
 class _CourseDetailContent extends StatelessWidget {

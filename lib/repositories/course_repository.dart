@@ -635,32 +635,31 @@ class CourseRepository {
   }
 
   /// Watches a course offering's joined detail (overview + schedule + teachers
-  /// + classes), composed from the database — no network. A teacher's syllabus
-  /// is fetched separately via [watchSyllabus]. Emits `null` when the offering
-  /// is missing; re-emits when a syllabus refresh writes the offering's header
-  /// fields.
-  Stream<CourseOfferingDetail?> watchCourseOffering(int id) async* {
-    final query = _database.select(_database.courseOfferingOverviews)
-      ..where((o) => o.id.equals(id));
+  /// + classes), selected by its course number (課號) and composed from the
+  /// database — no network. A teacher's syllabus is fetched separately via
+  /// [watchSyllabus]. Emits `null` when the offering is missing; re-emits when
+  /// a syllabus refresh writes the offering's header fields.
+  ///
+  /// Course numbers are only unique per semester, so the newest semester wins
+  /// when the same number was reused across semesters.
+  Stream<CourseOfferingDetail?> watchCourseOffering(String number) async* {
+    final overviews = _database.courseOfferingOverviews;
+    final query =
+        _database.select(overviews).join([
+            innerJoin(
+              _database.semesters,
+              _database.semesters.id.equalsExp(overviews.semester),
+            ),
+          ])
+          ..where(overviews.number.equals(number))
+          ..orderBy([
+            OrderingTerm.desc(_database.semesters.year),
+            OrderingTerm.desc(_database.semesters.term),
+          ])
+          ..limit(1);
 
-    await for (final overview in query.watchSingleOrNull()) {
-      if (overview == null) {
-        yield null;
-        continue;
-      }
-
-      yield await _readCourseOfferingDetail(overview);
-    }
-  }
-
-  /// Watches a course offering selected by its unique course number (課號).
-  Stream<CourseOfferingDetail?> watchCourseOfferingByNumber(
-    String courseNumber,
-  ) async* {
-    final query = _database.select(_database.courseOfferingOverviews)
-      ..where((o) => o.number.equals(courseNumber));
-
-    await for (final overview in query.watchSingleOrNull()) {
+    await for (final rows in query.watch()) {
+      final overview = rows.firstOrNull?.readTable(overviews);
       if (overview == null) {
         yield null;
         continue;
