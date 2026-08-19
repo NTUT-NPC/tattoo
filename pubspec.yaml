@@ -65,6 +65,7 @@ dev_dependencies:
   pointycastle: ^4.0.0
   slang_mcp: ^0.2.0
   args: ^2.7.0
+  shared_preferences_platform_interface: ^2.4.2
 
 flutter:
   uses-material-design: true

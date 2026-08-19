@@ -19,6 +19,7 @@ import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/shells/animated_shell_container.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
+final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 abstract class AppRoutes {
   static const home = '/';

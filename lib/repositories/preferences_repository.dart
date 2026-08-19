@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tattoo/database/database.dart';
@@ -30,7 +31,13 @@ enum PrefKey<T> {
   showDangerZone<bool>(.boolean, false),
 
   /// Whether the Weblate button is shown on the about page.
-  showWeblateButton<bool>(.boolean, false);
+  showWeblateButton<bool>(.boolean, false),
+
+  /// Whether to show the detailed error dialog on uncaught exceptions.
+  ///
+  /// Defaults to `kDebugMode` (true in debug, false in release). Can be
+  /// overridden via the regedit screen or Remote Config for on-device debugging.
+  showErrorDialog<bool>(.boolean, kDebugMode);
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;
