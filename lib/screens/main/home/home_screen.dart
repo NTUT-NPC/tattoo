@@ -7,6 +7,9 @@ import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/services/update_service.dart';
+import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart';
+import 'package:tattoo/screens/main/home/next_course_card.dart';
+import 'package:tattoo/screens/main/home/next_course_carousel.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
@@ -134,19 +137,54 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.nav.home)),
-      body: CustomScrollView(
-        slivers: [
-          SliverPadding(
-            padding: const .all(16),
-            sliver: SliverToBoxAdapter(
-              child: Column(
-                spacing: 8,
-                children: options,
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const .all(16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  spacing: 16,
+                  children: [
+                    NextCourseCarousel(
+                      courses: const [
+                        NextCourse(
+                          title: '微算機原理及應用實習',
+                          courseNumber: '334546',
+                          teacher: '李仁貴老師',
+                          classroom: '綜科501',
+                          time: '13:10 - 19:00',
+                        ),
+                        NextCourse(
+                          title: '資料結構',
+                          courseNumber: '341052',
+                          teacher: '課程教師',
+                          classroom: '綜科302',
+                          time: '09:10 - 12:00',
+                        ),
+                        NextCourse(
+                          title: '作業系統',
+                          courseNumber: '357427',
+                          teacher: '課程教師',
+                          classroom: '綜科401',
+                          time: '15:10 - 18:00',
+                        ),
+                      ],
+                      onCourseTap: (course) => showCourseTableDetailSheet(
+                        context,
+                        number: course.courseNumber,
+                      ),
+                    ),
+                    Column(
+                      spacing: 8,
+                      children: options,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
