@@ -291,24 +291,12 @@ void main() {
             .expand((category) => category.applications)
             .toList();
         expect(
-          applications,
-          contains(
-            isA<PortalApplicationDto>().having(
-              (application) => application.code,
-              'code',
-              PortalServiceCode.courseService.code,
-            ),
-          ),
+          applications.map((application) => application.code),
+          contains(PortalServiceCode.courseService.code),
         );
         expect(
-          applications,
-          contains(
-            isA<PortalApplicationDto>().having(
-              (application) => application.code,
-              'nested English course system code',
-              'en_v_1_oauth',
-            ),
-          ),
+          applications.map((application) => application.code),
+          contains('en_v_1_oauth'),
         );
         final courseSystem = applications.firstWhere(
           (application) =>
