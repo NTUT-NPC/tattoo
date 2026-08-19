@@ -26,6 +26,9 @@ final databaseProvider = Provider<AppDatabase>((ref) {
   tables: [
     // Base tables
     Users,
+    PortalApplicationCategories,
+    PortalApplications,
+    PortalApplicationFavorites,
     Students,
     Semesters,
     Courses,

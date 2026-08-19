@@ -54,6 +54,13 @@ nav:
   calendar: 行事曆
   profile: 我
   vote: 投票登入
+portal:
+  sourceNotice: 此功能仍在開發中，可能會有較大的改動。
+  openPortal: 開啟校園入口網站
+  empty: 目前沒有可用的資訊系統
+  favorites: 我的最愛
+  addFavorite: 加入最愛
+  removeFavorite: 取消最愛
 home:
   projectTattoo:
     title: 關於Project Tattoo

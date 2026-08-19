@@ -58,7 +58,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 **Services:**
 
 - **Architecture:** NTUT services (Portal, Course, ISchoolPlus, StudentQuery) use `abstract interface class` with concrete implementations (e.g., `NtutPortalService`). Files are grouped by subdirectory (e.g., `lib/services/portal/`). Interfaces, DTOs, and providers live in the interface file, while logic lives in the implementation file. Consumers only import the interface file. Service providers check `isDemoProvider` — when true, they return mock implementations instead of real NTUT clients.
-- PortalService — Portal auth, SSO, user profile (avatar, password). Also serves academic calendar events (calModeApp.do JSON API)
+- PortalService — Portal auth, SSO, user profile (avatar, password). Also serves academic calendar events (calModeApp.do JSON API) and portal Apps.
 - CourseService — 課程系統 (`aa_0010-oauth`). Course catalog, schedules, teacher profiles, syllabi. All HTML-parsed.
 - ISchoolPlusService — 北科i學園PLUS (`ischool_plus_oauth`). Course rosters and materials.
 - StudentQueryService — 學生查詢專區 (`sa_003_oauth`). Academic records, GPA, rankings, registration history.

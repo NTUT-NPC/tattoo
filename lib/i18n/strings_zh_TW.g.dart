@@ -45,6 +45,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$intro$zh_TW intro = Translations$intro$zh_TW.internal(_root);
 	late final Translations$login$zh_TW login = Translations$login$zh_TW.internal(_root);
 	late final Translations$nav$zh_TW nav = Translations$nav$zh_TW.internal(_root);
+	late final Translations$portal$zh_TW portal = Translations$portal$zh_TW.internal(_root);
 	late final Translations$home$zh_TW home = Translations$home$zh_TW.internal(_root);
 	late final Translations$score$zh_TW score = Translations$score$zh_TW.internal(_root);
 	late final Translations$calendar$zh_TW calendar = Translations$calendar$zh_TW.internal(_root);
@@ -209,6 +210,33 @@ class Translations$nav$zh_TW {
 
 	/// zh-TW: '投票登入'
 	String get vote => '投票登入';
+}
+
+// Path: portal
+class Translations$portal$zh_TW {
+	Translations$portal$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '此功能仍在開發中，可能會有較大的改動。'
+	String get sourceNotice => '此功能仍在開發中，可能會有較大的改動。';
+
+	/// zh-TW: '開啟校園入口網站'
+	String get openPortal => '開啟校園入口網站';
+
+	/// zh-TW: '目前沒有可用的資訊系統'
+	String get empty => '目前沒有可用的資訊系統';
+
+	/// zh-TW: '我的最愛'
+	String get favorites => '我的最愛';
+
+	/// zh-TW: '加入最愛'
+	String get addFavorite => '加入最愛';
+
+	/// zh-TW: '取消最愛'
+	String get removeFavorite => '取消最愛';
 }
 
 // Path: home
@@ -1009,6 +1037,12 @@ extension on Translations {
 			'nav.calendar' => '行事曆',
 			'nav.profile' => '我',
 			'nav.vote' => '投票登入',
+			'portal.sourceNotice' => '此功能仍在開發中，可能會有較大的改動。',
+			'portal.openPortal' => '開啟校園入口網站',
+			'portal.empty' => '目前沒有可用的資訊系統',
+			'portal.favorites' => '我的最愛',
+			'portal.addFavorite' => '加入最愛',
+			'portal.removeFavorite' => '取消最愛',
 			'home.projectTattoo.title' => '關於Project Tattoo',
 			'home.projectTattoo.description' => '查看更多資訊或邀請你的朋友加入測試計畫。',
 			'home.projectTattoo.url' => 'https://ntut.app',

@@ -44,6 +44,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$intro$en_US intro = _Translations$intro$en_US._(_root);
 	@override late final _Translations$login$en_US login = _Translations$login$en_US._(_root);
 	@override late final _Translations$nav$en_US nav = _Translations$nav$en_US._(_root);
+	@override late final _Translations$portal$en_US portal = _Translations$portal$en_US._(_root);
 	@override late final _Translations$home$en_US home = _Translations$home$en_US._(_root);
 	@override late final _Translations$score$en_US score = _Translations$score$en_US._(_root);
 	@override late final _Translations$calendar$en_US calendar = _Translations$calendar$en_US._(_root);
@@ -142,6 +143,21 @@ class _Translations$nav$en_US extends Translations$nav$zh_TW {
 	@override String get calendar => 'Calendar';
 	@override String get profile => 'Me';
 	@override String get vote => 'Vote Login';
+}
+
+// Path: portal
+class _Translations$portal$en_US extends Translations$portal$zh_TW {
+	_Translations$portal$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get sourceNotice => 'This feature is still under development and may change significantly.';
+	@override String get openPortal => 'Open Campus Portal';
+	@override String get empty => 'No information systems are currently available.';
+	@override String get favorites => 'My Favorites';
+	@override String get addFavorite => 'Add to favorites';
+	@override String get removeFavorite => 'Remove from favorites';
 }
 
 // Path: home
@@ -666,6 +682,12 @@ extension on TranslationsEnUs {
 			'nav.calendar' => 'Calendar',
 			'nav.profile' => 'Me',
 			'nav.vote' => 'Vote Login',
+			'portal.sourceNotice' => 'This feature is still under development and may change significantly.',
+			'portal.openPortal' => 'Open Campus Portal',
+			'portal.empty' => 'No information systems are currently available.',
+			'portal.favorites' => 'My Favorites',
+			'portal.addFavorite' => 'Add to favorites',
+			'portal.removeFavorite' => 'Remove from favorites',
 			'home.projectTattoo.title' => 'About Project Tattoo',
 			'home.projectTattoo.description' => 'Learn more or invite your friends to join the testing program.',
 			'home.projectTattoo.url' => 'https://ntut.app',

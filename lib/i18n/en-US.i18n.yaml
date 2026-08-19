@@ -54,6 +54,13 @@ nav:
   calendar: Calendar
   profile: Me
   vote: Vote Login
+portal:
+  sourceNotice: This feature is still under development and may change significantly.
+  openPortal: Open Campus Portal
+  empty: No information systems are currently available.
+  favorites: My Favorites
+  addFavorite: Add to favorites
+  removeFavorite: Remove from favorites
 home:
   projectTattoo:
     title: About Project Tattoo

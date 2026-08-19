@@ -25,7 +25,9 @@ extension DatabaseActions on AppDatabase {
   Future<void> deleteCachedData() async {
     await transaction(() async {
       for (final entity in allSchemaEntities.toList().reversed) {
-        if (entity is TableInfo && entity != users) {
+        if (entity is TableInfo &&
+            entity != users &&
+            entity != portalApplicationFavorites) {
           await delete(entity).go();
         }
       }
@@ -36,6 +38,7 @@ extension DatabaseActions on AppDatabase {
           semestersFetchedAt: Value(null),
           scoreDataFetchedAt: Value(null),
           calendarFetchedAt: Value(null),
+          applicationCatalogFetchedAt: Value(null),
         ),
       );
     });

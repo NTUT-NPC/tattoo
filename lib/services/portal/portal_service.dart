@@ -62,6 +62,39 @@ typedef CalendarEventDto = ({
   String? creatorName,
 });
 
+/// Represents an application exposed by the NTUT Portal application catalog.
+typedef PortalApplicationDto = ({
+  /// Portal SSO target identifier (`apOu`).
+  String code,
+
+  /// Chinese display name supplied by the portal.
+  String nameZh,
+
+  /// English display name supplied by the portal, when present.
+  String? nameEn,
+
+  /// Absolute URL of the icon supplied by the portal, when present.
+  String? iconUrl,
+});
+
+/// Represents one top-level NTUT Portal application category.
+///
+/// Nested portal folders are flattened into their top-level category so UI
+/// consumers receive only categories and browser-openable applications.
+typedef PortalApplicationCategoryDto = ({
+  /// LDAP distinguished name used to fetch the category from the portal.
+  String distinguishedName,
+
+  /// Chinese display name supplied by the portal.
+  String nameZh,
+
+  /// English display name supplied by the portal, when present.
+  String? nameEn,
+
+  /// Applications in portal display order.
+  List<PortalApplicationDto> applications,
+});
+
 // dart format off
 /// Identification codes for NTUT services used in SSO authentication.
 ///
@@ -178,4 +211,20 @@ abstract interface class PortalService {
     DateTime startDate,
     DateTime endDate,
   );
+
+  /// Fetches every application category and browser-openable application
+  /// available to the current portal account in Chinese and English.
+  ///
+  /// The portal stores language in the server session, so implementations
+  /// switch and fetch the two languages sequentially, merge by stable portal
+  /// identifiers, and restore the user's original portal language before
+  /// returning. SSO operations are serialized with these temporary switches
+  /// so browser handoff keeps its established language behavior. English is
+  /// optional: when that fetch is unavailable, Chinese data is still returned.
+  /// Portal folders are traversed recursively. The portal's own bookmark state
+  /// is intentionally not read or changed; favorites in Tattoo are app-local
+  /// data managed by the repository.
+  ///
+  /// Requires an active portal session (call [login] first).
+  Future<List<PortalApplicationCategoryDto>> getApplicationCatalog();
 }
