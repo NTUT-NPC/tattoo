@@ -552,7 +552,10 @@ class CourseTableGrid extends StatelessWidget {
                   courseTableCellData: cell,
                   cellColor: colorByCourseId[cell.id] ?? Colors.grey,
                   onTap: () {
-                    showCourseTableDetailSheet(context, cell: cell);
+                    showCourseTableDetailSheet(
+                      context,
+                      offeringId: cell.id,
+                    );
                   },
                 ),
               ),
@@ -581,7 +584,10 @@ class CourseTableGrid extends StatelessWidget {
               courseTableCellData: cell,
               indicatorColor: colorByCourseId[cell.id] ?? Colors.grey,
               onTap: () {
-                showCourseTableDetailSheet(context, cell: cell);
+                showCourseTableDetailSheet(
+                  context,
+                  offeringId: cell.id,
+                );
               },
             ),
         ],

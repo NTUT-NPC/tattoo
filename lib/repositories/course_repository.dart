@@ -649,18 +649,43 @@ class CourseRepository {
         continue;
       }
 
-      final (schedule, teachers, classes) = await (
-        _readOfferingSchedule(id),
-        _readOfferingTeachers(id),
-        _readOfferingClasses(id),
-      ).wait;
-      yield (
-        overview: overview,
-        schedule: schedule,
-        teachers: teachers,
-        classes: classes,
-      );
+      yield await _readCourseOfferingDetail(overview);
     }
+  }
+
+  /// Watches a course offering selected by its unique course number (課號).
+  Stream<CourseOfferingDetail?> watchCourseOfferingByNumber(
+    String courseNumber,
+  ) async* {
+    final query = _database.select(_database.courseOfferingOverviews)
+      ..where((o) => o.number.equals(courseNumber));
+
+    await for (final overview in query.watchSingleOrNull()) {
+      if (overview == null) {
+        yield null;
+        continue;
+      }
+
+      yield await _readCourseOfferingDetail(overview);
+    }
+  }
+
+  Future<CourseOfferingDetail> _readCourseOfferingDetail(
+    CourseOfferingOverview overview,
+  ) async {
+    final offeringId = overview.id;
+    final (schedule, teachers, classes) = await (
+      _readOfferingSchedule(offeringId),
+      _readOfferingTeachers(offeringId),
+      _readOfferingClasses(offeringId),
+    ).wait;
+
+    return (
+      overview: overview,
+      schedule: schedule,
+      teachers: teachers,
+      classes: classes,
+    );
   }
 
   /// Watches the syllabus authored by [teacherId] for offering [offeringId],

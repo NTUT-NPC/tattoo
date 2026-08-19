@@ -39,6 +39,15 @@ final courseOfferingProvider = StreamProvider.autoDispose
           .watchCourseOffering(offeringId);
     });
 
+/// Provides detailed offering data when the caller has a course number rather
+/// than the database offering ID.
+final courseOfferingByNumberProvider = StreamProvider.autoDispose
+    .family<CourseOfferingDetail?, String>((ref, courseNumber) {
+      return ref
+          .watch(courseRepositoryProvider)
+          .watchCourseOfferingByNumber(courseNumber);
+    });
+
 /// Provides a teacher's syllabus for an offering, fetched lazily on first
 /// watch.
 ///
