@@ -95,34 +95,42 @@ Future<void> main() async {
     );
   }
 
+  void showErrorSnackBar(Object error) {
+    final message = isNetworkError(error)
+        ? t.errors.networkError
+        : t.errors.unexpected;
+
+    rootScaffoldMessengerKey.currentState
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
+  }
+
+  Future<bool> shouldShowErrorDialog() async {
+    try {
+      return await container
+          .read(preferencesRepositoryProvider)
+          .get(PrefKey.showErrorDialog);
+    } catch (e) {
+      log('Failed to resolve error display preference: $e');
+      return PrefKey.showErrorDialog.defaultValue;
+    }
+  }
+
   Future<void> handleUncaughtError(
     Object error, {
     ErrorType type = .unknown,
     StackTrace? stackTrace,
   }) async {
-    bool shouldShowDialog;
-    try {
-      shouldShowDialog = await container
-          .read(preferencesRepositoryProvider)
-          .get(PrefKey.showErrorDialog);
-    } catch (_) {
-      shouldShowDialog = kDebugMode;
-    }
+    final showDialog = await shouldShowErrorDialog();
 
-    if (shouldShowDialog) {
+    if (showDialog) {
       showErrorDialog(error, type: type, stackTrace: stackTrace);
     } else {
-      final message = isNetworkError(error)
-          ? t.errors.networkError
-          : t.errors.unexpected;
-
-      rootScaffoldMessengerKey.currentState
-        ?..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(message),
-          ),
-        );
+      showErrorSnackBar(error);
     }
   }
 
