@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
@@ -73,6 +74,10 @@ class _CourseDetailContent extends StatelessWidget {
         _normalizedText(localized(overview.nameZh, overview.nameEn)) ??
         _normalizedText(overview.number) ??
         t.general.unknown;
+    final teachers = detail.teachers
+        .map((teacher) => _normalizedText(teacher.nameZh))
+        .nonNulls
+        .join('、');
     final classrooms = detail.schedule
         .map(
           (slot) => _normalizedText(
@@ -82,6 +87,15 @@ class _CourseDetailContent extends StatelessWidget {
         .nonNulls
         .toSet()
         .join('、');
+    final periodsByDay = <DayOfWeek, List<String>>{};
+    for (final slot in detail.schedule) {
+      (periodsByDay[slot.day] ??= []).add(slot.period.code);
+    }
+    final periods = periodsByDay.entries
+        .map(
+          (entry) => '${_dayOfWeekLabel(entry.key)} ${entry.value.join('、')}',
+        )
+        .join('；');
     return Column(
       mainAxisSize: .min,
       crossAxisAlignment: .start,
@@ -112,7 +126,9 @@ class _CourseDetailContent extends StatelessWidget {
                 spacing: 6,
                 children: [
                   if (overview.number case final number?) Text('課號: $number'),
-                  Text('教室: ${classrooms.isEmpty ? '-' : classrooms}'.spaced),
+                  Text('老師: ${teachers.isEmpty ? '-' : teachers}'.spaced),
+                  Text('上課地點: ${classrooms.isEmpty ? '-' : classrooms}'.spaced),
+                  Text('上課節次: ${periods.isEmpty ? '-' : periods}'.spaced),
                   Text('學分: ${_formatDecimal(overview.credits)}'),
                   Text('時數: ${_formatInteger(overview.hours)}'),
                 ],
@@ -174,3 +190,13 @@ String _formatDecimal(double? value) {
 }
 
 String _formatInteger(int? value) => value?.toString() ?? '-';
+
+String _dayOfWeekLabel(DayOfWeek day) => switch (day) {
+  .sunday => '星期日',
+  .monday => '星期一',
+  .tuesday => '星期二',
+  .wednesday => '星期三',
+  .thursday => '星期四',
+  .friday => '星期五',
+  .saturday => '星期六',
+};
