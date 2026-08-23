@@ -653,8 +653,8 @@ class CourseRepository {
           ])
           ..where(overviews.number.equals(number))
           ..orderBy([
-            OrderingTerm.desc(_database.semesters.year),
-            OrderingTerm.desc(_database.semesters.term),
+            .desc(_database.semesters.year),
+            .desc(_database.semesters.term),
           ])
           ..limit(1);
 

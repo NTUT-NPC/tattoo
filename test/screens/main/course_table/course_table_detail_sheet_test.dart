@@ -15,7 +15,7 @@ void main() {
         overrides: [
           courseOfferingProvider.overrideWith((ref, number) {
             requestedNumber = number;
-            return Stream<CourseOfferingDetail?>.value(null);
+            return .value(null);
           }),
         ],
         child: MaterialApp(
