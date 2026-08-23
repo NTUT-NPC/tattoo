@@ -68,6 +68,7 @@ class _CourseDetailContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final overview = detail.overview;
+    // TODO: replace with course name when available
     final title =
         _normalizedText(localized(overview.nameZh, overview.nameEn)) ??
         _normalizedText(overview.number) ??
@@ -123,6 +124,7 @@ class _CourseDetailContent extends StatelessWidget {
           ),
         ),
         SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
+        // TODO: scroll up to show more course query features like classmate, course outline, etc.
       ],
     );
   }
