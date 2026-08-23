@@ -82,8 +82,6 @@ class _CourseDetailContent extends StatelessWidget {
         .nonNulls
         .toSet()
         .join('、');
-    final maxSpan = _maxConsecutiveSpan(detail);
-
     return Column(
       mainAxisSize: .min,
       crossAxisAlignment: .start,
@@ -117,7 +115,6 @@ class _CourseDetailContent extends StatelessWidget {
                   Text('教室: ${classrooms.isEmpty ? '-' : classrooms}'.spaced),
                   Text('學分: ${_formatDecimal(overview.credits)}'),
                   Text('時數: ${_formatInteger(overview.hours)}'),
-                  Text('連續節數: ${maxSpan == 0 ? '-' : maxSpan}'),
                 ],
               ),
             ),
@@ -158,30 +155,6 @@ class _DetailState extends StatelessWidget {
       ),
     );
   }
-}
-
-int _maxConsecutiveSpan(CourseOfferingDetail detail) {
-  final slots = [...detail.schedule]
-    ..sort((a, b) {
-      final dayComparison = a.day.index.compareTo(b.day.index);
-      return dayComparison != 0
-          ? dayComparison
-          : a.period.index.compareTo(b.period.index);
-    });
-  var maxSpan = 0;
-  var currentSpan = 0;
-
-  for (var index = 0; index < slots.length; index++) {
-    final current = slots[index];
-    final continuesPrevious =
-        index > 0 &&
-        slots[index - 1].day == current.day &&
-        slots[index - 1].period.index + 1 == current.period.index;
-    currentSpan = continuesPrevious ? currentSpan + 1 : 1;
-    if (currentSpan > maxSpan) maxSpan = currentSpan;
-  }
-
-  return maxSpan;
 }
 
 String? _normalizedText(String? value) {
