@@ -113,7 +113,7 @@ Future<void> main() async {
     try {
       return await container
           .read(preferencesRepositoryProvider)
-          .get(PrefKey.showErrorDialog);
+          .get(.showErrorDialog);
     } catch (e) {
       log('Failed to resolve error display preference: $e');
       return PrefKey.showErrorDialog.defaultValue;

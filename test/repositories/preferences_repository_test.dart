@@ -19,16 +19,16 @@ void main() {
           InMemorySharedPreferencesAsync.empty();
       final store = TypedPreferenceStore(SharedPreferencesAsync());
 
-      expect(await store.read(PrefKey.showErrorDialog), isNull);
+      expect(await store.read(.showErrorDialog), isNull);
 
-      await store.write(PrefKey.showErrorDialog, true);
-      expect(await store.read(PrefKey.showErrorDialog), isTrue);
+      await store.write(.showErrorDialog, true);
+      expect(await store.read(.showErrorDialog), isTrue);
 
-      await store.write(PrefKey.showErrorDialog, false);
-      expect(await store.read(PrefKey.showErrorDialog), isFalse);
+      await store.write(.showErrorDialog, false);
+      expect(await store.read(.showErrorDialog), isFalse);
 
-      await store.remove(PrefKey.showErrorDialog);
-      expect(await store.read(PrefKey.showErrorDialog), isNull);
+      await store.remove(.showErrorDialog);
+      expect(await store.read(.showErrorDialog), isNull);
     });
   });
 }
