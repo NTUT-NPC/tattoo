@@ -15,6 +15,11 @@ void main() {
     });
 
     test('can be written and read from TypedPreferenceStore', () async {
+      final originalInstance = SharedPreferencesAsyncPlatform.instance;
+      addTearDown(() {
+        SharedPreferencesAsyncPlatform.instance = originalInstance;
+      });
+
       SharedPreferencesAsyncPlatform.instance =
           InMemorySharedPreferencesAsync.empty();
       final store = TypedPreferenceStore(SharedPreferencesAsync());
