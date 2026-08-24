@@ -414,7 +414,7 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   /// Course offering number (e.g., "313146", "352902").
   ///
   /// Null for special entries that have no assigned number.
-  late final number = text().nullable()();
+  late final number = text().nullable().unique()();
 
   /// Display name as it appears in this semester's timetable.
   ///
@@ -477,11 +477,6 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
 
   /// Number of withdrawn students (撤).
   late final withdrawn = integer().nullable()();
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-    {semester, number},
-  ];
 }
 
 // Junction tables and dependent tables

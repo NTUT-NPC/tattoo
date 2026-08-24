@@ -4964,6 +4964,7 @@ class $CourseOfferingsTable extends CourseOfferings
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
   );
   static const VerificationMeta _nameZhMeta = const VerificationMeta('nameZh');
   @override
@@ -5201,10 +5202,6 @@ class $CourseOfferingsTable extends CourseOfferings
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {semester, number},
-  ];
   @override
   CourseOffering map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
