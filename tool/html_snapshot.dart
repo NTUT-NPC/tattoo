@@ -111,10 +111,12 @@ class CaptureCommand extends SnapshotCommand {
       ..addOption('year', help: 'Course ROC year, e.g. 114.')
       ..addOption('term', help: 'Course term, e.g. 1 or 2.')
       ..addOption('course-id', help: 'Course catalog ID for course.detail.')
-      ..addOption('teacher-id', help: 'Teacher ID for teacher presets.')
+      ..addOption(
+        'teacher-id',
+        help: 'Teacher ID for teacher and course.syllabus presets.',
+      )
       ..addOption('classroom-id', help: 'Classroom ID for course.classroom.')
       ..addOption('course-number', help: 'Course offering number.')
-      ..addOption('syllabus-id', help: 'Syllabus ID for course.syllabus.')
       ..addOption('course-internal-id', help: 'Internal iSchool+ course ID.');
   }
 

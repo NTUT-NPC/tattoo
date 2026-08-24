@@ -368,7 +368,7 @@ void main() {
     });
 
     group('getSyllabus', () {
-      // A syllabus's code is its author's teacher code, so any teacher may have
+      // A syllabus belongs to its authoring teacher, so any teacher may have
       // one. Scans the course table for the first teacher who has submitted a
       // syllabus (others return null — the page shows 尚未登錄).
       Future<SyllabusDto> firstSyllabus() async {
@@ -381,12 +381,12 @@ void main() {
           final number = schedule.number;
           if (number == null || number.isEmpty) continue;
           for (final teacher in schedule.teachers ?? const []) {
-            final code = teacher.id;
-            if (code == null) continue;
+            final teacherId = teacher.id;
+            if (teacherId == null) continue;
             await respectfulDelay();
             final syllabus = await courseService.getSyllabus(
               courseNumber: number,
-              syllabusId: code,
+              teacherId: teacherId,
             );
             if (syllabus != null) return syllabus;
           }

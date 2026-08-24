@@ -511,11 +511,11 @@ class NtutCourseService implements CourseService {
   @override
   Future<SyllabusDto?> getSyllabus({
     required String courseNumber,
-    required String syllabusId,
+    required String teacherId,
   }) async {
     final response = await _courseDio.get(
       'tw/ShowSyllabus.jsp',
-      queryParameters: {'snum': courseNumber, 'code': syllabusId},
+      queryParameters: {'snum': courseNumber, 'code': teacherId},
     );
 
     final document = parse(response.data);
@@ -607,10 +607,9 @@ class NtutCourseService implements CourseService {
     return text.isNotEmpty ? [text] : <String>[];
   }
 
-  /// Parses the available syllabus identifiers from the 查詢 column.
+  /// Parses an anchor's display name and `code` query parameter.
   ///
-  /// Each anchor links to a teacher's syllabus; its `code` query parameter is
-  /// the authoring teacher's id. Returns null when no syllabus is available.
+  /// Returns null fields when the corresponding anchor data is unavailable.
   ReferenceDto _parseAnchorRef(Element anchor) {
     final name = anchor.text.trim();
     final href = anchor.attributes['href'];

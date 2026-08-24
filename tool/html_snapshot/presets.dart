@@ -213,8 +213,8 @@ final _presetList = <SnapshotPreset>[
     name: 'course.syllabus',
     service: .course,
     description:
-        'Course syllabus page. Required: --course-number --syllabus-id.',
-    allSkipReason: 'requires --course-number and --syllabus-id',
+        'Course syllabus page. Required: --course-number --teacher-id.',
+    allSkipReason: 'requires --course-number and --teacher-id',
     buildRequest: _syllabus,
   ),
   SnapshotPreset(
@@ -370,13 +370,13 @@ Future<SnapshotRequest> _syllabus(
   ArgResults args,
 ) async {
   final courseNumber = _requiredOption(args, 'course-number');
-  final syllabusId = _requiredOption(args, 'syllabus-id');
+  final teacherId = _requiredOption(args, 'teacher-id');
   return SnapshotRequest(
     service: .course,
     path: 'tw/ShowSyllabus.jsp',
-    query: {'snum': courseNumber, 'code': syllabusId},
+    query: {'snum': courseNumber, 'code': teacherId},
     extension: 'html',
-    fileParts: ['c$courseNumber', 's$syllabusId'],
+    fileParts: ['c$courseNumber', 't$teacherId'],
   );
 }
 

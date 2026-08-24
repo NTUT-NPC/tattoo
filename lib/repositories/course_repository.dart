@@ -768,7 +768,7 @@ class CourseRepository {
     final syllabus = await _authRepository.withAuth(
       () => _courseService.getSyllabus(
         courseNumber: offering.number!,
-        syllabusId: teacherId,
+        teacherId: teacherId,
       ),
       sso: [.courseService],
     );
