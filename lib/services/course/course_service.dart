@@ -246,12 +246,12 @@ abstract interface class CourseService {
   /// hasn't submitted one yet (the page shows 尚未登錄).
   ///
   /// The [courseNumber] should be a course offering number (e.g., "346774"),
-  /// and [syllabusId] is the authoring teacher's code (one of the `teachers`
-  /// ids of a [ScheduleDto]).
+  /// and [teacherId] is the authoring teacher's ID (one of the `teachers` IDs
+  /// of a [ScheduleDto]).
   ///
   /// Throws an [Exception] if the syllabus tables are not found.
   Future<SyllabusDto?> getSyllabus({
     required String courseNumber,
-    required String syllabusId,
+    required String teacherId,
   });
 }

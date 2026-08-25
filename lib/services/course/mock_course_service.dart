@@ -1837,12 +1837,12 @@ class MockCourseService implements CourseService {
   @override
   Future<SyllabusDto?> getSyllabus({
     required String courseNumber,
-    required String syllabusId,
+    required String teacherId,
   }) async {
     if (syllabusResult != null) return syllabusResult;
     // Some teachers on a team-taught offering haven't submitted a syllabus yet
     // (the real page shows 尚未登錄); return null to exercise that path.
-    if (const {'11894', '11991'}.contains(syllabusId)) return null;
+    if (const {'11894', '11991'}.contains(teacherId)) return null;
     return (
       type: CourseType.universityCommonRequired,
       enrolled: 55,
