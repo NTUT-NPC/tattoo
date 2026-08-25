@@ -127,22 +127,13 @@ class NtutPortalService implements PortalService {
         'pwdForceMdy': 'expired',
         'userPassword': newPassword,
         'confirmPassword': newPassword,
-        'localeId': _chineseLocale,
       },
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-        headers: const {'X-Requested-With': 'XMLHttpRequest'},
-      ),
     );
 
-    final dynamic body;
-    if (response.data is String) {
-      body = jsonDecode(response.data as String);
-    } else {
-      body = response.data;
-    }
+    final body = jsonDecode(response.data);
 
-    if (body['success'] != true && body['success'] != 'true') {
+    // API returns "success": "false" on failure (note the string "false")
+    if (body['success'] != true) {
       throw Exception(
         body['returnMsg'] ?? 'Password change failed. Please try again.',
       );
