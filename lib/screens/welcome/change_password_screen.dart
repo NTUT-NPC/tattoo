@@ -1,11 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/welcome/change_password_providers.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   final bool isExpired;
@@ -35,12 +33,6 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   bool _obscureNew = true;
   bool _obscureConfirm = true;
 
-  String? _errorMessage;
-  bool _currentHasError = false;
-  bool _newHasError = false;
-  bool _confirmHasError = false;
-  bool _isLoading = false;
-
   @override
   void dispose() {
     _currentPasswordController.dispose();
@@ -53,156 +45,34 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   }
 
   void _clearErrors() {
-    if (_errorMessage != null ||
-        _currentHasError ||
-        _newHasError ||
-        _confirmHasError) {
-      setState(() {
-        _errorMessage = null;
-        _currentHasError = false;
-        _newHasError = false;
-        _confirmHasError = false;
-      });
-    }
+    ref.read(changePasswordProvider.notifier).clearErrors();
   }
-
-  void _setError(
-    String message, {
-    bool current = false,
-    bool newPwd = false,
-    bool confirm = false,
-  }) {
-    setState(() {
-      _errorMessage = message;
-      _currentHasError = current;
-      _newHasError = newPwd;
-      _confirmHasError = confirm;
-      _isLoading = false;
-    });
-  }
-
-  void _setLoading(bool loading) {
-    setState(() {
-      _isLoading = loading;
-      if (loading) {
-        _errorMessage = null;
-        _currentHasError = false;
-        _newHasError = false;
-        _confirmHasError = false;
-      }
-    });
-  }
-
-
 
   Future<void> _submit() async {
     final currentPassword = _currentPasswordController.text;
     final newPassword = _newPasswordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
-    // 1. Basic empty check
-    if (!widget.isExpired && currentPassword.isEmpty) {
-      _setError(
-        t.changePassword.errors.emptyFields,
-        current: true,
-      );
-      return;
-    }
+    final success = await ref
+        .read(changePasswordProvider.notifier)
+        .submit(
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+          confirmPassword: confirmPassword,
+          isExpired: widget.isExpired,
+          username: widget.username,
+        );
 
-    if (newPassword.isEmpty || confirmPassword.isEmpty) {
-      _setError(
-        t.changePassword.errors.emptyFields,
-        newPwd: newPassword.isEmpty,
-        confirm: confirmPassword.isEmpty,
-      );
-      return;
-    }
-
-    // 2. Mismatch check
-    if (newPassword != confirmPassword) {
-      _setError(
-        t.changePassword.errors.mismatch,
-        newPwd: true,
-        confirm: true,
-      );
-      return;
-    }
-
-
-
-    _setLoading(true);
-
-    try {
+    if (success && mounted) {
       if (widget.isExpired) {
-        final username = widget.username ?? '';
-        await ref
-            .read(authRepositoryProvider)
-            .changeExpiredPassword(username, newPassword);
-
-        if (mounted) {
-          context.go(AppRoutes.home);
-        }
+        context.go(AppRoutes.home);
       } else {
-        await ref
-            .read(authRepositoryProvider)
-            .changePassword(currentPassword, newPassword);
-
-        if (mounted) {
-          context.pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.changePassword.success)),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        _setError(
-          t.changePassword.errors.failed(error: _errorMessageOf(e)),
-          current: !widget.isExpired,
-          newPwd: true,
-          confirm: true,
+        context.pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.changePassword.success)),
         );
       }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
     }
-  }
-
-  String _errorMessageOf(Object e) {
-    final str = e.toString();
-    final cleanMsg = str.startsWith('Exception: ')
-        ? str.substring('Exception: '.length)
-        : str;
-    log(e.toString());
-
-    if (cleanMsg.contains('身分驗證 失敗') ||
-        cleanMsg.contains('Identity verification Fail')) {
-      return t.changePassword.errors.server.authFailed;
-    }
-    if (cleanMsg.contains('密碼修改有誤。密碼於「1」天內不得再修改。請重新輸入。')) {
-      return t.changePassword.errors.server.minAge;
-    }
-    if (cleanMsg.contains('密碼修改有誤。密碼不得與前「3」次相同。請重新輸入。')) {
-      return t.changePassword.errors.server.historyRepeat;
-    }
-    if (cleanMsg.contains('帳號') && cleanMsg.contains('相同')) {
-      return t.changePassword.errors.server.sameAsUsername;
-    }
-    if (cleanMsg.contains('密碼長度') ||
-        (cleanMsg.contains('字元') && cleanMsg.contains('8'))) {
-      return t.changePassword.errors.server.length;
-    }
-    if (cleanMsg.contains('複雜性') ||
-        cleanMsg.contains('大小寫') ||
-        cleanMsg.contains('符號')) {
-      return t.changePassword.errors.server.complexity;
-    }
-
-    return cleanMsg;
   }
 
   InputDecoration _inputDecoration(
@@ -246,6 +116,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     final title = widget.isExpired
         ? t.changePassword.titleExpired
         : t.changePassword.title;
+    final state = ref.watch(changePasswordProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -316,7 +187,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                   TextField(
                                     controller: _currentPasswordController,
                                     focusNode: _currentPasswordFocusNode,
-                                    enabled: !_isLoading,
+                                    enabled: !state.isLoading,
                                     obscureText: _obscureCurrent,
                                     textInputAction: TextInputAction.next,
                                     onSubmitted: (_) =>
@@ -324,7 +195,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                     onChanged: (_) => _clearErrors(),
                                     decoration: _inputDecoration(
                                       t.changePassword.currentPassword,
-                                      hasError: _currentHasError,
+                                      hasError: state.currentHasError,
                                       suffixIcon: IconButton(
                                         icon: Icon(
                                           _obscureCurrent
@@ -342,7 +213,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                 TextField(
                                   controller: _newPasswordController,
                                   focusNode: _newPasswordFocusNode,
-                                  enabled: !_isLoading,
+                                  enabled: !state.isLoading,
                                   obscureText: _obscureNew,
                                   textInputAction: TextInputAction.next,
                                   onSubmitted: (_) =>
@@ -350,7 +221,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                   onChanged: (_) => _clearErrors(),
                                   decoration: _inputDecoration(
                                     t.changePassword.newPassword,
-                                    hasError: _newHasError,
+                                    hasError: state.newHasError,
                                     suffixIcon: IconButton(
                                       icon: Icon(
                                         _obscureNew
@@ -368,14 +239,14 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                 TextField(
                                   controller: _confirmPasswordController,
                                   focusNode: _confirmPasswordFocusNode,
-                                  enabled: !_isLoading,
+                                  enabled: !state.isLoading,
                                   obscureText: _obscureConfirm,
                                   textInputAction: TextInputAction.done,
                                   onSubmitted: (_) => _submit(),
                                   onChanged: (_) => _clearErrors(),
                                   decoration: _inputDecoration(
                                     t.changePassword.confirmPassword,
-                                    hasError: _confirmHasError,
+                                    hasError: state.confirmHasError,
                                     suffixIcon: IconButton(
                                       icon: Icon(
                                         _obscureConfirm
@@ -393,7 +264,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                               ],
                             ),
 
-                            if (_errorMessage case final errorMessage?)
+                            if (state.errorMessage case final errorMessage?)
                               Padding(
                                 padding: const EdgeInsets.only(top: 24),
                                 child: Text(
@@ -418,10 +289,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                 backgroundColor: theme.colorScheme.primary,
                                 foregroundColor: Colors.white,
                               ),
-                              onPressed: _isLoading ? null : _submit,
+                              onPressed: state.isLoading ? null : _submit,
                               child: Padding(
                                 padding: const EdgeInsets.all(12.0),
-                                child: _isLoading
+                                child: state.isLoading
                                     ? const SizedBox(
                                         height: 20,
                                         width: 20,
