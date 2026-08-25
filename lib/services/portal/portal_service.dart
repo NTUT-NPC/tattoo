@@ -154,6 +154,14 @@ abstract interface class PortalService {
   /// current password or the new password doesn't meet requirements).
   Future<void> changePassword(String currentPassword, String newPassword);
 
+  /// Changes the user's expired NTUT Portal password.
+  ///
+  /// This must be called immediately after a login attempt fails with
+  /// [LoginFailure.passwordExpired], which establishes the expired session.
+  ///
+  /// Throws an [Exception] if the password change fails.
+  Future<void> changeExpiredPassword(String newPassword);
+
   /// Downloads a user's avatar from NTUT Portal.
   ///
   /// If [filename] is omitted or empty, the server returns a dynamically

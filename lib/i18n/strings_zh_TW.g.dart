@@ -56,6 +56,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$enrollmentStatus$zh_TW enrollmentStatus = Translations$enrollmentStatus$zh_TW.internal(_root);
 	late final Translations$about$zh_TW about = Translations$about$zh_TW.internal(_root);
 	late final Translations$regedit$zh_TW regedit = Translations$regedit$zh_TW.internal(_root);
+	late final Translations$changePassword$zh_TW changePassword = Translations$changePassword$zh_TW.internal(_root);
 }
 
 // Path: general
@@ -518,6 +519,41 @@ class Translations$regedit$zh_TW {
 	String get invalidInput => '輸入格式錯誤';
 }
 
+// Path: changePassword
+class Translations$changePassword$zh_TW {
+	Translations$changePassword$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '變更密碼'
+	String get title => '變更密碼';
+
+	/// zh-TW: '變更過期密碼'
+	String get titleExpired => '變更過期密碼';
+
+	/// zh-TW: '您的密碼已過期，請設定新密碼以繼續使用。'
+	String get expiredNotice => '您的密碼已過期，請設定新密碼以繼續使用。';
+
+	/// zh-TW: '目前密碼'
+	String get currentPassword => '目前密碼';
+
+	/// zh-TW: '新密碼'
+	String get newPassword => '新密碼';
+
+	/// zh-TW: '確認新密碼'
+	String get confirmPassword => '確認新密碼';
+
+	/// zh-TW: '變更密碼'
+	String get submit => '變更密碼';
+
+	/// zh-TW: '密碼變更成功'
+	String get success => '密碼變更成功';
+
+	late final Translations$changePassword$errors$zh_TW errors = Translations$changePassword$errors$zh_TW.internal(_root);
+}
+
 // Path: intro.features
 class Translations$intro$features$zh_TW {
 	Translations$intro$features$zh_TW.internal(this._root);
@@ -920,6 +956,33 @@ class Translations$regedit$status$zh_TW {
 	String get remoteOverride => '強制覆寫（遠端）';
 }
 
+// Path: changePassword.errors
+class Translations$changePassword$errors$zh_TW {
+	Translations$changePassword$errors$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '請填寫所有欄位'
+	String get emptyFields => '請填寫所有欄位';
+
+	/// zh-TW: '兩次輸入的密碼不一致'
+	String get mismatch => '兩次輸入的密碼不一致';
+
+	/// zh-TW: '變更密碼失敗：${error}'
+	String failed({required Object error}) => '變更密碼失敗：${error}';
+
+	/// zh-TW: '密碼長度須介於8至14個字元之間'
+	String get invalidLength => '密碼長度須介於8至14個字元之間';
+
+	/// zh-TW: '密碼須包含英文大小寫字母、數字及符號'
+	String get invalidComplexity => '密碼須包含英文大小寫字母、數字及符號';
+
+	/// zh-TW: '密碼不可與學號相同'
+	String get sameAsUsername => '密碼不可與學號相同';
+}
+
 // Path: intro.features.courseTable
 class Translations$intro$features$courseTable$zh_TW {
 	Translations$intro$features$courseTable$zh_TW.internal(this._root);
@@ -1193,6 +1256,20 @@ extension on Translations {
 			'regedit.status.localOverride' => '使用者覆寫',
 			'regedit.status.remoteOverride' => '強制覆寫（遠端）',
 			'regedit.invalidInput' => '輸入格式錯誤',
+			'changePassword.title' => '變更密碼',
+			'changePassword.titleExpired' => '變更過期密碼',
+			'changePassword.expiredNotice' => '您的密碼已過期，請設定新密碼以繼續使用。',
+			'changePassword.currentPassword' => '目前密碼',
+			'changePassword.newPassword' => '新密碼',
+			'changePassword.confirmPassword' => '確認新密碼',
+			'changePassword.submit' => '變更密碼',
+			'changePassword.success' => '密碼變更成功',
+			'changePassword.errors.emptyFields' => '請填寫所有欄位',
+			'changePassword.errors.mismatch' => '兩次輸入的密碼不一致',
+			'changePassword.errors.failed' => ({required Object error}) => '變更密碼失敗：${error}',
+			'changePassword.errors.invalidLength' => '密碼長度須介於8至14個字元之間',
+			'changePassword.errors.invalidComplexity' => '密碼須包含英文大小寫字母、數字及符號',
+			'changePassword.errors.sameAsUsername' => '密碼不可與學號相同',
 			_ => null,
 		};
 	}

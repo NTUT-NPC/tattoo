@@ -120,6 +120,36 @@ class NtutPortalService implements PortalService {
   }
 
   @override
+  Future<void> changeExpiredPassword(String newPassword) async {
+    final response = await _portalDio.post(
+      'passwordFirstMdy.do',
+      data: {
+        'pwdForceMdy': 'expired',
+        'userPassword': newPassword,
+        'confirmPassword': newPassword,
+        'localeId': _chineseLocale,
+      },
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        headers: const {'X-Requested-With': 'XMLHttpRequest'},
+      ),
+    );
+
+    final dynamic body;
+    if (response.data is String) {
+      body = jsonDecode(response.data as String);
+    } else {
+      body = response.data;
+    }
+
+    if (body['success'] != true && body['success'] != 'true') {
+      throw Exception(
+        body['returnMsg'] ?? 'Password change failed. Please try again.',
+      );
+    }
+  }
+
+  @override
   Future<Uint8List> getAvatar([String? filename]) async {
     final response = await _portalDio.get(
       'photoView.do',

@@ -556,6 +556,22 @@ class AuthRepository {
     } catch (_) {}
   }
 
+  /// Changes the user's expired NTUT Portal password.
+  ///
+  /// This must be called when the password has expired (e.g. login failed with
+  /// [LoginFailure.passwordExpired]). It uses the established session to
+  /// change the password, writes the new password to secure storage, and
+  /// performs a full login to establish a valid session.
+  Future<void> changeExpiredPassword(
+    String username,
+    String newPassword,
+  ) async {
+    await _portalService.changeExpiredPassword(newPassword);
+
+    // Perform a full login with the new password to establish a valid session
+    await login(username, newPassword);
+  }
+
   /// Watches the user's active registration (where enrollment status is "在學").
   ///
   /// Emits the most recent semester where the user is actively enrolled,

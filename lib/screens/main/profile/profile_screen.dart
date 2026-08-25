@@ -95,7 +95,12 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile.icon(
         icon: Icons.password,
         title: t.profile.options.changePassword,
-        onTap: () => _showDemoTap(context),
+        onTap: () => context.push(
+          AppRoutes.changePassword,
+          extra: {
+            'isExpired': false,
+          },
+        ),
       ),
       OptionEntryTile.icon(
         icon: Icons.image,

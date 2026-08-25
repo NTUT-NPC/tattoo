@@ -240,3 +240,20 @@ regedit:
     localOverride: User Override
     remoteOverride: Forced (Remote)
   invalidInput: Invalid input
+
+changePassword:
+  title: Change Password
+  titleExpired: Change Expired Password
+  expiredNotice: Your password has expired. Please set a new password to continue.
+  currentPassword: Current Password
+  newPassword: New Password
+  confirmPassword: Confirm New Password
+  submit: Change Password
+  success: Password changed successfully
+  errors:
+    emptyFields: Please fill in all fields
+    mismatch: New passwords do not match
+    failed: "Password change failed: ${error}"
+    invalidLength: Password length must be between 8 and 14 characters
+    invalidComplexity: Password must contain uppercase, lowercase, numbers, and symbols
+    sameAsUsername: Password cannot be the same as your student ID

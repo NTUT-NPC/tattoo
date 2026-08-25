@@ -240,3 +240,20 @@ regedit:
     localOverride: 使用者覆寫
     remoteOverride: 強制覆寫（遠端）
   invalidInput: 輸入格式錯誤
+
+changePassword:
+  title: 變更密碼
+  titleExpired: 變更過期密碼
+  expiredNotice: 您的密碼已過期，請設定新密碼以繼續使用。
+  currentPassword: 目前密碼
+  newPassword: 新密碼
+  confirmPassword: 確認新密碼
+  submit: 變更密碼
+  success: 密碼變更成功
+  errors:
+    emptyFields: 請填寫所有欄位
+    mismatch: 兩次輸入的密碼不一致
+    failed: 變更密碼失敗：${error}
+    invalidLength: 密碼長度須介於8至14個字元之間
+    invalidComplexity: 密碼須包含英文大小寫字母、數字及符號
+    sameAsUsername: 密碼不可與學號相同
