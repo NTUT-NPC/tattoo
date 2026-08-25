@@ -7656,72 +7656,12 @@ class $SyllabusesTable extends Syllabuses
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _objectiveMeta = const VerificationMeta(
-    'objective',
-  );
-  @override
-  late final GeneratedColumn<String> objective = GeneratedColumn<String>(
-    'objective',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _weeklyPlanMeta = const VerificationMeta(
-    'weeklyPlan',
-  );
-  @override
-  late final GeneratedColumn<String> weeklyPlan = GeneratedColumn<String>(
-    'weekly_plan',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _evaluationMeta = const VerificationMeta(
-    'evaluation',
-  );
-  @override
-  late final GeneratedColumn<String> evaluation = GeneratedColumn<String>(
-    'evaluation',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _textbooksMeta = const VerificationMeta(
-    'textbooks',
-  );
-  @override
-  late final GeneratedColumn<String> textbooks = GeneratedColumn<String>(
-    'textbooks',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _remarksMeta = const VerificationMeta(
-    'remarks',
-  );
-  @override
-  late final GeneratedColumn<String> remarks = GeneratedColumn<String>(
-    'remarks',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     courseOffering,
     teacher,
     updatedAt,
-    objective,
-    weeklyPlan,
-    evaluation,
-    textbooks,
-    remarks,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -7763,36 +7703,6 @@ class $SyllabusesTable extends Syllabuses
         updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
-    if (data.containsKey('objective')) {
-      context.handle(
-        _objectiveMeta,
-        objective.isAcceptableOrUnknown(data['objective']!, _objectiveMeta),
-      );
-    }
-    if (data.containsKey('weekly_plan')) {
-      context.handle(
-        _weeklyPlanMeta,
-        weeklyPlan.isAcceptableOrUnknown(data['weekly_plan']!, _weeklyPlanMeta),
-      );
-    }
-    if (data.containsKey('evaluation')) {
-      context.handle(
-        _evaluationMeta,
-        evaluation.isAcceptableOrUnknown(data['evaluation']!, _evaluationMeta),
-      );
-    }
-    if (data.containsKey('textbooks')) {
-      context.handle(
-        _textbooksMeta,
-        textbooks.isAcceptableOrUnknown(data['textbooks']!, _textbooksMeta),
-      );
-    }
-    if (data.containsKey('remarks')) {
-      context.handle(
-        _remarksMeta,
-        remarks.isAcceptableOrUnknown(data['remarks']!, _remarksMeta),
-      );
-    }
     return context;
   }
 
@@ -7822,26 +7732,6 @@ class $SyllabusesTable extends Syllabuses
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       ),
-      objective: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}objective'],
-      ),
-      weeklyPlan: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}weekly_plan'],
-      ),
-      evaluation: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}evaluation'],
-      ),
-      textbooks: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}textbooks'],
-      ),
-      remarks: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}remarks'],
-      ),
     );
   }
 
@@ -7863,34 +7753,11 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
 
   /// When this syllabus was last updated by the teacher (最後更新時間).
   final DateTime? updatedAt;
-
-  /// Course objective/outline (課程大綱).
-  final String? objective;
-
-  /// Weekly plan describing topics covered each week (課程進度).
-  ///
-  /// Note: Called "Course Schedule" on the English page, but refers to weekly
-  /// topics, not class meeting times.
-  final String? weeklyPlan;
-
-  /// Evaluation and grading policy (評量方式與標準).
-  final String? evaluation;
-
-  /// Textbooks and reference materials (使用教材、參考書目或其他).
-  final String? textbooks;
-
-  /// Teacher-authored remarks from the syllabus page (備註).
-  final String? remarks;
   const Syllabus({
     required this.id,
     required this.courseOffering,
     required this.teacher,
     this.updatedAt,
-    this.objective,
-    this.weeklyPlan,
-    this.evaluation,
-    this.textbooks,
-    this.remarks,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -7900,21 +7767,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
     map['teacher'] = Variable<int>(teacher);
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
-    }
-    if (!nullToAbsent || objective != null) {
-      map['objective'] = Variable<String>(objective);
-    }
-    if (!nullToAbsent || weeklyPlan != null) {
-      map['weekly_plan'] = Variable<String>(weeklyPlan);
-    }
-    if (!nullToAbsent || evaluation != null) {
-      map['evaluation'] = Variable<String>(evaluation);
-    }
-    if (!nullToAbsent || textbooks != null) {
-      map['textbooks'] = Variable<String>(textbooks);
-    }
-    if (!nullToAbsent || remarks != null) {
-      map['remarks'] = Variable<String>(remarks);
     }
     return map;
   }
@@ -7927,21 +7779,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(updatedAt),
-      objective: objective == null && nullToAbsent
-          ? const Value.absent()
-          : Value(objective),
-      weeklyPlan: weeklyPlan == null && nullToAbsent
-          ? const Value.absent()
-          : Value(weeklyPlan),
-      evaluation: evaluation == null && nullToAbsent
-          ? const Value.absent()
-          : Value(evaluation),
-      textbooks: textbooks == null && nullToAbsent
-          ? const Value.absent()
-          : Value(textbooks),
-      remarks: remarks == null && nullToAbsent
-          ? const Value.absent()
-          : Value(remarks),
     );
   }
 
@@ -7955,11 +7792,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
       courseOffering: serializer.fromJson<int>(json['courseOffering']),
       teacher: serializer.fromJson<int>(json['teacher']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
-      objective: serializer.fromJson<String?>(json['objective']),
-      weeklyPlan: serializer.fromJson<String?>(json['weeklyPlan']),
-      evaluation: serializer.fromJson<String?>(json['evaluation']),
-      textbooks: serializer.fromJson<String?>(json['textbooks']),
-      remarks: serializer.fromJson<String?>(json['remarks']),
     );
   }
   @override
@@ -7970,11 +7802,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
       'courseOffering': serializer.toJson<int>(courseOffering),
       'teacher': serializer.toJson<int>(teacher),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
-      'objective': serializer.toJson<String?>(objective),
-      'weeklyPlan': serializer.toJson<String?>(weeklyPlan),
-      'evaluation': serializer.toJson<String?>(evaluation),
-      'textbooks': serializer.toJson<String?>(textbooks),
-      'remarks': serializer.toJson<String?>(remarks),
     };
   }
 
@@ -7983,21 +7810,11 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
     int? courseOffering,
     int? teacher,
     Value<DateTime?> updatedAt = const Value.absent(),
-    Value<String?> objective = const Value.absent(),
-    Value<String?> weeklyPlan = const Value.absent(),
-    Value<String?> evaluation = const Value.absent(),
-    Value<String?> textbooks = const Value.absent(),
-    Value<String?> remarks = const Value.absent(),
   }) => Syllabus(
     id: id ?? this.id,
     courseOffering: courseOffering ?? this.courseOffering,
     teacher: teacher ?? this.teacher,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
-    objective: objective.present ? objective.value : this.objective,
-    weeklyPlan: weeklyPlan.present ? weeklyPlan.value : this.weeklyPlan,
-    evaluation: evaluation.present ? evaluation.value : this.evaluation,
-    textbooks: textbooks.present ? textbooks.value : this.textbooks,
-    remarks: remarks.present ? remarks.value : this.remarks,
   );
   Syllabus copyWithCompanion(SyllabusesCompanion data) {
     return Syllabus(
@@ -8007,15 +7824,6 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
           : this.courseOffering,
       teacher: data.teacher.present ? data.teacher.value : this.teacher,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      objective: data.objective.present ? data.objective.value : this.objective,
-      weeklyPlan: data.weeklyPlan.present
-          ? data.weeklyPlan.value
-          : this.weeklyPlan,
-      evaluation: data.evaluation.present
-          ? data.evaluation.value
-          : this.evaluation,
-      textbooks: data.textbooks.present ? data.textbooks.value : this.textbooks,
-      remarks: data.remarks.present ? data.remarks.value : this.remarks,
     );
   }
 
@@ -8025,28 +7833,13 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
           ..write('id: $id, ')
           ..write('courseOffering: $courseOffering, ')
           ..write('teacher: $teacher, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('objective: $objective, ')
-          ..write('weeklyPlan: $weeklyPlan, ')
-          ..write('evaluation: $evaluation, ')
-          ..write('textbooks: $textbooks, ')
-          ..write('remarks: $remarks')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-    id,
-    courseOffering,
-    teacher,
-    updatedAt,
-    objective,
-    weeklyPlan,
-    evaluation,
-    textbooks,
-    remarks,
-  );
+  int get hashCode => Object.hash(id, courseOffering, teacher, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8054,12 +7847,7 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
           other.id == this.id &&
           other.courseOffering == this.courseOffering &&
           other.teacher == this.teacher &&
-          other.updatedAt == this.updatedAt &&
-          other.objective == this.objective &&
-          other.weeklyPlan == this.weeklyPlan &&
-          other.evaluation == this.evaluation &&
-          other.textbooks == this.textbooks &&
-          other.remarks == this.remarks);
+          other.updatedAt == this.updatedAt);
 }
 
 class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
@@ -8067,32 +7855,17 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
   final Value<int> courseOffering;
   final Value<int> teacher;
   final Value<DateTime?> updatedAt;
-  final Value<String?> objective;
-  final Value<String?> weeklyPlan;
-  final Value<String?> evaluation;
-  final Value<String?> textbooks;
-  final Value<String?> remarks;
   const SyllabusesCompanion({
     this.id = const Value.absent(),
     this.courseOffering = const Value.absent(),
     this.teacher = const Value.absent(),
     this.updatedAt = const Value.absent(),
-    this.objective = const Value.absent(),
-    this.weeklyPlan = const Value.absent(),
-    this.evaluation = const Value.absent(),
-    this.textbooks = const Value.absent(),
-    this.remarks = const Value.absent(),
   });
   SyllabusesCompanion.insert({
     this.id = const Value.absent(),
     required int courseOffering,
     required int teacher,
     this.updatedAt = const Value.absent(),
-    this.objective = const Value.absent(),
-    this.weeklyPlan = const Value.absent(),
-    this.evaluation = const Value.absent(),
-    this.textbooks = const Value.absent(),
-    this.remarks = const Value.absent(),
   }) : courseOffering = Value(courseOffering),
        teacher = Value(teacher);
   static Insertable<Syllabus> custom({
@@ -8100,22 +7873,12 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
     Expression<int>? courseOffering,
     Expression<int>? teacher,
     Expression<DateTime>? updatedAt,
-    Expression<String>? objective,
-    Expression<String>? weeklyPlan,
-    Expression<String>? evaluation,
-    Expression<String>? textbooks,
-    Expression<String>? remarks,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (courseOffering != null) 'course_offering': courseOffering,
       if (teacher != null) 'teacher': teacher,
       if (updatedAt != null) 'updated_at': updatedAt,
-      if (objective != null) 'objective': objective,
-      if (weeklyPlan != null) 'weekly_plan': weeklyPlan,
-      if (evaluation != null) 'evaluation': evaluation,
-      if (textbooks != null) 'textbooks': textbooks,
-      if (remarks != null) 'remarks': remarks,
     });
   }
 
@@ -8124,22 +7887,12 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
     Value<int>? courseOffering,
     Value<int>? teacher,
     Value<DateTime?>? updatedAt,
-    Value<String?>? objective,
-    Value<String?>? weeklyPlan,
-    Value<String?>? evaluation,
-    Value<String?>? textbooks,
-    Value<String?>? remarks,
   }) {
     return SyllabusesCompanion(
       id: id ?? this.id,
       courseOffering: courseOffering ?? this.courseOffering,
       teacher: teacher ?? this.teacher,
       updatedAt: updatedAt ?? this.updatedAt,
-      objective: objective ?? this.objective,
-      weeklyPlan: weeklyPlan ?? this.weeklyPlan,
-      evaluation: evaluation ?? this.evaluation,
-      textbooks: textbooks ?? this.textbooks,
-      remarks: remarks ?? this.remarks,
     );
   }
 
@@ -8158,21 +7911,6 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
-    if (objective.present) {
-      map['objective'] = Variable<String>(objective.value);
-    }
-    if (weeklyPlan.present) {
-      map['weekly_plan'] = Variable<String>(weeklyPlan.value);
-    }
-    if (evaluation.present) {
-      map['evaluation'] = Variable<String>(evaluation.value);
-    }
-    if (textbooks.present) {
-      map['textbooks'] = Variable<String>(textbooks.value);
-    }
-    if (remarks.present) {
-      map['remarks'] = Variable<String>(remarks.value);
-    }
     return map;
   }
 
@@ -8182,12 +7920,374 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
           ..write('id: $id, ')
           ..write('courseOffering: $courseOffering, ')
           ..write('teacher: $teacher, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('objective: $objective, ')
-          ..write('weeklyPlan: $weeklyPlan, ')
-          ..write('evaluation: $evaluation, ')
-          ..write('textbooks: $textbooks, ')
-          ..write('remarks: $remarks')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyllabusSectionsTable extends SyllabusSections
+    with TableInfo<$SyllabusSectionsTable, SyllabusSection> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyllabusSectionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _syllabusMeta = const VerificationMeta(
+    'syllabus',
+  );
+  @override
+  late final GeneratedColumn<int> syllabus = GeneratedColumn<int>(
+    'syllabus',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES syllabuses (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta(
+    'position',
+  );
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    syllabus,
+    title,
+    content,
+    position,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'syllabus_sections';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyllabusSection> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('syllabus')) {
+      context.handle(
+        _syllabusMeta,
+        syllabus.isAcceptableOrUnknown(data['syllabus']!, _syllabusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_syllabusMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {syllabus, position},
+  ];
+  @override
+  SyllabusSection map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyllabusSection(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      syllabus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}syllabus'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      ),
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+    );
+  }
+
+  @override
+  $SyllabusSectionsTable createAlias(String alias) {
+    return $SyllabusSectionsTable(attachedDatabase, alias);
+  }
+}
+
+class SyllabusSection extends DataClass implements Insertable<SyllabusSection> {
+  /// Auto-incrementing primary key.
+  final int id;
+
+  /// Parent syllabus. Sections are deleted with the submission.
+  final int syllabus;
+
+  /// Raw source title.
+  final String title;
+
+  /// Complete source content, or null when the submitted section is blank.
+  final String? content;
+
+  /// Zero-based source-page order.
+  final int position;
+  const SyllabusSection({
+    required this.id,
+    required this.syllabus,
+    required this.title,
+    this.content,
+    required this.position,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['syllabus'] = Variable<int>(syllabus);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || content != null) {
+      map['content'] = Variable<String>(content);
+    }
+    map['position'] = Variable<int>(position);
+    return map;
+  }
+
+  SyllabusSectionsCompanion toCompanion(bool nullToAbsent) {
+    return SyllabusSectionsCompanion(
+      id: Value(id),
+      syllabus: Value(syllabus),
+      title: Value(title),
+      content: content == null && nullToAbsent
+          ? const Value.absent()
+          : Value(content),
+      position: Value(position),
+    );
+  }
+
+  factory SyllabusSection.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyllabusSection(
+      id: serializer.fromJson<int>(json['id']),
+      syllabus: serializer.fromJson<int>(json['syllabus']),
+      title: serializer.fromJson<String>(json['title']),
+      content: serializer.fromJson<String?>(json['content']),
+      position: serializer.fromJson<int>(json['position']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'syllabus': serializer.toJson<int>(syllabus),
+      'title': serializer.toJson<String>(title),
+      'content': serializer.toJson<String?>(content),
+      'position': serializer.toJson<int>(position),
+    };
+  }
+
+  SyllabusSection copyWith({
+    int? id,
+    int? syllabus,
+    String? title,
+    Value<String?> content = const Value.absent(),
+    int? position,
+  }) => SyllabusSection(
+    id: id ?? this.id,
+    syllabus: syllabus ?? this.syllabus,
+    title: title ?? this.title,
+    content: content.present ? content.value : this.content,
+    position: position ?? this.position,
+  );
+  SyllabusSection copyWithCompanion(SyllabusSectionsCompanion data) {
+    return SyllabusSection(
+      id: data.id.present ? data.id.value : this.id,
+      syllabus: data.syllabus.present ? data.syllabus.value : this.syllabus,
+      title: data.title.present ? data.title.value : this.title,
+      content: data.content.present ? data.content.value : this.content,
+      position: data.position.present ? data.position.value : this.position,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyllabusSection(')
+          ..write('id: $id, ')
+          ..write('syllabus: $syllabus, ')
+          ..write('title: $title, ')
+          ..write('content: $content, ')
+          ..write('position: $position')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, syllabus, title, content, position);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyllabusSection &&
+          other.id == this.id &&
+          other.syllabus == this.syllabus &&
+          other.title == this.title &&
+          other.content == this.content &&
+          other.position == this.position);
+}
+
+class SyllabusSectionsCompanion extends UpdateCompanion<SyllabusSection> {
+  final Value<int> id;
+  final Value<int> syllabus;
+  final Value<String> title;
+  final Value<String?> content;
+  final Value<int> position;
+  const SyllabusSectionsCompanion({
+    this.id = const Value.absent(),
+    this.syllabus = const Value.absent(),
+    this.title = const Value.absent(),
+    this.content = const Value.absent(),
+    this.position = const Value.absent(),
+  });
+  SyllabusSectionsCompanion.insert({
+    this.id = const Value.absent(),
+    required int syllabus,
+    required String title,
+    this.content = const Value.absent(),
+    required int position,
+  }) : syllabus = Value(syllabus),
+       title = Value(title),
+       position = Value(position);
+  static Insertable<SyllabusSection> custom({
+    Expression<int>? id,
+    Expression<int>? syllabus,
+    Expression<String>? title,
+    Expression<String>? content,
+    Expression<int>? position,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (syllabus != null) 'syllabus': syllabus,
+      if (title != null) 'title': title,
+      if (content != null) 'content': content,
+      if (position != null) 'position': position,
+    });
+  }
+
+  SyllabusSectionsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? syllabus,
+    Value<String>? title,
+    Value<String?>? content,
+    Value<int>? position,
+  }) {
+    return SyllabusSectionsCompanion(
+      id: id ?? this.id,
+      syllabus: syllabus ?? this.syllabus,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      position: position ?? this.position,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (syllabus.present) {
+      map['syllabus'] = Variable<int>(syllabus.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyllabusSectionsCompanion(')
+          ..write('id: $id, ')
+          ..write('syllabus: $syllabus, ')
+          ..write('title: $title, ')
+          ..write('content: $content, ')
+          ..write('position: $position')
           ..write(')'))
         .toString();
   }
@@ -13542,6 +13642,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $CourseOfferingStudentsTable(this);
   late final $SchedulesTable schedules = $SchedulesTable(this);
   late final $SyllabusesTable syllabuses = $SyllabusesTable(this);
+  late final $SyllabusSectionsTable syllabusSections = $SyllabusSectionsTable(
+    this,
+  );
   late final $MaterialsTable materials = $MaterialsTable(this);
   late final $TeacherOfficeHoursTable teacherOfficeHours =
       $TeacherOfficeHoursTable(this);
@@ -13625,6 +13728,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     courseOfferingStudents,
     schedules,
     syllabuses,
+    syllabusSections,
     materials,
     teacherOfficeHours,
     scores,
@@ -13713,6 +13817,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('syllabuses', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'syllabuses',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('syllabus_sections', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -22125,11 +22236,6 @@ typedef $$SyllabusesTableCreateCompanionBuilder =
       required int courseOffering,
       required int teacher,
       Value<DateTime?> updatedAt,
-      Value<String?> objective,
-      Value<String?> weeklyPlan,
-      Value<String?> evaluation,
-      Value<String?> textbooks,
-      Value<String?> remarks,
     });
 typedef $$SyllabusesTableUpdateCompanionBuilder =
     SyllabusesCompanion Function({
@@ -22137,11 +22243,6 @@ typedef $$SyllabusesTableUpdateCompanionBuilder =
       Value<int> courseOffering,
       Value<int> teacher,
       Value<DateTime?> updatedAt,
-      Value<String?> objective,
-      Value<String?> weeklyPlan,
-      Value<String?> evaluation,
-      Value<String?> textbooks,
-      Value<String?> remarks,
     });
 
 final class $$SyllabusesTableReferences
@@ -22182,6 +22283,26 @@ final class $$SyllabusesTableReferences
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
+
+  static MultiTypedResultKey<$SyllabusSectionsTable, List<SyllabusSection>>
+  _syllabusSectionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.syllabusSections,
+    aliasName: 'syllabuses__id__syllabus_sections__syllabus',
+  );
+
+  $$SyllabusSectionsTableProcessedTableManager get syllabusSectionsRefs {
+    final manager = $$SyllabusSectionsTableTableManager(
+      $_db,
+      $_db.syllabusSections,
+    ).filter((f) => f.syllabus.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _syllabusSectionsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$SyllabusesTableFilterComposer
@@ -22200,31 +22321,6 @@ class $$SyllabusesTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get objective => $composableBuilder(
-    column: $table.objective,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get weeklyPlan => $composableBuilder(
-    column: $table.weeklyPlan,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get evaluation => $composableBuilder(
-    column: $table.evaluation,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get textbooks => $composableBuilder(
-    column: $table.textbooks,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get remarks => $composableBuilder(
-    column: $table.remarks,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -22273,6 +22369,31 @@ class $$SyllabusesTableFilterComposer
     );
     return composer;
   }
+
+  Expression<bool> syllabusSectionsRefs(
+    Expression<bool> Function($$SyllabusSectionsTableFilterComposer f) f,
+  ) {
+    final $$SyllabusSectionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.syllabusSections,
+      getReferencedColumn: (t) => t.syllabus,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusSectionsTableFilterComposer(
+            $db: $db,
+            $table: $db.syllabusSections,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$SyllabusesTableOrderingComposer
@@ -22291,31 +22412,6 @@ class $$SyllabusesTableOrderingComposer
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get objective => $composableBuilder(
-    column: $table.objective,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get weeklyPlan => $composableBuilder(
-    column: $table.weeklyPlan,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get evaluation => $composableBuilder(
-    column: $table.evaluation,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get textbooks => $composableBuilder(
-    column: $table.textbooks,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get remarks => $composableBuilder(
-    column: $table.remarks,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -22381,25 +22477,6 @@ class $$SyllabusesTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  GeneratedColumn<String> get objective =>
-      $composableBuilder(column: $table.objective, builder: (column) => column);
-
-  GeneratedColumn<String> get weeklyPlan => $composableBuilder(
-    column: $table.weeklyPlan,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get evaluation => $composableBuilder(
-    column: $table.evaluation,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get textbooks =>
-      $composableBuilder(column: $table.textbooks, builder: (column) => column);
-
-  GeneratedColumn<String> get remarks =>
-      $composableBuilder(column: $table.remarks, builder: (column) => column);
-
   $$CourseOfferingsTableAnnotationComposer get courseOffering {
     final $$CourseOfferingsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -22445,6 +22522,31 @@ class $$SyllabusesTableAnnotationComposer
     );
     return composer;
   }
+
+  Expression<T> syllabusSectionsRefs<T extends Object>(
+    Expression<T> Function($$SyllabusSectionsTableAnnotationComposer a) f,
+  ) {
+    final $$SyllabusSectionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.syllabusSections,
+      getReferencedColumn: (t) => t.syllabus,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusSectionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.syllabusSections,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$SyllabusesTableTableManager
@@ -22460,7 +22562,11 @@ class $$SyllabusesTableTableManager
           $$SyllabusesTableUpdateCompanionBuilder,
           (Syllabus, $$SyllabusesTableReferences),
           Syllabus,
-          PrefetchHooks Function({bool courseOffering, bool teacher})
+          PrefetchHooks Function({
+            bool courseOffering,
+            bool teacher,
+            bool syllabusSectionsRefs,
+          })
         > {
   $$SyllabusesTableTableManager(_$AppDatabase db, $SyllabusesTable table)
     : super(
@@ -22479,21 +22585,11 @@ class $$SyllabusesTableTableManager
                 Value<int> courseOffering = const Value.absent(),
                 Value<int> teacher = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
-                Value<String?> objective = const Value.absent(),
-                Value<String?> weeklyPlan = const Value.absent(),
-                Value<String?> evaluation = const Value.absent(),
-                Value<String?> textbooks = const Value.absent(),
-                Value<String?> remarks = const Value.absent(),
               }) => SyllabusesCompanion(
                 id: id,
                 courseOffering: courseOffering,
                 teacher: teacher,
                 updatedAt: updatedAt,
-                objective: objective,
-                weeklyPlan: weeklyPlan,
-                evaluation: evaluation,
-                textbooks: textbooks,
-                remarks: remarks,
               ),
           createCompanionCallback:
               ({
@@ -22501,21 +22597,11 @@ class $$SyllabusesTableTableManager
                 required int courseOffering,
                 required int teacher,
                 Value<DateTime?> updatedAt = const Value.absent(),
-                Value<String?> objective = const Value.absent(),
-                Value<String?> weeklyPlan = const Value.absent(),
-                Value<String?> evaluation = const Value.absent(),
-                Value<String?> textbooks = const Value.absent(),
-                Value<String?> remarks = const Value.absent(),
               }) => SyllabusesCompanion.insert(
                 id: id,
                 courseOffering: courseOffering,
                 teacher: teacher,
                 updatedAt: updatedAt,
-                objective: objective,
-                weeklyPlan: weeklyPlan,
-                evaluation: evaluation,
-                textbooks: textbooks,
-                remarks: remarks,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -22525,7 +22611,373 @@ class $$SyllabusesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({courseOffering = false, teacher = false}) {
+          prefetchHooksCallback:
+              ({
+                courseOffering = false,
+                teacher = false,
+                syllabusSectionsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (syllabusSectionsRefs) db.syllabusSections,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (courseOffering) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.courseOffering,
+                                    referencedTable: $$SyllabusesTableReferences
+                                        ._courseOfferingTable(db),
+                                    referencedColumn:
+                                        $$SyllabusesTableReferences
+                                            ._courseOfferingTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (teacher) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.teacher,
+                                    referencedTable: $$SyllabusesTableReferences
+                                        ._teacherTable(db),
+                                    referencedColumn:
+                                        $$SyllabusesTableReferences
+                                            ._teacherTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (syllabusSectionsRefs)
+                        await $_getPrefetchedData<
+                          Syllabus,
+                          $SyllabusesTable,
+                          SyllabusSection
+                        >(
+                          currentTable: table,
+                          referencedTable: $$SyllabusesTableReferences
+                              ._syllabusSectionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$SyllabusesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).syllabusSectionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.syllabus == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$SyllabusesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyllabusesTable,
+      Syllabus,
+      $$SyllabusesTableFilterComposer,
+      $$SyllabusesTableOrderingComposer,
+      $$SyllabusesTableAnnotationComposer,
+      $$SyllabusesTableCreateCompanionBuilder,
+      $$SyllabusesTableUpdateCompanionBuilder,
+      (Syllabus, $$SyllabusesTableReferences),
+      Syllabus,
+      PrefetchHooks Function({
+        bool courseOffering,
+        bool teacher,
+        bool syllabusSectionsRefs,
+      })
+    >;
+typedef $$SyllabusSectionsTableCreateCompanionBuilder =
+    SyllabusSectionsCompanion Function({
+      Value<int> id,
+      required int syllabus,
+      required String title,
+      Value<String?> content,
+      required int position,
+    });
+typedef $$SyllabusSectionsTableUpdateCompanionBuilder =
+    SyllabusSectionsCompanion Function({
+      Value<int> id,
+      Value<int> syllabus,
+      Value<String> title,
+      Value<String?> content,
+      Value<int> position,
+    });
+
+final class $$SyllabusSectionsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $SyllabusSectionsTable, SyllabusSection> {
+  $$SyllabusSectionsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $SyllabusesTable _syllabusTable(_$AppDatabase db) =>
+      db.syllabuses.createAlias('syllabus_sections__syllabus__syllabuses__id');
+
+  $$SyllabusesTableProcessedTableManager get syllabus {
+    final $_column = $_itemColumn<int>('syllabus')!;
+
+    final manager = $$SyllabusesTableTableManager(
+      $_db,
+      $_db.syllabuses,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_syllabusTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$SyllabusSectionsTableFilterComposer
+    extends Composer<_$AppDatabase, $SyllabusSectionsTable> {
+  $$SyllabusSectionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$SyllabusesTableFilterComposer get syllabus {
+    final $$SyllabusesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.syllabus,
+      referencedTable: $db.syllabuses,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusesTableFilterComposer(
+            $db: $db,
+            $table: $db.syllabuses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SyllabusSectionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyllabusSectionsTable> {
+  $$SyllabusSectionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$SyllabusesTableOrderingComposer get syllabus {
+    final $$SyllabusesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.syllabus,
+      referencedTable: $db.syllabuses,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusesTableOrderingComposer(
+            $db: $db,
+            $table: $db.syllabuses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SyllabusSectionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyllabusSectionsTable> {
+  $$SyllabusSectionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  $$SyllabusesTableAnnotationComposer get syllabus {
+    final $$SyllabusesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.syllabus,
+      referencedTable: $db.syllabuses,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.syllabuses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SyllabusSectionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyllabusSectionsTable,
+          SyllabusSection,
+          $$SyllabusSectionsTableFilterComposer,
+          $$SyllabusSectionsTableOrderingComposer,
+          $$SyllabusSectionsTableAnnotationComposer,
+          $$SyllabusSectionsTableCreateCompanionBuilder,
+          $$SyllabusSectionsTableUpdateCompanionBuilder,
+          (SyllabusSection, $$SyllabusSectionsTableReferences),
+          SyllabusSection,
+          PrefetchHooks Function({bool syllabus})
+        > {
+  $$SyllabusSectionsTableTableManager(
+    _$AppDatabase db,
+    $SyllabusSectionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyllabusSectionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyllabusSectionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyllabusSectionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> syllabus = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> content = const Value.absent(),
+                Value<int> position = const Value.absent(),
+              }) => SyllabusSectionsCompanion(
+                id: id,
+                syllabus: syllabus,
+                title: title,
+                content: content,
+                position: position,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int syllabus,
+                required String title,
+                Value<String?> content = const Value.absent(),
+                required int position,
+              }) => SyllabusSectionsCompanion.insert(
+                id: id,
+                syllabus: syllabus,
+                title: title,
+                content: content,
+                position: position,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$SyllabusSectionsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({syllabus = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -22545,29 +22997,18 @@ class $$SyllabusesTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (courseOffering) {
+                    if (syllabus) {
                       state =
                           state.withJoin(
                                 currentTable: table,
-                                currentColumn: table.courseOffering,
-                                referencedTable: $$SyllabusesTableReferences
-                                    ._courseOfferingTable(db),
-                                referencedColumn: $$SyllabusesTableReferences
-                                    ._courseOfferingTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
-                    if (teacher) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.teacher,
-                                referencedTable: $$SyllabusesTableReferences
-                                    ._teacherTable(db),
-                                referencedColumn: $$SyllabusesTableReferences
-                                    ._teacherTable(db)
-                                    .id,
+                                currentColumn: table.syllabus,
+                                referencedTable:
+                                    $$SyllabusSectionsTableReferences
+                                        ._syllabusTable(db),
+                                referencedColumn:
+                                    $$SyllabusSectionsTableReferences
+                                        ._syllabusTable(db)
+                                        .id,
                               )
                               as T;
                     }
@@ -22583,19 +23024,19 @@ class $$SyllabusesTableTableManager
       );
 }
 
-typedef $$SyllabusesTableProcessedTableManager =
+typedef $$SyllabusSectionsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $SyllabusesTable,
-      Syllabus,
-      $$SyllabusesTableFilterComposer,
-      $$SyllabusesTableOrderingComposer,
-      $$SyllabusesTableAnnotationComposer,
-      $$SyllabusesTableCreateCompanionBuilder,
-      $$SyllabusesTableUpdateCompanionBuilder,
-      (Syllabus, $$SyllabusesTableReferences),
-      Syllabus,
-      PrefetchHooks Function({bool courseOffering, bool teacher})
+      $SyllabusSectionsTable,
+      SyllabusSection,
+      $$SyllabusSectionsTableFilterComposer,
+      $$SyllabusSectionsTableOrderingComposer,
+      $$SyllabusSectionsTableAnnotationComposer,
+      $$SyllabusSectionsTableCreateCompanionBuilder,
+      $$SyllabusSectionsTableUpdateCompanionBuilder,
+      (SyllabusSection, $$SyllabusSectionsTableReferences),
+      SyllabusSection,
+      PrefetchHooks Function({bool syllabus})
     >;
 typedef $$MaterialsTableCreateCompanionBuilder =
     MaterialsCompanion Function({
@@ -26209,6 +26650,8 @@ class $AppDatabaseManager {
       $$SchedulesTableTableManager(_db, _db.schedules);
   $$SyllabusesTableTableManager get syllabuses =>
       $$SyllabusesTableTableManager(_db, _db.syllabuses);
+  $$SyllabusSectionsTableTableManager get syllabusSections =>
+      $$SyllabusSectionsTableTableManager(_db, _db.syllabusSections);
   $$MaterialsTableTableManager get materials =>
       $$MaterialsTableTableManager(_db, _db.materials);
   $$TeacherOfficeHoursTableTableManager get teacherOfficeHours =>

@@ -38,16 +38,17 @@ final courseOfferingProvider = StreamProvider.autoDispose
       return ref.watch(courseRepositoryProvider).watchCourseOffering(number);
     });
 
-/// Provides a teacher's syllabus for an offering, fetched lazily on first
-/// watch.
+/// Provides a teacher's syllabus aggregate for an offering, fetched lazily on
+/// first watch.
 ///
 /// Keyed by the offering id and the authoring teacher's code (from
 /// [CourseOfferingDetail.teachers]). Emits cached content immediately when
 /// present, blocks on the first fetch otherwise, and emits `null` when the
-/// teacher hasn't submitted a syllabus. The detail UI shows the first
-/// teacher's syllabus for now.
+/// teacher hasn't submitted a syllabus. Section titles remain raw source data;
+/// render them with
+/// `tryLocalizeSyllabusSectionTitle(section.title) ?? section.title`.
 final syllabusProvider = StreamProvider.autoDispose
-    .family<Syllabus?, ({int offeringId, String teacherId})>((ref, key) {
+    .family<SyllabusDetail?, ({int offeringId, String teacherId})>((ref, key) {
       return ref
           .watch(courseRepositoryProvider)
           .watchSyllabus(

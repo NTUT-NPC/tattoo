@@ -532,38 +532,56 @@ class NtutCourseService implements CourseService {
       throw Exception('Syllabus tables not found.');
     }
 
-    // Table 0: Header table (課程基本資料)
-    // Row 1 contains: semester, number, name, phase, credits, hours, type,
-    // instructor, classes, enrolled, withdrawn, remarks
-    final headerRow = tables[0].querySelectorAll('tr')[1];
-    final headerCells = headerRow.querySelectorAll('td');
+    // Table 0: Header table (課程基本資料). Pair labels with values so
+    // inserted columns cannot shift the metadata fields.
+    final headerRows = tables[0].querySelectorAll('tr');
+    final headerLabels = _directTableCells(headerRows[0]);
+    final headerValues = _directTableCells(headerRows[1]);
+    final header = <String, String?>{};
+    for (
+      var index = 0;
+      index < headerLabels.length && index < headerValues.length;
+      index++
+    ) {
+      final label = headerLabels[index].text.trim();
+      if (label.isNotEmpty) {
+        header[label] = _parseCellText(headerValues[index]);
+      }
+    }
 
-    final typeSymbol = _parseCellText(headerCells[6]);
+    final typeSymbol = header['修'];
     final type = CourseType.values.firstWhereOrNull(
-      (t) => t.symbol == typeSymbol,
+      (type) => type.symbol == typeSymbol,
     );
-    final enrolled = int.tryParse(headerCells[9].text.trim());
-    final withdrawn = int.tryParse(headerCells[10].text.trim());
+    final enrolled = int.tryParse(header['人'] ?? '');
+    final withdrawn = int.tryParse(header['撤'] ?? '');
 
-    // Table 1: Syllabus table (教學大綱與進度)
-    // Rows 0-2: Label and value both in th elements
-    // Rows 3+: Label in th, value in td (some with textarea)
-    final syllabusRows = tables[1].querySelectorAll('tr');
+    // Table 1: Syllabus table (教學大綱與進度).
+    String? email;
+    DateTime? lastUpdated;
+    final sections = <SyllabusSectionDto>[];
+    for (final row in tables[1].querySelectorAll('tr')) {
+      final cells = _directTableCells(row);
+      if (cells.length < 2) continue;
 
-    final email = _parseCellText(syllabusRows[1].querySelectorAll('th')[1]);
-    final lastUpdatedText = _parseCellText(
-      syllabusRows[2].querySelectorAll('th')[1],
-    );
-    final lastUpdated = DateTime.tryParse(lastUpdatedText ?? '');
+      final title = cells[0].text.trim();
+      if (title.isEmpty) continue;
 
-    // Rows 3-5 have textarea elements for long content
-    final objective = _parseTextareaValue(syllabusRows[3]);
-    final weeklyPlan = _parseTextareaValue(syllabusRows[4]);
-    final evaluation = _parseTextareaValue(syllabusRows[5]);
-    final materials = _parseTextareaValue(syllabusRows[6]);
+      final content = _parseCellText(cells[1]);
+      if (title == '教師姓名') continue;
 
-    final remarksTd = syllabusRows[10].querySelector('td');
-    final remarks = remarksTd != null ? _parseCellText(remarksTd) : null;
+      final lowerTitle = title.toLowerCase();
+      if (lowerTitle == 'email' || lowerTitle == 'e-mail') {
+        email = content;
+        continue;
+      }
+      if (title == '最後更新時間') {
+        lastUpdated = DateTime.tryParse(content ?? '');
+        continue;
+      }
+
+      sections.add((title: title, content: content));
+    }
 
     return (
       type: type,
@@ -571,19 +589,14 @@ class NtutCourseService implements CourseService {
       withdrawn: withdrawn,
       email: email,
       lastUpdated: lastUpdated,
-      objective: objective,
-      weeklyPlan: weeklyPlan,
-      evaluation: evaluation,
-      materials: materials,
-      remarks: remarks,
+      sections: sections,
     );
   }
 
-  String? _parseTextareaValue(Element row) {
-    final textarea = row.querySelector('textarea');
-    if (textarea == null) return null;
-    final text = textarea.text.trim();
-    return text.isNotEmpty ? text : null;
+  List<Element> _directTableCells(Element row) {
+    return row.children
+        .where((cell) => cell.localName == 'th' || cell.localName == 'td')
+        .toList();
   }
 
   String? _parseCellText(Element cell) {

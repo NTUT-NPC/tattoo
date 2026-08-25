@@ -591,27 +591,36 @@ class Syllabuses extends Table with AutoIncrementId {
   /// When this syllabus was last updated by the teacher (最後更新時間).
   late final updatedAt = dateTime().nullable()();
 
-  /// Course objective/outline (課程大綱).
-  late final objective = text().nullable()();
-
-  /// Weekly plan describing topics covered each week (課程進度).
-  ///
-  /// Note: Called "Course Schedule" on the English page, but refers to weekly
-  /// topics, not class meeting times.
-  late final weeklyPlan = text().nullable()();
-
-  /// Evaluation and grading policy (評量方式與標準).
-  late final evaluation = text().nullable()();
-
-  /// Textbooks and reference materials (使用教材、參考書目或其他).
-  late final textbooks = text().nullable()();
-
-  /// Teacher-authored remarks from the syllabus page (備註).
-  late final remarks = text().nullable()();
-
   @override
   List<Set<Column>> get uniqueKeys => [
     {courseOffering, teacher},
+  ];
+}
+
+/// An ordered content section belonging to a submitted [Syllabuses] row.
+///
+/// Titles and content retain the raw source values. Position, rather than
+/// title, identifies a section because the source may repeat labels.
+class SyllabusSections extends Table with AutoIncrementId {
+  /// Parent syllabus. Sections are deleted with the submission.
+  late final syllabus = integer().references(
+    Syllabuses,
+    #id,
+    onDelete: .cascade,
+  )();
+
+  /// Raw source title.
+  late final title = text()();
+
+  /// Complete source content, or null when the submitted section is blank.
+  late final content = text().nullable()();
+
+  /// Zero-based source-page order.
+  late final position = integer()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {syllabus, position},
   ];
 }
 

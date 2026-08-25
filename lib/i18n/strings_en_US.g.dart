@@ -211,6 +211,7 @@ class _Translations$courseTable$en_US extends Translations$courseTable$zh_TW {
 	// Translations
 	@override String get notFound => 'Course table not found';
 	@override String get unscheduled => 'Unscheduled Courses';
+	@override late final _Translations$courseTable$syllabus$en_US syllabus = _Translations$courseTable$syllabus$en_US._(_root);
 	@override late final _Translations$courseTable$summary$en_US summary = _Translations$courseTable$summary$en_US._(_root);
 	@override late final _Translations$courseTable$actions$en_US actions = _Translations$courseTable$actions$en_US._(_root);
 	@override Map<String, String> get dayOfWeek => {
@@ -436,6 +437,16 @@ class _Translations$score$status$en_US extends Translations$score$status$zh_TW {
 	@override String get creditTransfer => 'Credit transfer';
 }
 
+// Path: courseTable.syllabus
+class _Translations$courseTable$syllabus$en_US extends Translations$courseTable$syllabus$zh_TW {
+	_Translations$courseTable$syllabus$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$courseTable$syllabus$sections$en_US sections = _Translations$courseTable$syllabus$sections$en_US._(_root);
+}
+
 // Path: courseTable.summary
 class _Translations$courseTable$summary$en_US extends Translations$courseTable$summary$zh_TW {
 	_Translations$courseTable$summary$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -616,6 +627,25 @@ class _Translations$intro$features$campusLife$en_US extends Translations$intro$f
 	@override String get description => 'Access campus life information, with more features coming soon.';
 }
 
+// Path: courseTable.syllabus.sections
+class _Translations$courseTable$syllabus$sections$en_US extends Translations$courseTable$syllabus$sections$zh_TW {
+	_Translations$courseTable$syllabus$sections$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get objective => 'Course Objective';
+	@override String get schedule => 'Course Schedule';
+	@override String scheduleWithWeeks({required Object weeks}) => 'Course Schedule (Week ${weeks})';
+	@override String get evaluation => 'Evaluation and grading policy';
+	@override String get materials => 'Materials';
+	@override String get consultation => 'The access to curricular consultation';
+	@override String get resources => 'Expanding teaching and resources';
+	@override String get sdgs => 'The course corresponds to the SDGs';
+	@override String get ai => 'Does the course incorporate AI';
+	@override String get note => 'Note';
+}
+
 // Path: profile.dangerZone.items
 class _Translations$profile$dangerZone$items$en_US extends Translations$profile$dangerZone$items$zh_TW {
 	_Translations$profile$dangerZone$items$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -722,6 +752,16 @@ extension on TranslationsEnUs {
 			'calendar.today' => 'Today',
 			'courseTable.notFound' => 'Course table not found',
 			'courseTable.unscheduled' => 'Unscheduled Courses',
+			'courseTable.syllabus.sections.objective' => 'Course Objective',
+			'courseTable.syllabus.sections.schedule' => 'Course Schedule',
+			'courseTable.syllabus.sections.scheduleWithWeeks' => ({required Object weeks}) => 'Course Schedule (Week ${weeks})',
+			'courseTable.syllabus.sections.evaluation' => 'Evaluation and grading policy',
+			'courseTable.syllabus.sections.materials' => 'Materials',
+			'courseTable.syllabus.sections.consultation' => 'The access to curricular consultation',
+			'courseTable.syllabus.sections.resources' => 'Expanding teaching and resources',
+			'courseTable.syllabus.sections.sdgs' => 'The course corresponds to the SDGs',
+			'courseTable.syllabus.sections.ai' => 'Does the course incorporate AI',
+			'courseTable.syllabus.sections.note' => 'Note',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',

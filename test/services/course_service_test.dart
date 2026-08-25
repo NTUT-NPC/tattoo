@@ -433,35 +433,28 @@ void main() {
         );
       });
 
-      test('should parse syllabus content fields', () async {
+      test('should parse dynamic syllabus sections', () async {
         final syllabus = await firstSyllabus();
 
-        // At least some content fields should be populated
-        final hasContent =
-            syllabus.objective != null ||
-            syllabus.weeklyPlan != null ||
-            syllabus.evaluation != null ||
-            syllabus.materials != null;
-
         expect(
-          hasContent,
-          isTrue,
-          reason: 'Syllabus should have at least one content field populated',
+          syllabus.sections,
+          isNotEmpty,
+          reason: 'A submitted syllabus should expose its content sections',
         );
-
-        // Verify non-empty strings when present
-        if (syllabus.objective != null) {
-          expect(syllabus.objective, isNotEmpty);
+        for (final section in syllabus.sections) {
+          expect(
+            section.title.trim(),
+            isNotEmpty,
+            reason: 'Every syllabus section should have a source title',
+          );
         }
-        if (syllabus.weeklyPlan != null) {
-          expect(syllabus.weeklyPlan, isNotEmpty);
-        }
-        if (syllabus.evaluation != null) {
-          expect(syllabus.evaluation, isNotEmpty);
-        }
-        if (syllabus.materials != null) {
-          expect(syllabus.materials, isNotEmpty);
-        }
+        expect(
+          syllabus.sections.any(
+            (section) => section.content?.trim().isNotEmpty ?? false,
+          ),
+          isTrue,
+          reason: 'At least one syllabus section should contain content',
+        );
       });
 
       test('should parse email when available', () async {
