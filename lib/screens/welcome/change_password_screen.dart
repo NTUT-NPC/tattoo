@@ -1,10 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
-import 'package:tattoo/screens/main/user_providers.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   final bool isExpired;
@@ -92,26 +93,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     });
   }
 
-  String? _validatePasswordRules(String password, String? studentId) {
-    if (password.length < 8 || password.length > 14) {
-      return t.changePassword.errors.invalidLength;
-    }
 
-    final hasUpper = password.contains(RegExp(r'[A-Z]'));
-    final hasLower = password.contains(RegExp(r'[a-z]'));
-    final hasDigit = password.contains(RegExp(r'[0-9]'));
-    final hasSymbol = password.contains(RegExp(r'[^a-zA-Z0-9]'));
-
-    if (!hasUpper || !hasLower || !hasDigit || !hasSymbol) {
-      return t.changePassword.errors.invalidComplexity;
-    }
-
-    if (studentId != null && password == studentId) {
-      return t.changePassword.errors.sameAsUsername;
-    }
-
-    return null;
-  }
 
   Future<void> _submit() async {
     final currentPassword = _currentPasswordController.text;
@@ -146,23 +128,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       return;
     }
 
-    // Determine the student ID for similarity validation
-    String? studentId = widget.username;
-    if (!widget.isExpired) {
-      final user = ref.read(userProfileProvider).value;
-      studentId = user?.studentId;
-    }
 
-    // 3. Complexity & Similarity Validation
-    final validationError = _validatePasswordRules(newPassword, studentId);
-    if (validationError != null) {
-      _setError(
-        validationError,
-        newPwd: true,
-        confirm: true,
-      );
-      return;
-    }
 
     _setLoading(true);
 
@@ -211,15 +177,16 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     final cleanMsg = str.startsWith('Exception: ')
         ? str.substring('Exception: '.length)
         : str;
+    log(e.toString());
 
-    if (cleanMsg.contains('身分驗證') &&
-        (cleanMsg.contains('失敗') || cleanMsg.contains('錯誤'))) {
+    if (cleanMsg.contains('身分驗證 失敗') ||
+        cleanMsg.contains('Identity verification Fail')) {
       return t.changePassword.errors.server.authFailed;
     }
-    if (cleanMsg.contains('不得再修改') || cleanMsg.contains('最短使用期限')) {
+    if (cleanMsg.contains('密碼修改有誤。密碼於「1」天內不得再修改。請重新輸入。')) {
       return t.changePassword.errors.server.minAge;
     }
-    if (cleanMsg.contains('前3組') || cleanMsg.contains('前三組')) {
+    if (cleanMsg.contains('密碼修改有誤。密碼不得與前「3」次相同。請重新輸入。')) {
       return t.changePassword.errors.server.historyRepeat;
     }
     if (cleanMsg.contains('帳號') && cleanMsg.contains('相同')) {
