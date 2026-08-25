@@ -981,6 +981,8 @@ class Translations$changePassword$errors$zh_TW {
 
 	/// zh-TW: '密碼不可與學號相同'
 	String get sameAsUsername => '密碼不可與學號相同';
+
+	late final Translations$changePassword$errors$server$zh_TW server = Translations$changePassword$errors$server$zh_TW.internal(_root);
 }
 
 // Path: intro.features.courseTable
@@ -1050,6 +1052,33 @@ class Translations$profile$dangerZone$items$zh_TW {
 
 	/// zh-TW: '使用者資料'
 	String get userData => '使用者資料';
+}
+
+// Path: changePassword.errors.server
+class Translations$changePassword$errors$server$zh_TW {
+	Translations$changePassword$errors$server$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '目前密碼錯誤'
+	String get authFailed => '目前密碼錯誤';
+
+	/// zh-TW: '密碼於1天內不得再修改'
+	String get minAge => '密碼於1天內不得再修改';
+
+	/// zh-TW: '密碼不可與前3組重複'
+	String get historyRepeat => '密碼不可與前3組重複';
+
+	/// zh-TW: '密碼不可與學號相同'
+	String get sameAsUsername => '密碼不可與學號相同';
+
+	/// zh-TW: '密碼長度須介於8至14個字元之間'
+	String get length => '密碼長度須介於8至14個字元之間';
+
+	/// zh-TW: '密碼須包含英文大小寫字母、數字及符號'
+	String get complexity => '密碼須包含英文大小寫字母、數字及符號';
 }
 
 /// The flat map containing all translations for locale <zh-TW>.
@@ -1270,6 +1299,12 @@ extension on Translations {
 			'changePassword.errors.invalidLength' => '密碼長度須介於8至14個字元之間',
 			'changePassword.errors.invalidComplexity' => '密碼須包含英文大小寫字母、數字及符號',
 			'changePassword.errors.sameAsUsername' => '密碼不可與學號相同',
+			'changePassword.errors.server.authFailed' => '目前密碼錯誤',
+			'changePassword.errors.server.minAge' => '密碼於1天內不得再修改',
+			'changePassword.errors.server.historyRepeat' => '密碼不可與前3組重複',
+			'changePassword.errors.server.sameAsUsername' => '密碼不可與學號相同',
+			'changePassword.errors.server.length' => '密碼長度須介於8至14個字元之間',
+			'changePassword.errors.server.complexity' => '密碼須包含英文大小寫字母、數字及符號',
 			_ => null,
 		};
 	}

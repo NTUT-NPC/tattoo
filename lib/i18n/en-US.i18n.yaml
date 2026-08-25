@@ -257,3 +257,10 @@ changePassword:
     invalidLength: Password length must be between 8 and 14 characters
     invalidComplexity: Password must contain uppercase, lowercase, numbers, and symbols
     sameAsUsername: Password cannot be the same as your student ID
+    server:
+      authFailed: Current password is incorrect
+      minAge: Password cannot be changed more than once per day
+      historyRepeat: Password cannot be the same as any of the last 3 passwords used
+      sameAsUsername: Password cannot be the same as your student ID
+      length: Password length must be between 8 and 14 characters
+      complexity: Password must contain uppercase, lowercase, numbers, and symbols

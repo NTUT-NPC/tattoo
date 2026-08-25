@@ -208,10 +208,34 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
   String _errorMessageOf(Object e) {
     final str = e.toString();
-    if (str.startsWith('Exception: ')) {
-      return str.substring('Exception: '.length);
+    final cleanMsg = str.startsWith('Exception: ')
+        ? str.substring('Exception: '.length)
+        : str;
+
+    if (cleanMsg.contains('身分驗證') &&
+        (cleanMsg.contains('失敗') || cleanMsg.contains('錯誤'))) {
+      return t.changePassword.errors.server.authFailed;
     }
-    return str;
+    if (cleanMsg.contains('不得再修改') || cleanMsg.contains('最短使用期限')) {
+      return t.changePassword.errors.server.minAge;
+    }
+    if (cleanMsg.contains('前3組') || cleanMsg.contains('前三組')) {
+      return t.changePassword.errors.server.historyRepeat;
+    }
+    if (cleanMsg.contains('帳號') && cleanMsg.contains('相同')) {
+      return t.changePassword.errors.server.sameAsUsername;
+    }
+    if (cleanMsg.contains('密碼長度') ||
+        (cleanMsg.contains('字元') && cleanMsg.contains('8'))) {
+      return t.changePassword.errors.server.length;
+    }
+    if (cleanMsg.contains('複雜性') ||
+        cleanMsg.contains('大小寫') ||
+        cleanMsg.contains('符號')) {
+      return t.changePassword.errors.server.complexity;
+    }
+
+    return cleanMsg;
   }
 
   InputDecoration _inputDecoration(

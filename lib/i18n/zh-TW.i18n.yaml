@@ -257,3 +257,10 @@ changePassword:
     invalidLength: 密碼長度須介於8至14個字元之間
     invalidComplexity: 密碼須包含英文大小寫字母、數字及符號
     sameAsUsername: 密碼不可與學號相同
+    server:
+      authFailed: 目前密碼錯誤
+      minAge: 密碼於1天內不得再修改
+      historyRepeat: 密碼不可與前3組重複
+      sameAsUsername: 密碼不可與學號相同
+      length: 密碼長度須介於8至14個字元之間
+      complexity: 密碼須包含英文大小寫字母、數字及符號
