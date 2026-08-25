@@ -191,7 +191,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     } catch (e) {
       if (mounted) {
         _setError(
-          t.changePassword.errors.failed(error: e.toString()),
+          t.changePassword.errors.failed(error: _errorMessageOf(e)),
           current: !widget.isExpired,
           newPwd: true,
           confirm: true,
@@ -204,6 +204,14 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
         });
       }
     }
+  }
+
+  String _errorMessageOf(Object e) {
+    final str = e.toString();
+    if (str.startsWith('Exception: ')) {
+      return str.substring('Exception: '.length);
+    }
+    return str;
   }
 
   InputDecoration _inputDecoration(
