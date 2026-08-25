@@ -26,17 +26,16 @@ final courseTableProvider = StreamProvider.autoDispose
           .watchCourseTable(semesterId: semesterId);
     });
 
-/// Provides the detailed data for a single course offering.
+/// Provides the detailed data for a single course offering, keyed by its
+/// course number (課號).
 ///
 /// Reads composed offering detail (overview + schedule + teachers + classes)
 /// directly from the database; [refreshCourseTable] keeps it current. No
 /// network fetch — a teacher's syllabus is fetched lazily and separately via
 /// [syllabusProvider]. Emits `null` until the offering exists.
 final courseOfferingProvider = StreamProvider.autoDispose
-    .family<CourseOfferingDetail?, int>((ref, offeringId) {
-      return ref
-          .watch(courseRepositoryProvider)
-          .watchCourseOffering(offeringId);
+    .family<CourseOfferingDetail?, String>((ref, number) {
+      return ref.watch(courseRepositoryProvider).watchCourseOffering(number);
     });
 
 /// Provides a teacher's syllabus for an offering, fetched lazily on first
