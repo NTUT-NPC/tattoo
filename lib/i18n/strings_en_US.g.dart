@@ -85,6 +85,8 @@ class _Translations$errors$en_US extends Translations$errors$zh_TW {
 
 	// Translations
 	@override String get occurred => 'An error occurred';
+	@override String get unexpected => 'An unexpected error occurred';
+	@override String get networkError => 'Network error occurred';
 	@override String get flutterError => 'A Flutter error occurred';
 	@override String get asyncError => 'An async error occurred';
 	@override String get sessionExpired => 'Session expired. Please sign in again.';
@@ -648,6 +650,8 @@ extension on TranslationsEnUs {
 			'general.ok' => 'OK',
 			'general.cancel' => 'Cancel',
 			'errors.occurred' => 'An error occurred',
+			'errors.unexpected' => 'An unexpected error occurred',
+			'errors.networkError' => 'Network error occurred',
 			'errors.flutterError' => 'A Flutter error occurred',
 			'errors.asyncError' => 'An async error occurred',
 			'errors.sessionExpired' => 'Session expired. Please sign in again.',

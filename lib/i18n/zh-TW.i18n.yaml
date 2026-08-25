@@ -12,6 +12,8 @@ general:
   cancel: 取消
 errors:
   occurred: 發生錯誤
+  unexpected: 發生未預期的錯誤
+  networkError: 網路連線出現錯誤
   flutterError: 發生Flutter錯誤
   asyncError: 發生非同步錯誤
   sessionExpired: 登入狀態已過期，請重新登入

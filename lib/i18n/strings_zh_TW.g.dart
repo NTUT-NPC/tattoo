@@ -111,6 +111,12 @@ class Translations$errors$zh_TW {
 	/// zh-TW: '發生錯誤'
 	String get occurred => '發生錯誤';
 
+	/// zh-TW: '發生未預期的錯誤'
+	String get unexpected => '發生未預期的錯誤';
+
+	/// zh-TW: '網路連線出現錯誤'
+	String get networkError => '網路連線出現錯誤';
+
 	/// zh-TW: '發生Flutter錯誤'
 	String get flutterError => '發生Flutter錯誤';
 
@@ -1003,6 +1009,8 @@ extension on Translations {
 			'general.ok' => '確定',
 			'general.cancel' => '取消',
 			'errors.occurred' => '發生錯誤',
+			'errors.unexpected' => '發生未預期的錯誤',
+			'errors.networkError' => '網路連線出現錯誤',
 			'errors.flutterError' => '發生Flutter錯誤',
 			'errors.asyncError' => '發生非同步錯誤',
 			'errors.sessionExpired' => '登入狀態已過期，請重新登入',
