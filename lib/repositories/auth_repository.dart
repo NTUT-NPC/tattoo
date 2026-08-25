@@ -143,6 +143,9 @@ class AuthRepository {
 
     final UserDto userDto;
     if (isDemo) {
+      if (password == 'expired') {
+        throw const LoginException(LoginFailure.passwordExpired);
+      }
       // Demo mode: skip real portal, use hardcoded data
       userDto = (
         name: '王大同',
