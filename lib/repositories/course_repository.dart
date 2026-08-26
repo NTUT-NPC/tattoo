@@ -695,10 +695,10 @@ class CourseRepository {
 
   /// Watches [teacherId]'s syllabus for [courseNumber] in [language].
   ///
-  /// Emits the language-specific cached aggregate when present. With no cached
-  /// parent it lazily fetches that language before emitting, so switching
-  /// locales creates independent cache entries and returning to a fetched
-  /// locale is a database-only cache hit. A submitted syllabus can have an
+  /// Emits the language-specific cached aggregate immediately when present.
+  /// Missing data is fetched before the first emission; cached data older than
+  /// fifteen minutes is revalidated after it is emitted. Refresh failures are
+  /// absorbed so stale data remains visible. A submitted syllabus can have an
   /// empty section list. Emits `null` when the offering or teacher is unknown,
   /// or when the teacher has not submitted that language variant.
   Stream<SyllabusDetail?> watchSyllabus({
@@ -706,6 +706,8 @@ class CourseRepository {
     required String teacherId,
     required SyllabusLanguage language,
   }) async* {
+    const ttl = Duration(minutes: 15);
+
     final offering =
         await (_database.select(
               _database.courseOfferings,
@@ -740,25 +742,43 @@ class CourseRepository {
           )
           ..orderBy([.asc(sections.position)]);
 
-    var fetchedOnMiss = false;
+    var attemptedRefresh = false;
     await for (final rows in query.watch()) {
       final detail = _mapSyllabusRows(rows);
-      if (detail == null && !fetchedOnMiss) {
-        fetchedOnMiss = true;
+      if (detail == null) {
+        if (!attemptedRefresh) {
+          attemptedRefresh = true;
+          try {
+            await refreshSyllabus(
+              courseNumber: courseNumber,
+              teacherId: teacherId,
+              language: language,
+            );
+            yield _mapSyllabusRows(await query.get());
+            continue;
+          } catch (_) {
+            // Absorb: yield null below so the UI exits its loading state.
+          }
+        }
+        yield null;
+        continue;
+      }
+
+      yield detail;
+
+      final age = DateTime.now().difference(detail.metadata.fetchedAt);
+      if (age >= ttl && !attemptedRefresh) {
+        attemptedRefresh = true;
         try {
           await refreshSyllabus(
             courseNumber: courseNumber,
             teacherId: teacherId,
             language: language,
           );
-          yield _mapSyllabusRows(await query.get());
-          continue;
         } catch (_) {
-          // Absorb: yield null below so the UI exits its loading state.
+          // Absorb: the cached detail emitted above remains visible.
         }
       }
-
-      yield detail;
     }
   }
 
@@ -821,6 +841,8 @@ class CourseRepository {
         return;
       }
 
+      final fetchedAt = DateTime.now();
+
       final storedSyllabus = await _database
           .into(_database.syllabuses)
           .insertReturning(
@@ -829,10 +851,12 @@ class CourseRepository {
               teacher: teacher.id,
               language: language,
               updatedAt: Value(syllabus.lastUpdated),
+              fetchedAt: fetchedAt,
             ),
             onConflict: DoUpdate(
               (_) => SyllabusesCompanion(
                 updatedAt: Value(syllabus.lastUpdated),
+                fetchedAt: Value(fetchedAt),
               ),
               target: [
                 _database.syllabuses.courseOffering,
@@ -867,7 +891,7 @@ class CourseRepository {
           courseType: Value(syllabus.type),
           enrolled: Value(syllabus.enrolled),
           withdrawn: Value(syllabus.withdrawn),
-          fetchedAt: Value(DateTime.now()),
+          fetchedAt: Value(fetchedAt),
         ),
       );
 

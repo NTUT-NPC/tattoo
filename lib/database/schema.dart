@@ -574,7 +574,7 @@ class Schedules extends Table with AutoIncrementId {
 /// per-semester teacher details live on [TeacherSemesters]). Fields shared
 /// across an offering's syllabi (course type, enrolled, withdrawn) stay on
 /// [CourseOfferings]. A row exists only for a teacher who has submitted a
-/// syllabus; it is created lazily on first fetch and always refetched fresh.
+/// syllabus; it is created lazily on first fetch and revalidated when stale.
 // Without @DataClassName, Drift names the row class 'Syllabuse'.
 @DataClassName('Syllabus')
 class Syllabuses extends Table with AutoIncrementId {
@@ -594,6 +594,9 @@ class Syllabuses extends Table with AutoIncrementId {
   /// When this syllabus was last updated by the teacher (最後更新時間).
   late final updatedAt = dateTime().nullable()();
 
+  /// When this language variant was last fetched from the course system.
+  late final fetchedAt = dateTime()();
+
   @override
   List<Set<Column>> get uniqueKeys => [
     {courseOffering, teacher, language},
@@ -609,7 +612,6 @@ class SyllabusSections extends Table with AutoIncrementId {
   late final syllabus = integer().references(
     Syllabuses,
     #id,
-    onDelete: .cascade,
   )();
 
   /// Raw source title.
