@@ -693,22 +693,32 @@ class CourseRepository {
     );
   }
 
-  /// Watches the syllabus authored by [teacherId] for offering [offeringId],
-  /// refreshing it once per subscription (no staleness gate).
+  /// Watches [teacherId]'s syllabus for [courseNumber] in [language].
   ///
-  /// Emits the cached aggregate immediately when present, then refreshes in the
-  /// background; with no cached parent it blocks on the first fetch instead,
-  /// so the UI shows content (or a definitive "no syllabus") rather than
-  /// flashing empty. A submitted syllabus can have an empty section list.
-  /// Emits `null` when the teacher hasn't submitted a syllabus (尚未登錄) or is
-  /// unknown.
+  /// Emits the language-specific cached aggregate when present. With no cached
+  /// parent it lazily fetches that language before emitting, so switching
+  /// locales creates independent cache entries and returning to a fetched
+  /// locale is a database-only cache hit. A submitted syllabus can have an
+  /// empty section list. Emits `null` when the offering or teacher is unknown,
+  /// or when the teacher has not submitted that language variant.
   Stream<SyllabusDetail?> watchSyllabus({
-    required int offeringId,
+    required String courseNumber,
     required String teacherId,
+    required SyllabusLanguage language,
   }) async* {
+    final offering =
+        await (_database.select(
+              _database.courseOfferings,
+            )..where((offering) => offering.number.equals(courseNumber)))
+            .getSingleOrNull();
+    if (offering == null) {
+      yield null;
+      return;
+    }
+
     final teacher = await (_database.select(
       _database.teachers,
-    )..where((t) => t.code.equals(teacherId))).getSingleOrNull();
+    )..where((teacher) => teacher.code.equals(teacherId))).getSingleOrNull();
     if (teacher == null) {
       yield null;
       return;
@@ -724,39 +734,31 @@ class CourseRepository {
             ),
           ])
           ..where(
-            syllabuses.courseOffering.equals(offeringId) &
-                syllabuses.teacher.equals(teacher.id),
+            syllabuses.courseOffering.equals(offering.id) &
+                syllabuses.teacher.equals(teacher.id) &
+                syllabuses.language.equalsValue(language),
           )
           ..orderBy([.asc(sections.position)]);
 
-    // Fetch once per subscription. The guard stops the refresh's own write
-    // from re-triggering the fetch on the re-emit.
-    var refreshed = false;
+    var fetchedOnMiss = false;
     await for (final rows in query.watch()) {
       final detail = _mapSyllabusRows(rows);
-      if (detail == null && !refreshed) {
-        refreshed = true;
+      if (detail == null && !fetchedOnMiss) {
+        fetchedOnMiss = true;
         try {
-          await refreshSyllabus(offeringId: offeringId, teacherId: teacherId);
-          // Emit the freshly fetched aggregate (or null on 尚未登錄) rather
-          // than the stale null snapshot, before the stream re-emits.
+          await refreshSyllabus(
+            courseNumber: courseNumber,
+            teacherId: teacherId,
+            language: language,
+          );
           yield _mapSyllabusRows(await query.get());
           continue;
         } catch (_) {
-          // Absorb: yield null below so the UI exits its loading state
+          // Absorb: yield null below so the UI exits its loading state.
         }
       }
 
       yield detail;
-
-      if (detail != null && !refreshed) {
-        refreshed = true;
-        try {
-          await refreshSyllabus(offeringId: offeringId, teacherId: teacherId);
-        } catch (_) {
-          // Absorb: stale content is shown via stream
-        }
-      }
     }
   }
 
@@ -773,57 +775,47 @@ class CourseRepository {
     );
   }
 
-  /// Fetches teacher [teacherId]'s syllabus for offering [offeringId] and
-  /// writes it back: metadata to [Syllabuses], ordered content to
+  /// Fetches [teacherId]'s [language] syllabus for [courseNumber] and writes
+  /// it back: metadata to [Syllabuses], ordered content to
   /// [SyllabusSections], instructor email to [TeacherSemesters], and the shared
   /// header fields (course type, enrolled, withdrawn) to [CourseOfferings].
-  /// Deletes the parent and cascading sections when the teacher hasn't
-  /// submitted a syllabus (`getSyllabus` returns null).
+  /// Deletes only this language variant when the teacher has not submitted it.
   ///
-  /// No-ops when the offering/teacher is missing or the offering has no
-  /// `number`; network errors propagate to the caller.
+  /// No-ops when the offering or teacher is missing; network errors propagate.
   Future<void> refreshSyllabus({
-    required int offeringId,
+    required String courseNumber,
     required String teacherId,
+    required SyllabusLanguage language,
   }) async {
-    final offering = await (_database.select(
-      _database.courseOfferings,
-    )..where((o) => o.id.equals(offeringId))).getSingleOrNull();
-    if (offering == null || offering.number == null) return;
+    final offering =
+        await (_database.select(
+              _database.courseOfferings,
+            )..where((offering) => offering.number.equals(courseNumber)))
+            .getSingleOrNull();
+    if (offering == null) return;
 
     final teacher = await (_database.select(
       _database.teachers,
-    )..where((t) => t.code.equals(teacherId))).getSingleOrNull();
+    )..where((teacher) => teacher.code.equals(teacherId))).getSingleOrNull();
     if (teacher == null) return;
 
     final syllabus = await _authRepository.withAuth(
       () => _courseService.getSyllabus(
-        courseNumber: offering.number!,
+        courseNumber: courseNumber,
         teacherId: teacherId,
+        language: language,
       ),
       sso: [.courseService],
     );
 
-    if (syllabus case final submitted?) {
-      final distinctTitles = <String>{};
-      for (final section in submitted.sections) {
-        if (distinctTitles.add(section.title) &&
-            tryLocalizeSyllabusSectionTitle(section.title) == null) {
-          _firebaseService.recordNonFatal(
-            'Unknown syllabus section title: ${section.title} '
-            '(courseNumber=${offering.number}, teacherId=$teacherId)',
-          );
-        }
-      }
-    }
-
     await _database.transaction(() async {
       if (syllabus == null) {
-        // Teacher hasn't submitted a syllabus; drop any cached row.
+        // Drop only the requested language; another locale remains cached.
         await (_database.delete(_database.syllabuses)..where(
-              (s) =>
-                  s.courseOffering.equals(offeringId) &
-                  s.teacher.equals(teacher.id),
+              (stored) =>
+                  stored.courseOffering.equals(offering.id) &
+                  stored.teacher.equals(teacher.id) &
+                  stored.language.equalsValue(language),
             ))
             .go();
         return;
@@ -833,8 +825,9 @@ class CourseRepository {
           .into(_database.syllabuses)
           .insertReturning(
             SyllabusesCompanion.insert(
-              courseOffering: offeringId,
+              courseOffering: offering.id,
               teacher: teacher.id,
+              language: language,
               updatedAt: Value(syllabus.lastUpdated),
             ),
             onConflict: DoUpdate(
@@ -844,6 +837,7 @@ class CourseRepository {
               target: [
                 _database.syllabuses.courseOffering,
                 _database.syllabuses.teacher,
+                _database.syllabuses.language,
               ],
             ),
           );
@@ -868,7 +862,7 @@ class CourseRepository {
 
       await (_database.update(
         _database.courseOfferings,
-      )..where((o) => o.id.equals(offeringId))).write(
+      )..where((stored) => stored.id.equals(offering.id))).write(
         CourseOfferingsCompanion(
           courseType: Value(syllabus.type),
           enrolled: Value(syllabus.enrolled),

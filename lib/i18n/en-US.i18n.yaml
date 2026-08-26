@@ -103,18 +103,6 @@ calendar:
 courseTable:
   notFound: Course table not found
   unscheduled: Unscheduled Courses
-  syllabus:
-    sections:
-      objective: Course Objective
-      schedule: Course Schedule
-      scheduleWithWeeks: Course Schedule (Week ${weeks})
-      evaluation: Evaluation and grading policy
-      materials: Materials
-      consultation: The access to curricular consultation
-      resources: Expanding teaching and resources
-      sdgs: The course corresponds to the SDGs
-      ai: Does the course incorporate AI
-      note: Note
   summary:
     credits(plural, param=count):
       one: ${count} credit

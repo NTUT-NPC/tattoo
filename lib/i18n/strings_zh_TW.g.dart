@@ -314,7 +314,6 @@ class Translations$courseTable$zh_TW {
 	/// zh-TW: '未安排時間的課程'
 	String get unscheduled => '未安排時間的課程';
 
-	late final Translations$courseTable$syllabus$zh_TW syllabus = Translations$courseTable$syllabus$zh_TW.internal(_root);
 	late final Translations$courseTable$summary$zh_TW summary = Translations$courseTable$summary$zh_TW.internal(_root);
 	late final Translations$courseTable$actions$zh_TW actions = Translations$courseTable$actions$zh_TW.internal(_root);
 	Map<String, String> get dayOfWeek => {
@@ -678,16 +677,6 @@ class Translations$score$status$zh_TW {
 	String get creditTransfer => '抵免';
 }
 
-// Path: courseTable.syllabus
-class Translations$courseTable$syllabus$zh_TW {
-	Translations$courseTable$syllabus$zh_TW.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-	late final Translations$courseTable$syllabus$sections$zh_TW sections = Translations$courseTable$syllabus$sections$zh_TW.internal(_root);
-}
-
 // Path: courseTable.summary
 class Translations$courseTable$summary$zh_TW {
 	Translations$courseTable$summary$zh_TW.internal(this._root);
@@ -976,45 +965,6 @@ class Translations$intro$features$campusLife$zh_TW {
 	String get description => '彙整其他校園生活資訊，更多功能敬請期待。';
 }
 
-// Path: courseTable.syllabus.sections
-class Translations$courseTable$syllabus$sections$zh_TW {
-	Translations$courseTable$syllabus$sections$zh_TW.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '課程大綱'
-	String get objective => '課程大綱';
-
-	/// zh-TW: '課程進度'
-	String get schedule => '課程進度';
-
-	/// zh-TW: '課程進度(${weeks}週)'
-	String scheduleWithWeeks({required Object weeks}) => '課程進度(${weeks}週)';
-
-	/// zh-TW: '評量方式與標準'
-	String get evaluation => '評量方式與標準';
-
-	/// zh-TW: '使用教材、參考書目或其他'
-	String get materials => '使用教材、參考書目或其他';
-
-	/// zh-TW: '課程諮詢管道'
-	String get consultation => '課程諮詢管道';
-
-	/// zh-TW: '延伸教學與資源'
-	String get resources => '延伸教學與資源';
-
-	/// zh-TW: '課程對應SDGs指標'
-	String get sdgs => '課程對應SDGs指標';
-
-	/// zh-TW: '課程是否導入AI'
-	String get ai => '課程是否導入AI';
-
-	/// zh-TW: '備註'
-	String get note => '備註';
-}
-
 // Path: profile.dangerZone.items
 class Translations$profile$dangerZone$items$zh_TW {
 	Translations$profile$dangerZone$items$zh_TW.internal(this._root);
@@ -1131,16 +1081,6 @@ extension on Translations {
 			'calendar.today' => '今天',
 			'courseTable.notFound' => '找不到課表',
 			'courseTable.unscheduled' => '未安排時間的課程',
-			'courseTable.syllabus.sections.objective' => '課程大綱',
-			'courseTable.syllabus.sections.schedule' => '課程進度',
-			'courseTable.syllabus.sections.scheduleWithWeeks' => ({required Object weeks}) => '課程進度(${weeks}週)',
-			'courseTable.syllabus.sections.evaluation' => '評量方式與標準',
-			'courseTable.syllabus.sections.materials' => '使用教材、參考書目或其他',
-			'courseTable.syllabus.sections.consultation' => '課程諮詢管道',
-			'courseTable.syllabus.sections.resources' => '延伸教學與資源',
-			'courseTable.syllabus.sections.sdgs' => '課程對應SDGs指標',
-			'courseTable.syllabus.sections.ai' => '課程是否導入AI',
-			'courseTable.syllabus.sections.note' => '備註',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
 			'courseTable.actions.showMoreOptions' => '顯示更多選項',

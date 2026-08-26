@@ -512,19 +512,25 @@ class NtutCourseService implements CourseService {
   Future<SyllabusDto?> getSyllabus({
     required String courseNumber,
     required String teacherId,
+    required SyllabusLanguage language,
   }) async {
     final response = await _courseDio.get(
-      'tw/ShowSyllabus.jsp',
+      '${language.pathSegment}/ShowSyllabus.jsp',
       queryParameters: {'snum': courseNumber, 'code': teacherId},
     );
 
     final document = parse(response.data);
 
-    // When the teacher hasn't submitted a syllabus, the page shows a red
-    // "尚未登錄" marker in place of the 教學大綱與進度 content.
+    // An unsubmitted syllabus is a successful empty result in either page
+    // language, not a parser failure.
+    const notSubmittedMarkers = {
+      '尚未登錄',
+      'Not registered',
+      'Not submitted',
+    };
     final notSubmitted = document
         .querySelectorAll('font')
-        .any((f) => f.text.trim() == '尚未登錄');
+        .any((font) => notSubmittedMarkers.contains(font.text.trim()));
     if (notSubmitted) return null;
 
     final tables = document.querySelectorAll('table');
@@ -549,12 +555,20 @@ class NtutCourseService implements CourseService {
       }
     }
 
-    final typeSymbol = header['修'];
+    final labels = switch (language) {
+      .zhTw => (type: '修', enrolled: '人', withdrawn: '撤'),
+      .enUs => (
+        type: 'Required/Elective',
+        enrolled: 'Student NO.',
+        withdrawn: 'Withdraw',
+      ),
+    };
+    final typeSymbol = header[labels.type];
     final type = CourseType.values.firstWhereOrNull(
       (type) => type.symbol == typeSymbol,
     );
-    final enrolled = int.tryParse(header['人'] ?? '');
-    final withdrawn = int.tryParse(header['撤'] ?? '');
+    final enrolled = int.tryParse(header[labels.enrolled] ?? '');
+    final withdrawn = int.tryParse(header[labels.withdrawn] ?? '');
 
     // Table 1: Syllabus table (教學大綱與進度).
     String? email;
@@ -568,14 +582,14 @@ class NtutCourseService implements CourseService {
       if (title.isEmpty) continue;
 
       final content = _parseCellText(cells[1]);
-      if (title == '教師姓名') continue;
+      if (const {'教師姓名', 'Instructor'}.contains(title)) continue;
 
       final lowerTitle = title.toLowerCase();
       if (lowerTitle == 'email' || lowerTitle == 'e-mail') {
         email = content;
         continue;
       }
-      if (title == '最後更新時間') {
+      if (const {'最後更新時間', 'Last Updated'}.contains(title)) {
         lastUpdated = DateTime.tryParse(content ?? '');
         continue;
       }

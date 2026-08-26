@@ -7645,6 +7645,15 @@ class $SyllabusesTable extends Syllabuses
       'REFERENCES teachers (id)',
     ),
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<SyllabusLanguage, String>
+  language = GeneratedColumn<String>(
+    'language',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<SyllabusLanguage>($SyllabusesTable.$converterlanguage);
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -7661,6 +7670,7 @@ class $SyllabusesTable extends Syllabuses
     id,
     courseOffering,
     teacher,
+    language,
     updatedAt,
   ];
   @override
@@ -7710,7 +7720,7 @@ class $SyllabusesTable extends Syllabuses
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
   List<Set<GeneratedColumn>> get uniqueKeys => [
-    {courseOffering, teacher},
+    {courseOffering, teacher, language},
   ];
   @override
   Syllabus map(Map<String, dynamic> data, {String? tablePrefix}) {
@@ -7728,6 +7738,12 @@ class $SyllabusesTable extends Syllabuses
         DriftSqlType.int,
         data['${effectivePrefix}teacher'],
       )!,
+      language: $SyllabusesTable.$converterlanguage.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}language'],
+        )!,
+      ),
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
@@ -7739,6 +7755,11 @@ class $SyllabusesTable extends Syllabuses
   $SyllabusesTable createAlias(String alias) {
     return $SyllabusesTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<SyllabusLanguage, String, String>
+  $converterlanguage = const EnumNameConverter<SyllabusLanguage>(
+    SyllabusLanguage.values,
+  );
 }
 
 class Syllabus extends DataClass implements Insertable<Syllabus> {
@@ -7751,12 +7772,16 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
   /// Reference to the authoring teacher (the syllabus's code is their code).
   final int teacher;
 
+  /// Language variant fetched from the course system.
+  final SyllabusLanguage language;
+
   /// When this syllabus was last updated by the teacher (最後更新時間).
   final DateTime? updatedAt;
   const Syllabus({
     required this.id,
     required this.courseOffering,
     required this.teacher,
+    required this.language,
     this.updatedAt,
   });
   @override
@@ -7765,6 +7790,11 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
     map['id'] = Variable<int>(id);
     map['course_offering'] = Variable<int>(courseOffering);
     map['teacher'] = Variable<int>(teacher);
+    {
+      map['language'] = Variable<String>(
+        $SyllabusesTable.$converterlanguage.toSql(language),
+      );
+    }
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
     }
@@ -7776,6 +7806,7 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
       id: Value(id),
       courseOffering: Value(courseOffering),
       teacher: Value(teacher),
+      language: Value(language),
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(updatedAt),
@@ -7791,6 +7822,9 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
       id: serializer.fromJson<int>(json['id']),
       courseOffering: serializer.fromJson<int>(json['courseOffering']),
       teacher: serializer.fromJson<int>(json['teacher']),
+      language: $SyllabusesTable.$converterlanguage.fromJson(
+        serializer.fromJson<String>(json['language']),
+      ),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
     );
   }
@@ -7801,6 +7835,9 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
       'id': serializer.toJson<int>(id),
       'courseOffering': serializer.toJson<int>(courseOffering),
       'teacher': serializer.toJson<int>(teacher),
+      'language': serializer.toJson<String>(
+        $SyllabusesTable.$converterlanguage.toJson(language),
+      ),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
     };
   }
@@ -7809,11 +7846,13 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
     int? id,
     int? courseOffering,
     int? teacher,
+    SyllabusLanguage? language,
     Value<DateTime?> updatedAt = const Value.absent(),
   }) => Syllabus(
     id: id ?? this.id,
     courseOffering: courseOffering ?? this.courseOffering,
     teacher: teacher ?? this.teacher,
+    language: language ?? this.language,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
   Syllabus copyWithCompanion(SyllabusesCompanion data) {
@@ -7823,6 +7862,7 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
           ? data.courseOffering.value
           : this.courseOffering,
       teacher: data.teacher.present ? data.teacher.value : this.teacher,
+      language: data.language.present ? data.language.value : this.language,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -7833,13 +7873,15 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
           ..write('id: $id, ')
           ..write('courseOffering: $courseOffering, ')
           ..write('teacher: $teacher, ')
+          ..write('language: $language, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, courseOffering, teacher, updatedAt);
+  int get hashCode =>
+      Object.hash(id, courseOffering, teacher, language, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -7847,6 +7889,7 @@ class Syllabus extends DataClass implements Insertable<Syllabus> {
           other.id == this.id &&
           other.courseOffering == this.courseOffering &&
           other.teacher == this.teacher &&
+          other.language == this.language &&
           other.updatedAt == this.updatedAt);
 }
 
@@ -7854,30 +7897,36 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
   final Value<int> id;
   final Value<int> courseOffering;
   final Value<int> teacher;
+  final Value<SyllabusLanguage> language;
   final Value<DateTime?> updatedAt;
   const SyllabusesCompanion({
     this.id = const Value.absent(),
     this.courseOffering = const Value.absent(),
     this.teacher = const Value.absent(),
+    this.language = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   SyllabusesCompanion.insert({
     this.id = const Value.absent(),
     required int courseOffering,
     required int teacher,
+    required SyllabusLanguage language,
     this.updatedAt = const Value.absent(),
   }) : courseOffering = Value(courseOffering),
-       teacher = Value(teacher);
+       teacher = Value(teacher),
+       language = Value(language);
   static Insertable<Syllabus> custom({
     Expression<int>? id,
     Expression<int>? courseOffering,
     Expression<int>? teacher,
+    Expression<String>? language,
     Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (courseOffering != null) 'course_offering': courseOffering,
       if (teacher != null) 'teacher': teacher,
+      if (language != null) 'language': language,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
@@ -7886,12 +7935,14 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
     Value<int>? id,
     Value<int>? courseOffering,
     Value<int>? teacher,
+    Value<SyllabusLanguage>? language,
     Value<DateTime?>? updatedAt,
   }) {
     return SyllabusesCompanion(
       id: id ?? this.id,
       courseOffering: courseOffering ?? this.courseOffering,
       teacher: teacher ?? this.teacher,
+      language: language ?? this.language,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
@@ -7908,6 +7959,11 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
     if (teacher.present) {
       map['teacher'] = Variable<int>(teacher.value);
     }
+    if (language.present) {
+      map['language'] = Variable<String>(
+        $SyllabusesTable.$converterlanguage.toSql(language.value),
+      );
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -7920,6 +7976,7 @@ class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
           ..write('id: $id, ')
           ..write('courseOffering: $courseOffering, ')
           ..write('teacher: $teacher, ')
+          ..write('language: $language, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -22235,6 +22292,7 @@ typedef $$SyllabusesTableCreateCompanionBuilder =
       Value<int> id,
       required int courseOffering,
       required int teacher,
+      required SyllabusLanguage language,
       Value<DateTime?> updatedAt,
     });
 typedef $$SyllabusesTableUpdateCompanionBuilder =
@@ -22242,6 +22300,7 @@ typedef $$SyllabusesTableUpdateCompanionBuilder =
       Value<int> id,
       Value<int> courseOffering,
       Value<int> teacher,
+      Value<SyllabusLanguage> language,
       Value<DateTime?> updatedAt,
     });
 
@@ -22317,6 +22376,12 @@ class $$SyllabusesTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<SyllabusLanguage, SyllabusLanguage, String>
+  get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
@@ -22410,6 +22475,11 @@ class $$SyllabusesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -22473,6 +22543,9 @@ class $$SyllabusesTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<SyllabusLanguage, String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -22584,11 +22657,13 @@ class $$SyllabusesTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> courseOffering = const Value.absent(),
                 Value<int> teacher = const Value.absent(),
+                Value<SyllabusLanguage> language = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
               }) => SyllabusesCompanion(
                 id: id,
                 courseOffering: courseOffering,
                 teacher: teacher,
+                language: language,
                 updatedAt: updatedAt,
               ),
           createCompanionCallback:
@@ -22596,11 +22671,13 @@ class $$SyllabusesTableTableManager
                 Value<int> id = const Value.absent(),
                 required int courseOffering,
                 required int teacher,
+                required SyllabusLanguage language,
                 Value<DateTime?> updatedAt = const Value.absent(),
               }) => SyllabusesCompanion.insert(
                 id: id,
                 courseOffering: courseOffering,
                 teacher: teacher,
+                language: language,
                 updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0

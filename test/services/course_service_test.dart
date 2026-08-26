@@ -371,7 +371,7 @@ void main() {
       // A syllabus belongs to its authoring teacher, so any teacher may have
       // one. Scans the course table for the first teacher who has submitted a
       // syllabus (others return null — the page shows 尚未登錄).
-      Future<SyllabusDto> firstSyllabus() async {
+      Future<SyllabusDto> firstSyllabus(SyllabusLanguage language) async {
         final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
@@ -387,6 +387,7 @@ void main() {
             final syllabus = await courseService.getSyllabus(
               courseNumber: number,
               teacherId: teacherId,
+              language: language,
             );
             if (syllabus != null) return syllabus;
           }
@@ -395,7 +396,7 @@ void main() {
       }
 
       test('should parse syllabus fields correctly', () async {
-        final syllabus = await firstSyllabus();
+        final syllabus = await firstSyllabus(.zhTw);
 
         // Verify course type is a valid enum value
         expect(
@@ -434,31 +435,35 @@ void main() {
       });
 
       test('should parse dynamic syllabus sections', () async {
-        final syllabus = await firstSyllabus();
+        for (final language in SyllabusLanguage.values) {
+          final syllabus = await firstSyllabus(language);
 
-        expect(
-          syllabus.sections,
-          isNotEmpty,
-          reason: 'A submitted syllabus should expose its content sections',
-        );
-        for (final section in syllabus.sections) {
           expect(
-            section.title.trim(),
+            syllabus.sections,
             isNotEmpty,
-            reason: 'Every syllabus section should have a source title',
+            reason:
+                'A submitted ${language.name} syllabus should expose sections',
+          );
+          for (final section in syllabus.sections) {
+            expect(
+              section.title.trim(),
+              isNotEmpty,
+              reason: 'Every syllabus section should have a source title',
+            );
+          }
+          expect(
+            syllabus.sections.any(
+              (section) => section.content?.trim().isNotEmpty ?? false,
+            ),
+            isTrue,
+            reason:
+                'At least one ${language.name} section should contain content',
           );
         }
-        expect(
-          syllabus.sections.any(
-            (section) => section.content?.trim().isNotEmpty ?? false,
-          ),
-          isTrue,
-          reason: 'At least one syllabus section should contain content',
-        );
       });
 
       test('should parse email when available', () async {
-        final syllabus = await firstSyllabus();
+        final syllabus = await firstSyllabus(.zhTw);
 
         // Email should contain @ if present
         if (syllabus.email != null) {

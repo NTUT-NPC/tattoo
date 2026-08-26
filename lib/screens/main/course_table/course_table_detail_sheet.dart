@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
@@ -39,8 +40,9 @@ class CourseTableDetailSheet extends ConsumerWidget {
       child: Padding(
         padding: const .fromLTRB(16, 8, 16, 16),
         child: switch (detailAsync) {
-          AsyncData(value: final detail?) => _CourseDetailContent(
-            detail: detail,
+          AsyncData(value: final detail?) => SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.85,
+            child: _CourseDetailContent(detail: detail),
           ),
           AsyncData() => _DetailState(
             icon: Icons.search_off_outlined,
@@ -60,13 +62,13 @@ class CourseTableDetailSheet extends ConsumerWidget {
   }
 }
 
-class _CourseDetailContent extends StatelessWidget {
+class _CourseDetailContent extends ConsumerWidget {
   const _CourseDetailContent({required this.detail});
 
   final CourseOfferingDetail detail;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final overview = detail.overview;
     // TODO: replace with course name when available
@@ -96,10 +98,21 @@ class _CourseDetailContent extends StatelessWidget {
           (entry) => '${_dayOfWeekLabel(entry.key)} ${entry.value.join('、')}',
         )
         .join('；');
-    return Column(
-      mainAxisSize: .min,
-      crossAxisAlignment: .start,
-      spacing: 16,
+    final syllabusAsync = switch ((overview.number, detail.teachers)) {
+      (final courseNumber?, [final teacher, ...]) => ref.watch(
+        syllabusProvider((
+          courseNumber: courseNumber,
+          teacherId: teacher.code,
+          language: switch (LocaleSettings.currentLocale) {
+            .zhTw => .zhTw,
+            .enUs => .enUs,
+          },
+        )),
+      ),
+      _ => null,
+    };
+    return ListView(
+      padding: .zero,
       children: [
         SizedBox(
           width: .infinity,
@@ -136,9 +149,65 @@ class _CourseDetailContent extends StatelessWidget {
             ),
           ),
         ),
+        if (syllabusAsync case final syllabusAsync?)
+          switch (syllabusAsync) {
+            AsyncData(value: final syllabus?) => _SyllabusSections(
+              sections: syllabus.sections,
+            ),
+            AsyncError(:final error) => _DetailState(
+              icon: Icons.error_outline,
+              message: 'Error: $error',
+            ),
+            AsyncLoading() => const Padding(
+              padding: .symmetric(horizontal: 8),
+              child: LinearProgressIndicator(),
+            ),
+            _ => const SizedBox.shrink(),
+          },
         SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
-        // TODO: scroll up to show more course query features like classmate, course outline, etc.
       ],
+    );
+  }
+}
+
+class _SyllabusSections extends StatelessWidget {
+  const _SyllabusSections({required this.sections});
+
+  final List<SyllabusSection> sections;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: const .all(8),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: .circular(12),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
+      ),
+      color: theme.colorScheme.surfaceContainer,
+      child: SelectionArea(
+        child: Padding(
+          padding: const .all(12),
+          child: Column(
+            crossAxisAlignment: .start,
+            children: [
+              for (final (index, section) in sections.indexed) ...[
+                if (index > 0) const Divider(height: 24),
+                Text(
+                  section.title.spaced,
+                  style: theme.textTheme.titleMedium,
+                ),
+                if (_normalizedText(section.content) case final content?)
+                  Padding(
+                    padding: const .only(top: 6),
+                    child: Text(content.spaced),
+                  ),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

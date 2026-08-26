@@ -1838,11 +1838,28 @@ class MockCourseService implements CourseService {
   Future<SyllabusDto?> getSyllabus({
     required String courseNumber,
     required String teacherId,
+    required SyllabusLanguage language,
   }) async {
     if (syllabusResult != null) return syllabusResult;
     // Some teachers on a team-taught offering haven't submitted a syllabus yet
     // (the real page shows 尚未登錄); return null to exercise that path.
     if (const {'11894', '11991'}.contains(teacherId)) return null;
+    final titles = switch (language) {
+      .zhTw => (
+        objective: '課程大綱',
+        schedule: '課程進度',
+        evaluation: '評量方式與標準',
+        materials: '使用教材、參考書目或其他',
+        note: '備註',
+      ),
+      .enUs => (
+        objective: 'Course Objective',
+        schedule: 'Course Schedule',
+        evaluation: 'Evaluation and grading policy',
+        materials: 'Materials',
+        note: 'Note',
+      ),
+    };
     return (
       type: CourseType.universityCommonRequired,
       enrolled: 55,
@@ -1851,7 +1868,7 @@ class MockCourseService implements CourseService {
       lastUpdated: DateTime(2025, 10, 20, 10, 15, 5),
       sections: [
         (
-          title: '課程大綱',
+          title: titles.objective,
           content:
               '在本課程中，同學將學習到計算機程式語言Python基礎與應用，'
               '建立Python程式設計的基本概念。透過做中學、學中做，'
@@ -1861,7 +1878,7 @@ class MockCourseService implements CourseService {
               '學習如何運用程式解決與自身相關領域運用上的問題。',
         ),
         (
-          title: '課程進度',
+          title: titles.schedule,
           content:
               '第01週\t教育大數據概述及Python開發環境建置\n'
               '第02週\t數學函式、字元與字串\n'
@@ -1883,14 +1900,14 @@ class MockCourseService implements CourseService {
               '第18週\t期末考試',
         ),
         (
-          title: '評量方式與標準',
+          title: titles.evaluation,
           content:
               '(*) 資工系同學因系上已有相關課程，所以學分將不認列，請勿選修。\n'
               '課程參與(20%)\n作業與隨堂考試(30%)\n期中考試(25%)\n期末考試(25%)',
         ),
-        (title: '使用教材、參考書目或其他', content: '稍後公佈'),
+        (title: titles.materials, content: '稍後公佈'),
         (
-          title: '備註',
+          title: titles.note,
           content:
               '因應疫情發展，本學期教學及授課方式請依照學校網頁所公布之訊息為準：\n'
               '(https://oaa.ntut.edu.tw/p/404-1008-98622.php?Lang=zh-tw)\n'

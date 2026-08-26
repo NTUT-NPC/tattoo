@@ -231,11 +231,10 @@ abstract interface class CourseService {
     required SemesterDto semester,
   });
 
-  /// Fetches the detailed syllabus for a course offering.
+  /// Fetches the detailed syllabus for a course offering in [language].
   ///
-  /// Returns syllabus information including course objectives, textbooks,
-  /// grading policy, and weekly plan, or `null` when the authoring teacher
-  /// hasn't submitted one yet (the page shows 尚未登錄).
+  /// Returns every source-page section in order, or `null` when the authoring
+  /// teacher hasn't submitted one yet (the page shows 尚未登錄).
   ///
   /// The [courseNumber] should be a course offering number (e.g., "346774"),
   /// and [teacherId] is the authoring teacher's ID (one of the `teachers` IDs
@@ -245,5 +244,6 @@ abstract interface class CourseService {
   Future<SyllabusDto?> getSyllabus({
     required String courseNumber,
     required String teacherId,
+    required SyllabusLanguage language,
   });
 }

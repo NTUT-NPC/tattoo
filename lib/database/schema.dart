@@ -588,12 +588,15 @@ class Syllabuses extends Table with AutoIncrementId {
   /// Reference to the authoring teacher (the syllabus's code is their code).
   late final teacher = integer().references(Teachers, #id)();
 
+  /// Language variant fetched from the course system.
+  late final language = textEnum<SyllabusLanguage>()();
+
   /// When this syllabus was last updated by the teacher (最後更新時間).
   late final updatedAt = dateTime().nullable()();
 
   @override
   List<Set<Column>> get uniqueKeys => [
-    {courseOffering, teacher},
+    {courseOffering, teacher, language},
   ];
 }
 

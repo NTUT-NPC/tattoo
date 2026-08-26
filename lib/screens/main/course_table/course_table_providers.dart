@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 
 /// Provides the available semesters for the current user.
@@ -38,21 +39,26 @@ final courseOfferingProvider = StreamProvider.autoDispose
       return ref.watch(courseRepositoryProvider).watchCourseOffering(number);
     });
 
-/// Provides a teacher's syllabus aggregate for an offering, fetched lazily on
-/// first watch.
+/// Provides a teacher's syllabus in the requested language, fetched lazily on
+/// the first cache miss.
 ///
-/// Keyed by the offering id and the authoring teacher's code (from
-/// [CourseOfferingDetail.teachers]). Emits cached content immediately when
-/// present, blocks on the first fetch otherwise, and emits `null` when the
-/// teacher hasn't submitted a syllabus. Section titles remain raw source data;
-/// render them with
-/// `tryLocalizeSyllabusSectionTitle(section.title) ?? section.title`.
+/// Keyed by the globally unique course number, authoring teacher code, and
+/// source-page language. Each language is cached independently and section
+/// titles remain exactly as returned by NTUT.
 final syllabusProvider = StreamProvider.autoDispose
-    .family<SyllabusDetail?, ({int offeringId, String teacherId})>((ref, key) {
+    .family<
+      SyllabusDetail?,
+      ({
+        String courseNumber,
+        String teacherId,
+        SyllabusLanguage language,
+      })
+    >((ref, key) {
       return ref
           .watch(courseRepositoryProvider)
           .watchSyllabus(
-            offeringId: key.offeringId,
+            courseNumber: key.courseNumber,
             teacherId: key.teacherId,
+            language: key.language,
           );
     });
