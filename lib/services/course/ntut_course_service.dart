@@ -574,7 +574,7 @@ class NtutCourseService implements CourseService {
     String? email;
     DateTime? lastUpdated;
     final sections = <SyllabusSectionDto>[];
-    for (final row in tables[1].querySelectorAll('tr')) {
+    for (final row in _directTableRows(tables[1])) {
       final cells = _directTableCells(row);
       if (cells.length < 2) continue;
 
@@ -594,7 +594,16 @@ class NtutCourseService implements CourseService {
         continue;
       }
 
-      sections.add((title: title, content: content));
+      final nestedTables = cells[1].children.where(
+        (element) => element.localName == 'table',
+      );
+      if (nestedTables.isEmpty) {
+        sections.add((title: title, content: content));
+      } else {
+        for (final table in nestedTables) {
+          sections.addAll(_flattenSyllabusTable(table, parentTitle: title));
+        }
+      }
     }
 
     return (
@@ -605,6 +614,46 @@ class NtutCourseService implements CourseService {
       lastUpdated: lastUpdated,
       sections: sections,
     );
+  }
+
+  List<SyllabusSectionDto> _flattenSyllabusTable(
+    Element table, {
+    required String parentTitle,
+  }) {
+    final sections = <SyllabusSectionDto>[];
+    for (final row in _directTableRows(table)) {
+      final cells = _directTableCells(row);
+      if (cells.length < 2) continue;
+
+      final title = cells[0].text.trim();
+      if (title.isEmpty) continue;
+      final path = '$parentTitle / $title';
+      final nestedTables = cells[1].children.where(
+        (element) => element.localName == 'table',
+      );
+      if (nestedTables.isEmpty) {
+        sections.add((title: path, content: _parseCellText(cells[1])));
+      } else {
+        for (final nestedTable in nestedTables) {
+          sections.addAll(
+            _flattenSyllabusTable(nestedTable, parentTitle: path),
+          );
+        }
+      }
+    }
+    return sections;
+  }
+
+  List<Element> _directTableRows(Element table) {
+    return table.children
+        .expand(
+          (child) => switch (child.localName) {
+            'tr' => [child],
+            'tbody' => child.children.where((row) => row.localName == 'tr'),
+            _ => const <Element>[],
+          },
+        )
+        .toList();
   }
 
   List<Element> _directTableCells(Element row) {

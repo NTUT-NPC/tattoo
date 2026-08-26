@@ -605,8 +605,8 @@ class Syllabuses extends Table with AutoIncrementId {
 
 /// An ordered content section belonging to a submitted [Syllabuses] row.
 ///
-/// Titles and content retain the raw source values. Position, rather than
-/// title, identifies a section because the source may repeat labels.
+/// Titles retain source labels; nested labels are flattened into
+/// slash-delimited paths. Position identifies repeated labels.
 class SyllabusSections extends Table with AutoIncrementId {
   /// Parent syllabus. Sections are deleted with the submission.
   late final syllabus = integer().references(
@@ -614,7 +614,7 @@ class SyllabusSections extends Table with AutoIncrementId {
     #id,
   )();
 
-  /// Raw source title.
+  /// Source title or flattened source-title path.
   late final title = text()();
 
   /// Complete source content, or null when the submitted section is blank.

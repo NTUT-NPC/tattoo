@@ -114,8 +114,10 @@ typedef TeacherDto = ({
 });
 
 /// A titled syllabus content section in source-page order.
+///
+/// Nested table labels are flattened into slash-delimited title paths.
 typedef SyllabusSectionDto = ({
-  /// Raw source title. Localization happens only at render time.
+  /// Source title or flattened source-title path.
   String title,
 
   /// Complete section text, or null when the submitted section is blank.
@@ -146,7 +148,7 @@ typedef SyllabusDto = ({
   /// Last updated timestamp (最後更新時間).
   DateTime? lastUpdated,
 
-  /// Ordered content sections with raw source titles.
+  /// Ordered content sections with source-derived titles.
   List<SyllabusSectionDto> sections,
 });
 
