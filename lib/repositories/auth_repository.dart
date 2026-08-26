@@ -143,7 +143,7 @@ class AuthRepository {
 
     final UserDto userDto;
     if (isDemo) {
-      if (password == 'expired') {
+      if (isDemoPasswordExpired(username, password)) {
         throw const LoginException(LoginFailure.passwordExpired);
       }
       // Demo mode: skip real portal, use hardcoded data
@@ -538,7 +538,10 @@ class AuthRepository {
     }
 
     await withAuth(
-      () => _portalService.changePassword(currentPassword, newPassword),
+      () => _portalService.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      ),
     );
 
     // Update stored credentials so auto-login uses the new password
@@ -569,7 +572,14 @@ class AuthRepository {
     String username,
     String newPassword,
   ) async {
-    await _portalService.changeExpiredPassword(newPassword);
+    if (username.trim().isEmpty) {
+      throw ArgumentError.value(username, 'username', 'Username is required');
+    }
+
+    await _portalService.changePassword(
+      newPassword: newPassword,
+      isExpired: true,
+    );
 
     // Perform a full login with the new password to establish a valid session
     await login(username, newPassword);

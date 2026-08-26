@@ -130,7 +130,10 @@ void main() {
         );
 
         expect(
-          () => portalService.changePassword('wrong_password', 'new_password'),
+          () => portalService.changePassword(
+            currentPassword: 'wrong_password',
+            newPassword: 'new_password',
+          ),
           throwsException,
         );
       });
@@ -139,7 +142,10 @@ void main() {
         await cookieJar.deleteAll();
 
         expect(
-          () => portalService.changePassword('any', 'any'),
+          () => portalService.changePassword(
+            currentPassword: 'any',
+            newPassword: 'any',
+          ),
           throwsException,
         );
       });

@@ -199,8 +199,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                       suffixIcon: IconButton(
                                         icon: Icon(
                                           _obscureCurrent
-                                              ? Icons.visibility
-                                              : Icons.visibility_off,
+                                              ? Icons.visibility_off
+                                              : Icons.visibility,
                                         ),
                                         onPressed: () {
                                           setState(() {
@@ -225,8 +225,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                     suffixIcon: IconButton(
                                       icon: Icon(
                                         _obscureNew
-                                            ? Icons.visibility
-                                            : Icons.visibility_off,
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
                                       ),
                                       onPressed: () {
                                         setState(() {
@@ -250,8 +250,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                                     suffixIcon: IconButton(
                                       icon: Icon(
                                         _obscureConfirm
-                                            ? Icons.visibility
-                                            : Icons.visibility_off,
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
                                       ),
                                       onPressed: () {
                                         setState(() {

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:riverpod/riverpod.dart';
+import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
@@ -70,8 +71,13 @@ class ChangePasswordNotifier extends Notifier<ChangePasswordState> {
       return t.changePassword.errors.invalidComplexity;
     }
 
-    if (studentId != null && password == studentId) {
-      return t.changePassword.errors.sameAsUsername;
+    if (studentId != null) {
+      final normalizedPassword = password.toLowerCase().trim();
+      final normalizedStudentId = studentId.toLowerCase().trim();
+      if (normalizedStudentId.isNotEmpty &&
+          normalizedPassword.contains(normalizedStudentId)) {
+        return t.changePassword.errors.sameAsUsername;
+      }
     }
 
     return null;
@@ -112,10 +118,24 @@ class ChangePasswordNotifier extends Notifier<ChangePasswordState> {
       return false;
     }
 
+    if (isExpired && (username == null || username.trim().isEmpty)) {
+      state = state.copyWith(
+        errorMessage: t.changePassword.errors.failed(
+          error: 'Student ID is missing',
+        ),
+        newHasError: true,
+      );
+      return false;
+    }
+
     // Determine the student ID for similarity validation
     String? studentId = username;
     if (!isExpired) {
-      final user = ref.read(userProfileProvider).value;
+      var user = ref.read(userProfileProvider).value;
+      if (user == null) {
+        final db = ref.read(databaseProvider);
+        user = await db.select(db.users).getSingleOrNull();
+      }
       studentId = user?.studentId;
     }
 
@@ -141,7 +161,7 @@ class ChangePasswordNotifier extends Notifier<ChangePasswordState> {
     try {
       final authRepo = ref.read(authRepositoryProvider);
       if (isExpired) {
-        await authRepo.changeExpiredPassword(username ?? '', newPassword);
+        await authRepo.changeExpiredPassword(username!, newPassword);
       } else {
         await authRepo.changePassword(currentPassword, newPassword);
       }

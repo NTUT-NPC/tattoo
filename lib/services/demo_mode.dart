@@ -30,3 +30,7 @@ const String demoUsername = '111592347';
 /// account (see [demoUsername]).
 bool isDemoCredentials(String username, String password) =>
     username == demoUsername;
+
+/// Whether the demo credentials represent an expired password flow.
+bool isDemoPasswordExpired(String username, String password) =>
+    username == demoUsername && password == 'expired';
