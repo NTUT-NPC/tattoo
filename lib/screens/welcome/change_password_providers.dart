@@ -165,6 +165,7 @@ class ChangePasswordNotifier extends Notifier<ChangePasswordState> {
       } else {
         await authRepo.changePassword(currentPassword, newPassword);
       }
+      state = state.copyWith(isLoading: false);
       return true;
     } catch (e) {
       state = state.copyWith(

@@ -13,7 +13,7 @@ class ChangePasswordScreen extends ConsumerStatefulWidget {
     super.key,
     required this.isExpired,
     this.username,
-  });
+  }) : assert(!isExpired || (username != null && username != ''));
 
   @override
   ConsumerState<ChangePasswordScreen> createState() =>
