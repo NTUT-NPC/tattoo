@@ -6,6 +6,8 @@ import 'package:tattoo/services/course/course_service.dart';
 class MockCourseService implements CourseService {
   List<SemesterDto>? semesterListResult;
   List<ScheduleDto>? courseTableResult;
+  CourseOfferingDto? courseOfferingResult;
+
   CourseDto? courseResult;
   TeacherDto? teacherResult;
   SyllabusDto? syllabusResult;
@@ -1767,6 +1769,43 @@ class MockCourseService implements CourseService {
       ],
       _ => const [],
     };
+  }
+
+  @override
+  Future<CourseOfferingDto?> getCourseOffering(String courseNumber) async {
+    final number = courseNumber.trim();
+    if (number.isEmpty) {
+      throw ArgumentError.value(
+        courseNumber,
+        'courseNumber',
+        'must not be blank',
+      );
+    }
+    if (courseOfferingResult case final result?) return result;
+
+    for (final semester in await getCourseSemesterList()) {
+      for (final schedule in await getCourseTable(
+        username: '',
+        semester: semester,
+      )) {
+        if (schedule.number != number) continue;
+        CourseType? courseType;
+        for (final candidate in CourseType.values) {
+          if (candidate.symbol == schedule.type) {
+            courseType = candidate;
+            break;
+          }
+        }
+        return (
+          semester: semester,
+          schedule: schedule,
+          courseType: courseType,
+          enrolled: null,
+          withdrawn: null,
+        );
+      }
+    }
+    return null;
   }
 
   @override

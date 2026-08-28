@@ -13,14 +13,19 @@ typedef _EnglishCourseNames = ({
   List<ReferenceDto> classes,
 });
 
-class NtutCourseService implements CourseService {
-  late final Dio _courseDio;
+typedef _OfferingHeader = ({
+  SemesterDto? semester,
+  String number,
+  String courseName,
+  CourseType? courseType,
+  int? enrolled,
+  int? withdrawn,
+});
 
-  NtutCourseService() {
-    _courseDio = createDio()
-      ..options.baseUrl = 'https://aps.ntut.edu.tw/course/'
-      ..interceptors.add(_SessionCheckInterceptor());
-  }
+class NtutCourseService implements CourseService {
+  late final Dio _courseDio = createDio()
+    ..options.baseUrl = 'https://aps.ntut.edu.tw/course/'
+    ..interceptors.add(_SessionCheckInterceptor());
 
   @override
   Future<List<SemesterDto>> getCourseSemesterList() async {
@@ -138,6 +143,301 @@ class NtutCourseService implements CourseService {
         remarks: dto.remarks,
       );
     }).toList();
+  }
+
+  @override
+  Future<CourseOfferingDto?> getCourseOffering(String courseNumber) async {
+    final number = courseNumber.trim();
+    if (number.isEmpty) {
+      throw ArgumentError.value(
+        courseNumber,
+        'courseNumber',
+        'must not be blank',
+      );
+    }
+
+    final headerResponse = await _courseDio.get(
+      'tw/ShowSyllabus.jsp',
+      queryParameters: {'snum': number},
+    );
+
+    final header = _parseOfferingHeader(
+      headerResponse.data,
+      requestedNumber: number,
+    );
+    if (header == null) return null;
+    final semester = header.semester;
+    if (semester == null || semester.year == null || semester.term == null) {
+      throw const FormatException(
+        'Course offering response has no valid semester.',
+      );
+    }
+
+    final queryResponse = await _courseDio.post(
+      'tw/QueryCourse.jsp',
+      data: {
+        'year': semester.year,
+        'sem': semester.term,
+        // The legacy form encodes "all divisions" as one SQL-style value.
+        'matric': "'0','1','4','5','6','7','8','9','A','C','D','E','F'",
+        'unit': '＊',
+        'cname': header.courseName,
+        'ccode': '',
+        'tname': '',
+        'stime': '0',
+      },
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
+
+    final schedule = _parseQueryCourseOffering(
+      queryResponse.data,
+      requestedNumber: number,
+    );
+    if (schedule == null) {
+      throw StateError(
+        'Course offering $number exists but was absent from query results.',
+      );
+    }
+
+    return (
+      semester: semester,
+      schedule: schedule,
+      courseType: header.courseType,
+      enrolled: header.enrolled,
+      withdrawn: header.withdrawn,
+    );
+  }
+
+  _OfferingHeader? _parseOfferingHeader(
+    String html, {
+    required String requestedNumber,
+  }) {
+    final document = parse(html);
+    List<Element>? rows;
+    for (final table in document.querySelectorAll('table')) {
+      final candidateRows = _directTableRows(table);
+      if (candidateRows.isEmpty) continue;
+      final labels = _directTableCells(
+        candidateRows.first,
+      ).map((cell) => cell.text.trim()).toList();
+      if (labels.contains('課號')) {
+        rows = candidateRows;
+        break;
+      }
+    }
+    if (rows == null) {
+      throw const FormatException('Course offering header table not found.');
+    }
+    if (rows.length < 2) {
+      if (document.body?.text.contains('查無課號') ?? false) return null;
+      throw const FormatException('Course offering header row not found.');
+    }
+
+    final labels = _directTableCells(
+      rows.first,
+    ).map((cell) => cell.text.trim()).toList();
+    final values = _directTableCells(rows[1]);
+    String? value(String label) {
+      final index = labels.indexOf(label);
+      return index >= 0 && index < values.length
+          ? _parseCellText(values[index])
+          : null;
+    }
+
+    final number = value('課號');
+    final name = value('課程名稱');
+    if (number == null || name == null) {
+      throw const FormatException(
+        'Course offering header has no number or course name.',
+      );
+    }
+    if (number != requestedNumber) {
+      throw FormatException(
+        'Course offering response number $number does not match '
+        '$requestedNumber.',
+      );
+    }
+
+    final semesterText = value('學年期');
+    final semesterMatch = semesterText == null
+        ? null
+        : RegExp(r'^(\d+)\s*-\s*([0-3])$').firstMatch(semesterText);
+    final typeSymbol = value('修');
+
+    return (
+      semester: semesterMatch == null
+          ? null
+          : (
+              year: int.parse(semesterMatch.group(1)!),
+              term: int.parse(semesterMatch.group(2)!),
+            ),
+      number: number,
+      courseName: name,
+      courseType: CourseType.values.firstWhereOrNull(
+        (type) => type.symbol == typeSymbol,
+      ),
+      enrolled: int.tryParse(value('人') ?? ''),
+      withdrawn: int.tryParse(value('撤') ?? ''),
+    );
+  }
+
+  ScheduleDto? _parseQueryCourseOffering(
+    String html, {
+    required String requestedNumber,
+  }) {
+    final document = parse(html);
+    const numberLabels = {'課號'};
+    Element? resultTable;
+    List<Element>? rows;
+    var headerIndex = -1;
+    for (final table in document.querySelectorAll('table')) {
+      final candidateRows = _directTableRows(table);
+      for (final (index, row) in candidateRows.indexed) {
+        final labels = _directTableCells(
+          row,
+        ).map((cell) => cell.text.trim()).toList();
+        if (labels.any(numberLabels.contains)) {
+          resultTable = table;
+          rows = candidateRows;
+          headerIndex = index;
+          break;
+        }
+      }
+      if (resultTable != null) break;
+    }
+    if (resultTable == null || rows == null || headerIndex < 0) {
+      throw const FormatException('Course query result table not found.');
+    }
+
+    final labels = _directTableCells(
+      rows[headerIndex],
+    ).map((cell) => cell.text.trim()).toList();
+    int column(Set<String> aliases) => labels.indexWhere(aliases.contains);
+    final numberColumn = column(numberLabels);
+    final matches = <Element>[];
+    for (final row in rows.skip(headerIndex + 1)) {
+      final cells = _directTableCells(row);
+      if (numberColumn >= 0 &&
+          numberColumn < cells.length &&
+          _parseCellText(cells[numberColumn]) == requestedNumber) {
+        matches.add(row);
+      }
+    }
+    if (matches.isEmpty) return null;
+    if (matches.length > 1) {
+      throw FormatException(
+        'Course query returned duplicate rows for $requestedNumber.',
+      );
+    }
+
+    final cells = _directTableCells(matches.single);
+
+    Element? cell(Set<String> aliases) {
+      final index = column(aliases);
+      return index >= 0 && index < cells.length ? cells[index] : null;
+    }
+
+    final courseCell = cell({'課程名稱'});
+    if (courseCell == null || _parseCellText(courseCell) == null) {
+      throw const FormatException('Course query row has no course name.');
+    }
+    final course = _parseCellRef(courseCell);
+    final teacherCell = cell({'教師'});
+    final classCell = cell({'班級'});
+    final teachers = teacherCell == null ? null : _parseQueryRefs(teacherCell);
+    final classes = classCell == null ? null : _parseQueryRefs(classCell);
+
+    final classroomCell = cell({'教室'});
+    final classroomRefs = classroomCell == null
+        ? const <ReferenceDto>[]
+        : (_parseQueryRefs(classroomCell) ?? const <ReferenceDto>[])
+              .map(_stripEClassroomMarker)
+              .toList();
+    final slots = <({DayOfWeek day, Period period})>[];
+    const dayLabels = {
+      DayOfWeek.sunday: {'日'},
+      DayOfWeek.monday: {'一'},
+      DayOfWeek.tuesday: {'二'},
+      DayOfWeek.wednesday: {'三'},
+      DayOfWeek.thursday: {'四'},
+      DayOfWeek.friday: {'五'},
+      DayOfWeek.saturday: {'六'},
+    };
+    for (final entry in dayLabels.entries) {
+      final dayCell = cell(entry.value);
+      if (dayCell == null) continue;
+      for (final match in RegExp(r'[1-9NABCD]').allMatches(dayCell.text)) {
+        final period = Period.values.firstWhereOrNull(
+          (candidate) => candidate.code == match.group(0),
+        );
+        if (period != null) slots.add((day: entry.key, period: period));
+      }
+    }
+    final schedule = slots.indexed
+        .map(
+          (entry) => (
+            day: entry.$2.day,
+            period: entry.$2.period,
+            classroom: switch (classroomRefs) {
+              [final classroom] => classroom,
+              _ when classroomRefs.length == slots.length =>
+                classroomRefs[entry.$1],
+              _ => null,
+            },
+          ),
+        )
+        .toList();
+
+    String? text(Set<String> aliases) {
+      final target = cell(aliases);
+      return target == null ? null : _parseCellText(target);
+    }
+
+    return (
+      number: requestedNumber,
+      course: (id: course.id, nameZh: course.name, nameEn: null),
+      phase: int.tryParse(text({'階段'}) ?? ''),
+      credits: double.tryParse(text({'學分'}) ?? ''),
+      hours: int.tryParse(text({'時數'}) ?? ''),
+      type: text({'修'}),
+      teachers: teachers
+          ?.map<LocalizedRefDto>(
+            (teacher) => (
+              id: teacher.id,
+              nameZh: teacher.name,
+              nameEn: null,
+            ),
+          )
+          .toList(),
+      classes: classes
+          ?.map<LocalizedRefDto>(
+            (classEntity) => (
+              id: classEntity.id,
+              nameZh: classEntity.name,
+              nameEn: null,
+            ),
+          )
+          .toList(),
+      schedule: schedule.isEmpty ? null : schedule,
+      status: null,
+      language: text({'授課語言'}),
+      remarks: text({'備註'}),
+    );
+  }
+
+  List<ReferenceDto>? _parseQueryRefs(Element cell) {
+    final refs = _parseCellRefs(cell);
+    if (refs != null) return refs;
+    final name = _parseCellText(cell);
+    return name == null ? null : [(id: null, name: name)];
+  }
+
+  ReferenceDto _stripEClassroomMarker(ReferenceDto classroom) {
+    final name = classroom.name;
+    return (
+      id: classroom.id,
+      name: name?.replaceFirst(RegExp(r'\s*\(?e\)?\s*$'), ''),
+    );
   }
 
   /// Parses the Chinese course table page (timetable grid + course list).
