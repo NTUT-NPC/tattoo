@@ -412,6 +412,7 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   late final semester = integer().references(Semesters, #id)();
 
   /// Course offering number (e.g., "313146", "352902").
+  /// Assigned numbers are globally unique across semesters.
   ///
   /// Null for special entries that have no assigned number.
   late final number = text().nullable().unique()();

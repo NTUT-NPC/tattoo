@@ -646,8 +646,7 @@ class CourseRepository {
   /// [watchSyllabus]. Emits `null` when the offering is missing; re-emits when
   /// a syllabus refresh writes the offering's header fields.
   ///
-  /// Course numbers are only unique per semester, so the newest semester wins
-  /// when the same number was reused across semesters.
+  /// Course numbers are globally unique and identify at most one offering.
   Stream<CourseOfferingDetail?> watchCourseOffering(String number) async* {
     final overviews = _database.courseOfferingOverviews;
     final query =

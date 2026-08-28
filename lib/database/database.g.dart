@@ -5310,6 +5310,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   final int semester;
 
   /// Course offering number (e.g., "313146", "352902").
+  /// Assigned numbers are globally unique across semesters.
   ///
   /// Null for special entries that have no assigned number.
   final String? number;
