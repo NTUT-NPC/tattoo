@@ -75,14 +75,7 @@ enum CourseType {
 }
 
 /// Language variant used by NTUT's syllabus pages.
-enum SyllabusLanguage {
-  zhTw('tw'),
-  enUs('en');
-
-  /// URL path segment used by the course system.
-  final String pathSegment;
-  const SyllabusLanguage(this.pathSegment);
-}
+enum SyllabusLanguage { zhTw, enUs }
 // dart format on
 
 /// Reference to an entity (course, teacher, classroom, etc.) with an ID and name.

@@ -515,7 +515,10 @@ class NtutCourseService implements CourseService {
     required SyllabusLanguage language,
   }) async {
     final response = await _courseDio.get(
-      '${language.pathSegment}/ShowSyllabus.jsp',
+      switch (language) {
+        .zhTw => 'tw/ShowSyllabus.jsp',
+        .enUs => 'en/ShowSyllabus.jsp',
+      },
       queryParameters: {'snum': courseNumber, 'code': teacherId},
     );
 
