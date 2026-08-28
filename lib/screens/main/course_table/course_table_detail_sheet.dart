@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
@@ -16,6 +15,7 @@ Future<void> showCourseTableDetailSheet(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
+    useSafeArea: true,
     backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
     constraints: BoxConstraints(
       minWidth: MediaQuery.sizeOf(context).width,
@@ -98,18 +98,17 @@ class _CourseDetailContent extends ConsumerWidget {
           (entry) => '${_dayOfWeekLabel(entry.key)} ${entry.value.join('、')}',
         )
         .join('；');
-    final syllabusAsync = switch ((overview.number, detail.teachers)) {
-      (final courseNumber?, [final teacher, ...]) => ref.watch(
+    final syllabusAsync = switch (overview.number) {
+      final courseNumber? => ref.watch(
         syllabusProvider((
           courseNumber: courseNumber,
-          teacherId: teacher.code,
           language: switch (LocaleSettings.currentLocale) {
             .zhTw => .zhTw,
             .enUs => .enUs,
           },
         )),
       ),
-      _ => null,
+      null => null,
     };
     return ListView(
       padding: .zero,
@@ -151,8 +150,11 @@ class _CourseDetailContent extends ConsumerWidget {
         ),
         if (syllabusAsync case final syllabusAsync?)
           switch (syllabusAsync) {
-            AsyncData(value: final syllabus?) => _SyllabusSections(
-              sections: syllabus.sections,
+            AsyncData(value: final syllabuses) => Column(
+              children: [
+                for (final detail in syllabuses)
+                  _SyllabusSections(detail: detail),
+              ],
             ),
             AsyncError(:final error) => _DetailState(
               icon: Icons.error_outline,
@@ -162,7 +164,6 @@ class _CourseDetailContent extends ConsumerWidget {
               padding: .symmetric(horizontal: 8),
               child: LinearProgressIndicator(),
             ),
-            _ => const SizedBox.shrink(),
           },
         SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
       ],
@@ -171,13 +172,16 @@ class _CourseDetailContent extends ConsumerWidget {
 }
 
 class _SyllabusSections extends StatelessWidget {
-  const _SyllabusSections({required this.sections});
+  const _SyllabusSections({required this.detail});
 
-  final List<SyllabusSection> sections;
+  final TeacherSyllabusDetail detail;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final teacherName = _normalizedText(
+      localized(detail.teacher.nameZh, detail.teacher.nameEn),
+    );
     return Card(
       margin: const .all(8),
       elevation: 0,
@@ -192,8 +196,14 @@ class _SyllabusSections extends StatelessWidget {
           child: Column(
             crossAxisAlignment: .start,
             children: [
-              for (final (index, section) in sections.indexed) ...[
-                if (index > 0) const Divider(height: 24),
+              if (teacherName case final teacherName?)
+                Text(
+                  teacherName.spaced,
+                  style: theme.textTheme.titleLarge,
+                ),
+              for (final (index, section)
+                  in detail.syllabus.sections.indexed) ...[
+                if (index > 0 || teacherName != null) const Divider(height: 24),
                 Text(
                   section.title.spaced,
                   style: theme.textTheme.titleMedium,

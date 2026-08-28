@@ -606,6 +606,10 @@ class NtutCourseService implements CourseService {
       }
     }
 
+    // Empty forms retain static boilerplate such as the materials copyright
+    // notice, but only submitted syllabuses have a last-updated timestamp.
+    if (lastUpdated == null) return null;
+
     return (
       type: type,
       enrolled: enrolled,

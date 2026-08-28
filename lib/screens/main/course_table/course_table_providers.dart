@@ -32,33 +32,28 @@ final courseTableProvider = StreamProvider.autoDispose
 ///
 /// Reads composed offering detail (overview + schedule + teachers + classes)
 /// directly from the database; [refreshCourseTable] keeps it current. No
-/// network fetch — a teacher's syllabus is fetched lazily and separately via
+/// network fetch — submitted syllabuses are fetched lazily and separately via
 /// [syllabusProvider]. Emits `null` until the offering exists.
 final courseOfferingProvider = StreamProvider.autoDispose
     .family<CourseOfferingDetail?, String>((ref, number) {
       return ref.watch(courseRepositoryProvider).watchCourseOffering(number);
     });
 
-/// Provides a teacher's syllabus in the requested language, fetched lazily on
-/// the first cache miss.
+/// Provides every submitted syllabus for a course in the requested language,
+/// fetched lazily on the first cache miss.
 ///
-/// Keyed by the globally unique course number, authoring teacher code, and
-/// source-page language. Each language is cached independently and section
-/// titles remain exactly as returned by NTUT.
+/// Keyed by the globally unique course number and source-page language. Each
+/// language is cached independently and section titles remain exactly as
+/// returned by NTUT.
 final syllabusProvider = StreamProvider.autoDispose
     .family<
-      SyllabusDetail?,
-      ({
-        String courseNumber,
-        String teacherId,
-        SyllabusLanguage language,
-      })
+      List<TeacherSyllabusDetail>,
+      ({String courseNumber, SyllabusLanguage language})
     >((ref, key) {
       return ref
           .watch(courseRepositoryProvider)
-          .watchSyllabus(
+          .watchSyllabuses(
             courseNumber: key.courseNumber,
-            teacherId: key.teacherId,
             language: key.language,
           );
     });
