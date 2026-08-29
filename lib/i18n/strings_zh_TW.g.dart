@@ -55,6 +55,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$kioskLogin$zh_TW kioskLogin = Translations$kioskLogin$zh_TW.internal(_root);
 	late final Translations$enrollmentStatus$zh_TW enrollmentStatus = Translations$enrollmentStatus$zh_TW.internal(_root);
 	late final Translations$about$zh_TW about = Translations$about$zh_TW.internal(_root);
+	late final Translations$forceUpdate$zh_TW forceUpdate = Translations$forceUpdate$zh_TW.internal(_root);
 	late final Translations$regedit$zh_TW regedit = Translations$regedit$zh_TW.internal(_root);
 	late final Translations$changePassword$zh_TW changePassword = Translations$changePassword$zh_TW.internal(_root);
 }
@@ -488,6 +489,36 @@ class Translations$about$zh_TW {
 
 	/// zh-TW: '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出'
 	String get copyright => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
+}
+
+// Path: forceUpdate
+class Translations$forceUpdate$zh_TW {
+	Translations$forceUpdate$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '有新版本可用'
+	String get title => '有新版本可用';
+
+	/// zh-TW: '請更新至最新版本以繼續使用Project Tattoo。'
+	String get message => '請更新至最新版本以繼續使用Project Tattoo。';
+
+	/// zh-TW: '版本 ${version}'
+	String requiredVersion({required Object version}) => '版本 ${version}';
+
+	/// zh-TW: '立即更新'
+	String get updateButton => '立即更新';
+
+	/// zh-TW: '稍後'
+	String get later => '稍後';
+
+	/// zh-TW: '查看'
+	String get view => '查看';
+
+	/// zh-TW: '此為強制更新。'
+	String get isForced => '此為強制更新。';
 }
 
 // Path: regedit
@@ -1275,6 +1306,13 @@ extension on Translations {
 			'about.openSourceLicenses' => '開放原始碼授權',
 			'about.viewOpenSourceLicenses' => 'TAT的實作歸功於開放原始碼社群',
 			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
+			'forceUpdate.title' => '有新版本可用',
+			'forceUpdate.message' => '請更新至最新版本以繼續使用Project Tattoo。',
+			'forceUpdate.requiredVersion' => ({required Object version}) => '版本 ${version}',
+			'forceUpdate.updateButton' => '立即更新',
+			'forceUpdate.later' => '稍後',
+			'forceUpdate.view' => '查看',
+			'forceUpdate.isForced' => '此為強制更新。',
 			'regedit.title' => '登錄編輯程式',
 			'regedit.fetch' => '從遠端獲取',
 			'regedit.noRegistry' => '沒有登錄項目',

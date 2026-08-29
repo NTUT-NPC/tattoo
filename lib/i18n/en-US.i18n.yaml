@@ -228,6 +228,14 @@ about:
   openSourceLicenses: Open Source Licenses
   viewOpenSourceLicenses: TAT's implementation is made possible by the open source community
   copyright: © 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0
+forceUpdate:
+  title: Update Available
+  message: Please update to the latest version to continue using Project Tattoo.
+  requiredVersion: "Version ${version}"
+  updateButton: Update Now
+  later: Later
+  view: View
+  isForced: This update is required.
 regedit:
   title: Registry Editor
   fetch: Fetch from remote

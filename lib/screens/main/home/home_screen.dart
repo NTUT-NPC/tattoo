@@ -1,16 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
-class MainHomeScreen extends StatelessWidget {
+class MainHomeScreen extends ConsumerStatefulWidget {
   const MainHomeScreen({super.key});
 
   @override
+  ConsumerState<MainHomeScreen> createState() => _MainHomeScreenState();
+}
+
+class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Show the optional update toast once on first mount, after the frame is
+    // ready so ScaffoldMessenger is available.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeShowUpdateToast();
+    });
+  }
+
+  /// Shows a floating snackbar when an optional update is pending and the user
+  /// has not already dismissed it this session.
+  void _maybeShowUpdateToast() {
+    if (!mounted) return;
+    final config = ref.read(updateConfigProvider);
+
+    // If it's a forced update, ensure no optional toast is left hanging.
+    if (config?.isForcedUpdate == true) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      return;
+    }
+
+    final dismissed = ref.read(optionalUpdateDismissedProvider);
+    if (config == null || dismissed) return;
+
+    // Mark as dismissed so the toast isn't re-shown on hot-reload / re-entry.
+    ref.read(optionalUpdateDismissedProvider.notifier).dismiss();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(t.forceUpdate.title),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 8),
+        action: SnackBarAction(
+          label: t.forceUpdate.view,
+          onPressed: () => context.push(AppRoutes.update),
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Re-show toast when Remote Config pushes a fresh optional update during
+    // the session (UpdateService resets optionalUpdateDismissedProvider first).
+    // If it's a forced update, this will clear any existing toast.
+    ref.listen(updateConfigProvider, (_, config) {
+      if (config == null) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _maybeShowUpdateToast();
+      });
+    });
+
     final options = [
       OptionEntryTile.svg(
         svgIconAsset: "assets/tat_icon.svg",

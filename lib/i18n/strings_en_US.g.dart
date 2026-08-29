@@ -54,6 +54,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$kioskLogin$en_US kioskLogin = _Translations$kioskLogin$en_US._(_root);
 	@override late final _Translations$enrollmentStatus$en_US enrollmentStatus = _Translations$enrollmentStatus$en_US._(_root);
 	@override late final _Translations$about$en_US about = _Translations$about$en_US._(_root);
+	@override late final _Translations$forceUpdate$en_US forceUpdate = _Translations$forceUpdate$en_US._(_root);
 	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
 	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
 }
@@ -316,6 +317,22 @@ class _Translations$about$en_US extends Translations$about$zh_TW {
 	@override String get openSourceLicenses => 'Open Source Licenses';
 	@override String get viewOpenSourceLicenses => 'TAT\'s implementation is made possible by the open source community';
 	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
+}
+
+// Path: forceUpdate
+class _Translations$forceUpdate$en_US extends Translations$forceUpdate$zh_TW {
+	_Translations$forceUpdate$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Update Available';
+	@override String get message => 'Please update to the latest version to continue using Project Tattoo.';
+	@override String requiredVersion({required Object version}) => 'Version ${version}';
+	@override String get updateButton => 'Update Now';
+	@override String get later => 'Later';
+	@override String get view => 'View';
+	@override String get isForced => 'This update is required.';
 }
 
 // Path: regedit
@@ -874,6 +891,13 @@ extension on TranslationsEnUs {
 			'about.openSourceLicenses' => 'Open Source Licenses',
 			'about.viewOpenSourceLicenses' => 'TAT\'s implementation is made possible by the open source community',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
+			'forceUpdate.title' => 'Update Available',
+			'forceUpdate.message' => 'Please update to the latest version to continue using Project Tattoo.',
+			'forceUpdate.requiredVersion' => ({required Object version}) => 'Version ${version}',
+			'forceUpdate.updateButton' => 'Update Now',
+			'forceUpdate.later' => 'Later',
+			'forceUpdate.view' => 'View',
+			'forceUpdate.isForced' => 'This update is required.',
 			'regedit.title' => 'Registry Editor',
 			'regedit.fetch' => 'Fetch from remote',
 			'regedit.noRegistry' => 'No Registry Keys',
