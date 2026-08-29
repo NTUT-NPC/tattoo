@@ -19,20 +19,20 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Show the optional update toast once on first mount, after the frame is
+    // Show the optional update snackbar once on first mount, after the frame is
     // ready so ScaffoldMessenger is available.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _maybeShowUpdateToast();
+      _maybeShowUpdateSnackbar();
     });
   }
 
   /// Shows a floating snackbar when an optional update is pending and the user
   /// has not already dismissed it this session.
-  void _maybeShowUpdateToast() {
+  void _maybeShowUpdateSnackbar() {
     if (!mounted) return;
     final config = ref.read(updateConfigProvider);
 
-    // If it's a forced update, ensure no optional toast is left hanging.
+    // If it's a forced update, ensure no optional snackbar is left hanging.
     if (config?.isForcedUpdate == true) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       return;
@@ -41,13 +41,13 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
     final dismissed = ref.read(optionalUpdateDismissedProvider);
     if (config == null || dismissed) return;
 
-    // Mark as dismissed so the toast isn't re-shown on hot-reload / re-entry.
+    // Mark as dismissed so the snackbar isn't re-shown on hot-reload / re-entry.
     ref.read(optionalUpdateDismissedProvider.notifier).dismiss();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(t.forceUpdate.title),
-        behavior: SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.fixed,
         duration: const Duration(seconds: 8),
         action: SnackBarAction(
           label: t.forceUpdate.view,
@@ -59,13 +59,13 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Re-show toast when Remote Config pushes a fresh optional update during
+    // Re-show snackbar when Remote Config pushes a fresh optional update during
     // the session (UpdateService resets optionalUpdateDismissedProvider first).
-    // If it's a forced update, this will clear any existing toast.
+    // If it's a forced update, this will clear any existing snackbar.
     ref.listen(updateConfigProvider, (_, config) {
       if (config == null) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _maybeShowUpdateToast();
+        _maybeShowUpdateSnackbar();
       });
     });
 
