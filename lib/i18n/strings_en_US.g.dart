@@ -462,6 +462,7 @@ class _Translations$score$ranking$en_US extends Translations$score$ranking$zh_TW
 	@override String get semester => 'Semester';
 	@override String get cumulative => 'Cumulative';
 	@override String rankAndTotal({required Object rank, required Object total}) => '${rank} / ${total}';
+	@override String get empty => 'No rankings yet';
 }
 
 // Path: score.status
@@ -808,6 +809,7 @@ extension on TranslationsEnUs {
 			'score.ranking.semester' => 'Semester',
 			'score.ranking.cumulative' => 'Cumulative',
 			'score.ranking.rankAndTotal' => ({required Object rank, required Object total}) => '${rank} / ${total}',
+			'score.ranking.empty' => 'No rankings yet',
 			'score.status.notEntered' => 'Not entered',
 			'score.status.withdraw' => 'Withdrawn',
 			'score.status.undelivered' => 'Not submitted',

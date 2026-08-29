@@ -100,6 +100,7 @@ score:
     semester: 學期
     cumulative: 歷年
     rankAndTotal: ${rank} / ${total}
+    empty: 尚無排名
   status:
     notEntered: 未輸入
     withdraw: 撤選

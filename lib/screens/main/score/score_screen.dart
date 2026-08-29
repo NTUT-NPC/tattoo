@@ -259,7 +259,7 @@ class _SemesterScoreList extends StatelessWidget {
                   child: Center(child: Text(t.score.noScoresThisSemester)),
                 ),
               ),
-            if (record.rankings.isNotEmpty)
+            if (!loading)
               SliverToBoxAdapter(
                 child: Skeleton.keep(
                   child: _SemesterRankingCard(rankings: record.rankings),
@@ -433,88 +433,101 @@ class _SemesterRankingCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Table(
-                columnWidths: const {
-                  0: FlexColumnWidth(1.2),
-                  1: FlexColumnWidth(1.4),
-                  2: FlexColumnWidth(1.4),
-                },
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                children: [
-                  TableRow(
-                    children: [
-                      const SizedBox(),
-                      Text(
-                        t.score.ranking.semester.spaced,
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.bold,
-                            ),
-                        textAlign: TextAlign.center,
+              if (rankings.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const .symmetric(vertical: 8),
+                    child: Text(
+                      t.score.ranking.empty.spaced,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
                       ),
-                      Text(
-                        t.score.ranking.cumulative.spaced,
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.bold,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                    ),
                   ),
-                  const TableRow(
-                    children: [
-                      SizedBox(height: 8),
-                      SizedBox(height: 8),
-                      SizedBox(height: 8),
-                    ],
-                  ),
-                  for (final ranking in rankings) ...[
+                )
+              else
+                Table(
+                  columnWidths: const {
+                    0: FlexColumnWidth(1.2),
+                    1: FlexColumnWidth(1.4),
+                    2: FlexColumnWidth(1.4),
+                  },
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  children: [
                     TableRow(
                       children: [
+                        const SizedBox(),
                         Text(
-                          _getRankingTypeLabel(ranking.rankingType).spaced,
-                          style: Theme.of(context).textTheme.bodyMedium
+                          t.score.ranking.semester.spaced,
+                          style: Theme.of(context).textTheme.labelMedium
                               ?.copyWith(
-                                color: colorScheme.onSurface,
+                                color: colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.bold,
                               ),
-                        ),
-                        Text(
-                          t.score.ranking
-                              .rankAndTotal(
-                                rank: ranking.semesterRank,
-                                total: ranking.semesterTotal,
-                              )
-                              .spaced,
-                          style: Theme.of(context).textTheme.bodyMedium,
                           textAlign: TextAlign.center,
                         ),
                         Text(
-                          t.score.ranking
-                              .rankAndTotal(
-                                rank: ranking.grandTotalRank,
-                                total: ranking.grandTotalTotal,
-                              )
-                              .spaced,
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          t.score.ranking.cumulative.spaced,
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontWeight: FontWeight.bold,
+                              ),
                           textAlign: TextAlign.center,
                         ),
                       ],
                     ),
-                    if (ranking != rankings.last)
-                      const TableRow(
+                    const TableRow(
+                      children: [
+                        SizedBox(height: 8),
+                        SizedBox(height: 8),
+                        SizedBox(height: 8),
+                      ],
+                    ),
+                    for (final ranking in rankings) ...[
+                      TableRow(
                         children: [
-                          SizedBox(height: 8),
-                          SizedBox(height: 8),
-                          SizedBox(height: 8),
+                          Text(
+                            _getRankingTypeLabel(ranking.rankingType).spaced,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: colorScheme.onSurface,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          Text(
+                            t.score.ranking
+                                .rankAndTotal(
+                                  rank: ranking.semesterRank,
+                                  total: ranking.semesterTotal,
+                                )
+                                .spaced,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            t.score.ranking
+                                .rankAndTotal(
+                                  rank: ranking.grandTotalRank,
+                                  total: ranking.grandTotalTotal,
+                                )
+                                .spaced,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            textAlign: TextAlign.center,
+                          ),
                         ],
                       ),
+                      if (ranking != rankings.last)
+                        const TableRow(
+                          children: [
+                            SizedBox(height: 8),
+                            SizedBox(height: 8),
+                            SizedBox(height: 8),
+                          ],
+                        ),
+                    ],
                   ],
-                ],
-              ),
+                ),
             ],
           ),
         ),

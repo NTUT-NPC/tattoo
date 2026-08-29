@@ -717,6 +717,9 @@ class Translations$score$ranking$zh_TW {
 
 	/// zh-TW: '${rank} / ${total}'
 	String rankAndTotal({required Object rank, required Object total}) => '${rank} / ${total}';
+
+	/// zh-TW: '尚無排名'
+	String get empty => '尚無排名';
 }
 
 // Path: score.status
@@ -1228,6 +1231,7 @@ extension on Translations {
 			'score.ranking.semester' => '學期',
 			'score.ranking.cumulative' => '歷年',
 			'score.ranking.rankAndTotal' => ({required Object rank, required Object total}) => '${rank} / ${total}',
+			'score.ranking.empty' => '尚無排名',
 			'score.status.notEntered' => '未輸入',
 			'score.status.withdraw' => '撤選',
 			'score.status.undelivered' => '未送成績',
