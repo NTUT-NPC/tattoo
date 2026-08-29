@@ -232,27 +232,13 @@ class _SemesterScoreList extends StatelessWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Skeleton.keep(
-                    child: _SemesterSummaryCard(summary: record.summary),
-                  ),
-                  if (record.rankings.isNotEmpty)
-                    Skeleton.keep(
-                      child: _SemesterRankingCard(rankings: record.rankings),
-                    ),
-                ],
+              child: Skeleton.keep(
+                child: _SemesterSummaryCard(summary: record.summary),
               ),
             ),
             if (hasScores)
               SliverPadding(
-                padding: .fromLTRB(
-                  16,
-                  0,
-                  16,
-                  _floatingBarBottomInset + bottomInset,
-                ),
+                padding: const .symmetric(horizontal: 16),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate((context, scoreIndex) {
                     final score = scores[scoreIndex];
@@ -273,6 +259,17 @@ class _SemesterScoreList extends StatelessWidget {
                   child: Center(child: Text(t.score.noScoresThisSemester)),
                 ),
               ),
+            if (record.rankings.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Skeleton.keep(
+                  child: _SemesterRankingCard(rankings: record.rankings),
+                ),
+              ),
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: _floatingBarBottomInset + bottomInset,
+              ),
+            ),
           ],
         ),
       ),
