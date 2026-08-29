@@ -65,7 +65,14 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
     // the session (UpdateService resets optionalUpdateDismissedProvider first).
     // If it's a forced update, this will clear any existing snackbar.
     ref.listen(updateConfigProvider, (_, config) {
-      if (config == null) return;
+      if (config == null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          }
+        });
+        return;
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _maybeShowUpdateSnackbar();
       });

@@ -94,7 +94,7 @@ class UpdateScreen extends ConsumerWidget {
                     ],
                     const SizedBox(height: 40),
                     FilledButton.icon(
-                      onPressed: _openStore,
+                      onPressed: () => _openStore(context),
                       icon: const Icon(Icons.download_outlined),
                       label: Text(t.forceUpdate.updateButton),
                     ),
@@ -116,15 +116,21 @@ class UpdateScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _openStore() async {
+  Future<void> _openStore(BuildContext context) async {
     // Platform-specific store URLs — adjust to your actual app IDs.
-    final uri = Uri.parse(
-      // ignore: do_not_use_environment
-      const String.fromEnvironment(
-        'STORE_URL',
-        defaultValue: 'https://ntut.app',
-      ),
-    );
-    await launchUrl(uri, inExternalApplication: true);
+    const compiledUrl = String.fromEnvironment('STORE_URL');
+    final String url;
+    if (compiledUrl.isNotEmpty && compiledUrl != 'https://ntut.app') {
+      url = compiledUrl;
+    } else {
+      // Fallback platform-specific store URLs when compile-time STORE_URL is not set
+      // e.g. for local/manual builds.
+      if (Theme.of(context).platform == TargetPlatform.iOS) {
+        url = 'https://apps.apple.com/app/project-tattoo/id6446218498';
+      } else {
+        url = 'https://play.google.com/store/apps/details?id=club.ntut.tattoo';
+      }
+    }
+    await launchUrl(Uri.parse(url), inExternalApplication: true);
   }
 }
