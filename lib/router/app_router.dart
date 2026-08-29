@@ -13,6 +13,7 @@ import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/profile/regedit_screen.dart';
 import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';
+import 'package:tattoo/screens/welcome/change_password_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
@@ -34,6 +35,7 @@ abstract class AppRoutes {
   static const scanner = '/scanner';
   static const kioskLoginQr = '/kiosk-login-qr';
   static const regedit = '/regedit';
+  static const changePassword = '/change-password';
 }
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
@@ -48,6 +50,7 @@ const _publicRoutes = {
   AppRoutes.intro,
   AppRoutes.login,
   AppRoutes.about,
+  AppRoutes.changePassword,
 };
 
 /// Creates a configured [GoRouter] starting at [initialLocation].
@@ -78,6 +81,18 @@ GoRouter createAppRouter({
     GoRoute(
       path: AppRoutes.login,
       builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.changePassword,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final isExpired = extra?['isExpired'] as bool? ?? false;
+        final username = extra?['username'] as String?;
+        return ChangePasswordScreen(
+          isExpired: isExpired,
+          username: username,
+        );
+      },
     ),
     GoRoute(
       path: AppRoutes.about,

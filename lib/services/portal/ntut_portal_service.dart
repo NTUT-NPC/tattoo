@@ -96,17 +96,27 @@ class NtutPortalService implements PortalService {
   }
 
   @override
-  Future<void> changePassword(
-    String currentPassword,
-    String newPassword,
-  ) async {
+  Future<void> changePassword({
+    required String newPassword,
+    String? currentPassword,
+    bool isExpired = false,
+  }) async {
     final response = await _portalDio.post(
-      'passwordMdy.do',
-      queryParameters: {
-        "oldPassword": currentPassword,
-        "userPassword": newPassword,
-        "pwdForceMdy": "profile",
-      },
+      !isExpired ? 'passwordMdy.do' : 'passwordFirstMdy.do',
+      queryParameters: !isExpired
+          ? {
+              "oldPassword": currentPassword,
+              "userPassword": newPassword,
+              "pwdForceMdy": "profile",
+            }
+          : null,
+      data: isExpired
+          ? {
+              'pwdForceMdy': 'expired',
+              'userPassword': newPassword,
+              'confirmPassword': newPassword,
+            }
+          : null,
     );
 
     final body = jsonDecode(response.data);

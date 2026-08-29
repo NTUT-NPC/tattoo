@@ -24,10 +24,11 @@ class MockPortalService implements PortalService {
   }
 
   @override
-  Future<void> changePassword(
-    String currentPassword,
-    String newPassword,
-  ) async {}
+  Future<void> changePassword({
+    required String newPassword,
+    String? currentPassword,
+    bool isExpired = false,
+  }) async {}
 
   @override
   Future<Uint8List> getAvatar([String? filename]) async {

@@ -55,6 +55,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$enrollmentStatus$en_US enrollmentStatus = _Translations$enrollmentStatus$en_US._(_root);
 	@override late final _Translations$about$en_US about = _Translations$about$en_US._(_root);
 	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
+	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
 }
 
 // Path: general
@@ -333,6 +334,24 @@ class _Translations$regedit$en_US extends Translations$regedit$zh_TW {
 	@override String get invalidInput => 'Invalid input';
 }
 
+// Path: changePassword
+class _Translations$changePassword$en_US extends Translations$changePassword$zh_TW {
+	_Translations$changePassword$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Change Password';
+	@override String get titleExpired => 'Change Expired Password';
+	@override String get expiredNotice => 'Your password has expired. Please set a new password to continue.';
+	@override String get currentPassword => 'Current Password';
+	@override String get newPassword => 'New Password';
+	@override String get confirmPassword => 'Confirm New Password';
+	@override String get submit => 'Change Password';
+	@override String get success => 'Password changed successfully';
+	@override late final _Translations$changePassword$errors$en_US errors = _Translations$changePassword$errors$en_US._(_root);
+}
+
 // Path: intro.features
 class _Translations$intro$features$en_US extends Translations$intro$features$zh_TW {
 	_Translations$intro$features$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -583,6 +602,22 @@ class _Translations$regedit$status$en_US extends Translations$regedit$status$zh_
 	@override String get remoteOverride => 'Forced (Remote)';
 }
 
+// Path: changePassword.errors
+class _Translations$changePassword$errors$en_US extends Translations$changePassword$errors$zh_TW {
+	_Translations$changePassword$errors$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get emptyFields => 'Please fill in all fields';
+	@override String get mismatch => 'New passwords do not match';
+	@override String failed({required Object error}) => 'Password change failed: ${error}';
+	@override String get invalidLength => 'Password length must be between 8 and 14 characters';
+	@override String get invalidComplexity => 'Password must contain uppercase, lowercase, numbers, and symbols';
+	@override String get sameAsUsername => 'Password cannot be the same as your student ID';
+	@override late final _Translations$changePassword$errors$server$en_US server = _Translations$changePassword$errors$server$en_US._(_root);
+}
+
 // Path: intro.features.courseTable
 class _Translations$intro$features$courseTable$en_US extends Translations$intro$features$courseTable$zh_TW {
 	_Translations$intro$features$courseTable$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -628,6 +663,21 @@ class _Translations$profile$dangerZone$items$en_US extends Translations$profile$
 	@override String get preferences => 'Preferences';
 	@override String get credentials => 'Credentials';
 	@override String get userData => 'User data';
+}
+
+// Path: changePassword.errors.server
+class _Translations$changePassword$errors$server$en_US extends Translations$changePassword$errors$server$zh_TW {
+	_Translations$changePassword$errors$server$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get authFailed => 'Current password is incorrect';
+	@override String get minAge => 'Password cannot be changed more than once per day';
+	@override String get historyRepeat => 'Password cannot be the same as any of the last 3 passwords used';
+	@override String get sameAsUsername => 'Password cannot be the same as your student ID';
+	@override String get length => 'Password length must be between 8 and 14 characters';
+	@override String get complexity => 'Password must contain uppercase, lowercase, numbers, and symbols';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -834,6 +884,26 @@ extension on TranslationsEnUs {
 			'regedit.status.localOverride' => 'User Override',
 			'regedit.status.remoteOverride' => 'Forced (Remote)',
 			'regedit.invalidInput' => 'Invalid input',
+			'changePassword.title' => 'Change Password',
+			'changePassword.titleExpired' => 'Change Expired Password',
+			'changePassword.expiredNotice' => 'Your password has expired. Please set a new password to continue.',
+			'changePassword.currentPassword' => 'Current Password',
+			'changePassword.newPassword' => 'New Password',
+			'changePassword.confirmPassword' => 'Confirm New Password',
+			'changePassword.submit' => 'Change Password',
+			'changePassword.success' => 'Password changed successfully',
+			'changePassword.errors.emptyFields' => 'Please fill in all fields',
+			'changePassword.errors.mismatch' => 'New passwords do not match',
+			'changePassword.errors.failed' => ({required Object error}) => 'Password change failed: ${error}',
+			'changePassword.errors.invalidLength' => 'Password length must be between 8 and 14 characters',
+			'changePassword.errors.invalidComplexity' => 'Password must contain uppercase, lowercase, numbers, and symbols',
+			'changePassword.errors.sameAsUsername' => 'Password cannot be the same as your student ID',
+			'changePassword.errors.server.authFailed' => 'Current password is incorrect',
+			'changePassword.errors.server.minAge' => 'Password cannot be changed more than once per day',
+			'changePassword.errors.server.historyRepeat' => 'Password cannot be the same as any of the last 3 passwords used',
+			'changePassword.errors.server.sameAsUsername' => 'Password cannot be the same as your student ID',
+			'changePassword.errors.server.length' => 'Password length must be between 8 and 14 characters',
+			'changePassword.errors.server.complexity' => 'Password must contain uppercase, lowercase, numbers, and symbols',
 			_ => null,
 		};
 	}
