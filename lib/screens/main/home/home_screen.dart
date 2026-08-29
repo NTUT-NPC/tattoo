@@ -47,8 +47,10 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(t.forceUpdate.title),
-        behavior: SnackBarBehavior.fixed,
+        behavior: .fixed,
         duration: const Duration(seconds: 8),
+        // Breaking change in Flutter 3.38, when snack bar with action, auto-dismiss will be disaable unless set persist=false.
+        persist: false,
         action: SnackBarAction(
           label: t.forceUpdate.view,
           onPressed: () => context.push(AppRoutes.update),
