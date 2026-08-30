@@ -9,8 +9,11 @@ general:
   copied: Copied
   back: Back
   ok: OK
+  cancel: Cancel
 errors:
   occurred: An error occurred
+  unexpected: An unexpected error occurred
+  networkError: Network error occurred
   flutterError: A Flutter error occurred
   asyncError: An async error occurred
   sessionExpired: Session expired. Please sign in again.
@@ -32,11 +35,11 @@ intro:
 login:
   welcomeLine1: Welcome to
   welcomeLine2: Campus Life
-  instruction(rich): "Sign in with your ${portalLink(NTUT Portal)} account credentials."
+  instruction(rich): Sign in with your ${portalLink(NTUT Portal)} account credentials.
   studentId: Student ID
   password: Password
   loginButton: Sign In
-  privacyNotice(rich): "Your credentials are stored securely on your device\nBy signing in, you agree to our ${privacyPolicy(Privacy Policy)}."
+  privacyNotice(rich): Your credentials are stored securely on your device\nBy signing in, you agree to our ${privacyPolicy(Privacy Policy)}.
   errors:
     emptyFields: Please enter your student ID and password
     useStudentId: Please use your student ID to sign in, not an email address
@@ -53,6 +56,13 @@ nav:
   calendar: Calendar
   profile: Me
   vote: Vote Login
+portal:
+  sourceNotice: This feature is still under development and may change significantly.
+  openPortal: Open Campus Portal
+  empty: No information systems are currently available.
+  favorites: My Favorites
+  addFavorite: Add to favorites
+  removeFavorite: Remove from favorites
 home:
   projectTattoo:
     title: About Project Tattoo
@@ -146,7 +156,7 @@ profile:
     fireMessage: Bar is on fire
     barOpen: The bar is now open
     barClosed: The bar has closed down
-    goAction: "Go to the bar and ${action}"
+    goAction: Go to the bar and ${action}
     actions:
       - order 0 beers
       - order 999999999 beers
@@ -160,7 +170,7 @@ profile:
     clearPreferences: Clear Preferences
     clearCredentials: Clear Credentials
     clearUserData: Clear User Data
-    cleared: "${item} cleared"
+    cleared: ${item} cleared
     clearFailed: Failed to clear ${item}
     items:
       cache: Cache
@@ -187,7 +197,7 @@ scanner:
     '205': Already logged in. Log out from the portal first to switch users.
     '206': The QR code has expired. Please refresh the page on your computer.
     unknown: Login failed. Please check the QR code or refresh the page.
-  howTo: "Open i.ntut.club on your computer and select QR code login"
+  howTo: Open i.ntut.club on your computer and select QR code login
   guide:
     title: How to login?
     step1: "1. Go to the following URL on your computer:"
@@ -271,7 +281,8 @@ kioskLogin:
 enrollmentStatus:
   learning: Enrolled
   leaveOfAbsence: Leave of Absence
-  droppedOut: Withdrawn
+  droppedOut: Dropped Out
+  graduated: Graduated
 about:
   description: Project Tattoo (TAT) is an unofficial campus life assistant for National Taipei University of Technology (NTUT). Our goal is to provide a better student experience through a modern and user-friendly interface.
   developers: Developers
@@ -281,4 +292,42 @@ about:
   privacyPolicy: Privacy Policy
   privacyPolicyUrl: https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md
   viewPrivacyPolicy: View our privacy policy
-  copyright: "© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0"
+  openSourceLicenses: Open Source Licenses
+  viewOpenSourceLicenses: TAT's implementation is made possible by the open source community
+  copyright: © 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0
+regedit:
+  title: Registry Editor
+  fetch: Fetch from remote
+  noRegistry: No Registry Keys
+  refreshed: Registry refreshed
+  reset: Reset to default
+  status:
+    local: Local Default
+    remote: Remote Config
+    localOverride: User Override
+    remoteOverride: Forced (Remote)
+  invalidInput: Invalid input
+
+changePassword:
+  title: Change Password
+  titleExpired: Change Expired Password
+  expiredNotice: Your password has expired. Please set a new password to continue.
+  currentPassword: Current Password
+  newPassword: New Password
+  confirmPassword: Confirm New Password
+  submit: Change Password
+  success: Password changed successfully
+  errors:
+    emptyFields: Please fill in all fields
+    mismatch: New passwords do not match
+    failed: "Password change failed: ${error}"
+    invalidLength: Password length must be between 8 and 14 characters
+    invalidComplexity: Password must contain uppercase, lowercase, numbers, and symbols
+    sameAsUsername: Password cannot be the same as your student ID
+    server:
+      authFailed: Current password is incorrect
+      minAge: Password cannot be changed more than once per day
+      historyRepeat: Password cannot be the same as any of the last 3 passwords used
+      sameAsUsername: Password cannot be the same as your student ID
+      length: Password length must be between 8 and 14 characters
+      complexity: Password must contain uppercase, lowercase, numbers, and symbols

@@ -190,7 +190,7 @@ void main() {
         );
 
         final coursesWithEnTeacher = regularCourses
-            .where((s) => s.teacher?.nameEn != null)
+            .where((s) => s.teachers?.any((t) => t.nameEn != null) ?? false)
             .toList();
         expect(
           coursesWithEnTeacher,
@@ -198,7 +198,14 @@ void main() {
           reason: 'At least one course should have an English teacher name',
         );
         for (final course in coursesWithEnTeacher) {
-          expect(course.teacher!.nameEn, isNotEmpty);
+          final namesEn = course.teachers!
+              .map((t) => t.nameEn)
+              .nonNulls
+              .toList();
+          expect(namesEn, isNotEmpty);
+          for (final nameEn in namesEn) {
+            expect(nameEn, isNotEmpty);
+          }
         }
       });
 
@@ -304,6 +311,35 @@ void main() {
       });
     });
 
+    group('getCourseOffering', () {
+      test('should look up offering data by course number', () async {
+        final semesters = await courseService.getCourseSemesterList();
+        final sourceSemester = semesters.first;
+        final courseTable = await courseService.getCourseTable(
+          username: TestCredentials.username,
+          semester: sourceSemester,
+        );
+        final source = courseTable.firstWhere(
+          (schedule) => schedule.number?.isNotEmpty ?? false,
+        );
+
+        final offering = await courseService.getCourseOffering(source.number!);
+
+        expect(offering, isNotNull);
+        expect(offering!.schedule.number, source.number);
+        expect(offering.semester, sourceSemester);
+        expect(offering.schedule.course?.id, isNotEmpty);
+        expect(offering.schedule.course?.nameZh, isNotEmpty);
+        expect(offering.courseType, isNotNull);
+        expect(offering.schedule.teachers, isNotEmpty);
+        expect(offering.schedule.classes, isNotEmpty);
+      });
+
+      test('should return null for an unknown offering number', () async {
+        expect(await courseService.getCourseOffering('999999'), isNull);
+      });
+    });
+
     group('getCourse', () {
       test('should parse all course detail fields correctly', () async {
         final semesters = await courseService.getCourseSemesterList();
@@ -361,34 +397,35 @@ void main() {
     });
 
     group('getSyllabus', () {
-      test('should parse syllabus fields correctly', () async {
+      // A syllabus belongs to its authoring teacher, so any teacher may have
+      // one. Scans the course table for the first teacher who has submitted a
+      // syllabus (others return null — the page shows 尚未登錄).
+      Future<SyllabusDto> firstSyllabus(SyllabusLanguage language) async {
         final semesters = await courseService.getCourseSemesterList();
         final courseTable = await courseService.getCourseTable(
           username: TestCredentials.username,
           semester: semesters.pickRandom(),
         );
+        for (final schedule in courseTable) {
+          final number = schedule.number;
+          if (number == null || number.isEmpty) continue;
+          for (final teacher in schedule.teachers ?? const []) {
+            final teacherId = teacher.id;
+            if (teacherId == null) continue;
+            await respectfulDelay();
+            final syllabus = await courseService.getSyllabus(
+              courseNumber: number,
+              teacherId: teacherId,
+              language: language,
+            );
+            if (syllabus != null) return syllabus;
+          }
+        }
+        fail('No submitted syllabus found in the selected semester');
+      }
 
-        // Find a course with a syllabus ID
-        final coursesWithSyllabus = courseTable
-            .where(
-              (schedule) =>
-                  schedule.number != null &&
-                  schedule.number!.isNotEmpty &&
-                  schedule.syllabusId != null,
-            )
-            .toList();
-
-        expect(
-          coursesWithSyllabus,
-          isNotEmpty,
-          reason: 'Should have at least one course with a syllabus',
-        );
-
-        final course = coursesWithSyllabus.pickRandom();
-        final syllabus = await courseService.getSyllabus(
-          courseNumber: course.number!,
-          syllabusId: course.syllabusId!,
-        );
+      test('should parse syllabus fields correctly', () async {
+        final syllabus = await firstSyllabus(.zhTw);
 
         // Verify course type is a valid enum value
         expect(
@@ -426,77 +463,36 @@ void main() {
         );
       });
 
-      test('should parse syllabus content fields', () async {
-        final semesters = await courseService.getCourseSemesterList();
-        final courseTable = await courseService.getCourseTable(
-          username: TestCredentials.username,
-          semester: semesters.pickRandom(),
-        );
+      test('should parse dynamic syllabus sections', () async {
+        for (final language in SyllabusLanguage.values) {
+          final syllabus = await firstSyllabus(language);
 
-        final coursesWithSyllabus = courseTable
-            .where(
-              (schedule) =>
-                  schedule.number != null &&
-                  schedule.number!.isNotEmpty &&
-                  schedule.syllabusId != null,
-            )
-            .toList();
-
-        final course = coursesWithSyllabus.pickRandom();
-        final syllabus = await courseService.getSyllabus(
-          courseNumber: course.number!,
-          syllabusId: course.syllabusId!,
-        );
-
-        // At least some content fields should be populated
-        final hasContent =
-            syllabus.objective != null ||
-            syllabus.weeklyPlan != null ||
-            syllabus.evaluation != null ||
-            syllabus.materials != null;
-
-        expect(
-          hasContent,
-          isTrue,
-          reason: 'Syllabus should have at least one content field populated',
-        );
-
-        // Verify non-empty strings when present
-        if (syllabus.objective != null) {
-          expect(syllabus.objective, isNotEmpty);
-        }
-        if (syllabus.weeklyPlan != null) {
-          expect(syllabus.weeklyPlan, isNotEmpty);
-        }
-        if (syllabus.evaluation != null) {
-          expect(syllabus.evaluation, isNotEmpty);
-        }
-        if (syllabus.materials != null) {
-          expect(syllabus.materials, isNotEmpty);
+          expect(
+            syllabus.sections,
+            isNotEmpty,
+            reason:
+                'A submitted ${language.name} syllabus should expose sections',
+          );
+          for (final section in syllabus.sections) {
+            expect(
+              section.title.trim(),
+              isNotEmpty,
+              reason: 'Every syllabus section should have a source title',
+            );
+          }
+          expect(
+            syllabus.sections.any(
+              (section) => section.content?.trim().isNotEmpty ?? false,
+            ),
+            isTrue,
+            reason:
+                'At least one ${language.name} section should contain content',
+          );
         }
       });
 
       test('should parse email when available', () async {
-        final semesters = await courseService.getCourseSemesterList();
-        final courseTable = await courseService.getCourseTable(
-          username: TestCredentials.username,
-          semester: semesters.pickRandom(),
-        );
-
-        final coursesWithSyllabus = courseTable
-            .where(
-              (schedule) =>
-                  schedule.number != null &&
-                  schedule.number!.isNotEmpty &&
-                  schedule.syllabusId != null,
-            )
-            .toList();
-
-        final course = coursesWithSyllabus.pickRandom();
-        final syllabus = await courseService.getSyllabus(
-          courseNumber: course.number!,
-          syllabusId: course.syllabusId!,
-        );
+        final syllabus = await firstSyllabus(.zhTw);
 
         // Email should contain @ if present
         if (syllabus.email != null) {
@@ -520,7 +516,10 @@ void main() {
 
         // Find a course with a teacher ID
         final coursesWithTeacher = courseTable
-            .where((schedule) => schedule.teacher?.id != null)
+            .where(
+              (schedule) =>
+                  schedule.teachers?.any((t) => t.id != null) ?? false,
+            )
             .toList();
 
         expect(
@@ -531,7 +530,11 @@ void main() {
 
         final course = coursesWithTeacher.pickRandom();
         final teacher = await courseService.getTeacher(
-          teacherId: course.teacher!.id!,
+          teacherId: course.teachers!
+              .where((t) => t.id != null)
+              .toList()
+              .pickRandom()
+              .id!,
           semester: semester,
         );
 
@@ -593,7 +596,10 @@ void main() {
         );
 
         final coursesWithTeacher = courseTable
-            .where((schedule) => schedule.teacher?.id != null)
+            .where(
+              (schedule) =>
+                  schedule.teachers?.any((t) => t.id != null) ?? false,
+            )
             .toList();
 
         expect(
@@ -604,7 +610,11 @@ void main() {
 
         final course = coursesWithTeacher.pickRandom();
         final teacher = await courseService.getTeacher(
-          teacherId: course.teacher!.id!,
+          teacherId: course.teachers!
+              .where((t) => t.id != null)
+              .toList()
+              .pickRandom()
+              .id!,
           semester: semester,
         );
 

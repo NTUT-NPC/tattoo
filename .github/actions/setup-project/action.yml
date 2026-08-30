@@ -9,7 +9,7 @@ runs:
   using: composite
   steps:
     - name: Install mise
-      uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+      uses: jdx/mise-action@9e7f7633ff6f6d6048a9418a68d48f288f50eb14 # v4.2.3
       with:
         install_args: >
           ${{ case(
@@ -25,7 +25,7 @@ runs:
       shell: bash
       run: |
         FLUTTER_VERSION=$(mise current flutter)
-        if [ "$FLUTTER_VERSION" != "3.41.9" ]; then
+        if [ "$FLUTTER_VERSION" != "3.44.8" ]; then
           echo "::error::Flutter version has changed to $FLUTTER_VERSION. Please update cache paths accordingly."
           exit 1
         fi
@@ -33,14 +33,22 @@ runs:
 
     - name: Setup Ruby
       if: ${{ inputs.platform == 'android' || inputs.platform == 'ios' }}
-      uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
+      uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
       with:
         bundler-cache: true
       env:
         BUNDLE_FROZEN: "true"
 
+    - name: Use bundled CocoaPods
+      if: ${{ inputs.platform == 'ios' }}
+      shell: bash
+      run: |
+        BUNDLE_BIN="$RUNNER_TEMP/bin" bundle binstubs cocoapods --force
+        echo "BUNDLE_GEMFILE=$GITHUB_WORKSPACE/Gemfile" >> "$GITHUB_ENV"
+        echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
     - name: Setup Flutter pub cache
-      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
         path: ~/.pub-cache
@@ -53,9 +61,9 @@ runs:
 
     - name: Setup Gradle cache
       if: ${{ inputs.platform == 'android' }}
-      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/*.gradle*', 'android/**/gradle.properties', 'android/gradle/wrapper/gradle-wrapper.properties') }}
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
@@ -64,7 +72,7 @@ runs:
 
     - name: Setup Android SDK cache
       if: ${{ inputs.platform == 'android' }}
-      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         key: ${{ runner.os }}-android-sdk-${{ steps.flutter-version.outputs.flutter_version }}
         # Update paths when updating Flutter version
@@ -74,13 +82,27 @@ runs:
           ${{ runner.os }}-android-sdk-
 
     - name: Select Xcode version
+      id: xcode_version
       if: ${{ inputs.platform == 'ios' }}
       shell: bash
-      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+      run: |
+        sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
+        XCODE_VERSION=$(xcodebuild -version | sed -n 's/^Xcode //p')
+        echo "xcode_version=$XCODE_VERSION" >> "$GITHUB_OUTPUT"
+
+    - name: Setup Swift Package Manager cache
+      if: ${{ inputs.platform == 'ios' }}
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        key: ${{ runner.os }}-spm-${{ runner.arch }}-xcode-${{ steps.xcode_version.outputs.xcode_version }}-${{ hashFiles('ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+        path: ~/Library/Developer/Xcode/DerivedData/*/SourcePackages
+        restore-keys: |
+          ${{ runner.os }}-spm-${{ runner.arch }}-xcode-${{ steps.xcode_version.outputs.xcode_version }}-
+          ${{ runner.os }}-spm-${{ runner.arch }}-
 
     - name: Setup CocoaPods cache
       if: ${{ inputs.platform == 'ios' }}
-      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
         path: ios/Pods
@@ -112,6 +134,5 @@ runs:
       if: ${{ inputs.platform == 'ios' && steps.ios-drift.outputs.changed == 'true' }}
       shell: bash
       run: |
-        XCODE_VERSION=$(xcodebuild -version | head -1)
-        echo "::error::ios/ drifted after flutter build ios --config-only (CI ${XCODE_VERSION}). Mismatched local Xcode is the usual cause; otherwise apply ios-drift.patch from artifacts."
+        echo "::error::ios/ drifted after flutter build ios --config-only (CI Xcode ${{ steps.xcode_version.outputs.xcode_version }}). Mismatched local Xcode is the usual cause; otherwise apply ios-drift.patch from artifacts."
         exit 1

@@ -28,7 +28,7 @@ typedef UserDto = ({
 ///
 /// Weekend markers (`isHoliday == '1'`) are filtered out by
 /// [PortalService.getCalendar] before mapping to this type.
-/// Some non-holiday events may still have a null [id].
+/// Some non-holiday events may still have a null `id`.
 typedef CalendarEventDto = ({
   /// Event ID from the portal.
   ///
@@ -60,6 +60,39 @@ typedef CalendarEventDto = ({
 
   /// Creator name (e.g., "教務處").
   String? creatorName,
+});
+
+/// Represents an application exposed by the NTUT Portal application catalog.
+typedef PortalApplicationDto = ({
+  /// Portal SSO target identifier (`apOu`).
+  String code,
+
+  /// Chinese display name supplied by the portal.
+  String nameZh,
+
+  /// English display name supplied by the portal, when present.
+  String? nameEn,
+
+  /// Absolute URL of the icon supplied by the portal, when present.
+  String? iconUrl,
+});
+
+/// Represents one top-level NTUT Portal application category.
+///
+/// Nested portal folders are flattened into their top-level category so UI
+/// consumers receive only categories and browser-openable applications.
+typedef PortalApplicationCategoryDto = ({
+  /// LDAP distinguished name used to fetch the category from the portal.
+  String distinguishedName,
+
+  /// Chinese display name supplied by the portal.
+  String nameZh,
+
+  /// English display name supplied by the portal, when present.
+  String? nameEn,
+
+  /// Applications in portal display order.
+  List<PortalApplicationDto> applications,
 });
 
 // dart format off
@@ -113,13 +146,14 @@ abstract interface class PortalService {
   /// reason (wrong credentials, account locked, password expired, etc.).
   Future<UserDto> login(String username, String password);
 
-  /// Changes the user's NTUT Portal password.
-  ///
-  /// Requires an active session (call [login] first).
-  ///
-  /// Throws an [Exception] if the password change fails (e.g., incorrect
-  /// current password or the new password doesn't meet requirements).
-  Future<void> changePassword(String currentPassword, String newPassword);
+  /// If [isExpired] is true, it changes an expired password (using the
+  /// expired/first-time login session). Otherwise, it performs a normal
+  /// password change (from settings) and requires [currentPassword].
+  Future<void> changePassword({
+    required String newPassword,
+    String? currentPassword,
+    bool isExpired = false,
+  });
 
   /// Downloads a user's avatar from NTUT Portal.
   ///
@@ -132,7 +166,7 @@ abstract interface class PortalService {
   /// Uploads a new profile photo to NTUT Portal, replacing the current one.
   ///
   /// [oldFilename] should be the current avatar filename
-  /// (from [UserDto.avatarFilename], or empty string if none).
+  /// (from `UserDto.avatarFilename`, or empty string if none).
   ///
   /// Returns the new avatar filename assigned by the server.
   Future<String> uploadAvatar(Uint8List imageBytes, String? oldFilename);
@@ -178,4 +212,20 @@ abstract interface class PortalService {
     DateTime startDate,
     DateTime endDate,
   );
+
+  /// Fetches every application category and browser-openable application
+  /// available to the current portal account in Chinese and English.
+  ///
+  /// The portal stores language in the server session, so implementations
+  /// switch and fetch the two languages sequentially, merge by stable portal
+  /// identifiers, and restore the user's original portal language before
+  /// returning. SSO operations are serialized with these temporary switches
+  /// so browser handoff keeps its established language behavior. English is
+  /// optional: when that fetch is unavailable, Chinese data is still returned.
+  /// Portal folders are traversed recursively. The portal's own bookmark state
+  /// is intentionally not read or changed; favorites in Tattoo are app-local
+  /// data managed by the repository.
+  ///
+  /// Requires an active portal session (call [login] first).
+  Future<List<PortalApplicationCategoryDto>> getApplicationCatalog();
 }

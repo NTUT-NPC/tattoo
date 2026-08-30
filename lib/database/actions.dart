@@ -25,7 +25,9 @@ extension DatabaseActions on AppDatabase {
   Future<void> deleteCachedData() async {
     await transaction(() async {
       for (final entity in allSchemaEntities.toList().reversed) {
-        if (entity is TableInfo && entity != users) {
+        if (entity is TableInfo &&
+            entity != users &&
+            entity != portalApplicationFavorites) {
           await delete(entity).go();
         }
       }
@@ -36,6 +38,7 @@ extension DatabaseActions on AppDatabase {
           semestersFetchedAt: Value(null),
           scoreDataFetchedAt: Value(null),
           calendarFetchedAt: Value(null),
+          applicationCatalogFetchedAt: Value(null),
         ),
       );
     });
@@ -203,8 +206,8 @@ extension DatabaseActions on AppDatabase {
 
   /// Returns the ID of an existing course offering, or creates/updates one.
   ///
-  /// Upserts by `(semester, number)`. Null-number entries always insert
-  /// (SQLite treats NULLs as distinct) — caller must delete stale ones first.
+  /// Upserts by number. Null-number entries always insert (SQLite treats NULLs
+  /// as distinct) — caller must delete stale ones first.
   Future<int> upsertCourseOffering({
     String? courseCode,
     required int semesterId,
@@ -217,7 +220,6 @@ extension DatabaseActions on AppDatabase {
     String? status,
     String? language,
     String? remarks,
-    String? syllabusId,
   }) async {
     return (await into(courseOfferings).insertReturning(
       CourseOfferingsCompanion.insert(
@@ -232,7 +234,6 @@ extension DatabaseActions on AppDatabase {
         status: Value(status),
         language: Value(language),
         remarks: Value(remarks),
-        syllabusId: Value(syllabusId),
       ),
       onConflict: DoUpdate(
         (old) => CourseOfferingsCompanion(
@@ -245,9 +246,8 @@ extension DatabaseActions on AppDatabase {
           status: Value(status),
           language: Value(language),
           remarks: Value(remarks),
-          syllabusId: Value(syllabusId),
         ),
-        target: [courseOfferings.semester, courseOfferings.number],
+        target: [courseOfferings.number],
       ),
     )).id;
   }

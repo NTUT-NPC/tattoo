@@ -40,26 +40,28 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
-	late final TranslationsGeneralZhTw general = TranslationsGeneralZhTw.internal(_root);
-	late final TranslationsErrorsZhTw errors = TranslationsErrorsZhTw.internal(_root);
-	late final TranslationsIntroZhTw intro = TranslationsIntroZhTw.internal(_root);
-	late final TranslationsLoginZhTw login = TranslationsLoginZhTw.internal(_root);
-	late final TranslationsNavZhTw nav = TranslationsNavZhTw.internal(_root);
-	late final TranslationsHomeZhTw home = TranslationsHomeZhTw.internal(_root);
-	late final TranslationsScoreZhTw score = TranslationsScoreZhTw.internal(_root);
-	late final TranslationsCalendarZhTw calendar = TranslationsCalendarZhTw.internal(_root);
-	late final TranslationsCourseTableZhTw courseTable = TranslationsCourseTableZhTw.internal(_root);
-	late final TranslationsProfileZhTw profile = TranslationsProfileZhTw.internal(_root);
-	late final TranslationsScannerZhTw scanner = TranslationsScannerZhTw.internal(_root);
-	late final TranslationsNtutWifiZhTw ntutWifi = TranslationsNtutWifiZhTw.internal(_root);
-	late final TranslationsKioskLoginZhTw kioskLogin = TranslationsKioskLoginZhTw.internal(_root);
-	late final TranslationsEnrollmentStatusZhTw enrollmentStatus = TranslationsEnrollmentStatusZhTw.internal(_root);
-	late final TranslationsAboutZhTw about = TranslationsAboutZhTw.internal(_root);
+	late final Translations$general$zh_TW general = Translations$general$zh_TW.internal(_root);
+	late final Translations$errors$zh_TW errors = Translations$errors$zh_TW.internal(_root);
+	late final Translations$intro$zh_TW intro = Translations$intro$zh_TW.internal(_root);
+	late final Translations$login$zh_TW login = Translations$login$zh_TW.internal(_root);
+	late final Translations$nav$zh_TW nav = Translations$nav$zh_TW.internal(_root);
+	late final Translations$portal$zh_TW portal = Translations$portal$zh_TW.internal(_root);
+	late final Translations$home$zh_TW home = Translations$home$zh_TW.internal(_root);
+	late final Translations$score$zh_TW score = Translations$score$zh_TW.internal(_root);
+	late final Translations$calendar$zh_TW calendar = Translations$calendar$zh_TW.internal(_root);
+	late final Translations$courseTable$zh_TW courseTable = Translations$courseTable$zh_TW.internal(_root);
+	late final Translations$profile$zh_TW profile = Translations$profile$zh_TW.internal(_root);
+	late final Translations$scanner$zh_TW scanner = Translations$scanner$zh_TW.internal(_root);
+	late final Translations$kioskLogin$zh_TW kioskLogin = Translations$kioskLogin$zh_TW.internal(_root);
+	late final Translations$enrollmentStatus$zh_TW enrollmentStatus = Translations$enrollmentStatus$zh_TW.internal(_root);
+	late final Translations$about$zh_TW about = Translations$about$zh_TW.internal(_root);
+	late final Translations$regedit$zh_TW regedit = Translations$regedit$zh_TW.internal(_root);
+	late final Translations$changePassword$zh_TW changePassword = Translations$changePassword$zh_TW.internal(_root);
 }
 
 // Path: general
-class TranslationsGeneralZhTw {
-	TranslationsGeneralZhTw.internal(this._root);
+class Translations$general$zh_TW {
+	Translations$general$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -94,11 +96,14 @@ class TranslationsGeneralZhTw {
 
 	/// zh-TW: '確定'
 	String get ok => '確定';
+
+	/// zh-TW: '取消'
+	String get cancel => '取消';
 }
 
 // Path: errors
-class TranslationsErrorsZhTw {
-	TranslationsErrorsZhTw.internal(this._root);
+class Translations$errors$zh_TW {
+	Translations$errors$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -106,6 +111,12 @@ class TranslationsErrorsZhTw {
 
 	/// zh-TW: '發生錯誤'
 	String get occurred => '發生錯誤';
+
+	/// zh-TW: '發生未預期的錯誤'
+	String get unexpected => '發生未預期的錯誤';
+
+	/// zh-TW: '網路連線出現錯誤'
+	String get networkError => '網路連線出現錯誤';
 
 	/// zh-TW: '發生Flutter錯誤'
 	String get flutterError => '發生Flutter錯誤';
@@ -124,13 +135,13 @@ class TranslationsErrorsZhTw {
 }
 
 // Path: intro
-class TranslationsIntroZhTw {
-	TranslationsIntroZhTw.internal(this._root);
+class Translations$intro$zh_TW {
+	Translations$intro$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	late final TranslationsIntroFeaturesZhTw features = TranslationsIntroFeaturesZhTw.internal(_root);
+	late final Translations$intro$features$zh_TW features = Translations$intro$features$zh_TW.internal(_root);
 
 	/// zh-TW: '由北科程式設計研究社開發\n所有資訊僅供參考，請以學校官方系統為準'
 	String get developedBy => '由北科程式設計研究社開發\n所有資訊僅供參考，請以學校官方系統為準';
@@ -140,8 +151,8 @@ class TranslationsIntroZhTw {
 }
 
 // Path: login
-class TranslationsLoginZhTw {
-	TranslationsLoginZhTw.internal(this._root);
+class Translations$login$zh_TW {
+	Translations$login$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -169,18 +180,18 @@ class TranslationsLoginZhTw {
 	/// zh-TW: '登入'
 	String get loginButton => '登入';
 
-	/// zh-TW: '登入資訊將被安全地儲存在您的裝置中 登入即表示您同意我們的${privacyPolicy(隱私條款)}'
+	/// zh-TW: '登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的${privacyPolicy(隱私條款)}'
 	TextSpan privacyNotice({required InlineSpanBuilder privacyPolicy}) => TextSpan(children: [
 		const TextSpan(text: '登入資訊將被安全地儲存在您的裝置中\n登入即表示您同意我們的'),
 		privacyPolicy('隱私條款'),
 	]);
 
-	late final TranslationsLoginErrorsZhTw errors = TranslationsLoginErrorsZhTw.internal(_root);
+	late final Translations$login$errors$zh_TW errors = Translations$login$errors$zh_TW.internal(_root);
 }
 
 // Path: nav
-class TranslationsNavZhTw {
-	TranslationsNavZhTw.internal(this._root);
+class Translations$nav$zh_TW {
+	Translations$nav$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -208,22 +219,49 @@ class TranslationsNavZhTw {
 	String get vote => '投票登入';
 }
 
-// Path: home
-class TranslationsHomeZhTw {
-	TranslationsHomeZhTw.internal(this._root);
+// Path: portal
+class Translations$portal$zh_TW {
+	Translations$portal$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	late final TranslationsHomeProjectTattooZhTw projectTattoo = TranslationsHomeProjectTattooZhTw.internal(_root);
-	late final TranslationsHomeIdeationZhTw ideation = TranslationsHomeIdeationZhTw.internal(_root);
-	late final TranslationsHomeNpcClubZhTw npcClub = TranslationsHomeNpcClubZhTw.internal(_root);
-	late final TranslationsHomeVoteZhTw vote = TranslationsHomeVoteZhTw.internal(_root);
+
+	/// zh-TW: '此功能仍在開發中，可能會有較大的改動。'
+	String get sourceNotice => '此功能仍在開發中，可能會有較大的改動。';
+
+	/// zh-TW: '開啟校園入口網站'
+	String get openPortal => '開啟校園入口網站';
+
+	/// zh-TW: '目前沒有可用的資訊系統'
+	String get empty => '目前沒有可用的資訊系統';
+
+	/// zh-TW: '我的最愛'
+	String get favorites => '我的最愛';
+
+	/// zh-TW: '加入最愛'
+	String get addFavorite => '加入最愛';
+
+	/// zh-TW: '取消最愛'
+	String get removeFavorite => '取消最愛';
+}
+
+// Path: home
+class Translations$home$zh_TW {
+	Translations$home$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final Translations$home$projectTattoo$zh_TW projectTattoo = Translations$home$projectTattoo$zh_TW.internal(_root);
+	late final Translations$home$ideation$zh_TW ideation = Translations$home$ideation$zh_TW.internal(_root);
+	late final Translations$home$npcClub$zh_TW npcClub = Translations$home$npcClub$zh_TW.internal(_root);
+	late final Translations$home$vote$zh_TW vote = Translations$home$vote$zh_TW.internal(_root);
 }
 
 // Path: score
-class TranslationsScoreZhTw {
-	TranslationsScoreZhTw.internal(this._root);
+class Translations$score$zh_TW {
+	Translations$score$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -247,13 +285,13 @@ class TranslationsScoreZhTw {
 	/// zh-TW: '無'
 	String get none => '無';
 
-	late final TranslationsScoreSummaryZhTw summary = TranslationsScoreSummaryZhTw.internal(_root);
-	late final TranslationsScoreStatusZhTw status = TranslationsScoreStatusZhTw.internal(_root);
+	late final Translations$score$summary$zh_TW summary = Translations$score$summary$zh_TW.internal(_root);
+	late final Translations$score$status$zh_TW status = Translations$score$status$zh_TW.internal(_root);
 }
 
 // Path: calendar
-class TranslationsCalendarZhTw {
-	TranslationsCalendarZhTw.internal(this._root);
+class Translations$calendar$zh_TW {
+	Translations$calendar$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -264,8 +302,8 @@ class TranslationsCalendarZhTw {
 }
 
 // Path: courseTable
-class TranslationsCourseTableZhTw {
-	TranslationsCourseTableZhTw.internal(this._root);
+class Translations$courseTable$zh_TW {
+	Translations$courseTable$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -277,8 +315,8 @@ class TranslationsCourseTableZhTw {
 	/// zh-TW: '未安排時間的課程'
 	String get unscheduled => '未安排時間的課程';
 
-	late final TranslationsCourseTableSummaryZhTw summary = TranslationsCourseTableSummaryZhTw.internal(_root);
-	late final TranslationsCourseTableActionsZhTw actions = TranslationsCourseTableActionsZhTw.internal(_root);
+	late final Translations$courseTable$summary$zh_TW summary = Translations$courseTable$summary$zh_TW.internal(_root);
+	late final Translations$courseTable$actions$zh_TW actions = Translations$courseTable$actions$zh_TW.internal(_root);
 	Map<String, String> get dayOfWeek => {
 		'sunday': '日',
 		'monday': '一',
@@ -291,8 +329,8 @@ class TranslationsCourseTableZhTw {
 }
 
 // Path: profile
-class TranslationsProfileZhTw {
-	TranslationsProfileZhTw.internal(this._root);
+class Translations$profile$zh_TW {
+	Translations$profile$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -301,16 +339,16 @@ class TranslationsProfileZhTw {
 	/// zh-TW: '僅供參考，非正式文件'
 	String get dataDisclaimer => '僅供參考，非正式文件';
 
-	late final TranslationsProfilePasswordExpiryZhTw passwordExpiry = TranslationsProfilePasswordExpiryZhTw.internal(_root);
-	late final TranslationsProfileSectionsZhTw sections = TranslationsProfileSectionsZhTw.internal(_root);
-	late final TranslationsProfileOptionsZhTw options = TranslationsProfileOptionsZhTw.internal(_root);
-	late final TranslationsProfileAvatarZhTw avatar = TranslationsProfileAvatarZhTw.internal(_root);
-	late final TranslationsProfileDangerZoneZhTw dangerZone = TranslationsProfileDangerZoneZhTw.internal(_root);
+	late final Translations$profile$passwordExpiry$zh_TW passwordExpiry = Translations$profile$passwordExpiry$zh_TW.internal(_root);
+	late final Translations$profile$sections$zh_TW sections = Translations$profile$sections$zh_TW.internal(_root);
+	late final Translations$profile$options$zh_TW options = Translations$profile$options$zh_TW.internal(_root);
+	late final Translations$profile$avatar$zh_TW avatar = Translations$profile$avatar$zh_TW.internal(_root);
+	late final Translations$profile$dangerZone$zh_TW dangerZone = Translations$profile$dangerZone$zh_TW.internal(_root);
 }
 
 // Path: scanner
-class TranslationsScannerZhTw {
-	TranslationsScannerZhTw.internal(this._root);
+class Translations$scanner$zh_TW {
+	Translations$scanner$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -359,89 +397,15 @@ class TranslationsScannerZhTw {
 	/// zh-TW: '在電腦開啟i.ntut.club並點選QR code登入'
 	String get howTo => '在電腦開啟i.ntut.club並點選QR code登入';
 
-	late final TranslationsScannerGuideZhTw guide = TranslationsScannerGuideZhTw.internal(_root);
+	late final Translations$scanner$guide$zh_TW guide = Translations$scanner$guide$zh_TW.internal(_root);
 
 	/// zh-TW: '無效的網址'
 	String get invalidUrl => '無效的網址';
 }
 
-// Path: ntutWifi
-class TranslationsNtutWifiZhTw {
-	TranslationsNtutWifiZhTw.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: 'NTUT-802.1X'
-	String get title => 'NTUT-802.1X';
-
-	/// zh-TW: '使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi'
-	String get entryDescription => '使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi';
-
-	/// zh-TW: '使用已登入的校園入口帳號密碼，自動加入NTUT-802.1X並讓Android後續自動嘗試連線。'
-	String get intro => '使用已登入的校園入口帳號密碼，自動加入NTUT-802.1X並讓Android後續自動嘗試連線。';
-
-	/// zh-TW: '帳號直接使用學號或員編，不要加上@ntut.edu.tw。'
-	String get accountHint => '帳號直接使用學號或員編，不要加上@ntut.edu.tw。';
-
-	/// zh-TW: 'Android API ${sdkInt}'
-	String androidVersion({required Object sdkInt}) => 'Android API ${sdkInt}';
-
-	/// zh-TW: '這個功能目前僅支援Android裝置。'
-	String get unsupportedPlatform => '這個功能目前僅支援Android裝置。';
-
-	/// zh-TW: '請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。'
-	String get notLoggedIn => '請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。';
-
-	/// zh-TW: '找不到已保存的入口網站密碼。若要複製密碼，請先重新登入TAT。'
-	String get credentialsMissing => '找不到已保存的入口網站密碼。若要複製密碼，請先重新登入TAT。';
-
-	/// zh-TW: '此助手依Android 12以上介面設計，較舊版本的欄位名稱可能略有不同。'
-	String get olderAndroidWarning => '此助手依Android 12以上介面設計，較舊版本的欄位名稱可能略有不同。';
-
-	/// zh-TW: '複製失敗'
-	String get copyFailed => '複製失敗';
-
-	/// zh-TW: '無法開啟Wi‑Fi設定'
-	String get openSettingsFailed => '無法開啟Wi‑Fi設定';
-
-	/// zh-TW: '無法開啟Wi‑Fi快捷面板'
-	String get openPanelFailed => '無法開啟Wi‑Fi快捷面板';
-
-	/// zh-TW: '自動佈署會固定使用「系統憑證 + 網域ntut.edu.tw + PEAP/GTC」。若系統不允許App安全地下發這組Enterprise設定，請改走下方手動fallback。'
-	String get systemCertificatesHint => '自動佈署會固定使用「系統憑證 + 網域ntut.edu.tw + PEAP/GTC」。若系統不允許App安全地下發這組Enterprise設定，請改走下方手動fallback。';
-
-	/// zh-TW: '這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。'
-	String get automaticProvisionUnavailable => '這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。';
-
-	/// zh-TW: '相容模式已儲存到系統。之後若入口帳密變更，需要再次更新這組 Wi‑Fi 設定。'
-	String get compatModeSavedHint => '相容模式已儲存到系統。之後若入口帳密變更，需要再次更新這組 Wi‑Fi 設定。';
-
-	/// zh-TW: '先前使用相容模式寫入的 NTUT-802.1X 帳密已過期，請重新更新系統 Wi‑Fi。'
-	String get compatUpdateRequired => '先前使用相容模式寫入的 NTUT-802.1X 帳密已過期，請重新更新系統 Wi‑Fi。';
-
-	/// zh-TW: 'suggestion 自動更新失敗，請改用相容模式將最新 NTUT-802.1X 設定寫入系統。'
-	String get suggestionFallbackRequired => 'suggestion 自動更新失敗，請改用相容模式將最新 NTUT-802.1X 設定寫入系統。';
-
-	/// zh-TW: 'Android 10 已拒絕這個 App 的 Wi‑Fi suggestion 權限，請依下方教學手動連線。'
-	String get android10PermissionRejected => 'Android 10 已拒絕這個 App 的 Wi‑Fi suggestion 權限，請依下方教學手動連線。';
-
-	/// zh-TW: 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。'
-	String get legacyManualOnly => 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。';
-
-	late final TranslationsNtutWifiSectionsZhTw sections = TranslationsNtutWifiSectionsZhTw.internal(_root);
-	late final TranslationsNtutWifiActionsZhTw actions = TranslationsNtutWifiActionsZhTw.internal(_root);
-	late final TranslationsNtutWifiFieldsZhTw fields = TranslationsNtutWifiFieldsZhTw.internal(_root);
-	late final TranslationsNtutWifiFieldValuesZhTw fieldValues = TranslationsNtutWifiFieldValuesZhTw.internal(_root);
-	late final TranslationsNtutWifiFallbackStepsZhTw fallbackSteps = TranslationsNtutWifiFallbackStepsZhTw.internal(_root);
-	late final TranslationsNtutWifiProvisioningZhTw provisioning = TranslationsNtutWifiProvisioningZhTw.internal(_root);
-	late final TranslationsNtutWifiCompatPromptZhTw compatPrompt = TranslationsNtutWifiCompatPromptZhTw.internal(_root);
-}
-
 // Path: kioskLogin
-class TranslationsKioskLoginZhTw {
-	TranslationsKioskLoginZhTw.internal(this._root);
+class Translations$kioskLogin$zh_TW {
+	Translations$kioskLogin$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -464,8 +428,8 @@ class TranslationsKioskLoginZhTw {
 }
 
 // Path: enrollmentStatus
-class TranslationsEnrollmentStatusZhTw {
-	TranslationsEnrollmentStatusZhTw.internal(this._root);
+class Translations$enrollmentStatus$zh_TW {
+	Translations$enrollmentStatus$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -479,11 +443,14 @@ class TranslationsEnrollmentStatusZhTw {
 
 	/// zh-TW: '退學'
 	String get droppedOut => '退學';
+
+	/// zh-TW: '畢業'
+	String get graduated => '畢業';
 }
 
 // Path: about
-class TranslationsAboutZhTw {
-	TranslationsAboutZhTw.internal(this._root);
+class Translations$about$zh_TW {
+	Translations$about$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -513,25 +480,95 @@ class TranslationsAboutZhTw {
 	/// zh-TW: '查看隱私權政策'
 	String get viewPrivacyPolicy => '查看隱私權政策';
 
+	/// zh-TW: '開放原始碼授權'
+	String get openSourceLicenses => '開放原始碼授權';
+
+	/// zh-TW: 'TAT的實作歸功於開放原始碼社群'
+	String get viewOpenSourceLicenses => 'TAT的實作歸功於開放原始碼社群';
+
 	/// zh-TW: '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出'
 	String get copyright => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
 }
 
-// Path: intro.features
-class TranslationsIntroFeaturesZhTw {
-	TranslationsIntroFeaturesZhTw.internal(this._root);
+// Path: regedit
+class Translations$regedit$zh_TW {
+	Translations$regedit$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	late final TranslationsIntroFeaturesCourseTableZhTw courseTable = TranslationsIntroFeaturesCourseTableZhTw.internal(_root);
-	late final TranslationsIntroFeaturesScoresZhTw scores = TranslationsIntroFeaturesScoresZhTw.internal(_root);
-	late final TranslationsIntroFeaturesCampusLifeZhTw campusLife = TranslationsIntroFeaturesCampusLifeZhTw.internal(_root);
+
+	/// zh-TW: '登錄編輯程式'
+	String get title => '登錄編輯程式';
+
+	/// zh-TW: '從遠端獲取'
+	String get fetch => '從遠端獲取';
+
+	/// zh-TW: '沒有登錄項目'
+	String get noRegistry => '沒有登錄項目';
+
+	/// zh-TW: '登錄檔已更新'
+	String get refreshed => '登錄檔已更新';
+
+	/// zh-TW: '重設為預設值'
+	String get reset => '重設為預設值';
+
+	late final Translations$regedit$status$zh_TW status = Translations$regedit$status$zh_TW.internal(_root);
+
+	/// zh-TW: '輸入格式錯誤'
+	String get invalidInput => '輸入格式錯誤';
+}
+
+// Path: changePassword
+class Translations$changePassword$zh_TW {
+	Translations$changePassword$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '變更密碼'
+	String get title => '變更密碼';
+
+	/// zh-TW: '變更過期密碼'
+	String get titleExpired => '變更過期密碼';
+
+	/// zh-TW: '您的密碼已過期，請設定新密碼以繼續使用。'
+	String get expiredNotice => '您的密碼已過期，請設定新密碼以繼續使用。';
+
+	/// zh-TW: '目前密碼'
+	String get currentPassword => '目前密碼';
+
+	/// zh-TW: '新密碼'
+	String get newPassword => '新密碼';
+
+	/// zh-TW: '確認新密碼'
+	String get confirmPassword => '確認新密碼';
+
+	/// zh-TW: '變更密碼'
+	String get submit => '變更密碼';
+
+	/// zh-TW: '密碼變更成功'
+	String get success => '密碼變更成功';
+
+	late final Translations$changePassword$errors$zh_TW errors = Translations$changePassword$errors$zh_TW.internal(_root);
+}
+
+// Path: intro.features
+class Translations$intro$features$zh_TW {
+	Translations$intro$features$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final Translations$intro$features$courseTable$zh_TW courseTable = Translations$intro$features$courseTable$zh_TW.internal(_root);
+	late final Translations$intro$features$scores$zh_TW scores = Translations$intro$features$scores$zh_TW.internal(_root);
+	late final Translations$intro$features$campusLife$zh_TW campusLife = Translations$intro$features$campusLife$zh_TW.internal(_root);
 }
 
 // Path: login.errors
-class TranslationsLoginErrorsZhTw {
-	TranslationsLoginErrorsZhTw.internal(this._root);
+class Translations$login$errors$zh_TW {
+	Translations$login$errors$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -560,8 +597,8 @@ class TranslationsLoginErrorsZhTw {
 }
 
 // Path: home.projectTattoo
-class TranslationsHomeProjectTattooZhTw {
-	TranslationsHomeProjectTattooZhTw.internal(this._root);
+class Translations$home$projectTattoo$zh_TW {
+	Translations$home$projectTattoo$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -578,8 +615,8 @@ class TranslationsHomeProjectTattooZhTw {
 }
 
 // Path: home.ideation
-class TranslationsHomeIdeationZhTw {
-	TranslationsHomeIdeationZhTw.internal(this._root);
+class Translations$home$ideation$zh_TW {
+	Translations$home$ideation$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -596,8 +633,8 @@ class TranslationsHomeIdeationZhTw {
 }
 
 // Path: home.npcClub
-class TranslationsHomeNpcClubZhTw {
-	TranslationsHomeNpcClubZhTw.internal(this._root);
+class Translations$home$npcClub$zh_TW {
+	Translations$home$npcClub$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -614,8 +651,8 @@ class TranslationsHomeNpcClubZhTw {
 }
 
 // Path: home.vote
-class TranslationsHomeVoteZhTw {
-	TranslationsHomeVoteZhTw.internal(this._root);
+class Translations$home$vote$zh_TW {
+	Translations$home$vote$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -626,8 +663,8 @@ class TranslationsHomeVoteZhTw {
 }
 
 // Path: score.summary
-class TranslationsScoreSummaryZhTw {
-	TranslationsScoreSummaryZhTw.internal(this._root);
+class Translations$score$summary$zh_TW {
+	Translations$score$summary$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -650,8 +687,8 @@ class TranslationsScoreSummaryZhTw {
 }
 
 // Path: score.status
-class TranslationsScoreStatusZhTw {
-	TranslationsScoreStatusZhTw.internal(this._root);
+class Translations$score$status$zh_TW {
+	Translations$score$status$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -677,8 +714,8 @@ class TranslationsScoreStatusZhTw {
 }
 
 // Path: courseTable.summary
-class TranslationsCourseTableSummaryZhTw {
-	TranslationsCourseTableSummaryZhTw.internal(this._root);
+class Translations$courseTable$summary$zh_TW {
+	Translations$courseTable$summary$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -698,8 +735,8 @@ class TranslationsCourseTableSummaryZhTw {
 }
 
 // Path: courseTable.actions
-class TranslationsCourseTableActionsZhTw {
-	TranslationsCourseTableActionsZhTw.internal(this._root);
+class Translations$courseTable$actions$zh_TW {
+	Translations$courseTable$actions$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -713,8 +750,8 @@ class TranslationsCourseTableActionsZhTw {
 }
 
 // Path: profile.passwordExpiry
-class TranslationsProfilePasswordExpiryZhTw {
-	TranslationsProfilePasswordExpiryZhTw.internal(this._root);
+class Translations$profile$passwordExpiry$zh_TW {
+	Translations$profile$passwordExpiry$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -731,8 +768,8 @@ class TranslationsProfilePasswordExpiryZhTw {
 }
 
 // Path: profile.sections
-class TranslationsProfileSectionsZhTw {
-	TranslationsProfileSectionsZhTw.internal(this._root);
+class Translations$profile$sections$zh_TW {
+	Translations$profile$sections$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -749,15 +786,12 @@ class TranslationsProfileSectionsZhTw {
 }
 
 // Path: profile.options
-class TranslationsProfileOptionsZhTw {
-	TranslationsProfileOptionsZhTw.internal(this._root);
+class Translations$profile$options$zh_TW {
+	Translations$profile$options$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-
-	/// zh-TW: '連接NTUT-802.1X'
-	String get ntutWifi => '連接NTUT-802.1X';
 
 	/// zh-TW: '更改密碼'
 	String get changePassword => '更改密碼';
@@ -782,8 +816,8 @@ class TranslationsProfileOptionsZhTw {
 }
 
 // Path: profile.avatar
-class TranslationsProfileAvatarZhTw {
-	TranslationsProfileAvatarZhTw.internal(this._root);
+class Translations$profile$avatar$zh_TW {
+	Translations$profile$avatar$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -806,8 +840,8 @@ class TranslationsProfileAvatarZhTw {
 }
 
 // Path: profile.dangerZone
-class TranslationsProfileDangerZoneZhTw {
-	TranslationsProfileDangerZoneZhTw.internal(this._root);
+class Translations$profile$dangerZone$zh_TW {
+	Translations$profile$dangerZone$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -871,12 +905,12 @@ class TranslationsProfileDangerZoneZhTw {
 	/// zh-TW: '清除${item}失敗'
 	String clearFailed({required Object item}) => '清除${item}失敗';
 
-	late final TranslationsProfileDangerZoneItemsZhTw items = TranslationsProfileDangerZoneItemsZhTw.internal(_root);
+	late final Translations$profile$dangerZone$items$zh_TW items = Translations$profile$dangerZone$items$zh_TW.internal(_root);
 }
 
 // Path: scanner.guide
-class TranslationsScannerGuideZhTw {
-	TranslationsScannerGuideZhTw.internal(this._root);
+class Translations$scanner$guide$zh_TW {
+	Translations$scanner$guide$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -901,189 +935,59 @@ class TranslationsScannerGuideZhTw {
 	String get button => '我知道了';
 }
 
-// Path: ntutWifi.sections
-class TranslationsNtutWifiSectionsZhTw {
-	TranslationsNtutWifiSectionsZhTw.internal(this._root);
+// Path: regedit.status
+class Translations$regedit$status$zh_TW {
+	Translations$regedit$status$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
 
-	/// zh-TW: '快速操作'
-	String get quickActions => '快速操作';
+	/// zh-TW: '預設值'
+	String get local => '預設值';
 
-	/// zh-TW: '建議設定'
-	String get recommendedSettings => '建議設定';
+	/// zh-TW: '雲端設定'
+	String get remote => '雲端設定';
 
-	/// zh-TW: '手動Fallback'
-	String get fallback => '手動Fallback';
+	/// zh-TW: '使用者覆寫'
+	String get localOverride => '使用者覆寫';
+
+	/// zh-TW: '強制覆寫（遠端）'
+	String get remoteOverride => '強制覆寫（遠端）';
 }
 
-// Path: ntutWifi.actions
-class TranslationsNtutWifiActionsZhTw {
-	TranslationsNtutWifiActionsZhTw.internal(this._root);
+// Path: changePassword.errors
+class Translations$changePassword$errors$zh_TW {
+	Translations$changePassword$errors$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
 
-	/// zh-TW: '自動加入NTUT-802.1X'
-	String get autoProvision => '自動加入NTUT-802.1X';
+	/// zh-TW: '請填寫所有欄位'
+	String get emptyFields => '請填寫所有欄位';
 
-	/// zh-TW: '正在加入NTUT-802.1X…'
-	String get autoProvisioning => '正在加入NTUT-802.1X…';
+	/// zh-TW: '兩次輸入的密碼不一致'
+	String get mismatch => '兩次輸入的密碼不一致';
 
-	/// zh-TW: '使用相容模式重試'
-	String get retryCompatProvision => '使用相容模式重試';
+	/// zh-TW: '變更密碼失敗：${error}'
+	String failed({required Object error}) => '變更密碼失敗：${error}';
 
-	/// zh-TW: '使用相容模式更新'
-	String get updateCompatProvision => '使用相容模式更新';
+	/// zh-TW: '密碼長度須介於8至14個字元之間'
+	String get invalidLength => '密碼長度須介於8至14個字元之間';
 
-	/// zh-TW: '開啟Wi‑Fi設定'
-	String get openWifiSettings => '開啟Wi‑Fi設定';
+	/// zh-TW: '密碼須包含英文大小寫字母、數字及符號'
+	String get invalidComplexity => '密碼須包含英文大小寫字母、數字及符號';
 
-	/// zh-TW: '開啟Wi‑Fi快捷面板'
-	String get openWifiPanel => '開啟Wi‑Fi快捷面板';
-}
+	/// zh-TW: '密碼不可與學號相同'
+	String get sameAsUsername => '密碼不可與學號相同';
 
-// Path: ntutWifi.fields
-class TranslationsNtutWifiFieldsZhTw {
-	TranslationsNtutWifiFieldsZhTw.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '網路名稱'
-	String get ssid => '網路名稱';
-
-	/// zh-TW: 'EAP方法'
-	String get eapMethod => 'EAP方法';
-
-	/// zh-TW: '第二階段驗證'
-	String get phase2Auth => '第二階段驗證';
-
-	/// zh-TW: '身分'
-	String get identity => '身分';
-
-	/// zh-TW: '密碼'
-	String get password => '密碼';
-
-	/// zh-TW: 'CA憑證'
-	String get caCertificate => 'CA憑證';
-
-	/// zh-TW: '網域'
-	String get domain => '網域';
-}
-
-// Path: ntutWifi.fieldValues
-class TranslationsNtutWifiFieldValuesZhTw {
-	TranslationsNtutWifiFieldValuesZhTw.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '已儲存在裝置，可直接複製'
-	String get passwordSaved => '已儲存在裝置，可直接複製';
-
-	/// zh-TW: '需要重新登入才能複製密碼'
-	String get passwordUnavailable => '需要重新登入才能複製密碼';
-
-	/// zh-TW: '使用系統憑證'
-	String get systemCertificates => '使用系統憑證';
-}
-
-// Path: ntutWifi.fallbackSteps
-class TranslationsNtutWifiFallbackStepsZhTw {
-	TranslationsNtutWifiFallbackStepsZhTw.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '1. 開啟Wi‑Fi設定或快捷面板。'
-	String get openSettings => '1. 開啟Wi‑Fi設定或快捷面板。';
-
-	/// zh-TW: '2. 選擇或新增NTUT-802.1X。'
-	String get selectNetwork => '2. 選擇或新增NTUT-802.1X。';
-
-	/// zh-TW: '3. 將下方顯示的SSID、PEAP、GTC、帳號、密碼與網域填入。'
-	String get useDisplayedValues => '3. 將下方顯示的SSID、PEAP、GTC、帳號、密碼與網域填入。';
-}
-
-// Path: ntutWifi.provisioning
-class TranslationsNtutWifiProvisioningZhTw {
-	TranslationsNtutWifiProvisioningZhTw.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '已將NTUT-802.1X加入Android。只要Wi‑Fi開啟且在校園網路範圍內，系統就會自動嘗試連線。'
-	String get success => '已將NTUT-802.1X加入Android。只要Wi‑Fi開啟且在校園網路範圍內，系統就會自動嘗試連線。';
-
-	/// zh-TW: '已將NTUT-802.1X加入Android，但目前Wi‑Fi尚未開啟。開啟Wi‑Fi後，系統才會自動嘗試連線。'
-	String get successPendingWifi => '已將NTUT-802.1X加入Android，但目前Wi‑Fi尚未開啟。開啟Wi‑Fi後，系統才會自動嘗試連線。';
-
-	/// zh-TW: '系統目前不允許TAT直接送出Wi‑Fi建議，請改用下方設定入口完成系統層操作後再試。'
-	String get approvalPending => '系統目前不允許TAT直接送出Wi‑Fi建議，請改用下方設定入口完成系統層操作後再試。';
-
-	/// zh-TW: '系統已拒絕TAT的Wi‑Fi建議，請到系統設定允許後再試，或直接走下方手動設定。'
-	String get approvalRejected => '系統已拒絕TAT的Wi‑Fi建議，請到系統設定允許後再試，或直接走下方手動設定。';
-
-	/// zh-TW: '這台裝置無法讓TAT安全地下發「系統憑證 + 網域」Enterprise設定，請改用下方手動設定。'
-	String get validationUnavailable => '這台裝置無法讓TAT安全地下發「系統憑證 + 網域」Enterprise設定，請改用下方手動設定。';
-
-	/// zh-TW: '這台裝置目前不支援自動加入NTUT-802.1X。'
-	String get unsupportedPlatform => '這台裝置目前不支援自動加入NTUT-802.1X。';
-
-	/// zh-TW: '自動加入NTUT-802.1X失敗，請改用下方手動設定。'
-	String get failed => '自動加入NTUT-802.1X失敗，請改用下方手動設定。';
-
-	/// zh-TW: '已透過相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。'
-	String get compatSuccess => '已透過相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。';
-
-	/// zh-TW: 'suggestion 被拒，已改用相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。'
-	String get compatFallbackSuccess => 'suggestion 被拒，已改用相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。';
-
-	/// zh-TW: 'Android 回報系統內已存在 NTUT-802.1X 設定，但儲存的密碼可能仍是舊的。請先確認系統 Wi‑Fi 項目，或刪除後再重新使用相容模式。'
-	String get compatAlreadyExists => 'Android 回報系統內已存在 NTUT-802.1X 設定，但儲存的密碼可能仍是舊的。請先確認系統 Wi‑Fi 項目，或刪除後再重新使用相容模式。';
-
-	/// zh-TW: '已取消相容模式更新，稍後可在此頁重新嘗試。'
-	String get compatCancelled => '已取消相容模式更新，稍後可在此頁重新嘗試。';
-
-	/// zh-TW: '相容模式更新失敗，請改依下方教學手動連線。'
-	String get compatFailed => '相容模式更新失敗，請改依下方教學手動連線。';
-}
-
-// Path: ntutWifi.compatPrompt
-class TranslationsNtutWifiCompatPromptZhTw {
-	TranslationsNtutWifiCompatPromptZhTw.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '更新 NTUT-802.1X'
-	String get title => '更新 NTUT-802.1X';
-
-	/// zh-TW: '立即更新'
-	String get updateNow => '立即更新';
-
-	/// zh-TW: '稍後'
-	String get later => '稍後';
-
-	/// zh-TW: '你先前使用相容模式儲存了 NTUT-802.1X。現在入口帳密已變更，需要重新更新系統 Wi‑Fi。'
-	String get credentialChanged => '你先前使用相容模式儲存了 NTUT-802.1X。現在入口帳密已變更，需要重新更新系統 Wi‑Fi。';
-
-	/// zh-TW: '系統無法自動更新 NTUT-802.1X，是否現在改用相容模式完成更新？'
-	String get suggestionFallbackRequired => '系統無法自動更新 NTUT-802.1X，是否現在改用相容模式完成更新？';
+	late final Translations$changePassword$errors$server$zh_TW server = Translations$changePassword$errors$server$zh_TW.internal(_root);
 }
 
 // Path: intro.features.courseTable
-class TranslationsIntroFeaturesCourseTableZhTw {
-	TranslationsIntroFeaturesCourseTableZhTw.internal(this._root);
+class Translations$intro$features$courseTable$zh_TW {
+	Translations$intro$features$courseTable$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1097,8 +1001,8 @@ class TranslationsIntroFeaturesCourseTableZhTw {
 }
 
 // Path: intro.features.scores
-class TranslationsIntroFeaturesScoresZhTw {
-	TranslationsIntroFeaturesScoresZhTw.internal(this._root);
+class Translations$intro$features$scores$zh_TW {
+	Translations$intro$features$scores$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1112,8 +1016,8 @@ class TranslationsIntroFeaturesScoresZhTw {
 }
 
 // Path: intro.features.campusLife
-class TranslationsIntroFeaturesCampusLifeZhTw {
-	TranslationsIntroFeaturesCampusLifeZhTw.internal(this._root);
+class Translations$intro$features$campusLife$zh_TW {
+	Translations$intro$features$campusLife$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1127,8 +1031,8 @@ class TranslationsIntroFeaturesCampusLifeZhTw {
 }
 
 // Path: profile.dangerZone.items
-class TranslationsProfileDangerZoneItemsZhTw {
-	TranslationsProfileDangerZoneItemsZhTw.internal(this._root);
+class Translations$profile$dangerZone$items$zh_TW {
+	Translations$profile$dangerZone$items$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
@@ -1150,6 +1054,33 @@ class TranslationsProfileDangerZoneItemsZhTw {
 	String get userData => '使用者資料';
 }
 
+// Path: changePassword.errors.server
+class Translations$changePassword$errors$server$zh_TW {
+	Translations$changePassword$errors$server$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '目前密碼錯誤'
+	String get authFailed => '目前密碼錯誤';
+
+	/// zh-TW: '密碼於1天內不得再修改'
+	String get minAge => '密碼於1天內不得再修改';
+
+	/// zh-TW: '密碼不可與前3組重複'
+	String get historyRepeat => '密碼不可與前3組重複';
+
+	/// zh-TW: '密碼不可與學號相同'
+	String get sameAsUsername => '密碼不可與學號相同';
+
+	/// zh-TW: '密碼長度須介於8至14個字元之間'
+	String get length => '密碼長度須介於8至14個字元之間';
+
+	/// zh-TW: '密碼須包含英文大小寫字母、數字及符號'
+	String get complexity => '密碼須包含英文大小寫字母、數字及符號';
+}
+
 /// The flat map containing all translations for locale <zh-TW>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -1168,7 +1099,10 @@ extension on Translations {
 			'general.copied' => '已複製',
 			'general.back' => '返回',
 			'general.ok' => '確定',
+			'general.cancel' => '取消',
 			'errors.occurred' => '發生錯誤',
+			'errors.unexpected' => '發生未預期的錯誤',
+			'errors.networkError' => '網路連線出現錯誤',
 			'errors.flutterError' => '發生Flutter錯誤',
 			'errors.asyncError' => '發生非同步錯誤',
 			'errors.sessionExpired' => '登入狀態已過期，請重新登入',
@@ -1203,6 +1137,12 @@ extension on Translations {
 			'nav.calendar' => '行事曆',
 			'nav.profile' => '我',
 			'nav.vote' => '投票登入',
+			'portal.sourceNotice' => '此功能仍在開發中，可能會有較大的改動。',
+			'portal.openPortal' => '開啟校園入口網站',
+			'portal.empty' => '目前沒有可用的資訊系統',
+			'portal.favorites' => '我的最愛',
+			'portal.addFavorite' => '加入最愛',
+			'portal.removeFavorite' => '取消最愛',
 			'home.projectTattoo.title' => '關於Project Tattoo',
 			'home.projectTattoo.description' => '查看更多資訊或邀請你的朋友加入測試計畫。',
 			'home.projectTattoo.url' => 'https://ntut.app',
@@ -1250,7 +1190,6 @@ extension on Translations {
 			'profile.sections.accountSettings' => '帳號設定',
 			'profile.sections.appSettings' => '應用程式設定',
 			'profile.sections.dangerZone' => '危險區域',
-			'profile.options.ntutWifi' => '連接NTUT-802.1X',
 			'profile.options.changePassword' => '更改密碼',
 			'profile.options.changeAvatar' => '更改個人圖片',
 			'profile.options.supportUs' => '支持我們',
@@ -1316,64 +1255,6 @@ extension on Translations {
 			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
 			'scanner.guide.button' => '我知道了',
 			'scanner.invalidUrl' => '無效的網址',
-			'ntutWifi.title' => 'NTUT-802.1X',
-			'ntutWifi.entryDescription' => '使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi',
-			'ntutWifi.intro' => '使用已登入的校園入口帳號密碼，自動加入NTUT-802.1X並讓Android後續自動嘗試連線。',
-			'ntutWifi.accountHint' => '帳號直接使用學號或員編，不要加上@ntut.edu.tw。',
-			'ntutWifi.androidVersion' => ({required Object sdkInt}) => 'Android API ${sdkInt}',
-			'ntutWifi.unsupportedPlatform' => '這個功能目前僅支援Android裝置。',
-			'ntutWifi.notLoggedIn' => '請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。',
-			'ntutWifi.credentialsMissing' => '找不到已保存的入口網站密碼。若要複製密碼，請先重新登入TAT。',
-			'ntutWifi.olderAndroidWarning' => '此助手依Android 12以上介面設計，較舊版本的欄位名稱可能略有不同。',
-			'ntutWifi.copyFailed' => '複製失敗',
-			'ntutWifi.openSettingsFailed' => '無法開啟Wi‑Fi設定',
-			'ntutWifi.openPanelFailed' => '無法開啟Wi‑Fi快捷面板',
-			'ntutWifi.systemCertificatesHint' => '自動佈署會固定使用「系統憑證 + 網域ntut.edu.tw + PEAP/GTC」。若系統不允許App安全地下發這組Enterprise設定，請改走下方手動fallback。',
-			'ntutWifi.automaticProvisionUnavailable' => '這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。',
-			'ntutWifi.compatModeSavedHint' => '相容模式已儲存到系統。之後若入口帳密變更，需要再次更新這組 Wi‑Fi 設定。',
-			'ntutWifi.compatUpdateRequired' => '先前使用相容模式寫入的 NTUT-802.1X 帳密已過期，請重新更新系統 Wi‑Fi。',
-			'ntutWifi.suggestionFallbackRequired' => 'suggestion 自動更新失敗，請改用相容模式將最新 NTUT-802.1X 設定寫入系統。',
-			'ntutWifi.android10PermissionRejected' => 'Android 10 已拒絕這個 App 的 Wi‑Fi suggestion 權限，請依下方教學手動連線。',
-			'ntutWifi.legacyManualOnly' => 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。',
-			'ntutWifi.sections.quickActions' => '快速操作',
-			'ntutWifi.sections.recommendedSettings' => '建議設定',
-			'ntutWifi.sections.fallback' => '手動Fallback',
-			'ntutWifi.actions.autoProvision' => '自動加入NTUT-802.1X',
-			'ntutWifi.actions.autoProvisioning' => '正在加入NTUT-802.1X…',
-			'ntutWifi.actions.retryCompatProvision' => '使用相容模式重試',
-			'ntutWifi.actions.updateCompatProvision' => '使用相容模式更新',
-			'ntutWifi.actions.openWifiSettings' => '開啟Wi‑Fi設定',
-			'ntutWifi.actions.openWifiPanel' => '開啟Wi‑Fi快捷面板',
-			'ntutWifi.fields.ssid' => '網路名稱',
-			'ntutWifi.fields.eapMethod' => 'EAP方法',
-			'ntutWifi.fields.phase2Auth' => '第二階段驗證',
-			'ntutWifi.fields.identity' => '身分',
-			'ntutWifi.fields.password' => '密碼',
-			'ntutWifi.fields.caCertificate' => 'CA憑證',
-			'ntutWifi.fields.domain' => '網域',
-			'ntutWifi.fieldValues.passwordSaved' => '已儲存在裝置，可直接複製',
-			'ntutWifi.fieldValues.passwordUnavailable' => '需要重新登入才能複製密碼',
-			'ntutWifi.fieldValues.systemCertificates' => '使用系統憑證',
-			'ntutWifi.fallbackSteps.openSettings' => '1. 開啟Wi‑Fi設定或快捷面板。',
-			'ntutWifi.fallbackSteps.selectNetwork' => '2. 選擇或新增NTUT-802.1X。',
-			'ntutWifi.fallbackSteps.useDisplayedValues' => '3. 將下方顯示的SSID、PEAP、GTC、帳號、密碼與網域填入。',
-			'ntutWifi.provisioning.success' => '已將NTUT-802.1X加入Android。只要Wi‑Fi開啟且在校園網路範圍內，系統就會自動嘗試連線。',
-			'ntutWifi.provisioning.successPendingWifi' => '已將NTUT-802.1X加入Android，但目前Wi‑Fi尚未開啟。開啟Wi‑Fi後，系統才會自動嘗試連線。',
-			'ntutWifi.provisioning.approvalPending' => '系統目前不允許TAT直接送出Wi‑Fi建議，請改用下方設定入口完成系統層操作後再試。',
-			'ntutWifi.provisioning.approvalRejected' => '系統已拒絕TAT的Wi‑Fi建議，請到系統設定允許後再試，或直接走下方手動設定。',
-			'ntutWifi.provisioning.validationUnavailable' => '這台裝置無法讓TAT安全地下發「系統憑證 + 網域」Enterprise設定，請改用下方手動設定。',
-			'ntutWifi.provisioning.unsupportedPlatform' => '這台裝置目前不支援自動加入NTUT-802.1X。',
-			'ntutWifi.provisioning.failed' => '自動加入NTUT-802.1X失敗，請改用下方手動設定。',
-			'ntutWifi.provisioning.compatSuccess' => '已透過相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。',
-			'ntutWifi.provisioning.compatFallbackSuccess' => 'suggestion 被拒，已改用相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。',
-			'ntutWifi.provisioning.compatAlreadyExists' => 'Android 回報系統內已存在 NTUT-802.1X 設定，但儲存的密碼可能仍是舊的。請先確認系統 Wi‑Fi 項目，或刪除後再重新使用相容模式。',
-			'ntutWifi.provisioning.compatCancelled' => '已取消相容模式更新，稍後可在此頁重新嘗試。',
-			'ntutWifi.provisioning.compatFailed' => '相容模式更新失敗，請改依下方教學手動連線。',
-			'ntutWifi.compatPrompt.title' => '更新 NTUT-802.1X',
-			'ntutWifi.compatPrompt.updateNow' => '立即更新',
-			'ntutWifi.compatPrompt.later' => '稍後',
-			'ntutWifi.compatPrompt.credentialChanged' => '你先前使用相容模式儲存了 NTUT-802.1X。現在入口帳密已變更，需要重新更新系統 Wi‑Fi。',
-			'ntutWifi.compatPrompt.suggestionFallbackRequired' => '系統無法自動更新 NTUT-802.1X，是否現在改用相容模式完成更新？',
 			'kioskLogin.qrCode' => '登入QR code',
 			'kioskLogin.refresh' => '重新產生',
 			'kioskLogin.notice' => '請使用投票活動會場的iPad掃描此QR Code。\n為確保您的隱私，請勿將此QR Code分享給他人。',
@@ -1382,6 +1263,7 @@ extension on Translations {
 			'enrollmentStatus.learning' => '在學',
 			'enrollmentStatus.leaveOfAbsence' => '休學',
 			'enrollmentStatus.droppedOut' => '退學',
+			'enrollmentStatus.graduated' => '畢業',
 			'about.description' => 'Project Tattoo (TAT)是國立臺北科技大學(NTUT)的非官方校園生活小幫手。我們致力於透過現代化且使用者友善的介面，提供更便利的校園生活體驗。',
 			'about.developers' => '開發團隊',
 			'about.helpTranslate' => '幫助我們翻譯TAT!',
@@ -1390,7 +1272,39 @@ extension on Translations {
 			'about.privacyPolicy' => '隱私權政策',
 			'about.privacyPolicyUrl' => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.zh-TW.md',
 			'about.viewPrivacyPolicy' => '查看隱私權政策',
+			'about.openSourceLicenses' => '開放原始碼授權',
+			'about.viewOpenSourceLicenses' => 'TAT的實作歸功於開放原始碼社群',
 			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
+			'regedit.title' => '登錄編輯程式',
+			'regedit.fetch' => '從遠端獲取',
+			'regedit.noRegistry' => '沒有登錄項目',
+			'regedit.refreshed' => '登錄檔已更新',
+			'regedit.reset' => '重設為預設值',
+			'regedit.status.local' => '預設值',
+			'regedit.status.remote' => '雲端設定',
+			'regedit.status.localOverride' => '使用者覆寫',
+			'regedit.status.remoteOverride' => '強制覆寫（遠端）',
+			'regedit.invalidInput' => '輸入格式錯誤',
+			'changePassword.title' => '變更密碼',
+			'changePassword.titleExpired' => '變更過期密碼',
+			'changePassword.expiredNotice' => '您的密碼已過期，請設定新密碼以繼續使用。',
+			'changePassword.currentPassword' => '目前密碼',
+			'changePassword.newPassword' => '新密碼',
+			'changePassword.confirmPassword' => '確認新密碼',
+			'changePassword.submit' => '變更密碼',
+			'changePassword.success' => '密碼變更成功',
+			'changePassword.errors.emptyFields' => '請填寫所有欄位',
+			'changePassword.errors.mismatch' => '兩次輸入的密碼不一致',
+			'changePassword.errors.failed' => ({required Object error}) => '變更密碼失敗：${error}',
+			'changePassword.errors.invalidLength' => '密碼長度須介於8至14個字元之間',
+			'changePassword.errors.invalidComplexity' => '密碼須包含英文大小寫字母、數字及符號',
+			'changePassword.errors.sameAsUsername' => '密碼不可與學號相同',
+			'changePassword.errors.server.authFailed' => '目前密碼錯誤',
+			'changePassword.errors.server.minAge' => '密碼於1天內不得再修改',
+			'changePassword.errors.server.historyRepeat' => '密碼不可與前3組重複',
+			'changePassword.errors.server.sameAsUsername' => '密碼不可與學號相同',
+			'changePassword.errors.server.length' => '密碼長度須介於8至14個字元之間',
+			'changePassword.errors.server.complexity' => '密碼須包含英文大小寫字母、數字及符號',
 			_ => null,
 		};
 	}

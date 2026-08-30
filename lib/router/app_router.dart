@@ -11,14 +11,17 @@ import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
 import 'package:tattoo/screens/main/profile/ntut_wifi_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
+import 'package:tattoo/screens/main/profile/regedit_screen.dart';
 import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';
+import 'package:tattoo/screens/welcome/change_password_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/shells/animated_shell_container.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
+final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 abstract class AppRoutes {
   static const home = '/';
@@ -33,6 +36,8 @@ abstract class AppRoutes {
   static const scanner = '/scanner';
   static const kioskLoginQr = '/kiosk-login-qr';
   static const ntutWifi = '/ntut-8021x';
+  static const regedit = '/regedit';
+  static const changePassword = '/change-password';
 }
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
@@ -43,12 +48,17 @@ class _SessionRefreshListenable extends ChangeNotifier {
 }
 
 /// Routes that don't require authentication.
-const _publicRoutes = {AppRoutes.intro, AppRoutes.login, AppRoutes.about};
+const _publicRoutes = {
+  AppRoutes.intro,
+  AppRoutes.login,
+  AppRoutes.about,
+  AppRoutes.changePassword,
+};
 
 /// Creates a configured [GoRouter] starting at [initialLocation].
 ///
-/// Watches [sessionProvider] via [refreshListenable] and redirects to
-/// [AppRoutes.login] when the session becomes inactive.
+/// Watches [sessionProvider] via [GoRouter.new]'s `refreshListenable` and
+/// redirects to [AppRoutes.login] when the session becomes inactive.
 GoRouter createAppRouter({
   required String initialLocation,
   required ProviderContainer container,
@@ -75,12 +85,28 @@ GoRouter createAppRouter({
       builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
+      path: AppRoutes.changePassword,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final isExpired = extra?['isExpired'] as bool? ?? false;
+        final username = extra?['username'] as String?;
+        return ChangePasswordScreen(
+          isExpired: isExpired,
+          username: username,
+        );
+      },
+    ),
+    GoRoute(
       path: AppRoutes.about,
       builder: (context, state) => const AboutScreen(),
     ),
     GoRoute(
       path: AppRoutes.scanner,
       builder: (context, state) => const ScannerScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.regedit,
+      builder: (context, state) => const RegeditScreen(),
     ),
     GoRoute(
       path: AppRoutes.portal,

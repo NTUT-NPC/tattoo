@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
@@ -9,8 +10,10 @@ import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/http.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
 
@@ -29,14 +32,20 @@ class ProfileDangerZone extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.profile.dangerZone.clearFailed(item: item))),
+          SnackBar(
+            content: Text(
+              t.profile.dangerZone.clearFailed(item: item).spaced,
+            ),
+          ),
         );
       }
       rethrow;
     }
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.profile.dangerZone.cleared(item: item))),
+        SnackBar(
+          content: Text(t.profile.dangerZone.cleared(item: item).spaced),
+        ),
       );
     }
   }
@@ -124,17 +133,24 @@ class ProfileDangerZone extends ConsumerWidget {
             ),
             OptionEntryTile.icon(
               icon: Icons.sports_bar_outlined,
-              title: t.profile.dangerZone.goAction(action: action),
+              title: t.profile.dangerZone.goAction(action: action).spaced,
               color: dangerColor,
               borderColor: dangerColor,
               onTap: () => _goAction(action),
             ),
             OptionEntryTile.icon(
               icon: Icons.bug_report_outlined,
-              title: t.profile.dangerZone.nonFlutterCrash,
+              title: t.profile.dangerZone.nonFlutterCrash.spaced,
               color: dangerColor,
               borderColor: dangerColor,
               onTap: _triggerNonFlutterCrash,
+            ),
+            OptionEntryTile.svg(
+              svgIconAsset: 'assets/windows95.svg',
+              title: t.regedit.title,
+              color: dangerColor,
+              borderColor: dangerColor,
+              onTap: () => context.push(AppRoutes.regedit),
             ),
             OptionEntryTile.icon(
               icon: Icons.cached_outlined,
@@ -145,7 +161,7 @@ class ProfileDangerZone extends ConsumerWidget {
             ),
             OptionEntryTile.icon(
               icon: Icons.cookie_outlined,
-              title: t.profile.dangerZone.clearCookies,
+              title: t.profile.dangerZone.clearCookies.spaced,
               color: dangerColor,
               borderColor: dangerColor,
               onTap: () => _clearCookies(context),

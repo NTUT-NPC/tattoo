@@ -1,8 +1,13 @@
 name: Seed Caches
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - mise.toml
   schedule:
-    - cron: "0 0 * * 0" # Weekly on Sunday midnight UTC
+    - cron: "17 0 * * 0" # Weekly on Sunday at 00:17 UTC
   workflow_dispatch:
 
 jobs:
@@ -10,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup project
         uses: ./.github/actions/setup-project
@@ -24,7 +29,7 @@ jobs:
     runs-on: macos-26
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup project
         uses: ./.github/actions/setup-project

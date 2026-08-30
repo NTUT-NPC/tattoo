@@ -101,6 +101,83 @@ class Users extends Table with AutoIncrementId, Fetchable {
 
   /// When the academic calendar was last fetched from the portal.
   late final calendarFetchedAt = dateTime().nullable()();
+
+  /// When the portal application catalog was last fetched.
+  late final applicationCatalogFetchedAt = dateTime().nullable()();
+}
+
+/// A top-level application category available to one portal user.
+///
+/// Data source: PortalService.getApplicationCatalog()
+class PortalApplicationCategories extends Table with AutoIncrementId {
+  /// User whose portal account exposed this category.
+  late final user = integer().references(Users, #id, onDelete: .cascade)();
+
+  /// LDAP distinguished name used by the portal to fetch this category.
+  late final distinguishedName = text()();
+
+  /// Chinese category display name supplied by the portal.
+  late final nameZh = text()();
+
+  /// English category display name supplied by the portal.
+  late final nameEn = text().nullable()();
+
+  /// Display order supplied by the portal.
+  late final position = integer()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {user, distinguishedName},
+  ];
+}
+
+/// A browser-openable application in a portal category.
+///
+/// Nested portal folders are flattened by PortalService into their top-level
+/// category before these rows are cached.
+class PortalApplications extends Table with AutoIncrementId {
+  /// Category containing this application.
+  late final category = integer().references(
+    PortalApplicationCategories,
+    #id,
+    onDelete: .cascade,
+  )();
+
+  /// Portal SSO target identifier (`apOu`).
+  late final code = text()();
+
+  /// Chinese application display name supplied by the portal.
+  late final nameZh = text()();
+
+  /// English application display name supplied by the portal.
+  late final nameEn = text().nullable()();
+
+  /// Absolute URL of the portal-provided application icon.
+  late final iconUrl = text().nullable()();
+
+  /// Display order within the category.
+  late final position = integer()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {category, code},
+  ];
+}
+
+/// A user's app-local portal application favorite.
+///
+/// Favorites deliberately reference an application code instead of a cached
+/// [PortalApplications] row. This preserves the preference when a refresh
+/// moves an application to another category or temporarily removes it.
+class PortalApplicationFavorites extends Table {
+  /// User who selected this favorite.
+  late final user = integer().references(Users, #id, onDelete: .cascade)();
+
+  /// Portal SSO target identifier (`apOu`).
+  late final applicationCode = text()();
+
+  @override
+  Set<Column> get primaryKey => {user, applicationCode};
 }
 
 /// Student seen in an I-School Plus course roster.
@@ -125,13 +202,15 @@ class Semesters extends Table with AutoIncrementId {
   /// Term number within the year (0=Pre-study, 1=Fall, 2=Spring, 3=Summer).
   late final term = integer()();
 
-  /// Whether this semester appeared in the course semester list API response.
+  /// Whether this semester is currently in the course semester list API
+  /// response.
   ///
-  /// Distinguishes semesters fetched by [CourseRepository.getSemesters] from
-  /// those created as side effects by other flows (e.g., auth, scores).
+  /// Distinguishes semesters fetched by [CourseRepository.refreshSemesters]
+  /// from those created as side effects by other flows (e.g., auth, scores).
   late final inCourseSemesterList = boolean().withDefault(Constant(false))();
 
-  /// Whether this semester appeared in the score semester list API response.
+  /// Whether this semester is currently in the score semester list API
+  /// response.
   ///
   /// Distinguishes semesters fetched by [StudentRepository.refreshSemesterRecords]
   /// from those created as side effects by other flows (e.g., auth, courses).
@@ -333,9 +412,10 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   late final semester = integer().references(Semesters, #id)();
 
   /// Course offering number (e.g., "313146", "352902").
+  /// Assigned numbers are globally unique across semesters.
   ///
   /// Null for special entries that have no assigned number.
-  late final number = text().nullable()();
+  late final number = text().nullable().unique()();
 
   /// Display name as it appears in this semester's timetable.
   ///
@@ -389,44 +469,15 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   /// Not a [Fetchable] field.
   late final remarks = text().nullable()();
 
-  /// Syllabus ID for fetching detailed syllabus information.
-  ///
-  /// Not a [Fetchable] field.
-  late final syllabusId = text().nullable()();
-
-  // Syllabus fields (教學大綱與進度)
-
-  /// When the syllabus was last updated (最後更新時間).
-  late final syllabusUpdatedAt = dateTime().nullable()();
+  // Syllabus header fields (課程基本資料): identical on every syllabus page, so
+  // they live on the offering. Populated lazily by the syllabus refresh, which
+  // also sets `fetchedAt` (a last-populated marker here, not a fetch gate).
 
   /// Number of enrolled students (人).
   late final enrolled = integer().nullable()();
 
   /// Number of withdrawn students (撤).
   late final withdrawn = integer().nullable()();
-
-  /// Course objective/outline (課程大綱).
-  late final objective = text().nullable()();
-
-  /// Weekly plan describing topics covered each week (課程進度).
-  ///
-  /// Note: Called "Course Schedule" on English page, but refers to weekly
-  /// topics, not class meeting times.
-  late final weeklyPlan = text().nullable()();
-
-  /// Evaluation and grading policy (評量方式與標準).
-  late final evaluation = text().nullable()();
-
-  /// Textbooks and reference materials (使用教材、參考書目或其他).
-  late final textbooks = text().nullable()();
-
-  /// Teacher-authored remarks from the syllabus page (備註).
-  late final syllabusRemarks = text().nullable()();
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-    {semester, number},
-  ];
 }
 
 // Junction tables and dependent tables
@@ -514,6 +565,69 @@ class Schedules extends Table with AutoIncrementId {
   @override
   List<Set<Column>> get uniqueKeys => [
     {courseOffering, dayOfWeek, period},
+  ];
+}
+
+/// A teacher-authored syllabus for a course offering (教學大綱與進度).
+///
+/// An offering can have multiple syllabi — one cache row per associated
+/// teacher and language variant, keyed by the teacher's code (hence the
+/// [Teachers] reference; per-semester teacher details live on
+/// [TeacherSemesters]). An unsubmitted syllabus retains only its fetch
+/// timestamp so the absence participates in TTL caching. Fields shared across
+/// an offering's submitted syllabi (course type, enrolled, withdrawn) stay on
+/// [CourseOfferings].
+// Without @DataClassName, Drift names the row class 'Syllabuse'.
+@DataClassName('Syllabus')
+class Syllabuses extends Table with AutoIncrementId {
+  /// Reference to the course offering this syllabus belongs to.
+  late final courseOffering = integer().references(
+    CourseOfferings,
+    #id,
+    onDelete: .cascade,
+  )();
+
+  /// Reference to the authoring teacher (the syllabus's code is their code).
+  late final teacher = integer().references(Teachers, #id)();
+
+  /// Language variant fetched from the course system.
+  late final language = textEnum<SyllabusLanguage>()();
+
+  /// When this syllabus was last updated by the teacher (最後更新時間).
+  late final updatedAt = dateTime().nullable()();
+
+  /// When this language variant was last fetched from the course system.
+  late final fetchedAt = dateTime()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {courseOffering, teacher, language},
+  ];
+}
+
+/// An ordered content section belonging to a submitted [Syllabuses] row.
+///
+/// Titles retain source labels; nested labels are flattened into
+/// slash-delimited paths. Position identifies repeated labels.
+class SyllabusSections extends Table with AutoIncrementId {
+  /// Parent syllabus. Sections are deleted with the submission.
+  late final syllabus = integer().references(
+    Syllabuses,
+    #id,
+  )();
+
+  /// Source title or flattened source-title path.
+  late final title = text()();
+
+  /// Complete source content, or null when the submitted section is blank.
+  late final content = text().nullable()();
+
+  /// Zero-based source-page order.
+  late final position = integer()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {syllabus, position},
   ];
 }
 

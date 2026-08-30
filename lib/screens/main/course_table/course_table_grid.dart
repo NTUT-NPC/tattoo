@@ -10,6 +10,7 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_cell.dart';
 import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 /// Internal value type that describes the currently visible grid scope.
 ///
@@ -550,8 +551,12 @@ class CourseTableGrid extends StatelessWidget {
                 child: CourseTableCell(
                   courseTableCellData: cell,
                   cellColor: colorByCourseId[cell.id] ?? Colors.grey,
-                  onTap: () {
-                    showCourseTableDetailSheet(context, cell: cell);
+                  onTap: switch (cell.number) {
+                    final number? => () => showCourseTableDetailSheet(
+                      context,
+                      number: number,
+                    ),
+                    null => null,
                   },
                 ),
               ),
@@ -579,8 +584,12 @@ class CourseTableGrid extends StatelessWidget {
             CourseTableUnscheduledCell(
               courseTableCellData: cell,
               indicatorColor: colorByCourseId[cell.id] ?? Colors.grey,
-              onTap: () {
-                showCourseTableDetailSheet(context, cell: cell);
+              onTap: switch (cell.number) {
+                final number? => () => showCourseTableDetailSheet(
+                  context,
+                  number: number,
+                ),
+                null => null,
               },
             ),
         ],
@@ -594,8 +603,8 @@ class CourseTableGrid extends StatelessWidget {
       child: Center(
         child: Text(
           ' - '
-          '${t.courseTable.summary.credits(count: courseTableData.totalCredits)} · '
-          '${t.courseTable.summary.hours(count: courseTableData.totalHours)}'
+          '${t.courseTable.summary.credits(count: courseTableData.totalCredits).spaced} · '
+          '${t.courseTable.summary.hours(count: courseTableData.totalHours).spaced}'
           ' - ',
           style: Theme.of(context).textTheme.bodyMedium,
         ),

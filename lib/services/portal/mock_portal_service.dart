@@ -10,6 +10,7 @@ class MockPortalService implements PortalService {
   String? uploadAvatarResult;
   Uri? ssoUrlResult;
   List<CalendarEventDto>? calendarResult;
+  List<PortalApplicationCategoryDto>? applicationCatalogResult;
 
   @override
   Future<UserDto> login(String username, String password) async {
@@ -23,10 +24,11 @@ class MockPortalService implements PortalService {
   }
 
   @override
-  Future<void> changePassword(
-    String currentPassword,
-    String newPassword,
-  ) async {}
+  Future<void> changePassword({
+    required String newPassword,
+    String? currentPassword,
+    bool isExpired = false,
+  }) async {}
 
   @override
   Future<Uint8List> getAvatar([String? filename]) async {
@@ -143,6 +145,51 @@ class MockPortalService implements PortalService {
             content: null,
             ownerName: '學校行事曆',
             creatorName: '教務處',
+          ),
+        ];
+  }
+
+  @override
+  Future<List<PortalApplicationCategoryDto>> getApplicationCatalog() async {
+    return applicationCatalogResult ??
+        [
+          (
+            distinguishedName: 'OU=aa,OU=aproot',
+            nameZh: '教務系統',
+            nameEn: 'System of Academic Affairs',
+            applications: [
+              (
+                code: PortalServiceCode.courseService.code,
+                nameZh: '課程系統',
+                nameEn: 'Curriculum System',
+                iconUrl: null,
+              ),
+              (
+                code: PortalServiceCode.iSchoolPlusService.code,
+                nameZh: '北科i學園PLUS（校外連線請用VPN）',
+                nameEn: 'ischool_plus（Please use VPN for off-campus）',
+                iconUrl: null,
+              ),
+            ],
+          ),
+          (
+            distinguishedName: 'OU=sa,OU=aproot',
+            nameZh: '學務系統',
+            nameEn: 'Student Affairs System',
+            applications: [
+              (
+                code: PortalServiceCode.studentQueryService.code,
+                nameZh: '學生查詢專區',
+                nameEn: 'Student Inquiry System',
+                iconUrl: null,
+              ),
+              (
+                code: 'sa_010_oauth',
+                nameZh: '學生請假系統',
+                nameEn: 'Student Leave System',
+                iconUrl: null,
+              ),
+            ],
           ),
         ];
   }

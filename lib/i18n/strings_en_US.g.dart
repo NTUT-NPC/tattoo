@@ -39,26 +39,28 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	TranslationsEnUs $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsEnUs(meta: meta ?? this.$meta);
 
 	// Translations
-	@override late final _TranslationsGeneralEnUs general = _TranslationsGeneralEnUs._(_root);
-	@override late final _TranslationsErrorsEnUs errors = _TranslationsErrorsEnUs._(_root);
-	@override late final _TranslationsIntroEnUs intro = _TranslationsIntroEnUs._(_root);
-	@override late final _TranslationsLoginEnUs login = _TranslationsLoginEnUs._(_root);
-	@override late final _TranslationsNavEnUs nav = _TranslationsNavEnUs._(_root);
-	@override late final _TranslationsHomeEnUs home = _TranslationsHomeEnUs._(_root);
-	@override late final _TranslationsScoreEnUs score = _TranslationsScoreEnUs._(_root);
-	@override late final _TranslationsCalendarEnUs calendar = _TranslationsCalendarEnUs._(_root);
-	@override late final _TranslationsCourseTableEnUs courseTable = _TranslationsCourseTableEnUs._(_root);
-	@override late final _TranslationsProfileEnUs profile = _TranslationsProfileEnUs._(_root);
-	@override late final _TranslationsScannerEnUs scanner = _TranslationsScannerEnUs._(_root);
-	@override late final _TranslationsNtutWifiEnUs ntutWifi = _TranslationsNtutWifiEnUs._(_root);
-	@override late final _TranslationsKioskLoginEnUs kioskLogin = _TranslationsKioskLoginEnUs._(_root);
-	@override late final _TranslationsEnrollmentStatusEnUs enrollmentStatus = _TranslationsEnrollmentStatusEnUs._(_root);
-	@override late final _TranslationsAboutEnUs about = _TranslationsAboutEnUs._(_root);
+	@override late final _Translations$general$en_US general = _Translations$general$en_US._(_root);
+	@override late final _Translations$errors$en_US errors = _Translations$errors$en_US._(_root);
+	@override late final _Translations$intro$en_US intro = _Translations$intro$en_US._(_root);
+	@override late final _Translations$login$en_US login = _Translations$login$en_US._(_root);
+	@override late final _Translations$nav$en_US nav = _Translations$nav$en_US._(_root);
+	@override late final _Translations$portal$en_US portal = _Translations$portal$en_US._(_root);
+	@override late final _Translations$home$en_US home = _Translations$home$en_US._(_root);
+	@override late final _Translations$score$en_US score = _Translations$score$en_US._(_root);
+	@override late final _Translations$calendar$en_US calendar = _Translations$calendar$en_US._(_root);
+	@override late final _Translations$courseTable$en_US courseTable = _Translations$courseTable$en_US._(_root);
+	@override late final _Translations$profile$en_US profile = _Translations$profile$en_US._(_root);
+	@override late final _Translations$scanner$en_US scanner = _Translations$scanner$en_US._(_root);
+	@override late final _Translations$kioskLogin$en_US kioskLogin = _Translations$kioskLogin$en_US._(_root);
+	@override late final _Translations$enrollmentStatus$en_US enrollmentStatus = _Translations$enrollmentStatus$en_US._(_root);
+	@override late final _Translations$about$en_US about = _Translations$about$en_US._(_root);
+	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
+	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
 }
 
 // Path: general
-class _TranslationsGeneralEnUs extends TranslationsGeneralZhTw {
-	_TranslationsGeneralEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$general$en_US extends Translations$general$zh_TW {
+	_Translations$general$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -73,16 +75,19 @@ class _TranslationsGeneralEnUs extends TranslationsGeneralZhTw {
 	@override String get copied => 'Copied';
 	@override String get back => 'Back';
 	@override String get ok => 'OK';
+	@override String get cancel => 'Cancel';
 }
 
 // Path: errors
-class _TranslationsErrorsEnUs extends TranslationsErrorsZhTw {
-	_TranslationsErrorsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$errors$en_US extends Translations$errors$zh_TW {
+	_Translations$errors$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
 	@override String get occurred => 'An error occurred';
+	@override String get unexpected => 'An unexpected error occurred';
+	@override String get networkError => 'Network error occurred';
 	@override String get flutterError => 'A Flutter error occurred';
 	@override String get asyncError => 'An async error occurred';
 	@override String get sessionExpired => 'Session expired. Please sign in again.';
@@ -91,20 +96,20 @@ class _TranslationsErrorsEnUs extends TranslationsErrorsZhTw {
 }
 
 // Path: intro
-class _TranslationsIntroEnUs extends TranslationsIntroZhTw {
-	_TranslationsIntroEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$intro$en_US extends Translations$intro$zh_TW {
+	_Translations$intro$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override late final _TranslationsIntroFeaturesEnUs features = _TranslationsIntroFeaturesEnUs._(_root);
+	@override late final _Translations$intro$features$en_US features = _Translations$intro$features$en_US._(_root);
 	@override String get developedBy => 'Developed by NTUT NPC Club\nAll information is for reference only. Please refer to the official university system.';
 	@override String get kContinue => 'Continue';
 }
 
 // Path: login
-class _TranslationsLoginEnUs extends TranslationsLoginZhTw {
-	_TranslationsLoginEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$login$en_US extends Translations$login$zh_TW {
+	_Translations$login$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -124,12 +129,12 @@ class _TranslationsLoginEnUs extends TranslationsLoginZhTw {
 		privacyPolicy('Privacy Policy'),
 		const TextSpan(text: '.'),
 	]);
-	@override late final _TranslationsLoginErrorsEnUs errors = _TranslationsLoginErrorsEnUs._(_root);
+	@override late final _Translations$login$errors$en_US errors = _Translations$login$errors$en_US._(_root);
 }
 
 // Path: nav
-class _TranslationsNavEnUs extends TranslationsNavZhTw {
-	_TranslationsNavEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$nav$en_US extends Translations$nav$zh_TW {
+	_Translations$nav$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -143,22 +148,37 @@ class _TranslationsNavEnUs extends TranslationsNavZhTw {
 	@override String get vote => 'Vote Login';
 }
 
-// Path: home
-class _TranslationsHomeEnUs extends TranslationsHomeZhTw {
-	_TranslationsHomeEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+// Path: portal
+class _Translations$portal$en_US extends Translations$portal$zh_TW {
+	_Translations$portal$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override late final _TranslationsHomeProjectTattooEnUs projectTattoo = _TranslationsHomeProjectTattooEnUs._(_root);
-	@override late final _TranslationsHomeIdeationEnUs ideation = _TranslationsHomeIdeationEnUs._(_root);
-	@override late final _TranslationsHomeNpcClubEnUs npcClub = _TranslationsHomeNpcClubEnUs._(_root);
-	@override late final _TranslationsHomeVoteEnUs vote = _TranslationsHomeVoteEnUs._(_root);
+	@override String get sourceNotice => 'This feature is still under development and may change significantly.';
+	@override String get openPortal => 'Open Campus Portal';
+	@override String get empty => 'No information systems are currently available.';
+	@override String get favorites => 'My Favorites';
+	@override String get addFavorite => 'Add to favorites';
+	@override String get removeFavorite => 'Remove from favorites';
+}
+
+// Path: home
+class _Translations$home$en_US extends Translations$home$zh_TW {
+	_Translations$home$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$home$projectTattoo$en_US projectTattoo = _Translations$home$projectTattoo$en_US._(_root);
+	@override late final _Translations$home$ideation$en_US ideation = _Translations$home$ideation$en_US._(_root);
+	@override late final _Translations$home$npcClub$en_US npcClub = _Translations$home$npcClub$en_US._(_root);
+	@override late final _Translations$home$vote$en_US vote = _Translations$home$vote$en_US._(_root);
 }
 
 // Path: score
-class _TranslationsScoreEnUs extends TranslationsScoreZhTw {
-	_TranslationsScoreEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$score$en_US extends Translations$score$zh_TW {
+	_Translations$score$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -169,13 +189,13 @@ class _TranslationsScoreEnUs extends TranslationsScoreZhTw {
 	@override String get noScoresThisSemester => 'No scores for this semester';
 	@override String courseNumber({required Object number, required Object code}) => 'No: ${number}  Code: ${code}';
 	@override String get none => 'N/A';
-	@override late final _TranslationsScoreSummaryEnUs summary = _TranslationsScoreSummaryEnUs._(_root);
-	@override late final _TranslationsScoreStatusEnUs status = _TranslationsScoreStatusEnUs._(_root);
+	@override late final _Translations$score$summary$en_US summary = _Translations$score$summary$en_US._(_root);
+	@override late final _Translations$score$status$en_US status = _Translations$score$status$en_US._(_root);
 }
 
 // Path: calendar
-class _TranslationsCalendarEnUs extends TranslationsCalendarZhTw {
-	_TranslationsCalendarEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$calendar$en_US extends Translations$calendar$zh_TW {
+	_Translations$calendar$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -184,16 +204,16 @@ class _TranslationsCalendarEnUs extends TranslationsCalendarZhTw {
 }
 
 // Path: courseTable
-class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
-	_TranslationsCourseTableEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$courseTable$en_US extends Translations$courseTable$zh_TW {
+	_Translations$courseTable$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
 	@override String get notFound => 'Course table not found';
 	@override String get unscheduled => 'Unscheduled Courses';
-	@override late final _TranslationsCourseTableSummaryEnUs summary = _TranslationsCourseTableSummaryEnUs._(_root);
-	@override late final _TranslationsCourseTableActionsEnUs actions = _TranslationsCourseTableActionsEnUs._(_root);
+	@override late final _Translations$courseTable$summary$en_US summary = _Translations$courseTable$summary$en_US._(_root);
+	@override late final _Translations$courseTable$actions$en_US actions = _Translations$courseTable$actions$en_US._(_root);
 	@override Map<String, String> get dayOfWeek => {
 		'sunday': 'Sun',
 		'monday': 'Mon',
@@ -206,23 +226,23 @@ class _TranslationsCourseTableEnUs extends TranslationsCourseTableZhTw {
 }
 
 // Path: profile
-class _TranslationsProfileEnUs extends TranslationsProfileZhTw {
-	_TranslationsProfileEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$en_US extends Translations$profile$zh_TW {
+	_Translations$profile$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
 	@override String get dataDisclaimer => 'Reference only. Not official.';
-	@override late final _TranslationsProfilePasswordExpiryEnUs passwordExpiry = _TranslationsProfilePasswordExpiryEnUs._(_root);
-	@override late final _TranslationsProfileSectionsEnUs sections = _TranslationsProfileSectionsEnUs._(_root);
-	@override late final _TranslationsProfileOptionsEnUs options = _TranslationsProfileOptionsEnUs._(_root);
-	@override late final _TranslationsProfileAvatarEnUs avatar = _TranslationsProfileAvatarEnUs._(_root);
-	@override late final _TranslationsProfileDangerZoneEnUs dangerZone = _TranslationsProfileDangerZoneEnUs._(_root);
+	@override late final _Translations$profile$passwordExpiry$en_US passwordExpiry = _Translations$profile$passwordExpiry$en_US._(_root);
+	@override late final _Translations$profile$sections$en_US sections = _Translations$profile$sections$en_US._(_root);
+	@override late final _Translations$profile$options$en_US options = _Translations$profile$options$en_US._(_root);
+	@override late final _Translations$profile$avatar$en_US avatar = _Translations$profile$avatar$en_US._(_root);
+	@override late final _Translations$profile$dangerZone$en_US dangerZone = _Translations$profile$dangerZone$en_US._(_root);
 }
 
 // Path: scanner
-class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
-	_TranslationsScannerEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$scanner$en_US extends Translations$scanner$zh_TW {
+	_Translations$scanner$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -247,48 +267,13 @@ class _TranslationsScannerEnUs extends TranslationsScannerZhTw {
 		'unknown': 'Login failed. Please check the QR code or refresh the page.',
 	};
 	@override String get howTo => 'Open i.ntut.club on your computer and select QR code login';
-	@override late final _TranslationsScannerGuideEnUs guide = _TranslationsScannerGuideEnUs._(_root);
+	@override late final _Translations$scanner$guide$en_US guide = _Translations$scanner$guide$en_US._(_root);
 	@override String get invalidUrl => 'Invalid URL';
 }
 
-// Path: ntutWifi
-class _TranslationsNtutWifiEnUs extends TranslationsNtutWifiZhTw {
-	_TranslationsNtutWifiEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'NTUT-802.1X';
-	@override String get entryDescription => 'Automatically add NTUT-802.1X with your saved portal credentials';
-	@override String get intro => 'Use your saved NTUT portal credentials to add NTUT-802.1X so Android can auto-connect later.';
-	@override String get accountHint => 'Use your student or staff ID directly. Do not append @ntut.edu.tw.';
-	@override String androidVersion({required Object sdkInt}) => 'Android API ${sdkInt}';
-	@override String get unsupportedPlatform => 'This feature is currently available only on Android.';
-	@override String get notLoggedIn => 'Sign in to your NTUT portal account first so the assistant can fill in the NTUT-802.1X identity and password.';
-	@override String get credentialsMissing => 'The saved portal password is missing. Sign in to TAT again if you need to copy the password.';
-	@override String get olderAndroidWarning => 'This assistant follows the Android 12+ UI. Field labels may look different on older versions.';
-	@override String get copyFailed => 'Copy failed';
-	@override String get openSettingsFailed => 'Unable to open Wi-Fi settings';
-	@override String get openPanelFailed => 'Unable to open the Wi-Fi quick panel';
-	@override String get systemCertificatesHint => 'Automatic provisioning always uses "Use system certificates" with domain ntut.edu.tw and PEAP/GTC. If Android refuses to accept that Enterprise profile safely from the app, use the manual fallback below.';
-	@override String get automaticProvisionUnavailable => 'This device cannot let TAT add NTUT-802.1X automatically right now. Use the manual fallback below instead.';
-	@override String get compatModeSavedHint => 'This network was saved through compat mode. If your portal password changes later, update the system Wi-Fi profile again.';
-	@override String get compatUpdateRequired => 'The NTUT-802.1X profile previously saved through compat mode is out of date. Update the system Wi-Fi profile again.';
-	@override String get suggestionFallbackRequired => 'Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.';
-	@override String get android10PermissionRejected => 'Android 10 has rejected this app\'s Wi-Fi suggestion permission. Follow the manual instructions below instead.';
-	@override String get legacyManualOnly => 'Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.';
-	@override late final _TranslationsNtutWifiSectionsEnUs sections = _TranslationsNtutWifiSectionsEnUs._(_root);
-	@override late final _TranslationsNtutWifiActionsEnUs actions = _TranslationsNtutWifiActionsEnUs._(_root);
-	@override late final _TranslationsNtutWifiFieldsEnUs fields = _TranslationsNtutWifiFieldsEnUs._(_root);
-	@override late final _TranslationsNtutWifiFieldValuesEnUs fieldValues = _TranslationsNtutWifiFieldValuesEnUs._(_root);
-	@override late final _TranslationsNtutWifiFallbackStepsEnUs fallbackSteps = _TranslationsNtutWifiFallbackStepsEnUs._(_root);
-	@override late final _TranslationsNtutWifiProvisioningEnUs provisioning = _TranslationsNtutWifiProvisioningEnUs._(_root);
-	@override late final _TranslationsNtutWifiCompatPromptEnUs compatPrompt = _TranslationsNtutWifiCompatPromptEnUs._(_root);
-}
-
 // Path: kioskLogin
-class _TranslationsKioskLoginEnUs extends TranslationsKioskLoginZhTw {
-	_TranslationsKioskLoginEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$kioskLogin$en_US extends Translations$kioskLogin$zh_TW {
+	_Translations$kioskLogin$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -301,20 +286,21 @@ class _TranslationsKioskLoginEnUs extends TranslationsKioskLoginZhTw {
 }
 
 // Path: enrollmentStatus
-class _TranslationsEnrollmentStatusEnUs extends TranslationsEnrollmentStatusZhTw {
-	_TranslationsEnrollmentStatusEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$enrollmentStatus$en_US extends Translations$enrollmentStatus$zh_TW {
+	_Translations$enrollmentStatus$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
 	@override String get learning => 'Enrolled';
 	@override String get leaveOfAbsence => 'Leave of Absence';
-	@override String get droppedOut => 'Withdrawn';
+	@override String get droppedOut => 'Dropped Out';
+	@override String get graduated => 'Graduated';
 }
 
 // Path: about
-class _TranslationsAboutEnUs extends TranslationsAboutZhTw {
-	_TranslationsAboutEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$about$en_US extends Translations$about$zh_TW {
+	_Translations$about$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -327,24 +313,60 @@ class _TranslationsAboutEnUs extends TranslationsAboutZhTw {
 	@override String get privacyPolicy => 'Privacy Policy';
 	@override String get privacyPolicyUrl => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md';
 	@override String get viewPrivacyPolicy => 'View our privacy policy';
+	@override String get openSourceLicenses => 'Open Source Licenses';
+	@override String get viewOpenSourceLicenses => 'TAT\'s implementation is made possible by the open source community';
 	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
 }
 
-// Path: intro.features
-class _TranslationsIntroFeaturesEnUs extends TranslationsIntroFeaturesZhTw {
-	_TranslationsIntroFeaturesEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+// Path: regedit
+class _Translations$regedit$en_US extends Translations$regedit$zh_TW {
+	_Translations$regedit$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override late final _TranslationsIntroFeaturesCourseTableEnUs courseTable = _TranslationsIntroFeaturesCourseTableEnUs._(_root);
-	@override late final _TranslationsIntroFeaturesScoresEnUs scores = _TranslationsIntroFeaturesScoresEnUs._(_root);
-	@override late final _TranslationsIntroFeaturesCampusLifeEnUs campusLife = _TranslationsIntroFeaturesCampusLifeEnUs._(_root);
+	@override String get title => 'Registry Editor';
+	@override String get fetch => 'Fetch from remote';
+	@override String get noRegistry => 'No Registry Keys';
+	@override String get refreshed => 'Registry refreshed';
+	@override String get reset => 'Reset to default';
+	@override late final _Translations$regedit$status$en_US status = _Translations$regedit$status$en_US._(_root);
+	@override String get invalidInput => 'Invalid input';
+}
+
+// Path: changePassword
+class _Translations$changePassword$en_US extends Translations$changePassword$zh_TW {
+	_Translations$changePassword$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Change Password';
+	@override String get titleExpired => 'Change Expired Password';
+	@override String get expiredNotice => 'Your password has expired. Please set a new password to continue.';
+	@override String get currentPassword => 'Current Password';
+	@override String get newPassword => 'New Password';
+	@override String get confirmPassword => 'Confirm New Password';
+	@override String get submit => 'Change Password';
+	@override String get success => 'Password changed successfully';
+	@override late final _Translations$changePassword$errors$en_US errors = _Translations$changePassword$errors$en_US._(_root);
+}
+
+// Path: intro.features
+class _Translations$intro$features$en_US extends Translations$intro$features$zh_TW {
+	_Translations$intro$features$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$intro$features$courseTable$en_US courseTable = _Translations$intro$features$courseTable$en_US._(_root);
+	@override late final _Translations$intro$features$scores$en_US scores = _Translations$intro$features$scores$en_US._(_root);
+	@override late final _Translations$intro$features$campusLife$en_US campusLife = _Translations$intro$features$campusLife$en_US._(_root);
 }
 
 // Path: login.errors
-class _TranslationsLoginErrorsEnUs extends TranslationsLoginErrorsZhTw {
-	_TranslationsLoginErrorsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$login$errors$en_US extends Translations$login$errors$zh_TW {
+	_Translations$login$errors$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -359,8 +381,8 @@ class _TranslationsLoginErrorsEnUs extends TranslationsLoginErrorsZhTw {
 }
 
 // Path: home.projectTattoo
-class _TranslationsHomeProjectTattooEnUs extends TranslationsHomeProjectTattooZhTw {
-	_TranslationsHomeProjectTattooEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$home$projectTattoo$en_US extends Translations$home$projectTattoo$zh_TW {
+	_Translations$home$projectTattoo$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -371,8 +393,8 @@ class _TranslationsHomeProjectTattooEnUs extends TranslationsHomeProjectTattooZh
 }
 
 // Path: home.ideation
-class _TranslationsHomeIdeationEnUs extends TranslationsHomeIdeationZhTw {
-	_TranslationsHomeIdeationEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$home$ideation$en_US extends Translations$home$ideation$zh_TW {
+	_Translations$home$ideation$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -383,8 +405,8 @@ class _TranslationsHomeIdeationEnUs extends TranslationsHomeIdeationZhTw {
 }
 
 // Path: home.npcClub
-class _TranslationsHomeNpcClubEnUs extends TranslationsHomeNpcClubZhTw {
-	_TranslationsHomeNpcClubEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$home$npcClub$en_US extends Translations$home$npcClub$zh_TW {
+	_Translations$home$npcClub$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -395,8 +417,8 @@ class _TranslationsHomeNpcClubEnUs extends TranslationsHomeNpcClubZhTw {
 }
 
 // Path: home.vote
-class _TranslationsHomeVoteEnUs extends TranslationsHomeVoteZhTw {
-	_TranslationsHomeVoteEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$home$vote$en_US extends Translations$home$vote$zh_TW {
+	_Translations$home$vote$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -405,8 +427,8 @@ class _TranslationsHomeVoteEnUs extends TranslationsHomeVoteZhTw {
 }
 
 // Path: score.summary
-class _TranslationsScoreSummaryEnUs extends TranslationsScoreSummaryZhTw {
-	_TranslationsScoreSummaryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$score$summary$en_US extends Translations$score$summary$zh_TW {
+	_Translations$score$summary$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -419,8 +441,8 @@ class _TranslationsScoreSummaryEnUs extends TranslationsScoreSummaryZhTw {
 }
 
 // Path: score.status
-class _TranslationsScoreStatusEnUs extends TranslationsScoreStatusZhTw {
-	_TranslationsScoreStatusEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$score$status$en_US extends Translations$score$status$zh_TW {
+	_Translations$score$status$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -434,8 +456,8 @@ class _TranslationsScoreStatusEnUs extends TranslationsScoreStatusZhTw {
 }
 
 // Path: courseTable.summary
-class _TranslationsCourseTableSummaryEnUs extends TranslationsCourseTableSummaryZhTw {
-	_TranslationsCourseTableSummaryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$courseTable$summary$en_US extends Translations$courseTable$summary$zh_TW {
+	_Translations$courseTable$summary$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -451,8 +473,8 @@ class _TranslationsCourseTableSummaryEnUs extends TranslationsCourseTableSummary
 }
 
 // Path: courseTable.actions
-class _TranslationsCourseTableActionsEnUs extends TranslationsCourseTableActionsZhTw {
-	_TranslationsCourseTableActionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$courseTable$actions$en_US extends Translations$courseTable$actions$zh_TW {
+	_Translations$courseTable$actions$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -462,8 +484,8 @@ class _TranslationsCourseTableActionsEnUs extends TranslationsCourseTableActions
 }
 
 // Path: profile.passwordExpiry
-class _TranslationsProfilePasswordExpiryEnUs extends TranslationsProfilePasswordExpiryZhTw {
-	_TranslationsProfilePasswordExpiryEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$passwordExpiry$en_US extends Translations$profile$passwordExpiry$zh_TW {
+	_Translations$profile$passwordExpiry$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -476,8 +498,8 @@ class _TranslationsProfilePasswordExpiryEnUs extends TranslationsProfilePassword
 }
 
 // Path: profile.sections
-class _TranslationsProfileSectionsEnUs extends TranslationsProfileSectionsZhTw {
-	_TranslationsProfileSectionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$sections$en_US extends Translations$profile$sections$zh_TW {
+	_Translations$profile$sections$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -488,13 +510,12 @@ class _TranslationsProfileSectionsEnUs extends TranslationsProfileSectionsZhTw {
 }
 
 // Path: profile.options
-class _TranslationsProfileOptionsEnUs extends TranslationsProfileOptionsZhTw {
-	_TranslationsProfileOptionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$options$en_US extends Translations$profile$options$zh_TW {
+	_Translations$profile$options$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get ntutWifi => 'Connect to NTUT-802.1X';
 	@override String get changePassword => 'Change Password';
 	@override String get changeAvatar => 'Change Avatar';
 	@override String get supportUs => 'Support Us';
@@ -505,8 +526,8 @@ class _TranslationsProfileOptionsEnUs extends TranslationsProfileOptionsZhTw {
 }
 
 // Path: profile.avatar
-class _TranslationsProfileAvatarEnUs extends TranslationsProfileAvatarZhTw {
-	_TranslationsProfileAvatarEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$avatar$en_US extends Translations$profile$avatar$zh_TW {
+	_Translations$profile$avatar$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -519,8 +540,8 @@ class _TranslationsProfileAvatarEnUs extends TranslationsProfileAvatarZhTw {
 }
 
 // Path: profile.dangerZone
-class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZhTw {
-	_TranslationsProfileDangerZoneEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$dangerZone$en_US extends Translations$profile$dangerZone$zh_TW {
+	_Translations$profile$dangerZone$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -550,12 +571,12 @@ class _TranslationsProfileDangerZoneEnUs extends TranslationsProfileDangerZoneZh
 	@override String get clearUserData => 'Clear User Data';
 	@override String cleared({required Object item}) => '${item} cleared';
 	@override String clearFailed({required Object item}) => 'Failed to clear ${item}';
-	@override late final _TranslationsProfileDangerZoneItemsEnUs items = _TranslationsProfileDangerZoneItemsEnUs._(_root);
+	@override late final _Translations$profile$dangerZone$items$en_US items = _Translations$profile$dangerZone$items$en_US._(_root);
 }
 
 // Path: scanner.guide
-class _TranslationsScannerGuideEnUs extends TranslationsScannerGuideZhTw {
-	_TranslationsScannerGuideEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$scanner$guide$en_US extends Translations$scanner$guide$zh_TW {
+	_Translations$scanner$guide$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -568,111 +589,38 @@ class _TranslationsScannerGuideEnUs extends TranslationsScannerGuideZhTw {
 	@override String get button => 'Got it';
 }
 
-// Path: ntutWifi.sections
-class _TranslationsNtutWifiSectionsEnUs extends TranslationsNtutWifiSectionsZhTw {
-	_TranslationsNtutWifiSectionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+// Path: regedit.status
+class _Translations$regedit$status$en_US extends Translations$regedit$status$zh_TW {
+	_Translations$regedit$status$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get quickActions => 'Quick Actions';
-	@override String get recommendedSettings => 'Recommended Settings';
-	@override String get fallback => 'Manual Fallback';
+	@override String get local => 'Local Default';
+	@override String get remote => 'Remote Config';
+	@override String get localOverride => 'User Override';
+	@override String get remoteOverride => 'Forced (Remote)';
 }
 
-// Path: ntutWifi.actions
-class _TranslationsNtutWifiActionsEnUs extends TranslationsNtutWifiActionsZhTw {
-	_TranslationsNtutWifiActionsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+// Path: changePassword.errors
+class _Translations$changePassword$errors$en_US extends Translations$changePassword$errors$zh_TW {
+	_Translations$changePassword$errors$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get autoProvision => 'Add NTUT-802.1X Automatically';
-	@override String get autoProvisioning => 'Adding NTUT-802.1X…';
-	@override String get retryCompatProvision => 'Retry with Compat Mode';
-	@override String get updateCompatProvision => 'Update with Compat Mode';
-	@override String get openWifiSettings => 'Open Wi-Fi Settings';
-	@override String get openWifiPanel => 'Open Wi-Fi Panel';
-}
-
-// Path: ntutWifi.fields
-class _TranslationsNtutWifiFieldsEnUs extends TranslationsNtutWifiFieldsZhTw {
-	_TranslationsNtutWifiFieldsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override String get ssid => 'Network name';
-	@override String get eapMethod => 'EAP method';
-	@override String get phase2Auth => 'Phase 2 authentication';
-	@override String get identity => 'Identity';
-	@override String get password => 'Password';
-	@override String get caCertificate => 'CA certificate';
-	@override String get domain => 'Domain';
-}
-
-// Path: ntutWifi.fieldValues
-class _TranslationsNtutWifiFieldValuesEnUs extends TranslationsNtutWifiFieldValuesZhTw {
-	_TranslationsNtutWifiFieldValuesEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override String get passwordSaved => 'Saved on this device and ready to copy';
-	@override String get passwordUnavailable => 'Sign in again to copy the password';
-	@override String get systemCertificates => 'Use system certificates';
-}
-
-// Path: ntutWifi.fallbackSteps
-class _TranslationsNtutWifiFallbackStepsEnUs extends TranslationsNtutWifiFallbackStepsZhTw {
-	_TranslationsNtutWifiFallbackStepsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override String get openSettings => '1. Open Wi-Fi settings or the Wi-Fi quick panel.';
-	@override String get selectNetwork => '2. Choose or add NTUT-802.1X.';
-	@override String get useDisplayedValues => '3. Fill in the SSID, PEAP, GTC, identity, password, and domain shown below.';
-}
-
-// Path: ntutWifi.provisioning
-class _TranslationsNtutWifiProvisioningEnUs extends TranslationsNtutWifiProvisioningZhTw {
-	_TranslationsNtutWifiProvisioningEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override String get success => 'NTUT-802.1X has been added to Android. As long as Wi-Fi is on and the campus network is in range, the system will try to connect automatically.';
-	@override String get successPendingWifi => 'NTUT-802.1X has been added to Android, but Wi-Fi is currently off. Turn Wi-Fi on and Android will try to connect automatically.';
-	@override String get approvalPending => 'Android is not allowing TAT to submit Wi-Fi suggestions right now. Use the system settings entry below, then try again.';
-	@override String get approvalRejected => 'Android has rejected TAT\'s Wi-Fi suggestion. Allow it in system settings and try again, or use the manual fallback below.';
-	@override String get validationUnavailable => 'This device cannot safely accept the "system certificates + domain" Enterprise profile from TAT. Use the manual fallback below instead.';
-	@override String get unsupportedPlatform => 'This device does not support automatic NTUT-802.1X provisioning right now.';
-	@override String get failed => 'Automatic NTUT-802.1X provisioning failed. Use the manual fallback below instead.';
-	@override String get compatSuccess => 'NTUT-802.1X was written into system Wi-Fi through compat mode.';
-	@override String get compatFallbackSuccess => 'The suggestion API was rejected, so compat mode wrote NTUT-802.1X into system Wi-Fi instead.';
-	@override String get compatAlreadyExists => 'Android reported that an NTUT-802.1X profile already exists. The saved password may still be outdated, so check the system Wi-Fi entry or remove it and retry compat mode.';
-	@override String get compatCancelled => 'Compat mode was cancelled. You can retry from this page later.';
-	@override String get compatFailed => 'Compat mode failed to update system Wi-Fi. Use the manual instructions below instead.';
-}
-
-// Path: ntutWifi.compatPrompt
-class _TranslationsNtutWifiCompatPromptEnUs extends TranslationsNtutWifiCompatPromptZhTw {
-	_TranslationsNtutWifiCompatPromptEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'Update NTUT-802.1X';
-	@override String get updateNow => 'Update now';
-	@override String get later => 'Later';
-	@override String get credentialChanged => 'NTUT-802.1X was previously saved through compat mode. Your portal credentials changed, so the system Wi-Fi profile needs to be updated.';
-	@override String get suggestionFallbackRequired => 'Automatic NTUT-802.1X refresh failed. Do you want to switch to compat mode and update it now?';
+	@override String get emptyFields => 'Please fill in all fields';
+	@override String get mismatch => 'New passwords do not match';
+	@override String failed({required Object error}) => 'Password change failed: ${error}';
+	@override String get invalidLength => 'Password length must be between 8 and 14 characters';
+	@override String get invalidComplexity => 'Password must contain uppercase, lowercase, numbers, and symbols';
+	@override String get sameAsUsername => 'Password cannot be the same as your student ID';
+	@override late final _Translations$changePassword$errors$server$en_US server = _Translations$changePassword$errors$server$en_US._(_root);
 }
 
 // Path: intro.features.courseTable
-class _TranslationsIntroFeaturesCourseTableEnUs extends TranslationsIntroFeaturesCourseTableZhTw {
-	_TranslationsIntroFeaturesCourseTableEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$intro$features$courseTable$en_US extends Translations$intro$features$courseTable$zh_TW {
+	_Translations$intro$features$courseTable$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -682,8 +630,8 @@ class _TranslationsIntroFeaturesCourseTableEnUs extends TranslationsIntroFeature
 }
 
 // Path: intro.features.scores
-class _TranslationsIntroFeaturesScoresEnUs extends TranslationsIntroFeaturesScoresZhTw {
-	_TranslationsIntroFeaturesScoresEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$intro$features$scores$en_US extends Translations$intro$features$scores$zh_TW {
+	_Translations$intro$features$scores$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -693,8 +641,8 @@ class _TranslationsIntroFeaturesScoresEnUs extends TranslationsIntroFeaturesScor
 }
 
 // Path: intro.features.campusLife
-class _TranslationsIntroFeaturesCampusLifeEnUs extends TranslationsIntroFeaturesCampusLifeZhTw {
-	_TranslationsIntroFeaturesCampusLifeEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$intro$features$campusLife$en_US extends Translations$intro$features$campusLife$zh_TW {
+	_Translations$intro$features$campusLife$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -704,8 +652,8 @@ class _TranslationsIntroFeaturesCampusLifeEnUs extends TranslationsIntroFeatures
 }
 
 // Path: profile.dangerZone.items
-class _TranslationsProfileDangerZoneItemsEnUs extends TranslationsProfileDangerZoneItemsZhTw {
-	_TranslationsProfileDangerZoneItemsEnUs._(TranslationsEnUs root) : this._root = root, super.internal(root);
+class _Translations$profile$dangerZone$items$en_US extends Translations$profile$dangerZone$items$zh_TW {
+	_Translations$profile$dangerZone$items$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
@@ -715,6 +663,21 @@ class _TranslationsProfileDangerZoneItemsEnUs extends TranslationsProfileDangerZ
 	@override String get preferences => 'Preferences';
 	@override String get credentials => 'Credentials';
 	@override String get userData => 'User data';
+}
+
+// Path: changePassword.errors.server
+class _Translations$changePassword$errors$server$en_US extends Translations$changePassword$errors$server$zh_TW {
+	_Translations$changePassword$errors$server$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get authFailed => 'Current password is incorrect';
+	@override String get minAge => 'Password cannot be changed more than once per day';
+	@override String get historyRepeat => 'Password cannot be the same as any of the last 3 passwords used';
+	@override String get sameAsUsername => 'Password cannot be the same as your student ID';
+	@override String get length => 'Password length must be between 8 and 14 characters';
+	@override String get complexity => 'Password must contain uppercase, lowercase, numbers, and symbols';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -735,7 +698,10 @@ extension on TranslationsEnUs {
 			'general.copied' => 'Copied',
 			'general.back' => 'Back',
 			'general.ok' => 'OK',
+			'general.cancel' => 'Cancel',
 			'errors.occurred' => 'An error occurred',
+			'errors.unexpected' => 'An unexpected error occurred',
+			'errors.networkError' => 'Network error occurred',
 			'errors.flutterError' => 'A Flutter error occurred',
 			'errors.asyncError' => 'An async error occurred',
 			'errors.sessionExpired' => 'Session expired. Please sign in again.',
@@ -770,6 +736,12 @@ extension on TranslationsEnUs {
 			'nav.calendar' => 'Calendar',
 			'nav.profile' => 'Me',
 			'nav.vote' => 'Vote Login',
+			'portal.sourceNotice' => 'This feature is still under development and may change significantly.',
+			'portal.openPortal' => 'Open Campus Portal',
+			'portal.empty' => 'No information systems are currently available.',
+			'portal.favorites' => 'My Favorites',
+			'portal.addFavorite' => 'Add to favorites',
+			'portal.removeFavorite' => 'Remove from favorites',
 			'home.projectTattoo.title' => 'About Project Tattoo',
 			'home.projectTattoo.description' => 'Learn more or invite your friends to join the testing program.',
 			'home.projectTattoo.url' => 'https://ntut.app',
@@ -817,7 +789,6 @@ extension on TranslationsEnUs {
 			'profile.sections.accountSettings' => 'Account Settings',
 			'profile.sections.appSettings' => 'App Settings',
 			'profile.sections.dangerZone' => 'Danger Zone',
-			'profile.options.ntutWifi' => 'Connect to NTUT-802.1X',
 			'profile.options.changePassword' => 'Change Password',
 			'profile.options.changeAvatar' => 'Change Avatar',
 			'profile.options.supportUs' => 'Support Us',
@@ -883,64 +854,6 @@ extension on TranslationsEnUs {
 			'scanner.guide.step3' => '3. Click "Scan QR code"',
 			'scanner.guide.button' => 'Got it',
 			'scanner.invalidUrl' => 'Invalid URL',
-			'ntutWifi.title' => 'NTUT-802.1X',
-			'ntutWifi.entryDescription' => 'Automatically add NTUT-802.1X with your saved portal credentials',
-			'ntutWifi.intro' => 'Use your saved NTUT portal credentials to add NTUT-802.1X so Android can auto-connect later.',
-			'ntutWifi.accountHint' => 'Use your student or staff ID directly. Do not append @ntut.edu.tw.',
-			'ntutWifi.androidVersion' => ({required Object sdkInt}) => 'Android API ${sdkInt}',
-			'ntutWifi.unsupportedPlatform' => 'This feature is currently available only on Android.',
-			'ntutWifi.notLoggedIn' => 'Sign in to your NTUT portal account first so the assistant can fill in the NTUT-802.1X identity and password.',
-			'ntutWifi.credentialsMissing' => 'The saved portal password is missing. Sign in to TAT again if you need to copy the password.',
-			'ntutWifi.olderAndroidWarning' => 'This assistant follows the Android 12+ UI. Field labels may look different on older versions.',
-			'ntutWifi.copyFailed' => 'Copy failed',
-			'ntutWifi.openSettingsFailed' => 'Unable to open Wi-Fi settings',
-			'ntutWifi.openPanelFailed' => 'Unable to open the Wi-Fi quick panel',
-			'ntutWifi.systemCertificatesHint' => 'Automatic provisioning always uses "Use system certificates" with domain ntut.edu.tw and PEAP/GTC. If Android refuses to accept that Enterprise profile safely from the app, use the manual fallback below.',
-			'ntutWifi.automaticProvisionUnavailable' => 'This device cannot let TAT add NTUT-802.1X automatically right now. Use the manual fallback below instead.',
-			'ntutWifi.compatModeSavedHint' => 'This network was saved through compat mode. If your portal password changes later, update the system Wi-Fi profile again.',
-			'ntutWifi.compatUpdateRequired' => 'The NTUT-802.1X profile previously saved through compat mode is out of date. Update the system Wi-Fi profile again.',
-			'ntutWifi.suggestionFallbackRequired' => 'Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.',
-			'ntutWifi.android10PermissionRejected' => 'Android 10 has rejected this app\'s Wi-Fi suggestion permission. Follow the manual instructions below instead.',
-			'ntutWifi.legacyManualOnly' => 'Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.',
-			'ntutWifi.sections.quickActions' => 'Quick Actions',
-			'ntutWifi.sections.recommendedSettings' => 'Recommended Settings',
-			'ntutWifi.sections.fallback' => 'Manual Fallback',
-			'ntutWifi.actions.autoProvision' => 'Add NTUT-802.1X Automatically',
-			'ntutWifi.actions.autoProvisioning' => 'Adding NTUT-802.1X…',
-			'ntutWifi.actions.retryCompatProvision' => 'Retry with Compat Mode',
-			'ntutWifi.actions.updateCompatProvision' => 'Update with Compat Mode',
-			'ntutWifi.actions.openWifiSettings' => 'Open Wi-Fi Settings',
-			'ntutWifi.actions.openWifiPanel' => 'Open Wi-Fi Panel',
-			'ntutWifi.fields.ssid' => 'Network name',
-			'ntutWifi.fields.eapMethod' => 'EAP method',
-			'ntutWifi.fields.phase2Auth' => 'Phase 2 authentication',
-			'ntutWifi.fields.identity' => 'Identity',
-			'ntutWifi.fields.password' => 'Password',
-			'ntutWifi.fields.caCertificate' => 'CA certificate',
-			'ntutWifi.fields.domain' => 'Domain',
-			'ntutWifi.fieldValues.passwordSaved' => 'Saved on this device and ready to copy',
-			'ntutWifi.fieldValues.passwordUnavailable' => 'Sign in again to copy the password',
-			'ntutWifi.fieldValues.systemCertificates' => 'Use system certificates',
-			'ntutWifi.fallbackSteps.openSettings' => '1. Open Wi-Fi settings or the Wi-Fi quick panel.',
-			'ntutWifi.fallbackSteps.selectNetwork' => '2. Choose or add NTUT-802.1X.',
-			'ntutWifi.fallbackSteps.useDisplayedValues' => '3. Fill in the SSID, PEAP, GTC, identity, password, and domain shown below.',
-			'ntutWifi.provisioning.success' => 'NTUT-802.1X has been added to Android. As long as Wi-Fi is on and the campus network is in range, the system will try to connect automatically.',
-			'ntutWifi.provisioning.successPendingWifi' => 'NTUT-802.1X has been added to Android, but Wi-Fi is currently off. Turn Wi-Fi on and Android will try to connect automatically.',
-			'ntutWifi.provisioning.approvalPending' => 'Android is not allowing TAT to submit Wi-Fi suggestions right now. Use the system settings entry below, then try again.',
-			'ntutWifi.provisioning.approvalRejected' => 'Android has rejected TAT\'s Wi-Fi suggestion. Allow it in system settings and try again, or use the manual fallback below.',
-			'ntutWifi.provisioning.validationUnavailable' => 'This device cannot safely accept the "system certificates + domain" Enterprise profile from TAT. Use the manual fallback below instead.',
-			'ntutWifi.provisioning.unsupportedPlatform' => 'This device does not support automatic NTUT-802.1X provisioning right now.',
-			'ntutWifi.provisioning.failed' => 'Automatic NTUT-802.1X provisioning failed. Use the manual fallback below instead.',
-			'ntutWifi.provisioning.compatSuccess' => 'NTUT-802.1X was written into system Wi-Fi through compat mode.',
-			'ntutWifi.provisioning.compatFallbackSuccess' => 'The suggestion API was rejected, so compat mode wrote NTUT-802.1X into system Wi-Fi instead.',
-			'ntutWifi.provisioning.compatAlreadyExists' => 'Android reported that an NTUT-802.1X profile already exists. The saved password may still be outdated, so check the system Wi-Fi entry or remove it and retry compat mode.',
-			'ntutWifi.provisioning.compatCancelled' => 'Compat mode was cancelled. You can retry from this page later.',
-			'ntutWifi.provisioning.compatFailed' => 'Compat mode failed to update system Wi-Fi. Use the manual instructions below instead.',
-			'ntutWifi.compatPrompt.title' => 'Update NTUT-802.1X',
-			'ntutWifi.compatPrompt.updateNow' => 'Update now',
-			'ntutWifi.compatPrompt.later' => 'Later',
-			'ntutWifi.compatPrompt.credentialChanged' => 'NTUT-802.1X was previously saved through compat mode. Your portal credentials changed, so the system Wi-Fi profile needs to be updated.',
-			'ntutWifi.compatPrompt.suggestionFallbackRequired' => 'Automatic NTUT-802.1X refresh failed. Do you want to switch to compat mode and update it now?',
 			'kioskLogin.qrCode' => 'login QR code',
 			'kioskLogin.refresh' => 'Regenerate',
 			'kioskLogin.notice' => 'Use the iPad at the voting venue to scan this QR code.\nTo protect your privacy, do not share this QR code with anyone.',
@@ -948,7 +861,8 @@ extension on TranslationsEnUs {
 			'kioskLogin.invalidSsoUrl' => 'The login URL is invalid. Unable to generate the login code.',
 			'enrollmentStatus.learning' => 'Enrolled',
 			'enrollmentStatus.leaveOfAbsence' => 'Leave of Absence',
-			'enrollmentStatus.droppedOut' => 'Withdrawn',
+			'enrollmentStatus.droppedOut' => 'Dropped Out',
+			'enrollmentStatus.graduated' => 'Graduated',
 			'about.description' => 'Project Tattoo (TAT) is an unofficial campus life assistant for National Taipei University of Technology (NTUT). Our goal is to provide a better student experience through a modern and user-friendly interface.',
 			'about.developers' => 'Developers',
 			'about.helpTranslate' => 'Help us translate TAT!',
@@ -957,7 +871,39 @@ extension on TranslationsEnUs {
 			'about.privacyPolicy' => 'Privacy Policy',
 			'about.privacyPolicyUrl' => 'https://github.com/NTUT-NPC/tattoo/blob/main/PRIVACY.md',
 			'about.viewPrivacyPolicy' => 'View our privacy policy',
+			'about.openSourceLicenses' => 'Open Source Licenses',
+			'about.viewOpenSourceLicenses' => 'TAT\'s implementation is made possible by the open source community',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
+			'regedit.title' => 'Registry Editor',
+			'regedit.fetch' => 'Fetch from remote',
+			'regedit.noRegistry' => 'No Registry Keys',
+			'regedit.refreshed' => 'Registry refreshed',
+			'regedit.reset' => 'Reset to default',
+			'regedit.status.local' => 'Local Default',
+			'regedit.status.remote' => 'Remote Config',
+			'regedit.status.localOverride' => 'User Override',
+			'regedit.status.remoteOverride' => 'Forced (Remote)',
+			'regedit.invalidInput' => 'Invalid input',
+			'changePassword.title' => 'Change Password',
+			'changePassword.titleExpired' => 'Change Expired Password',
+			'changePassword.expiredNotice' => 'Your password has expired. Please set a new password to continue.',
+			'changePassword.currentPassword' => 'Current Password',
+			'changePassword.newPassword' => 'New Password',
+			'changePassword.confirmPassword' => 'Confirm New Password',
+			'changePassword.submit' => 'Change Password',
+			'changePassword.success' => 'Password changed successfully',
+			'changePassword.errors.emptyFields' => 'Please fill in all fields',
+			'changePassword.errors.mismatch' => 'New passwords do not match',
+			'changePassword.errors.failed' => ({required Object error}) => 'Password change failed: ${error}',
+			'changePassword.errors.invalidLength' => 'Password length must be between 8 and 14 characters',
+			'changePassword.errors.invalidComplexity' => 'Password must contain uppercase, lowercase, numbers, and symbols',
+			'changePassword.errors.sameAsUsername' => 'Password cannot be the same as your student ID',
+			'changePassword.errors.server.authFailed' => 'Current password is incorrect',
+			'changePassword.errors.server.minAge' => 'Password cannot be changed more than once per day',
+			'changePassword.errors.server.historyRepeat' => 'Password cannot be the same as any of the last 3 passwords used',
+			'changePassword.errors.server.sameAsUsername' => 'Password cannot be the same as your student ID',
+			'changePassword.errors.server.length' => 'Password length must be between 8 and 14 characters',
+			'changePassword.errors.server.complexity' => 'Password must contain uppercase, lowercase, numbers, and symbols',
 			_ => null,
 		};
 	}

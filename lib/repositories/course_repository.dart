@@ -1,5 +1,6 @@
 // ignore_for_file: unused_field
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:drift/drift.dart';
@@ -13,6 +14,40 @@ import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/localized.dart';
+
+/// Detailed data for a single course offering, sufficient to populate the
+/// course-table detail bottom sheet. Composes the [CourseOfferingOverview]
+/// view row (single-value offering+catalog fields) with the offering's
+/// many-side relations (schedule slots, teachers, classes).
+///
+/// Future iSchool-sourced lists (roster, assignments) will be added as
+/// additional fields on this record.
+typedef CourseOfferingDetail = ({
+  CourseOfferingOverview overview,
+  List<
+    ({
+      DayOfWeek day,
+      Period period,
+      String? classroomNameZh,
+      String? classroomNameEn,
+    })
+  >
+  schedule,
+  List<({String code, String nameZh, String? nameEn})> teachers,
+  List<({String code, String nameZh, String? nameEn})> classes,
+});
+
+/// A submitted syllabus and its ordered dynamic content sections.
+typedef SyllabusDetail = ({
+  Syllabus metadata,
+  List<SyllabusSection> sections,
+});
+
+/// A submitted syllabus paired with its authoring teacher.
+typedef TeacherSyllabusDetail = ({
+  ({String code, String nameZh, String? nameEn}) teacher,
+  SyllabusDetail syllabus,
+});
 
 /// Data for a single cell in the course table grid.
 typedef CourseTableCellData = ({
@@ -141,18 +176,13 @@ class CourseRepository {
   final FirebaseService _firebaseService;
 
   CourseRepository({
-    required PortalService portalService,
-    required CourseService courseService,
-    required ISchoolPlusService iSchoolPlusService,
-    required AppDatabase database,
-    required AuthRepository authRepository,
-    required FirebaseService firebaseService,
-  }) : _portalService = portalService,
-       _courseService = courseService,
-       _iSchoolPlusService = iSchoolPlusService,
-       _database = database,
-       _authRepository = authRepository,
-       _firebaseService = firebaseService;
+    required this._portalService,
+    required this._courseService,
+    required this._iSchoolPlusService,
+    required this._database,
+    required this._authRepository,
+    required this._firebaseService,
+  });
 
   /// Watches available semesters for the authenticated student.
   ///
@@ -209,14 +239,29 @@ class CourseRepository {
     );
 
     await _database.transaction(() async {
+      final fetchedSemesterIds = <int>{};
       for (final dto in dtos) {
         if (dto case (year: final year?, term: final term?)) {
-          await _database.getOrCreateSemester(
+          final semester = await _database.getOrCreateSemester(
             year,
             term,
             inCourseSemesterList: true,
           );
+          fetchedSemesterIds.add(semester.id);
         }
+      }
+
+      // Keep membership flag in sync with the latest course semester response.
+      // Skip on empty.
+      if (fetchedSemesterIds.isNotEmpty) {
+        await (_database.update(_database.semesters)..where(
+              (s) =>
+                  s.inCourseSemesterList.equals(true) &
+                  s.id.isNotIn(fetchedSemesterIds),
+            ))
+            .write(
+              const SemestersCompanion(inCourseSemesterList: Value(false)),
+            );
       }
 
       await (_database.update(_database.users)).write(
@@ -231,7 +276,7 @@ class CourseRepository {
   /// if data is empty or stale. The stream re-emits automatically when the
   /// DB is updated.
   ///
-  /// Use [getCourseOffering] for related data (teachers, classrooms, schedules).
+  /// Use [watchCourseOffering] for related data (teachers, classrooms, schedules).
   Stream<CourseTableData> watchCourseTable({required int semesterId}) async* {
     const ttl = Duration(days: 3);
 
@@ -353,7 +398,6 @@ class CourseRepository {
           status: dto.status,
           language: dto.language,
           remarks: dto.remarks,
-          syllabusId: dto.syllabusId,
         );
 
         // Clear old junctions and schedules for this offering
@@ -367,23 +411,27 @@ class CourseRepository {
           _database.schedules,
         )..where((t) => t.courseOffering.equals(offeringId))).go();
 
-        // Teacher
-        if (dto.teacher case LocalizedRefDto(:final id?, :final nameZh?)) {
-          final teacherSemesterId = await _database.upsertTeacherSemester(
-            code: id,
-            semesterId: semester.id,
-            nameZh: nameZh,
-            nameEn: dto.teacher?.nameEn,
-          );
-          await _database
-              .into(_database.courseOfferingTeachers)
-              .insert(
-                CourseOfferingTeachersCompanion.insert(
-                  courseOffering: offeringId,
-                  teacherSemester: teacherSemesterId,
-                ),
-                mode: .insertOrIgnore,
+        // Teachers
+        if (dto.teachers case final teachers?) {
+          for (final t in teachers) {
+            if (t case LocalizedRefDto(:final id?, :final nameZh?)) {
+              final teacherSemesterId = await _database.upsertTeacherSemester(
+                code: id,
+                semesterId: semester.id,
+                nameZh: nameZh,
+                nameEn: t.nameEn,
               );
+              await _database
+                  .into(_database.courseOfferingTeachers)
+                  .insert(
+                    CourseOfferingTeachersCompanion.insert(
+                      courseOffering: offeringId,
+                      teacherSemester: teacherSemesterId,
+                    ),
+                    mode: .insertOrIgnore,
+                  );
+            }
+          }
         }
 
         // Classes
@@ -598,11 +646,491 @@ class CourseRepository {
     );
   }
 
-  /// Gets a course offering with related data (teachers, classrooms, schedules).
+  /// Watches a course offering's joined detail (overview + schedule + teachers
+  /// + classes), selected by its course number (課號) and composed from the
+  /// database — no network. Submitted syllabuses are fetched separately via
+  /// [watchSyllabuses]. Emits `null` when the offering is missing; re-emits when
+  /// a syllabus refresh writes the offering's header fields.
   ///
-  /// Returns `null` if not found.
-  Future<CourseOffering?> getCourseOffering(int id) async {
-    throw UnimplementedError();
+  /// Course numbers are globally unique and identify at most one offering.
+  Stream<CourseOfferingDetail?> watchCourseOffering(String number) async* {
+    final overviews = _database.courseOfferingOverviews;
+    final query =
+        _database.select(overviews).join([
+            innerJoin(
+              _database.semesters,
+              _database.semesters.id.equalsExp(overviews.semester),
+            ),
+          ])
+          ..where(overviews.number.equals(number))
+          ..orderBy([
+            .desc(_database.semesters.year),
+            .desc(_database.semesters.term),
+          ])
+          ..limit(1);
+
+    await for (final rows in query.watch()) {
+      final overview = rows.firstOrNull?.readTable(overviews);
+      if (overview == null) {
+        yield null;
+        continue;
+      }
+
+      yield await _readCourseOfferingDetail(overview);
+    }
+  }
+
+  Future<CourseOfferingDetail> _readCourseOfferingDetail(
+    CourseOfferingOverview overview,
+  ) async {
+    final offeringId = overview.id;
+    final (schedule, teachers, classes) = await (
+      _readOfferingSchedule(offeringId),
+      _readOfferingTeachers(offeringId),
+      _readOfferingClasses(offeringId),
+    ).wait;
+
+    return (
+      overview: overview,
+      schedule: schedule,
+      teachers: teachers,
+      classes: classes,
+    );
+  }
+
+  /// Watches every submitted [language] syllabus for the offering identified
+  /// by [courseNumber].
+  ///
+  /// Emits a non-empty cached aggregate immediately. Missing or stale cache
+  /// entries are fetched before the first emission when no teacher has a
+  /// submitted syllabus, or revalidated after cached submissions are emitted.
+  /// Unsubmitted syllabuses retain cache metadata but are omitted from results.
+  /// Refresh failures are absorbed so stale data remains visible and an empty
+  /// list leaves loading.
+  /// Missing offerings and offerings without teachers emit an empty list
+  /// without making a request.
+  Stream<List<TeacherSyllabusDetail>> watchSyllabuses({
+    required String courseNumber,
+    required SyllabusLanguage language,
+  }) async* {
+    const ttl = Duration(minutes: 15);
+
+    final context = await _readSyllabusContext(courseNumber);
+    if (context == null || context.teachers.isEmpty) {
+      yield [];
+      return;
+    }
+
+    final offering = context.offering;
+    final associatedTeachers = context.teachers;
+
+    final teacherIds = associatedTeachers
+        .map((entry) => entry.teacher.id)
+        .toList();
+    final syllabuses = _database.syllabuses;
+    final sections = _database.syllabusSections;
+    final teachers = _database.teachers;
+    final query =
+        _database.select(syllabuses).join([
+            innerJoin(teachers, teachers.id.equalsExp(syllabuses.teacher)),
+            leftOuterJoin(
+              sections,
+              sections.syllabus.equalsExp(syllabuses.id),
+            ),
+          ])
+          ..where(
+            syllabuses.courseOffering.equals(offering.id) &
+                syllabuses.teacher.isIn(teacherIds) &
+                syllabuses.language.equalsValue(language),
+          )
+          ..orderBy([
+            .asc(teachers.code),
+            .asc(sections.position),
+          ]);
+
+    var attemptedRefresh = false;
+    await for (final rows in query.watch()) {
+      final details = _mapSyllabusRows(rows);
+      final cachedByTeacher = {
+        for (final row in rows)
+          row.readTable(_database.syllabuses).teacher: row.readTable(
+            _database.syllabuses,
+          ),
+      };
+      final now = DateTime.now();
+      final needsRefresh = associatedTeachers.any((associatedTeacher) {
+        final cached = cachedByTeacher[associatedTeacher.teacher.id];
+        return cached == null || now.difference(cached.fetchedAt) >= ttl;
+      });
+
+      if (details.isEmpty) {
+        if (needsRefresh && !attemptedRefresh) {
+          attemptedRefresh = true;
+          try {
+            await refreshSyllabuses(
+              courseNumber: courseNumber,
+              language: language,
+            );
+            yield _mapSyllabusRows(await query.get());
+            continue;
+          } catch (_) {
+            // Absorb: yield an empty list so the UI exits its loading state.
+          }
+        }
+        yield [];
+        continue;
+      }
+
+      yield details;
+
+      if (needsRefresh && !attemptedRefresh) {
+        attemptedRefresh = true;
+        try {
+          await refreshSyllabuses(
+            courseNumber: courseNumber,
+            language: language,
+          );
+        } catch (_) {
+          // Absorb: the cached details emitted above remain visible.
+        }
+      }
+    }
+  }
+
+  List<TeacherSyllabusDetail> _mapSyllabusRows(List<TypedResult> rows) {
+    final grouped =
+        <
+          int,
+          ({
+            Syllabus metadata,
+            Teacher teacher,
+            List<SyllabusSection> sections,
+          })
+        >{};
+
+    for (final row in rows) {
+      final metadata = row.readTable(_database.syllabuses);
+      final teacher = row.readTable(_database.teachers);
+      final section = row.readTableOrNull(_database.syllabusSections);
+      final aggregate = grouped.putIfAbsent(
+        metadata.id,
+        () => (metadata: metadata, teacher: teacher, sections: []),
+      );
+      if (section case final section?) {
+        aggregate.sections.add(section);
+      }
+    }
+
+    return [
+      for (final aggregate in grouped.values)
+        if (aggregate.metadata.updatedAt != null &&
+            aggregate.sections.any(
+              (section) => section.content?.trim().isNotEmpty ?? false,
+            ))
+          (
+            teacher: (
+              code: aggregate.teacher.code,
+              nameZh: aggregate.teacher.nameZh,
+              nameEn: aggregate.teacher.nameEn,
+            ),
+            syllabus: (
+              metadata: aggregate.metadata,
+              sections: aggregate.sections,
+            ),
+          ),
+    ];
+  }
+
+  /// Fetches every associated teacher's [language] syllabus for the offering
+  /// identified by [courseNumber] and persists the complete result atomically.
+  ///
+  /// Responses without a last-updated timestamp or any non-blank section
+  /// content are treated as unsubmitted: their sections are removed while a
+  /// metadata row retains the fetch timestamp for TTL caching. Submitted
+  /// metadata and ordered sections are upserted, instructor emails are written
+  /// to [TeacherSemesters], and shared header fields are copied from the first
+  /// submitted response. Missing offerings and offerings without teachers are
+  /// no-ops; network errors propagate without writes.
+  Future<void> refreshSyllabuses({
+    required String courseNumber,
+    required SyllabusLanguage language,
+  }) async {
+    final context = await _readSyllabusContext(courseNumber);
+    if (context == null || context.teachers.isEmpty) return;
+
+    final offering = context.offering;
+    final teachers = context.teachers;
+
+    final results = await _authRepository.withAuth(
+      () => Future.wait([
+        for (final teacher in teachers)
+          _courseService
+              .getSyllabus(
+                courseNumber: courseNumber,
+                teacherId: teacher.teacher.code,
+                language: language,
+              )
+              .then((syllabus) => (teacher: teacher, syllabus: syllabus)),
+      ]),
+      sso: [.courseService],
+    );
+
+    await _database.transaction(() async {
+      final fetchedAt = DateTime.now();
+
+      for (final result in results) {
+        final teacher = result.teacher.teacher;
+        final teacherSemester = result.teacher.teacherSemester;
+        final syllabus = result.syllabus;
+
+        if (syllabus == null ||
+            syllabus.lastUpdated == null ||
+            !syllabus.sections.any(
+              (section) => section.content?.trim().isNotEmpty ?? false,
+            )) {
+          final storedSyllabus = await _database
+              .into(_database.syllabuses)
+              .insertReturning(
+                SyllabusesCompanion.insert(
+                  courseOffering: offering.id,
+                  teacher: teacher.id,
+                  language: language,
+                  fetchedAt: fetchedAt,
+                ),
+                onConflict: DoUpdate(
+                  (_) => SyllabusesCompanion(
+                    updatedAt: const Value(null),
+                    fetchedAt: Value(fetchedAt),
+                  ),
+                  target: [
+                    _database.syllabuses.courseOffering,
+                    _database.syllabuses.teacher,
+                    _database.syllabuses.language,
+                  ],
+                ),
+              );
+          await (_database.delete(_database.syllabusSections)..where(
+                (section) => section.syllabus.equals(storedSyllabus.id),
+              ))
+              .go();
+          continue;
+        }
+
+        final storedSyllabus = await _database
+            .into(_database.syllabuses)
+            .insertReturning(
+              SyllabusesCompanion.insert(
+                courseOffering: offering.id,
+                teacher: teacher.id,
+                language: language,
+                updatedAt: Value(syllabus.lastUpdated),
+                fetchedAt: fetchedAt,
+              ),
+              onConflict: DoUpdate(
+                (_) => SyllabusesCompanion(
+                  updatedAt: Value(syllabus.lastUpdated),
+                  fetchedAt: Value(fetchedAt),
+                ),
+                target: [
+                  _database.syllabuses.courseOffering,
+                  _database.syllabuses.teacher,
+                  _database.syllabuses.language,
+                ],
+              ),
+            );
+
+        await (_database.delete(_database.syllabusSections)..where(
+              (section) => section.syllabus.equals(storedSyllabus.id),
+            ))
+            .go();
+        await _database.batch((batch) {
+          batch.insertAll(_database.syllabusSections, [
+            for (final (position, section) in syllabus.sections.indexed)
+              SyllabusSectionsCompanion.insert(
+                syllabus: storedSyllabus.id,
+                title: section.title,
+                content: Value(section.content),
+                position: position,
+              ),
+          ]);
+        });
+
+        await (_database.update(
+          _database.teacherSemesters,
+        )..where((stored) => stored.id.equals(teacherSemester.id))).write(
+          TeacherSemestersCompanion(email: Value(syllabus.email)),
+        );
+      }
+
+      final firstSubmitted = results
+          .map((result) => result.syllabus)
+          .nonNulls
+          .where(
+            (syllabus) =>
+                syllabus.lastUpdated != null &&
+                syllabus.sections.any(
+                  (section) => section.content?.trim().isNotEmpty ?? false,
+                ),
+          )
+          .firstOrNull;
+      if (firstSubmitted case final firstSubmitted?) {
+        await (_database.update(
+          _database.courseOfferings,
+        )..where((stored) => stored.id.equals(offering.id))).write(
+          CourseOfferingsCompanion(
+            courseType: Value(firstSubmitted.type),
+            enrolled: Value(firstSubmitted.enrolled),
+            withdrawn: Value(firstSubmitted.withdrawn),
+            fetchedAt: Value(fetchedAt),
+          ),
+        );
+      }
+    });
+  }
+
+  Future<
+    ({
+      CourseOffering offering,
+      List<
+        ({
+          Teacher teacher,
+          TeacherSemester teacherSemester,
+        })
+      >
+      teachers,
+    })?
+  >
+  _readSyllabusContext(String number) async {
+    final offerings = _database.courseOfferings;
+    final offeringTeachers = _database.courseOfferingTeachers;
+    final teacherSemesters = _database.teacherSemesters;
+    final teachers = _database.teachers;
+    final query =
+        _database.select(offerings).join([
+            leftOuterJoin(
+              offeringTeachers,
+              offeringTeachers.courseOffering.equalsExp(offerings.id),
+            ),
+            leftOuterJoin(
+              teacherSemesters,
+              teacherSemesters.id.equalsExp(
+                offeringTeachers.teacherSemester,
+              ),
+            ),
+            leftOuterJoin(
+              teachers,
+              teachers.id.equalsExp(teacherSemesters.teacher),
+            ),
+          ])
+          ..where(offerings.number.equals(number))
+          ..orderBy([.asc(teachers.code)]);
+    final rows = await query.get();
+    final offering = rows.firstOrNull?.readTable(offerings);
+    if (offering == null) return null;
+
+    return (
+      offering: offering,
+      teachers: [
+        for (final row in rows)
+          if ((
+                row.readTableOrNull(teachers),
+                row.readTableOrNull(teacherSemesters),
+              )
+              case (final teacher?, final teacherSemester?))
+            (teacher: teacher, teacherSemester: teacherSemester),
+      ],
+    );
+  }
+
+  Future<
+    List<
+      ({
+        DayOfWeek day,
+        Period period,
+        String? classroomNameZh,
+        String? classroomNameEn,
+      })
+    >
+  >
+  _readOfferingSchedule(int id) async {
+    final rows =
+        await (_database.select(_database.schedules).join([
+                leftOuterJoin(
+                  _database.classrooms,
+                  _database.classrooms.id.equalsExp(
+                    _database.schedules.classroom,
+                  ),
+                ),
+              ])
+              ..where(_database.schedules.courseOffering.equals(id))
+              ..orderBy([
+                OrderingTerm.asc(_database.schedules.dayOfWeek),
+                OrderingTerm.asc(_database.schedules.period),
+              ]))
+            .get();
+    return [
+      for (final row in rows)
+        (
+          day: row.readTable(_database.schedules).dayOfWeek,
+          period: row.readTable(_database.schedules).period,
+          classroomNameZh: row.readTableOrNull(_database.classrooms)?.nameZh,
+          classroomNameEn: row.readTableOrNull(_database.classrooms)?.nameEn,
+        ),
+    ];
+  }
+
+  Future<List<({String code, String nameZh, String? nameEn})>>
+  _readOfferingTeachers(int id) async {
+    final rows =
+        await (_database.select(_database.courseOfferingTeachers).join([
+              innerJoin(
+                _database.teacherSemesters,
+                _database.teacherSemesters.id.equalsExp(
+                  _database.courseOfferingTeachers.teacherSemester,
+                ),
+              ),
+              innerJoin(
+                _database.teachers,
+                _database.teachers.id.equalsExp(
+                  _database.teacherSemesters.teacher,
+                ),
+              ),
+            ])..where(
+              _database.courseOfferingTeachers.courseOffering.equals(id),
+            ))
+            .get();
+    return [
+      for (final row in rows)
+        (
+          code: row.readTable(_database.teachers).code,
+          nameZh: row.readTable(_database.teachers).nameZh,
+          nameEn: row.readTable(_database.teachers).nameEn,
+        ),
+    ];
+  }
+
+  Future<List<({String code, String nameZh, String? nameEn})>>
+  _readOfferingClasses(int id) async {
+    final rows =
+        await (_database.select(_database.courseOfferingClasses).join([
+                innerJoin(
+                  _database.classes,
+                  _database.classes.id.equalsExp(
+                    _database.courseOfferingClasses.classEntity,
+                  ),
+                ),
+              ])
+              ..where(_database.courseOfferingClasses.courseOffering.equals(id))
+              ..orderBy([OrderingTerm.asc(_database.classes.code)]))
+            .get();
+    return [
+      for (final row in rows)
+        (
+          code: row.readTable(_database.classes).code,
+          nameZh: row.readTable(_database.classes).nameZh,
+          nameEn: row.readTable(_database.classes).nameEn,
+        ),
+    ];
   }
 
   /// Gets course catalog information by code.
@@ -661,13 +1189,6 @@ class CourseRepository {
     )..where((c) => c.id.equals(courseId))).getSingle();
   }
 
-  /// Gets detailed course catalog information.
-  ///
-  /// Throws [Exception] on network failure.
-  Future<Course> getCourseDetails(String courseId) async {
-    throw UnimplementedError();
-  }
-
   /// Gets course materials (files, recordings, etc.) from I-School Plus.
   ///
   /// Throws [Exception] on network failure.
@@ -679,7 +1200,7 @@ class CourseRepository {
 
   /// Gets the download URL for a material.
   ///
-  /// The returned [MaterialDto.referer] must be included as a Referer header
+  /// The returned `MaterialDto.referer` must be included as a Referer header
   /// when downloading, if non-null.
   ///
   /// Throws [Exception] on network failure.

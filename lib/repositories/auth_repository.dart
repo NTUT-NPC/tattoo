@@ -191,6 +191,9 @@ class AuthRepository {
 
     final UserDto userDto;
     if (isDemo) {
+      if (isDemoPasswordExpired(username, password)) {
+        throw const LoginException(LoginFailure.passwordExpired);
+      }
       // Demo mode: skip real portal, use hardcoded data
       userDto = (
         name: '王大同',
@@ -604,7 +607,10 @@ class AuthRepository {
     }
 
     await withAuth(
-      () => _portalService.changePassword(currentPassword, newPassword),
+      () => _portalService.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      ),
     );
 
     // Update stored credentials so auto-login uses the new password
@@ -630,6 +636,29 @@ class AuthRepository {
         ),
       );
     } catch (_) {}
+  }
+
+  /// Changes the user's expired NTUT Portal password.
+  ///
+  /// This must be called when the password has expired (e.g. login failed with
+  /// [LoginFailure.passwordExpired]). It uses the established session to
+  /// change the password, writes the new password to secure storage, and
+  /// performs a full login to establish a valid session.
+  Future<void> changeExpiredPassword(
+    String username,
+    String newPassword,
+  ) async {
+    if (username.trim().isEmpty) {
+      throw ArgumentError.value(username, 'username', 'Username is required');
+    }
+
+    await _portalService.changePassword(
+      newPassword: newPassword,
+      isExpired: true,
+    );
+
+    // Perform a full login with the new password to establish a valid session
+    await login(username, newPassword);
   }
 
   /// Watches the user's active registration (where enrollment status is "在學").

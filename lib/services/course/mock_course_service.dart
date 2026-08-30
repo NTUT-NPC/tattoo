@@ -6,6 +6,8 @@ import 'package:tattoo/services/course/course_service.dart';
 class MockCourseService implements CourseService {
   List<SemesterDto>? semesterListResult;
   List<ScheduleDto>? courseTableResult;
+  CourseOfferingDto? courseOfferingResult;
+
   CourseDto? courseResult;
   TeacherDto? teacherResult;
   SyllabusDto? syllabusResult;
@@ -37,7 +39,7 @@ class MockCourseService implements CourseService {
           credits: null,
           hours: null,
           type: null,
-          teacher: (id: null, nameZh: null, nameEn: null),
+          teachers: null,
           classes: null,
           schedule: [
             (day: .tuesday, period: .third, classroom: null),
@@ -45,7 +47,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: null,
           remarks: null,
         ),
         (
@@ -59,7 +60,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '12442', nameZh: '崔紘嘉', nameEn: 'Horng-Jia Tsue'),
+          teachers: [(id: '12442', nameZh: '崔紘嘉', nameEn: 'Horng-Jia Tsue')],
           classes: [(id: '2905', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (
@@ -80,7 +81,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12442',
           remarks: null,
         ),
         (
@@ -94,7 +94,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11437', nameZh: '黃士嘉', nameEn: 'Shih-Chia Huang'),
+          teachers: [(id: '11437', nameZh: '黃士嘉', nameEn: 'Shih-Chia Huang')],
           classes: [(id: '2905', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (
@@ -115,7 +115,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11437',
           remarks: '計中電腦教室',
         ),
         (
@@ -129,17 +128,22 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 6,
           type: '必',
-          teacher: (
-            id: '10605',
-            nameZh: '余政杰\n李昭賢\n林信標\n段裘慶\n范育成\n陳晏笙\n陳維昌\n黃育賢\n楊濠瞬\n潘孟鉉',
-            nameEn:
-                'CHYON-CHING TUANCHENG-CHEN YUHSIN-PIAO LINHuang Yu-HsienYU-CHENG FANLee, Chao-HsienYen-Sheng ChenHao-Shun YangWEI-CHANG, CHENMeng-Shiuan Pan',
-          ),
+          teachers: [
+            (id: '10605', nameZh: '余政杰', nameEn: null),
+            (id: '11636', nameZh: '李昭賢', nameEn: null),
+            (id: '10823', nameZh: '林信標', nameEn: null),
+            (id: '10459', nameZh: '段裘慶', nameEn: null),
+            (id: '11246', nameZh: '范育成', nameEn: null),
+            (id: '11678', nameZh: '陳晏笙', nameEn: null),
+            (id: '11991', nameZh: '陳維昌', nameEn: null),
+            (id: '11130', nameZh: '黃育賢', nameEn: null),
+            (id: '11894', nameZh: '楊濠瞬', nameEn: null),
+            (id: '12231', nameZh: '潘孟鉉', nameEn: null),
+          ],
           classes: [(id: '2905', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: null,
           status: null,
           language: null,
-          syllabusId: '10605',
           remarks: null,
         ),
         (
@@ -153,7 +157,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 2,
           type: '必',
-          teacher: (id: '11232', nameZh: '邱弘緯', nameEn: 'CHIU HUNG WEI'),
+          teachers: [(id: '11232', nameZh: '邱弘緯', nameEn: 'CHIU HUNG WEI')],
           classes: [(id: '2905', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (day: .wednesday, period: .seventh, classroom: null),
@@ -161,7 +165,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11232',
           remarks: null,
         ),
         (
@@ -175,7 +178,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan'),
+          teachers: [(id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan')],
           classes: [
             (id: '2905', nameZh: '電子三甲', nameEn: '4EN3A'),
             (id: '2906', nameZh: '電子三乙', nameEn: '4EN3B'),
@@ -199,7 +202,6 @@ class MockCourseService implements CourseService {
           ],
           status: '撤選',
           language: '中英雙語',
-          syllabusId: '12376',
           remarks: '電子大三合開',
         ),
         (
@@ -213,7 +215,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12605', nameZh: '吳亦超', nameEn: 'Yi-Chao Wu'),
+          teachers: [(id: '12605', nameZh: '吳亦超', nameEn: 'Yi-Chao Wu')],
           classes: [
             (id: '2905', nameZh: '電子三甲', nameEn: '4EN3A'),
             (id: '2906', nameZh: '電子三乙', nameEn: '4EN3B'),
@@ -237,7 +239,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12605',
           remarks: '電子大三合開',
         ),
         (
@@ -251,7 +252,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11678', nameZh: '陳晏笙', nameEn: 'Yen-Sheng Chen'),
+          teachers: [(id: '11678', nameZh: '陳晏笙', nameEn: 'Yen-Sheng Chen')],
           classes: [(id: '3022', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -272,7 +273,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: '英語',
-          syllabusId: '11678',
           remarks: '半導體二和電子二甲合開',
         ),
         (
@@ -282,7 +282,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '24588', nameZh: '林建洲', nameEn: 'Lin Chien-Chou'),
+          teachers: [(id: '24588', nameZh: '林建洲', nameEn: 'Lin Chien-Chou')],
           classes: [(id: '3129', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -303,7 +303,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24588',
           remarks: null,
         ),
         (
@@ -317,7 +316,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '24627', nameZh: '楊欣茹', nameEn: 'Hsin-Ju Yang'),
+          teachers: [(id: '24627', nameZh: '楊欣茹', nameEn: 'Hsin-Ju Yang')],
           classes: [
             (id: '2883', nameZh: '博雅課程(十)', nameEn: 'Core Curriculum (X)'),
           ],
@@ -335,7 +334,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24627',
           remarks: '創新與創業向度',
         ),
         (
@@ -349,7 +347,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '必',
-          teacher: (id: null, nameZh: null, nameEn: null),
+          teachers: null,
           classes: [
             (
               id: '589',
@@ -363,7 +361,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: null,
           remarks: '北醫/自然與科學/教師邱子恒/3001教室',
         ),
       ],
@@ -375,7 +372,7 @@ class MockCourseService implements CourseService {
           credits: null,
           hours: null,
           type: null,
-          teacher: (id: null, nameZh: null, nameEn: null),
+          teachers: null,
           classes: null,
           schedule: [
             (day: .tuesday, period: .third, classroom: null),
@@ -383,7 +380,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: null,
           remarks: null,
         ),
         (
@@ -397,7 +393,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan'),
+          teachers: [(id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan')],
           classes: [
             (id: '2788', nameZh: '電子三甲', nameEn: '4EN3A'),
             (id: '2789', nameZh: '電子三乙', nameEn: '4EN3B'),
@@ -421,7 +417,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12376',
           remarks: '電子大三合開',
         ),
         (
@@ -435,7 +430,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 2,
           type: '必',
-          teacher: (id: '10496', nameZh: '李文達', nameEn: 'LEE NEW-TA'),
+          teachers: [(id: '10496', nameZh: '李文達', nameEn: 'LEE NEW-TA')],
           classes: [(id: '2788', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (day: .wednesday, period: .seventh, classroom: null),
@@ -443,7 +438,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '10496',
           remarks: null,
         ),
         (
@@ -457,17 +451,21 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 6,
           type: '必',
-          teacher: (
-            id: '10605',
-            nameZh: '余政杰\n林信標\n段裘慶\n胡心卉\n郭宏源\n黃育賢\n潘孟鉉\n賴建宏\n鍾明桉',
-            nameEn:
-                'CHYON-CHING TUANCHENG-CHEN YUHSIN-PIAO LINHuang Yu-HsienHsin-Hui HuMeng-Shiuan PanMing-An ChungChien-Hung LaiKuo,Hung-Yuan',
-          ),
+          teachers: [
+            (id: '10605', nameZh: '余政杰', nameEn: null),
+            (id: '10823', nameZh: '林信標', nameEn: null),
+            (id: '10459', nameZh: '段裘慶', nameEn: null),
+            (id: '11467', nameZh: '胡心卉', nameEn: null),
+            (id: '12376', nameZh: '郭宏源', nameEn: null),
+            (id: '11130', nameZh: '黃育賢', nameEn: null),
+            (id: '12231', nameZh: '潘孟鉉', nameEn: null),
+            (id: '12245', nameZh: '賴建宏', nameEn: null),
+            (id: '12232', nameZh: '鍾明桉', nameEn: null),
+          ],
           classes: [(id: '2788', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: null,
           status: null,
           language: null,
-          syllabusId: '10605',
           remarks: null,
         ),
         (
@@ -481,7 +479,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '10459', nameZh: '段裘慶', nameEn: 'CHYON-CHING TUAN'),
+          teachers: [(id: '10459', nameZh: '段裘慶', nameEn: 'CHYON-CHING TUAN')],
           classes: [
             (id: '2788', nameZh: '電子三甲', nameEn: '4EN3A'),
             (id: '2789', nameZh: '電子三乙', nameEn: '4EN3B'),
@@ -505,7 +503,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '10459',
           remarks: '電子大三合開',
         ),
         (
@@ -519,7 +516,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12384', nameZh: '張世豪', nameEn: 'Chang, Shih-Hao'),
+          teachers: [(id: '12384', nameZh: '張世豪', nameEn: 'Chang, Shih-Hao')],
           classes: [(id: '2798', nameZh: '資工三', nameEn: '4CSIE3')],
           schedule: [
             (
@@ -540,7 +537,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12384',
           remarks: null,
         ),
         (
@@ -554,7 +550,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11130', nameZh: '黃育賢', nameEn: 'Huang Yu-Hsien'),
+          teachers: [(id: '11130', nameZh: '黃育賢', nameEn: 'Huang Yu-Hsien')],
           classes: [(id: '2905', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -575,7 +571,6 @@ class MockCourseService implements CourseService {
           ],
           status: '撤選',
           language: null,
-          syllabusId: '11130',
           remarks: null,
         ),
         (
@@ -589,7 +584,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11635', nameZh: '曾柏軒', nameEn: 'Po-Hsuan Tseng'),
+          teachers: [(id: '11635', nameZh: '曾柏軒', nameEn: 'Po-Hsuan Tseng')],
           classes: [(id: '2906', nameZh: '電子二乙', nameEn: '4EN2B')],
           schedule: [
             (
@@ -610,7 +605,6 @@ class MockCourseService implements CourseService {
           ],
           status: '撤選',
           language: '英語',
-          syllabusId: '11635',
           remarks: null,
         ),
         (
@@ -624,7 +618,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 3,
           type: '必',
-          teacher: (id: '12380', nameZh: '吳宙霖', nameEn: 'Carter,Jon Robert'),
+          teachers: [(id: '12380', nameZh: '吳宙霖', nameEn: 'Carter,Jon Robert')],
           classes: [(id: '3039', nameZh: '資財一', nameEn: '4IFM1')],
           schedule: [
             (
@@ -645,7 +639,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12380',
           remarks: '高級B',
         ),
         (
@@ -659,7 +652,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12245', nameZh: '賴建宏', nameEn: 'Chien-Hung Lai'),
+          teachers: [(id: '12245', nameZh: '賴建宏', nameEn: 'Chien-Hung Lai')],
           classes: [
             (id: '2788', nameZh: '電子三甲', nameEn: '4EN3A'),
             (id: '2789', nameZh: '電子三乙', nameEn: '4EN3B'),
@@ -683,7 +676,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12245',
           remarks: '電子大三合開',
         ),
         (
@@ -697,7 +689,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '24602', nameZh: '陳正中', nameEn: 'Cheng,jeng-chung'),
+          teachers: [(id: '24602', nameZh: '陳正中', nameEn: 'Cheng,jeng-chung')],
           classes: [
             (id: '2760', nameZh: '博雅課程(四)', nameEn: 'Core Curriculum (IV)'),
           ],
@@ -715,7 +707,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24602',
           remarks: '創新與創業向度',
         ),
         (
@@ -729,7 +720,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '24530', nameZh: '何俊頤', nameEn: 'Chun-Yi Ho'),
+          teachers: [(id: '24530', nameZh: '何俊頤', nameEn: 'Chun-Yi Ho')],
           classes: [
             (id: '2884', nameZh: '博雅課程(十一)', nameEn: 'Core Curriculum (XI)'),
           ],
@@ -747,7 +738,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24530',
           remarks: '社會與法治向度',
         ),
       ],
@@ -759,7 +749,7 @@ class MockCourseService implements CourseService {
           credits: null,
           hours: null,
           type: null,
-          teacher: (id: null, nameZh: null, nameEn: null),
+          teachers: null,
           classes: null,
           schedule: [
             (day: .tuesday, period: .third, classroom: null),
@@ -767,7 +757,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: null,
           remarks: null,
         ),
         (
@@ -781,7 +770,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '12442', nameZh: '崔紘嘉', nameEn: 'Horng-Jia Tsue'),
+          teachers: [(id: '12442', nameZh: '崔紘嘉', nameEn: 'Horng-Jia Tsue')],
           classes: [(id: '2788', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (
@@ -802,7 +791,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12442',
           remarks: null,
         ),
         (
@@ -816,7 +804,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11437', nameZh: '黃士嘉', nameEn: 'Shih-Chia Huang'),
+          teachers: [(id: '11437', nameZh: '黃士嘉', nameEn: 'Shih-Chia Huang')],
           classes: [(id: '2788', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (
@@ -837,7 +825,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11437',
           remarks: '計中電腦教室',
         ),
         (
@@ -851,17 +838,21 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 6,
           type: '必',
-          teacher: (
-            id: '10605',
-            nameZh: '余政杰\n段裘慶\n范育成\n孫卓勳\n郭宏源\n黃育賢\n潘孟鉉\n鄭瑞清\n賴建宏',
-            nameEn:
-                'CHYON-CHING TUANCHENG-CHEN YUJWO-SHIUN SUNHuang Yu-HsienYU-CHENG FANJui-Ching ChengMeng-Shiuan PanChien-Hung LaiKuo,Hung-Yuan',
-          ),
+          teachers: [
+            (id: '10605', nameZh: '余政杰', nameEn: null),
+            (id: '10459', nameZh: '段裘慶', nameEn: null),
+            (id: '11246', nameZh: '范育成', nameEn: null),
+            (id: '10618', nameZh: '孫卓勳', nameEn: null),
+            (id: '12376', nameZh: '郭宏源', nameEn: null),
+            (id: '11130', nameZh: '黃育賢', nameEn: null),
+            (id: '12231', nameZh: '潘孟鉉', nameEn: null),
+            (id: '11682', nameZh: '鄭瑞清', nameEn: null),
+            (id: '12245', nameZh: '賴建宏', nameEn: null),
+          ],
           classes: [(id: '2788', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: null,
           status: null,
           language: null,
-          syllabusId: '10605',
           remarks: null,
         ),
         (
@@ -875,7 +866,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 2,
           type: '必',
-          teacher: (id: '10496', nameZh: '李文達', nameEn: 'LEE NEW-TA'),
+          teachers: [(id: '10496', nameZh: '李文達', nameEn: 'LEE NEW-TA')],
           classes: [(id: '2788', nameZh: '電子三甲', nameEn: '4EN3A')],
           schedule: [
             (day: .wednesday, period: .seventh, classroom: null),
@@ -883,7 +874,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '10496',
           remarks: null,
         ),
         (
@@ -897,7 +887,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan'),
+          teachers: [(id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan')],
           classes: [
             (id: '2788', nameZh: '電子三甲', nameEn: '4EN3A'),
             (id: '2789', nameZh: '電子三乙', nameEn: '4EN3B'),
@@ -921,7 +911,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: '中英雙語',
-          syllabusId: '12376',
           remarks: '電子大三合開',
         ),
         (
@@ -935,7 +924,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12239', nameZh: '陳柏端', nameEn: 'Po-Tuan Cheng'),
+          teachers: [(id: '12239', nameZh: '陳柏端', nameEn: 'Po-Tuan Cheng')],
           classes: [(id: '2925', nameZh: '技優專班二', nameEn: '4CMEE2')],
           schedule: [
             (
@@ -956,7 +945,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12239',
           remarks: '限技優專班同學。',
         ),
         (
@@ -970,7 +958,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 4,
           type: '選',
-          teacher: (id: '23969', nameZh: '洪祥', nameEn: 'HUNG CHEN HSIANG'),
+          teachers: [(id: '23969', nameZh: '洪祥', nameEn: 'HUNG CHEN HSIANG')],
           classes: [
             (
               id: '2402',
@@ -1002,7 +990,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '23969',
           remarks: '◎限技優學生修習',
         ),
         (
@@ -1016,7 +1003,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '24363', nameZh: '陳雪芳', nameEn: 'Hsueh-Fang Chen'),
+          teachers: [(id: '24363', nameZh: '陳雪芳', nameEn: 'Hsueh-Fang Chen')],
           classes: [
             (id: '2760', nameZh: '博雅課程(四)', nameEn: 'Core Curriculum (IV)'),
           ],
@@ -1034,7 +1021,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24363',
           remarks: '人文與藝術向度',
         ),
         (
@@ -1048,7 +1034,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '22465', nameZh: '陳雪燕', nameEn: 'Hsueh-Yen Chen'),
+          teachers: [(id: '22465', nameZh: '陳雪燕', nameEn: 'Hsueh-Yen Chen')],
           classes: [
             (id: '2883', nameZh: '博雅課程(十)', nameEn: 'Core Curriculum (X)'),
           ],
@@ -1066,7 +1052,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '22465',
           remarks: '人文與藝術向度',
         ),
       ],
@@ -1078,7 +1063,7 @@ class MockCourseService implements CourseService {
           credits: null,
           hours: null,
           type: null,
-          teacher: (id: null, nameZh: null, nameEn: null),
+          teachers: null,
           classes: null,
           schedule: [
             (day: .tuesday, period: .third, classroom: null),
@@ -1086,7 +1071,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: null,
           remarks: null,
         ),
         (
@@ -1100,7 +1084,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11635', nameZh: '曾柏軒', nameEn: 'Po-Hsuan Tseng'),
+          teachers: [(id: '11635', nameZh: '曾柏軒', nameEn: 'Po-Hsuan Tseng')],
           classes: [(id: '2788', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -1121,7 +1105,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: '英語',
-          syllabusId: '11635',
           remarks: '與電資二合開',
         ),
         (
@@ -1135,7 +1118,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11391', nameZh: '王多柏', nameEn: 'To-Po Wang'),
+          teachers: [(id: '11391', nameZh: '王多柏', nameEn: 'To-Po Wang')],
           classes: [(id: '2788', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -1156,7 +1139,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11391',
           remarks: null,
         ),
         (
@@ -1170,7 +1152,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11246', nameZh: '范育成', nameEn: 'YU-CHENG FAN'),
+          teachers: [(id: '11246', nameZh: '范育成', nameEn: 'YU-CHENG FAN')],
           classes: [(id: '2788', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -1191,7 +1173,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11246',
           remarks: null,
         ),
         (
@@ -1205,7 +1186,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11010', nameZh: '曾恕銘', nameEn: 'Tseng Shu-ming'),
+          teachers: [(id: '11010', nameZh: '曾恕銘', nameEn: 'Tseng Shu-ming')],
           classes: [(id: '2788', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -1226,7 +1207,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11010',
           remarks: null,
         ),
         (
@@ -1240,7 +1220,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '10605', nameZh: '余政杰', nameEn: 'CHENG-CHEN YU'),
+          teachers: [(id: '10605', nameZh: '余政杰', nameEn: 'CHENG-CHEN YU')],
           classes: [(id: '2788', nameZh: '電子二甲', nameEn: '4EN2A')],
           schedule: [
             (
@@ -1261,7 +1241,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '10605',
           remarks: null,
         ),
         (
@@ -1275,7 +1254,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '11636', nameZh: '李昭賢', nameEn: 'Lee, Chao-Hsien'),
+          teachers: [(id: '11636', nameZh: '李昭賢', nameEn: 'Lee, Chao-Hsien')],
           classes: [
             (id: '2788', nameZh: '電子二甲', nameEn: '4EN2A'),
             (id: '2789', nameZh: '電子二乙', nameEn: '4EN2B'),
@@ -1299,7 +1278,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11636',
           remarks: '電子二甲乙合開',
         ),
         (
@@ -1313,7 +1291,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '選',
-          teacher: (id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan'),
+          teachers: [(id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan')],
           classes: [
             (id: '2788', nameZh: '電子二甲', nameEn: '4EN2A'),
             (id: '2789', nameZh: '電子二乙', nameEn: '4EN2B'),
@@ -1337,7 +1315,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: '中英雙語',
-          syllabusId: '12376',
           remarks: '電子二甲乙合開',
         ),
         (
@@ -1352,7 +1329,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '必',
-          teacher: (id: '11967', nameZh: '郭政淳', nameEn: 'Jonathan Kuo'),
+          teachers: [(id: '11967', nameZh: '郭政淳', nameEn: 'Jonathan Kuo')],
           classes: [
             (
               id: '2156',
@@ -1374,7 +1351,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11967',
           remarks: '高級',
         ),
         (
@@ -1388,7 +1364,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '23915', nameZh: '吳奇靜', nameEn: 'Chi-ching Wu'),
+          teachers: [(id: '23915', nameZh: '吳奇靜', nameEn: 'Chi-ching Wu')],
           classes: [
             (id: '2760', nameZh: '博雅課程(四)', nameEn: 'Core Curriculum (IV)'),
           ],
@@ -1406,7 +1382,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '23915',
           remarks: '106-108：創新與創業核心。109(含)後：創新與創業',
         ),
         (
@@ -1420,7 +1395,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '通',
-          teacher: (id: '24489', nameZh: '陳郁芬', nameEn: 'CHEN YU FEN'),
+          teachers: [(id: '24489', nameZh: '陳郁芬', nameEn: 'CHEN YU FEN')],
           classes: [
             (id: '2884', nameZh: '博雅課程(十一)', nameEn: 'Core Curriculum (XI)'),
           ],
@@ -1438,7 +1413,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24489',
           remarks: '106-108：民主與法治選修。109(含)後：社會與法治',
         ),
       ],
@@ -1450,7 +1424,7 @@ class MockCourseService implements CourseService {
           credits: null,
           hours: null,
           type: null,
-          teacher: (id: null, nameZh: null, nameEn: null),
+          teachers: null,
           classes: null,
           schedule: [
             (day: .tuesday, period: .third, classroom: null),
@@ -1458,7 +1432,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: null,
           remarks: null,
         ),
         (
@@ -1472,7 +1445,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 3,
           type: '必',
-          teacher: (id: '24112', nameZh: '章慧琴', nameEn: 'Hui-chin Chang'),
+          teachers: [(id: '24112', nameZh: '章慧琴', nameEn: 'Hui-chin Chang')],
           classes: [(id: '2894', nameZh: '電機一甲', nameEn: '4EE1A')],
           schedule: [
             (
@@ -1493,7 +1466,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24112',
           remarks: '初級',
         ),
         (
@@ -1507,7 +1479,7 @@ class MockCourseService implements CourseService {
           credits: 0.0,
           hours: 1,
           type: '必',
-          teacher: (id: '24294', nameZh: '簡明昱', nameEn: 'Jeremiah Chien'),
+          teachers: [(id: '24294', nameZh: '簡明昱', nameEn: 'Jeremiah Chien')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1518,7 +1490,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '24294',
           remarks: '*第一週必到，課程地點公告至「北科服務學習網」。',
         ),
         (
@@ -1533,7 +1504,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 2,
           type: '必',
-          teacher: (id: '12491', nameZh: '劉凱鈞', nameEn: 'Kai-Chun Liu'),
+          teachers: [(id: '12491', nameZh: '劉凱鈞', nameEn: 'Kai-Chun Liu')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1549,7 +1520,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12491',
           remarks: '9/22職能測驗於共科B1',
         ),
         (
@@ -1559,7 +1529,7 @@ class MockCourseService implements CourseService {
           credits: 2.0,
           hours: 2,
           type: '必',
-          teacher: (id: '12079', nameZh: '黃琛傑', nameEn: 'HUANG CHEN-CHIEH'),
+          teachers: [(id: '12079', nameZh: '黃琛傑', nameEn: 'HUANG CHEN-CHIEH')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1575,7 +1545,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12079',
           remarks: null,
         ),
         (
@@ -1585,7 +1554,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11145', nameZh: '洪春凰', nameEn: 'Hong Chen-Huang'),
+          teachers: [(id: '11145', nameZh: '洪春凰', nameEn: 'Hong Chen-Huang')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1606,7 +1575,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11145',
           remarks: null,
         ),
         (
@@ -1616,7 +1584,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11067', nameZh: '洪魏寬', nameEn: 'WEI-KUAN HUNG'),
+          teachers: [(id: '11067', nameZh: '洪魏寬', nameEn: 'WEI-KUAN HUNG')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1637,7 +1605,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11067',
           remarks: null,
         ),
         (
@@ -1651,7 +1618,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11067', nameZh: '洪魏寬', nameEn: 'WEI-KUAN HUNG'),
+          teachers: [(id: '11067', nameZh: '洪魏寬', nameEn: 'WEI-KUAN HUNG')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1672,7 +1639,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11067',
           remarks: null,
         ),
         (
@@ -1686,7 +1652,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11391', nameZh: '王多柏', nameEn: 'To-Po Wang'),
+          teachers: [(id: '11391', nameZh: '王多柏', nameEn: 'To-Po Wang')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1707,7 +1673,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: '英語',
-          syllabusId: '11391',
           remarks: 'EMI英文',
         ),
         (
@@ -1721,7 +1686,7 @@ class MockCourseService implements CourseService {
           credits: 1.0,
           hours: 3,
           type: '必',
-          teacher: (id: '11437', nameZh: '黃士嘉', nameEn: 'Shih-Chia Huang'),
+          teachers: [(id: '11437', nameZh: '黃士嘉', nameEn: 'Shih-Chia Huang')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1742,7 +1707,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11437',
           remarks: '計中電腦教室',
         ),
         (
@@ -1756,7 +1720,7 @@ class MockCourseService implements CourseService {
           credits: 3.0,
           hours: 3,
           type: '必',
-          teacher: (id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan'),
+          teachers: [(id: '12376', nameZh: '郭宏源', nameEn: 'Kuo,Hung-Yuan')],
           classes: [(id: '2906', nameZh: '電子一乙', nameEn: '4EN1B')],
           schedule: [
             (
@@ -1777,7 +1741,6 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '12376',
           remarks: null,
         ),
         (
@@ -1791,7 +1754,7 @@ class MockCourseService implements CourseService {
           credits: 0.0,
           hours: 2,
           type: '必',
-          teacher: (id: '11172', nameZh: '林威玲', nameEn: 'Lin Wei Ling'),
+          teachers: [(id: '11172', nameZh: '林威玲', nameEn: 'Lin Wei Ling')],
           classes: [
             (id: '447', nameZh: '體育專項(一)', nameEn: 'PE courses-1'),
           ],
@@ -1801,12 +1764,41 @@ class MockCourseService implements CourseService {
           ],
           status: null,
           language: null,
-          syllabusId: '11172',
           remarks: '*肢體美學A',
         ),
       ],
       _ => const [],
     };
+  }
+
+  @override
+  Future<CourseOfferingDto?> getCourseOffering(String courseNumber) async {
+    final number = courseNumber.trim();
+    if (number.isEmpty) {
+      throw ArgumentError.value(
+        courseNumber,
+        'courseNumber',
+        'must not be blank',
+      );
+    }
+    if (courseOfferingResult case final result?) return result;
+
+    for (final semester in await getCourseSemesterList()) {
+      for (final schedule in await getCourseTable(
+        username: '',
+        semester: semester,
+      )) {
+        if (schedule.number != number) continue;
+        return (
+          semester: semester,
+          schedule: schedule,
+          courseType: null,
+          enrolled: null,
+          withdrawn: null,
+        );
+      }
+    }
+    return null;
   }
 
   @override
@@ -1875,59 +1867,126 @@ class MockCourseService implements CourseService {
   }
 
   @override
-  Future<SyllabusDto> getSyllabus({
+  Future<SyllabusDto?> getSyllabus({
     required String courseNumber,
-    required String syllabusId,
+    required String teacherId,
+    required SyllabusLanguage language,
   }) async {
-    return syllabusResult ??
+    if (syllabusResult != null) return syllabusResult;
+    // Some teachers on a team-taught offering haven't submitted a syllabus yet
+    // (the real page shows 尚未登錄); return null to exercise that path.
+    if (const {'11894', '11991'}.contains(teacherId)) return null;
+    // Actual 115-1 Introduction to Art Theories syllabus (course 366960,
+    // instructor 章韶洵) from ntut-course-crawler-node.
+    final titles = switch (language) {
+      .zhTw => (
+        objective: '課程大綱',
+        schedule: '課程進度(1-16週)',
+        flexibleCategory: '彈性學習(17-18週) / 類別',
+        flexibleContent: '彈性學習(17-18週) / 內容',
+        flexibleHours: '彈性學習(17-18週) / 時數 (小時)',
+        flexibleOutcome: '彈性學習(17-18週) / 學習成果',
+        flexiblePercentage: '彈性學習(17-18週) / 評量比例',
+        evaluation: '評量方式與標準',
+        materials: '使用教材、參考書目或其他',
+        consultation: '課程諮詢管道',
+        extension: '延伸教學與資源',
+        sdgs: '課程對應SDGs指標',
+        ai: '課程是否導入AI',
+        note: '備註',
+      ),
+      .enUs => (
+        objective: 'Course Objective',
+        schedule: 'Course Schedule(Week 1-16)',
+        flexibleCategory: 'Flexible Learning(Week 17-18) / Category',
+        flexibleContent: 'Flexible Learning(Week 17-18) / Content',
+        flexibleHours: 'Flexible Learning(Week 17-18) / Hours',
+        flexibleOutcome: 'Flexible Learning(Week 17-18) / Learning Outcomes',
+        flexiblePercentage:
+            'Flexible Learning(Week 17-18) / Assessment Percentage',
+        evaluation: 'Evaluation and grading policy',
+        materials: 'Materials',
+        consultation: 'The access to curricular consultation',
+        extension: 'Expanding teaching and resources',
+        sdgs: 'The course corresponds to the SDGs',
+        ai: 'Does the course incorporate AI',
+        note: 'Note',
+      ),
+    };
+    return (
+      type: CourseType.universityCommonRequired,
+      enrolled: 0,
+      withdrawn: 0,
+      email: 'schang@ntut.edu.tw',
+      lastUpdated: DateTime(2026, 8, 4, 0, 52, 53),
+      sections: [
         (
-          type: CourseType.universityCommonRequired,
-          enrolled: 55,
-          withdrawn: 2,
-          email: 'richwang@ntut.edu.tw',
-          lastUpdated: DateTime(2025, 10, 20, 10, 15, 5),
-          objective:
-              '在本課程中，同學將學習到計算機程式語言Python基礎與應用，'
-              '建立Python程式設計的基本概念。透過做中學、學中做，'
-              '建構程式設計的基礎，以及基本程式運算邏輯，'
-              '以培養運算思維、動手做的能力。'
-              '期末以分組方式完成一個與學生專業領域相關應用的專題，'
-              '學習如何運用程式解決與自身相關領域運用上的問題。',
-          weeklyPlan:
-              '第01週\t教育大數據概述及Python開發環境建置\n'
-              '第02週\t數學函式、字元與字串\n'
-              '第03週\t流程控制\n'
-              '第04週\t迴圈及其應用\n'
-              '第05週\t中秋節(放假)\n'
-              '第06週\t串列list, 數組tuple介紹與字串操作\n'
-              '第07週\t函式與模組的應用介紹-1\n'
-              '第08週\t函式與模組的應用介紹-2\n'
-              '第09週\t期中考試\n'
-              '第10週\t字典dict, 集合set介紹\n'
-              '第11週\t共授專家演講\n'
-              '第12週\t正規表示式(Regular Expression)介紹\n'
-              '第13週\t類別與物件\n'
-              '第14週\t檔案與異常處理\n'
-              '第15週\t政府公開相關資料(教育)的擷取介紹\n'
-              '第16週\t政府公開資料(教育)的處理與分析\n'
-              '第17週\tAI簡介與應用介紹\n'
-              '第18週\t期末考試',
-          evaluation:
-              '(*) 資工系同學因系上已有相關課程，所以學分將不認列，請勿選修。\n'
-              '課程參與(20%)\n作業與隨堂考試(30%)\n期中考試(25%)\n期末考試(25%)',
-          materials: '稍後公佈',
-          remarks:
-              '因應疫情發展，本學期教學及授課方式請依照學校網頁所公布之訊息為準：\n'
-              '(https://oaa.ntut.edu.tw/p/404-1008-98622.php?Lang=zh-tw)\n'
-              '1. 同學如有加退選簽核或課程問題，請寫信至 richwang@ntut.edu.tw，'
-              '信件標題 [課程名稱]_班級(或隨班附讀)_名字。\n'
-              '2. 本課程其他資料，將透過北科i學園plus公布。\n'
-              '3. 本課程採實體授課方式，但為因應疫情或其它狀況，'
-              '可能會調整授課內容、授課方式、評分項目與配分比例。\n'
-              '如果無法實體上課，預定使用Teams於原定上課時段進行遠距上課，'
-              '相關細節將再另行公告。\n'
-              '相關防疫或課程上課形式公告，請參考學校網頁: '
-              'https://oaa.ntut.edu.tw/p/404-1008-98622.php?Lang=zh-tw',
-        );
+          title: titles.objective,
+          content:
+              '本課程介紹各種藝術形式, 包括繪畫, 雕塑等視覺藝術, '
+              '以及戲劇, 音樂等表演藝術, 引導學生如何欣賞各種藝術風格, '
+              '進而發展對藝術的終身愛好\n\n'
+              '課程目標：\n'
+              '1. 各時期藝術的介紹與鑑賞\n'
+              '2. 培養學生藝文賞析的能力, 提升自身的美感經驗\n'
+              '3. 發現生活中的藝術之美',
+        ),
+        (
+          title: titles.schedule,
+          content:
+              '第一週\t導論\n'
+              '第二週\t史前 - 古埃及\n'
+              '第三週\t古希臘羅馬\n'
+              '第四週\t中世紀\n'
+              '第五週\t文藝復興\n'
+              '第六週\t巴洛克/ 洛可可\n'
+              '第七週\t午間音樂會\n'
+              '第八週\t新古典/ 浪漫主義\n'
+              '第九週\t期中考週\n'
+              '第十週\t國定假日\n'
+              '第十一週\t午間音樂會\n'
+              '第十二週\t印象派\n'
+              '第十三週\t午間音樂會\n'
+              '第十四週\t後印象派\n'
+              '第十五週\t20 世紀\n'
+              '第十六週\t期末考',
+        ),
+        (
+          title: titles.flexibleCategory,
+          content:
+              '● 參與校內外活動 (講座、工作坊、參訪) 或競賽 '
+              '(Participation in on-campus or off-campus activities '
+              '(lectures, workshops, visits) or competitions)',
+        ),
+        (
+          title: titles.flexibleContent,
+          content: '學生自行參觀美術館 / 博物館',
+        ),
+        (title: titles.flexibleHours, content: '4'),
+        (title: titles.flexibleOutcome, content: '參觀心得報告'),
+        (title: titles.flexiblePercentage, content: '20%'),
+        (
+          title: titles.evaluation,
+          content:
+              '期末考 50%\n'
+              '平常成績 30%\n'
+              '參觀展覽 / 音樂會心得 20%',
+        ),
+        (
+          title: titles.materials,
+          content:
+              '所有藝術相關平面及媒體資訊\n\n'
+              '參考書籍：\n'
+              '一次讀懂西洋繪畫史，田中久美子  著，陳嫻若 譯。\n'
+              '一次讀懂西洋建築， 羅慶鴻、張倩儀  著。\n'
+              '希利爾講藝術史， 維吉爾・希利爾   著，王奕偉 譯。',
+        ),
+        (title: titles.consultation, content: 'schang@mail.ntut.edu.tw'),
+        (title: titles.extension, content: '● 無 (None)'),
+        (title: titles.sdgs, content: '無（None）'),
+        (title: titles.ai, content: '● 無（None）'),
+        (title: titles.note, content: null),
+      ],
+    );
   }
 }

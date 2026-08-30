@@ -26,6 +26,9 @@ final databaseProvider = Provider<AppDatabase>((ref) {
   tables: [
     // Base tables
     Users,
+    PortalApplicationCategories,
+    PortalApplications,
+    PortalApplicationFavorites,
     Students,
     Semesters,
     Courses,
@@ -40,6 +43,8 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     CourseOfferingClasses,
     CourseOfferingStudents,
     Schedules,
+    Syllabuses,
+    SyllabusSections,
     Materials,
     TeacherSemesters,
     TeacherOfficeHours,
@@ -51,6 +56,7 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     CalendarEvents,
   ],
   views: [
+    CourseOfferingOverviews,
     CourseTableSlots,
     ScoreDetails,
     UserAcademicSummaries,

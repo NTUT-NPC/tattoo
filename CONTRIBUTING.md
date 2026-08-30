@@ -18,7 +18,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 - `test` — adding or updating tests
 - `docs` — documentation only, including dart doc comments (`///`)
 
-**Scopes (optional):** use `android` or `ios` when the change is platform-specific.
+**Scopes (optional):** only `android` or `ios`, for platform-specific changes. Omit the scope otherwise.
 
 **Examples:**
 
@@ -32,18 +32,31 @@ Use kebab-case: `add-student-query-service`, `fix-login-crash`
 
 ## Code Style
 
-Dart 3 idioms — prefer these over traditional alternatives:
+Dart 3 idioms not yet covered by linter rules (see [#288](https://github.com/NTUT-NPC/tattoo/issues/288)):
 
 - **Switch expressions** over `if`/`else` chains for producing values: `final x = switch (y) { ... };`
-- **Dot shorthands** where type is inferred: `.externalApplication` not `LaunchMode.externalApplication`
-- **Null-aware elements** in collection literals: `[?x]` not `[if (x case final x?) x]`
 - **If-case null checks** outside collections: `if (x case final x?)` not `if (x != null)`
 - **`.nonNulls` over `.whereType<T>()`** when filtering nulls from a known type: `.map(...).nonNulls` not `.map(...).whereType<String>()`
 - **Formatter workaround:** Wrap enhanced enums (with fields/methods) in `// dart format off` / `// dart format on` — the formatter splits the last value's trailing `;` onto its own line
 
+## Doc Comments
+
+- **Reference typedef record fields with backticks, not brackets:** `` `UserDto.avatarFilename` `` not `[UserDto.avatarFilename]`. `dart doc` can't resolve `.field` on records (only on classes/enums) and will warn with "unresolved doc reference". The typedef itself (`[UserDto]`) still works in brackets.
+
 ## Typography & i18n
 
-- **No CJK–Latin spaces:** Do not insert literal spaces between CJK and alphanumeric characters. Spacing is a rendering concern.
+- **No CJK–Latin spaces in source; space at render time:** Never put literal spaces between CJK and alphanumeric characters in i18n strings or UI text — spacing is a rendering concern. Instead apply the `String.spaced` extension (`lib/utils/auto_spacing.dart`) where CJK-mixed text is displayed (i18n and dynamic NTUT content); for parameterized strings call it on the interpolated result. GitHub discussions should still use spaces for readability.
+- **Leave i18n YAML values unquoted unless YAML requires quotes** (a `:` followed by a space, a trailing `:`, a leading indicator character, or numeric-looking map keys like `'201'`). Slang parses both forms identically, but double quotes turn `\n` into a real newline, which Weblate then renders inconsistently across locales.
+
+## HTML Snapshot Capture
+
+- Use `dart run tool/html_snapshot.dart list` to inspect supported raw HTML/XML capture presets.
+- Use `dart run tool/html_snapshot.dart capture <preset> [<preset>...] -m "<message>"` to capture one or more known pages.
+- Use `dart run tool/html_snapshot.dart capture -a -m "<message>"` to capture every preset that can be resolved without explicit IDs.
+- Error output always redacts request-URL query values. Add `-v` / `--verbose` to a capture command to see per-request HTTP logs (method, origin+path, and counts — never query values).
+- Captures are written to `tmp/html_snapshot/` and are local-only. Never commit raw captures because they may contain personal data.
+- Each capture starts with a commented metadata block containing a raw-capture warning, `preset`, `request_url`, `fetchtime`, `message`, and a parser expected-result TODO. Before promoting a captured page into tests, documentation, or fixtures, de-identify it, review the result manually, and replace any `message:` TODO placeholder with a meaningful `message`; snapshots without a message are not accepted for submission. The parser expected-result TODO may remain until the HTML-based test code is complete.
+- When adding or changing a Service-layer HTML/XML parser request, check whether `tool/html_snapshot/presets.dart` should gain or update a preset for that request.
 
 ## Git and GitHub Workflows
 

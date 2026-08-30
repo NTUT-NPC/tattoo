@@ -5,6 +5,7 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 /// A single course block shown in the course table grid.
 ///
@@ -86,7 +87,7 @@ class CourseTableCell extends StatelessWidget {
                     mainAxisAlignment: .center,
                     children: [
                       AutoSizeText(
-                        courseTitle,
+                        courseTitle.spaced,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontSize: 12,
                           fontWeight: .w700,
@@ -99,7 +100,7 @@ class CourseTableCell extends StatelessWidget {
                       if (classroomName case final classroomName?
                           when classroomName.isNotEmpty)
                         AutoSizeText(
-                          classroomName,
+                          classroomName.spaced,
                           style: theme.textTheme.bodySmall?.copyWith(
                             fontSize: 8,
                             fontWeight: .w400,
@@ -197,7 +198,7 @@ class CourseTableUnscheduledCell extends StatelessWidget {
                   dense: true,
                   visualDensity: .compact,
                   title: Text(
-                    titleText,
+                    titleText.spaced,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: .w600,
                     ),
@@ -206,7 +207,7 @@ class CourseTableUnscheduledCell extends StatelessWidget {
                   ),
                   subtitle: switch (subtitleText) {
                     final subtitleText? => Text(
-                      subtitleText,
+                      subtitleText.spaced,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),

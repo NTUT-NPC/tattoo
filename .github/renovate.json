@@ -6,8 +6,9 @@
     "schedule:monthly"
   ],
   "timezone": "Asia/Taipei",
+  "prHourlyLimit": 0,
   "constraints": {
-    "flutter": "3.41.9"
+    "flutter": "3.44.8"
   },
   "bundler": {
     "managerFilePatterns": ["/(^|/)Pluginfile$/"]
@@ -48,6 +49,11 @@
       ],
       "groupName": "CI dependencies",
       "groupSlug": "ci"
+    },
+    {
+      "matchDepNames": ["flutter"],
+      "groupName": "Flutter SDK",
+      "groupSlug": "flutter"
     }
   ]
 }

@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 const _placeholderProfile = User(
   id: 0,
@@ -105,7 +105,7 @@ class ProfileContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final textTheme = GoogleFonts.notoSansTcTextTheme(theme.textTheme);
+    final textTheme = theme.textTheme.apply(fontFamily: 'NotoSansTC');
 
     return _ProfileCardFrame(
       childBuilder: (context, constraints, borderRadius) {
@@ -134,8 +134,10 @@ class ProfileContent extends StatelessWidget {
                 right: width * 0.095,
                 top: height * 0.018,
                 child: Text(
-                  registration?.enrollmentStatus?.toLabel() ??
-                      t.general.student,
+                  registration?.graduated == true
+                      ? t.enrollmentStatus.graduated
+                      : (registration?.enrollmentStatus?.toLabel() ??
+                            t.general.student),
                   textAlign: .left,
                   style: textTheme.bodyMedium?.copyWith(
                     color: Color(0xFF3B3B3B),
@@ -168,9 +170,10 @@ class ProfileContent extends StatelessWidget {
                         // fix horizontal alignment with other text
                         offset: Offset(-height * 0.01, 0),
                         child: Text(
-                          profile.nameZh.isNotEmpty
-                              ? profile.nameZh
-                              : t.general.unknown,
+                          (profile.nameZh.isNotEmpty
+                                  ? profile.nameZh
+                                  : t.general.unknown)
+                              .spaced,
                           maxLines: 1,
                           overflow: .ellipsis,
                           style: textTheme.titleMedium?.copyWith(
@@ -183,7 +186,7 @@ class ProfileContent extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        profile.departmentZh ?? '',
+                        (profile.departmentZh ?? '').spaced,
                         maxLines: 1,
                         overflow: .ellipsis,
                       ),
@@ -195,6 +198,7 @@ class ProfileContent extends StatelessWidget {
                       Text(
                         registration != null
                             ? '${registration!.year}-${registration!.term} ${registration!.className ?? ''}'
+                                  .spaced
                             : '',
                         maxLines: 1,
                         overflow: .ellipsis,

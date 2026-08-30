@@ -26,6 +26,9 @@ Flutter/flutter_assets/
 Flutter/flutter_export_environment.sh
 ServiceDefinitions.json
 Runner/GeneratedPluginRegistrant.*
+# SPM resolution written into the CocoaPods workspace during a full Xcode build.
+# The tracked, drift-gated copy lives under Runner.xcodeproj/project.xcworkspace.
+Runner.xcworkspace/xcshareddata/swiftpm/
 
 # Exceptions to above rules.
 !default.mode1v3

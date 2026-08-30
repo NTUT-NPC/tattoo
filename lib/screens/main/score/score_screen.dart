@@ -10,6 +10,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/student_repository.dart';
 import 'package:tattoo/screens/main/score/score_providers.dart';
 import 'package:tattoo/screens/main/score/score_view_helpers.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/localized.dart';
 
 const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
@@ -295,7 +296,7 @@ class _SemesterSummaryCard extends StatelessWidget {
               children: [
                 _buildStat(
                   context,
-                  t.score.summary.cumulativeGpa,
+                  t.score.summary.cumulativeGpa.spaced,
                   _formatDouble(summary.gpa),
                 ),
                 const SizedBox(width: 24),
@@ -366,7 +367,7 @@ class _ScoreTile extends StatelessWidget {
       visualDensity: .compact,
       contentPadding: const .symmetric(horizontal: 8, vertical: 0),
       title: Text(
-        localized(score.nameZh, score.nameEn),
+        localized(score.nameZh, score.nameEn).spaced,
         style: Theme.of(context).textTheme.titleMedium,
       ),
       subtitle: Text(

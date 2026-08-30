@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -11,9 +12,12 @@ import 'package:tattoo/database/database.dart';
 import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/firebase_service.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
+import 'package:tattoo/utils/network_error.dart';
 
 enum ErrorType {
   flutter,
@@ -23,6 +27,11 @@ enum ErrorType {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('assets/fonts/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['Noto Sans TC'], license);
+  });
 
   // TODO: Remove orientation restriction after responsive layouts are complete.
   await SystemChrome.setPreferredOrientations([
@@ -54,7 +63,7 @@ Future<void> main() async {
       if (stackTrace != null) stackTrace.toString(),
     ].join('\n');
     final errorTitle = switch (type) {
-      .flutter => t.errors.flutterError,
+      .flutter => t.errors.flutterError.spaced,
       .async => t.errors.asyncError,
       .unknown => t.errors.occurred,
     };
@@ -71,8 +80,7 @@ Future<void> main() async {
               await Clipboard.setData(ClipboardData(text: copyText));
               if (!dialogContext.mounted) return;
               Navigator.of(dialogContext).pop();
-              if (!rootContext.mounted) return;
-              ScaffoldMessenger.maybeOf(rootContext)?.showSnackBar(
+              rootScaffoldMessengerKey.currentState?.showSnackBar(
                 SnackBar(content: Text(t.general.copied)),
               );
             },
@@ -87,12 +95,51 @@ Future<void> main() async {
     );
   }
 
+  void showErrorSnackBar(Object error) {
+    final message = isNetworkError(error)
+        ? t.errors.networkError
+        : t.errors.unexpected;
+
+    rootScaffoldMessengerKey.currentState
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
+  }
+
+  Future<bool> shouldShowErrorDialog() async {
+    try {
+      return await container
+          .read(preferencesRepositoryProvider)
+          .get(.showErrorDialog);
+    } catch (e) {
+      log('Failed to resolve error display preference: $e');
+      return PrefKey.showErrorDialog.defaultValue;
+    }
+  }
+
+  Future<void> handleUncaughtError(
+    Object error, {
+    ErrorType type = .unknown,
+    StackTrace? stackTrace,
+  }) async {
+    final showDialog = await shouldShowErrorDialog();
+
+    if (showDialog) {
+      showErrorDialog(error, type: type, stackTrace: stackTrace);
+    } else {
+      showErrorSnackBar(error);
+    }
+  }
+
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = (details) {
     firebaseService.crashlytics?.recordFlutterFatalError(details);
     FlutterError.dumpErrorToConsole(details);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      showErrorDialog(
+      handleUncaughtError(
         details.exception,
         type: .flutter,
         stackTrace: details.stack,
@@ -103,14 +150,17 @@ Future<void> main() async {
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
     firebaseService.crashlytics?.recordError(error, stack, fatal: true);
-    showErrorDialog(error, type: .async, stackTrace: stack);
     log('Uncaught asynchronous error: $error', stackTrace: stack);
+    handleUncaughtError(error, type: .async, stackTrace: stack);
     return true;
   };
 
   firebaseService.analytics?.logAppOpen();
 
   await LocaleSettings.useDeviceLocale();
+
+  // Initialize Remote Config and preference defaults
+  await container.read(preferencesRepositoryProvider).init();
 
   final database = container.read(databaseProvider);
   final user = await database.select(database.users).getSingleOrNull();
@@ -148,6 +198,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: t.general.appTitle,
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       locale: TranslationProvider.of(context).flutterLocale,
       supportedLocales: AppLocaleUtils.supportedLocales,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,

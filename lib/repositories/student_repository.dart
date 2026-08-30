@@ -41,16 +41,12 @@ class StudentRepository {
   Completer<void>? _refreshSemesterRecordsInFlight;
 
   StudentRepository({
-    required AppDatabase database,
-    required AuthRepository authRepository,
-    required CourseRepository courseRepository,
-    required FirebaseService firebaseService,
-    required StudentQueryService studentQueryService,
-  }) : _database = database,
-       _authRepository = authRepository,
-       _courseRepository = courseRepository,
-       _firebaseService = firebaseService,
-       _studentQueryService = studentQueryService;
+    required this._database,
+    required this._authRepository,
+    required this._courseRepository,
+    required this._firebaseService,
+    required this._studentQueryService,
+  });
 
   /// Watches score-available semesters for the authenticated student.
   ///
@@ -331,15 +327,9 @@ class StudentRepository {
         }
       }
 
-      // Keep membership flag in sync with the latest score semester response.
-      if (fetchedSemesterIds.isEmpty) {
-        await (_database.update(_database.semesters)..where(
-              (s) => s.inScoreSemesterList.equals(true),
-            ))
-            .write(
-              const SemestersCompanion(inScoreSemesterList: Value(false)),
-            );
-      } else {
+      // Keep membership flag in sync with the latest score semester response,
+      // and drop scores for semesters that fell out of it. Skip on empty.
+      if (fetchedSemesterIds.isNotEmpty) {
         await (_database.update(_database.semesters)..where(
               (s) =>
                   s.inScoreSemesterList.equals(true) &
@@ -348,14 +338,7 @@ class StudentRepository {
             .write(
               const SemestersCompanion(inScoreSemesterList: Value(false)),
             );
-      }
 
-      // Remove scores for semesters no longer in the response
-      if (fetchedSemesterIds.isEmpty) {
-        await (_database.delete(
-          _database.scores,
-        )..where((t) => t.user.equals(userId))).go();
-      } else {
         await (_database.delete(_database.scores)..where(
               (t) =>
                   t.user.equals(userId) &

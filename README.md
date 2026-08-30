@@ -23,13 +23,13 @@
     alt="Works on my machine"
     src="https://img.shields.io/badge/works_on-my_machine-dark_green"
   >
-  <a href="https://translate.ntut.club"><img
-    alt="Crowdin Translation Progress"
-    src="https://badges.crowdin.net/project-tattoo/localized.svg"
+  <a href="https://translate.ntut.app"><img
+    alt="Weblate Translation Progress"
+    src="https://hosted.weblate.org/widget/tattoo/svg-badge.svg"
   ></a>
 </p>
   
-**Help us translate!** We use [Crowdin](https://translate.ntut.club) to manage localizations. Join the project and help us bring Tattoo to your language!
+**Help us translate!** We use [Weblate](https://translate.ntut.app) to manage localizations. Join the project and help us bring Tattoo to your language!
   
 ## What is this?
 
@@ -76,6 +76,71 @@ If you need to reconfigure Firebase:
 2. Install the [FlutterFire CLI](https://firebase.google.com/docs/flutter/setup).
 3. Run `flutterfire configure` to update `lib/firebase_options.dart`.
 4. Encrypt and push new config files using `dart run tool/credentials.dart encrypt <file> <path_in_repo>`.
+
+## HTML Snapshot Capture
+
+Developers can capture raw NTUT HTML/XML responses for parser work:
+
+```bash
+# List supported Service-layer capture presets
+dart run tool/html_snapshot.dart list
+
+# Capture a known page using test/test_config.json
+dart run tool/html_snapshot.dart capture student_query.profile -m "profile parser baseline"
+
+# Capture multiple known pages
+dart run tool/html_snapshot.dart capture student_query.profile course.semester_list -m "semester start samples"
+
+# Capture every preset that can be resolved without explicit IDs
+dart run tool/html_snapshot.dart capture -a -m "routine parser refresh"
+
+# Capture a custom request with the same service client settings
+dart run tool/html_snapshot.dart raw QryBasisData.jsp --service student_query -m "custom profile page check"
+```
+
+The tool reads `test/test_config.json`. If the file is missing, copy `test/test_config.json.example` to `test/test_config.json` and fill in `NTUT_TEST_USERNAME` and `NTUT_TEST_PASSWORD`.
+
+Captured files are written under `tmp/html_snapshot/` with the service name prefixed in the file name. Each file starts with a commented metadata block containing a raw-capture warning, `preset`, `request_url`, `fetchtime`, `message`, and a parser expected-result TODO; use `-m/--message` to describe why the sample was kept. If no message is provided, the tool writes a `message:` TODO placeholder that must be replaced before promotion. The parser expected-result TODO is separate from `message` and may remain until the HTML-based test code is complete. This directory is local-only and ignored by git. Do not commit raw captures; de-identify them before promoting any sample into a fixture or documentation, and do not submit a promoted snapshot without a meaningful `message`. `capture -a` skips presets that require explicit identifiers, such as a course, teacher, classroom, or syllabus ID.
+
+When adding new Service-layer parser requests, add or update capture presets in `tool/html_snapshot/presets.dart`.
+
+## Portal Endpoints Scraper
+
+Developers can scrape all available subsystem endpoints and their corresponding `apOu` SSO codes from the NTUT portal:
+
+```bash
+# Scrape and print as plain text table using test/test_config.json
+dart run tool/scrape_portal.dart
+
+# Scrape and print as formatted JSON
+dart run tool/scrape_portal.dart -f json
+
+# Scrape and write output directly to a JSON file
+dart run tool/scrape_portal.dart -f json -o tmp/portal_endpoints.json
+
+# Pass username via command line and password via environment variable
+NTUT_PORTAL_PASSWORD=<password> dart run tool/scrape_portal.dart -u <username>
+```
+
+The scraper logs in to the NTUT portal using the mobile App User-Agent flow to bypass the web login captcha, fetches the portal tree page (`aptreeMain.do`), extracts the SSO targets, and deduplicates the results automatically.
+
+### Command Options & Usage
+
+Run the tool using Dart:
+
+```bash
+dart run tool/scrape_portal.dart [arguments]
+```
+
+#### Available Arguments:
+
+- `-u, --username`: NTUT portal username (can also be set via `NTUT_PORTAL_USERNAME` or `NTUT_TEST_USERNAME` environment variables).
+- `-c, --config`: Path to config JSON (defaults to `test/test_config.json` if credentials aren't passed via CLI or env variables).
+- `-f, --format`: Output format, either `text` (default) or `json`.
+- `-o, --output`: Path to write the output content. Prints to standard output if omitted.
+- `-h, --help`: Displays help info.
+
+Password must be supplied either via the config file or via the `NTUT_PORTAL_PASSWORD` / `NTUT_TEST_PASSWORD` environment variables to prevent command history leaks.
 
 ## Local Development
 

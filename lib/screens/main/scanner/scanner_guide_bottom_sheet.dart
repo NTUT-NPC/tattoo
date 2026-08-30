@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 class ScannerGuideSheet extends StatelessWidget {
   final DraggableScrollableController controller;
@@ -131,7 +132,7 @@ class ScannerGuideSheet extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          message,
+          message.spaced,
           textAlign: .center,
           style: theme.textTheme.bodyLarge,
         ),

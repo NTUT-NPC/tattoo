@@ -181,6 +181,17 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _applicationCatalogFetchedAtMeta =
+      const VerificationMeta('applicationCatalogFetchedAt');
+  @override
+  late final GeneratedColumn<DateTime> applicationCatalogFetchedAt =
+      GeneratedColumn<DateTime>(
+        'application_catalog_fetched_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -199,6 +210,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     semestersFetchedAt,
     scoreDataFetchedAt,
     calendarFetchedAt,
+    applicationCatalogFetchedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -337,6 +349,15 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         ),
       );
     }
+    if (data.containsKey('application_catalog_fetched_at')) {
+      context.handle(
+        _applicationCatalogFetchedAtMeta,
+        applicationCatalogFetchedAt.isAcceptableOrUnknown(
+          data['application_catalog_fetched_at']!,
+          _applicationCatalogFetchedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -410,6 +431,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}calendar_fetched_at'],
       ),
+      applicationCatalogFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}application_catalog_fetched_at'],
+      ),
     );
   }
 
@@ -477,6 +502,9 @@ class User extends DataClass implements Insertable<User> {
 
   /// When the academic calendar was last fetched from the portal.
   final DateTime? calendarFetchedAt;
+
+  /// When the portal application catalog was last fetched.
+  final DateTime? applicationCatalogFetchedAt;
   const User({
     required this.id,
     this.fetchedAt,
@@ -494,6 +522,7 @@ class User extends DataClass implements Insertable<User> {
     this.semestersFetchedAt,
     this.scoreDataFetchedAt,
     this.calendarFetchedAt,
+    this.applicationCatalogFetchedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -535,6 +564,11 @@ class User extends DataClass implements Insertable<User> {
     }
     if (!nullToAbsent || calendarFetchedAt != null) {
       map['calendar_fetched_at'] = Variable<DateTime>(calendarFetchedAt);
+    }
+    if (!nullToAbsent || applicationCatalogFetchedAt != null) {
+      map['application_catalog_fetched_at'] = Variable<DateTime>(
+        applicationCatalogFetchedAt,
+      );
     }
     return map;
   }
@@ -579,6 +613,10 @@ class User extends DataClass implements Insertable<User> {
       calendarFetchedAt: calendarFetchedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(calendarFetchedAt),
+      applicationCatalogFetchedAt:
+          applicationCatalogFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(applicationCatalogFetchedAt),
     );
   }
 
@@ -612,6 +650,9 @@ class User extends DataClass implements Insertable<User> {
       calendarFetchedAt: serializer.fromJson<DateTime?>(
         json['calendarFetchedAt'],
       ),
+      applicationCatalogFetchedAt: serializer.fromJson<DateTime?>(
+        json['applicationCatalogFetchedAt'],
+      ),
     );
   }
   @override
@@ -634,6 +675,9 @@ class User extends DataClass implements Insertable<User> {
       'semestersFetchedAt': serializer.toJson<DateTime?>(semestersFetchedAt),
       'scoreDataFetchedAt': serializer.toJson<DateTime?>(scoreDataFetchedAt),
       'calendarFetchedAt': serializer.toJson<DateTime?>(calendarFetchedAt),
+      'applicationCatalogFetchedAt': serializer.toJson<DateTime?>(
+        applicationCatalogFetchedAt,
+      ),
     };
   }
 
@@ -654,6 +698,7 @@ class User extends DataClass implements Insertable<User> {
     Value<DateTime?> semestersFetchedAt = const Value.absent(),
     Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
     Value<DateTime?> calendarFetchedAt = const Value.absent(),
+    Value<DateTime?> applicationCatalogFetchedAt = const Value.absent(),
   }) => User(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
@@ -679,6 +724,9 @@ class User extends DataClass implements Insertable<User> {
     calendarFetchedAt: calendarFetchedAt.present
         ? calendarFetchedAt.value
         : this.calendarFetchedAt,
+    applicationCatalogFetchedAt: applicationCatalogFetchedAt.present
+        ? applicationCatalogFetchedAt.value
+        : this.applicationCatalogFetchedAt,
   );
   User copyWithCompanion(UsersCompanion data) {
     return User(
@@ -714,6 +762,9 @@ class User extends DataClass implements Insertable<User> {
       calendarFetchedAt: data.calendarFetchedAt.present
           ? data.calendarFetchedAt.value
           : this.calendarFetchedAt,
+      applicationCatalogFetchedAt: data.applicationCatalogFetchedAt.present
+          ? data.applicationCatalogFetchedAt.value
+          : this.applicationCatalogFetchedAt,
     );
   }
 
@@ -735,7 +786,8 @@ class User extends DataClass implements Insertable<User> {
           ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
           ..write('semestersFetchedAt: $semestersFetchedAt, ')
           ..write('scoreDataFetchedAt: $scoreDataFetchedAt, ')
-          ..write('calendarFetchedAt: $calendarFetchedAt')
+          ..write('calendarFetchedAt: $calendarFetchedAt, ')
+          ..write('applicationCatalogFetchedAt: $applicationCatalogFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -758,6 +810,7 @@ class User extends DataClass implements Insertable<User> {
     semestersFetchedAt,
     scoreDataFetchedAt,
     calendarFetchedAt,
+    applicationCatalogFetchedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -778,7 +831,9 @@ class User extends DataClass implements Insertable<User> {
           other.passwordExpiresInDays == this.passwordExpiresInDays &&
           other.semestersFetchedAt == this.semestersFetchedAt &&
           other.scoreDataFetchedAt == this.scoreDataFetchedAt &&
-          other.calendarFetchedAt == this.calendarFetchedAt);
+          other.calendarFetchedAt == this.calendarFetchedAt &&
+          other.applicationCatalogFetchedAt ==
+              this.applicationCatalogFetchedAt);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
@@ -798,6 +853,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<DateTime?> semestersFetchedAt;
   final Value<DateTime?> scoreDataFetchedAt;
   final Value<DateTime?> calendarFetchedAt;
+  final Value<DateTime?> applicationCatalogFetchedAt;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
@@ -815,6 +871,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.semestersFetchedAt = const Value.absent(),
     this.scoreDataFetchedAt = const Value.absent(),
     this.calendarFetchedAt = const Value.absent(),
+    this.applicationCatalogFetchedAt = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
@@ -833,6 +890,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.semestersFetchedAt = const Value.absent(),
     this.scoreDataFetchedAt = const Value.absent(),
     this.calendarFetchedAt = const Value.absent(),
+    this.applicationCatalogFetchedAt = const Value.absent(),
   }) : studentId = Value(studentId),
        nameZh = Value(nameZh),
        avatarFilename = Value(avatarFilename),
@@ -854,6 +912,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<DateTime>? semestersFetchedAt,
     Expression<DateTime>? scoreDataFetchedAt,
     Expression<DateTime>? calendarFetchedAt,
+    Expression<DateTime>? applicationCatalogFetchedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -875,6 +934,8 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (scoreDataFetchedAt != null)
         'score_data_fetched_at': scoreDataFetchedAt,
       if (calendarFetchedAt != null) 'calendar_fetched_at': calendarFetchedAt,
+      if (applicationCatalogFetchedAt != null)
+        'application_catalog_fetched_at': applicationCatalogFetchedAt,
     });
   }
 
@@ -895,6 +956,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Value<DateTime?>? semestersFetchedAt,
     Value<DateTime?>? scoreDataFetchedAt,
     Value<DateTime?>? calendarFetchedAt,
+    Value<DateTime?>? applicationCatalogFetchedAt,
   }) {
     return UsersCompanion(
       id: id ?? this.id,
@@ -914,6 +976,8 @@ class UsersCompanion extends UpdateCompanion<User> {
       semestersFetchedAt: semestersFetchedAt ?? this.semestersFetchedAt,
       scoreDataFetchedAt: scoreDataFetchedAt ?? this.scoreDataFetchedAt,
       calendarFetchedAt: calendarFetchedAt ?? this.calendarFetchedAt,
+      applicationCatalogFetchedAt:
+          applicationCatalogFetchedAt ?? this.applicationCatalogFetchedAt,
     );
   }
 
@@ -974,6 +1038,11 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (calendarFetchedAt.present) {
       map['calendar_fetched_at'] = Variable<DateTime>(calendarFetchedAt.value);
     }
+    if (applicationCatalogFetchedAt.present) {
+      map['application_catalog_fetched_at'] = Variable<DateTime>(
+        applicationCatalogFetchedAt.value,
+      );
+    }
     return map;
   }
 
@@ -995,7 +1064,1140 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('passwordExpiresInDays: $passwordExpiresInDays, ')
           ..write('semestersFetchedAt: $semestersFetchedAt, ')
           ..write('scoreDataFetchedAt: $scoreDataFetchedAt, ')
-          ..write('calendarFetchedAt: $calendarFetchedAt')
+          ..write('calendarFetchedAt: $calendarFetchedAt, ')
+          ..write('applicationCatalogFetchedAt: $applicationCatalogFetchedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PortalApplicationCategoriesTable extends PortalApplicationCategories
+    with
+        TableInfo<
+          $PortalApplicationCategoriesTable,
+          PortalApplicationCategory
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PortalApplicationCategoriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _userMeta = const VerificationMeta('user');
+  @override
+  late final GeneratedColumn<int> user = GeneratedColumn<int>(
+    'user',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES users (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _distinguishedNameMeta = const VerificationMeta(
+    'distinguishedName',
+  );
+  @override
+  late final GeneratedColumn<String> distinguishedName =
+      GeneratedColumn<String>(
+        'distinguished_name',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _nameZhMeta = const VerificationMeta('nameZh');
+  @override
+  late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
+    'name_zh',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameEnMeta = const VerificationMeta('nameEn');
+  @override
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta(
+    'position',
+  );
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    user,
+    distinguishedName,
+    nameZh,
+    nameEn,
+    position,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'portal_application_categories';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PortalApplicationCategory> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user')) {
+      context.handle(
+        _userMeta,
+        user.isAcceptableOrUnknown(data['user']!, _userMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userMeta);
+    }
+    if (data.containsKey('distinguished_name')) {
+      context.handle(
+        _distinguishedNameMeta,
+        distinguishedName.isAcceptableOrUnknown(
+          data['distinguished_name']!,
+          _distinguishedNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_distinguishedNameMeta);
+    }
+    if (data.containsKey('name_zh')) {
+      context.handle(
+        _nameZhMeta,
+        nameZh.isAcceptableOrUnknown(data['name_zh']!, _nameZhMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameZhMeta);
+    }
+    if (data.containsKey('name_en')) {
+      context.handle(
+        _nameEnMeta,
+        nameEn.isAcceptableOrUnknown(data['name_en']!, _nameEnMeta),
+      );
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {user, distinguishedName},
+  ];
+  @override
+  PortalApplicationCategory map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PortalApplicationCategory(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      user: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user'],
+      )!,
+      distinguishedName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}distinguished_name'],
+      )!,
+      nameZh: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_zh'],
+      )!,
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      ),
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+    );
+  }
+
+  @override
+  $PortalApplicationCategoriesTable createAlias(String alias) {
+    return $PortalApplicationCategoriesTable(attachedDatabase, alias);
+  }
+}
+
+class PortalApplicationCategory extends DataClass
+    implements Insertable<PortalApplicationCategory> {
+  /// Auto-incrementing primary key.
+  final int id;
+
+  /// User whose portal account exposed this category.
+  final int user;
+
+  /// LDAP distinguished name used by the portal to fetch this category.
+  final String distinguishedName;
+
+  /// Chinese category display name supplied by the portal.
+  final String nameZh;
+
+  /// English category display name supplied by the portal.
+  final String? nameEn;
+
+  /// Display order supplied by the portal.
+  final int position;
+  const PortalApplicationCategory({
+    required this.id,
+    required this.user,
+    required this.distinguishedName,
+    required this.nameZh,
+    this.nameEn,
+    required this.position,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['user'] = Variable<int>(user);
+    map['distinguished_name'] = Variable<String>(distinguishedName);
+    map['name_zh'] = Variable<String>(nameZh);
+    if (!nullToAbsent || nameEn != null) {
+      map['name_en'] = Variable<String>(nameEn);
+    }
+    map['position'] = Variable<int>(position);
+    return map;
+  }
+
+  PortalApplicationCategoriesCompanion toCompanion(bool nullToAbsent) {
+    return PortalApplicationCategoriesCompanion(
+      id: Value(id),
+      user: Value(user),
+      distinguishedName: Value(distinguishedName),
+      nameZh: Value(nameZh),
+      nameEn: nameEn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nameEn),
+      position: Value(position),
+    );
+  }
+
+  factory PortalApplicationCategory.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PortalApplicationCategory(
+      id: serializer.fromJson<int>(json['id']),
+      user: serializer.fromJson<int>(json['user']),
+      distinguishedName: serializer.fromJson<String>(json['distinguishedName']),
+      nameZh: serializer.fromJson<String>(json['nameZh']),
+      nameEn: serializer.fromJson<String?>(json['nameEn']),
+      position: serializer.fromJson<int>(json['position']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'user': serializer.toJson<int>(user),
+      'distinguishedName': serializer.toJson<String>(distinguishedName),
+      'nameZh': serializer.toJson<String>(nameZh),
+      'nameEn': serializer.toJson<String?>(nameEn),
+      'position': serializer.toJson<int>(position),
+    };
+  }
+
+  PortalApplicationCategory copyWith({
+    int? id,
+    int? user,
+    String? distinguishedName,
+    String? nameZh,
+    Value<String?> nameEn = const Value.absent(),
+    int? position,
+  }) => PortalApplicationCategory(
+    id: id ?? this.id,
+    user: user ?? this.user,
+    distinguishedName: distinguishedName ?? this.distinguishedName,
+    nameZh: nameZh ?? this.nameZh,
+    nameEn: nameEn.present ? nameEn.value : this.nameEn,
+    position: position ?? this.position,
+  );
+  PortalApplicationCategory copyWithCompanion(
+    PortalApplicationCategoriesCompanion data,
+  ) {
+    return PortalApplicationCategory(
+      id: data.id.present ? data.id.value : this.id,
+      user: data.user.present ? data.user.value : this.user,
+      distinguishedName: data.distinguishedName.present
+          ? data.distinguishedName.value
+          : this.distinguishedName,
+      nameZh: data.nameZh.present ? data.nameZh.value : this.nameZh,
+      nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
+      position: data.position.present ? data.position.value : this.position,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortalApplicationCategory(')
+          ..write('id: $id, ')
+          ..write('user: $user, ')
+          ..write('distinguishedName: $distinguishedName, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('position: $position')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, user, distinguishedName, nameZh, nameEn, position);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PortalApplicationCategory &&
+          other.id == this.id &&
+          other.user == this.user &&
+          other.distinguishedName == this.distinguishedName &&
+          other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn &&
+          other.position == this.position);
+}
+
+class PortalApplicationCategoriesCompanion
+    extends UpdateCompanion<PortalApplicationCategory> {
+  final Value<int> id;
+  final Value<int> user;
+  final Value<String> distinguishedName;
+  final Value<String> nameZh;
+  final Value<String?> nameEn;
+  final Value<int> position;
+  const PortalApplicationCategoriesCompanion({
+    this.id = const Value.absent(),
+    this.user = const Value.absent(),
+    this.distinguishedName = const Value.absent(),
+    this.nameZh = const Value.absent(),
+    this.nameEn = const Value.absent(),
+    this.position = const Value.absent(),
+  });
+  PortalApplicationCategoriesCompanion.insert({
+    this.id = const Value.absent(),
+    required int user,
+    required String distinguishedName,
+    required String nameZh,
+    this.nameEn = const Value.absent(),
+    required int position,
+  }) : user = Value(user),
+       distinguishedName = Value(distinguishedName),
+       nameZh = Value(nameZh),
+       position = Value(position);
+  static Insertable<PortalApplicationCategory> custom({
+    Expression<int>? id,
+    Expression<int>? user,
+    Expression<String>? distinguishedName,
+    Expression<String>? nameZh,
+    Expression<String>? nameEn,
+    Expression<int>? position,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (user != null) 'user': user,
+      if (distinguishedName != null) 'distinguished_name': distinguishedName,
+      if (nameZh != null) 'name_zh': nameZh,
+      if (nameEn != null) 'name_en': nameEn,
+      if (position != null) 'position': position,
+    });
+  }
+
+  PortalApplicationCategoriesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? user,
+    Value<String>? distinguishedName,
+    Value<String>? nameZh,
+    Value<String?>? nameEn,
+    Value<int>? position,
+  }) {
+    return PortalApplicationCategoriesCompanion(
+      id: id ?? this.id,
+      user: user ?? this.user,
+      distinguishedName: distinguishedName ?? this.distinguishedName,
+      nameZh: nameZh ?? this.nameZh,
+      nameEn: nameEn ?? this.nameEn,
+      position: position ?? this.position,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (user.present) {
+      map['user'] = Variable<int>(user.value);
+    }
+    if (distinguishedName.present) {
+      map['distinguished_name'] = Variable<String>(distinguishedName.value);
+    }
+    if (nameZh.present) {
+      map['name_zh'] = Variable<String>(nameZh.value);
+    }
+    if (nameEn.present) {
+      map['name_en'] = Variable<String>(nameEn.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortalApplicationCategoriesCompanion(')
+          ..write('id: $id, ')
+          ..write('user: $user, ')
+          ..write('distinguishedName: $distinguishedName, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('position: $position')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PortalApplicationsTable extends PortalApplications
+    with TableInfo<$PortalApplicationsTable, PortalApplication> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PortalApplicationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<int> category = GeneratedColumn<int>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES portal_application_categories (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameZhMeta = const VerificationMeta('nameZh');
+  @override
+  late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
+    'name_zh',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameEnMeta = const VerificationMeta('nameEn');
+  @override
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _iconUrlMeta = const VerificationMeta(
+    'iconUrl',
+  );
+  @override
+  late final GeneratedColumn<String> iconUrl = GeneratedColumn<String>(
+    'icon_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta(
+    'position',
+  );
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    category,
+    code,
+    nameZh,
+    nameEn,
+    iconUrl,
+    position,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'portal_applications';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PortalApplication> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+        _codeMeta,
+        code.isAcceptableOrUnknown(data['code']!, _codeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('name_zh')) {
+      context.handle(
+        _nameZhMeta,
+        nameZh.isAcceptableOrUnknown(data['name_zh']!, _nameZhMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameZhMeta);
+    }
+    if (data.containsKey('name_en')) {
+      context.handle(
+        _nameEnMeta,
+        nameEn.isAcceptableOrUnknown(data['name_en']!, _nameEnMeta),
+      );
+    }
+    if (data.containsKey('icon_url')) {
+      context.handle(
+        _iconUrlMeta,
+        iconUrl.isAcceptableOrUnknown(data['icon_url']!, _iconUrlMeta),
+      );
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {category, code},
+  ];
+  @override
+  PortalApplication map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PortalApplication(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}category'],
+      )!,
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      nameZh: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_zh'],
+      )!,
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      ),
+      iconUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon_url'],
+      ),
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+    );
+  }
+
+  @override
+  $PortalApplicationsTable createAlias(String alias) {
+    return $PortalApplicationsTable(attachedDatabase, alias);
+  }
+}
+
+class PortalApplication extends DataClass
+    implements Insertable<PortalApplication> {
+  /// Auto-incrementing primary key.
+  final int id;
+
+  /// Category containing this application.
+  final int category;
+
+  /// Portal SSO target identifier (`apOu`).
+  final String code;
+
+  /// Chinese application display name supplied by the portal.
+  final String nameZh;
+
+  /// English application display name supplied by the portal.
+  final String? nameEn;
+
+  /// Absolute URL of the portal-provided application icon.
+  final String? iconUrl;
+
+  /// Display order within the category.
+  final int position;
+  const PortalApplication({
+    required this.id,
+    required this.category,
+    required this.code,
+    required this.nameZh,
+    this.nameEn,
+    this.iconUrl,
+    required this.position,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['category'] = Variable<int>(category);
+    map['code'] = Variable<String>(code);
+    map['name_zh'] = Variable<String>(nameZh);
+    if (!nullToAbsent || nameEn != null) {
+      map['name_en'] = Variable<String>(nameEn);
+    }
+    if (!nullToAbsent || iconUrl != null) {
+      map['icon_url'] = Variable<String>(iconUrl);
+    }
+    map['position'] = Variable<int>(position);
+    return map;
+  }
+
+  PortalApplicationsCompanion toCompanion(bool nullToAbsent) {
+    return PortalApplicationsCompanion(
+      id: Value(id),
+      category: Value(category),
+      code: Value(code),
+      nameZh: Value(nameZh),
+      nameEn: nameEn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nameEn),
+      iconUrl: iconUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iconUrl),
+      position: Value(position),
+    );
+  }
+
+  factory PortalApplication.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PortalApplication(
+      id: serializer.fromJson<int>(json['id']),
+      category: serializer.fromJson<int>(json['category']),
+      code: serializer.fromJson<String>(json['code']),
+      nameZh: serializer.fromJson<String>(json['nameZh']),
+      nameEn: serializer.fromJson<String?>(json['nameEn']),
+      iconUrl: serializer.fromJson<String?>(json['iconUrl']),
+      position: serializer.fromJson<int>(json['position']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'category': serializer.toJson<int>(category),
+      'code': serializer.toJson<String>(code),
+      'nameZh': serializer.toJson<String>(nameZh),
+      'nameEn': serializer.toJson<String?>(nameEn),
+      'iconUrl': serializer.toJson<String?>(iconUrl),
+      'position': serializer.toJson<int>(position),
+    };
+  }
+
+  PortalApplication copyWith({
+    int? id,
+    int? category,
+    String? code,
+    String? nameZh,
+    Value<String?> nameEn = const Value.absent(),
+    Value<String?> iconUrl = const Value.absent(),
+    int? position,
+  }) => PortalApplication(
+    id: id ?? this.id,
+    category: category ?? this.category,
+    code: code ?? this.code,
+    nameZh: nameZh ?? this.nameZh,
+    nameEn: nameEn.present ? nameEn.value : this.nameEn,
+    iconUrl: iconUrl.present ? iconUrl.value : this.iconUrl,
+    position: position ?? this.position,
+  );
+  PortalApplication copyWithCompanion(PortalApplicationsCompanion data) {
+    return PortalApplication(
+      id: data.id.present ? data.id.value : this.id,
+      category: data.category.present ? data.category.value : this.category,
+      code: data.code.present ? data.code.value : this.code,
+      nameZh: data.nameZh.present ? data.nameZh.value : this.nameZh,
+      nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
+      iconUrl: data.iconUrl.present ? data.iconUrl.value : this.iconUrl,
+      position: data.position.present ? data.position.value : this.position,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortalApplication(')
+          ..write('id: $id, ')
+          ..write('category: $category, ')
+          ..write('code: $code, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('iconUrl: $iconUrl, ')
+          ..write('position: $position')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, category, code, nameZh, nameEn, iconUrl, position);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PortalApplication &&
+          other.id == this.id &&
+          other.category == this.category &&
+          other.code == this.code &&
+          other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn &&
+          other.iconUrl == this.iconUrl &&
+          other.position == this.position);
+}
+
+class PortalApplicationsCompanion extends UpdateCompanion<PortalApplication> {
+  final Value<int> id;
+  final Value<int> category;
+  final Value<String> code;
+  final Value<String> nameZh;
+  final Value<String?> nameEn;
+  final Value<String?> iconUrl;
+  final Value<int> position;
+  const PortalApplicationsCompanion({
+    this.id = const Value.absent(),
+    this.category = const Value.absent(),
+    this.code = const Value.absent(),
+    this.nameZh = const Value.absent(),
+    this.nameEn = const Value.absent(),
+    this.iconUrl = const Value.absent(),
+    this.position = const Value.absent(),
+  });
+  PortalApplicationsCompanion.insert({
+    this.id = const Value.absent(),
+    required int category,
+    required String code,
+    required String nameZh,
+    this.nameEn = const Value.absent(),
+    this.iconUrl = const Value.absent(),
+    required int position,
+  }) : category = Value(category),
+       code = Value(code),
+       nameZh = Value(nameZh),
+       position = Value(position);
+  static Insertable<PortalApplication> custom({
+    Expression<int>? id,
+    Expression<int>? category,
+    Expression<String>? code,
+    Expression<String>? nameZh,
+    Expression<String>? nameEn,
+    Expression<String>? iconUrl,
+    Expression<int>? position,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (category != null) 'category': category,
+      if (code != null) 'code': code,
+      if (nameZh != null) 'name_zh': nameZh,
+      if (nameEn != null) 'name_en': nameEn,
+      if (iconUrl != null) 'icon_url': iconUrl,
+      if (position != null) 'position': position,
+    });
+  }
+
+  PortalApplicationsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? category,
+    Value<String>? code,
+    Value<String>? nameZh,
+    Value<String?>? nameEn,
+    Value<String?>? iconUrl,
+    Value<int>? position,
+  }) {
+    return PortalApplicationsCompanion(
+      id: id ?? this.id,
+      category: category ?? this.category,
+      code: code ?? this.code,
+      nameZh: nameZh ?? this.nameZh,
+      nameEn: nameEn ?? this.nameEn,
+      iconUrl: iconUrl ?? this.iconUrl,
+      position: position ?? this.position,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<int>(category.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (nameZh.present) {
+      map['name_zh'] = Variable<String>(nameZh.value);
+    }
+    if (nameEn.present) {
+      map['name_en'] = Variable<String>(nameEn.value);
+    }
+    if (iconUrl.present) {
+      map['icon_url'] = Variable<String>(iconUrl.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortalApplicationsCompanion(')
+          ..write('id: $id, ')
+          ..write('category: $category, ')
+          ..write('code: $code, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('iconUrl: $iconUrl, ')
+          ..write('position: $position')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PortalApplicationFavoritesTable extends PortalApplicationFavorites
+    with
+        TableInfo<$PortalApplicationFavoritesTable, PortalApplicationFavorite> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PortalApplicationFavoritesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userMeta = const VerificationMeta('user');
+  @override
+  late final GeneratedColumn<int> user = GeneratedColumn<int>(
+    'user',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES users (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _applicationCodeMeta = const VerificationMeta(
+    'applicationCode',
+  );
+  @override
+  late final GeneratedColumn<String> applicationCode = GeneratedColumn<String>(
+    'application_code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [user, applicationCode];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'portal_application_favorites';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PortalApplicationFavorite> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user')) {
+      context.handle(
+        _userMeta,
+        user.isAcceptableOrUnknown(data['user']!, _userMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userMeta);
+    }
+    if (data.containsKey('application_code')) {
+      context.handle(
+        _applicationCodeMeta,
+        applicationCode.isAcceptableOrUnknown(
+          data['application_code']!,
+          _applicationCodeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_applicationCodeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {user, applicationCode};
+  @override
+  PortalApplicationFavorite map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PortalApplicationFavorite(
+      user: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}user'],
+      )!,
+      applicationCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}application_code'],
+      )!,
+    );
+  }
+
+  @override
+  $PortalApplicationFavoritesTable createAlias(String alias) {
+    return $PortalApplicationFavoritesTable(attachedDatabase, alias);
+  }
+}
+
+class PortalApplicationFavorite extends DataClass
+    implements Insertable<PortalApplicationFavorite> {
+  /// User who selected this favorite.
+  final int user;
+
+  /// Portal SSO target identifier (`apOu`).
+  final String applicationCode;
+  const PortalApplicationFavorite({
+    required this.user,
+    required this.applicationCode,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user'] = Variable<int>(user);
+    map['application_code'] = Variable<String>(applicationCode);
+    return map;
+  }
+
+  PortalApplicationFavoritesCompanion toCompanion(bool nullToAbsent) {
+    return PortalApplicationFavoritesCompanion(
+      user: Value(user),
+      applicationCode: Value(applicationCode),
+    );
+  }
+
+  factory PortalApplicationFavorite.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PortalApplicationFavorite(
+      user: serializer.fromJson<int>(json['user']),
+      applicationCode: serializer.fromJson<String>(json['applicationCode']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'user': serializer.toJson<int>(user),
+      'applicationCode': serializer.toJson<String>(applicationCode),
+    };
+  }
+
+  PortalApplicationFavorite copyWith({int? user, String? applicationCode}) =>
+      PortalApplicationFavorite(
+        user: user ?? this.user,
+        applicationCode: applicationCode ?? this.applicationCode,
+      );
+  PortalApplicationFavorite copyWithCompanion(
+    PortalApplicationFavoritesCompanion data,
+  ) {
+    return PortalApplicationFavorite(
+      user: data.user.present ? data.user.value : this.user,
+      applicationCode: data.applicationCode.present
+          ? data.applicationCode.value
+          : this.applicationCode,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortalApplicationFavorite(')
+          ..write('user: $user, ')
+          ..write('applicationCode: $applicationCode')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(user, applicationCode);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PortalApplicationFavorite &&
+          other.user == this.user &&
+          other.applicationCode == this.applicationCode);
+}
+
+class PortalApplicationFavoritesCompanion
+    extends UpdateCompanion<PortalApplicationFavorite> {
+  final Value<int> user;
+  final Value<String> applicationCode;
+  final Value<int> rowid;
+  const PortalApplicationFavoritesCompanion({
+    this.user = const Value.absent(),
+    this.applicationCode = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PortalApplicationFavoritesCompanion.insert({
+    required int user,
+    required String applicationCode,
+    this.rowid = const Value.absent(),
+  }) : user = Value(user),
+       applicationCode = Value(applicationCode);
+  static Insertable<PortalApplicationFavorite> custom({
+    Expression<int>? user,
+    Expression<String>? applicationCode,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (user != null) 'user': user,
+      if (applicationCode != null) 'application_code': applicationCode,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PortalApplicationFavoritesCompanion copyWith({
+    Value<int>? user,
+    Value<String>? applicationCode,
+    Value<int>? rowid,
+  }) {
+    return PortalApplicationFavoritesCompanion(
+      user: user ?? this.user,
+      applicationCode: applicationCode ?? this.applicationCode,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (user.present) {
+      map['user'] = Variable<int>(user.value);
+    }
+    if (applicationCode.present) {
+      map['application_code'] = Variable<String>(applicationCode.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PortalApplicationFavoritesCompanion(')
+          ..write('user: $user, ')
+          ..write('applicationCode: $applicationCode, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -1455,13 +2657,15 @@ class Semester extends DataClass implements Insertable<Semester> {
   /// Term number within the year (0=Pre-study, 1=Fall, 2=Spring, 3=Summer).
   final int term;
 
-  /// Whether this semester appeared in the course semester list API response.
+  /// Whether this semester is currently in the course semester list API
+  /// response.
   ///
-  /// Distinguishes semesters fetched by [CourseRepository.getSemesters] from
-  /// those created as side effects by other flows (e.g., auth, scores).
+  /// Distinguishes semesters fetched by [CourseRepository.refreshSemesters]
+  /// from those created as side effects by other flows (e.g., auth, scores).
   final bool inCourseSemesterList;
 
-  /// Whether this semester appeared in the score semester list API response.
+  /// Whether this semester is currently in the score semester list API
+  /// response.
   ///
   /// Distinguishes semesters fetched by [StudentRepository.refreshSemesterRecords]
   /// from those created as side effects by other flows (e.g., auth, courses).
@@ -3760,6 +4964,7 @@ class $CourseOfferingsTable extends CourseOfferings
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
   );
   static const VerificationMeta _nameZhMeta = const VerificationMeta('nameZh');
   @override
@@ -3848,29 +5053,6 @@ class $CourseOfferingsTable extends CourseOfferings
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _syllabusIdMeta = const VerificationMeta(
-    'syllabusId',
-  );
-  @override
-  late final GeneratedColumn<String> syllabusId = GeneratedColumn<String>(
-    'syllabus_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _syllabusUpdatedAtMeta = const VerificationMeta(
-    'syllabusUpdatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> syllabusUpdatedAt =
-      GeneratedColumn<DateTime>(
-        'syllabus_updated_at',
-        aliasedName,
-        true,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: false,
-      );
   static const VerificationMeta _enrolledMeta = const VerificationMeta(
     'enrolled',
   );
@@ -3893,61 +5075,6 @@ class $CourseOfferingsTable extends CourseOfferings
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _objectiveMeta = const VerificationMeta(
-    'objective',
-  );
-  @override
-  late final GeneratedColumn<String> objective = GeneratedColumn<String>(
-    'objective',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _weeklyPlanMeta = const VerificationMeta(
-    'weeklyPlan',
-  );
-  @override
-  late final GeneratedColumn<String> weeklyPlan = GeneratedColumn<String>(
-    'weekly_plan',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _evaluationMeta = const VerificationMeta(
-    'evaluation',
-  );
-  @override
-  late final GeneratedColumn<String> evaluation = GeneratedColumn<String>(
-    'evaluation',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _textbooksMeta = const VerificationMeta(
-    'textbooks',
-  );
-  @override
-  late final GeneratedColumn<String> textbooks = GeneratedColumn<String>(
-    'textbooks',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _syllabusRemarksMeta = const VerificationMeta(
-    'syllabusRemarks',
-  );
-  @override
-  late final GeneratedColumn<String> syllabusRemarks = GeneratedColumn<String>(
-    'syllabus_remarks',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3964,15 +5091,8 @@ class $CourseOfferingsTable extends CourseOfferings
     status,
     language,
     remarks,
-    syllabusId,
-    syllabusUpdatedAt,
     enrolled,
     withdrawn,
-    objective,
-    weeklyPlan,
-    evaluation,
-    textbooks,
-    syllabusRemarks,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4065,21 +5185,6 @@ class $CourseOfferingsTable extends CourseOfferings
         remarks.isAcceptableOrUnknown(data['remarks']!, _remarksMeta),
       );
     }
-    if (data.containsKey('syllabus_id')) {
-      context.handle(
-        _syllabusIdMeta,
-        syllabusId.isAcceptableOrUnknown(data['syllabus_id']!, _syllabusIdMeta),
-      );
-    }
-    if (data.containsKey('syllabus_updated_at')) {
-      context.handle(
-        _syllabusUpdatedAtMeta,
-        syllabusUpdatedAt.isAcceptableOrUnknown(
-          data['syllabus_updated_at']!,
-          _syllabusUpdatedAtMeta,
-        ),
-      );
-    }
     if (data.containsKey('enrolled')) {
       context.handle(
         _enrolledMeta,
@@ -4092,48 +5197,11 @@ class $CourseOfferingsTable extends CourseOfferings
         withdrawn.isAcceptableOrUnknown(data['withdrawn']!, _withdrawnMeta),
       );
     }
-    if (data.containsKey('objective')) {
-      context.handle(
-        _objectiveMeta,
-        objective.isAcceptableOrUnknown(data['objective']!, _objectiveMeta),
-      );
-    }
-    if (data.containsKey('weekly_plan')) {
-      context.handle(
-        _weeklyPlanMeta,
-        weeklyPlan.isAcceptableOrUnknown(data['weekly_plan']!, _weeklyPlanMeta),
-      );
-    }
-    if (data.containsKey('evaluation')) {
-      context.handle(
-        _evaluationMeta,
-        evaluation.isAcceptableOrUnknown(data['evaluation']!, _evaluationMeta),
-      );
-    }
-    if (data.containsKey('textbooks')) {
-      context.handle(
-        _textbooksMeta,
-        textbooks.isAcceptableOrUnknown(data['textbooks']!, _textbooksMeta),
-      );
-    }
-    if (data.containsKey('syllabus_remarks')) {
-      context.handle(
-        _syllabusRemarksMeta,
-        syllabusRemarks.isAcceptableOrUnknown(
-          data['syllabus_remarks']!,
-          _syllabusRemarksMeta,
-        ),
-      );
-    }
     return context;
   }
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {semester, number},
-  ];
   @override
   CourseOffering map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -4196,14 +5264,6 @@ class $CourseOfferingsTable extends CourseOfferings
         DriftSqlType.string,
         data['${effectivePrefix}remarks'],
       ),
-      syllabusId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}syllabus_id'],
-      ),
-      syllabusUpdatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}syllabus_updated_at'],
-      ),
       enrolled: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}enrolled'],
@@ -4211,26 +5271,6 @@ class $CourseOfferingsTable extends CourseOfferings
       withdrawn: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}withdrawn'],
-      ),
-      objective: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}objective'],
-      ),
-      weeklyPlan: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}weekly_plan'],
-      ),
-      evaluation: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}evaluation'],
-      ),
-      textbooks: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}textbooks'],
-      ),
-      syllabusRemarks: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}syllabus_remarks'],
       ),
     );
   }
@@ -4270,6 +5310,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   final int semester;
 
   /// Course offering number (e.g., "313146", "352902").
+  /// Assigned numbers are globally unique across semesters.
   ///
   /// Null for special entries that have no assigned number.
   final String? number;
@@ -4326,37 +5367,11 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   /// Not a [Fetchable] field.
   final String? remarks;
 
-  /// Syllabus ID for fetching detailed syllabus information.
-  ///
-  /// Not a [Fetchable] field.
-  final String? syllabusId;
-
-  /// When the syllabus was last updated (最後更新時間).
-  final DateTime? syllabusUpdatedAt;
-
   /// Number of enrolled students (人).
   final int? enrolled;
 
   /// Number of withdrawn students (撤).
   final int? withdrawn;
-
-  /// Course objective/outline (課程大綱).
-  final String? objective;
-
-  /// Weekly plan describing topics covered each week (課程進度).
-  ///
-  /// Note: Called "Course Schedule" on English page, but refers to weekly
-  /// topics, not class meeting times.
-  final String? weeklyPlan;
-
-  /// Evaluation and grading policy (評量方式與標準).
-  final String? evaluation;
-
-  /// Textbooks and reference materials (使用教材、參考書目或其他).
-  final String? textbooks;
-
-  /// Teacher-authored remarks from the syllabus page (備註).
-  final String? syllabusRemarks;
   const CourseOffering({
     required this.id,
     this.fetchedAt,
@@ -4372,15 +5387,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     this.status,
     this.language,
     this.remarks,
-    this.syllabusId,
-    this.syllabusUpdatedAt,
     this.enrolled,
     this.withdrawn,
-    this.objective,
-    this.weeklyPlan,
-    this.evaluation,
-    this.textbooks,
-    this.syllabusRemarks,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4423,32 +5431,11 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     if (!nullToAbsent || remarks != null) {
       map['remarks'] = Variable<String>(remarks);
     }
-    if (!nullToAbsent || syllabusId != null) {
-      map['syllabus_id'] = Variable<String>(syllabusId);
-    }
-    if (!nullToAbsent || syllabusUpdatedAt != null) {
-      map['syllabus_updated_at'] = Variable<DateTime>(syllabusUpdatedAt);
-    }
     if (!nullToAbsent || enrolled != null) {
       map['enrolled'] = Variable<int>(enrolled);
     }
     if (!nullToAbsent || withdrawn != null) {
       map['withdrawn'] = Variable<int>(withdrawn);
-    }
-    if (!nullToAbsent || objective != null) {
-      map['objective'] = Variable<String>(objective);
-    }
-    if (!nullToAbsent || weeklyPlan != null) {
-      map['weekly_plan'] = Variable<String>(weeklyPlan);
-    }
-    if (!nullToAbsent || evaluation != null) {
-      map['evaluation'] = Variable<String>(evaluation);
-    }
-    if (!nullToAbsent || textbooks != null) {
-      map['textbooks'] = Variable<String>(textbooks);
-    }
-    if (!nullToAbsent || syllabusRemarks != null) {
-      map['syllabus_remarks'] = Variable<String>(syllabusRemarks);
     }
     return map;
   }
@@ -4491,33 +5478,12 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       remarks: remarks == null && nullToAbsent
           ? const Value.absent()
           : Value(remarks),
-      syllabusId: syllabusId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(syllabusId),
-      syllabusUpdatedAt: syllabusUpdatedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(syllabusUpdatedAt),
       enrolled: enrolled == null && nullToAbsent
           ? const Value.absent()
           : Value(enrolled),
       withdrawn: withdrawn == null && nullToAbsent
           ? const Value.absent()
           : Value(withdrawn),
-      objective: objective == null && nullToAbsent
-          ? const Value.absent()
-          : Value(objective),
-      weeklyPlan: weeklyPlan == null && nullToAbsent
-          ? const Value.absent()
-          : Value(weeklyPlan),
-      evaluation: evaluation == null && nullToAbsent
-          ? const Value.absent()
-          : Value(evaluation),
-      textbooks: textbooks == null && nullToAbsent
-          ? const Value.absent()
-          : Value(textbooks),
-      syllabusRemarks: syllabusRemarks == null && nullToAbsent
-          ? const Value.absent()
-          : Value(syllabusRemarks),
     );
   }
 
@@ -4543,17 +5509,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       status: serializer.fromJson<String?>(json['status']),
       language: serializer.fromJson<String?>(json['language']),
       remarks: serializer.fromJson<String?>(json['remarks']),
-      syllabusId: serializer.fromJson<String?>(json['syllabusId']),
-      syllabusUpdatedAt: serializer.fromJson<DateTime?>(
-        json['syllabusUpdatedAt'],
-      ),
       enrolled: serializer.fromJson<int?>(json['enrolled']),
       withdrawn: serializer.fromJson<int?>(json['withdrawn']),
-      objective: serializer.fromJson<String?>(json['objective']),
-      weeklyPlan: serializer.fromJson<String?>(json['weeklyPlan']),
-      evaluation: serializer.fromJson<String?>(json['evaluation']),
-      textbooks: serializer.fromJson<String?>(json['textbooks']),
-      syllabusRemarks: serializer.fromJson<String?>(json['syllabusRemarks']),
     );
   }
   @override
@@ -4576,15 +5533,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       'status': serializer.toJson<String?>(status),
       'language': serializer.toJson<String?>(language),
       'remarks': serializer.toJson<String?>(remarks),
-      'syllabusId': serializer.toJson<String?>(syllabusId),
-      'syllabusUpdatedAt': serializer.toJson<DateTime?>(syllabusUpdatedAt),
       'enrolled': serializer.toJson<int?>(enrolled),
       'withdrawn': serializer.toJson<int?>(withdrawn),
-      'objective': serializer.toJson<String?>(objective),
-      'weeklyPlan': serializer.toJson<String?>(weeklyPlan),
-      'evaluation': serializer.toJson<String?>(evaluation),
-      'textbooks': serializer.toJson<String?>(textbooks),
-      'syllabusRemarks': serializer.toJson<String?>(syllabusRemarks),
     };
   }
 
@@ -4603,15 +5553,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     Value<String?> status = const Value.absent(),
     Value<String?> language = const Value.absent(),
     Value<String?> remarks = const Value.absent(),
-    Value<String?> syllabusId = const Value.absent(),
-    Value<DateTime?> syllabusUpdatedAt = const Value.absent(),
     Value<int?> enrolled = const Value.absent(),
     Value<int?> withdrawn = const Value.absent(),
-    Value<String?> objective = const Value.absent(),
-    Value<String?> weeklyPlan = const Value.absent(),
-    Value<String?> evaluation = const Value.absent(),
-    Value<String?> textbooks = const Value.absent(),
-    Value<String?> syllabusRemarks = const Value.absent(),
   }) => CourseOffering(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
@@ -4627,19 +5570,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     status: status.present ? status.value : this.status,
     language: language.present ? language.value : this.language,
     remarks: remarks.present ? remarks.value : this.remarks,
-    syllabusId: syllabusId.present ? syllabusId.value : this.syllabusId,
-    syllabusUpdatedAt: syllabusUpdatedAt.present
-        ? syllabusUpdatedAt.value
-        : this.syllabusUpdatedAt,
     enrolled: enrolled.present ? enrolled.value : this.enrolled,
     withdrawn: withdrawn.present ? withdrawn.value : this.withdrawn,
-    objective: objective.present ? objective.value : this.objective,
-    weeklyPlan: weeklyPlan.present ? weeklyPlan.value : this.weeklyPlan,
-    evaluation: evaluation.present ? evaluation.value : this.evaluation,
-    textbooks: textbooks.present ? textbooks.value : this.textbooks,
-    syllabusRemarks: syllabusRemarks.present
-        ? syllabusRemarks.value
-        : this.syllabusRemarks,
   );
   CourseOffering copyWithCompanion(CourseOfferingsCompanion data) {
     return CourseOffering(
@@ -4661,25 +5593,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       status: data.status.present ? data.status.value : this.status,
       language: data.language.present ? data.language.value : this.language,
       remarks: data.remarks.present ? data.remarks.value : this.remarks,
-      syllabusId: data.syllabusId.present
-          ? data.syllabusId.value
-          : this.syllabusId,
-      syllabusUpdatedAt: data.syllabusUpdatedAt.present
-          ? data.syllabusUpdatedAt.value
-          : this.syllabusUpdatedAt,
       enrolled: data.enrolled.present ? data.enrolled.value : this.enrolled,
       withdrawn: data.withdrawn.present ? data.withdrawn.value : this.withdrawn,
-      objective: data.objective.present ? data.objective.value : this.objective,
-      weeklyPlan: data.weeklyPlan.present
-          ? data.weeklyPlan.value
-          : this.weeklyPlan,
-      evaluation: data.evaluation.present
-          ? data.evaluation.value
-          : this.evaluation,
-      textbooks: data.textbooks.present ? data.textbooks.value : this.textbooks,
-      syllabusRemarks: data.syllabusRemarks.present
-          ? data.syllabusRemarks.value
-          : this.syllabusRemarks,
     );
   }
 
@@ -4700,21 +5615,14 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           ..write('status: $status, ')
           ..write('language: $language, ')
           ..write('remarks: $remarks, ')
-          ..write('syllabusId: $syllabusId, ')
-          ..write('syllabusUpdatedAt: $syllabusUpdatedAt, ')
           ..write('enrolled: $enrolled, ')
-          ..write('withdrawn: $withdrawn, ')
-          ..write('objective: $objective, ')
-          ..write('weeklyPlan: $weeklyPlan, ')
-          ..write('evaluation: $evaluation, ')
-          ..write('textbooks: $textbooks, ')
-          ..write('syllabusRemarks: $syllabusRemarks')
+          ..write('withdrawn: $withdrawn')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hashAll([
+  int get hashCode => Object.hash(
     id,
     fetchedAt,
     courseCode,
@@ -4729,16 +5637,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     status,
     language,
     remarks,
-    syllabusId,
-    syllabusUpdatedAt,
     enrolled,
     withdrawn,
-    objective,
-    weeklyPlan,
-    evaluation,
-    textbooks,
-    syllabusRemarks,
-  ]);
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4757,15 +5658,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           other.status == this.status &&
           other.language == this.language &&
           other.remarks == this.remarks &&
-          other.syllabusId == this.syllabusId &&
-          other.syllabusUpdatedAt == this.syllabusUpdatedAt &&
           other.enrolled == this.enrolled &&
-          other.withdrawn == this.withdrawn &&
-          other.objective == this.objective &&
-          other.weeklyPlan == this.weeklyPlan &&
-          other.evaluation == this.evaluation &&
-          other.textbooks == this.textbooks &&
-          other.syllabusRemarks == this.syllabusRemarks);
+          other.withdrawn == this.withdrawn);
 }
 
 class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
@@ -4783,15 +5677,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   final Value<String?> status;
   final Value<String?> language;
   final Value<String?> remarks;
-  final Value<String?> syllabusId;
-  final Value<DateTime?> syllabusUpdatedAt;
   final Value<int?> enrolled;
   final Value<int?> withdrawn;
-  final Value<String?> objective;
-  final Value<String?> weeklyPlan;
-  final Value<String?> evaluation;
-  final Value<String?> textbooks;
-  final Value<String?> syllabusRemarks;
   const CourseOfferingsCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
@@ -4807,15 +5694,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.status = const Value.absent(),
     this.language = const Value.absent(),
     this.remarks = const Value.absent(),
-    this.syllabusId = const Value.absent(),
-    this.syllabusUpdatedAt = const Value.absent(),
     this.enrolled = const Value.absent(),
     this.withdrawn = const Value.absent(),
-    this.objective = const Value.absent(),
-    this.weeklyPlan = const Value.absent(),
-    this.evaluation = const Value.absent(),
-    this.textbooks = const Value.absent(),
-    this.syllabusRemarks = const Value.absent(),
   });
   CourseOfferingsCompanion.insert({
     this.id = const Value.absent(),
@@ -4832,15 +5712,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.status = const Value.absent(),
     this.language = const Value.absent(),
     this.remarks = const Value.absent(),
-    this.syllabusId = const Value.absent(),
-    this.syllabusUpdatedAt = const Value.absent(),
     this.enrolled = const Value.absent(),
     this.withdrawn = const Value.absent(),
-    this.objective = const Value.absent(),
-    this.weeklyPlan = const Value.absent(),
-    this.evaluation = const Value.absent(),
-    this.textbooks = const Value.absent(),
-    this.syllabusRemarks = const Value.absent(),
   }) : semester = Value(semester),
        nameZh = Value(nameZh);
   static Insertable<CourseOffering> custom({
@@ -4858,15 +5731,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Expression<String>? status,
     Expression<String>? language,
     Expression<String>? remarks,
-    Expression<String>? syllabusId,
-    Expression<DateTime>? syllabusUpdatedAt,
     Expression<int>? enrolled,
     Expression<int>? withdrawn,
-    Expression<String>? objective,
-    Expression<String>? weeklyPlan,
-    Expression<String>? evaluation,
-    Expression<String>? textbooks,
-    Expression<String>? syllabusRemarks,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -4883,15 +5749,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       if (status != null) 'status': status,
       if (language != null) 'language': language,
       if (remarks != null) 'remarks': remarks,
-      if (syllabusId != null) 'syllabus_id': syllabusId,
-      if (syllabusUpdatedAt != null) 'syllabus_updated_at': syllabusUpdatedAt,
       if (enrolled != null) 'enrolled': enrolled,
       if (withdrawn != null) 'withdrawn': withdrawn,
-      if (objective != null) 'objective': objective,
-      if (weeklyPlan != null) 'weekly_plan': weeklyPlan,
-      if (evaluation != null) 'evaluation': evaluation,
-      if (textbooks != null) 'textbooks': textbooks,
-      if (syllabusRemarks != null) 'syllabus_remarks': syllabusRemarks,
     });
   }
 
@@ -4910,15 +5769,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Value<String?>? status,
     Value<String?>? language,
     Value<String?>? remarks,
-    Value<String?>? syllabusId,
-    Value<DateTime?>? syllabusUpdatedAt,
     Value<int?>? enrolled,
     Value<int?>? withdrawn,
-    Value<String?>? objective,
-    Value<String?>? weeklyPlan,
-    Value<String?>? evaluation,
-    Value<String?>? textbooks,
-    Value<String?>? syllabusRemarks,
   }) {
     return CourseOfferingsCompanion(
       id: id ?? this.id,
@@ -4935,15 +5787,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       status: status ?? this.status,
       language: language ?? this.language,
       remarks: remarks ?? this.remarks,
-      syllabusId: syllabusId ?? this.syllabusId,
-      syllabusUpdatedAt: syllabusUpdatedAt ?? this.syllabusUpdatedAt,
       enrolled: enrolled ?? this.enrolled,
       withdrawn: withdrawn ?? this.withdrawn,
-      objective: objective ?? this.objective,
-      weeklyPlan: weeklyPlan ?? this.weeklyPlan,
-      evaluation: evaluation ?? this.evaluation,
-      textbooks: textbooks ?? this.textbooks,
-      syllabusRemarks: syllabusRemarks ?? this.syllabusRemarks,
     );
   }
 
@@ -4994,32 +5839,11 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     if (remarks.present) {
       map['remarks'] = Variable<String>(remarks.value);
     }
-    if (syllabusId.present) {
-      map['syllabus_id'] = Variable<String>(syllabusId.value);
-    }
-    if (syllabusUpdatedAt.present) {
-      map['syllabus_updated_at'] = Variable<DateTime>(syllabusUpdatedAt.value);
-    }
     if (enrolled.present) {
       map['enrolled'] = Variable<int>(enrolled.value);
     }
     if (withdrawn.present) {
       map['withdrawn'] = Variable<int>(withdrawn.value);
-    }
-    if (objective.present) {
-      map['objective'] = Variable<String>(objective.value);
-    }
-    if (weeklyPlan.present) {
-      map['weekly_plan'] = Variable<String>(weeklyPlan.value);
-    }
-    if (evaluation.present) {
-      map['evaluation'] = Variable<String>(evaluation.value);
-    }
-    if (textbooks.present) {
-      map['textbooks'] = Variable<String>(textbooks.value);
-    }
-    if (syllabusRemarks.present) {
-      map['syllabus_remarks'] = Variable<String>(syllabusRemarks.value);
     }
     return map;
   }
@@ -5041,15 +5865,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
           ..write('status: $status, ')
           ..write('language: $language, ')
           ..write('remarks: $remarks, ')
-          ..write('syllabusId: $syllabusId, ')
-          ..write('syllabusUpdatedAt: $syllabusUpdatedAt, ')
           ..write('enrolled: $enrolled, ')
-          ..write('withdrawn: $withdrawn, ')
-          ..write('objective: $objective, ')
-          ..write('weeklyPlan: $weeklyPlan, ')
-          ..write('evaluation: $evaluation, ')
-          ..write('textbooks: $textbooks, ')
-          ..write('syllabusRemarks: $syllabusRemarks')
+          ..write('withdrawn: $withdrawn')
           ..write(')'))
         .toString();
   }
@@ -6777,6 +7594,807 @@ class SchedulesCompanion extends UpdateCompanion<Schedule> {
           ..write('dayOfWeek: $dayOfWeek, ')
           ..write('period: $period, ')
           ..write('classroom: $classroom')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyllabusesTable extends Syllabuses
+    with TableInfo<$SyllabusesTable, Syllabus> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyllabusesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _courseOfferingMeta = const VerificationMeta(
+    'courseOffering',
+  );
+  @override
+  late final GeneratedColumn<int> courseOffering = GeneratedColumn<int>(
+    'course_offering',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES course_offerings (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _teacherMeta = const VerificationMeta(
+    'teacher',
+  );
+  @override
+  late final GeneratedColumn<int> teacher = GeneratedColumn<int>(
+    'teacher',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES teachers (id)',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<SyllabusLanguage, String>
+  language = GeneratedColumn<String>(
+    'language',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<SyllabusLanguage>($SyllabusesTable.$converterlanguage);
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    courseOffering,
+    teacher,
+    language,
+    updatedAt,
+    fetchedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'syllabuses';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Syllabus> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('course_offering')) {
+      context.handle(
+        _courseOfferingMeta,
+        courseOffering.isAcceptableOrUnknown(
+          data['course_offering']!,
+          _courseOfferingMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_courseOfferingMeta);
+    }
+    if (data.containsKey('teacher')) {
+      context.handle(
+        _teacherMeta,
+        teacher.isAcceptableOrUnknown(data['teacher']!, _teacherMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_teacherMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {courseOffering, teacher, language},
+  ];
+  @override
+  Syllabus map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Syllabus(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      courseOffering: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}course_offering'],
+      )!,
+      teacher: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}teacher'],
+      )!,
+      language: $SyllabusesTable.$converterlanguage.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}language'],
+        )!,
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SyllabusesTable createAlias(String alias) {
+    return $SyllabusesTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<SyllabusLanguage, String, String>
+  $converterlanguage = const EnumNameConverter<SyllabusLanguage>(
+    SyllabusLanguage.values,
+  );
+}
+
+class Syllabus extends DataClass implements Insertable<Syllabus> {
+  /// Auto-incrementing primary key.
+  final int id;
+
+  /// Reference to the course offering this syllabus belongs to.
+  final int courseOffering;
+
+  /// Reference to the authoring teacher (the syllabus's code is their code).
+  final int teacher;
+
+  /// Language variant fetched from the course system.
+  final SyllabusLanguage language;
+
+  /// When this syllabus was last updated by the teacher (最後更新時間).
+  final DateTime? updatedAt;
+
+  /// When this language variant was last fetched from the course system.
+  final DateTime fetchedAt;
+  const Syllabus({
+    required this.id,
+    required this.courseOffering,
+    required this.teacher,
+    required this.language,
+    this.updatedAt,
+    required this.fetchedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['course_offering'] = Variable<int>(courseOffering);
+    map['teacher'] = Variable<int>(teacher);
+    {
+      map['language'] = Variable<String>(
+        $SyllabusesTable.$converterlanguage.toSql(language),
+      );
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    return map;
+  }
+
+  SyllabusesCompanion toCompanion(bool nullToAbsent) {
+    return SyllabusesCompanion(
+      id: Value(id),
+      courseOffering: Value(courseOffering),
+      teacher: Value(teacher),
+      language: Value(language),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+      fetchedAt: Value(fetchedAt),
+    );
+  }
+
+  factory Syllabus.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Syllabus(
+      id: serializer.fromJson<int>(json['id']),
+      courseOffering: serializer.fromJson<int>(json['courseOffering']),
+      teacher: serializer.fromJson<int>(json['teacher']),
+      language: $SyllabusesTable.$converterlanguage.fromJson(
+        serializer.fromJson<String>(json['language']),
+      ),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      fetchedAt: serializer.fromJson<DateTime>(json['fetchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'courseOffering': serializer.toJson<int>(courseOffering),
+      'teacher': serializer.toJson<int>(teacher),
+      'language': serializer.toJson<String>(
+        $SyllabusesTable.$converterlanguage.toJson(language),
+      ),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'fetchedAt': serializer.toJson<DateTime>(fetchedAt),
+    };
+  }
+
+  Syllabus copyWith({
+    int? id,
+    int? courseOffering,
+    int? teacher,
+    SyllabusLanguage? language,
+    Value<DateTime?> updatedAt = const Value.absent(),
+    DateTime? fetchedAt,
+  }) => Syllabus(
+    id: id ?? this.id,
+    courseOffering: courseOffering ?? this.courseOffering,
+    teacher: teacher ?? this.teacher,
+    language: language ?? this.language,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+  );
+  Syllabus copyWithCompanion(SyllabusesCompanion data) {
+    return Syllabus(
+      id: data.id.present ? data.id.value : this.id,
+      courseOffering: data.courseOffering.present
+          ? data.courseOffering.value
+          : this.courseOffering,
+      teacher: data.teacher.present ? data.teacher.value : this.teacher,
+      language: data.language.present ? data.language.value : this.language,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Syllabus(')
+          ..write('id: $id, ')
+          ..write('courseOffering: $courseOffering, ')
+          ..write('teacher: $teacher, ')
+          ..write('language: $language, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('fetchedAt: $fetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, courseOffering, teacher, language, updatedAt, fetchedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Syllabus &&
+          other.id == this.id &&
+          other.courseOffering == this.courseOffering &&
+          other.teacher == this.teacher &&
+          other.language == this.language &&
+          other.updatedAt == this.updatedAt &&
+          other.fetchedAt == this.fetchedAt);
+}
+
+class SyllabusesCompanion extends UpdateCompanion<Syllabus> {
+  final Value<int> id;
+  final Value<int> courseOffering;
+  final Value<int> teacher;
+  final Value<SyllabusLanguage> language;
+  final Value<DateTime?> updatedAt;
+  final Value<DateTime> fetchedAt;
+  const SyllabusesCompanion({
+    this.id = const Value.absent(),
+    this.courseOffering = const Value.absent(),
+    this.teacher = const Value.absent(),
+    this.language = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+  });
+  SyllabusesCompanion.insert({
+    this.id = const Value.absent(),
+    required int courseOffering,
+    required int teacher,
+    required SyllabusLanguage language,
+    this.updatedAt = const Value.absent(),
+    required DateTime fetchedAt,
+  }) : courseOffering = Value(courseOffering),
+       teacher = Value(teacher),
+       language = Value(language),
+       fetchedAt = Value(fetchedAt);
+  static Insertable<Syllabus> custom({
+    Expression<int>? id,
+    Expression<int>? courseOffering,
+    Expression<int>? teacher,
+    Expression<String>? language,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? fetchedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (courseOffering != null) 'course_offering': courseOffering,
+      if (teacher != null) 'teacher': teacher,
+      if (language != null) 'language': language,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+    });
+  }
+
+  SyllabusesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? courseOffering,
+    Value<int>? teacher,
+    Value<SyllabusLanguage>? language,
+    Value<DateTime?>? updatedAt,
+    Value<DateTime>? fetchedAt,
+  }) {
+    return SyllabusesCompanion(
+      id: id ?? this.id,
+      courseOffering: courseOffering ?? this.courseOffering,
+      teacher: teacher ?? this.teacher,
+      language: language ?? this.language,
+      updatedAt: updatedAt ?? this.updatedAt,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (courseOffering.present) {
+      map['course_offering'] = Variable<int>(courseOffering.value);
+    }
+    if (teacher.present) {
+      map['teacher'] = Variable<int>(teacher.value);
+    }
+    if (language.present) {
+      map['language'] = Variable<String>(
+        $SyllabusesTable.$converterlanguage.toSql(language.value),
+      );
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyllabusesCompanion(')
+          ..write('id: $id, ')
+          ..write('courseOffering: $courseOffering, ')
+          ..write('teacher: $teacher, ')
+          ..write('language: $language, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('fetchedAt: $fetchedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyllabusSectionsTable extends SyllabusSections
+    with TableInfo<$SyllabusSectionsTable, SyllabusSection> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyllabusSectionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _syllabusMeta = const VerificationMeta(
+    'syllabus',
+  );
+  @override
+  late final GeneratedColumn<int> syllabus = GeneratedColumn<int>(
+    'syllabus',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES syllabuses (id)',
+    ),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta(
+    'position',
+  );
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    syllabus,
+    title,
+    content,
+    position,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'syllabus_sections';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyllabusSection> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('syllabus')) {
+      context.handle(
+        _syllabusMeta,
+        syllabus.isAcceptableOrUnknown(data['syllabus']!, _syllabusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_syllabusMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {syllabus, position},
+  ];
+  @override
+  SyllabusSection map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyllabusSection(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      syllabus: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}syllabus'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      ),
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+    );
+  }
+
+  @override
+  $SyllabusSectionsTable createAlias(String alias) {
+    return $SyllabusSectionsTable(attachedDatabase, alias);
+  }
+}
+
+class SyllabusSection extends DataClass implements Insertable<SyllabusSection> {
+  /// Auto-incrementing primary key.
+  final int id;
+
+  /// Parent syllabus. Sections are deleted with the submission.
+  final int syllabus;
+
+  /// Source title or flattened source-title path.
+  final String title;
+
+  /// Complete source content, or null when the submitted section is blank.
+  final String? content;
+
+  /// Zero-based source-page order.
+  final int position;
+  const SyllabusSection({
+    required this.id,
+    required this.syllabus,
+    required this.title,
+    this.content,
+    required this.position,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['syllabus'] = Variable<int>(syllabus);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || content != null) {
+      map['content'] = Variable<String>(content);
+    }
+    map['position'] = Variable<int>(position);
+    return map;
+  }
+
+  SyllabusSectionsCompanion toCompanion(bool nullToAbsent) {
+    return SyllabusSectionsCompanion(
+      id: Value(id),
+      syllabus: Value(syllabus),
+      title: Value(title),
+      content: content == null && nullToAbsent
+          ? const Value.absent()
+          : Value(content),
+      position: Value(position),
+    );
+  }
+
+  factory SyllabusSection.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyllabusSection(
+      id: serializer.fromJson<int>(json['id']),
+      syllabus: serializer.fromJson<int>(json['syllabus']),
+      title: serializer.fromJson<String>(json['title']),
+      content: serializer.fromJson<String?>(json['content']),
+      position: serializer.fromJson<int>(json['position']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'syllabus': serializer.toJson<int>(syllabus),
+      'title': serializer.toJson<String>(title),
+      'content': serializer.toJson<String?>(content),
+      'position': serializer.toJson<int>(position),
+    };
+  }
+
+  SyllabusSection copyWith({
+    int? id,
+    int? syllabus,
+    String? title,
+    Value<String?> content = const Value.absent(),
+    int? position,
+  }) => SyllabusSection(
+    id: id ?? this.id,
+    syllabus: syllabus ?? this.syllabus,
+    title: title ?? this.title,
+    content: content.present ? content.value : this.content,
+    position: position ?? this.position,
+  );
+  SyllabusSection copyWithCompanion(SyllabusSectionsCompanion data) {
+    return SyllabusSection(
+      id: data.id.present ? data.id.value : this.id,
+      syllabus: data.syllabus.present ? data.syllabus.value : this.syllabus,
+      title: data.title.present ? data.title.value : this.title,
+      content: data.content.present ? data.content.value : this.content,
+      position: data.position.present ? data.position.value : this.position,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyllabusSection(')
+          ..write('id: $id, ')
+          ..write('syllabus: $syllabus, ')
+          ..write('title: $title, ')
+          ..write('content: $content, ')
+          ..write('position: $position')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, syllabus, title, content, position);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyllabusSection &&
+          other.id == this.id &&
+          other.syllabus == this.syllabus &&
+          other.title == this.title &&
+          other.content == this.content &&
+          other.position == this.position);
+}
+
+class SyllabusSectionsCompanion extends UpdateCompanion<SyllabusSection> {
+  final Value<int> id;
+  final Value<int> syllabus;
+  final Value<String> title;
+  final Value<String?> content;
+  final Value<int> position;
+  const SyllabusSectionsCompanion({
+    this.id = const Value.absent(),
+    this.syllabus = const Value.absent(),
+    this.title = const Value.absent(),
+    this.content = const Value.absent(),
+    this.position = const Value.absent(),
+  });
+  SyllabusSectionsCompanion.insert({
+    this.id = const Value.absent(),
+    required int syllabus,
+    required String title,
+    this.content = const Value.absent(),
+    required int position,
+  }) : syllabus = Value(syllabus),
+       title = Value(title),
+       position = Value(position);
+  static Insertable<SyllabusSection> custom({
+    Expression<int>? id,
+    Expression<int>? syllabus,
+    Expression<String>? title,
+    Expression<String>? content,
+    Expression<int>? position,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (syllabus != null) 'syllabus': syllabus,
+      if (title != null) 'title': title,
+      if (content != null) 'content': content,
+      if (position != null) 'position': position,
+    });
+  }
+
+  SyllabusSectionsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? syllabus,
+    Value<String>? title,
+    Value<String?>? content,
+    Value<int>? position,
+  }) {
+    return SyllabusSectionsCompanion(
+      id: id ?? this.id,
+      syllabus: syllabus ?? this.syllabus,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      position: position ?? this.position,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (syllabus.present) {
+      map['syllabus'] = Variable<int>(syllabus.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyllabusSectionsCompanion(')
+          ..write('id: $id, ')
+          ..write('syllabus: $syllabus, ')
+          ..write('title: $title, ')
+          ..write('content: $content, ')
+          ..write('position: $position')
           ..write(')'))
         .toString();
   }
@@ -10502,6 +12120,445 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
   }
 }
 
+class CourseOfferingOverview extends DataClass {
+  final int id;
+  final String? courseCode;
+  final int semester;
+  final String? number;
+  final String? nameZh;
+  final String? nameEn;
+  final double? credits;
+  final int? hours;
+  final int? phase;
+  final CourseType? courseType;
+  final String? status;
+  final String? language;
+  final String? remarks;
+  final int? enrolled;
+  final int? withdrawn;
+  final DateTime? fetchedAt;
+  const CourseOfferingOverview({
+    required this.id,
+    this.courseCode,
+    required this.semester,
+    this.number,
+    this.nameZh,
+    this.nameEn,
+    this.credits,
+    this.hours,
+    this.phase,
+    this.courseType,
+    this.status,
+    this.language,
+    this.remarks,
+    this.enrolled,
+    this.withdrawn,
+    this.fetchedAt,
+  });
+  factory CourseOfferingOverview.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CourseOfferingOverview(
+      id: serializer.fromJson<int>(json['id']),
+      courseCode: serializer.fromJson<String?>(json['courseCode']),
+      semester: serializer.fromJson<int>(json['semester']),
+      number: serializer.fromJson<String?>(json['number']),
+      nameZh: serializer.fromJson<String?>(json['nameZh']),
+      nameEn: serializer.fromJson<String?>(json['nameEn']),
+      credits: serializer.fromJson<double?>(json['credits']),
+      hours: serializer.fromJson<int?>(json['hours']),
+      phase: serializer.fromJson<int?>(json['phase']),
+      courseType: $CourseOfferingsTable.$convertercourseTypen.fromJson(
+        serializer.fromJson<String?>(json['courseType']),
+      ),
+      status: serializer.fromJson<String?>(json['status']),
+      language: serializer.fromJson<String?>(json['language']),
+      remarks: serializer.fromJson<String?>(json['remarks']),
+      enrolled: serializer.fromJson<int?>(json['enrolled']),
+      withdrawn: serializer.fromJson<int?>(json['withdrawn']),
+      fetchedAt: serializer.fromJson<DateTime?>(json['fetchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'courseCode': serializer.toJson<String?>(courseCode),
+      'semester': serializer.toJson<int>(semester),
+      'number': serializer.toJson<String?>(number),
+      'nameZh': serializer.toJson<String?>(nameZh),
+      'nameEn': serializer.toJson<String?>(nameEn),
+      'credits': serializer.toJson<double?>(credits),
+      'hours': serializer.toJson<int?>(hours),
+      'phase': serializer.toJson<int?>(phase),
+      'courseType': serializer.toJson<String?>(
+        $CourseOfferingsTable.$convertercourseTypen.toJson(courseType),
+      ),
+      'status': serializer.toJson<String?>(status),
+      'language': serializer.toJson<String?>(language),
+      'remarks': serializer.toJson<String?>(remarks),
+      'enrolled': serializer.toJson<int?>(enrolled),
+      'withdrawn': serializer.toJson<int?>(withdrawn),
+      'fetchedAt': serializer.toJson<DateTime?>(fetchedAt),
+    };
+  }
+
+  CourseOfferingOverview copyWith({
+    int? id,
+    Value<String?> courseCode = const Value.absent(),
+    int? semester,
+    Value<String?> number = const Value.absent(),
+    Value<String?> nameZh = const Value.absent(),
+    Value<String?> nameEn = const Value.absent(),
+    Value<double?> credits = const Value.absent(),
+    Value<int?> hours = const Value.absent(),
+    Value<int?> phase = const Value.absent(),
+    Value<CourseType?> courseType = const Value.absent(),
+    Value<String?> status = const Value.absent(),
+    Value<String?> language = const Value.absent(),
+    Value<String?> remarks = const Value.absent(),
+    Value<int?> enrolled = const Value.absent(),
+    Value<int?> withdrawn = const Value.absent(),
+    Value<DateTime?> fetchedAt = const Value.absent(),
+  }) => CourseOfferingOverview(
+    id: id ?? this.id,
+    courseCode: courseCode.present ? courseCode.value : this.courseCode,
+    semester: semester ?? this.semester,
+    number: number.present ? number.value : this.number,
+    nameZh: nameZh.present ? nameZh.value : this.nameZh,
+    nameEn: nameEn.present ? nameEn.value : this.nameEn,
+    credits: credits.present ? credits.value : this.credits,
+    hours: hours.present ? hours.value : this.hours,
+    phase: phase.present ? phase.value : this.phase,
+    courseType: courseType.present ? courseType.value : this.courseType,
+    status: status.present ? status.value : this.status,
+    language: language.present ? language.value : this.language,
+    remarks: remarks.present ? remarks.value : this.remarks,
+    enrolled: enrolled.present ? enrolled.value : this.enrolled,
+    withdrawn: withdrawn.present ? withdrawn.value : this.withdrawn,
+    fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
+  );
+  @override
+  String toString() {
+    return (StringBuffer('CourseOfferingOverview(')
+          ..write('id: $id, ')
+          ..write('courseCode: $courseCode, ')
+          ..write('semester: $semester, ')
+          ..write('number: $number, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('credits: $credits, ')
+          ..write('hours: $hours, ')
+          ..write('phase: $phase, ')
+          ..write('courseType: $courseType, ')
+          ..write('status: $status, ')
+          ..write('language: $language, ')
+          ..write('remarks: $remarks, ')
+          ..write('enrolled: $enrolled, ')
+          ..write('withdrawn: $withdrawn, ')
+          ..write('fetchedAt: $fetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    courseCode,
+    semester,
+    number,
+    nameZh,
+    nameEn,
+    credits,
+    hours,
+    phase,
+    courseType,
+    status,
+    language,
+    remarks,
+    enrolled,
+    withdrawn,
+    fetchedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CourseOfferingOverview &&
+          other.id == this.id &&
+          other.courseCode == this.courseCode &&
+          other.semester == this.semester &&
+          other.number == this.number &&
+          other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn &&
+          other.credits == this.credits &&
+          other.hours == this.hours &&
+          other.phase == this.phase &&
+          other.courseType == this.courseType &&
+          other.status == this.status &&
+          other.language == this.language &&
+          other.remarks == this.remarks &&
+          other.enrolled == this.enrolled &&
+          other.withdrawn == this.withdrawn &&
+          other.fetchedAt == this.fetchedAt);
+}
+
+class $CourseOfferingOverviewsView
+    extends ViewInfo<$CourseOfferingOverviewsView, CourseOfferingOverview>
+    implements HasResultSet {
+  final String? _alias;
+  @override
+  final _$AppDatabase attachedDatabase;
+  $CourseOfferingOverviewsView(this.attachedDatabase, [this._alias]);
+  $CourseOfferingsTable get courseOfferings =>
+      attachedDatabase.courseOfferings.createAlias('t0');
+  $CoursesTable get courses => attachedDatabase.courses.createAlias('t1');
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    courseCode,
+    semester,
+    number,
+    nameZh,
+    nameEn,
+    credits,
+    hours,
+    phase,
+    courseType,
+    status,
+    language,
+    remarks,
+    enrolled,
+    withdrawn,
+    fetchedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? entityName;
+  @override
+  String get entityName => 'course_offering_overviews';
+  @override
+  Map<SqlDialect, String>? get createViewStatements => null;
+  @override
+  $CourseOfferingOverviewsView get asDslTable => this;
+  @override
+  CourseOfferingOverview map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CourseOfferingOverview(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      courseCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}course_code'],
+      ),
+      semester: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}semester'],
+      )!,
+      number: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}number'],
+      ),
+      nameZh: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_zh'],
+      ),
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      ),
+      credits: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}credits'],
+      ),
+      hours: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}hours'],
+      ),
+      phase: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}phase'],
+      ),
+      courseType: $CourseOfferingsTable.$convertercourseTypen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}course_type'],
+        ),
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      ),
+      language: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}language'],
+      ),
+      remarks: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remarks'],
+      ),
+      enrolled: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}enrolled'],
+      ),
+      withdrawn: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}withdrawn'],
+      ),
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      ),
+    );
+  }
+
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(courseOfferings.id, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<String> courseCode = GeneratedColumn<String>(
+    'course_code',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.courseCode, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<int> semester = GeneratedColumn<int>(
+    'semester',
+    aliasedName,
+    false,
+    generatedAs: GeneratedAs(courseOfferings.semester, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<String> number = GeneratedColumn<String>(
+    'number',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.number, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
+    'name_zh',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.nameZh, courses.nameZh]),
+      false,
+    ),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.nameEn, courses.nameEn]),
+      false,
+    ),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<double> credits = GeneratedColumn<double>(
+    'credits',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.credits, courses.credits]),
+      false,
+    ),
+    type: DriftSqlType.double,
+  );
+  late final GeneratedColumn<int> hours = GeneratedColumn<int>(
+    'hours',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(
+      coalesce([courseOfferings.hours, courses.hours]),
+      false,
+    ),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> phase = GeneratedColumn<int>(
+    'phase',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.phase, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumnWithTypeConverter<CourseType?, String> courseType =
+      GeneratedColumn<String>(
+        'course_type',
+        aliasedName,
+        true,
+        generatedAs: GeneratedAs(courseOfferings.courseType, false),
+        type: DriftSqlType.string,
+      ).withConverter<CourseType?>($CourseOfferingsTable.$convertercourseTypen);
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.status, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> language = GeneratedColumn<String>(
+    'language',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.language, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<String> remarks = GeneratedColumn<String>(
+    'remarks',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.remarks, false),
+    type: DriftSqlType.string,
+  );
+  late final GeneratedColumn<int> enrolled = GeneratedColumn<int>(
+    'enrolled',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.enrolled, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<int> withdrawn = GeneratedColumn<int>(
+    'withdrawn',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.withdrawn, false),
+    type: DriftSqlType.int,
+  );
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(courseOfferings.fetchedAt, false),
+    type: DriftSqlType.dateTime,
+  );
+  @override
+  $CourseOfferingOverviewsView createAlias(String alias) {
+    return $CourseOfferingOverviewsView(attachedDatabase, alias);
+  }
+
+  @override
+  Query? get query =>
+      (attachedDatabase.selectOnly(courseOfferings)..addColumns($columns)).join(
+        [
+          leftOuterJoin(
+            courses,
+            courses.code.equalsExp(courseOfferings.courseCode),
+          ),
+        ],
+      );
+  @override
+  Set<String> get readTables => const {'course_offerings', 'courses'};
+}
+
 class CourseTableSlot extends DataClass {
   final int id;
   final String? number;
@@ -11465,11 +13522,13 @@ class UserRegistration extends DataClass {
   final int term;
   final String? className;
   final EnrollmentStatus? enrollmentStatus;
+  final bool? graduated;
   const UserRegistration({
     required this.year,
     required this.term,
     this.className,
     this.enrollmentStatus,
+    this.graduated,
   });
   factory UserRegistration.fromJson(
     Map<String, dynamic> json, {
@@ -11482,6 +13541,7 @@ class UserRegistration extends DataClass {
       className: serializer.fromJson<String?>(json['className']),
       enrollmentStatus: $UserSemesterSummariesTable.$converterenrollmentStatusn
           .fromJson(serializer.fromJson<String?>(json['enrollmentStatus'])),
+      graduated: serializer.fromJson<bool?>(json['graduated']),
     );
   }
   @override
@@ -11496,6 +13556,7 @@ class UserRegistration extends DataClass {
           enrollmentStatus,
         ),
       ),
+      'graduated': serializer.toJson<bool?>(graduated),
     };
   }
 
@@ -11504,6 +13565,7 @@ class UserRegistration extends DataClass {
     int? term,
     Value<String?> className = const Value.absent(),
     Value<EnrollmentStatus?> enrollmentStatus = const Value.absent(),
+    Value<bool?> graduated = const Value.absent(),
   }) => UserRegistration(
     year: year ?? this.year,
     term: term ?? this.term,
@@ -11511,6 +13573,7 @@ class UserRegistration extends DataClass {
     enrollmentStatus: enrollmentStatus.present
         ? enrollmentStatus.value
         : this.enrollmentStatus,
+    graduated: graduated.present ? graduated.value : this.graduated,
   );
   @override
   String toString() {
@@ -11518,13 +13581,15 @@ class UserRegistration extends DataClass {
           ..write('year: $year, ')
           ..write('term: $term, ')
           ..write('className: $className, ')
-          ..write('enrollmentStatus: $enrollmentStatus')
+          ..write('enrollmentStatus: $enrollmentStatus, ')
+          ..write('graduated: $graduated')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(year, term, className, enrollmentStatus);
+  int get hashCode =>
+      Object.hash(year, term, className, enrollmentStatus, graduated);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -11532,7 +13597,8 @@ class UserRegistration extends DataClass {
           other.year == this.year &&
           other.term == this.term &&
           other.className == this.className &&
-          other.enrollmentStatus == this.enrollmentStatus);
+          other.enrollmentStatus == this.enrollmentStatus &&
+          other.graduated == this.graduated);
 }
 
 class $UserRegistrationsView
@@ -11551,6 +13617,7 @@ class $UserRegistrationsView
     term,
     className,
     enrollmentStatus,
+    graduated,
   ];
   @override
   String get aliasedName => _alias ?? entityName;
@@ -11583,6 +13650,10 @@ class $UserRegistrationsView
               data['${effectivePrefix}enrollment_status'],
             ),
           ),
+      graduated: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}graduated'],
+      ),
     );
   }
 
@@ -11618,6 +13689,16 @@ class $UserRegistrationsView
       ).withConverter<EnrollmentStatus?>(
         $UserSemesterSummariesTable.$converterenrollmentStatusn,
       );
+  late final GeneratedColumn<bool> graduated = GeneratedColumn<bool>(
+    'graduated',
+    aliasedName,
+    true,
+    generatedAs: GeneratedAs(userSemesterSummaries.graduated, false),
+    type: DriftSqlType.bool,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("graduated" IN (0, 1))',
+    ),
+  );
   @override
   $UserRegistrationsView createAlias(String alias) {
     return $UserRegistrationsView(attachedDatabase, alias);
@@ -11641,6 +13722,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $UsersTable users = $UsersTable(this);
+  late final $PortalApplicationCategoriesTable portalApplicationCategories =
+      $PortalApplicationCategoriesTable(this);
+  late final $PortalApplicationsTable portalApplications =
+      $PortalApplicationsTable(this);
+  late final $PortalApplicationFavoritesTable portalApplicationFavorites =
+      $PortalApplicationFavoritesTable(this);
   late final $StudentsTable students = $StudentsTable(this);
   late final $SemestersTable semesters = $SemestersTable(this);
   late final $CoursesTable courses = $CoursesTable(this);
@@ -11661,6 +13748,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CourseOfferingStudentsTable courseOfferingStudents =
       $CourseOfferingStudentsTable(this);
   late final $SchedulesTable schedules = $SchedulesTable(this);
+  late final $SyllabusesTable syllabuses = $SyllabusesTable(this);
+  late final $SyllabusSectionsTable syllabusSections = $SyllabusSectionsTable(
+    this,
+  );
   late final $MaterialsTable materials = $MaterialsTable(this);
   late final $TeacherOfficeHoursTable teacherOfficeHours =
       $TeacherOfficeHoursTable(this);
@@ -11674,6 +13765,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $UserSemesterRankingsTable userSemesterRankings =
       $UserSemesterRankingsTable(this);
   late final $CalendarEventsTable calendarEvents = $CalendarEventsTable(this);
+  late final $CourseOfferingOverviewsView courseOfferingOverviews =
+      $CourseOfferingOverviewsView(this);
   late final $CourseTableSlotsView courseTableSlots = $CourseTableSlotsView(
     this,
   );
@@ -11725,6 +13818,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     users,
+    portalApplicationCategories,
+    portalApplications,
+    portalApplicationFavorites,
     students,
     semesters,
     courses,
@@ -11738,6 +13834,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     courseOfferingClasses,
     courseOfferingStudents,
     schedules,
+    syllabuses,
+    syllabusSections,
     materials,
     teacherOfficeHours,
     scores,
@@ -11746,6 +13844,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userSemesterSummaryCadreRoles,
     userSemesterRankings,
     calendarEvents,
+    courseOfferingOverviews,
     courseTableSlots,
     scoreDetails,
     userAcademicSummaries,
@@ -11762,6 +13861,31 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'users',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('portal_application_categories', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'portal_application_categories',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('portal_applications', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'users',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('portal_application_favorites', kind: UpdateKind.delete),
+      ],
+    ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'course_offerings',
@@ -11793,6 +13917,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('schedules', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'course_offerings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('syllabuses', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -11864,6 +13995,7 @@ typedef $$UsersTableCreateCompanionBuilder =
       Value<DateTime?> semestersFetchedAt,
       Value<DateTime?> scoreDataFetchedAt,
       Value<DateTime?> calendarFetchedAt,
+      Value<DateTime?> applicationCatalogFetchedAt,
     });
 typedef $$UsersTableUpdateCompanionBuilder =
     UsersCompanion Function({
@@ -11883,17 +14015,68 @@ typedef $$UsersTableUpdateCompanionBuilder =
       Value<DateTime?> semestersFetchedAt,
       Value<DateTime?> scoreDataFetchedAt,
       Value<DateTime?> calendarFetchedAt,
+      Value<DateTime?> applicationCatalogFetchedAt,
     });
 
 final class $$UsersTableReferences
     extends BaseReferences<_$AppDatabase, $UsersTable, User> {
   $$UsersTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
+  static MultiTypedResultKey<
+    $PortalApplicationCategoriesTable,
+    List<PortalApplicationCategory>
+  >
+  _portalApplicationCategoriesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.portalApplicationCategories,
+        aliasName: 'users__id__portal_application_categories__user',
+      );
+
+  $$PortalApplicationCategoriesTableProcessedTableManager
+  get portalApplicationCategoriesRefs {
+    final manager = $$PortalApplicationCategoriesTableTableManager(
+      $_db,
+      $_db.portalApplicationCategories,
+    ).filter((f) => f.user.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _portalApplicationCategoriesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $PortalApplicationFavoritesTable,
+    List<PortalApplicationFavorite>
+  >
+  _portalApplicationFavoritesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.portalApplicationFavorites,
+        aliasName: 'users__id__portal_application_favorites__user',
+      );
+
+  $$PortalApplicationFavoritesTableProcessedTableManager
+  get portalApplicationFavoritesRefs {
+    final manager = $$PortalApplicationFavoritesTableTableManager(
+      $_db,
+      $_db.portalApplicationFavorites,
+    ).filter((f) => f.user.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _portalApplicationFavoritesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$ScoresTable, List<Score>> _scoresRefsTable(
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.scores,
-    aliasName: $_aliasNameGenerator(db.users.id, db.scores.user),
+    aliasName: 'users__id__scores__user',
   );
 
   $$ScoresTableProcessedTableManager get scoresRefs {
@@ -11915,10 +14098,7 @@ final class $$UsersTableReferences
   _userSemesterSummariesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.userSemesterSummaries,
-        aliasName: $_aliasNameGenerator(
-          db.users.id,
-          db.userSemesterSummaries.user,
-        ),
+        aliasName: 'users__id__user_semester_summaries__user',
       );
 
   $$UserSemesterSummariesTableProcessedTableManager
@@ -12024,6 +14204,67 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
     column: $table.calendarFetchedAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<DateTime> get applicationCatalogFetchedAt => $composableBuilder(
+    column: $table.applicationCatalogFetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> portalApplicationCategoriesRefs(
+    Expression<bool> Function(
+      $$PortalApplicationCategoriesTableFilterComposer f,
+    )
+    f,
+  ) {
+    final $$PortalApplicationCategoriesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.portalApplicationCategories,
+          getReferencedColumn: (t) => t.user,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationCategoriesTableFilterComposer(
+                $db: $db,
+                $table: $db.portalApplicationCategories,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> portalApplicationFavoritesRefs(
+    Expression<bool> Function($$PortalApplicationFavoritesTableFilterComposer f)
+    f,
+  ) {
+    final $$PortalApplicationFavoritesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.portalApplicationFavorites,
+          getReferencedColumn: (t) => t.user,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationFavoritesTableFilterComposer(
+                $db: $db,
+                $table: $db.portalApplicationFavorites,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 
   Expression<bool> scoresRefs(
     Expression<bool> Function($$ScoresTableFilterComposer f) f,
@@ -12165,6 +14406,12 @@ class $$UsersTableOrderingComposer
     column: $table.calendarFetchedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<DateTime> get applicationCatalogFetchedAt =>
+      $composableBuilder(
+        column: $table.applicationCatalogFetchedAt,
+        builder: (column) => ColumnOrderings(column),
+      );
 }
 
 class $$UsersTableAnnotationComposer
@@ -12240,6 +14487,70 @@ class $$UsersTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<DateTime> get applicationCatalogFetchedAt =>
+      $composableBuilder(
+        column: $table.applicationCatalogFetchedAt,
+        builder: (column) => column,
+      );
+
+  Expression<T> portalApplicationCategoriesRefs<T extends Object>(
+    Expression<T> Function(
+      $$PortalApplicationCategoriesTableAnnotationComposer a,
+    )
+    f,
+  ) {
+    final $$PortalApplicationCategoriesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.portalApplicationCategories,
+          getReferencedColumn: (t) => t.user,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationCategoriesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.portalApplicationCategories,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> portalApplicationFavoritesRefs<T extends Object>(
+    Expression<T> Function(
+      $$PortalApplicationFavoritesTableAnnotationComposer a,
+    )
+    f,
+  ) {
+    final $$PortalApplicationFavoritesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.portalApplicationFavorites,
+          getReferencedColumn: (t) => t.user,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationFavoritesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.portalApplicationFavorites,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> scoresRefs<T extends Object>(
     Expression<T> Function($$ScoresTableAnnotationComposer a) f,
   ) {
@@ -12306,6 +14617,8 @@ class $$UsersTableTableManager
           (User, $$UsersTableReferences),
           User,
           PrefetchHooks Function({
+            bool portalApplicationCategoriesRefs,
+            bool portalApplicationFavoritesRefs,
             bool scoresRefs,
             bool userSemesterSummariesRefs,
           })
@@ -12339,6 +14652,8 @@ class $$UsersTableTableManager
                 Value<DateTime?> semestersFetchedAt = const Value.absent(),
                 Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
                 Value<DateTime?> calendarFetchedAt = const Value.absent(),
+                Value<DateTime?> applicationCatalogFetchedAt =
+                    const Value.absent(),
               }) => UsersCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -12356,6 +14671,7 @@ class $$UsersTableTableManager
                 semestersFetchedAt: semestersFetchedAt,
                 scoreDataFetchedAt: scoreDataFetchedAt,
                 calendarFetchedAt: calendarFetchedAt,
+                applicationCatalogFetchedAt: applicationCatalogFetchedAt,
               ),
           createCompanionCallback:
               ({
@@ -12375,6 +14691,8 @@ class $$UsersTableTableManager
                 Value<DateTime?> semestersFetchedAt = const Value.absent(),
                 Value<DateTime?> scoreDataFetchedAt = const Value.absent(),
                 Value<DateTime?> calendarFetchedAt = const Value.absent(),
+                Value<DateTime?> applicationCatalogFetchedAt =
+                    const Value.absent(),
               }) => UsersCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -12392,6 +14710,7 @@ class $$UsersTableTableManager
                 semestersFetchedAt: semestersFetchedAt,
                 scoreDataFetchedAt: scoreDataFetchedAt,
                 calendarFetchedAt: calendarFetchedAt,
+                applicationCatalogFetchedAt: applicationCatalogFetchedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -12400,16 +14719,67 @@ class $$UsersTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({scoresRefs = false, userSemesterSummariesRefs = false}) {
+              ({
+                portalApplicationCategoriesRefs = false,
+                portalApplicationFavoritesRefs = false,
+                scoresRefs = false,
+                userSemesterSummariesRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
+                    if (portalApplicationCategoriesRefs)
+                      db.portalApplicationCategories,
+                    if (portalApplicationFavoritesRefs)
+                      db.portalApplicationFavorites,
                     if (scoresRefs) db.scores,
                     if (userSemesterSummariesRefs) db.userSemesterSummaries,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
+                      if (portalApplicationCategoriesRefs)
+                        await $_getPrefetchedData<
+                          User,
+                          $UsersTable,
+                          PortalApplicationCategory
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._portalApplicationCategoriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).portalApplicationCategoriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.user == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (portalApplicationFavoritesRefs)
+                        await $_getPrefetchedData<
+                          User,
+                          $UsersTable,
+                          PortalApplicationFavorite
+                        >(
+                          currentTable: table,
+                          referencedTable: $$UsersTableReferences
+                              ._portalApplicationFavoritesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$UsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).portalApplicationFavoritesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.user == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (scoresRefs)
                         await $_getPrefetchedData<User, $UsersTable, Score>(
                           currentTable: table,
@@ -12464,7 +14834,1122 @@ typedef $$UsersTableProcessedTableManager =
       $$UsersTableUpdateCompanionBuilder,
       (User, $$UsersTableReferences),
       User,
-      PrefetchHooks Function({bool scoresRefs, bool userSemesterSummariesRefs})
+      PrefetchHooks Function({
+        bool portalApplicationCategoriesRefs,
+        bool portalApplicationFavoritesRefs,
+        bool scoresRefs,
+        bool userSemesterSummariesRefs,
+      })
+    >;
+typedef $$PortalApplicationCategoriesTableCreateCompanionBuilder =
+    PortalApplicationCategoriesCompanion Function({
+      Value<int> id,
+      required int user,
+      required String distinguishedName,
+      required String nameZh,
+      Value<String?> nameEn,
+      required int position,
+    });
+typedef $$PortalApplicationCategoriesTableUpdateCompanionBuilder =
+    PortalApplicationCategoriesCompanion Function({
+      Value<int> id,
+      Value<int> user,
+      Value<String> distinguishedName,
+      Value<String> nameZh,
+      Value<String?> nameEn,
+      Value<int> position,
+    });
+
+final class $$PortalApplicationCategoriesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $PortalApplicationCategoriesTable,
+          PortalApplicationCategory
+        > {
+  $$PortalApplicationCategoriesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $UsersTable _userTable(_$AppDatabase db) =>
+      db.users.createAlias('portal_application_categories__user__users__id');
+
+  $$UsersTableProcessedTableManager get user {
+    final $_column = $_itemColumn<int>('user')!;
+
+    final manager = $$UsersTableTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$PortalApplicationsTable, List<PortalApplication>>
+  _portalApplicationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.portalApplications,
+        aliasName:
+            'portal_application_categories__id__portal_applications__category',
+      );
+
+  $$PortalApplicationsTableProcessedTableManager get portalApplicationsRefs {
+    final manager = $$PortalApplicationsTableTableManager(
+      $_db,
+      $_db.portalApplications,
+    ).filter((f) => f.category.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _portalApplicationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$PortalApplicationCategoriesTableFilterComposer
+    extends Composer<_$AppDatabase, $PortalApplicationCategoriesTable> {
+  $$PortalApplicationCategoriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get distinguishedName => $composableBuilder(
+    column: $table.distinguishedName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameZh => $composableBuilder(
+    column: $table.nameZh,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UsersTableFilterComposer get user {
+    final $$UsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.user,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> portalApplicationsRefs(
+    Expression<bool> Function($$PortalApplicationsTableFilterComposer f) f,
+  ) {
+    final $$PortalApplicationsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.portalApplications,
+      getReferencedColumn: (t) => t.category,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PortalApplicationsTableFilterComposer(
+            $db: $db,
+            $table: $db.portalApplications,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PortalApplicationCategoriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PortalApplicationCategoriesTable> {
+  $$PortalApplicationCategoriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get distinguishedName => $composableBuilder(
+    column: $table.distinguishedName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameZh => $composableBuilder(
+    column: $table.nameZh,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UsersTableOrderingComposer get user {
+    final $$UsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.user,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PortalApplicationCategoriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PortalApplicationCategoriesTable> {
+  $$PortalApplicationCategoriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get distinguishedName => $composableBuilder(
+    column: $table.distinguishedName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get nameZh =>
+      $composableBuilder(column: $table.nameZh, builder: (column) => column);
+
+  GeneratedColumn<String> get nameEn =>
+      $composableBuilder(column: $table.nameEn, builder: (column) => column);
+
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  $$UsersTableAnnotationComposer get user {
+    final $$UsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.user,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> portalApplicationsRefs<T extends Object>(
+    Expression<T> Function($$PortalApplicationsTableAnnotationComposer a) f,
+  ) {
+    final $$PortalApplicationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.portalApplications,
+          getReferencedColumn: (t) => t.category,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.portalApplications,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$PortalApplicationCategoriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PortalApplicationCategoriesTable,
+          PortalApplicationCategory,
+          $$PortalApplicationCategoriesTableFilterComposer,
+          $$PortalApplicationCategoriesTableOrderingComposer,
+          $$PortalApplicationCategoriesTableAnnotationComposer,
+          $$PortalApplicationCategoriesTableCreateCompanionBuilder,
+          $$PortalApplicationCategoriesTableUpdateCompanionBuilder,
+          (
+            PortalApplicationCategory,
+            $$PortalApplicationCategoriesTableReferences,
+          ),
+          PortalApplicationCategory,
+          PrefetchHooks Function({bool user, bool portalApplicationsRefs})
+        > {
+  $$PortalApplicationCategoriesTableTableManager(
+    _$AppDatabase db,
+    $PortalApplicationCategoriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PortalApplicationCategoriesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$PortalApplicationCategoriesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PortalApplicationCategoriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> user = const Value.absent(),
+                Value<String> distinguishedName = const Value.absent(),
+                Value<String> nameZh = const Value.absent(),
+                Value<String?> nameEn = const Value.absent(),
+                Value<int> position = const Value.absent(),
+              }) => PortalApplicationCategoriesCompanion(
+                id: id,
+                user: user,
+                distinguishedName: distinguishedName,
+                nameZh: nameZh,
+                nameEn: nameEn,
+                position: position,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int user,
+                required String distinguishedName,
+                required String nameZh,
+                Value<String?> nameEn = const Value.absent(),
+                required int position,
+              }) => PortalApplicationCategoriesCompanion.insert(
+                id: id,
+                user: user,
+                distinguishedName: distinguishedName,
+                nameZh: nameZh,
+                nameEn: nameEn,
+                position: position,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PortalApplicationCategoriesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({user = false, portalApplicationsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (portalApplicationsRefs) db.portalApplications,
+              ],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (user) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.user,
+                                referencedTable:
+                                    $$PortalApplicationCategoriesTableReferences
+                                        ._userTable(db),
+                                referencedColumn:
+                                    $$PortalApplicationCategoriesTableReferences
+                                        ._userTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (portalApplicationsRefs)
+                    await $_getPrefetchedData<
+                      PortalApplicationCategory,
+                      $PortalApplicationCategoriesTable,
+                      PortalApplication
+                    >(
+                      currentTable: table,
+                      referencedTable:
+                          $$PortalApplicationCategoriesTableReferences
+                              ._portalApplicationsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$PortalApplicationCategoriesTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).portalApplicationsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.category == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PortalApplicationCategoriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PortalApplicationCategoriesTable,
+      PortalApplicationCategory,
+      $$PortalApplicationCategoriesTableFilterComposer,
+      $$PortalApplicationCategoriesTableOrderingComposer,
+      $$PortalApplicationCategoriesTableAnnotationComposer,
+      $$PortalApplicationCategoriesTableCreateCompanionBuilder,
+      $$PortalApplicationCategoriesTableUpdateCompanionBuilder,
+      (PortalApplicationCategory, $$PortalApplicationCategoriesTableReferences),
+      PortalApplicationCategory,
+      PrefetchHooks Function({bool user, bool portalApplicationsRefs})
+    >;
+typedef $$PortalApplicationsTableCreateCompanionBuilder =
+    PortalApplicationsCompanion Function({
+      Value<int> id,
+      required int category,
+      required String code,
+      required String nameZh,
+      Value<String?> nameEn,
+      Value<String?> iconUrl,
+      required int position,
+    });
+typedef $$PortalApplicationsTableUpdateCompanionBuilder =
+    PortalApplicationsCompanion Function({
+      Value<int> id,
+      Value<int> category,
+      Value<String> code,
+      Value<String> nameZh,
+      Value<String?> nameEn,
+      Value<String?> iconUrl,
+      Value<int> position,
+    });
+
+final class $$PortalApplicationsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $PortalApplicationsTable,
+          PortalApplication
+        > {
+  $$PortalApplicationsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $PortalApplicationCategoriesTable _categoryTable(_$AppDatabase db) =>
+      db.portalApplicationCategories.createAlias(
+        'portal_applications__category__portal_application_categories__id',
+      );
+
+  $$PortalApplicationCategoriesTableProcessedTableManager get category {
+    final $_column = $_itemColumn<int>('category')!;
+
+    final manager = $$PortalApplicationCategoriesTableTableManager(
+      $_db,
+      $_db.portalApplicationCategories,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_categoryTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PortalApplicationsTableFilterComposer
+    extends Composer<_$AppDatabase, $PortalApplicationsTable> {
+  $$PortalApplicationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameZh => $composableBuilder(
+    column: $table.nameZh,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get iconUrl => $composableBuilder(
+    column: $table.iconUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PortalApplicationCategoriesTableFilterComposer get category {
+    final $$PortalApplicationCategoriesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.category,
+          referencedTable: $db.portalApplicationCategories,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationCategoriesTableFilterComposer(
+                $db: $db,
+                $table: $db.portalApplicationCategories,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$PortalApplicationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PortalApplicationsTable> {
+  $$PortalApplicationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameZh => $composableBuilder(
+    column: $table.nameZh,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get iconUrl => $composableBuilder(
+    column: $table.iconUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PortalApplicationCategoriesTableOrderingComposer get category {
+    final $$PortalApplicationCategoriesTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.category,
+          referencedTable: $db.portalApplicationCategories,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationCategoriesTableOrderingComposer(
+                $db: $db,
+                $table: $db.portalApplicationCategories,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$PortalApplicationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PortalApplicationsTable> {
+  $$PortalApplicationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<String> get nameZh =>
+      $composableBuilder(column: $table.nameZh, builder: (column) => column);
+
+  GeneratedColumn<String> get nameEn =>
+      $composableBuilder(column: $table.nameEn, builder: (column) => column);
+
+  GeneratedColumn<String> get iconUrl =>
+      $composableBuilder(column: $table.iconUrl, builder: (column) => column);
+
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  $$PortalApplicationCategoriesTableAnnotationComposer get category {
+    final $$PortalApplicationCategoriesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.category,
+          referencedTable: $db.portalApplicationCategories,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PortalApplicationCategoriesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.portalApplicationCategories,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$PortalApplicationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PortalApplicationsTable,
+          PortalApplication,
+          $$PortalApplicationsTableFilterComposer,
+          $$PortalApplicationsTableOrderingComposer,
+          $$PortalApplicationsTableAnnotationComposer,
+          $$PortalApplicationsTableCreateCompanionBuilder,
+          $$PortalApplicationsTableUpdateCompanionBuilder,
+          (PortalApplication, $$PortalApplicationsTableReferences),
+          PortalApplication,
+          PrefetchHooks Function({bool category})
+        > {
+  $$PortalApplicationsTableTableManager(
+    _$AppDatabase db,
+    $PortalApplicationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PortalApplicationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PortalApplicationsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PortalApplicationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> category = const Value.absent(),
+                Value<String> code = const Value.absent(),
+                Value<String> nameZh = const Value.absent(),
+                Value<String?> nameEn = const Value.absent(),
+                Value<String?> iconUrl = const Value.absent(),
+                Value<int> position = const Value.absent(),
+              }) => PortalApplicationsCompanion(
+                id: id,
+                category: category,
+                code: code,
+                nameZh: nameZh,
+                nameEn: nameEn,
+                iconUrl: iconUrl,
+                position: position,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int category,
+                required String code,
+                required String nameZh,
+                Value<String?> nameEn = const Value.absent(),
+                Value<String?> iconUrl = const Value.absent(),
+                required int position,
+              }) => PortalApplicationsCompanion.insert(
+                id: id,
+                category: category,
+                code: code,
+                nameZh: nameZh,
+                nameEn: nameEn,
+                iconUrl: iconUrl,
+                position: position,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PortalApplicationsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({category = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (category) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.category,
+                                referencedTable:
+                                    $$PortalApplicationsTableReferences
+                                        ._categoryTable(db),
+                                referencedColumn:
+                                    $$PortalApplicationsTableReferences
+                                        ._categoryTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PortalApplicationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PortalApplicationsTable,
+      PortalApplication,
+      $$PortalApplicationsTableFilterComposer,
+      $$PortalApplicationsTableOrderingComposer,
+      $$PortalApplicationsTableAnnotationComposer,
+      $$PortalApplicationsTableCreateCompanionBuilder,
+      $$PortalApplicationsTableUpdateCompanionBuilder,
+      (PortalApplication, $$PortalApplicationsTableReferences),
+      PortalApplication,
+      PrefetchHooks Function({bool category})
+    >;
+typedef $$PortalApplicationFavoritesTableCreateCompanionBuilder =
+    PortalApplicationFavoritesCompanion Function({
+      required int user,
+      required String applicationCode,
+      Value<int> rowid,
+    });
+typedef $$PortalApplicationFavoritesTableUpdateCompanionBuilder =
+    PortalApplicationFavoritesCompanion Function({
+      Value<int> user,
+      Value<String> applicationCode,
+      Value<int> rowid,
+    });
+
+final class $$PortalApplicationFavoritesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $PortalApplicationFavoritesTable,
+          PortalApplicationFavorite
+        > {
+  $$PortalApplicationFavoritesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $UsersTable _userTable(_$AppDatabase db) =>
+      db.users.createAlias('portal_application_favorites__user__users__id');
+
+  $$UsersTableProcessedTableManager get user {
+    final $_column = $_itemColumn<int>('user')!;
+
+    final manager = $$UsersTableTableManager(
+      $_db,
+      $_db.users,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PortalApplicationFavoritesTableFilterComposer
+    extends Composer<_$AppDatabase, $PortalApplicationFavoritesTable> {
+  $$PortalApplicationFavoritesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get applicationCode => $composableBuilder(
+    column: $table.applicationCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$UsersTableFilterComposer get user {
+    final $$UsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.user,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableFilterComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PortalApplicationFavoritesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PortalApplicationFavoritesTable> {
+  $$PortalApplicationFavoritesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get applicationCode => $composableBuilder(
+    column: $table.applicationCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$UsersTableOrderingComposer get user {
+    final $$UsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.user,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PortalApplicationFavoritesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PortalApplicationFavoritesTable> {
+  $$PortalApplicationFavoritesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get applicationCode => $composableBuilder(
+    column: $table.applicationCode,
+    builder: (column) => column,
+  );
+
+  $$UsersTableAnnotationComposer get user {
+    final $$UsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.user,
+      referencedTable: $db.users,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.users,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PortalApplicationFavoritesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PortalApplicationFavoritesTable,
+          PortalApplicationFavorite,
+          $$PortalApplicationFavoritesTableFilterComposer,
+          $$PortalApplicationFavoritesTableOrderingComposer,
+          $$PortalApplicationFavoritesTableAnnotationComposer,
+          $$PortalApplicationFavoritesTableCreateCompanionBuilder,
+          $$PortalApplicationFavoritesTableUpdateCompanionBuilder,
+          (
+            PortalApplicationFavorite,
+            $$PortalApplicationFavoritesTableReferences,
+          ),
+          PortalApplicationFavorite,
+          PrefetchHooks Function({bool user})
+        > {
+  $$PortalApplicationFavoritesTableTableManager(
+    _$AppDatabase db,
+    $PortalApplicationFavoritesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PortalApplicationFavoritesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$PortalApplicationFavoritesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PortalApplicationFavoritesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> user = const Value.absent(),
+                Value<String> applicationCode = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PortalApplicationFavoritesCompanion(
+                user: user,
+                applicationCode: applicationCode,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int user,
+                required String applicationCode,
+                Value<int> rowid = const Value.absent(),
+              }) => PortalApplicationFavoritesCompanion.insert(
+                user: user,
+                applicationCode: applicationCode,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PortalApplicationFavoritesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({user = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (user) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.user,
+                                referencedTable:
+                                    $$PortalApplicationFavoritesTableReferences
+                                        ._userTable(db),
+                                referencedColumn:
+                                    $$PortalApplicationFavoritesTableReferences
+                                        ._userTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PortalApplicationFavoritesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PortalApplicationFavoritesTable,
+      PortalApplicationFavorite,
+      $$PortalApplicationFavoritesTableFilterComposer,
+      $$PortalApplicationFavoritesTableOrderingComposer,
+      $$PortalApplicationFavoritesTableAnnotationComposer,
+      $$PortalApplicationFavoritesTableCreateCompanionBuilder,
+      $$PortalApplicationFavoritesTableUpdateCompanionBuilder,
+      (PortalApplicationFavorite, $$PortalApplicationFavoritesTableReferences),
+      PortalApplicationFavorite,
+      PrefetchHooks Function({bool user})
     >;
 typedef $$StudentsTableCreateCompanionBuilder =
     StudentsCompanion Function({
@@ -12490,10 +15975,7 @@ final class $$StudentsTableReferences
   _courseOfferingStudentsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.courseOfferingStudents,
-        aliasName: $_aliasNameGenerator(
-          db.students.id,
-          db.courseOfferingStudents.student,
-        ),
+        aliasName: 'students__id__course_offering_students__student',
       );
 
   $$CourseOfferingStudentsTableProcessedTableManager
@@ -12758,7 +16240,7 @@ final class $$SemestersTableReferences
   static MultiTypedResultKey<$ClassesTable, List<ClassesData>>
   _classesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.classes,
-    aliasName: $_aliasNameGenerator(db.semesters.id, db.classes.semester),
+    aliasName: 'semesters__id__classes__semester',
   );
 
   $$ClassesTableProcessedTableManager get classesRefs {
@@ -12776,10 +16258,7 @@ final class $$SemestersTableReferences
   static MultiTypedResultKey<$CourseOfferingsTable, List<CourseOffering>>
   _courseOfferingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.courseOfferings,
-    aliasName: $_aliasNameGenerator(
-      db.semesters.id,
-      db.courseOfferings.semester,
-    ),
+    aliasName: 'semesters__id__course_offerings__semester',
   );
 
   $$CourseOfferingsTableProcessedTableManager get courseOfferingsRefs {
@@ -12799,10 +16278,7 @@ final class $$SemestersTableReferences
   static MultiTypedResultKey<$TeacherSemestersTable, List<TeacherSemester>>
   _teacherSemestersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.teacherSemesters,
-    aliasName: $_aliasNameGenerator(
-      db.semesters.id,
-      db.teacherSemesters.semester,
-    ),
+    aliasName: 'semesters__id__teacher_semesters__semester',
   );
 
   $$TeacherSemestersTableProcessedTableManager get teacherSemestersRefs {
@@ -12823,7 +16299,7 @@ final class $$SemestersTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.scores,
-    aliasName: $_aliasNameGenerator(db.semesters.id, db.scores.semester),
+    aliasName: 'semesters__id__scores__semester',
   );
 
   $$ScoresTableProcessedTableManager get scoresRefs {
@@ -12845,10 +16321,7 @@ final class $$SemestersTableReferences
   _userSemesterSummariesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.userSemesterSummaries,
-        aliasName: $_aliasNameGenerator(
-          db.semesters.id,
-          db.userSemesterSummaries.semester,
-        ),
+        aliasName: 'semesters__id__user_semester_summaries__semester',
       );
 
   $$UserSemesterSummariesTableProcessedTableManager
@@ -13491,7 +16964,7 @@ final class $$CoursesTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.scores,
-    aliasName: $_aliasNameGenerator(db.courses.id, db.scores.course),
+    aliasName: 'courses__id__scores__course',
   );
 
   $$ScoresTableProcessedTableManager get scoresRefs {
@@ -13848,10 +17321,7 @@ final class $$DepartmentsTableReferences
   static MultiTypedResultKey<$TeacherSemestersTable, List<TeacherSemester>>
   _teacherSemestersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.teacherSemesters,
-    aliasName: $_aliasNameGenerator(
-      db.departments.id,
-      db.teacherSemesters.department,
-    ),
+    aliasName: 'departments__id__teacher_semesters__department',
   );
 
   $$TeacherSemestersTableProcessedTableManager get teacherSemestersRefs {
@@ -14131,10 +17601,7 @@ final class $$TeachersTableReferences
   static MultiTypedResultKey<$TeacherSemestersTable, List<TeacherSemester>>
   _teacherSemestersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.teacherSemesters,
-    aliasName: $_aliasNameGenerator(
-      db.teachers.id,
-      db.teacherSemesters.teacher,
-    ),
+    aliasName: 'teachers__id__teacher_semesters__teacher',
   );
 
   $$TeacherSemestersTableProcessedTableManager get teacherSemestersRefs {
@@ -14146,6 +17613,24 @@ final class $$TeachersTableReferences
     final cache = $_typedResult.readTableOrNull(
       _teacherSemestersRefsTable($_db),
     );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$SyllabusesTable, List<Syllabus>>
+  _syllabusesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.syllabuses,
+    aliasName: 'teachers__id__syllabuses__teacher',
+  );
+
+  $$SyllabusesTableProcessedTableManager get syllabusesRefs {
+    final manager = $$SyllabusesTableTableManager(
+      $_db,
+      $_db.syllabuses,
+    ).filter((f) => f.teacher.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_syllabusesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -14197,6 +17682,31 @@ class $$TeachersTableFilterComposer
           }) => $$TeacherSemestersTableFilterComposer(
             $db: $db,
             $table: $db.teacherSemesters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> syllabusesRefs(
+    Expression<bool> Function($$SyllabusesTableFilterComposer f) f,
+  ) {
+    final $$SyllabusesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.syllabuses,
+      getReferencedColumn: (t) => t.teacher,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusesTableFilterComposer(
+            $db: $db,
+            $table: $db.syllabuses,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -14282,6 +17792,31 @@ class $$TeachersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> syllabusesRefs<T extends Object>(
+    Expression<T> Function($$SyllabusesTableAnnotationComposer a) f,
+  ) {
+    final $$SyllabusesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.syllabuses,
+      getReferencedColumn: (t) => t.teacher,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.syllabuses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$TeachersTableTableManager
@@ -14297,7 +17832,10 @@ class $$TeachersTableTableManager
           $$TeachersTableUpdateCompanionBuilder,
           (Teacher, $$TeachersTableReferences),
           Teacher,
-          PrefetchHooks Function({bool teacherSemestersRefs})
+          PrefetchHooks Function({
+            bool teacherSemestersRefs,
+            bool syllabusesRefs,
+          })
         > {
   $$TeachersTableTableManager(_$AppDatabase db, $TeachersTable table)
     : super(
@@ -14342,37 +17880,63 @@ class $$TeachersTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({teacherSemestersRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (teacherSemestersRefs) db.teacherSemesters,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (teacherSemestersRefs)
-                    await $_getPrefetchedData<
-                      Teacher,
-                      $TeachersTable,
-                      TeacherSemester
-                    >(
-                      currentTable: table,
-                      referencedTable: $$TeachersTableReferences
-                          ._teacherSemestersRefsTable(db),
-                      managerFromTypedResult: (p0) => $$TeachersTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).teacherSemestersRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.teacher == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({teacherSemestersRefs = false, syllabusesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (teacherSemestersRefs) db.teacherSemesters,
+                    if (syllabusesRefs) db.syllabuses,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (teacherSemestersRefs)
+                        await $_getPrefetchedData<
+                          Teacher,
+                          $TeachersTable,
+                          TeacherSemester
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TeachersTableReferences
+                              ._teacherSemestersRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TeachersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).teacherSemestersRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.teacher == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (syllabusesRefs)
+                        await $_getPrefetchedData<
+                          Teacher,
+                          $TeachersTable,
+                          Syllabus
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TeachersTableReferences
+                              ._syllabusesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TeachersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).syllabusesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.teacher == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -14389,7 +17953,7 @@ typedef $$TeachersTableProcessedTableManager =
       $$TeachersTableUpdateCompanionBuilder,
       (Teacher, $$TeachersTableReferences),
       Teacher,
-      PrefetchHooks Function({bool teacherSemestersRefs})
+      PrefetchHooks Function({bool teacherSemestersRefs, bool syllabusesRefs})
     >;
 typedef $$ClassesTableCreateCompanionBuilder =
     ClassesCompanion Function({
@@ -14414,8 +17978,8 @@ final class $$ClassesTableReferences
     extends BaseReferences<_$AppDatabase, $ClassesTable, ClassesData> {
   $$ClassesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $SemestersTable _semesterTable(_$AppDatabase db) => db.semesters
-      .createAlias($_aliasNameGenerator(db.classes.semester, db.semesters.id));
+  static $SemestersTable _semesterTable(_$AppDatabase db) =>
+      db.semesters.createAlias('classes__semester__semesters__id');
 
   $$SemestersTableProcessedTableManager get semester {
     final $_column = $_itemColumn<int>('semester')!;
@@ -14438,10 +18002,7 @@ final class $$ClassesTableReferences
   _courseOfferingClassesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.courseOfferingClasses,
-        aliasName: $_aliasNameGenerator(
-          db.classes.id,
-          db.courseOfferingClasses.classEntity,
-        ),
+        aliasName: 'classes__id__course_offering_classes__class_entity',
       );
 
   $$CourseOfferingClassesTableProcessedTableManager
@@ -14853,7 +18414,7 @@ final class $$ClassroomsTableReferences
   static MultiTypedResultKey<$SchedulesTable, List<Schedule>>
   _schedulesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.schedules,
-    aliasName: $_aliasNameGenerator(db.classrooms.id, db.schedules.classroom),
+    aliasName: 'classrooms__id__schedules__classroom',
   );
 
   $$SchedulesTableProcessedTableManager get schedulesRefs {
@@ -15140,15 +18701,8 @@ typedef $$CourseOfferingsTableCreateCompanionBuilder =
       Value<String?> status,
       Value<String?> language,
       Value<String?> remarks,
-      Value<String?> syllabusId,
-      Value<DateTime?> syllabusUpdatedAt,
       Value<int?> enrolled,
       Value<int?> withdrawn,
-      Value<String?> objective,
-      Value<String?> weeklyPlan,
-      Value<String?> evaluation,
-      Value<String?> textbooks,
-      Value<String?> syllabusRemarks,
     });
 typedef $$CourseOfferingsTableUpdateCompanionBuilder =
     CourseOfferingsCompanion Function({
@@ -15166,15 +18720,8 @@ typedef $$CourseOfferingsTableUpdateCompanionBuilder =
       Value<String?> status,
       Value<String?> language,
       Value<String?> remarks,
-      Value<String?> syllabusId,
-      Value<DateTime?> syllabusUpdatedAt,
       Value<int?> enrolled,
       Value<int?> withdrawn,
-      Value<String?> objective,
-      Value<String?> weeklyPlan,
-      Value<String?> evaluation,
-      Value<String?> textbooks,
-      Value<String?> syllabusRemarks,
     });
 
 final class $$CourseOfferingsTableReferences
@@ -15187,9 +18734,7 @@ final class $$CourseOfferingsTableReferences
   );
 
   static $SemestersTable _semesterTable(_$AppDatabase db) =>
-      db.semesters.createAlias(
-        $_aliasNameGenerator(db.courseOfferings.semester, db.semesters.id),
-      );
+      db.semesters.createAlias('course_offerings__semester__semesters__id');
 
   $$SemestersTableProcessedTableManager get semester {
     final $_column = $_itemColumn<int>('semester')!;
@@ -15212,10 +18757,8 @@ final class $$CourseOfferingsTableReferences
   _courseOfferingTeachersRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.courseOfferingTeachers,
-        aliasName: $_aliasNameGenerator(
-          db.courseOfferings.id,
-          db.courseOfferingTeachers.courseOffering,
-        ),
+        aliasName:
+            'course_offerings__id__course_offering_teachers__course_offering',
       );
 
   $$CourseOfferingTeachersTableProcessedTableManager
@@ -15240,10 +18783,8 @@ final class $$CourseOfferingsTableReferences
   _courseOfferingClassesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.courseOfferingClasses,
-        aliasName: $_aliasNameGenerator(
-          db.courseOfferings.id,
-          db.courseOfferingClasses.courseOffering,
-        ),
+        aliasName:
+            'course_offerings__id__course_offering_classes__course_offering',
       );
 
   $$CourseOfferingClassesTableProcessedTableManager
@@ -15268,10 +18809,8 @@ final class $$CourseOfferingsTableReferences
   _courseOfferingStudentsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.courseOfferingStudents,
-        aliasName: $_aliasNameGenerator(
-          db.courseOfferings.id,
-          db.courseOfferingStudents.courseOffering,
-        ),
+        aliasName:
+            'course_offerings__id__course_offering_students__course_offering',
       );
 
   $$CourseOfferingStudentsTableProcessedTableManager
@@ -15292,10 +18831,7 @@ final class $$CourseOfferingsTableReferences
   static MultiTypedResultKey<$SchedulesTable, List<Schedule>>
   _schedulesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.schedules,
-    aliasName: $_aliasNameGenerator(
-      db.courseOfferings.id,
-      db.schedules.courseOffering,
-    ),
+    aliasName: 'course_offerings__id__schedules__course_offering',
   );
 
   $$SchedulesTableProcessedTableManager get schedulesRefs {
@@ -15310,13 +18846,28 @@ final class $$CourseOfferingsTableReferences
     );
   }
 
+  static MultiTypedResultKey<$SyllabusesTable, List<Syllabus>>
+  _syllabusesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.syllabuses,
+    aliasName: 'course_offerings__id__syllabuses__course_offering',
+  );
+
+  $$SyllabusesTableProcessedTableManager get syllabusesRefs {
+    final manager = $$SyllabusesTableTableManager(
+      $_db,
+      $_db.syllabuses,
+    ).filter((f) => f.courseOffering.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_syllabusesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$MaterialsTable, List<CourseMaterial>>
   _materialsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.materials,
-    aliasName: $_aliasNameGenerator(
-      db.courseOfferings.id,
-      db.materials.courseOffering,
-    ),
+    aliasName: 'course_offerings__id__materials__course_offering',
   );
 
   $$MaterialsTableProcessedTableManager get materialsRefs {
@@ -15335,10 +18886,7 @@ final class $$CourseOfferingsTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.scores,
-    aliasName: $_aliasNameGenerator(
-      db.courseOfferings.id,
-      db.scores.courseOffering,
-    ),
+    aliasName: 'course_offerings__id__scores__course_offering',
   );
 
   $$ScoresTableProcessedTableManager get scoresRefs {
@@ -15429,16 +18977,6 @@ class $$CourseOfferingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get syllabusId => $composableBuilder(
-    column: $table.syllabusId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get syllabusUpdatedAt => $composableBuilder(
-    column: $table.syllabusUpdatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<int> get enrolled => $composableBuilder(
     column: $table.enrolled,
     builder: (column) => ColumnFilters(column),
@@ -15446,31 +18984,6 @@ class $$CourseOfferingsTableFilterComposer
 
   ColumnFilters<int> get withdrawn => $composableBuilder(
     column: $table.withdrawn,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get objective => $composableBuilder(
-    column: $table.objective,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get weeklyPlan => $composableBuilder(
-    column: $table.weeklyPlan,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get evaluation => $composableBuilder(
-    column: $table.evaluation,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get textbooks => $composableBuilder(
-    column: $table.textbooks,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get syllabusRemarks => $composableBuilder(
-    column: $table.syllabusRemarks,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15591,6 +19104,31 @@ class $$CourseOfferingsTableFilterComposer
           }) => $$SchedulesTableFilterComposer(
             $db: $db,
             $table: $db.schedules,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> syllabusesRefs(
+    Expression<bool> Function($$SyllabusesTableFilterComposer f) f,
+  ) {
+    final $$SyllabusesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.syllabuses,
+      getReferencedColumn: (t) => t.courseOffering,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusesTableFilterComposer(
+            $db: $db,
+            $table: $db.syllabuses,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -15725,16 +19263,6 @@ class $$CourseOfferingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get syllabusId => $composableBuilder(
-    column: $table.syllabusId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get syllabusUpdatedAt => $composableBuilder(
-    column: $table.syllabusUpdatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<int> get enrolled => $composableBuilder(
     column: $table.enrolled,
     builder: (column) => ColumnOrderings(column),
@@ -15742,31 +19270,6 @@ class $$CourseOfferingsTableOrderingComposer
 
   ColumnOrderings<int> get withdrawn => $composableBuilder(
     column: $table.withdrawn,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get objective => $composableBuilder(
-    column: $table.objective,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get weeklyPlan => $composableBuilder(
-    column: $table.weeklyPlan,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get evaluation => $composableBuilder(
-    column: $table.evaluation,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get textbooks => $composableBuilder(
-    column: $table.textbooks,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get syllabusRemarks => $composableBuilder(
-    column: $table.syllabusRemarks,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -15847,42 +19350,11 @@ class $$CourseOfferingsTableAnnotationComposer
   GeneratedColumn<String> get remarks =>
       $composableBuilder(column: $table.remarks, builder: (column) => column);
 
-  GeneratedColumn<String> get syllabusId => $composableBuilder(
-    column: $table.syllabusId,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get syllabusUpdatedAt => $composableBuilder(
-    column: $table.syllabusUpdatedAt,
-    builder: (column) => column,
-  );
-
   GeneratedColumn<int> get enrolled =>
       $composableBuilder(column: $table.enrolled, builder: (column) => column);
 
   GeneratedColumn<int> get withdrawn =>
       $composableBuilder(column: $table.withdrawn, builder: (column) => column);
-
-  GeneratedColumn<String> get objective =>
-      $composableBuilder(column: $table.objective, builder: (column) => column);
-
-  GeneratedColumn<String> get weeklyPlan => $composableBuilder(
-    column: $table.weeklyPlan,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get evaluation => $composableBuilder(
-    column: $table.evaluation,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get textbooks =>
-      $composableBuilder(column: $table.textbooks, builder: (column) => column);
-
-  GeneratedColumn<String> get syllabusRemarks => $composableBuilder(
-    column: $table.syllabusRemarks,
-    builder: (column) => column,
-  );
 
   $$SemestersTableAnnotationComposer get semester {
     final $$SemestersTableAnnotationComposer composer = $composerBuilder(
@@ -16010,6 +19482,31 @@ class $$CourseOfferingsTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> syllabusesRefs<T extends Object>(
+    Expression<T> Function($$SyllabusesTableAnnotationComposer a) f,
+  ) {
+    final $$SyllabusesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.syllabuses,
+      getReferencedColumn: (t) => t.courseOffering,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.syllabuses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> materialsRefs<T extends Object>(
     Expression<T> Function($$MaterialsTableAnnotationComposer a) f,
   ) {
@@ -16080,6 +19577,7 @@ class $$CourseOfferingsTableTableManager
             bool courseOfferingClassesRefs,
             bool courseOfferingStudentsRefs,
             bool schedulesRefs,
+            bool syllabusesRefs,
             bool materialsRefs,
             bool scoresRefs,
           })
@@ -16113,15 +19611,8 @@ class $$CourseOfferingsTableTableManager
                 Value<String?> status = const Value.absent(),
                 Value<String?> language = const Value.absent(),
                 Value<String?> remarks = const Value.absent(),
-                Value<String?> syllabusId = const Value.absent(),
-                Value<DateTime?> syllabusUpdatedAt = const Value.absent(),
                 Value<int?> enrolled = const Value.absent(),
                 Value<int?> withdrawn = const Value.absent(),
-                Value<String?> objective = const Value.absent(),
-                Value<String?> weeklyPlan = const Value.absent(),
-                Value<String?> evaluation = const Value.absent(),
-                Value<String?> textbooks = const Value.absent(),
-                Value<String?> syllabusRemarks = const Value.absent(),
               }) => CourseOfferingsCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -16137,15 +19628,8 @@ class $$CourseOfferingsTableTableManager
                 status: status,
                 language: language,
                 remarks: remarks,
-                syllabusId: syllabusId,
-                syllabusUpdatedAt: syllabusUpdatedAt,
                 enrolled: enrolled,
                 withdrawn: withdrawn,
-                objective: objective,
-                weeklyPlan: weeklyPlan,
-                evaluation: evaluation,
-                textbooks: textbooks,
-                syllabusRemarks: syllabusRemarks,
               ),
           createCompanionCallback:
               ({
@@ -16163,15 +19647,8 @@ class $$CourseOfferingsTableTableManager
                 Value<String?> status = const Value.absent(),
                 Value<String?> language = const Value.absent(),
                 Value<String?> remarks = const Value.absent(),
-                Value<String?> syllabusId = const Value.absent(),
-                Value<DateTime?> syllabusUpdatedAt = const Value.absent(),
                 Value<int?> enrolled = const Value.absent(),
                 Value<int?> withdrawn = const Value.absent(),
-                Value<String?> objective = const Value.absent(),
-                Value<String?> weeklyPlan = const Value.absent(),
-                Value<String?> evaluation = const Value.absent(),
-                Value<String?> textbooks = const Value.absent(),
-                Value<String?> syllabusRemarks = const Value.absent(),
               }) => CourseOfferingsCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -16187,15 +19664,8 @@ class $$CourseOfferingsTableTableManager
                 status: status,
                 language: language,
                 remarks: remarks,
-                syllabusId: syllabusId,
-                syllabusUpdatedAt: syllabusUpdatedAt,
                 enrolled: enrolled,
                 withdrawn: withdrawn,
-                objective: objective,
-                weeklyPlan: weeklyPlan,
-                evaluation: evaluation,
-                textbooks: textbooks,
-                syllabusRemarks: syllabusRemarks,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -16212,6 +19682,7 @@ class $$CourseOfferingsTableTableManager
                 courseOfferingClassesRefs = false,
                 courseOfferingStudentsRefs = false,
                 schedulesRefs = false,
+                syllabusesRefs = false,
                 materialsRefs = false,
                 scoresRefs = false,
               }) {
@@ -16222,6 +19693,7 @@ class $$CourseOfferingsTableTableManager
                     if (courseOfferingClassesRefs) db.courseOfferingClasses,
                     if (courseOfferingStudentsRefs) db.courseOfferingStudents,
                     if (schedulesRefs) db.schedules,
+                    if (syllabusesRefs) db.syllabuses,
                     if (materialsRefs) db.materials,
                     if (scoresRefs) db.scores,
                   ],
@@ -16345,6 +19817,27 @@ class $$CourseOfferingsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (syllabusesRefs)
+                        await $_getPrefetchedData<
+                          CourseOffering,
+                          $CourseOfferingsTable,
+                          Syllabus
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CourseOfferingsTableReferences
+                              ._syllabusesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CourseOfferingsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).syllabusesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.courseOffering == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (materialsRefs)
                         await $_getPrefetchedData<
                           CourseOffering,
@@ -16413,6 +19906,7 @@ typedef $$CourseOfferingsTableProcessedTableManager =
         bool courseOfferingClassesRefs,
         bool courseOfferingStudentsRefs,
         bool schedulesRefs,
+        bool syllabusesRefs,
         bool materialsRefs,
         bool scoresRefs,
       })
@@ -16452,9 +19946,7 @@ final class $$TeacherSemestersTableReferences
   );
 
   static $TeachersTable _teacherTable(_$AppDatabase db) =>
-      db.teachers.createAlias(
-        $_aliasNameGenerator(db.teacherSemesters.teacher, db.teachers.id),
-      );
+      db.teachers.createAlias('teacher_semesters__teacher__teachers__id');
 
   $$TeachersTableProcessedTableManager get teacher {
     final $_column = $_itemColumn<int>('teacher')!;
@@ -16471,9 +19963,7 @@ final class $$TeacherSemestersTableReferences
   }
 
   static $SemestersTable _semesterTable(_$AppDatabase db) =>
-      db.semesters.createAlias(
-        $_aliasNameGenerator(db.teacherSemesters.semester, db.semesters.id),
-      );
+      db.semesters.createAlias('teacher_semesters__semester__semesters__id');
 
   $$SemestersTableProcessedTableManager get semester {
     final $_column = $_itemColumn<int>('semester')!;
@@ -16489,10 +19979,8 @@ final class $$TeacherSemestersTableReferences
     );
   }
 
-  static $DepartmentsTable _departmentTable(_$AppDatabase db) =>
-      db.departments.createAlias(
-        $_aliasNameGenerator(db.teacherSemesters.department, db.departments.id),
-      );
+  static $DepartmentsTable _departmentTable(_$AppDatabase db) => db.departments
+      .createAlias('teacher_semesters__department__departments__id');
 
   $$DepartmentsTableProcessedTableManager? get department {
     final $_column = $_itemColumn<int>('department');
@@ -16515,10 +20003,8 @@ final class $$TeacherSemestersTableReferences
   _courseOfferingTeachersRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.courseOfferingTeachers,
-        aliasName: $_aliasNameGenerator(
-          db.teacherSemesters.id,
-          db.courseOfferingTeachers.teacherSemester,
-        ),
+        aliasName:
+            'teacher_semesters__id__course_offering_teachers__teacher_semester',
       );
 
   $$CourseOfferingTeachersTableProcessedTableManager
@@ -16540,10 +20026,8 @@ final class $$TeacherSemestersTableReferences
   _teacherOfficeHoursRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.teacherOfficeHours,
-        aliasName: $_aliasNameGenerator(
-          db.teacherSemesters.id,
-          db.teacherOfficeHours.teacherSemester,
-        ),
+        aliasName:
+            'teacher_semesters__id__teacher_office_hours__teacher_semester',
       );
 
   $$TeacherOfficeHoursTableProcessedTableManager get teacherOfficeHoursRefs {
@@ -16564,14 +20048,13 @@ final class $$TeacherSemestersTableReferences
     $UserSemesterSummaryTutorsTable,
     List<UserSemesterSummaryTutor>
   >
-  _userSemesterSummaryTutorsRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.userSemesterSummaryTutors,
-        aliasName: $_aliasNameGenerator(
-          db.teacherSemesters.id,
-          db.userSemesterSummaryTutors.teacherSemester,
-        ),
-      );
+  _userSemesterSummaryTutorsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.userSemesterSummaryTutors,
+    aliasName:
+        'teacher_semesters__id__user_semester_summary_tutors__teacher_semester',
+  );
 
   $$UserSemesterSummaryTutorsTableProcessedTableManager
   get userSemesterSummaryTutorsRefs {
@@ -17355,10 +20838,7 @@ final class $$CourseOfferingTeachersTableReferences
 
   static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
       db.courseOfferings.createAlias(
-        $_aliasNameGenerator(
-          db.courseOfferingTeachers.courseOffering,
-          db.courseOfferings.id,
-        ),
+        'course_offering_teachers__course_offering__course_offerings__id',
       );
 
   $$CourseOfferingsTableProcessedTableManager get courseOffering {
@@ -17377,10 +20857,7 @@ final class $$CourseOfferingTeachersTableReferences
 
   static $TeacherSemestersTable _teacherSemesterTable(_$AppDatabase db) =>
       db.teacherSemesters.createAlias(
-        $_aliasNameGenerator(
-          db.courseOfferingTeachers.teacherSemester,
-          db.teacherSemesters.id,
-        ),
+        'course_offering_teachers__teacher_semester__teacher_semesters__id',
       );
 
   $$TeacherSemestersTableProcessedTableManager get teacherSemester {
@@ -17736,10 +21213,7 @@ final class $$CourseOfferingClassesTableReferences
 
   static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
       db.courseOfferings.createAlias(
-        $_aliasNameGenerator(
-          db.courseOfferingClasses.courseOffering,
-          db.courseOfferings.id,
-        ),
+        'course_offering_classes__course_offering__course_offerings__id',
       );
 
   $$CourseOfferingsTableProcessedTableManager get courseOffering {
@@ -17756,13 +21230,8 @@ final class $$CourseOfferingClassesTableReferences
     );
   }
 
-  static $ClassesTable _classEntityTable(_$AppDatabase db) =>
-      db.classes.createAlias(
-        $_aliasNameGenerator(
-          db.courseOfferingClasses.classEntity,
-          db.classes.id,
-        ),
-      );
+  static $ClassesTable _classEntityTable(_$AppDatabase db) => db.classes
+      .createAlias('course_offering_classes__class_entity__classes__id');
 
   $$ClassesTableProcessedTableManager get classEntity {
     final $_column = $_itemColumn<int>('class_entity')!;
@@ -18117,10 +21586,7 @@ final class $$CourseOfferingStudentsTableReferences
 
   static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
       db.courseOfferings.createAlias(
-        $_aliasNameGenerator(
-          db.courseOfferingStudents.courseOffering,
-          db.courseOfferings.id,
-        ),
+        'course_offering_students__course_offering__course_offerings__id',
       );
 
   $$CourseOfferingsTableProcessedTableManager get courseOffering {
@@ -18137,10 +21603,8 @@ final class $$CourseOfferingStudentsTableReferences
     );
   }
 
-  static $StudentsTable _studentTable(_$AppDatabase db) =>
-      db.students.createAlias(
-        $_aliasNameGenerator(db.courseOfferingStudents.student, db.students.id),
-      );
+  static $StudentsTable _studentTable(_$AppDatabase db) => db.students
+      .createAlias('course_offering_students__student__students__id');
 
   $$StudentsTableProcessedTableManager get student {
     final $_column = $_itemColumn<int>('student')!;
@@ -18487,13 +21951,9 @@ final class $$SchedulesTableReferences
     extends BaseReferences<_$AppDatabase, $SchedulesTable, Schedule> {
   $$SchedulesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
-      db.courseOfferings.createAlias(
-        $_aliasNameGenerator(
-          db.schedules.courseOffering,
-          db.courseOfferings.id,
-        ),
-      );
+  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) => db
+      .courseOfferings
+      .createAlias('schedules__course_offering__course_offerings__id');
 
   $$CourseOfferingsTableProcessedTableManager get courseOffering {
     final $_column = $_itemColumn<int>('course_offering')!;
@@ -18510,9 +21970,7 @@ final class $$SchedulesTableReferences
   }
 
   static $ClassroomsTable _classroomTable(_$AppDatabase db) =>
-      db.classrooms.createAlias(
-        $_aliasNameGenerator(db.schedules.classroom, db.classrooms.id),
-      );
+      db.classrooms.createAlias('schedules__classroom__classrooms__id');
 
   $$ClassroomsTableProcessedTableManager? get classroom {
     final $_column = $_itemColumn<int>('classroom');
@@ -18872,6 +22330,853 @@ typedef $$SchedulesTableProcessedTableManager =
       Schedule,
       PrefetchHooks Function({bool courseOffering, bool classroom})
     >;
+typedef $$SyllabusesTableCreateCompanionBuilder =
+    SyllabusesCompanion Function({
+      Value<int> id,
+      required int courseOffering,
+      required int teacher,
+      required SyllabusLanguage language,
+      Value<DateTime?> updatedAt,
+      required DateTime fetchedAt,
+    });
+typedef $$SyllabusesTableUpdateCompanionBuilder =
+    SyllabusesCompanion Function({
+      Value<int> id,
+      Value<int> courseOffering,
+      Value<int> teacher,
+      Value<SyllabusLanguage> language,
+      Value<DateTime?> updatedAt,
+      Value<DateTime> fetchedAt,
+    });
+
+final class $$SyllabusesTableReferences
+    extends BaseReferences<_$AppDatabase, $SyllabusesTable, Syllabus> {
+  $$SyllabusesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) => db
+      .courseOfferings
+      .createAlias('syllabuses__course_offering__course_offerings__id');
+
+  $$CourseOfferingsTableProcessedTableManager get courseOffering {
+    final $_column = $_itemColumn<int>('course_offering')!;
+
+    final manager = $$CourseOfferingsTableTableManager(
+      $_db,
+      $_db.courseOfferings,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_courseOfferingTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $TeachersTable _teacherTable(_$AppDatabase db) =>
+      db.teachers.createAlias('syllabuses__teacher__teachers__id');
+
+  $$TeachersTableProcessedTableManager get teacher {
+    final $_column = $_itemColumn<int>('teacher')!;
+
+    final manager = $$TeachersTableTableManager(
+      $_db,
+      $_db.teachers,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_teacherTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$SyllabusSectionsTable, List<SyllabusSection>>
+  _syllabusSectionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.syllabusSections,
+    aliasName: 'syllabuses__id__syllabus_sections__syllabus',
+  );
+
+  $$SyllabusSectionsTableProcessedTableManager get syllabusSectionsRefs {
+    final manager = $$SyllabusSectionsTableTableManager(
+      $_db,
+      $_db.syllabusSections,
+    ).filter((f) => f.syllabus.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _syllabusSectionsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$SyllabusesTableFilterComposer
+    extends Composer<_$AppDatabase, $SyllabusesTable> {
+  $$SyllabusesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<SyllabusLanguage, SyllabusLanguage, String>
+  get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CourseOfferingsTableFilterComposer get courseOffering {
+    final $$CourseOfferingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.courseOffering,
+      referencedTable: $db.courseOfferings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CourseOfferingsTableFilterComposer(
+            $db: $db,
+            $table: $db.courseOfferings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TeachersTableFilterComposer get teacher {
+    final $$TeachersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.teacher,
+      referencedTable: $db.teachers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TeachersTableFilterComposer(
+            $db: $db,
+            $table: $db.teachers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> syllabusSectionsRefs(
+    Expression<bool> Function($$SyllabusSectionsTableFilterComposer f) f,
+  ) {
+    final $$SyllabusSectionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.syllabusSections,
+      getReferencedColumn: (t) => t.syllabus,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusSectionsTableFilterComposer(
+            $db: $db,
+            $table: $db.syllabusSections,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$SyllabusesTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyllabusesTable> {
+  $$SyllabusesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get language => $composableBuilder(
+    column: $table.language,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CourseOfferingsTableOrderingComposer get courseOffering {
+    final $$CourseOfferingsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.courseOffering,
+      referencedTable: $db.courseOfferings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CourseOfferingsTableOrderingComposer(
+            $db: $db,
+            $table: $db.courseOfferings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TeachersTableOrderingComposer get teacher {
+    final $$TeachersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.teacher,
+      referencedTable: $db.teachers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TeachersTableOrderingComposer(
+            $db: $db,
+            $table: $db.teachers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SyllabusesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyllabusesTable> {
+  $$SyllabusesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<SyllabusLanguage, String> get language =>
+      $composableBuilder(column: $table.language, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  $$CourseOfferingsTableAnnotationComposer get courseOffering {
+    final $$CourseOfferingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.courseOffering,
+      referencedTable: $db.courseOfferings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CourseOfferingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.courseOfferings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TeachersTableAnnotationComposer get teacher {
+    final $$TeachersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.teacher,
+      referencedTable: $db.teachers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TeachersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.teachers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> syllabusSectionsRefs<T extends Object>(
+    Expression<T> Function($$SyllabusSectionsTableAnnotationComposer a) f,
+  ) {
+    final $$SyllabusSectionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.syllabusSections,
+      getReferencedColumn: (t) => t.syllabus,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusSectionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.syllabusSections,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$SyllabusesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyllabusesTable,
+          Syllabus,
+          $$SyllabusesTableFilterComposer,
+          $$SyllabusesTableOrderingComposer,
+          $$SyllabusesTableAnnotationComposer,
+          $$SyllabusesTableCreateCompanionBuilder,
+          $$SyllabusesTableUpdateCompanionBuilder,
+          (Syllabus, $$SyllabusesTableReferences),
+          Syllabus,
+          PrefetchHooks Function({
+            bool courseOffering,
+            bool teacher,
+            bool syllabusSectionsRefs,
+          })
+        > {
+  $$SyllabusesTableTableManager(_$AppDatabase db, $SyllabusesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyllabusesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyllabusesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyllabusesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> courseOffering = const Value.absent(),
+                Value<int> teacher = const Value.absent(),
+                Value<SyllabusLanguage> language = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime> fetchedAt = const Value.absent(),
+              }) => SyllabusesCompanion(
+                id: id,
+                courseOffering: courseOffering,
+                teacher: teacher,
+                language: language,
+                updatedAt: updatedAt,
+                fetchedAt: fetchedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int courseOffering,
+                required int teacher,
+                required SyllabusLanguage language,
+                Value<DateTime?> updatedAt = const Value.absent(),
+                required DateTime fetchedAt,
+              }) => SyllabusesCompanion.insert(
+                id: id,
+                courseOffering: courseOffering,
+                teacher: teacher,
+                language: language,
+                updatedAt: updatedAt,
+                fetchedAt: fetchedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$SyllabusesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                courseOffering = false,
+                teacher = false,
+                syllabusSectionsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (syllabusSectionsRefs) db.syllabusSections,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (courseOffering) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.courseOffering,
+                                    referencedTable: $$SyllabusesTableReferences
+                                        ._courseOfferingTable(db),
+                                    referencedColumn:
+                                        $$SyllabusesTableReferences
+                                            ._courseOfferingTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (teacher) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.teacher,
+                                    referencedTable: $$SyllabusesTableReferences
+                                        ._teacherTable(db),
+                                    referencedColumn:
+                                        $$SyllabusesTableReferences
+                                            ._teacherTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (syllabusSectionsRefs)
+                        await $_getPrefetchedData<
+                          Syllabus,
+                          $SyllabusesTable,
+                          SyllabusSection
+                        >(
+                          currentTable: table,
+                          referencedTable: $$SyllabusesTableReferences
+                              ._syllabusSectionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$SyllabusesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).syllabusSectionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.syllabus == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$SyllabusesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyllabusesTable,
+      Syllabus,
+      $$SyllabusesTableFilterComposer,
+      $$SyllabusesTableOrderingComposer,
+      $$SyllabusesTableAnnotationComposer,
+      $$SyllabusesTableCreateCompanionBuilder,
+      $$SyllabusesTableUpdateCompanionBuilder,
+      (Syllabus, $$SyllabusesTableReferences),
+      Syllabus,
+      PrefetchHooks Function({
+        bool courseOffering,
+        bool teacher,
+        bool syllabusSectionsRefs,
+      })
+    >;
+typedef $$SyllabusSectionsTableCreateCompanionBuilder =
+    SyllabusSectionsCompanion Function({
+      Value<int> id,
+      required int syllabus,
+      required String title,
+      Value<String?> content,
+      required int position,
+    });
+typedef $$SyllabusSectionsTableUpdateCompanionBuilder =
+    SyllabusSectionsCompanion Function({
+      Value<int> id,
+      Value<int> syllabus,
+      Value<String> title,
+      Value<String?> content,
+      Value<int> position,
+    });
+
+final class $$SyllabusSectionsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $SyllabusSectionsTable, SyllabusSection> {
+  $$SyllabusSectionsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $SyllabusesTable _syllabusTable(_$AppDatabase db) =>
+      db.syllabuses.createAlias('syllabus_sections__syllabus__syllabuses__id');
+
+  $$SyllabusesTableProcessedTableManager get syllabus {
+    final $_column = $_itemColumn<int>('syllabus')!;
+
+    final manager = $$SyllabusesTableTableManager(
+      $_db,
+      $_db.syllabuses,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_syllabusTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$SyllabusSectionsTableFilterComposer
+    extends Composer<_$AppDatabase, $SyllabusSectionsTable> {
+  $$SyllabusSectionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$SyllabusesTableFilterComposer get syllabus {
+    final $$SyllabusesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.syllabus,
+      referencedTable: $db.syllabuses,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusesTableFilterComposer(
+            $db: $db,
+            $table: $db.syllabuses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SyllabusSectionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyllabusSectionsTable> {
+  $$SyllabusSectionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$SyllabusesTableOrderingComposer get syllabus {
+    final $$SyllabusesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.syllabus,
+      referencedTable: $db.syllabuses,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusesTableOrderingComposer(
+            $db: $db,
+            $table: $db.syllabuses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SyllabusSectionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyllabusSectionsTable> {
+  $$SyllabusSectionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  $$SyllabusesTableAnnotationComposer get syllabus {
+    final $$SyllabusesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.syllabus,
+      referencedTable: $db.syllabuses,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SyllabusesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.syllabuses,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SyllabusSectionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyllabusSectionsTable,
+          SyllabusSection,
+          $$SyllabusSectionsTableFilterComposer,
+          $$SyllabusSectionsTableOrderingComposer,
+          $$SyllabusSectionsTableAnnotationComposer,
+          $$SyllabusSectionsTableCreateCompanionBuilder,
+          $$SyllabusSectionsTableUpdateCompanionBuilder,
+          (SyllabusSection, $$SyllabusSectionsTableReferences),
+          SyllabusSection,
+          PrefetchHooks Function({bool syllabus})
+        > {
+  $$SyllabusSectionsTableTableManager(
+    _$AppDatabase db,
+    $SyllabusSectionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyllabusSectionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyllabusSectionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyllabusSectionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> syllabus = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> content = const Value.absent(),
+                Value<int> position = const Value.absent(),
+              }) => SyllabusSectionsCompanion(
+                id: id,
+                syllabus: syllabus,
+                title: title,
+                content: content,
+                position: position,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int syllabus,
+                required String title,
+                Value<String?> content = const Value.absent(),
+                required int position,
+              }) => SyllabusSectionsCompanion.insert(
+                id: id,
+                syllabus: syllabus,
+                title: title,
+                content: content,
+                position: position,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$SyllabusSectionsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({syllabus = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (syllabus) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.syllabus,
+                                referencedTable:
+                                    $$SyllabusSectionsTableReferences
+                                        ._syllabusTable(db),
+                                referencedColumn:
+                                    $$SyllabusSectionsTableReferences
+                                        ._syllabusTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$SyllabusSectionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyllabusSectionsTable,
+      SyllabusSection,
+      $$SyllabusSectionsTableFilterComposer,
+      $$SyllabusSectionsTableOrderingComposer,
+      $$SyllabusSectionsTableAnnotationComposer,
+      $$SyllabusSectionsTableCreateCompanionBuilder,
+      $$SyllabusSectionsTableUpdateCompanionBuilder,
+      (SyllabusSection, $$SyllabusSectionsTableReferences),
+      SyllabusSection,
+      PrefetchHooks Function({bool syllabus})
+    >;
 typedef $$MaterialsTableCreateCompanionBuilder =
     MaterialsCompanion Function({
       Value<int> id,
@@ -18891,13 +23196,9 @@ final class $$MaterialsTableReferences
     extends BaseReferences<_$AppDatabase, $MaterialsTable, CourseMaterial> {
   $$MaterialsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
-      db.courseOfferings.createAlias(
-        $_aliasNameGenerator(
-          db.materials.courseOffering,
-          db.courseOfferings.id,
-        ),
-      );
+  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) => db
+      .courseOfferings
+      .createAlias('materials__course_offering__course_offerings__id');
 
   $$CourseOfferingsTableProcessedTableManager get courseOffering {
     final $_column = $_itemColumn<int>('course_offering')!;
@@ -19205,10 +23506,7 @@ final class $$TeacherOfficeHoursTableReferences
 
   static $TeacherSemestersTable _teacherSemesterTable(_$AppDatabase db) =>
       db.teacherSemesters.createAlias(
-        $_aliasNameGenerator(
-          db.teacherOfficeHours.teacherSemester,
-          db.teacherSemesters.id,
-        ),
+        'teacher_office_hours__teacher_semester__teacher_semesters__id',
       );
 
   $$TeacherSemestersTableProcessedTableManager get teacherSemester {
@@ -19568,7 +23866,7 @@ final class $$ScoresTableReferences
   $$ScoresTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $UsersTable _userTable(_$AppDatabase db) =>
-      db.users.createAlias($_aliasNameGenerator(db.scores.user, db.users.id));
+      db.users.createAlias('scores__user__users__id');
 
   $$UsersTableProcessedTableManager get user {
     final $_column = $_itemColumn<int>('user')!;
@@ -19584,8 +23882,8 @@ final class $$ScoresTableReferences
     );
   }
 
-  static $SemestersTable _semesterTable(_$AppDatabase db) => db.semesters
-      .createAlias($_aliasNameGenerator(db.scores.semester, db.semesters.id));
+  static $SemestersTable _semesterTable(_$AppDatabase db) =>
+      db.semesters.createAlias('scores__semester__semesters__id');
 
   $$SemestersTableProcessedTableManager get semester {
     final $_column = $_itemColumn<int>('semester')!;
@@ -19601,9 +23899,8 @@ final class $$ScoresTableReferences
     );
   }
 
-  static $CoursesTable _courseTable(_$AppDatabase db) => db.courses.createAlias(
-    $_aliasNameGenerator(db.scores.course, db.courses.id),
-  );
+  static $CoursesTable _courseTable(_$AppDatabase db) =>
+      db.courses.createAlias('scores__course__courses__id');
 
   $$CoursesTableProcessedTableManager get course {
     final $_column = $_itemColumn<int>('course')!;
@@ -19619,10 +23916,9 @@ final class $$ScoresTableReferences
     );
   }
 
-  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) =>
-      db.courseOfferings.createAlias(
-        $_aliasNameGenerator(db.scores.courseOffering, db.courseOfferings.id),
-      );
+  static $CourseOfferingsTable _courseOfferingTable(_$AppDatabase db) => db
+      .courseOfferings
+      .createAlias('scores__course_offering__course_offerings__id');
 
   $$CourseOfferingsTableProcessedTableManager? get courseOffering {
     final $_column = $_itemColumn<int>('course_offering');
@@ -20213,9 +24509,8 @@ final class $$UserSemesterSummariesTableReferences
     super.$_typedResult,
   );
 
-  static $UsersTable _userTable(_$AppDatabase db) => db.users.createAlias(
-    $_aliasNameGenerator(db.userSemesterSummaries.user, db.users.id),
-  );
+  static $UsersTable _userTable(_$AppDatabase db) =>
+      db.users.createAlias('user_semester_summaries__user__users__id');
 
   $$UsersTableProcessedTableManager get user {
     final $_column = $_itemColumn<int>('user')!;
@@ -20231,13 +24526,8 @@ final class $$UserSemesterSummariesTableReferences
     );
   }
 
-  static $SemestersTable _semesterTable(_$AppDatabase db) =>
-      db.semesters.createAlias(
-        $_aliasNameGenerator(
-          db.userSemesterSummaries.semester,
-          db.semesters.id,
-        ),
-      );
+  static $SemestersTable _semesterTable(_$AppDatabase db) => db.semesters
+      .createAlias('user_semester_summaries__semester__semesters__id');
 
   $$SemestersTableProcessedTableManager get semester {
     final $_column = $_itemColumn<int>('semester')!;
@@ -20257,14 +24547,13 @@ final class $$UserSemesterSummariesTableReferences
     $UserSemesterSummaryTutorsTable,
     List<UserSemesterSummaryTutor>
   >
-  _userSemesterSummaryTutorsRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.userSemesterSummaryTutors,
-        aliasName: $_aliasNameGenerator(
-          db.userSemesterSummaries.id,
-          db.userSemesterSummaryTutors.summary,
-        ),
-      );
+  _userSemesterSummaryTutorsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.userSemesterSummaryTutors,
+    aliasName:
+        'user_semester_summaries__id__user_semester_summary_tutors__summary',
+  );
 
   $$UserSemesterSummaryTutorsTableProcessedTableManager
   get userSemesterSummaryTutorsRefs {
@@ -20285,14 +24574,13 @@ final class $$UserSemesterSummariesTableReferences
     $UserSemesterSummaryCadreRolesTable,
     List<UserSemesterSummaryCadreRole>
   >
-  _userSemesterSummaryCadreRolesRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.userSemesterSummaryCadreRoles,
-        aliasName: $_aliasNameGenerator(
-          db.userSemesterSummaries.id,
-          db.userSemesterSummaryCadreRoles.summary,
-        ),
-      );
+  _userSemesterSummaryCadreRolesRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.userSemesterSummaryCadreRoles,
+    aliasName:
+        'user_semester_summaries__id__user_semester_summary_cadre_roles__summary',
+  );
 
   $$UserSemesterSummaryCadreRolesTableProcessedTableManager
   get userSemesterSummaryCadreRolesRefs {
@@ -20316,10 +24604,8 @@ final class $$UserSemesterSummariesTableReferences
   _userSemesterRankingsRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.userSemesterRankings,
-        aliasName: $_aliasNameGenerator(
-          db.userSemesterSummaries.id,
-          db.userSemesterRankings.summary,
-        ),
+        aliasName:
+            'user_semester_summaries__id__user_semester_rankings__summary',
       );
 
   $$UserSemesterRankingsTableProcessedTableManager
@@ -21125,10 +25411,7 @@ final class $$UserSemesterSummaryTutorsTableReferences
 
   static $UserSemesterSummariesTable _summaryTable(_$AppDatabase db) =>
       db.userSemesterSummaries.createAlias(
-        $_aliasNameGenerator(
-          db.userSemesterSummaryTutors.summary,
-          db.userSemesterSummaries.id,
-        ),
+        'user_semester_summary_tutors__summary__user_semester_summaries__id',
       );
 
   $$UserSemesterSummariesTableProcessedTableManager get summary {
@@ -21147,10 +25430,7 @@ final class $$UserSemesterSummaryTutorsTableReferences
 
   static $TeacherSemestersTable _teacherSemesterTable(_$AppDatabase db) =>
       db.teacherSemesters.createAlias(
-        $_aliasNameGenerator(
-          db.userSemesterSummaryTutors.teacherSemester,
-          db.teacherSemesters.id,
-        ),
+        'user_semester_summary_tutors__teacher_semester__teacher_semesters__id',
       );
 
   $$TeacherSemestersTableProcessedTableManager get teacherSemester {
@@ -21509,13 +25789,11 @@ final class $$UserSemesterSummaryCadreRolesTableReferences
     super.$_typedResult,
   );
 
-  static $UserSemesterSummariesTable _summaryTable(_$AppDatabase db) =>
-      db.userSemesterSummaries.createAlias(
-        $_aliasNameGenerator(
-          db.userSemesterSummaryCadreRoles.summary,
-          db.userSemesterSummaries.id,
-        ),
-      );
+  static $UserSemesterSummariesTable _summaryTable(
+    _$AppDatabase db,
+  ) => db.userSemesterSummaries.createAlias(
+    'user_semester_summary_cadre_roles__summary__user_semester_summaries__id',
+  );
 
   $$UserSemesterSummariesTableProcessedTableManager get summary {
     final $_column = $_itemColumn<int>('summary')!;
@@ -21828,10 +26106,7 @@ final class $$UserSemesterRankingsTableReferences
 
   static $UserSemesterSummariesTable _summaryTable(_$AppDatabase db) =>
       db.userSemesterSummaries.createAlias(
-        $_aliasNameGenerator(
-          db.userSemesterRankings.summary,
-          db.userSemesterSummaries.id,
-        ),
+        'user_semester_rankings__summary__user_semester_summaries__id',
       );
 
   $$UserSemesterSummariesTableProcessedTableManager get summary {
@@ -22466,6 +26741,20 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$UsersTableTableManager get users =>
       $$UsersTableTableManager(_db, _db.users);
+  $$PortalApplicationCategoriesTableTableManager
+  get portalApplicationCategories =>
+      $$PortalApplicationCategoriesTableTableManager(
+        _db,
+        _db.portalApplicationCategories,
+      );
+  $$PortalApplicationsTableTableManager get portalApplications =>
+      $$PortalApplicationsTableTableManager(_db, _db.portalApplications);
+  $$PortalApplicationFavoritesTableTableManager
+  get portalApplicationFavorites =>
+      $$PortalApplicationFavoritesTableTableManager(
+        _db,
+        _db.portalApplicationFavorites,
+      );
   $$StudentsTableTableManager get students =>
       $$StudentsTableTableManager(_db, _db.students);
   $$SemestersTableTableManager get semesters =>
@@ -22498,6 +26787,10 @@ class $AppDatabaseManager {
       );
   $$SchedulesTableTableManager get schedules =>
       $$SchedulesTableTableManager(_db, _db.schedules);
+  $$SyllabusesTableTableManager get syllabuses =>
+      $$SyllabusesTableTableManager(_db, _db.syllabuses);
+  $$SyllabusSectionsTableTableManager get syllabusSections =>
+      $$SyllabusSectionsTableTableManager(_db, _db.syllabusSections);
   $$MaterialsTableTableManager get materials =>
       $$MaterialsTableTableManager(_db, _db.materials);
   $$TeacherOfficeHoursTableTableManager get teacherOfficeHours =>

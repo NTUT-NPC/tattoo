@@ -130,7 +130,10 @@ void main() {
         );
 
         expect(
-          () => portalService.changePassword('wrong_password', 'new_password'),
+          () => portalService.changePassword(
+            currentPassword: 'wrong_password',
+            newPassword: 'new_password',
+          ),
           throwsException,
         );
       });
@@ -139,7 +142,10 @@ void main() {
         await cookieJar.deleteAll();
 
         expect(
-          () => portalService.changePassword('any', 'any'),
+          () => portalService.changePassword(
+            currentPassword: 'any',
+            newPassword: 'any',
+          ),
           throwsException,
         );
       });
@@ -272,6 +278,145 @@ void main() {
           );
 
           expect(events, isEmpty);
+        },
+      );
+    });
+
+    group('getApplicationCatalog', () {
+      test('should return categorized browser-openable applications', () async {
+        await portalService.login(
+          TestCredentials.username,
+          TestCredentials.password,
+        );
+        await respectfulDelay();
+
+        final categories = await portalService.getApplicationCatalog();
+
+        expect(categories, isNotEmpty);
+        final applications = categories
+            .expand((category) => category.applications)
+            .toList();
+        expect(
+          applications.map((application) => application.code),
+          contains(PortalServiceCode.courseService.code),
+        );
+        expect(
+          applications.map((application) => application.code),
+          contains('en_v_1_oauth'),
+        );
+        final courseSystem = applications.firstWhere(
+          (application) =>
+              application.code == PortalServiceCode.courseService.code,
+        );
+        expect(courseSystem.iconUrl, startsWith('https://app.ntut.edu.tw/'));
+        expect(courseSystem.nameZh, isNotEmpty);
+        expect(courseSystem.nameEn, isNotEmpty);
+        expect(
+          applications.where((application) => application.nameEn != null),
+          isNotEmpty,
+          reason: 'English catalog should enrich the Chinese catalog',
+        );
+        for (final category in categories) {
+          expect(category.distinguishedName, isNotEmpty);
+          expect(category.nameZh, isNotEmpty);
+          expect(category.nameZh, category.nameZh.trim());
+          for (final application in category.applications) {
+            expect(application.code, isNotEmpty);
+            expect(application.nameZh, isNotEmpty);
+          }
+        }
+      });
+
+      test(
+        'should preserve English portal locale while SSO waits for refresh',
+        () async {
+          await portalService.login(
+            TestCredentials.username,
+            TestCredentials.password,
+          );
+
+          final probeDio = createDio()
+            ..options.baseUrl = 'https://app.ntut.edu.tw/'
+            ..options.headers = {
+              'User-Agent': 'Direk ios App',
+              'Connection': 'close',
+            };
+
+          Future<void> setLocale(String locale) async {
+            await probeDio.post<String>(
+              'localeModify.do',
+              data: {'localeId': locale},
+              options: Options(
+                contentType: Headers.formUrlEncodedContentType,
+                responseType: .plain,
+                headers: const {'X-Requested-With': 'XMLHttpRequest'},
+              ),
+            );
+            await probeDio.get<String>(
+              'localeReload.do',
+              queryParameters: {'locale': locale},
+              options: Options(responseType: .plain),
+            );
+          }
+
+          Future<String> getCategoryPage() async {
+            final response = await probeDio.get<String>(
+              'apPopupFull.do',
+              queryParameters: {'init': ''},
+              options: Options(
+                responseType: .plain,
+                headers: const {'X-Requested-With': 'XMLHttpRequest'},
+              ),
+            );
+            return response.data!;
+          }
+
+          final originalCategoryPage = await getCategoryPage();
+          final originalLocale = switch ((
+            originalCategoryPage.contains('System of Academic Affairs'),
+            originalCategoryPage.contains('教務系統'),
+          )) {
+            (true, _) => 'en',
+            (_, true) => 'zh_TW',
+            _ => fail('Could not determine the original portal locale.'),
+          };
+          try {
+            await setLocale('en');
+            expect(
+              await getCategoryPage(),
+              contains('System of Academic Affairs'),
+            );
+            final baselineSsoUrl = await portalService.getSsoUrl(
+              PortalServiceCode.courseService.code,
+            );
+
+            final completions = <String>[];
+            final catalogFuture = portalService.getApplicationCatalog().then((
+              catalog,
+            ) {
+              completions.add('catalog');
+              return catalog;
+            });
+            await Future<void>.delayed(const Duration(milliseconds: 100));
+            final ssoUrlFuture = portalService
+                .getSsoUrl(PortalServiceCode.courseService.code)
+                .then((url) {
+                  completions.add('sso');
+                  return url;
+                });
+
+            expect(await catalogFuture, isNotEmpty);
+            final ssoUrl = await ssoUrlFuture;
+            expect(completions, ['catalog', 'sso']);
+            expect(ssoUrl.origin, baselineSsoUrl.origin);
+            expect(ssoUrl.path, baselineSsoUrl.path);
+            expect(
+              await getCategoryPage(),
+              contains('System of Academic Affairs'),
+            );
+          } finally {
+            await setLocale(originalLocale);
+          }
         },
       );
     });

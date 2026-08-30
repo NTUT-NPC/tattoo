@@ -147,7 +147,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           case .accountLocked:
             _setError(t.login.errors.accountLocked);
           case .passwordExpired:
-            _setError(t.login.errors.passwordExpired);
+            if (mounted) {
+              _setLoading(false);
+              context.push(
+                AppRoutes.changePassword,
+                extra: {
+                  'isExpired': true,
+                  'username': username,
+                },
+              );
+            }
           case .mobileVerificationRequired:
             _setError(t.login.errors.mobileVerificationRequired);
           case _:

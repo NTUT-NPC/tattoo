@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
+import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
@@ -9,8 +11,33 @@ import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
 
+typedef _PortalApplicationPageDto = ({
+  String code,
+  String name,
+  String? iconUrl,
+});
+
+typedef _PortalApplicationCategoryPageDto = ({
+  String distinguishedName,
+  String name,
+  List<_PortalApplicationPageDto> applications,
+});
+
 class NtutPortalService implements PortalService {
+  static const _chineseLocale = 'zh_TW';
+  static const _englishLocale = 'en';
+  // The mobile home endpoint is a JSON feed and exposes no locale marker.
+  // This category has a stable DN and is translated in both portal locales.
+  static const _academicCategoryDnPrefix = 'OU=aa,';
+  static const _chineseAcademicCategoryName = '教務系統';
+  static const _englishAcademicCategoryName = 'System of Academic Affairs';
+  static final _folderCallPattern = RegExp(
+    r"apPopupSubEip5\('([^']+)','apMap','([^']*)'\)",
+  );
+
   late final Dio _portalDio;
+  Future<void> _portalLocaleOperation = Future.value();
+  bool _portalLocaleStateUncertain = false;
 
   NtutPortalService() {
     // Emulate the NTUT iOS app's HTTP client
@@ -28,7 +55,11 @@ class NtutPortalService implements PortalService {
   Future<UserDto> login(String username, String password) async {
     final response = await _portalDio.post(
       'login.do',
-      queryParameters: {'muid': username, 'mpassword': password},
+      queryParameters: {
+        'muid': username,
+        'mpassword': password,
+        'thetime': DateTime.now().millisecondsSinceEpoch.toString(),
+      },
     );
 
     final body = jsonDecode(response.data);
@@ -48,6 +79,7 @@ class NtutPortalService implements PortalService {
     }
 
     final String? passwordExpiredRemind = body['passwordExpiredRemind'];
+    _portalLocaleStateUncertain = false;
 
     // Normalize empty strings to null for consistency
     String? normalizeEmpty(String? value) =>
@@ -64,17 +96,27 @@ class NtutPortalService implements PortalService {
   }
 
   @override
-  Future<void> changePassword(
-    String currentPassword,
-    String newPassword,
-  ) async {
+  Future<void> changePassword({
+    required String newPassword,
+    String? currentPassword,
+    bool isExpired = false,
+  }) async {
     final response = await _portalDio.post(
-      'passwordMdy.do',
-      queryParameters: {
-        "oldPassword": currentPassword,
-        "userPassword": newPassword,
-        "pwdForceMdy": "profile",
-      },
+      !isExpired ? 'passwordMdy.do' : 'passwordFirstMdy.do',
+      queryParameters: !isExpired
+          ? {
+              "oldPassword": currentPassword,
+              "userPassword": newPassword,
+              "pwdForceMdy": "profile",
+            }
+          : null,
+      data: isExpired
+          ? {
+              'pwdForceMdy': 'expired',
+              'userPassword': newPassword,
+              'confirmPassword': newPassword,
+            }
+          : null,
     );
 
     final body = jsonDecode(response.data);
@@ -129,56 +171,60 @@ class NtutPortalService implements PortalService {
   }
 
   @override
-  Future<void> sso(String serviceCode) async {
-    final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
+  Future<void> sso(String serviceCode) {
+    return _withPortalLocaleLock(() async {
+      final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
 
-    // Prepend the invalid cookie filter interceptor for i-School Plus SSO
-    if (serviceCode == PortalServiceCode.iSchoolPlusService.code) {
-      _portalDio.interceptors.insert(0, InvalidCookieFilter());
-      _portalDio.transformer = PlainTextTransformer();
-    }
+      // Prepend the invalid cookie filter interceptor for i-School Plus SSO
+      if (serviceCode == PortalServiceCode.iSchoolPlusService.code) {
+        _portalDio.interceptors.insert(0, InvalidCookieFilter());
+        _portalDio.transformer = PlainTextTransformer();
+      }
 
-    // Submit the SSO form and follow redirects
-    // Sets the necessary cookies for the target service
-    await _portalDio.post(
-      actionUrl,
-      data: formData,
-      options: Options(contentType: Headers.formUrlEncodedContentType),
-    );
+      // Submit the SSO form and follow redirects
+      // Sets the necessary cookies for the target service
+      await _portalDio.post(
+        actionUrl,
+        data: formData,
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+      );
+    });
   }
 
   @override
-  Future<Uri> getSsoUrl(String serviceCode) async {
-    final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
+  Future<Uri> getSsoUrl(String serviceCode) {
+    return _withPortalLocaleLock(() async {
+      final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
 
-    // Clone and strip RedirectInterceptor so we can capture the 302 Location
-    // instead of following it.
-    final dioWithoutRedirects = _portalDio.clone()
-      ..interceptors.removeWhere(
-        (interceptor) => interceptor is RedirectInterceptor,
+      // Clone and strip RedirectInterceptor so we can capture the 302 Location
+      // instead of following it.
+      final dioWithoutRedirects = _portalDio.clone()
+        ..interceptors.removeWhere(
+          (interceptor) => interceptor is RedirectInterceptor,
+        );
+
+      final response = await dioWithoutRedirects.post(
+        actionUrl,
+        data: formData,
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+          followRedirects: false,
+          validateStatus: (status) => status != null && status < 400,
+        ),
       );
 
-    final response = await dioWithoutRedirects.post(
-      actionUrl,
-      data: formData,
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-        followRedirects: false,
-        validateStatus: (status) => status != null && status < 400,
-      ),
-    );
+      final location = response.headers.value('location');
+      if (location == null) {
+        throw Exception('SSO redirect not received. Are you logged in?');
+      }
 
-    final location = response.headers.value('location');
-    if (location == null) {
-      throw Exception('SSO redirect not received. Are you logged in?');
-    }
-
-    // The portal may return http:// URLs; upgrade to https://
-    var uri = Uri.parse(location);
-    if (uri.scheme == 'http') {
-      uri = uri.replace(scheme: 'https');
-    }
-    return uri;
+      // The portal may return http:// URLs; upgrade to https://
+      var uri = Uri.parse(location);
+      if (uri.scheme == 'http') {
+        uri = uri.replace(scheme: 'https');
+      }
+      return uri;
+    });
   }
 
   /// Fetches and parses the SSO form for a given apOu code.
@@ -268,5 +314,349 @@ class NtutPortalService implements PortalService {
           ),
         )
         .toList();
+  }
+
+  @override
+  Future<List<PortalApplicationCategoryDto>> getApplicationCatalog() {
+    return _withPortalLocaleLock(() async {
+      final initialResponse = await _getApplicationPage(
+        queryParameters: {'init': ''},
+      );
+      final initialDocument = _parseApplicationPage(initialResponse.data!);
+      final originalLocale = _parsePortalLocale(initialDocument);
+      var localeMutationAttempted = false;
+      Object? operationError;
+      try {
+        List<_PortalApplicationCategoryPageDto> english = const [];
+        late final List<_PortalApplicationCategoryPageDto> chinese;
+        if (originalLocale == _englishLocale) {
+          try {
+            english = await _getApplicationCatalogForCurrentLocale(
+              categoryDocument: initialDocument,
+            );
+          } on SessionExpiredException {
+            rethrow;
+          } catch (_) {
+            // English is optional; continue with the canonical Chinese crawl.
+          }
+          localeMutationAttempted = true;
+          await _setPortalLocale(_chineseLocale);
+          chinese = await _getApplicationCatalogForCurrentLocale();
+        } else {
+          chinese = await _getApplicationCatalogForCurrentLocale(
+            categoryDocument: initialDocument,
+          );
+          localeMutationAttempted = true;
+          await _setPortalLocale(_englishLocale);
+          try {
+            english = await _getApplicationCatalogForCurrentLocale();
+          } on SessionExpiredException {
+            rethrow;
+          } catch (_) {
+            // Match CourseService's bilingual behavior: English enriches the
+            // canonical Chinese response, but its instability must not make
+            // the complete catalog unavailable.
+          }
+        }
+
+        return _mergeApplicationCatalog(chinese, english);
+      } catch (error) {
+        operationError = error;
+        rethrow;
+      } finally {
+        if (localeMutationAttempted) {
+          try {
+            await _setPortalLocale(originalLocale);
+          } catch (restoreError, restoreStackTrace) {
+            _portalLocaleStateUncertain = true;
+            // Preserve the root failure when both the crawl and cleanup fail.
+            // If the crawl succeeded, fail the refresh so the repository does
+            // not mark an uncertain portal session state as freshly cached.
+            if (operationError == null) {
+              Error.throwWithStackTrace(restoreError, restoreStackTrace);
+            }
+          }
+        }
+      }
+    });
+  }
+
+  String _parsePortalLocale(Document document) {
+    for (final category in _parseApplicationCategories(document)) {
+      if (!category.distinguishedName.startsWith(_academicCategoryDnPrefix)) {
+        continue;
+      }
+      return switch (category.name) {
+        _chineseAcademicCategoryName => _chineseLocale,
+        _englishAcademicCategoryName => _englishLocale,
+        _ => throw FormatException(
+          'Unknown NTUT Portal academic category name: ${category.name}',
+        ),
+      };
+    }
+    throw const FormatException(
+      'NTUT Portal academic category was not found.',
+    );
+  }
+
+  Future<List<_PortalApplicationCategoryPageDto>>
+  _getApplicationCatalogForCurrentLocale({Document? categoryDocument}) async {
+    final Document document;
+    if (categoryDocument case final cached?) {
+      document = cached;
+    } else {
+      final response = await _getApplicationPage(
+        queryParameters: {'init': ''},
+      );
+      document = _parseApplicationPage(response.data!);
+    }
+    final categories = _parseApplicationCategories(document);
+    if (categories.isEmpty) {
+      throw const FormatException(
+        'No application categories found in NTUT Portal response.',
+      );
+    }
+
+    final result = <_PortalApplicationCategoryPageDto>[];
+    for (final category in categories) {
+      final applications = await _getCategoryApplications(
+        category.distinguishedName,
+        visitedFolders: <String>{},
+      );
+      result.add((
+        distinguishedName: category.distinguishedName,
+        name: category.name,
+        applications: applications,
+      ));
+    }
+    return result;
+  }
+
+  Future<void> _setPortalLocale(String locale) async {
+    final response = await _portalDio.post<String>(
+      'localeModify.do',
+      data: {'localeId': locale},
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        responseType: .plain,
+        headers: const {'X-Requested-With': 'XMLHttpRequest'},
+      ),
+    );
+    final body = response.data?.trim() ?? '';
+    _throwIfPortalSessionExpired(body);
+    if (body != locale) {
+      throw FormatException(
+        'NTUT Portal did not confirm locale $locale.',
+      );
+    }
+
+    final reload = await _portalDio.get<String>(
+      'localeReload.do',
+      queryParameters: {'locale': body},
+      options: Options(responseType: .plain),
+    );
+    _throwIfPortalSessionExpired(reload.data ?? '');
+  }
+
+  Future<T> _withPortalLocaleLock<T>(Future<T> Function() operation) async {
+    final previous = _portalLocaleOperation;
+    final release = Completer<void>();
+    _portalLocaleOperation = release.future;
+    await previous;
+    try {
+      if (_portalLocaleStateUncertain) {
+        throw const SessionExpiredException(
+          'NTUT Portal locale state could not be restored',
+        );
+      }
+      return await operation();
+    } finally {
+      release.complete();
+    }
+  }
+
+  Future<Response<String>> _getApplicationPage({
+    required Map<String, dynamic> queryParameters,
+  }) {
+    return _portalDio.get<String>(
+      'apPopupFull.do',
+      queryParameters: queryParameters,
+      options: Options(
+        responseType: .plain,
+        headers: const {'X-Requested-With': 'XMLHttpRequest'},
+      ),
+    );
+  }
+
+  Document _parseApplicationPage(String html) {
+    _throwIfPortalSessionExpired(html);
+    final document = parse(html);
+    return document;
+  }
+
+  void _throwIfPortalSessionExpired(String body) {
+    if (body.contains('請重新登入') ||
+        body.contains('您目前已和伺服器中斷連線') ||
+        body.contains('You have been disconnected from the server')) {
+      throw const SessionExpiredException('NTUT Portal session expired');
+    }
+  }
+
+  List<({String distinguishedName, String name})> _parseApplicationCategories(
+    Document document,
+  ) {
+    final categories = <({String distinguishedName, String name})>[];
+    final seen = <String>{};
+    for (final anchor in document.querySelectorAll('a.dropdown-item[href]')) {
+      final folder = _parseFolderCall(anchor.attributes['href']);
+      if (folder == null ||
+          folder.name.trim().isEmpty ||
+          !seen.add(folder.distinguishedName)) {
+        continue;
+      }
+      categories.add((
+        distinguishedName: folder.distinguishedName,
+        name: folder.name.trim(),
+      ));
+    }
+    return categories;
+  }
+
+  Future<List<_PortalApplicationPageDto>> _getCategoryApplications(
+    String distinguishedName, {
+    required Set<String> visitedFolders,
+  }) async {
+    if (!visitedFolders.add(distinguishedName)) return const [];
+
+    final response = await _getApplicationPage(
+      queryParameters: {
+        'apView': 'apMap',
+        'apDn': distinguishedName,
+      },
+    );
+    final document = _parseApplicationPage(response.data!);
+    final applications = <_PortalApplicationPageDto>[];
+    final seenCodes = <String>{};
+
+    for (final item in document.querySelectorAll('.apt-icon')) {
+      final application = _parseApplication(
+        item,
+        response.requestOptions.uri,
+      );
+      if (application != null) {
+        if (seenCodes.add(application.code)) applications.add(application);
+        continue;
+      }
+
+      final folder = _parseFolderCall(item.attributes['onclick']);
+      if (folder == null) continue;
+      final nested = await _getCategoryApplications(
+        folder.distinguishedName,
+        visitedFolders: visitedFolders,
+      );
+      for (final application in nested) {
+        if (seenCodes.add(application.code)) applications.add(application);
+      }
+    }
+
+    return applications;
+  }
+
+  _PortalApplicationPageDto? _parseApplication(
+    Element item,
+    Uri responseUri,
+  ) {
+    Element? link;
+    for (final candidate in item.querySelectorAll('a[href]')) {
+      final href = candidate.attributes['href'];
+      if (href == null) continue;
+      final uri = Uri.tryParse(href);
+      final endpoint = uri?.path.split('/').last;
+      if (uri == null ||
+          (endpoint != 'ssoIndex.do' && endpoint != 'ssoFromOu.do') ||
+          !uri.queryParameters.containsKey('apOu')) {
+        continue;
+      }
+      link = candidate;
+      break;
+    }
+    if (link == null) return null;
+
+    final href = Uri.parse(link.attributes['href']!);
+    final code = href.queryParameters['apOu'];
+    if (code == null || code.isEmpty) return null;
+
+    final name =
+        item
+            .querySelector('[data-bs-original-title]')
+            ?.attributes['data-bs-original-title']
+            ?.trim() ??
+        item.querySelector('[title]')?.attributes['title']?.trim() ??
+        link.text.trim();
+    if (name.isEmpty) return null;
+
+    final iconPath = item.querySelector('img[src]')?.attributes['src'];
+    return (
+      code: code,
+      name: name,
+      iconUrl: iconPath == null || iconPath.isEmpty
+          ? null
+          : responseUri.resolve(iconPath).toString(),
+    );
+  }
+
+  List<PortalApplicationCategoryDto> _mergeApplicationCatalog(
+    List<_PortalApplicationCategoryPageDto> chinese,
+    List<_PortalApplicationCategoryPageDto> english,
+  ) {
+    final englishByDn = {
+      for (final category in english) category.distinguishedName: category,
+    };
+    final englishApplicationsByCode = {
+      for (final category in english)
+        for (final application in category.applications)
+          application.code: application,
+    };
+    return [
+      for (final category in chinese)
+        _mergeApplicationCategory(
+          chinese: category,
+          english: englishByDn[category.distinguishedName],
+          englishApplicationsByCode: englishApplicationsByCode,
+        ),
+    ];
+  }
+
+  PortalApplicationCategoryDto _mergeApplicationCategory({
+    required _PortalApplicationCategoryPageDto chinese,
+    _PortalApplicationCategoryPageDto? english,
+    required Map<String, _PortalApplicationPageDto> englishApplicationsByCode,
+  }) {
+    return (
+      distinguishedName: chinese.distinguishedName,
+      nameZh: chinese.name,
+      nameEn: english?.name,
+      applications: [
+        for (final application in chinese.applications)
+          (
+            code: application.code,
+            nameZh: application.name,
+            nameEn: englishApplicationsByCode[application.code]?.name,
+            iconUrl: application.iconUrl,
+          ),
+      ],
+    );
+  }
+
+  ({String distinguishedName, String name})? _parseFolderCall(
+    String? script,
+  ) {
+    if (script == null) return null;
+    final match = _folderCallPattern.firstMatch(script);
+    if (match == null) return null;
+    return (
+      distinguishedName: match.group(1)!,
+      name: match.group(2)!,
+    );
   }
 }

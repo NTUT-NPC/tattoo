@@ -18,16 +18,32 @@ Install recommended extensions (VS Code will prompt you, or search `@recommended
 Shared launch configurations for the project:
 
 | Configuration | Mode | Flags |
-|---|---|---|
-| Debug | debug | `ALLOW_BAD_CERTIFICATES=true` |
-| Debug with Firebase | debug | `ALLOW_BAD_CERTIFICATES=true`, `USE_FIREBASE=true` |
-| Profile | profile | — |
-| Profile with Firebase | profile | `USE_FIREBASE=true` |
-| Release | release | — |
-| Release with Firebase | release | `USE_FIREBASE=true` |
+| --- | --- | --- |
+| Debug | debug | `cronetHttpNoPlay=true` |
+| Debug with Firebase | debug | `USE_FIREBASE=true`, `cronetHttpNoPlay=true` |
+| Profile | profile | `cronetHttpNoPlay=true` |
+| Profile with Firebase | profile | `USE_FIREBASE=true`, `cronetHttpNoPlay=true` |
+| Release | release | `cronetHttpNoPlay=true` |
+| Release with Firebase | release | `USE_FIREBASE=true`, `cronetHttpNoPlay=true` |
 
-- **`ALLOW_BAD_CERTIFICATES`** — allows self-signed certificates for MITM proxy debugging (e.g., Proxyman, Charles)
 - **`USE_FIREBASE`** — enables Firebase Analytics and Crashlytics (requires Firebase configs from `tool/credentials.dart`)
+- **`cronetHttpNoPlay`** — bundles Cronet directly instead of using Google Play Services (~2MB APK increase), so AOSP devices (e.g., GrapheneOS) work on campus Wi-Fi
+
+## Switching Flutter SDK after a bump
+
+When `mise.toml`'s `flutter` version changes (e.g. a Renovate bump), VS Code keeps using its previously-resolved SDK. To switch:
+
+1. Set `dart.flutterSdkPaths` in your `settings.json` to the mise tarball directory so VS Code can discover installed SDKs:
+
+   ```json
+   {
+     "dart.flutterSdkPaths": ["~/.local/share/mise/http-tarballs/"]
+   }
+   ```
+
+   On Windows, use `~/AppData/Local/mise/http-tarballs/` instead. Use `~` and `/` separators even on Windows.
+
+2. Run **Dart: Change Flutter SDK** from the command palette and pick the version matching `mise.toml`. Reload the window if prompted.
 
 ## Optional Configuration
 

@@ -7,8 +7,10 @@ import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/services/github_service.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 final packageInfoProvider = FutureProvider.autoDispose<String>((ref) async {
@@ -61,11 +63,12 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
   Widget build(BuildContext context) {
     final contributorsAsync = ref.watch(contributorsProvider);
     final packageInfoAsync = ref.watch(packageInfoProvider);
+    final showWeblateButton = ref.pref(PrefKey.showWeblateButton);
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.profile.options.about),
+        title: Text(t.profile.options.about.spaced),
       ),
       body: SafeArea(
         child: CustomScrollView(
@@ -128,13 +131,25 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                           ),
                         ),
                         OptionEntryTile.icon(
-                          icon: Icons.translate,
-                          title: 'Crowdin',
-                          description: t.about.helpTranslate,
-                          onTap: () => launchUrl(
-                            .parse('https://translate.ntut.club'),
+                          icon: Icons.article_outlined,
+                          title: t.about.openSourceLicenses,
+                          description: t.about.viewOpenSourceLicenses.spaced,
+                          onTap: () => showLicensePage(
+                            context: context,
+                            applicationLegalese: t.about.copyright.spaced,
+                            applicationName: t.general.appTitle,
+                            applicationVersion: packageInfoAsync.value ?? '...',
                           ),
                         ),
+                        if (showWeblateButton)
+                          OptionEntryTile.icon(
+                            icon: Icons.translate,
+                            title: 'Weblate',
+                            description: t.about.helpTranslate.spaced,
+                            onTap: () => launchUrl(
+                              .parse('https://translate.ntut.app'),
+                            ),
+                          ),
                         OptionEntryTile.icon(
                           icon: Icons.privacy_tip,
                           title: t.about.privacyPolicy,
@@ -226,7 +241,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
 
                     // Copyright
                     Text.rich(
-                      TextSpan(text: t.about.copyright),
+                      TextSpan(text: t.about.copyright.spaced),
                       style: theme.textTheme.bodySmall?.copyWith(
                         height: 1.6,
                         color: Colors.grey[600],
