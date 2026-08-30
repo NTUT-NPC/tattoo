@@ -38,6 +38,11 @@ void main() {
     expect(find.text('1–2'), findsOneWidget);
     expect(find.text('4–5'), findsOneWidget);
 
+    final weeklyCenter = tester.getCenter(find.byType(CourseTableWeekly)).dx;
+    for (final title in ['星期一', '星期三', '未安排時間的課程']) {
+      expect(tester.getCenter(find.text(title)).dx, weeklyCenter);
+    }
+
     final expectedColors = buildCourseTableColorMap(_courseTableData);
     final cells = tester
         .widgetList<CourseTableListCell>(find.byType(CourseTableListCell))

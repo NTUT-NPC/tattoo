@@ -152,7 +152,7 @@ class _CourseTableWeeklyState extends State<CourseTableWeekly>
       if (courses == null) continue;
 
       children.addAll([
-        SectionHeader(title: t.courseTable.dayOfWeekLong[day.name]!),
+        _WeeklySectionHeader(title: t.courseTable.dayOfWeekLong[day.name]!),
         const SizedBox(height: 8),
       ]);
       for (final course in courses) {
@@ -180,7 +180,7 @@ class _CourseTableWeeklyState extends State<CourseTableWeekly>
 
     if (widget.courseTableData.unscheduled.isNotEmpty) {
       children.addAll([
-        SectionHeader(title: t.courseTable.unscheduled),
+        _WeeklySectionHeader(title: t.courseTable.unscheduled),
         const SizedBox(height: 8),
       ]);
       for (final cell in widget.courseTableData.unscheduled) {
@@ -293,7 +293,9 @@ class _WeeklyLoadingSkeleton extends StatelessWidget {
         crossAxisAlignment: .stretch,
         spacing: 8,
         children: [
-          SectionHeader(title: t.courseTable.dayOfWeekLong['monday']!),
+          _WeeklySectionHeader(
+            title: t.courseTable.dayOfWeekLong['monday']!,
+          ),
           for (var i = 0; i < 4; i++)
             CourseTableEntranceAnimation(
               delay: _initialEntranceDelay + (_entranceStagger * i),
@@ -310,6 +312,17 @@ class _WeeklyLoadingSkeleton extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _WeeklySectionHeader extends StatelessWidget {
+  const _WeeklySectionHeader({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(child: SectionHeader(title: title));
   }
 }
 
