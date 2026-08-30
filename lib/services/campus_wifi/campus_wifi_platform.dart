@@ -219,7 +219,9 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
     } on MissingPluginException {
       return fallback;
     } on PlatformException catch (e) {
-      _logCampusWifi('PlatformException in platform channel invoke: ${e.code} (${e.message})');
+      _logCampusWifi(
+        'PlatformException in platform channel invoke: ${e.code} (${e.message})',
+      );
       return fallback;
     }
   }
