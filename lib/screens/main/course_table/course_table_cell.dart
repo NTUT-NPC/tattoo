@@ -338,6 +338,7 @@ const CourseTableCellData _previewNamedCourseTableCell = (
   crossesNoon: false,
   courseName: '微處理機及自動控制應用實務',
   classroomName: '六教305',
+  teacherNames: ['測試教師'],
   credits: 3.0,
   hours: 3,
 );

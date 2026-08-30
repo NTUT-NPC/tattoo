@@ -10,6 +10,7 @@ general:
   back: 返回
   ok: 確定
   cancel: 取消
+  retry: 重試
 errors:
   occurred: 發生錯誤
   unexpected: 發生未預期的錯誤
@@ -64,6 +65,18 @@ portal:
   addFavorite: 加入最愛
   removeFavorite: 取消最愛
 home:
+  courseScheduleLoadFailed: 課程載入失敗
+  coursesEnded: 今日課程已結束
+  noCoursesToday: 今日沒有課程
+  previousDay: 查看上一個有課日
+  today: 今日
+  tomorrow: 明日
+  yesterday: 昨日
+  weekday: 週${day}
+  courseStatus:
+    ongoing: 進行中
+    imminent: 即將開始
+    next: 下一堂課
   projectTattoo:
     title: 關於Project Tattoo
     description: 查看更多資訊或邀請你的朋友加入測試計畫。

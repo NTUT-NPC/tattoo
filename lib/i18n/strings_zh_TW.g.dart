@@ -101,6 +101,9 @@ class Translations$general$zh_TW {
 
 	/// zh-TW: '取消'
 	String get cancel => '取消';
+
+	/// zh-TW: '重試'
+	String get retry => '重試';
 }
 
 // Path: errors
@@ -255,6 +258,32 @@ class Translations$home$zh_TW {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// zh-TW: '課程載入失敗'
+	String get courseScheduleLoadFailed => '課程載入失敗';
+
+	/// zh-TW: '今日課程已結束'
+	String get coursesEnded => '今日課程已結束';
+
+	/// zh-TW: '今日沒有課程'
+	String get noCoursesToday => '今日沒有課程';
+
+	/// zh-TW: '查看上一個有課日'
+	String get previousDay => '查看上一個有課日';
+
+	/// zh-TW: '今日'
+	String get today => '今日';
+
+	/// zh-TW: '明日'
+	String get tomorrow => '明日';
+
+	/// zh-TW: '昨日'
+	String get yesterday => '昨日';
+
+	/// zh-TW: '週${day}'
+	String weekday({required Object day}) => '週${day}';
+
+	late final Translations$home$courseStatus$zh_TW courseStatus = Translations$home$courseStatus$zh_TW.internal(_root);
 	late final Translations$home$projectTattoo$zh_TW projectTattoo = Translations$home$projectTattoo$zh_TW.internal(_root);
 	late final Translations$home$ideation$zh_TW ideation = Translations$home$ideation$zh_TW.internal(_root);
 	late final Translations$home$npcClub$zh_TW npcClub = Translations$home$npcClub$zh_TW.internal(_root);
@@ -714,6 +743,24 @@ class Translations$login$errors$zh_TW {
 
 	/// zh-TW: '需要進行手機驗證，請至校園入口網站完成驗證'
 	String get mobileVerificationRequired => '需要進行手機驗證，請至校園入口網站完成驗證';
+}
+
+// Path: home.courseStatus
+class Translations$home$courseStatus$zh_TW {
+	Translations$home$courseStatus$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '進行中'
+	String get ongoing => '進行中';
+
+	/// zh-TW: '即將開始'
+	String get imminent => '即將開始';
+
+	/// zh-TW: '下一堂課'
+	String get next => '下一堂課';
 }
 
 // Path: home.projectTattoo
@@ -1453,6 +1500,7 @@ extension on Translations {
 			'general.back' => '返回',
 			'general.ok' => '確定',
 			'general.cancel' => '取消',
+			'general.retry' => '重試',
 			'errors.occurred' => '發生錯誤',
 			'errors.unexpected' => '發生未預期的錯誤',
 			'errors.networkError' => '網路連線出現錯誤',
@@ -1496,6 +1544,17 @@ extension on Translations {
 			'portal.favorites' => '我的最愛',
 			'portal.addFavorite' => '加入最愛',
 			'portal.removeFavorite' => '取消最愛',
+			'home.courseScheduleLoadFailed' => '課程載入失敗',
+			'home.coursesEnded' => '今日課程已結束',
+			'home.noCoursesToday' => '今日沒有課程',
+			'home.previousDay' => '查看上一個有課日',
+			'home.today' => '今日',
+			'home.tomorrow' => '明日',
+			'home.yesterday' => '昨日',
+			'home.weekday' => ({required Object day}) => '週${day}',
+			'home.courseStatus.ongoing' => '進行中',
+			'home.courseStatus.imminent' => '即將開始',
+			'home.courseStatus.next' => '下一堂課',
 			'home.projectTattoo.title' => '關於Project Tattoo',
 			'home.projectTattoo.description' => '查看更多資訊或邀請你的朋友加入測試計畫。',
 			'home.projectTattoo.url' => 'https://ntut.app',

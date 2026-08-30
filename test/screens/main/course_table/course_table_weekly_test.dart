@@ -8,9 +8,9 @@ import 'package:tattoo/screens/main/course_table/course_table_cell.dart';
 import 'package:tattoo/screens/main/course_table/course_table_colors.dart';
 import 'package:tattoo/screens/main/course_table/course_table_entrance_animation.dart';
 import 'package:tattoo/screens/main/course_table/course_table_grid.dart';
-import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_weekly.dart';
+import 'package:tattoo/screens/main/course_table_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 
 void main() {
@@ -241,6 +241,7 @@ const CourseTableCellData _specialCourse = (
   crossesNoon: false,
   courseName: '班週會及導師時間',
   classroomName: null,
+  teacherNames: [],
   credits: 0,
   hours: 0,
 );
@@ -252,6 +253,7 @@ const CourseTableCellData _regularCourse = (
   crossesNoon: false,
   courseName: '作業系統',
   classroomName: null,
+  teacherNames: ['測試教師'],
   credits: 3,
   hours: 3,
 );
@@ -265,6 +267,7 @@ const CourseTableData _courseTableData = (
       crossesNoon: false,
       courseName: '作業系統',
       classroomName: '共同科館201',
+      teacherNames: ['測試教師'],
       credits: 3.0,
       hours: 3,
     ),
@@ -275,6 +278,7 @@ const CourseTableData _courseTableData = (
       crossesNoon: true,
       courseName: '軟體工程',
       classroomName: '科研B112',
+      teacherNames: ['測試教師'],
       credits: 3.0,
       hours: 3,
     ),
@@ -287,6 +291,7 @@ const CourseTableData _courseTableData = (
       crossesNoon: false,
       courseName: '校外實習',
       classroomName: null,
+      teacherNames: ['測試教師'],
       credits: 9.0,
       hours: 9,
     ),
@@ -315,6 +320,7 @@ CourseTableData _courseTableDataWithManyEntries() => (
         crossesNoon: false,
         courseName: 'Course $i',
         classroomName: null,
+        teacherNames: ['測試教師'],
         credits: 1.0,
         hours: 1,
       ),

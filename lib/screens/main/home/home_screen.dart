@@ -3,11 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/next_course.dart';
+import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart';
+import 'package:tattoo/screens/main/course_table_providers.dart';
+import 'package:tattoo/screens/main/home/home_providers.dart';
+import 'package:tattoo/screens/main/home/next_course_carousel.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
+import 'package:tattoo/utils/course_schedule.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 class MainHomeScreen extends ConsumerStatefulWidget {
@@ -19,6 +26,8 @@ class MainHomeScreen extends ConsumerStatefulWidget {
 
 class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
   bool _updateSnackbarCheckScheduled = false;
+  DateTime? _selectedDate;
+  DateTime? _selectionDay;
 
   @override
   void initState() {
@@ -73,8 +82,125 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
     );
   }
 
+  void _showAdjacentCourseDate(
+    CourseTableData? courseTable,
+    CourseScheduleDateRange? dateRange,
+    DateTime displayedDate,
+    DateTime today,
+    CourseDateDirection direction,
+  ) {
+    if (courseTable == null) return;
+    if (adjacentCourseDate(
+          courseTable,
+          date: displayedDate,
+          direction: direction,
+          dateRange: dateRange,
+        )
+        case final date?) {
+      setState(() {
+        _selectedDate = date;
+        _selectionDay = today;
+      });
+    }
+  }
+
+  Future<void> _retryCourseSchedule(int? semesterId) async {
+    final courseRepository = ref.read(courseRepositoryProvider);
+    try {
+      await [
+        courseRepository.refreshSemesters(),
+        if (semesterId case final semesterId?)
+          courseRepository.refreshCourseTable(semesterId: semesterId),
+      ].wait;
+    } on Object {
+      // The providers continue exposing the error state so the user can retry.
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final now = ref.watch(homeClockProvider).asData?.value ?? taipeiNow();
+    final today = DateUtils.dateOnly(now);
+    final displayedDate = switch ((_selectedDate, _selectionDay)) {
+      (final selectedDate?, final selectionDay?)
+          when DateUtils.isSameDay(selectionDay, today) =>
+        selectedDate,
+      _ => today,
+    };
+    final semestersAsync = ref.watch(courseTableSemestersProvider);
+    final latestSemester = switch (semestersAsync) {
+      AsyncValue(value: final semesters?, hasValue: true)
+          when semesters.isNotEmpty =>
+        semesters.first,
+      _ => null,
+    };
+    final latestSemesterId = latestSemester?.id;
+    final semesterDateRange = switch (latestSemester) {
+      final semester? => ntutSemesterDateRange(
+        year: semester.year,
+        term: semester.term,
+      ),
+      null => null,
+    };
+    final courseTableAsync = switch (latestSemesterId) {
+      final latestSemesterId? => ref.watch(
+        courseTableProvider(latestSemesterId),
+      ),
+      null => null,
+    };
+    final courseTable = switch (courseTableAsync) {
+      AsyncValue(value: final courseTable, hasValue: true) => courseTable,
+      _ => null,
+    };
+    final isCourseScheduleLoading =
+        (semestersAsync.isLoading && !semestersAsync.hasValue) ||
+        switch (courseTableAsync) {
+          final courseTableAsync? =>
+            courseTableAsync.isLoading && !courseTableAsync.hasValue,
+          null => false,
+        };
+    final hasCourseScheduleError =
+        (semestersAsync.hasError && !semestersAsync.hasValue) ||
+        switch (courseTableAsync) {
+          final courseTableAsync? =>
+            courseTableAsync.hasError && !courseTableAsync.hasValue,
+          null => false,
+        };
+    final meetings = switch (courseTable) {
+      final courseTable? => courseMeetingsForDate(
+        courseTable,
+        date: displayedDate,
+        now: now,
+        dateRange: semesterDateRange,
+      ),
+      null => <CourseScheduleMeeting>[],
+    };
+    final dayLabel = _courseDateLabel(displayedDate, today: today);
+    final nextCoursePosition = switch (courseTable) {
+      final courseTable? => nextCourseMeetingPosition(
+        courseTable,
+        now: now,
+        dateRange: semesterDateRange,
+      ),
+      null => null,
+    };
+    final courses = [
+      for (final (index, meeting) in meetings.indexed)
+        _toNextCourse(
+          meeting,
+          dayLabel: dayLabel,
+          now: now,
+          isNextCourse:
+              nextCoursePosition?.index == index &&
+              DateUtils.isSameDay(nextCoursePosition?.date, displayedDate),
+        ),
+    ];
+    final initialCourseIndex = switch ((meetings.isEmpty, displayedDate)) {
+      (true, _) => null,
+      (false, final date) when DateUtils.isSameDay(date, today) =>
+        preferredTodayCourseIndex(meetings, now: now),
+      (false, _) => 0,
+    };
     final options = [
       OptionEntryTile.svg(
         svgIconAsset: "assets/tat_icon.svg",
@@ -134,23 +260,111 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.nav.home)),
-      body: CustomScrollView(
-        slivers: [
-          SliverPadding(
-            padding: const .all(16),
-            sliver: SliverToBoxAdapter(
-              child: Column(
-                spacing: 8,
-                children: options,
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const .all(16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  spacing: 16,
+                  children: [
+                    NextCourseCarousel(
+                      key: ValueKey(displayedDate),
+                      courses: courses,
+                      initialCourseIndex: initialCourseIndex,
+                      loading: isCourseScheduleLoading,
+                      error: hasCourseScheduleError,
+                      onRetry: () => _retryCourseSchedule(latestSemesterId),
+                      onPreviousDate: () => _showAdjacentCourseDate(
+                        courseTable,
+                        semesterDateRange,
+                        displayedDate,
+                        today,
+                        .previous,
+                      ),
+                      onNextDate: () => _showAdjacentCourseDate(
+                        courseTable,
+                        semesterDateRange,
+                        displayedDate,
+                        today,
+                        .next,
+                      ),
+                      onCourseTap: (course) {
+                        if (course.courseNumber case final number?) {
+                          showCourseTableDetailSheet(context, number: number);
+                        }
+                      },
+                    ),
+                    Column(
+                      spacing: 8,
+                      children: options,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+
+NextCourse _toNextCourse(
+  CourseScheduleMeeting meeting, {
+  required String dayLabel,
+  required DateTime now,
+  required bool isNextCourse,
+}) {
+  final NextCourseState state = switch ((meeting.start, meeting.end)) {
+    (final start, _)
+        when start.isAfter(now) &&
+            !start.isAfter(now.add(const Duration(minutes: 30))) =>
+      .imminent,
+    _ when meeting.isOngoing => .ongoing,
+    (_, final end) when !end.isAfter(now) => .finished,
+    _ when isNextCourse => .upcoming,
+    _ => .scheduled,
+  };
+  return NextCourse(
+    title: meeting.course.courseName,
+    courseNumber: meeting.course.number,
+    teacher: meeting.course.teacherNames.isEmpty
+        ? '-'
+        : meeting.course.teacherNames.join('、'),
+    classroom: meeting.course.classroomName ?? '-',
+    time: '${_formatTime(meeting.start)} - ${_formatTime(meeting.end)}',
+    dayLabel: dayLabel,
+    state: state,
+  );
+}
+
+String _courseDateLabel(DateTime date, {required DateTime today}) {
+  if (DateUtils.isSameDay(date, today)) return t.home.today;
+  if (DateUtils.isSameDay(date, today.add(const Duration(days: 1)))) {
+    return t.home.tomorrow;
+  }
+  if (DateUtils.isSameDay(date, today.subtract(const Duration(days: 1)))) {
+    return t.home.yesterday;
+  }
+
+  final dayKey = switch (date.weekday) {
+    DateTime.monday => 'monday',
+    DateTime.tuesday => 'tuesday',
+    DateTime.wednesday => 'wednesday',
+    DateTime.thursday => 'thursday',
+    DateTime.friday => 'friday',
+    DateTime.saturday => 'saturday',
+    DateTime.sunday => 'sunday',
+    _ => throw StateError('Unsupported weekday: ${date.weekday}'),
+  };
+  return t.home.weekday(day: t.courseTable.dayOfWeek[dayKey]!);
+}
+
+String _formatTime(DateTime time) =>
+    '${time.hour.toString().padLeft(2, '0')}:'
+    '${time.minute.toString().padLeft(2, '0')}';
 
 bool _showVoteEntry() => DateTime.now()
     .toUtc()

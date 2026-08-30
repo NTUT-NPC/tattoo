@@ -10,6 +10,7 @@ general:
   back: Back
   ok: OK
   cancel: Cancel
+  retry: Retry
 errors:
   occurred: An error occurred
   unexpected: An unexpected error occurred
@@ -64,6 +65,18 @@ portal:
   addFavorite: Add to favorites
   removeFavorite: Remove from favorites
 home:
+  courseScheduleLoadFailed: Failed to load course schedule
+  coursesEnded: Today's classes are over
+  noCoursesToday: No classes today
+  previousDay: View previous class day
+  today: Today
+  tomorrow: Tomorrow
+  yesterday: Yesterday
+  weekday: ${day}
+  courseStatus:
+    ongoing: Ongoing
+    imminent: Starting soon
+    next: Next course
   projectTattoo:
     title: About Project Tattoo
     description: Learn more or invite your friends to join the testing program.
