@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
@@ -11,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import java.util.concurrent.Executors
 
 class CampusWifiChannelHandler(
     private val activity: Activity,
@@ -19,6 +22,8 @@ class CampusWifiChannelHandler(
         private const val CHANNEL_NAME = "club.ntut.tattoo/campus_wifi"
     }
 
+    private val executor = Executors.newSingleThreadExecutor()
+    private val mainHandler = Handler(Looper.getMainLooper())
     private val provisioner by lazy { Ntut8021xProvisioner(activity.applicationContext) }
     private var pendingAddNetworkResult: MethodChannel.Result? = null
     private val addNetworkLauncher: ActivityResultLauncher<Intent>? =
@@ -86,14 +91,17 @@ class CampusWifiChannelHandler(
             return
         }
 
-        result.success(
-            provisioner.provisionNtut8021x(
+        executor.execute {
+            val provisioningResult = provisioner.provisionNtut8021x(
                 identity = identity,
                 password = password,
                 previousIdentity = previousIdentity,
                 previousPassword = previousPassword,
-            ),
-        )
+            )
+            mainHandler.post {
+                result.success(provisioningResult)
+            }
+        }
     }
 
     private fun handleSaveNtut8021xToSystemCall(

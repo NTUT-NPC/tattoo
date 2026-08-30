@@ -131,7 +131,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       await ref.read(authRepositoryProvider).login(username, password);
       if (!mounted) return;
-      await _handlePendingNtutWifiPrompt();
+      try {
+        await _handlePendingNtutWifiPrompt();
+      } catch (error) {
+        debugPrint('Error handling pending NTUT Wi-Fi prompt: $error');
+        if (mounted) {
+          _showMessage(t.ntutWifi.provisioning.failed);
+        }
+      }
       if (mounted) context.go(AppRoutes.home);
     } on DioException {
       if (mounted) _setError(t.errors.connectionFailed);

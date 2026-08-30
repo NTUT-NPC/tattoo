@@ -315,7 +315,8 @@ class CampusWifiRepository {
       defaultMode: Ntut8021xProvisioningMode.suggestion,
     );
 
-    if (_isSuggestionSuccess(suggestionResult.status)) {
+    if (_isSuggestionSuccess(suggestionResult.status) &&
+        provisioning.suggestionPermissionState != 'disallowed') {
       await _autoReprovision.enable();
       await _stateStore.markProvisioned(
         mode: Ntut8021xStoredProvisioningMode.suggestion,

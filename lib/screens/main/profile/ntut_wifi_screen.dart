@@ -87,6 +87,9 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
   }
 
   String _provisioningSnackBarMessage(Ntut8021xProvisioningResult result) {
+    if (result.approvalStatus == 2) {
+      return t.ntutWifi.provisioning.approvalRejected;
+    }
     return switch (result.status) {
       .success => t.ntutWifi.provisioning.success,
       .successPendingWifi => t.ntutWifi.provisioning.successPendingWifi,
@@ -193,7 +196,7 @@ class _AssistantBody extends StatelessWidget {
       if (provisioningResult case final provisioningResult?)
         BackgroundNotice(
           text: _provisioningMessage(provisioningResult),
-          noticeType: _provisioningNoticeType(provisioningResult.status),
+          noticeType: _provisioningNoticeType(provisioningResult),
         ),
       if (data.capabilities.androidSdkInt case final sdkInt?)
         Text(
@@ -377,6 +380,9 @@ class _AssistantBody extends StatelessWidget {
   }
 
   String _provisioningMessage(Ntut8021xProvisioningResult result) {
+    if (result.approvalStatus == 2) {
+      return t.ntutWifi.provisioning.approvalRejected;
+    }
     return switch (result.status) {
       .success => t.ntutWifi.provisioning.success,
       .successPendingWifi => t.ntutWifi.provisioning.successPendingWifi,
@@ -395,8 +401,11 @@ class _AssistantBody extends StatelessWidget {
     };
   }
 
-  NoticeType _provisioningNoticeType(Ntut8021xProvisioningStatus status) {
-    return switch (status) {
+  NoticeType _provisioningNoticeType(Ntut8021xProvisioningResult result) {
+    if (result.approvalStatus == 2) {
+      return .warning;
+    }
+    return switch (result.status) {
       .success || .successPendingWifi || .compatSuccess => .info,
       .approvalPending ||
       .approvalRejected ||

@@ -288,12 +288,14 @@ class Ntut8021xProvisioner(
             throw IllegalArgumentException("system_certificate_validation_unavailable")
         }
 
-        return WifiNetworkSuggestion.Builder()
+        val builder = WifiNetworkSuggestion.Builder()
             .setSsid(NTUT_8021X_SSID)
             .setWpa2EnterpriseConfig(enterpriseConfig)
-            .setCredentialSharedWithUser(true)
             .setIsInitialAutojoinEnabled(true)
-            .build()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            builder.setCredentialSharedWithUser(true)
+        }
+        return builder.build()
     }
 
     private fun buildEnterpriseConfig(
