@@ -1,6 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tattoo/database/database.dart';
-import 'package:tattoo/repositories/course_repository.dart';
 
 /// Emits immediately and then once per minute so the focused course advances.
 final homeClockProvider = StreamProvider.autoDispose<DateTime>((ref) async* {
@@ -10,16 +8,3 @@ final homeClockProvider = StreamProvider.autoDispose<DateTime>((ref) async* {
     (_) => DateTime.now(),
   );
 });
-
-/// Provides course-table semesters newest first; home displays the first one.
-final homeSemestersProvider = StreamProvider.autoDispose<List<Semester>>((ref) {
-  return ref.watch(courseRepositoryProvider).watchSemesters();
-});
-
-/// Provides repository-composed course-table data for the home screen.
-final homeCourseTableProvider = StreamProvider.autoDispose
-    .family<CourseTableData, int>((ref, semesterId) {
-      return ref
-          .watch(courseRepositoryProvider)
-          .watchCourseTable(semesterId: semesterId);
-    });

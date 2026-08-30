@@ -8,8 +8,8 @@ import 'package:tattoo/components/floating_action_bar.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/screens/main/course_table_providers.dart';
 import 'package:tattoo/screens/main/course_table/course_table_grid.dart';
-import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/course_table/course_table_weekly.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 

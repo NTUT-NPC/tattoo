@@ -8,6 +8,7 @@ import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/services/update_service.dart';
+import 'package:tattoo/screens/main/course_table_providers.dart';
 import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart';
 import 'package:tattoo/screens/main/home/home_providers.dart';
 import 'package:tattoo/screens/main/home/next_course_card.dart';
@@ -101,7 +102,7 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
     final now = ref.watch(homeClockProvider).asData?.value ?? DateTime.now();
     final today = DateUtils.dateOnly(now);
     final displayedDate = _selectedDate ?? today;
-    final semestersAsync = ref.watch(homeSemestersProvider);
+    final semestersAsync = ref.watch(courseTableSemestersProvider);
     final latestSemesterId = switch (semestersAsync) {
       AsyncData(value: final semesters) when semesters.isNotEmpty =>
         semesters.first.id,
@@ -109,7 +110,7 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
     };
     final courseTable = switch (latestSemesterId) {
       final latestSemesterId? =>
-        ref.watch(homeCourseTableProvider(latestSemesterId)).asData?.value,
+        ref.watch(courseTableProvider(latestSemesterId)).asData?.value,
       null => null,
     };
     final meetings = switch (courseTable) {
