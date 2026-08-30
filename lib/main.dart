@@ -167,15 +167,29 @@ Future<void> main() async {
   await UpdateService.init(container);
 
   final database = container.read(databaseProvider);
-  final user = await database.select(database.users).getSingleOrNull();
+  var user = await database.select(database.users).getSingleOrNull();
+  var hadStoredLogin = false;
+  if (user == null) {
+    final restoration = await container
+        .read(authRepositoryProvider)
+        .restoreSession();
+    user = restoration.user;
+    hadStoredLogin = restoration.hadStoredLogin;
+  }
   if (user != null) {
     // Restore demo mode if the stored user is the demo account
     if (user.studentId == demoUsername) {
       container.read(isDemoProvider.notifier).set(true);
     }
-    container.read(sessionProvider.notifier).create();
+    if (!container.read(sessionProvider)) {
+      container.read(sessionProvider.notifier).create();
+    }
   }
-  final initialLocation = user != null ? AppRoutes.home : AppRoutes.intro;
+  final initialLocation = switch ((user, hadStoredLogin)) {
+    (final User _, _) => AppRoutes.home,
+    (null, true) => AppRoutes.login,
+    (null, false) => AppRoutes.intro,
+  };
   final router = createAppRouter(
     initialLocation: initialLocation,
     container: container,

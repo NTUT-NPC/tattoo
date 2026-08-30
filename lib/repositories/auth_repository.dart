@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert' show jsonDecode;
 import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
@@ -9,6 +10,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/services/campus_wifi/campus_wifi_platform.dart';
@@ -153,6 +155,7 @@ class AuthRepository {
 
   static const _usernameKey = 'username';
   static const _passwordKey = 'password';
+  static const _legacyUserDataKey = 'UserDataJsonKey';
 
   AuthRepository({
     required this._portalService,
@@ -164,6 +167,73 @@ class AuthRepository {
     required this._onSessionDestroyed,
     this._onCredentialsUpdated,
   });
+
+  /// Restores a session when the database no longer contains a user row.
+  ///
+  /// Secure credentials take precedence over legacy old TAT credentials.
+  /// `hadStoredLogin` remains true when stored data is unusable or cannot be
+  /// verified because of a network failure, allowing startup to skip the intro.
+  Future<({User? user, bool hadStoredLogin})> restoreSession() async {
+    var hadStoredLogin = false;
+    String? username;
+    String? password;
+
+    final secureUsername = await _secureStorage.read(key: _usernameKey);
+    final securePassword = await _secureStorage.read(key: _passwordKey);
+    if (secureUsername != null || securePassword != null) {
+      hadStoredLogin = true;
+      if (secureUsername?.isNotEmpty == true &&
+          securePassword?.isNotEmpty == true) {
+        username = secureUsername;
+        password = securePassword;
+      } else {
+        await _clearSecureCredentials();
+      }
+    }
+
+    if (username == null || password == null) {
+      final preferences = await SharedPreferences.getInstance();
+      final legacyUserData = preferences.get(_legacyUserDataKey);
+      if (legacyUserData != null) {
+        hadStoredLogin = true;
+        try {
+          final decoded = switch (legacyUserData) {
+            final String value => jsonDecode(value),
+            _ => null,
+          };
+          if (decoded case {
+            'account': final String account,
+            'password': final String legacyPassword,
+          } when account.isNotEmpty && legacyPassword.isNotEmpty) {
+            username = account;
+            password = legacyPassword;
+          } else {
+            await _clearLegacyCredentials(preferences);
+          }
+        } on FormatException {
+          await _clearLegacyCredentials(preferences);
+        }
+      }
+    }
+
+    if (username == null || password == null) {
+      if (hadStoredLogin) {
+        _onSessionDestroyed(const LoginException(.credentialsMissing));
+      }
+      return (user: null, hadStoredLogin: hadStoredLogin);
+    }
+
+    try {
+      final user = await login(username, password);
+      return (user: user, hadStoredLogin: true);
+    } on LoginException catch (exception) {
+      await _clearCredentials();
+      _onSessionDestroyed(exception);
+      return (user: null, hadStoredLogin: true);
+    } on DioException {
+      return (user: null, hadStoredLogin: true);
+    }
+  }
 
   /// Authenticates with NTUT Portal and saves the user profile.
   ///
@@ -203,6 +273,7 @@ class AuthRepository {
       await _secureStorage.write(key: _usernameKey, value: username);
       await _secureStorage.write(key: _passwordKey, value: password);
     }
+    await _clearLegacyCredentials();
     final user = await _database.transaction(() async {
       await _database.delete(_database.users).go();
       return _database
@@ -702,10 +773,20 @@ class AuthRepository {
     }
   }
 
-  /// Clears stored login credentials from secure storage.
+  /// Clears stored login credentials from secure and legacy storage.
   Future<void> _clearCredentials() async {
+    await _clearSecureCredentials();
+    await _clearLegacyCredentials();
+  }
+
+  Future<void> _clearSecureCredentials() async {
     await _secureStorage.delete(key: _usernameKey);
     await _secureStorage.delete(key: _passwordKey);
+  }
+
+  Future<void> _clearLegacyCredentials([SharedPreferences? preferences]) async {
+    final storage = preferences ?? await SharedPreferences.getInstance();
+    await storage.remove(_legacyUserDataKey);
   }
 
   /// Clears cached avatar files.
