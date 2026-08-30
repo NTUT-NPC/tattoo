@@ -4,7 +4,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/services/firebase_service.dart';
-import 'package:tattoo/utils/pref_type.dart';
 
 /// Parsed contents of the update configuration from Remote Config.
 ///
@@ -45,7 +44,7 @@ bool _isOutdated(String current, String required) {
 VersionConfig? _parseVersionConfig() {
   final latestVersionRc = firebaseService.getRemoteConfigTyped(
     'latestVersionName',
-    PrefType.string,
+    .string,
   );
 
   // If there's no latest version configured, default to no action.
@@ -55,12 +54,12 @@ VersionConfig? _parseVersionConfig() {
 
   final forceUpdateRc = firebaseService.getRemoteConfigTyped(
     'isForceUpdate',
-    PrefType.boolean,
+    .boolean,
   );
 
   final updateNoteRc = firebaseService.getRemoteConfigTyped(
     'updateNote',
-    PrefType.string,
+    .string,
   );
 
   return (
