@@ -122,15 +122,17 @@ class CourseTableCell extends StatelessWidget {
   }
 }
 
-/// A card row used by the unscheduled course section under the grid.
+/// A card row used by list-based course-table sections.
 ///
 /// It displays the course name/number and credits/hours, with a colored
 /// leading indicator that matches the corresponding scheduled course color.
-class CourseTableUnscheduledCell extends StatelessWidget {
-  /// Creates an unscheduled-course list row.
-  const CourseTableUnscheduledCell({
+class CourseTableListCell extends StatelessWidget {
+  /// Creates a course-table list row.
+  const CourseTableListCell({
     required this.courseTableCellData,
     required this.indicatorColor,
+    this.additionalSubtitle,
+    this.trailingText,
     this.onTap,
     super.key,
   });
@@ -140,6 +142,12 @@ class CourseTableUnscheduledCell extends StatelessWidget {
 
   /// Color of the leading indicator stripe.
   final Color indicatorColor;
+
+  /// Additional detail appended after the course number.
+  final String? additionalSubtitle;
+
+  /// Text shown at the end of the row instead of credits and hours.
+  final String? trailingText;
 
   /// Called when the user taps this row.
   final VoidCallback? onTap;
@@ -156,10 +164,17 @@ class CourseTableUnscheduledCell extends StatelessWidget {
       (_, final number?) when number.isNotEmpty => number,
       _ => t.general.unknown,
     };
-    final subtitleText = switch (number) {
-      final number? when number.isNotEmpty && number != titleText => number,
-      _ => null,
-    };
+    final subtitleText = [
+      if (number case final number?
+          when number.isNotEmpty && number != titleText)
+        number,
+      if (additionalSubtitle?.trim() case final additionalSubtitle?
+          when additionalSubtitle.isNotEmpty)
+        additionalSubtitle,
+    ].join(' · ');
+    final resolvedTrailingText =
+        trailingText ??
+        '${courseTableCellData.credits} · ${courseTableCellData.hours}';
 
     return Card(
       margin: .zero,
@@ -205,21 +220,16 @@ class CourseTableUnscheduledCell extends StatelessWidget {
                     maxLines: 1,
                     overflow: .ellipsis,
                   ),
-                  subtitle: switch (subtitleText) {
-                    final subtitleText? => Text(
-                      subtitleText.spaced,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      maxLines: 1,
-                      overflow: .ellipsis,
+                  subtitle: Text(
+                    subtitleText.isEmpty ? ' ' : subtitleText.spaced,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
-                    null => null,
-                  },
+                  ),
                 ),
               ),
               Text(
-                '${courseTableCellData.credits} · ${courseTableCellData.hours}',
+                resolvedTrailingText.spaced,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: .w600,
                 ),

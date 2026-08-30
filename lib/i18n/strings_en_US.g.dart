@@ -223,6 +223,15 @@ class _Translations$courseTable$en_US extends Translations$courseTable$zh_TW {
 		'friday': 'Fri',
 		'saturday': 'Sat',
 	};
+	@override Map<String, String> get dayOfWeekLong => {
+		'sunday': 'Sunday',
+		'monday': 'Monday',
+		'tuesday': 'Tuesday',
+		'wednesday': 'Wednesday',
+		'thursday': 'Thursday',
+		'friday': 'Friday',
+		'saturday': 'Saturday',
+	};
 }
 
 // Path: profile
@@ -481,6 +490,8 @@ class _Translations$courseTable$actions$en_US extends Translations$courseTable$a
 	// Translations
 	@override String get showMoreOptions => 'Show more options';
 	@override String get displayOptions => 'Display options';
+	@override String get showWeeklyView => 'Switch to weekly view';
+	@override String get showGridView => 'Switch to grid view';
 }
 
 // Path: profile.passwordExpiry
@@ -776,6 +787,8 @@ extension on TranslationsEnUs {
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',
 			'courseTable.actions.displayOptions' => 'Display options',
+			'courseTable.actions.showWeeklyView' => 'Switch to weekly view',
+			'courseTable.actions.showGridView' => 'Switch to grid view',
 			'courseTable.dayOfWeek.sunday' => 'Sun',
 			'courseTable.dayOfWeek.monday' => 'Mon',
 			'courseTable.dayOfWeek.tuesday' => 'Tue',
@@ -783,6 +796,13 @@ extension on TranslationsEnUs {
 			'courseTable.dayOfWeek.thursday' => 'Thu',
 			'courseTable.dayOfWeek.friday' => 'Fri',
 			'courseTable.dayOfWeek.saturday' => 'Sat',
+			'courseTable.dayOfWeekLong.sunday' => 'Sunday',
+			'courseTable.dayOfWeekLong.monday' => 'Monday',
+			'courseTable.dayOfWeekLong.tuesday' => 'Tuesday',
+			'courseTable.dayOfWeekLong.wednesday' => 'Wednesday',
+			'courseTable.dayOfWeekLong.thursday' => 'Thursday',
+			'courseTable.dayOfWeekLong.friday' => 'Friday',
+			'courseTable.dayOfWeekLong.saturday' => 'Saturday',
 			'profile.dataDisclaimer' => 'Reference only. Not official.',
 			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(days, one: 'Password expires in 1 day', other: 'Password expires in ${days} days', ), 
 			'profile.passwordExpiry.action' => 'Change',

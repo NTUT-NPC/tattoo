@@ -113,6 +113,8 @@ courseTable:
   actions:
     showMoreOptions: Show more options
     displayOptions: Display options
+    showWeeklyView: Switch to weekly view
+    showGridView: Switch to grid view
   dayOfWeek(map):
     sunday: Sun
     monday: Mon
@@ -121,6 +123,14 @@ courseTable:
     thursday: Thu
     friday: Fri
     saturday: Sat
+  dayOfWeekLong(map):
+    sunday: Sunday
+    monday: Monday
+    tuesday: Tuesday
+    wednesday: Wednesday
+    thursday: Thursday
+    friday: Friday
+    saturday: Saturday
 profile:
   dataDisclaimer: Reference only. Not official.
   passwordExpiry:

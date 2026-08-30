@@ -113,6 +113,8 @@ courseTable:
   actions:
     showMoreOptions: 顯示更多選項
     displayOptions: 顯示選項
+    showWeeklyView: 切換至週檢視
+    showGridView: 切換至網格檢視
   dayOfWeek(map):
     sunday: 日
     monday: 一
@@ -121,6 +123,14 @@ courseTable:
     thursday: 四
     friday: 五
     saturday: 六
+  dayOfWeekLong(map):
+    sunday: 星期日
+    monday: 星期一
+    tuesday: 星期二
+    wednesday: 星期三
+    thursday: 星期四
+    friday: 星期五
+    saturday: 星期六
 profile:
   dataDisclaimer: 僅供參考，非正式文件
   passwordExpiry:

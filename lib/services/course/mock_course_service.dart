@@ -50,6 +50,26 @@ class MockCourseService implements CourseService {
           remarks: null,
         ),
         (
+          number: '347778',
+          course: (
+            id: '3603004',
+            nameZh: '午間專題講座',
+            nameEn: 'Noon Seminar',
+          ),
+          phase: 1,
+          credits: 1.0,
+          hours: 1,
+          type: '選',
+          teachers: [(id: '12441', nameZh: '測試教師', nameEn: 'Test Teacher')],
+          classes: [(id: '2905', nameZh: '電子三甲', nameEn: '4EN3A')],
+          schedule: [
+            (day: .tuesday, period: .nPeriod, classroom: null),
+          ],
+          status: null,
+          language: null,
+          remarks: null,
+        ),
+        (
           number: '347779',
           course: (
             id: '3603005',
@@ -65,17 +85,17 @@ class MockCourseService implements CourseService {
           schedule: [
             (
               day: .friday,
-              period: .second,
-              classroom: (id: '288', name: '綜科306'),
-            ),
-            (
-              day: .friday,
-              period: .third,
-              classroom: (id: '288', name: '綜科306'),
-            ),
-            (
-              day: .friday,
               period: .fourth,
+              classroom: (id: '288', name: '綜科306'),
+            ),
+            (
+              day: .friday,
+              period: .nPeriod,
+              classroom: (id: '288', name: '綜科306'),
+            ),
+            (
+              day: .friday,
+              period: .fifth,
               classroom: (id: '288', name: '綜科306'),
             ),
           ],

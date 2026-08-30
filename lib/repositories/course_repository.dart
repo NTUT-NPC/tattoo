@@ -550,12 +550,14 @@ class CourseRepository {
       if (consumed.contains(entry.key)) continue;
       var span = 1;
       var crossesNoon = false;
+      var skippedNoon = false;
       var lookIndex = entry.key.period.index + 1;
 
       while (lookIndex < Period.values.length) {
         final nextPeriod = Period.values[lookIndex];
         // Skip noon if no courses use it
         if (nextPeriod == .nPeriod && !hasNoon) {
+          skippedNoon = true;
           lookIndex++;
           continue;
         }
@@ -564,7 +566,7 @@ class CourseRepository {
             when next.id == entry.value.id) {
           consumed.add(nextKey);
           span++;
-          crossesNoon = entry.key.period.isAM && nextPeriod.isPM;
+          crossesNoon = skippedNoon && entry.key.period.isAM && nextPeriod.isPM;
           lookIndex++;
         } else {
           break;

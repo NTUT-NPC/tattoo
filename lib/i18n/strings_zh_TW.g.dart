@@ -326,6 +326,15 @@ class Translations$courseTable$zh_TW {
 		'friday': '五',
 		'saturday': '六',
 	};
+	Map<String, String> get dayOfWeekLong => {
+		'sunday': '星期日',
+		'monday': '星期一',
+		'tuesday': '星期二',
+		'wednesday': '星期三',
+		'thursday': '星期四',
+		'friday': '星期五',
+		'saturday': '星期六',
+	};
 }
 
 // Path: profile
@@ -747,6 +756,12 @@ class Translations$courseTable$actions$zh_TW {
 
 	/// zh-TW: '顯示選項'
 	String get displayOptions => '顯示選項';
+
+	/// zh-TW: '切換至週檢視'
+	String get showWeeklyView => '切換至週檢視';
+
+	/// zh-TW: '切換至網格檢視'
+	String get showGridView => '切換至網格檢視';
 }
 
 // Path: profile.passwordExpiry
@@ -1177,6 +1192,8 @@ extension on Translations {
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
 			'courseTable.actions.showMoreOptions' => '顯示更多選項',
 			'courseTable.actions.displayOptions' => '顯示選項',
+			'courseTable.actions.showWeeklyView' => '切換至週檢視',
+			'courseTable.actions.showGridView' => '切換至網格檢視',
 			'courseTable.dayOfWeek.sunday' => '日',
 			'courseTable.dayOfWeek.monday' => '一',
 			'courseTable.dayOfWeek.tuesday' => '二',
@@ -1184,6 +1201,13 @@ extension on Translations {
 			'courseTable.dayOfWeek.thursday' => '四',
 			'courseTable.dayOfWeek.friday' => '五',
 			'courseTable.dayOfWeek.saturday' => '六',
+			'courseTable.dayOfWeekLong.sunday' => '星期日',
+			'courseTable.dayOfWeekLong.monday' => '星期一',
+			'courseTable.dayOfWeekLong.tuesday' => '星期二',
+			'courseTable.dayOfWeekLong.wednesday' => '星期三',
+			'courseTable.dayOfWeekLong.thursday' => '星期四',
+			'courseTable.dayOfWeekLong.friday' => '星期五',
+			'courseTable.dayOfWeekLong.saturday' => '星期六',
 			'profile.dataDisclaimer' => '僅供參考，非正式文件',
 			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(days, one: '密碼將在1天後過期', other: '密碼將在${days}天後過期', ), 
 			'profile.passwordExpiry.action' => '更改',

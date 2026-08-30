@@ -10,6 +10,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_grid.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
+import 'package:tattoo/screens/main/course_table/course_table_weekly.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 
 // TODO: Import mock data from demo mode when implemented
@@ -21,10 +22,19 @@ enum _CourseTableMenuAction {
   displayOptions,
 }
 
-class CourseTableScreen extends ConsumerWidget {
+enum _CourseTableView { grid, weekly }
+
+class CourseTableScreen extends ConsumerStatefulWidget {
   const CourseTableScreen({super.key});
 
-  Future<void> _refreshCourseTable(WidgetRef ref, Semester semester) async {
+  @override
+  ConsumerState<CourseTableScreen> createState() => _CourseTableScreenState();
+}
+
+class _CourseTableScreenState extends ConsumerState<CourseTableScreen> {
+  var _view = _CourseTableView.grid;
+
+  Future<void> _refreshCourseTable(Semester semester) async {
     final courseRepository = ref.read(courseRepositoryProvider);
     await [
       courseRepository.refreshSemesters(),
@@ -38,8 +48,17 @@ class CourseTableScreen extends ConsumerWidget {
     );
   }
 
+  void _toggleView() {
+    setState(() {
+      _view = switch (_view) {
+        .grid => .weekly,
+        .weekly => .grid,
+      };
+    });
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final profileAsync = ref.watch(userProfileProvider);
     final semestersAsync = ref.watch(courseTableSemestersProvider);
     final displayedSemesterTabLabels =
@@ -86,7 +105,17 @@ class CourseTableScreen extends ConsumerWidget {
                 return FloatingActionBar(
                   visible: visible,
                   actions: [
-                    // TODO: add day view and week view toggle when implemented
+                    FloatingActionBarActionButton(
+                      icon: switch (_view) {
+                        .grid => Icons.view_week_outlined,
+                        .weekly => Icons.grid_view_outlined,
+                      },
+                      tooltip: switch (_view) {
+                        .grid => t.courseTable.actions.showWeeklyView,
+                        .weekly => t.courseTable.actions.showGridView,
+                      },
+                      onTap: _toggleView,
+                    ),
                     Builder(
                       builder: (context) {
                         return FloatingActionBarMenuButton<
@@ -156,23 +185,38 @@ class CourseTableScreen extends ConsumerWidget {
                             AsyncError(:final error) => Center(
                               child: Center(child: Text('Error: $error')),
                             ),
-                            _ => CourseTableGrid(
-                              key: ValueKey(_semesterLabel(semester)),
-                              courseTableData:
-                                  courseTableAsync.asData?.value ??
-                                  emptyCourseTableData,
-                              loading:
-                                  courseTableAsync.isLoading &&
-                                  !courseTableAsync.hasValue,
-                              onRefresh: () => _refreshCourseTable(
-                                ref,
-                                semester,
+                            _ => switch (_view) {
+                              .grid => CourseTableGrid(
+                                key: ValueKey(
+                                  'grid-${_semesterLabel(semester)}',
+                                ),
+                                courseTableData:
+                                    courseTableAsync.asData?.value ??
+                                    emptyCourseTableData,
+                                loading:
+                                    courseTableAsync.isLoading &&
+                                    !courseTableAsync.hasValue,
+                                onRefresh: () => _refreshCourseTable(semester),
+                                viewportWidth: gridViewportSize.width,
+                                viewportHeight: gridViewportSize.height,
+                                bottomInset:
+                                    _floatingBarBottomInset + bottomInset,
                               ),
-                              viewportWidth: gridViewportSize.width,
-                              viewportHeight: gridViewportSize.height,
-                              bottomInset:
-                                  _floatingBarBottomInset + bottomInset,
-                            ),
+                              .weekly => CourseTableWeekly(
+                                key: ValueKey(
+                                  'weekly-${_semesterLabel(semester)}',
+                                ),
+                                courseTableData:
+                                    courseTableAsync.asData?.value ??
+                                    emptyCourseTableData,
+                                loading:
+                                    courseTableAsync.isLoading &&
+                                    !courseTableAsync.hasValue,
+                                onRefresh: () => _refreshCourseTable(semester),
+                                bottomInset:
+                                    _floatingBarBottomInset + bottomInset,
+                              ),
+                            },
                           };
                         },
                       ),
@@ -180,13 +224,20 @@ class CourseTableScreen extends ConsumerWidget {
                 ),
 
                 // LOADING state: show loading skeleton
-                _ => CourseTableGrid(
-                  courseTableData: emptyCourseTableData,
-                  loading: true,
-                  viewportWidth: gridViewportSize.width,
-                  viewportHeight: gridViewportSize.height,
-                  bottomInset: _floatingBarBottomInset + bottomInset,
-                ),
+                _ => switch (_view) {
+                  .grid => CourseTableGrid(
+                    courseTableData: emptyCourseTableData,
+                    loading: true,
+                    viewportWidth: gridViewportSize.width,
+                    viewportHeight: gridViewportSize.height,
+                    bottomInset: _floatingBarBottomInset + bottomInset,
+                  ),
+                  .weekly => CourseTableWeekly(
+                    courseTableData: emptyCourseTableData,
+                    loading: true,
+                    bottomInset: _floatingBarBottomInset + bottomInset,
+                  ),
+                },
               },
             );
           },
