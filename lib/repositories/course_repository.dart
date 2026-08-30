@@ -285,16 +285,20 @@ class CourseRepository {
 
     await for (final rows in query.watch()) {
       final allOfferingRows =
-          await (_database.select(
-            _database.courseOfferings,
-          )..where((o) => o.semester.equals(semesterId))).join([
-            leftOuterJoin(
-              _database.courses,
-              _database.courses.code.equalsExp(
-                _database.courseOfferings.courseCode,
-              ),
-            ),
-          ]).get();
+          await (_database.select(_database.courseOfferings)..where(
+                (o) =>
+                    o.semester.equals(semesterId) &
+                    o.inCourseTable.equals(true),
+              ))
+              .join([
+                leftOuterJoin(
+                  _database.courses,
+                  _database.courses.code.equalsExp(
+                    _database.courseOfferings.courseCode,
+                  ),
+                ),
+              ])
+              .get();
       final allOfferings = allOfferingRows.map((row) {
         final offering = row.readTable(_database.courseOfferings);
         final course = row.readTableOrNull(_database.courses);
@@ -398,6 +402,7 @@ class CourseRepository {
           status: dto.status,
           language: dto.language,
           remarks: dto.remarks,
+          inCourseTable: true,
         );
 
         // Clear old junctions and schedules for this offering
