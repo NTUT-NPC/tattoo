@@ -66,6 +66,11 @@ portal:
 home:
   coursesEnded: 今日課程已結束
   previousDay: 查看上一天
+  today: 今日
+  courseStatus:
+    ongoing: 進行中
+    imminent: 即將開始
+    next: 下一堂課
   projectTattoo:
     title: 關於Project Tattoo
     description: 查看更多資訊或邀請你的朋友加入測試計畫。

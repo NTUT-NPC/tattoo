@@ -17,10 +17,15 @@ class NextCourseCarousel extends StatefulWidget {
   const NextCourseCarousel({
     super.key,
     required this.courses,
+    required this.initialCourseIndex,
     this.onCourseTap,
-  });
+  }) : assert(
+         initialCourseIndex == null ||
+             (initialCourseIndex >= 0 && initialCourseIndex < courses.length),
+       );
 
   final List<NextCourse> courses;
+  final int? initialCourseIndex;
   final ValueChanged<NextCourse>? onCourseTap;
 
   @override
@@ -33,15 +38,16 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
   late final AnimationController _weekTransitionController;
   late final Animation<Offset> _weekSlideFromLeftAnimation;
   late final Animation<Offset> _weekSlideFromRightAnimation;
-  var _currentIndex = _firstCoursePageIndex;
+  late int _currentIndex;
   var _isSwitchingWeek = false;
   _WeekDirection _weekDirection = .next;
 
   @override
   void initState() {
     super.initState();
+    _currentIndex = _initialPageIndex(widget);
     _pageController = PageController(
-      initialPage: _firstCoursePageIndex,
+      initialPage: _currentIndex,
       viewportFraction: _viewportFraction,
     );
     _weekTransitionController = AnimationController(
@@ -67,6 +73,31 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
             .animate(
               _weekTransitionController,
             );
+  }
+
+  @override
+  void didUpdateWidget(NextCourseCarousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldPage = _initialPageIndex(oldWidget);
+    final newPage = _initialPageIndex(widget);
+    if (oldPage == newPage || _isSwitchingWeek) return;
+
+    _currentIndex = newPage;
+    if (_pageController.hasClients) {
+      unawaited(
+        _pageController.animateToPage(
+          newPage,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+        ),
+      );
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _pageController.hasClients) {
+          _pageController.jumpToPage(newPage);
+        }
+      });
+    }
   }
 
   @override
@@ -308,10 +339,10 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
                 _pagePadding;
 
             return Stack(
-              clipBehavior: Clip.none,
+              clipBehavior: .none,
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(
+                  padding: .symmetric(
                     horizontal: horizontalProbePadding,
                     vertical: _pagePadding,
                   ),
@@ -338,7 +369,7 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
                         onNotification: _handleScrollEnd,
                         child: PageView.builder(
                           controller: _pageController,
-                          clipBehavior: Clip.none,
+                          clipBehavior: .none,
                           itemCount: _pageCount,
                           onPageChanged: (index) {
                             setState(() => _currentIndex = index);
@@ -361,3 +392,9 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
     );
   }
 }
+
+int _initialPageIndex(NextCourseCarousel carousel) =>
+    switch (carousel.initialCourseIndex) {
+      final index? => index + _firstCoursePageIndex,
+      null => carousel.courses.length + _firstCoursePageIndex,
+    };

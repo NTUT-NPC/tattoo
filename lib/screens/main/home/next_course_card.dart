@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 const _nextCourseCardShadow = BoxShadow(
@@ -10,6 +11,8 @@ const _nextCourseCardBlue = Color.fromARGB(255, 223, 234, 255);
 const _nextCourseCardSurface = Color(0xFFF8FAFF);
 const _nextCourseCardMint = Color.fromARGB(255, 211, 255, 231);
 
+enum NextCourseState { finished, ongoing, imminent, upcoming }
+
 class NextCourse {
   const NextCourse({
     required this.title,
@@ -17,13 +20,15 @@ class NextCourse {
     required this.teacher,
     required this.classroom,
     required this.time,
+    required this.state,
   });
 
   final String title;
-  final String courseNumber;
+  final String? courseNumber;
   final String teacher;
   final String classroom;
   final String time;
+  final NextCourseState state;
 }
 
 class NextCourseCard extends StatelessWidget {
@@ -51,15 +56,22 @@ class NextCourseCard extends StatelessWidget {
       color: theme.colorScheme.onSurfaceVariant,
       height: 1.4,
     );
+    final stateLabel = switch (course.state) {
+      .finished => null,
+      .ongoing => t.home.courseStatus.ongoing,
+      .imminent => t.home.courseStatus.imminent,
+      .upcoming => t.home.courseStatus.next,
+    };
+    final header = [t.home.today, ?stateLabel].join(' · ');
 
-    const borderRadius = BorderRadius.all(Radius.circular(20));
+    const BorderRadius borderRadius = .all(.circular(20));
 
     return SizedBox(
       width: double.infinity,
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: const RadialGradient(
-            center: Alignment.bottomRight,
+            center: .bottomRight,
             radius: 1.35,
             colors: [
               _nextCourseCardMint,
@@ -78,15 +90,14 @@ class NextCourseCard extends StatelessWidget {
           child: InkWell(
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const .all(16),
               child: Column(
                 crossAxisAlignment: .stretch,
                 mainAxisSize: .min,
                 spacing: 32,
                 children: [
                   Text(
-                    '今日 · 下一堂課'.spaced,
-                    // TODO: 今日、明日、週X；進行中、下一堂課、無
+                    header.spaced,
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                       fontWeight: .w600,
@@ -99,7 +110,7 @@ class NextCourseCard extends StatelessWidget {
                       SizedBox(
                         height: courseTitleLineHeight * 2,
                         child: Align(
-                          alignment: Alignment.bottomLeft,
+                          alignment: .bottomLeft,
                           child: Text(
                             course.title.spaced,
                             maxLines: 2,
@@ -118,7 +129,7 @@ class NextCourseCard extends StatelessWidget {
                             text: TextSpan(
                               style: infoTextStyle,
                               children: [
-                                TextSpan(text: course.courseNumber),
+                                TextSpan(text: course.courseNumber ?? '-'),
                                 const TextSpan(text: ' · '),
                                 TextSpan(text: course.teacher.spaced),
                               ],

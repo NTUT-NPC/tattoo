@@ -8,9 +8,11 @@ import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart';
+import 'package:tattoo/screens/main/home/home_providers.dart';
 import 'package:tattoo/screens/main/home/next_course_card.dart';
 import 'package:tattoo/screens/main/home/next_course_carousel.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
+import 'package:tattoo/utils/course_schedule.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 class MainHomeScreen extends ConsumerStatefulWidget {
@@ -78,6 +80,26 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final now = ref.watch(homeClockProvider).asData?.value ?? DateTime.now();
+    final semestersAsync = ref.watch(homeSemestersProvider);
+    final semesterId = switch (semestersAsync) {
+      AsyncData(value: final semesters) when semesters.isNotEmpty =>
+        semesters.first.id,
+      _ => null,
+    };
+    final courseTable = switch (semesterId) {
+      final semesterId? =>
+        ref.watch(homeCourseTableProvider(semesterId)).asData?.value,
+      null => null,
+    };
+    final meetings = switch (courseTable) {
+      final courseTable? => todayCourseMeetings(courseTable, now: now),
+      null => <CourseScheduleMeeting>[],
+    };
+    final courses = [
+      for (final meeting in meetings) _toNextCourse(meeting, now: now),
+    ];
+    final initialCourseIndex = preferredTodayCourseIndex(meetings, now: now);
     final options = [
       OptionEntryTile.svg(
         svgIconAsset: "assets/tat_icon.svg",
@@ -147,33 +169,13 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
                   spacing: 16,
                   children: [
                     NextCourseCarousel(
-                      courses: const [
-                        NextCourse(
-                          title: '微算機原理及應用實習',
-                          courseNumber: '334546',
-                          teacher: '李仁貴老師',
-                          classroom: '綜科501',
-                          time: '13:10 - 19:00',
-                        ),
-                        NextCourse(
-                          title: '資料結構',
-                          courseNumber: '341052',
-                          teacher: '課程教師',
-                          classroom: '綜科302',
-                          time: '09:10 - 12:00',
-                        ),
-                        NextCourse(
-                          title: '作業系統',
-                          courseNumber: '357427',
-                          teacher: '課程教師',
-                          classroom: '綜科401',
-                          time: '15:10 - 18:00',
-                        ),
-                      ],
-                      onCourseTap: (course) => showCourseTableDetailSheet(
-                        context,
-                        number: course.courseNumber,
-                      ),
+                      courses: courses,
+                      initialCourseIndex: initialCourseIndex,
+                      onCourseTap: (course) {
+                        if (course.courseNumber case final number?) {
+                          showCourseTableDetailSheet(context, number: number);
+                        }
+                      },
                     ),
                     Column(
                       spacing: 8,
@@ -189,6 +191,35 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
     );
   }
 }
+
+NextCourse _toNextCourse(
+  CourseScheduleMeeting meeting, {
+  required DateTime now,
+}) {
+  final NextCourseState state = switch ((meeting.start, meeting.end)) {
+    (final start, _)
+        when start.isAfter(now) &&
+            !start.isAfter(now.add(const Duration(minutes: 30))) =>
+      .imminent,
+    _ when meeting.isOngoing => .ongoing,
+    (_, final end) when !end.isAfter(now) => .finished,
+    _ => .upcoming,
+  };
+  return NextCourse(
+    title: meeting.course.courseName,
+    courseNumber: meeting.course.number,
+    teacher: meeting.course.teacherNames.isEmpty
+        ? '-'
+        : meeting.course.teacherNames.join('、'),
+    classroom: meeting.course.classroomName ?? '-',
+    time: '${_formatTime(meeting.start)} - ${_formatTime(meeting.end)}',
+    state: state,
+  );
+}
+
+String _formatTime(DateTime time) =>
+    '${time.hour.toString().padLeft(2, '0')}:'
+    '${time.minute.toString().padLeft(2, '0')}';
 
 bool _showVoteEntry() => DateTime.now()
     .toUtc()

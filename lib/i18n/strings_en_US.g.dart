@@ -174,6 +174,8 @@ class _Translations$home$en_US extends Translations$home$zh_TW {
 	// Translations
 	@override String get coursesEnded => 'Today\'s classes are over';
 	@override String get previousDay => 'View previous day';
+	@override String get today => 'Today';
+	@override late final _Translations$home$courseStatus$en_US courseStatus = _Translations$home$courseStatus$en_US._(_root);
 	@override late final _Translations$home$projectTattoo$en_US projectTattoo = _Translations$home$projectTattoo$en_US._(_root);
 	@override late final _Translations$home$ideation$en_US ideation = _Translations$home$ideation$en_US._(_root);
 	@override late final _Translations$home$npcClub$en_US npcClub = _Translations$home$npcClub$en_US._(_root);
@@ -444,6 +446,18 @@ class _Translations$login$errors$en_US extends Translations$login$errors$zh_TW {
 	@override String get accountLocked => 'Account locked due to too many failed attempts. Please try again later.';
 	@override String get passwordExpired => 'Your password has expired. Please change it on the NTUT portal.';
 	@override String get mobileVerificationRequired => 'Mobile phone verification is required. Please complete it on the NTUT portal.';
+}
+
+// Path: home.courseStatus
+class _Translations$home$courseStatus$en_US extends Translations$home$courseStatus$zh_TW {
+	_Translations$home$courseStatus$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get ongoing => 'Ongoing';
+	@override String get imminent => 'Starting soon';
+	@override String get next => 'Next course';
 }
 
 // Path: home.projectTattoo
@@ -942,6 +956,10 @@ extension on TranslationsEnUs {
 			'portal.removeFavorite' => 'Remove from favorites',
 			'home.coursesEnded' => 'Today\'s classes are over',
 			'home.previousDay' => 'View previous day',
+			'home.today' => 'Today',
+			'home.courseStatus.ongoing' => 'Ongoing',
+			'home.courseStatus.imminent' => 'Starting soon',
+			'home.courseStatus.next' => 'Next course',
 			'home.projectTattoo.title' => 'About Project Tattoo',
 			'home.projectTattoo.description' => 'Learn more or invite your friends to join the testing program.',
 			'home.projectTattoo.url' => 'https://ntut.app',

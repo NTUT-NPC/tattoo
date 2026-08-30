@@ -66,6 +66,11 @@ portal:
 home:
   coursesEnded: Today's classes are over
   previousDay: View previous day
+  today: Today
+  courseStatus:
+    ongoing: Ongoing
+    imminent: Starting soon
+    next: Next course
   projectTattoo:
     title: About Project Tattoo
     description: Learn more or invite your friends to join the testing program.
