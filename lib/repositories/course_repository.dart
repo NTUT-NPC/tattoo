@@ -390,18 +390,20 @@ class CourseRepository {
           continue;
         }
 
+        // Authoritative for every field, so null clears rather than skips
+        // (a reversed withdrawal has to be able to clear its status).
         final offeringId = await _database.upsertCourseOffering(
-          courseCode: courseCode,
+          courseCode: Value(courseCode),
           semesterId: semester.id,
           number: dto.number,
           nameZh: courseNameZh,
           nameEn: dto.course?.nameEn,
-          credits: dto.credits,
-          hours: dto.hours,
-          phase: dto.phase,
-          status: dto.status,
-          language: dto.language,
-          remarks: dto.remarks,
+          credits: Value(dto.credits),
+          hours: Value(dto.hours),
+          phase: Value(dto.phase),
+          status: Value(dto.status),
+          language: Value(dto.language),
+          remarks: Value(dto.remarks),
           inCourseTable: true,
         );
 
