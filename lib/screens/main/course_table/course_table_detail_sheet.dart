@@ -18,10 +18,6 @@ Future<void> showCourseTableDetailSheet(
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
-    constraints: BoxConstraints(
-      minWidth: MediaQuery.sizeOf(context).width,
-      maxWidth: MediaQuery.sizeOf(context).width,
-    ),
     builder: (context) => CourseTableDetailSheet(number: number),
   );
 }
