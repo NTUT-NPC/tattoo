@@ -6,6 +6,9 @@ const _nextCourseCardShadow = BoxShadow(
   blurRadius: 16,
   offset: Offset(0, 4),
 );
+const _nextCourseCardBlue = Color.fromARGB(255, 223, 234, 255);
+const _nextCourseCardSurface = Color(0xFFF8FAFF);
+const _nextCourseCardMint = Color.fromARGB(255, 211, 255, 231);
 
 class NextCourse {
   const NextCourse({
@@ -55,7 +58,16 @@ class NextCourseCard extends StatelessWidget {
       width: double.infinity,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest,
+          gradient: const RadialGradient(
+            center: Alignment.bottomRight,
+            radius: 1.35,
+            colors: [
+              _nextCourseCardMint,
+              _nextCourseCardSurface,
+              _nextCourseCardBlue,
+            ],
+            stops: [0, 0.6, 1],
+          ),
           borderRadius: borderRadius,
           boxShadow: const [_nextCourseCardShadow],
         ),
