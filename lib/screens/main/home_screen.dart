@@ -50,9 +50,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           persist: false,
           action: SnackBarAction(
             label: t.profile.passwordExpiry.action,
-            onPressed: () => messenger.showSnackBar(
-              SnackBar(content: Text(t.general.notImplemented)),
-            ), // TODO: navigate to change-password flow
+            onPressed: () => context.push(AppRoutes.changePassword),
           ),
         ),
       );
