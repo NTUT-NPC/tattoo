@@ -10,6 +10,7 @@ general:
   back: 返回
   ok: 確定
   cancel: 取消
+  retry: 重試
 errors:
   occurred: 發生錯誤
   unexpected: 發生未預期的錯誤
@@ -64,6 +65,7 @@ portal:
   addFavorite: 加入最愛
   removeFavorite: 取消最愛
 home:
+  courseScheduleLoadFailed: 課程載入失敗
   coursesEnded: 今日課程已結束
   noCoursesToday: 今日沒有課程
   previousDay: 查看上一個有課日

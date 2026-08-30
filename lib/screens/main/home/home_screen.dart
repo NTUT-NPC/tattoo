@@ -27,6 +27,7 @@ class MainHomeScreen extends ConsumerStatefulWidget {
 class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
   bool _updateSnackbarCheckScheduled = false;
   DateTime? _selectedDate;
+  DateTime? _selectionDay;
 
   @override
   void initState() {
@@ -84,6 +85,7 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
   void _showAdjacentCourseDate(
     CourseTableData? courseTable,
     DateTime displayedDate,
+    DateTime today,
     CourseDateDirection direction,
   ) {
     if (courseTable == null) return;
@@ -93,7 +95,23 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
           direction: direction,
         )
         case final date?) {
-      setState(() => _selectedDate = date);
+      setState(() {
+        _selectedDate = date;
+        _selectionDay = today;
+      });
+    }
+  }
+
+  Future<void> _retryCourseSchedule(int? semesterId) async {
+    final courseRepository = ref.read(courseRepositoryProvider);
+    try {
+      await [
+        courseRepository.refreshSemesters(),
+        if (semesterId case final semesterId?)
+          courseRepository.refreshCourseTable(semesterId: semesterId),
+      ].wait;
+    } on Object {
+      // The providers continue exposing the error state so the user can retry.
     }
   }
 
@@ -101,7 +119,12 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
   Widget build(BuildContext context) {
     final now = ref.watch(homeClockProvider).asData?.value ?? DateTime.now();
     final today = DateUtils.dateOnly(now);
-    final displayedDate = _selectedDate ?? today;
+    final displayedDate = switch ((_selectedDate, _selectionDay)) {
+      (final selectedDate?, final selectionDay?)
+          when DateUtils.isSameDay(selectionDay, today) =>
+        selectedDate,
+      _ => today,
+    };
     final semestersAsync = ref.watch(courseTableSemestersProvider);
     final latestSemesterId = switch (semestersAsync) {
       AsyncValue(value: final semesters?, hasValue: true)
@@ -124,6 +147,13 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
         switch (courseTableAsync) {
           final courseTableAsync? =>
             courseTableAsync.isLoading && !courseTableAsync.hasValue,
+          null => false,
+        };
+    final hasCourseScheduleError =
+        (semestersAsync.hasError && !semestersAsync.hasValue) ||
+        switch (courseTableAsync) {
+          final courseTableAsync? =>
+            courseTableAsync.hasError && !courseTableAsync.hasValue,
           null => false,
         };
     final meetings = switch (courseTable) {
@@ -228,14 +258,18 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
                       courses: courses,
                       initialCourseIndex: initialCourseIndex,
                       loading: isCourseScheduleLoading,
+                      error: hasCourseScheduleError,
+                      onRetry: () => _retryCourseSchedule(latestSemesterId),
                       onPreviousDate: () => _showAdjacentCourseDate(
                         courseTable,
                         displayedDate,
+                        today,
                         .previous,
                       ),
                       onNextDate: () => _showAdjacentCourseDate(
                         courseTable,
                         displayedDate,
+                        today,
                         .next,
                       ),
                       onCourseTap: (course) {

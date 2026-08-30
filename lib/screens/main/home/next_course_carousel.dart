@@ -19,6 +19,8 @@ class NextCourseCarousel extends StatefulWidget {
     required this.courses,
     required this.initialCourseIndex,
     this.loading = false,
+    this.error = false,
+    this.onRetry,
     this.onPreviousDate,
     this.onNextDate,
     this.onCourseTap,
@@ -30,6 +32,8 @@ class NextCourseCarousel extends StatefulWidget {
   final List<NextCourse> courses;
   final int? initialCourseIndex;
   final bool loading;
+  final bool error;
+  final Future<void> Function()? onRetry;
   final VoidCallback? onPreviousDate;
   final VoidCallback? onNextDate;
   final ValueChanged<NextCourse>? onCourseTap;
@@ -140,7 +144,8 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
       (_isSwitchingWeek && _weekDirection == .previous);
 
   bool get _isShowingCourseEnded =>
-      _terminalProgress > 0 || (_isSwitchingWeek && _weekDirection == .next);
+      (_terminalProgress > 0 && _previousWeekProgress == 0) ||
+      (_isSwitchingWeek && _weekDirection == .next);
 
   Animation<Offset> get _weekSlideAnimation => switch (_weekDirection) {
     .previous => _weekSlideFromLeftAnimation,
@@ -373,6 +378,30 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
             dimension: 32,
             child: CircularProgressIndicator(strokeWidth: 3),
           ),
+        ),
+      );
+    }
+
+    if (widget.error) {
+      return Padding(
+        key: const Key('course-carousel-error'),
+        padding: const .symmetric(vertical: 48),
+        child: Column(
+          mainAxisSize: .min,
+          spacing: 8,
+          children: [
+            ClearNoticeVertical(
+              icon: const Icon(Icons.error_outline, size: 48),
+              text: TextSpan(text: t.home.courseScheduleLoadFailed),
+            ),
+            if (widget.onRetry case final onRetry?)
+              TextButton.icon(
+                key: const Key('course-carousel-retry'),
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh),
+                label: Text(t.general.retry),
+              ),
+          ],
         ),
       );
     }

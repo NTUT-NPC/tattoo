@@ -78,6 +78,7 @@ class _Translations$general$en_US extends Translations$general$zh_TW {
 	@override String get back => 'Back';
 	@override String get ok => 'OK';
 	@override String get cancel => 'Cancel';
+	@override String get retry => 'Retry';
 }
 
 // Path: errors
@@ -172,6 +173,7 @@ class _Translations$home$en_US extends Translations$home$zh_TW {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get courseScheduleLoadFailed => 'Failed to load course schedule';
 	@override String get coursesEnded => 'Today\'s classes are over';
 	@override String get noCoursesToday => 'No classes today';
 	@override String get previousDay => 'View previous class day';
@@ -915,6 +917,7 @@ extension on TranslationsEnUs {
 			'general.back' => 'Back',
 			'general.ok' => 'OK',
 			'general.cancel' => 'Cancel',
+			'general.retry' => 'Retry',
 			'errors.occurred' => 'An error occurred',
 			'errors.unexpected' => 'An unexpected error occurred',
 			'errors.networkError' => 'Network error occurred',
@@ -958,6 +961,7 @@ extension on TranslationsEnUs {
 			'portal.favorites' => 'My Favorites',
 			'portal.addFavorite' => 'Add to favorites',
 			'portal.removeFavorite' => 'Remove from favorites',
+			'home.courseScheduleLoadFailed' => 'Failed to load course schedule',
 			'home.coursesEnded' => 'Today\'s classes are over',
 			'home.noCoursesToday' => 'No classes today',
 			'home.previousDay' => 'View previous class day',

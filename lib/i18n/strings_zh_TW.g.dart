@@ -101,6 +101,9 @@ class Translations$general$zh_TW {
 
 	/// zh-TW: '取消'
 	String get cancel => '取消';
+
+	/// zh-TW: '重試'
+	String get retry => '重試';
 }
 
 // Path: errors
@@ -255,6 +258,9 @@ class Translations$home$zh_TW {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// zh-TW: '課程載入失敗'
+	String get courseScheduleLoadFailed => '課程載入失敗';
 
 	/// zh-TW: '今日課程已結束'
 	String get coursesEnded => '今日課程已結束';
@@ -1494,6 +1500,7 @@ extension on Translations {
 			'general.back' => '返回',
 			'general.ok' => '確定',
 			'general.cancel' => '取消',
+			'general.retry' => '重試',
 			'errors.occurred' => '發生錯誤',
 			'errors.unexpected' => '發生未預期的錯誤',
 			'errors.networkError' => '網路連線出現錯誤',
@@ -1537,6 +1544,7 @@ extension on Translations {
 			'portal.favorites' => '我的最愛',
 			'portal.addFavorite' => '加入最愛',
 			'portal.removeFavorite' => '取消最愛',
+			'home.courseScheduleLoadFailed' => '課程載入失敗',
 			'home.coursesEnded' => '今日課程已結束',
 			'home.noCoursesToday' => '今日沒有課程',
 			'home.previousDay' => '查看上一個有課日',
