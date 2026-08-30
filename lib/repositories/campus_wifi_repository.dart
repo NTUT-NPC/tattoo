@@ -214,14 +214,11 @@ class Ntut8021xProvisioningResult {
 
 class CampusWifiRepository {
   CampusWifiRepository({
-    required AuthRepository authRepository,
-    required CampusWifiPlatform platform,
-    required Ntut8021xAutoReprovision autoReprovision,
-    required Ntut8021xStateStore stateStore,
-  }) : _authRepository = authRepository,
-       _platform = platform,
-       _autoReprovision = autoReprovision,
-       _stateStore = stateStore;
+    required this._authRepository,
+    required this._platform,
+    required this._autoReprovision,
+    required this._stateStore,
+  });
 
   final AuthRepository _authRepository;
   final CampusWifiPlatform _platform;

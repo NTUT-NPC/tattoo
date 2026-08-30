@@ -229,12 +229,10 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
 /// credentials change, and performs the refresh when enabled.
 class Ntut8021xAutoReprovision {
   Ntut8021xAutoReprovision({
-    required SharedPreferencesAsync prefs,
-    required CampusWifiPlatform platform,
-    required Ntut8021xStateStore stateStore,
-  }) : _prefs = prefs,
-       _platform = platform,
-       _stateStore = stateStore;
+    required this._prefs,
+    required this._platform,
+    required this._stateStore,
+  });
 
   final SharedPreferencesAsync _prefs;
   final CampusWifiPlatform _platform;
