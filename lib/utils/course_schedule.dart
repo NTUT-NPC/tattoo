@@ -87,6 +87,7 @@ List<CourseScheduleMeeting> courseMeetingsForDate(
   required DateTime date,
   required DateTime now,
 }) {
+  // TODO: Filter recurring slots by semester and instructional dates.
   final day = _dayOfWeek(date);
   final meetings =
       [
