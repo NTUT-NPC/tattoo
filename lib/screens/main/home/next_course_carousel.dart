@@ -67,25 +67,30 @@ class _NextCourseCarouselState extends State<NextCourseCarousel> {
                   ),
                 ),
                 Positioned.fill(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    clipBehavior: Clip.none,
-                    itemCount: widget.courses.length,
-                    onPageChanged: (index) {
-                      setState(() => _currentIndex = index);
-                    },
-                    itemBuilder: (context, index) => Padding(
-                      padding: const .all(_pagePadding),
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: NextCourseCard(
-                          course: widget.courses[index],
-                          onTap: switch (widget.onCourseTap) {
-                            final onCourseTap? => () => onCourseTap(
-                              widget.courses[index],
-                            ),
-                            null => null,
-                          },
+                  child: ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(
+                      context,
+                    ).copyWith(overscroll: false),
+                    child: PageView.builder(
+                      controller: _pageController,
+                      clipBehavior: Clip.none,
+                      itemCount: widget.courses.length,
+                      onPageChanged: (index) {
+                        setState(() => _currentIndex = index);
+                      },
+                      itemBuilder: (context, index) => Padding(
+                        padding: const .all(_pagePadding),
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: NextCourseCard(
+                            course: widget.courses[index],
+                            onTap: switch (widget.onCourseTap) {
+                              final onCourseTap? => () => onCourseTap(
+                                widget.courses[index],
+                              ),
+                              null => null,
+                            },
+                          ),
                         ),
                       ),
                     ),
