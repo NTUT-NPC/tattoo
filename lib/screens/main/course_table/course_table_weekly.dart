@@ -32,7 +32,7 @@ const _entranceStagger = Duration(milliseconds: 40);
 const _weeklyEntranceOffset = Offset(16, 0);
 
 /// A list-based weekly course-table view grouped by day.
-class CourseTableWeekly extends StatelessWidget {
+class CourseTableWeekly extends StatefulWidget {
   const CourseTableWeekly({
     super.key,
     required this.courseTableData,
@@ -46,23 +46,67 @@ class CourseTableWeekly extends StatelessWidget {
   final RefreshCallback? onRefresh;
   final double bottomInset;
 
+  @override
+  State<CourseTableWeekly> createState() => _CourseTableWeeklyState();
+}
+
+class _CourseTableWeeklyState extends State<CourseTableWeekly>
+    with SingleTickerProviderStateMixin {
+  late final int _entranceEntryCount;
+  late final AnimationController _entranceTimeline;
+  var _acceptEntranceEntries = true;
+
   bool get _isEmpty =>
-      courseTableData.scheduled.isEmpty && courseTableData.unscheduled.isEmpty;
+      widget.courseTableData.scheduled.isEmpty &&
+      widget.courseTableData.unscheduled.isEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    _entranceEntryCount = widget.loading
+        ? 4
+        : _courseCount(widget.courseTableData);
+    _entranceTimeline = AnimationController(
+      vsync: this,
+      duration: _entranceTimelineDuration(_entranceEntryCount),
+    )..forward();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _acceptEntranceEntries = false;
+    });
+  }
+
+  @override
+  void didUpdateWidget(CourseTableWeekly oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.loading != widget.loading ||
+        oldWidget.courseTableData != widget.courseTableData) {
+      _entranceTimeline.value = 1;
+    }
+  }
+
+  @override
+  void dispose() {
+    _entranceTimeline.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colorByCourseId = buildCourseTableColorMap(courseTableData);
+    final colorByCourseId = buildCourseTableColorMap(widget.courseTableData);
     final coursesByDay = _coursesByDay();
     final scrollView = CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics().applyTo(
         ScrollConfiguration.of(context).getScrollPhysics(context),
       ),
       slivers: [
-        if (loading)
-          const SliverPadding(
-            padding: .all(16),
+        if (widget.loading)
+          SliverPadding(
+            padding: const .all(16),
             sliver: SliverToBoxAdapter(
-              child: _WeeklyLoadingSkeleton(),
+              child: _WeeklyLoadingSkeleton(
+                entranceTimeline: _entranceTimeline,
+                shouldAnimate: () => _acceptEntranceEntries,
+              ),
             ),
           )
         else if (_isEmpty)
@@ -81,12 +125,12 @@ class CourseTableWeekly extends StatelessWidget {
               ),
             ),
           ),
-        if (bottomInset > 0)
-          SliverToBoxAdapter(child: SizedBox(height: bottomInset)),
+        if (widget.bottomInset > 0)
+          SliverToBoxAdapter(child: SizedBox(height: widget.bottomInset)),
       ],
     );
 
-    return switch (onRefresh) {
+    return switch (widget.onRefresh) {
       final onRefresh? => RefreshIndicator(
         onRefresh: onRefresh,
         child: scrollView,
@@ -134,12 +178,12 @@ class CourseTableWeekly extends StatelessWidget {
       }
     }
 
-    if (courseTableData.unscheduled.isNotEmpty) {
+    if (widget.courseTableData.unscheduled.isNotEmpty) {
       children.addAll([
         SectionHeader(title: t.courseTable.unscheduled),
         const SizedBox(height: 8),
       ]);
-      for (final cell in courseTableData.unscheduled) {
+      for (final cell in widget.courseTableData.unscheduled) {
         children.addAll([
           _buildAnimatedEntry(
             animationIndex++,
@@ -166,8 +210,8 @@ class CourseTableWeekly extends StatelessWidget {
           padding: const .all(8),
           child: Text(
             ' - '
-            '${t.courseTable.summary.credits(count: courseTableData.totalCredits).spaced} · '
-            '${t.courseTable.summary.hours(count: courseTableData.totalHours).spaced}'
+            '${t.courseTable.summary.credits(count: widget.courseTableData.totalCredits).spaced} · '
+            '${t.courseTable.summary.hours(count: widget.courseTableData.totalHours).spaced}'
             ' - ',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -178,17 +222,21 @@ class CourseTableWeekly extends StatelessWidget {
   }
 
   Widget _buildAnimatedEntry(int index, Widget child) {
+    if (index >= _entranceEntryCount) return child;
+
     return CourseTableEntranceAnimation(
       key: ValueKey('weekly-course-$index'),
       delay: _initialEntranceDelay + (_entranceStagger * index),
       beginOffset: _weeklyEntranceOffset,
+      timeline: _entranceTimeline,
+      shouldAnimate: () => _acceptEntranceEntries,
       child: child,
     );
   }
 
   Map<DayOfWeek, List<_WeeklyCourse>> _coursesByDay() {
     final result = <DayOfWeek, List<_WeeklyCourse>>{};
-    for (final entry in courseTableData.scheduled.entries) {
+    for (final entry in widget.courseTableData.scheduled.entries) {
       result.putIfAbsent(entry.key.day, () => []).add((
         startPeriod: entry.key.period,
         cell: entry.value,
@@ -219,7 +267,13 @@ class CourseTableWeekly extends StatelessWidget {
 }
 
 class _WeeklyLoadingSkeleton extends StatelessWidget {
-  const _WeeklyLoadingSkeleton();
+  const _WeeklyLoadingSkeleton({
+    required this.entranceTimeline,
+    required this.shouldAnimate,
+  });
+
+  final AnimationController entranceTimeline;
+  final ValueGetter<bool> shouldAnimate;
 
   @override
   Widget build(BuildContext context) {
@@ -244,6 +298,8 @@ class _WeeklyLoadingSkeleton extends StatelessWidget {
             CourseTableEntranceAnimation(
               delay: _initialEntranceDelay + (_entranceStagger * i),
               beginOffset: _weeklyEntranceOffset,
+              timeline: entranceTimeline,
+              shouldAnimate: shouldAnimate,
               child: const CourseTableListCell(
                 courseTableCellData: placeholder,
                 indicatorColor: Colors.grey,
@@ -255,6 +311,16 @@ class _WeeklyLoadingSkeleton extends StatelessWidget {
       ),
     );
   }
+}
+
+int _courseCount(CourseTableData data) =>
+    data.scheduled.length + data.unscheduled.length;
+
+Duration _entranceTimelineDuration(int entryCount) {
+  final lastIndex = entryCount > 0 ? entryCount - 1 : 0;
+  return _initialEntranceDelay +
+      (_entranceStagger * lastIndex) +
+      CourseTableEntranceAnimation.animationDuration;
 }
 
 @Preview(

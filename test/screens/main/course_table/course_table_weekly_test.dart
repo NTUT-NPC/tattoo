@@ -131,6 +131,47 @@ void main() {
     );
   });
 
+  testWidgets('entries built while scrolling do not start late animations', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(420, 600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: MaterialApp(
+          home: Scaffold(
+            body: CourseTableWeekly(
+              courseTableData: _courseTableDataWithManyEntries(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.scrollUntilVisible(
+      find.text('Course 19'),
+      500,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    final lateEntrance = find.ancestor(
+      of: find.text('Course 19'),
+      matching: find.byType(CourseTableEntranceAnimation),
+    );
+    final animation = tester.widget<CourseTableEntranceAnimation>(
+      lateEntrance,
+    );
+
+    expect(animation.timeline!.isCompleted, isFalse);
+    expect(
+      find.descendant(of: lateEntrance, matching: find.byType(Opacity)),
+      findsNothing,
+    );
+  });
+
   testWidgets('list cells reserve a subtitle line and grow for wrapping', (
     tester,
   ) async {
@@ -256,4 +297,32 @@ const CourseTableData _courseTableData = (
   latestPeriod: .fifth,
   totalCredits: 15.0,
   totalHours: 15,
+);
+
+CourseTableData _courseTableDataWithManyEntries() => (
+  scheduled: _courseTableData.scheduled,
+  unscheduled: [
+    for (var i = 0; i < 20; i++)
+      (
+        id: 100 + i,
+        number: 'TEST$i',
+        span: 0,
+        crossesNoon: false,
+        courseName: 'Course $i',
+        classroomName: null,
+        credits: 1.0,
+        hours: 1,
+      ),
+  ],
+  hasWeekdayCourse: true,
+  hasSaturdayCourse: false,
+  hasSundayCourse: false,
+  hasAMCourse: true,
+  hasPMCourse: true,
+  hasNoonCourse: false,
+  hasEveningCourse: false,
+  earliestPeriod: .first,
+  latestPeriod: .fifth,
+  totalCredits: 26.0,
+  totalHours: 26,
 );
