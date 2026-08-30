@@ -9,7 +9,9 @@ import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
@@ -107,6 +109,14 @@ class ProfileScreen extends ConsumerWidget {
         title: t.profile.options.changeAvatar,
         onTap: () => _changeAvatar(context, ref),
       ),
+      if (Theme.of(context).platform == TargetPlatform.android &&
+          ref.pref(PrefKey.showWifiButton))
+        OptionEntryTile.icon(
+          icon: Icons.wifi,
+          title: t.profile.options.ntutWifi,
+          description: t.ntutWifi.entryDescription,
+          onTap: () => context.push(AppRoutes.ntutWifi),
+        ),
 
       SectionHeader(title: 'TAT'),
       OptionEntryTile.icon(

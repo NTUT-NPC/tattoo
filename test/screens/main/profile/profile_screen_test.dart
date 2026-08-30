@@ -40,28 +40,59 @@ void main() {
       await preferencesRepository.close();
     });
 
-    testWidgets('shows the profile entry on Android', (tester) async {
-      await tester.pumpWidget(
-        _buildApp(
-          const ProfileScreen(),
-          platform: TargetPlatform.android,
-          overrides: [
-            userProfileProvider.overrideWith((ref) => Stream.value(null)),
-            userAvatarProvider.overrideWith((ref) async => null),
-            activeRegistrationProvider.overrideWith(
-              (ref) => Stream.value(null),
-            ),
-            preferencesRepositoryProvider.overrideWith((ref) {
-              return preferencesRepository;
-            }),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'shows the profile entry on Android when preference is enabled',
+      (tester) async {
+        preferencesRepository.showWifiButtonValue = true;
+        await tester.pumpWidget(
+          _buildApp(
+            const ProfileScreen(),
+            platform: TargetPlatform.android,
+            overrides: [
+              userProfileProvider.overrideWith((ref) => Stream.value(null)),
+              userAvatarProvider.overrideWith((ref) async => null),
+              activeRegistrationProvider.overrideWith(
+                (ref) => Stream.value(null),
+              ),
+              preferencesRepositoryProvider.overrideWith((ref) {
+                return preferencesRepository;
+              }),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text(t.profile.options.ntutWifi), findsOneWidget);
-      expect(find.text(t.ntutWifi.entryDescription), findsOneWidget);
-    });
+        expect(find.text(t.profile.options.ntutWifi), findsOneWidget);
+        expect(find.text(t.ntutWifi.entryDescription), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'hides the profile entry on Android when preference is disabled',
+      (tester) async {
+        preferencesRepository.showWifiButtonValue = false;
+        await tester.pumpWidget(
+          _buildApp(
+            const ProfileScreen(),
+            platform: TargetPlatform.android,
+            overrides: [
+              userProfileProvider.overrideWith((ref) => Stream.value(null)),
+              userAvatarProvider.overrideWith((ref) async => null),
+              activeRegistrationProvider.overrideWith(
+                (ref) => Stream.value(null),
+              ),
+              preferencesRepositoryProvider.overrideWith((ref) {
+                return preferencesRepository;
+              }),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(t.profile.options.ntutWifi), findsNothing);
+        expect(find.text(t.ntutWifi.entryDescription), findsNothing);
+      },
+    );
 
     testWidgets('hides the profile entry on non-Android platforms', (
       tester,
@@ -93,10 +124,11 @@ void main() {
 class _FakePreferencesRepository extends PreferencesRepository {
   _FakePreferencesRepository._(this._database)
     : super(
-        prefs: SharedPreferencesAsync(),
+        store: TypedPreferenceStore(SharedPreferencesAsync()),
         portalService: MockPortalService(),
         database: _database,
         authRepository: _FakeAuthRepository(_database),
+        isLoggedIn: () => false,
       );
 
   factory _FakePreferencesRepository() {
@@ -105,8 +137,25 @@ class _FakePreferencesRepository extends PreferencesRepository {
 
   final AppDatabase _database;
 
+  bool showWifiButtonValue = false;
+
   @override
-  Future<T> get<T>(PrefKey<T> key) async => key.defaultValue;
+  Future<T> get<T>(PrefKey<T> key) async {
+    if (key == PrefKey.showWifiButton) return showWifiButtonValue as T;
+    return key.defaultValue;
+  }
+
+  @override
+  Future<ResolvedPreference> resolve(PrefKey key) async {
+    if (key == PrefKey.showWifiButton) {
+      return ResolvedPreference(
+        key: key,
+        value: showWifiButtonValue,
+        source: PrefSource.local,
+      );
+    }
+    return super.resolve(key);
+  }
 
   Future<void> close() => _database.close();
 }
@@ -118,6 +167,7 @@ class _FakeAuthRepository extends AuthRepository {
         studentQueryService: MockStudentQueryService(),
         database: database,
         secureStorage: const FlutterSecureStorage(),
+        isDemo: false,
         onSessionCreated: _noop,
         onSessionDestroyed: _noopDestroyed,
       );

@@ -31,6 +31,7 @@ void main() {
         studentQueryService: MockStudentQueryService(),
         database: database,
         secureStorage: const FlutterSecureStorage(),
+        isDemo: false,
         onSessionCreated: _noop,
         onSessionDestroyed: _noopDestroyed,
         onCredentialsUpdated:
@@ -126,12 +127,13 @@ class _RecordingPortalService extends MockPortalService {
   }
 
   @override
-  Future<void> changePassword(
-    String currentPassword,
-    String newPassword,
-  ) async {
+  Future<void> changePassword({
+    required String newPassword,
+    String? currentPassword,
+    bool isExpired = false,
+  }) async {
     changePasswordCalls.add(
-      (currentPassword: currentPassword, newPassword: newPassword),
+      (currentPassword: currentPassword ?? '', newPassword: newPassword),
     );
   }
 }

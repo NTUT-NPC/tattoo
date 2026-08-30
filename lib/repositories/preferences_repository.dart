@@ -33,6 +33,9 @@ enum PrefKey<T> {
   /// Whether the Weblate button is shown on the about page.
   showWeblateButton<bool>(.boolean, false),
 
+  /// Whether the Wi-Fi auto-connect button is shown on the profile screen.
+  showWifiButton<bool>(.boolean, false),
+
   /// Whether to show the detailed error dialog on uncaught exceptions.
   ///
   /// Defaults to `kDebugMode` (true in debug, false in release). Can be

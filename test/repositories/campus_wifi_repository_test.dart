@@ -269,6 +269,7 @@ class _FakeAuthRepository extends AuthRepository {
          studentQueryService: MockStudentQueryService(),
          database: _database,
          secureStorage: const FlutterSecureStorage(),
+         isDemo: false,
          onSessionCreated: _noop,
          onSessionDestroyed: _noopDestroyed,
        );
