@@ -131,6 +131,8 @@ class CourseTableListCell extends StatelessWidget {
   const CourseTableListCell({
     required this.courseTableCellData,
     required this.indicatorColor,
+    this.additionalSubtitle,
+    this.trailingText,
     this.onTap,
     super.key,
   });
@@ -140,6 +142,12 @@ class CourseTableListCell extends StatelessWidget {
 
   /// Color of the leading indicator stripe.
   final Color indicatorColor;
+
+  /// Additional detail appended after the course number.
+  final String? additionalSubtitle;
+
+  /// Text shown at the end of the row instead of credits and hours.
+  final String? trailingText;
 
   /// Called when the user taps this row.
   final VoidCallback? onTap;
@@ -156,10 +164,17 @@ class CourseTableListCell extends StatelessWidget {
       (_, final number?) when number.isNotEmpty => number,
       _ => t.general.unknown,
     };
-    final subtitleText = switch (number) {
-      final number? when number.isNotEmpty && number != titleText => number,
-      _ => null,
-    };
+    final subtitleText = [
+      if (number case final number?
+          when number.isNotEmpty && number != titleText)
+        number,
+      if (additionalSubtitle?.trim() case final additionalSubtitle?
+          when additionalSubtitle.isNotEmpty)
+        additionalSubtitle,
+    ].join(' · ');
+    final resolvedTrailingText =
+        trailingText ??
+        '${courseTableCellData.credits} · ${courseTableCellData.hours}';
 
     return Card(
       margin: .zero,
@@ -206,7 +221,7 @@ class CourseTableListCell extends StatelessWidget {
                     overflow: .ellipsis,
                   ),
                   subtitle: switch (subtitleText) {
-                    final subtitleText? => Text(
+                    final subtitleText when subtitleText.isNotEmpty => Text(
                       subtitleText.spaced,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
@@ -214,12 +229,12 @@ class CourseTableListCell extends StatelessWidget {
                       maxLines: 1,
                       overflow: .ellipsis,
                     ),
-                    null => null,
+                    _ => null,
                   },
                 ),
               ),
               Text(
-                '${courseTableCellData.credits} · ${courseTableCellData.hours}',
+                resolvedTrailingText.spaced,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: .w600,
                 ),
