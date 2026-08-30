@@ -53,6 +53,18 @@ typedef ScheduleDto = ({
   String? remarks,
 });
 
+/// Data returned when looking up a course offering by number.
+///
+/// [schedule] contains the offering metadata and its teacher, class, classroom,
+/// and timeslot relations. Header-only values come from the syllabus endpoint.
+typedef CourseOfferingDto = ({
+  SemesterDto semester,
+  ScheduleDto schedule,
+  CourseType? courseType,
+  int? enrolled,
+  int? withdrawn,
+});
+
 /// Course information from the course catalog.
 typedef CourseDto = ({
   /// Course's unique identifier code.
@@ -198,6 +210,15 @@ abstract interface class CourseService {
     required String username,
     required SemesterDto semester,
   });
+
+  /// Fetches a course offering by its course number.
+  ///
+  /// Returns `null` only when the course system explicitly reports that the
+  /// number does not exist. Malformed or inconsistent responses throw so that
+  /// callers do not cache a server or parser failure as a missing offering.
+  ///
+  /// Throws an [ArgumentError] when [courseNumber] is blank.
+  Future<CourseOfferingDto?> getCourseOffering(String courseNumber);
 
   /// Fetches detailed information about a specific course from the catalog.
   ///

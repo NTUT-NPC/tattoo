@@ -311,6 +311,35 @@ void main() {
       });
     });
 
+    group('getCourseOffering', () {
+      test('should look up offering data by course number', () async {
+        final semesters = await courseService.getCourseSemesterList();
+        final sourceSemester = semesters.first;
+        final courseTable = await courseService.getCourseTable(
+          username: TestCredentials.username,
+          semester: sourceSemester,
+        );
+        final source = courseTable.firstWhere(
+          (schedule) => schedule.number?.isNotEmpty ?? false,
+        );
+
+        final offering = await courseService.getCourseOffering(source.number!);
+
+        expect(offering, isNotNull);
+        expect(offering!.schedule.number, source.number);
+        expect(offering.semester, sourceSemester);
+        expect(offering.schedule.course?.id, isNotEmpty);
+        expect(offering.schedule.course?.nameZh, isNotEmpty);
+        expect(offering.courseType, isNotNull);
+        expect(offering.schedule.teachers, isNotEmpty);
+        expect(offering.schedule.classes, isNotEmpty);
+      });
+
+      test('should return null for an unknown offering number', () async {
+        expect(await courseService.getCourseOffering('999999'), isNull);
+      });
+    });
+
     group('getCourse', () {
       test('should parse all course detail fields correctly', () async {
         final semesters = await courseService.getCourseSemesterList();
