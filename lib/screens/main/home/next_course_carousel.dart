@@ -18,6 +18,7 @@ class NextCourseCarousel extends StatefulWidget {
     super.key,
     required this.courses,
     required this.initialCourseIndex,
+    this.loading = false,
     this.onPreviousDate,
     this.onNextDate,
     this.onCourseTap,
@@ -28,6 +29,7 @@ class NextCourseCarousel extends StatefulWidget {
 
   final List<NextCourse> courses;
   final int? initialCourseIndex;
+  final bool loading;
   final VoidCallback? onPreviousDate;
   final VoidCallback? onNextDate;
   final ValueChanged<NextCourse>? onCourseTap;
@@ -362,6 +364,19 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.loading) {
+      return const Padding(
+        key: Key('course-carousel-loading'),
+        padding: EdgeInsets.symmetric(vertical: 72),
+        child: Center(
+          child: SizedBox.square(
+            dimension: 32,
+            child: CircularProgressIndicator(strokeWidth: 3),
+          ),
+        ),
+      );
+    }
+
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       spacing: 8,

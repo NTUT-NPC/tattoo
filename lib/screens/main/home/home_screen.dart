@@ -104,15 +104,28 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
     final displayedDate = _selectedDate ?? today;
     final semestersAsync = ref.watch(courseTableSemestersProvider);
     final latestSemesterId = switch (semestersAsync) {
-      AsyncData(value: final semesters) when semesters.isNotEmpty =>
+      AsyncValue(value: final semesters?, hasValue: true)
+          when semesters.isNotEmpty =>
         semesters.first.id,
       _ => null,
     };
-    final courseTable = switch (latestSemesterId) {
-      final latestSemesterId? =>
-        ref.watch(courseTableProvider(latestSemesterId)).asData?.value,
+    final courseTableAsync = switch (latestSemesterId) {
+      final latestSemesterId? => ref.watch(
+        courseTableProvider(latestSemesterId),
+      ),
       null => null,
     };
+    final courseTable = switch (courseTableAsync) {
+      AsyncValue(value: final courseTable, hasValue: true) => courseTable,
+      _ => null,
+    };
+    final isCourseScheduleLoading =
+        (semestersAsync.isLoading && !semestersAsync.hasValue) ||
+        switch (courseTableAsync) {
+          final courseTableAsync? =>
+            courseTableAsync.isLoading && !courseTableAsync.hasValue,
+          null => false,
+        };
     final meetings = switch (courseTable) {
       final courseTable? => courseMeetingsForDate(
         courseTable,
@@ -214,6 +227,7 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
                     NextCourseCarousel(
                       courses: courses,
                       initialCourseIndex: initialCourseIndex,
+                      loading: isCourseScheduleLoading,
                       onPreviousDate: () => _showAdjacentCourseDate(
                         courseTable,
                         displayedDate,
