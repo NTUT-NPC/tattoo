@@ -46,6 +46,7 @@ class NextCourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final mediaQuery = MediaQuery.of(context);
     final courseTitleTextStyle = theme.textTheme.titleLarge?.copyWith(
       fontWeight: .w700,
       color: theme.colorScheme.onSurface,
@@ -69,7 +70,7 @@ class NextCourseCard extends StatelessWidget {
 
     const BorderRadius borderRadius = .all(.circular(20));
 
-    return SizedBox(
+    final card = SizedBox(
       width: double.infinity,
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -160,6 +161,11 @@ class NextCourseCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+    return MediaQuery(
+      // TODO: support accessibility text scaling without breaking card layout.
+      data: mediaQuery.copyWith(textScaler: .noScaling),
+      child: card,
     );
   }
 }
