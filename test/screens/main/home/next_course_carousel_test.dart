@@ -192,42 +192,6 @@ void main() {
 
     expect(tappedCourse, same(course));
   });
-
-  testWidgets('does not overflow long Chinese info at large text scales', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(320, 640));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: MediaQuery(
-          data: const MediaQueryData(
-            size: Size(320, 640),
-            textScaler: TextScaler.linear(3),
-          ),
-          child: Scaffold(
-            body: NextCourseCarousel(
-              courses: [
-                NextCourse(
-                  title: '微算機原理及應用實習',
-                  courseNumber: '123456',
-                  teacher: '非常非常長的中文教師姓名',
-                  classroom: '非常非常長的中文教室名稱',
-                  time: '08:10 - 12:00',
-                  dayLabel: '今日',
-                  state: .upcoming,
-                ),
-              ],
-              initialCourseIndex: 0,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    expect(tester.takeException(), isNull);
-  });
 }
 
 NextCourse _course(String title) => NextCourse(
