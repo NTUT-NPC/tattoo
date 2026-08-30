@@ -46,13 +46,14 @@ class NextCourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final textScaler = MediaQuery.textScalerOf(context);
     final courseTitleTextStyle = theme.textTheme.titleLarge?.copyWith(
       fontWeight: .w700,
       color: theme.colorScheme.onSurface,
       height: 1.2,
     );
     final courseTitleLineHeight =
-        (courseTitleTextStyle?.fontSize ?? 22) *
+        textScaler.scale(courseTitleTextStyle?.fontSize ?? 22) *
         (courseTitleTextStyle?.height ?? 1.2);
     final infoTextStyle = theme.textTheme.labelMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
@@ -109,8 +110,10 @@ class NextCourseCard extends StatelessWidget {
                     crossAxisAlignment: .start,
                     spacing: 8,
                     children: [
-                      SizedBox(
-                        height: courseTitleLineHeight * 2,
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: courseTitleLineHeight * 2,
+                        ),
                         child: Align(
                           alignment: .bottomLeft,
                           child: Text(
@@ -125,28 +128,34 @@ class NextCourseCard extends StatelessWidget {
                         crossAxisAlignment: .start,
                         spacing: 2,
                         children: [
-                          RichText(
-                            maxLines: 1,
-                            overflow: .ellipsis,
-                            text: TextSpan(
+                          SizedBox(
+                            width: double.infinity,
+                            child: Text.rich(
+                              maxLines: 1,
+                              overflow: .ellipsis,
                               style: infoTextStyle,
-                              children: [
-                                TextSpan(text: course.courseNumber ?? '-'),
-                                const TextSpan(text: ' · '),
-                                TextSpan(text: course.teacher.spaced),
-                              ],
+                              TextSpan(
+                                children: [
+                                  TextSpan(text: course.courseNumber ?? '-'),
+                                  const TextSpan(text: ' · '),
+                                  TextSpan(text: course.teacher.spaced),
+                                ],
+                              ),
                             ),
                           ),
-                          RichText(
-                            maxLines: 1,
-                            overflow: .ellipsis,
-                            text: TextSpan(
+                          SizedBox(
+                            width: double.infinity,
+                            child: Text.rich(
+                              maxLines: 1,
+                              overflow: .ellipsis,
                               style: infoTextStyle,
-                              children: [
-                                TextSpan(text: course.classroom.spaced),
-                                const TextSpan(text: ' · '),
-                                TextSpan(text: course.time.spaced),
-                              ],
+                              TextSpan(
+                                children: [
+                                  TextSpan(text: course.classroom.spaced),
+                                  const TextSpan(text: ' · '),
+                                  TextSpan(text: course.time.spaced),
+                                ],
+                              ),
                             ),
                           ),
                         ],
