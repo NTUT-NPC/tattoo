@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 
 /// Provides the available semesters for the current user.
@@ -30,28 +31,31 @@ final courseTableProvider = StreamProvider.autoDispose
 /// course number (課號).
 ///
 /// Reads composed offering detail (overview + schedule + teachers + classes)
-/// directly from the database; [refreshCourseTable] keeps it current. No
-/// network fetch — a teacher's syllabus is fetched lazily and separately via
-/// [syllabusProvider]. Emits `null` until the offering exists.
-final courseOfferingProvider = StreamProvider.autoDispose
+/// from the database; [refreshCourseTable] keeps it current. A number the
+/// database does not hold is looked up over the network and served without
+/// being cached. Submitted syllabuses are fetched lazily and separately via
+/// [syllabusProvider]. Resolves to `null` only when the course system reports
+/// that the number does not exist.
+final courseOfferingProvider = FutureProvider.autoDispose
     .family<CourseOfferingDetail?, String>((ref, number) {
-      return ref.watch(courseRepositoryProvider).watchCourseOffering(number);
+      return ref.watch(courseRepositoryProvider).getCourseOffering(number);
     });
 
-/// Provides a teacher's syllabus for an offering, fetched lazily on first
-/// watch.
+/// Provides every submitted syllabus for a course in the requested language,
+/// fetched lazily on the first cache miss.
 ///
-/// Keyed by the offering id and the authoring teacher's code (from
-/// [CourseOfferingDetail.teachers]). Emits cached content immediately when
-/// present, blocks on the first fetch otherwise, and emits `null` when the
-/// teacher hasn't submitted a syllabus. The detail UI shows the first
-/// teacher's syllabus for now.
+/// Keyed by the globally unique course number and source-page language. Each
+/// language is cached independently and section titles remain exactly as
+/// returned by NTUT.
 final syllabusProvider = StreamProvider.autoDispose
-    .family<Syllabus?, ({int offeringId, String teacherId})>((ref, key) {
+    .family<
+      List<TeacherSyllabusDetail>,
+      ({String courseNumber, SyllabusLanguage language})
+    >((ref, key) {
       return ref
           .watch(courseRepositoryProvider)
-          .watchSyllabus(
-            offeringId: key.offeringId,
-            teacherId: key.teacherId,
+          .watchSyllabuses(
+            courseNumber: key.courseNumber,
+            language: key.language,
           );
     });

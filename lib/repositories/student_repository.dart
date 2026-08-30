@@ -282,7 +282,7 @@ class StudentRepository {
                 // conflates catalog and timetable. ScoreDetails coalesces
                 // at read time.
                 offeringId = await _database.upsertCourseOffering(
-                  courseCode: score.courseCode,
+                  courseCode: .absentIfNull(score.courseCode),
                   semesterId: semesterId,
                   number: number,
                   nameZh: nameZh,

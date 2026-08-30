@@ -5,6 +5,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/shells/adaptive_navigation_scaffold.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -72,24 +73,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       },
     );
 
-    return Scaffold(
+    return AdaptiveNavigationScaffold(
       body: widget.navigationShell,
-      bottomNavigationBar: NavigationBar(
-        destinations: <NavigationDestination>[
-          NavigationDestination(icon: Icon(Icons.home), label: t.nav.home),
-          NavigationDestination(
-            icon: Icon(Icons.dashboard),
-            label: t.nav.courseTable,
-          ),
-          NavigationDestination(icon: Icon(Icons.school), label: t.nav.scores),
-          NavigationDestination(
-            icon: Icon(Icons.account_circle),
-            label: t.nav.profile,
-          ),
-        ],
-        selectedIndex: widget.navigationShell.currentIndex,
-        onDestinationSelected: _onDestinationSelected,
-      ),
+      destinations: <AdaptiveNavigationDestination>[
+        AdaptiveNavigationDestination(
+          icon: Icon(Icons.home),
+          label: t.nav.home,
+        ),
+        AdaptiveNavigationDestination(
+          icon: Icon(Icons.dashboard),
+          label: t.nav.courseTable,
+        ),
+        AdaptiveNavigationDestination(
+          icon: Icon(Icons.school),
+          label: t.nav.scores,
+        ),
+        AdaptiveNavigationDestination(
+          icon: Icon(Icons.account_circle),
+          label: t.nav.profile,
+        ),
+      ],
+      selectedIndex: widget.navigationShell.currentIndex,
+      onDestinationSelected: _onDestinationSelected,
     );
   }
 }

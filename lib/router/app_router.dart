@@ -20,6 +20,7 @@ import 'package:tattoo/screens/welcome/login_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/shells/animated_shell_container.dart';
+import 'package:tattoo/shells/centered_max_width_frame.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -41,8 +42,9 @@ abstract class AppRoutes {
   static const update = '/update';
 }
 
-/// Bridges [sessionProvider] to a [Listenable] for
-/// [GoRouter.refreshListenable].
+Widget _framed(Widget child) => CenteredMaxWidthFrame(child: child);
+
+/// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
 class _SessionRefreshListenable extends ChangeNotifier {
   _SessionRefreshListenable(ProviderContainer container) {
     container.listen(sessionProvider, (_, _) => notifyListeners());
@@ -110,7 +112,7 @@ GoRouter createAppRouter({
     ),
     GoRoute(
       path: AppRoutes.login,
-      builder: (context, state) => const LoginScreen(),
+      builder: (context, state) => _framed(const LoginScreen()),
     ),
     GoRoute(
       path: AppRoutes.changePassword,
@@ -118,15 +120,17 @@ GoRouter createAppRouter({
         final extra = state.extra as Map<String, dynamic>?;
         final isExpired = extra?['isExpired'] as bool? ?? false;
         final username = extra?['username'] as String?;
-        return ChangePasswordScreen(
-          isExpired: isExpired,
-          username: username,
+        return _framed(
+          ChangePasswordScreen(
+            isExpired: isExpired,
+            username: username,
+          ),
         );
       },
     ),
     GoRoute(
       path: AppRoutes.about,
-      builder: (context, state) => const AboutScreen(),
+      builder: (context, state) => _framed(const AboutScreen()),
     ),
     GoRoute(
       path: AppRoutes.scanner,
@@ -134,19 +138,19 @@ GoRouter createAppRouter({
     ),
     GoRoute(
       path: AppRoutes.regedit,
-      builder: (context, state) => const RegeditScreen(),
+      builder: (context, state) => _framed(const RegeditScreen()),
     ),
     GoRoute(
       path: AppRoutes.portal,
-      builder: (context, state) => const PortalScreen(),
+      builder: (context, state) => _framed(const PortalScreen()),
     ),
     GoRoute(
       path: AppRoutes.calendar,
-      builder: (context, state) => const CalendarScreen(),
+      builder: (context, state) => _framed(const CalendarScreen()),
     ),
     GoRoute(
       path: AppRoutes.kioskLoginQr,
-      builder: (context, state) => const KioskLoginQrScreen(),
+      builder: (context, state) => _framed(const KioskLoginQrScreen()),
     ),
     StatefulShellRoute(
       builder: (context, state, navigationShell) =>
@@ -163,7 +167,7 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.home,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: MainHomeScreen()),
+                  NoTransitionPage(child: _framed(const MainHomeScreen())),
             ),
           ],
         ),
@@ -172,7 +176,7 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.courseTable,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: CourseTableScreen()),
+                  NoTransitionPage(child: _framed(const CourseTableScreen())),
             ),
           ],
         ),
@@ -181,7 +185,7 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.score,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ScoreScreen()),
+                  NoTransitionPage(child: _framed(const ScoreScreen())),
             ),
           ],
         ),
@@ -190,7 +194,7 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.profile,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ProfileScreen()),
+                  NoTransitionPage(child: _framed(const ProfileScreen())),
             ),
           ],
         ),

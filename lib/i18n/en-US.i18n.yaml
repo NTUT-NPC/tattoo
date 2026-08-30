@@ -91,6 +91,16 @@ score:
     semesterAverage: Semester Avg
     creditsPassed: Credits Passed
     totalCredits: Total Credits
+  ranking:
+    title: Rankings
+    type:
+      classLevel: Class
+      groupLevel: Group
+      departmentLevel: Dept.
+    semester: Semester
+    cumulative: Cumulative
+    rankAndTotal: ${rank} / ${total} (${percentage}%)
+    empty: No rankings yet
   status:
     notEntered: Not entered
     withdraw: Withdrawn
@@ -113,6 +123,8 @@ courseTable:
   actions:
     showMoreOptions: Show more options
     displayOptions: Display options
+    showWeeklyView: Switch to weekly view
+    showGridView: Switch to grid view
   dayOfWeek(map):
     sunday: Sun
     monday: Mon
@@ -121,6 +133,14 @@ courseTable:
     thursday: Thu
     friday: Fri
     saturday: Sat
+  dayOfWeekLong(map):
+    sunday: Sunday
+    monday: Monday
+    tuesday: Tuesday
+    wednesday: Wednesday
+    thursday: Thursday
+    friday: Friday
+    saturday: Saturday
 profile:
   dataDisclaimer: Reference only. Not official.
   passwordExpiry:

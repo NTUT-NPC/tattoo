@@ -53,6 +53,18 @@ typedef ScheduleDto = ({
   String? remarks,
 });
 
+/// Data returned when looking up a course offering by number.
+///
+/// [schedule] contains the offering metadata and its teacher, class, classroom,
+/// and timeslot relations. Header-only values come from the syllabus endpoint.
+typedef CourseOfferingDto = ({
+  SemesterDto semester,
+  ScheduleDto schedule,
+  CourseType? courseType,
+  int? enrolled,
+  int? withdrawn,
+});
+
 /// Course information from the course catalog.
 typedef CourseDto = ({
   /// Course's unique identifier code.
@@ -113,6 +125,17 @@ typedef TeacherDto = ({
   String? officeHoursNote,
 });
 
+/// A titled syllabus content section in source-page order.
+///
+/// Nested table labels are flattened into slash-delimited title paths.
+typedef SyllabusSectionDto = ({
+  /// Source title or flattened source-title path.
+  String title,
+
+  /// Complete section text, or null when the submitted section is blank.
+  String? content,
+});
+
 /// Syllabus details from the course syllabus page (教學大綱與進度).
 typedef SyllabusDto = ({
   // Header table (課程基本資料)
@@ -129,7 +152,7 @@ typedef SyllabusDto = ({
   /// Number of withdrawn students (撤).
   int? withdrawn,
 
-  // Syllabus table (教學大綱與進度)
+  // Syllabus table metadata (教學大綱與進度)
 
   /// Instructor's email address.
   String? email,
@@ -137,25 +160,8 @@ typedef SyllabusDto = ({
   /// Last updated timestamp (最後更新時間).
   DateTime? lastUpdated,
 
-  /// Course objective/outline (課程大綱).
-  ///
-  /// English page: "Course Objective"
-  String? objective,
-
-  /// Weekly plan (課程進度).
-  ///
-  /// English page: "Course Schedule" - describes weekly topics, not class
-  /// meeting times.
-  String? weeklyPlan,
-
-  /// Evaluation and grading policy (評量方式與標準).
-  String? evaluation,
-
-  /// Textbooks and reference materials (使用教材、參考書目或其他).
-  String? materials,
-
-  /// Additional remarks (備註).
-  String? remarks,
+  /// Ordered content sections with source-derived titles.
+  List<SyllabusSectionDto> sections,
 });
 
 /// Provides the singleton [CourseService] instance.
@@ -205,6 +211,15 @@ abstract interface class CourseService {
     required SemesterDto semester,
   });
 
+  /// Fetches a course offering by its course number.
+  ///
+  /// Returns `null` only when the course system explicitly reports that the
+  /// number does not exist. Malformed or inconsistent responses throw so that
+  /// callers do not cache a server or parser failure as a missing offering.
+  ///
+  /// Throws an [ArgumentError] when [courseNumber] is blank.
+  Future<CourseOfferingDto?> getCourseOffering(String courseNumber);
+
   /// Fetches detailed information about a specific course from the catalog.
   ///
   /// Returns course details including bilingual names, descriptions, credits,
@@ -239,11 +254,10 @@ abstract interface class CourseService {
     required SemesterDto semester,
   });
 
-  /// Fetches the detailed syllabus for a course offering.
+  /// Fetches the detailed syllabus for a course offering in [language].
   ///
-  /// Returns syllabus information including course objectives, textbooks,
-  /// grading policy, and weekly plan, or `null` when the authoring teacher
-  /// hasn't submitted one yet (the page shows 尚未登錄).
+  /// Returns every source-page section in order, or `null` when the authoring
+  /// teacher hasn't submitted one yet (the page shows 尚未登錄).
   ///
   /// The [courseNumber] should be a course offering number (e.g., "346774"),
   /// and [teacherId] is the authoring teacher's ID (one of the `teachers` IDs
@@ -253,5 +267,6 @@ abstract interface class CourseService {
   Future<SyllabusDto?> getSyllabus({
     required String courseNumber,
     required String teacherId,
+    required SyllabusLanguage language,
   });
 }

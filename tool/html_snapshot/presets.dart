@@ -210,6 +210,23 @@ final _presetList = <SnapshotPreset>[
     ),
   ),
   SnapshotPreset(
+    name: 'course.offering_header_zh',
+    service: .course,
+    description:
+        'Course offering lookup header (Chinese). Required: --course-number.',
+    allSkipReason: 'requires --course-number',
+    buildRequest: _offeringHeader,
+  ),
+  SnapshotPreset(
+    name: 'course.offering_query_zh',
+    service: .course,
+    description:
+        'Course offering query result (Chinese). Required: --course-number.',
+    allSkipReason: 'requires --course-number',
+    buildRequest: _offeringQuery,
+  ),
+
+  SnapshotPreset(
     name: 'course.syllabus',
     service: .course,
     description:
@@ -363,6 +380,108 @@ SnapshotRequestBuilder _courseSemesterRequiredId({
       ],
     );
   };
+}
+
+Future<SnapshotRequest> _offeringHeader(
+  SnapshotContext context,
+  ArgResults args,
+) async {
+  final courseNumber = _requiredOption(args, 'course-number');
+  return SnapshotRequest(
+    service: .course,
+    path: 'tw/ShowSyllabus.jsp',
+    query: {'snum': courseNumber},
+    extension: 'html',
+    fileParts: ['c$courseNumber', 'zh'],
+  );
+}
+
+Future<SnapshotRequest> _offeringQuery(
+  SnapshotContext context,
+  ArgResults args,
+) async {
+  final courseNumber = _requiredOption(args, 'course-number');
+  final headerResponse = await context
+      .client(.course)
+      .get(
+        'tw/ShowSyllabus.jsp',
+        queryParameters: {'snum': courseNumber},
+      );
+  final header = _parseOfferingSnapshotHeader(
+    headerResponse.data,
+    courseNumber: courseNumber,
+  );
+
+  return SnapshotRequest(
+    service: .course,
+    path: 'tw/QueryCourse.jsp',
+    method: 'POST',
+    data: {
+      'year': header.year,
+      'sem': header.term,
+      // The legacy form encodes "all divisions" as one SQL-style value.
+      'matric': "'0','1','4','5','6','7','8','9','A','C','D','E','F'",
+      'unit': '＊',
+      'cname': header.courseName,
+      'ccode': '',
+      'tname': '',
+      'stime': '0',
+    },
+    contentType: Headers.formUrlEncodedContentType,
+    extension: 'html',
+    fileParts: [
+      ..._semesterFileParts(
+        SemesterRef(year: header.year, term: header.term),
+      ),
+      'c$courseNumber',
+      'zh',
+    ],
+  );
+}
+
+({int year, int term, String courseName}) _parseOfferingSnapshotHeader(
+  String html, {
+  required String courseNumber,
+}) {
+  final document = parse(html);
+  for (final table in document.querySelectorAll('table')) {
+    final rows = table.querySelectorAll('tr');
+    if (rows.length < 2) continue;
+    final labels = rows.first.children.map((cell) => cell.text.trim()).toList();
+    final numberIndex = labels.indexWhere(
+      (label) => label == '課號' || label == 'Course Number',
+    );
+    final nameIndex = labels.indexWhere(
+      (label) => label == '課程名稱' || label == 'Course Name',
+    );
+    if (numberIndex < 0 || nameIndex < 0) continue;
+    final values = rows[1].children;
+    if (numberIndex >= values.length ||
+        nameIndex >= values.length ||
+        values[numberIndex].text.trim() != courseNumber) {
+      continue;
+    }
+    final courseName = values[nameIndex].text.trim();
+    if (courseName.isEmpty) break;
+    final semesterIndex = labels.indexOf('學年期');
+
+    final semester = semesterIndex >= 0 && semesterIndex < values.length
+        ? RegExp(
+            r'^(\d+)\s*-\s*([0-3])$',
+          ).firstMatch(values[semesterIndex].text.trim())
+        : null;
+    if (semester != null) {
+      return (
+        year: int.parse(semester.group(1)!),
+        term: int.parse(semester.group(2)!),
+        courseName: courseName,
+      );
+    }
+    break;
+  }
+  throw CliException(
+    'Could not resolve offering $courseNumber from the syllabus header.',
+  );
 }
 
 Future<SnapshotRequest> _syllabus(

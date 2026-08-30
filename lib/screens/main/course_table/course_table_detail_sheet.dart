@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
+import 'package:tattoo/shells/centered_max_width_frame.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/localized.dart';
 
@@ -15,12 +17,16 @@ Future<void> showCourseTableDetailSheet(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
+    useSafeArea: true,
     backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
-    constraints: BoxConstraints(
-      minWidth: MediaQuery.sizeOf(context).width,
-      maxWidth: MediaQuery.sizeOf(context).width,
+    builder: (context) => Align(
+      alignment: Alignment.bottomCenter,
+      heightFactor: 1,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: contentMaxWidth),
+        child: CourseTableDetailSheet(number: number),
+      ),
     ),
-    builder: (context) => CourseTableDetailSheet(number: number),
   );
 }
 
@@ -39,8 +45,9 @@ class CourseTableDetailSheet extends ConsumerWidget {
       child: Padding(
         padding: const .fromLTRB(16, 8, 16, 16),
         child: switch (detailAsync) {
-          AsyncData(value: final detail?) => _CourseDetailContent(
-            detail: detail,
+          AsyncData(value: final detail?) => SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.85,
+            child: _CourseDetailContent(detail: detail),
           ),
           AsyncData() => _DetailState(
             icon: Icons.search_off_outlined,
@@ -60,13 +67,13 @@ class CourseTableDetailSheet extends ConsumerWidget {
   }
 }
 
-class _CourseDetailContent extends StatelessWidget {
+class _CourseDetailContent extends ConsumerWidget {
   const _CourseDetailContent({required this.detail});
 
   final CourseOfferingDetail detail;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final overview = detail.overview;
     // TODO: replace with course name when available
@@ -96,10 +103,20 @@ class _CourseDetailContent extends StatelessWidget {
           (entry) => '${_dayOfWeekLabel(entry.key)} ${entry.value.join('、')}',
         )
         .join('；');
-    return Column(
-      mainAxisSize: .min,
-      crossAxisAlignment: .start,
-      spacing: 16,
+    final syllabusAsync = switch (overview.number) {
+      final courseNumber? => ref.watch(
+        syllabusProvider((
+          courseNumber: courseNumber,
+          language: switch (LocaleSettings.currentLocale) {
+            .zhTw => .zhTw,
+            .enUs => .enUs,
+          },
+        )),
+      ),
+      null => null,
+    };
+    return ListView(
+      padding: .zero,
       children: [
         SizedBox(
           width: .infinity,
@@ -136,9 +153,156 @@ class _CourseDetailContent extends StatelessWidget {
             ),
           ),
         ),
+        if (syllabusAsync case final syllabusAsync?)
+          switch (syllabusAsync) {
+            AsyncData(value: final syllabuses) => _SyllabusTabs(
+              details: syllabuses,
+            ),
+            AsyncError(:final error) => _DetailState(
+              icon: Icons.error_outline,
+              message: 'Error: $error',
+            ),
+            AsyncLoading() => const Padding(
+              padding: .symmetric(horizontal: 8),
+              child: LinearProgressIndicator(),
+            ),
+          },
         SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
-        // TODO: scroll up to show more course query features like classmate, course outline, etc.
       ],
+    );
+  }
+}
+
+class _SyllabusTabs extends StatefulWidget {
+  const _SyllabusTabs({required this.details});
+
+  final List<TeacherSyllabusDetail> details;
+
+  @override
+  State<_SyllabusTabs> createState() => _SyllabusTabsState();
+}
+
+class _SyllabusTabsState extends State<_SyllabusTabs>
+    with SingleTickerProviderStateMixin {
+  late TabController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = _createController();
+  }
+
+  @override
+  void didUpdateWidget(_SyllabusTabs oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.details.length == widget.details.length) {
+      return;
+    }
+
+    final previousTeacherCode = oldWidget.details.isEmpty
+        ? null
+        : oldWidget.details[_controller.index].teacher.code;
+    final updatedIndex = previousTeacherCode == null
+        ? -1
+        : widget.details.indexWhere(
+            (detail) => detail.teacher.code == previousTeacherCode,
+          );
+    _controller.dispose();
+    _controller = _createController(
+      initialIndex: updatedIndex < 0 ? 0 : updatedIndex,
+    );
+  }
+
+  TabController _createController({int initialIndex = 0}) {
+    final controller = TabController(
+      length: widget.details.length,
+      initialIndex: initialIndex,
+      vsync: this,
+    );
+    controller.addListener(_handleTabChanged);
+    return controller;
+  }
+
+  void _handleTabChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.details.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      children: [
+        ChipTabSwitcher(
+          controller: _controller,
+          padding: const .symmetric(horizontal: 8),
+          tabs: [
+            for (final detail in widget.details)
+              (_normalizedText(
+                        localized(
+                          detail.teacher.nameZh,
+                          detail.teacher.nameEn,
+                        ),
+                      ) ??
+                      t.general.unknown)
+                  .spaced,
+          ],
+        ),
+        _SyllabusSections(detail: widget.details[_controller.index]),
+      ],
+    );
+  }
+}
+
+class _SyllabusSections extends StatelessWidget {
+  const _SyllabusSections({required this.detail});
+
+  final TeacherSyllabusDetail detail;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: const .all(8),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: .circular(12),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
+      ),
+      color: theme.colorScheme.surfaceContainer,
+      child: SelectionArea(
+        child: Padding(
+          padding: const .all(12),
+          child: Column(
+            crossAxisAlignment: .start,
+            children: [
+              for (final (index, section)
+                  in detail.syllabus.sections.indexed) ...[
+                if (index > 0) const Divider(height: 24),
+                Text(
+                  section.title.spaced,
+                  style: theme.textTheme.titleMedium,
+                ),
+                if (_normalizedText(section.content) case final content?)
+                  Padding(
+                    padding: const .only(top: 6),
+                    child: Text(content.spaced),
+                  ),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

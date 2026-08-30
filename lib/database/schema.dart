@@ -412,6 +412,7 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   late final semester = integer().references(Semesters, #id)();
 
   /// Course offering number (e.g., "313146", "352902").
+  /// Assigned numbers are globally unique across semesters.
   ///
   /// Null for special entries that have no assigned number.
   late final number = text().nullable().unique()();
@@ -467,6 +468,16 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   ///
   /// Not a [Fetchable] field.
   late final remarks = text().nullable()();
+
+  /// Whether this offering appeared in the student's own course table.
+  ///
+  /// Distinguishes offerings fetched by [CourseRepository.refreshCourseTable]
+  /// from those created as side effects by other flows (e.g. a scored course
+  /// number the course table never returned). Only the former belong in the
+  /// course table grid and its credit/hour totals.
+  ///
+  /// Not a [Fetchable] field.
+  late final inCourseTable = boolean().withDefault(Constant(false))();
 
   // Syllabus header fields (課程基本資料): identical on every syllabus page, so
   // they live on the offering. Populated lazily by the syllabus refresh, which
@@ -569,12 +580,13 @@ class Schedules extends Table with AutoIncrementId {
 
 /// A teacher-authored syllabus for a course offering (教學大綱與進度).
 ///
-/// An offering can have multiple syllabi — one per teacher who submits one,
-/// keyed by the authoring teacher's code (hence the [Teachers] reference;
-/// per-semester teacher details live on [TeacherSemesters]). Fields shared
-/// across an offering's syllabi (course type, enrolled, withdrawn) stay on
-/// [CourseOfferings]. A row exists only for a teacher who has submitted a
-/// syllabus; it is created lazily on first fetch and always refetched fresh.
+/// An offering can have multiple syllabi — one cache row per associated
+/// teacher and language variant, keyed by the teacher's code (hence the
+/// [Teachers] reference; per-semester teacher details live on
+/// [TeacherSemesters]). An unsubmitted syllabus retains only its fetch
+/// timestamp so the absence participates in TTL caching. Fields shared across
+/// an offering's submitted syllabi (course type, enrolled, withdrawn) stay on
+/// [CourseOfferings].
 // Without @DataClassName, Drift names the row class 'Syllabuse'.
 @DataClassName('Syllabus')
 class Syllabuses extends Table with AutoIncrementId {
@@ -588,30 +600,45 @@ class Syllabuses extends Table with AutoIncrementId {
   /// Reference to the authoring teacher (the syllabus's code is their code).
   late final teacher = integer().references(Teachers, #id)();
 
+  /// Language variant fetched from the course system.
+  late final language = textEnum<SyllabusLanguage>()();
+
   /// When this syllabus was last updated by the teacher (最後更新時間).
   late final updatedAt = dateTime().nullable()();
 
-  /// Course objective/outline (課程大綱).
-  late final objective = text().nullable()();
-
-  /// Weekly plan describing topics covered each week (課程進度).
-  ///
-  /// Note: Called "Course Schedule" on the English page, but refers to weekly
-  /// topics, not class meeting times.
-  late final weeklyPlan = text().nullable()();
-
-  /// Evaluation and grading policy (評量方式與標準).
-  late final evaluation = text().nullable()();
-
-  /// Textbooks and reference materials (使用教材、參考書目或其他).
-  late final textbooks = text().nullable()();
-
-  /// Teacher-authored remarks from the syllabus page (備註).
-  late final remarks = text().nullable()();
+  /// When this language variant was last fetched from the course system.
+  late final fetchedAt = dateTime()();
 
   @override
   List<Set<Column>> get uniqueKeys => [
-    {courseOffering, teacher},
+    {courseOffering, teacher, language},
+  ];
+}
+
+/// An ordered content section belonging to a submitted [Syllabuses] row.
+///
+/// Titles retain source labels; nested labels are flattened into
+/// slash-delimited paths. Position identifies repeated labels.
+class SyllabusSections extends Table with AutoIncrementId {
+  /// Parent syllabus. Sections are deleted with the submission.
+  late final syllabus = integer().references(
+    Syllabuses,
+    #id,
+    onDelete: .cascade,
+  )();
+
+  /// Source title or flattened source-title path.
+  late final title = text()();
+
+  /// Complete source content, or null when the submitted section is blank.
+  late final content = text().nullable()();
+
+  /// Zero-based source-page order.
+  late final position = integer()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {syllabus, position},
   ];
 }
 
@@ -636,10 +663,12 @@ class Scores extends Table with AutoIncrementId {
 
   /// Reference to the specific course offering.
   ///
-  /// Nullable because credit waivers (抵免) have no associated offering.
+  /// Nullable because credit waivers (抵免) have no associated offering, and
+  /// because the score outlives an offering dropped from the course table.
   late final courseOffering = integer().nullable().references(
     CourseOfferings,
     #id,
+    onDelete: .setNull,
   )();
 
   /// Numeric grade (null when [status] is set instead).

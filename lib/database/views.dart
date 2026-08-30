@@ -162,29 +162,30 @@ abstract class CourseTableSlots extends View {
   @override
   Query as() =>
       select([
-        courseOfferings.id,
-        courseOfferings.number,
-        courseOfferings.semester,
-        nameZh,
-        nameEn,
-        credits,
-        hours,
-        schedules.dayOfWeek,
-        schedules.period,
-        classroomNameZh,
-        classroomNameEn,
-      ]).from(schedules).join([
-        innerJoin(
-          courseOfferings,
-          courseOfferings.id.equalsExp(schedules.courseOffering),
-        ),
-        leftOuterJoin(
-          courses,
-          courses.code.equalsExp(courseOfferings.courseCode),
-        ),
-        leftOuterJoin(
-          classrooms,
-          classrooms.id.equalsExp(schedules.classroom),
-        ),
-      ]);
+          courseOfferings.id,
+          courseOfferings.number,
+          courseOfferings.semester,
+          nameZh,
+          nameEn,
+          credits,
+          hours,
+          schedules.dayOfWeek,
+          schedules.period,
+          classroomNameZh,
+          classroomNameEn,
+        ]).from(schedules).join([
+          innerJoin(
+            courseOfferings,
+            courseOfferings.id.equalsExp(schedules.courseOffering),
+          ),
+          leftOuterJoin(
+            courses,
+            courses.code.equalsExp(courseOfferings.courseCode),
+          ),
+          leftOuterJoin(
+            classrooms,
+            classrooms.id.equalsExp(schedules.classroom),
+          ),
+        ])
+        ..where(courseOfferings.inCourseTable.equals(true));
 }

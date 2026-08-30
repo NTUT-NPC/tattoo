@@ -191,6 +191,7 @@ class _Translations$score$en_US extends Translations$score$zh_TW {
 	@override String courseNumber({required Object number, required Object code}) => 'No: ${number}  Code: ${code}';
 	@override String get none => 'N/A';
 	@override late final _Translations$score$summary$en_US summary = _Translations$score$summary$en_US._(_root);
+	@override late final _Translations$score$ranking$en_US ranking = _Translations$score$ranking$en_US._(_root);
 	@override late final _Translations$score$status$en_US status = _Translations$score$status$en_US._(_root);
 }
 
@@ -223,6 +224,15 @@ class _Translations$courseTable$en_US extends Translations$courseTable$zh_TW {
 		'thursday': 'Thu',
 		'friday': 'Fri',
 		'saturday': 'Sat',
+	};
+	@override Map<String, String> get dayOfWeekLong => {
+		'sunday': 'Sunday',
+		'monday': 'Monday',
+		'tuesday': 'Tuesday',
+		'wednesday': 'Wednesday',
+		'thursday': 'Thursday',
+		'friday': 'Friday',
+		'saturday': 'Saturday',
 	};
 }
 
@@ -457,6 +467,21 @@ class _Translations$score$summary$en_US extends Translations$score$summary$zh_TW
 	@override String get totalCredits => 'Total Credits';
 }
 
+// Path: score.ranking
+class _Translations$score$ranking$en_US extends Translations$score$ranking$zh_TW {
+	_Translations$score$ranking$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Rankings';
+	@override late final _Translations$score$ranking$type$en_US type = _Translations$score$ranking$type$en_US._(_root);
+	@override String get semester => 'Semester';
+	@override String get cumulative => 'Cumulative';
+	@override String rankAndTotal({required Object rank, required Object total, required Object percentage}) => '${rank} / ${total} (${percentage}%)';
+	@override String get empty => 'No rankings yet';
+}
+
 // Path: score.status
 class _Translations$score$status$en_US extends Translations$score$status$zh_TW {
 	_Translations$score$status$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -498,6 +523,8 @@ class _Translations$courseTable$actions$en_US extends Translations$courseTable$a
 	// Translations
 	@override String get showMoreOptions => 'Show more options';
 	@override String get displayOptions => 'Display options';
+	@override String get showWeeklyView => 'Switch to weekly view';
+	@override String get showGridView => 'Switch to grid view';
 }
 
 // Path: profile.passwordExpiry
@@ -668,6 +695,18 @@ class _Translations$intro$features$campusLife$en_US extends Translations$intro$f
 	@override String get description => 'Access campus life information, with more features coming soon.';
 }
 
+// Path: score.ranking.type
+class _Translations$score$ranking$type$en_US extends Translations$score$ranking$type$zh_TW {
+	_Translations$score$ranking$type$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get classLevel => 'Class';
+	@override String get groupLevel => 'Group';
+	@override String get departmentLevel => 'Dept.';
+}
+
 // Path: profile.dangerZone.items
 class _Translations$profile$dangerZone$items$en_US extends Translations$profile$dangerZone$items$zh_TW {
 	_Translations$profile$dangerZone$items$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -780,6 +819,14 @@ extension on TranslationsEnUs {
 			'score.summary.semesterAverage' => 'Semester Avg',
 			'score.summary.creditsPassed' => 'Credits Passed',
 			'score.summary.totalCredits' => 'Total Credits',
+			'score.ranking.title' => 'Rankings',
+			'score.ranking.type.classLevel' => 'Class',
+			'score.ranking.type.groupLevel' => 'Group',
+			'score.ranking.type.departmentLevel' => 'Dept.',
+			'score.ranking.semester' => 'Semester',
+			'score.ranking.cumulative' => 'Cumulative',
+			'score.ranking.rankAndTotal' => ({required Object rank, required Object total, required Object percentage}) => '${rank} / ${total} (${percentage}%)',
+			'score.ranking.empty' => 'No rankings yet',
 			'score.status.notEntered' => 'Not entered',
 			'score.status.withdraw' => 'Withdrawn',
 			'score.status.undelivered' => 'Not submitted',
@@ -793,6 +840,8 @@ extension on TranslationsEnUs {
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',
 			'courseTable.actions.displayOptions' => 'Display options',
+			'courseTable.actions.showWeeklyView' => 'Switch to weekly view',
+			'courseTable.actions.showGridView' => 'Switch to grid view',
 			'courseTable.dayOfWeek.sunday' => 'Sun',
 			'courseTable.dayOfWeek.monday' => 'Mon',
 			'courseTable.dayOfWeek.tuesday' => 'Tue',
@@ -800,6 +849,13 @@ extension on TranslationsEnUs {
 			'courseTable.dayOfWeek.thursday' => 'Thu',
 			'courseTable.dayOfWeek.friday' => 'Fri',
 			'courseTable.dayOfWeek.saturday' => 'Sat',
+			'courseTable.dayOfWeekLong.sunday' => 'Sunday',
+			'courseTable.dayOfWeekLong.monday' => 'Monday',
+			'courseTable.dayOfWeekLong.tuesday' => 'Tuesday',
+			'courseTable.dayOfWeekLong.wednesday' => 'Wednesday',
+			'courseTable.dayOfWeekLong.thursday' => 'Thursday',
+			'courseTable.dayOfWeekLong.friday' => 'Friday',
+			'courseTable.dayOfWeekLong.saturday' => 'Saturday',
 			'profile.dataDisclaimer' => 'Reference only. Not official.',
 			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(days, one: 'Password expires in 1 day', other: 'Password expires in ${days} days', ), 
 			'profile.passwordExpiry.action' => 'Change',
