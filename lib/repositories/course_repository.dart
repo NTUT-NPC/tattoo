@@ -276,7 +276,7 @@ class CourseRepository {
   /// if data is empty or stale. The stream re-emits automatically when the
   /// DB is updated.
   ///
-  /// Use [watchCourseOffering] for related data (teachers, classrooms, schedules).
+  /// Use [getCourseOffering] for related data (teachers, classrooms, schedules).
   Stream<CourseTableData> watchCourseTable({required int semesterId}) async* {
     const ttl = Duration(days: 3);
 
@@ -285,16 +285,20 @@ class CourseRepository {
 
     await for (final rows in query.watch()) {
       final allOfferingRows =
-          await (_database.select(
-            _database.courseOfferings,
-          )..where((o) => o.semester.equals(semesterId))).join([
-            leftOuterJoin(
-              _database.courses,
-              _database.courses.code.equalsExp(
-                _database.courseOfferings.courseCode,
-              ),
-            ),
-          ]).get();
+          await (_database.select(_database.courseOfferings)..where(
+                (o) =>
+                    o.semester.equals(semesterId) &
+                    o.inCourseTable.equals(true),
+              ))
+              .join([
+                leftOuterJoin(
+                  _database.courses,
+                  _database.courses.code.equalsExp(
+                    _database.courseOfferings.courseCode,
+                  ),
+                ),
+              ])
+              .get();
       final allOfferings = allOfferingRows.map((row) {
         final offering = row.readTable(_database.courseOfferings);
         final course = row.readTableOrNull(_database.courses);
@@ -386,18 +390,21 @@ class CourseRepository {
           continue;
         }
 
+        // Authoritative for every field, so null clears rather than skips
+        // (a reversed withdrawal has to be able to clear its status).
         final offeringId = await _database.upsertCourseOffering(
-          courseCode: courseCode,
+          courseCode: Value(courseCode),
           semesterId: semester.id,
           number: dto.number,
           nameZh: courseNameZh,
           nameEn: dto.course?.nameEn,
-          credits: dto.credits,
-          hours: dto.hours,
-          phase: dto.phase,
-          status: dto.status,
-          language: dto.language,
-          remarks: dto.remarks,
+          credits: Value(dto.credits),
+          hours: Value(dto.hours),
+          phase: Value(dto.phase),
+          status: Value(dto.status),
+          language: Value(dto.language),
+          remarks: Value(dto.remarks),
+          inCourseTable: true,
         );
 
         // Clear old junctions and schedules for this offering
@@ -543,12 +550,14 @@ class CourseRepository {
       if (consumed.contains(entry.key)) continue;
       var span = 1;
       var crossesNoon = false;
+      var skippedNoon = false;
       var lookIndex = entry.key.period.index + 1;
 
       while (lookIndex < Period.values.length) {
         final nextPeriod = Period.values[lookIndex];
         // Skip noon if no courses use it
         if (nextPeriod == .nPeriod && !hasNoon) {
+          skippedNoon = true;
           lookIndex++;
           continue;
         }
@@ -557,7 +566,7 @@ class CourseRepository {
             when next.id == entry.value.id) {
           consumed.add(nextKey);
           span++;
-          crossesNoon = entry.key.period.isAM && nextPeriod.isPM;
+          crossesNoon = skippedNoon && entry.key.period.isAM && nextPeriod.isPM;
           lookIndex++;
         } else {
           break;
@@ -646,55 +655,113 @@ class CourseRepository {
     );
   }
 
-  /// Watches a course offering's joined detail (overview + schedule + teachers
-  /// + classes), selected by its course number (課號) and composed from the
-  /// database — no network. Submitted syllabuses are fetched separately via
-  /// [watchSyllabuses]. Emits `null` when the offering is missing; re-emits when
-  /// a syllabus refresh writes the offering's header fields.
+  /// Reads [number]'s offering detail (overview + schedule + teachers +
+  /// classes), falling back to the course system when it is not cached.
+  ///
+  /// Not a `refreshX` — a looked-up offering is not cached, so the detail is
+  /// returned rather than written for a stream to re-emit, and only its
+  /// semester row is persisted. Submitted syllabuses are fetched separately
+  /// via [watchSyllabuses]. Returns `null` only when the course system
+  /// reports that the number does not exist.
   ///
   /// Course numbers are globally unique and identify at most one offering.
-  Stream<CourseOfferingDetail?> watchCourseOffering(String number) async* {
+  Future<CourseOfferingDetail?> getCourseOffering(String number) async {
     final overviews = _database.courseOfferingOverviews;
-    final query =
-        _database.select(overviews).join([
-            innerJoin(
-              _database.semesters,
-              _database.semesters.id.equalsExp(overviews.semester),
-            ),
-          ])
-          ..where(overviews.number.equals(number))
-          ..orderBy([
-            .desc(_database.semesters.year),
-            .desc(_database.semesters.term),
-          ])
-          ..limit(1);
+    final cached =
+        await (_database.select(overviews).join([
+                innerJoin(
+                  _database.semesters,
+                  _database.semesters.id.equalsExp(overviews.semester),
+                ),
+              ])
+              ..where(overviews.number.equals(number))
+              ..orderBy([
+                .desc(_database.semesters.year),
+                .desc(_database.semesters.term),
+              ])
+              ..limit(1))
+            .getSingleOrNull();
 
-    await for (final rows in query.watch()) {
-      final overview = rows.firstOrNull?.readTable(overviews);
-      if (overview == null) {
-        yield null;
-        continue;
-      }
+    if (cached?.readTable(overviews) case final overview?) {
+      final offeringId = overview.id;
+      final (schedule, teachers, classes) = await (
+        _readOfferingSchedule(offeringId),
+        _readOfferingTeachers(offeringId),
+        _readOfferingClasses(offeringId),
+      ).wait;
 
-      yield await _readCourseOfferingDetail(overview);
+      return (
+        overview: overview,
+        schedule: schedule,
+        teachers: teachers,
+        classes: classes,
+      );
     }
-  }
 
-  Future<CourseOfferingDetail> _readCourseOfferingDetail(
-    CourseOfferingOverview overview,
-  ) async {
-    final offeringId = overview.id;
-    final (schedule, teachers, classes) = await (
-      _readOfferingSchedule(offeringId),
-      _readOfferingTeachers(offeringId),
-      _readOfferingClasses(offeringId),
-    ).wait;
+    final dto = await _authRepository.withAuth(
+      () => _courseService.getCourseOffering(number),
+      sso: [.courseService],
+    );
+    if (dto == null) return null;
 
+    final semester = await _database.getOrCreateSemester(
+      dto.semester.year!,
+      dto.semester.term!,
+    );
+
+    final schedule = dto.schedule;
     return (
-      overview: overview,
-      schedule: schedule,
-      teachers: teachers,
-      classes: classes,
+      // TODO: sentinel id because the offering itself is not persisted, so it
+      // has no row to report. No caller reads `overview.id` — give
+      // CourseOfferingDetail a DTO-backed variant if that stops being true.
+      overview: CourseOfferingOverview(
+        id: -1,
+        courseCode: schedule.course?.id,
+        semester: semester.id,
+        number: schedule.number,
+        nameZh: schedule.course?.nameZh,
+        nameEn: schedule.course?.nameEn,
+        credits: schedule.credits,
+        hours: schedule.hours,
+        phase: schedule.phase,
+        courseType: dto.courseType,
+        status: schedule.status,
+        language: schedule.language,
+        remarks: schedule.remarks,
+        enrolled: dto.enrolled,
+        withdrawn: dto.withdrawn,
+        fetchedAt: DateTime.now(),
+      ),
+      schedule: [
+        for (final slot
+            in schedule.schedule ??
+                const <
+                  ({
+                    DayOfWeek day,
+                    Period period,
+                    ReferenceDto? classroom,
+                  })
+                >[])
+          (
+            day: slot.day,
+            period: slot.period,
+            classroomNameZh: slot.classroom?.name,
+            classroomNameEn: switch (slot.classroom?.name) {
+              final name? => translateClassroomName(name),
+              null => null,
+            },
+          ),
+      ],
+      teachers: [
+        for (final teacher in schedule.teachers ?? const <LocalizedRefDto>[])
+          if (teacher case LocalizedRefDto(:final id?, :final nameZh?))
+            (code: id, nameZh: nameZh, nameEn: teacher.nameEn),
+      ],
+      classes: [
+        for (final entity in schedule.classes ?? const <LocalizedRefDto>[])
+          if (entity case LocalizedRefDto(:final id?, :final nameZh?))
+            (code: id, nameZh: nameZh, nameEn: entity.nameEn),
+      ],
     );
   }
 
@@ -709,6 +776,12 @@ class CourseRepository {
   /// list leaves loading.
   /// Missing offerings and offerings without teachers emit an empty list
   /// without making a request.
+  ///
+  // TODO: a looked-up offering is not persisted, so it has no row for
+  // Syllabuses.courseOffering to reference and this emits an empty list for
+  // it. Only reachable once the UI can open a course the student is not
+  // enrolled in; needs SyllabusDetail to accept DTO-backed rows, like
+  // CourseOfferingDetail.
   Stream<List<TeacherSyllabusDetail>> watchSyllabuses({
     required String courseNumber,
     required SyllabusLanguage language,

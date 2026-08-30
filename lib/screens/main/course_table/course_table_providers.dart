@@ -31,12 +31,14 @@ final courseTableProvider = StreamProvider.autoDispose
 /// course number (課號).
 ///
 /// Reads composed offering detail (overview + schedule + teachers + classes)
-/// directly from the database; [refreshCourseTable] keeps it current. No
-/// network fetch — submitted syllabuses are fetched lazily and separately via
-/// [syllabusProvider]. Emits `null` until the offering exists.
-final courseOfferingProvider = StreamProvider.autoDispose
+/// from the database; [refreshCourseTable] keeps it current. A number the
+/// database does not hold is looked up over the network and served without
+/// being cached. Submitted syllabuses are fetched lazily and separately via
+/// [syllabusProvider]. Resolves to `null` only when the course system reports
+/// that the number does not exist.
+final courseOfferingProvider = FutureProvider.autoDispose
     .family<CourseOfferingDetail?, String>((ref, number) {
-      return ref.watch(courseRepositoryProvider).watchCourseOffering(number);
+      return ref.watch(courseRepositoryProvider).getCourseOffering(number);
     });
 
 /// Provides every submitted syllabus for a course in the requested language,

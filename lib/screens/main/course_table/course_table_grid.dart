@@ -9,7 +9,9 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_cell.dart';
+import 'package:tattoo/screens/main/course_table/course_table_colors.dart';
 import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart';
+import 'package:tattoo/screens/main/course_table/course_table_entrance_animation.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 /// Internal value type that describes the currently visible grid scope.
@@ -46,44 +48,6 @@ class CourseTableGrid extends StatelessWidget {
   static const double _tableHeaderHeight = 25;
   static const double _stubWidth = 20;
   static const double _gridLineThickness = 1;
-  static const List<Color> _cellColors = [
-    Colors.red,
-    Colors.blue,
-    Colors.green,
-    Colors.orange,
-    Colors.purple,
-    Colors.teal,
-    Colors.pink,
-    Colors.indigo,
-    Colors.amber,
-    Colors.cyan,
-    Colors.deepOrange,
-    Colors.lightGreen,
-    Colors.deepPurple,
-    Colors.lightBlue,
-    Colors.lime,
-    Colors.brown,
-    Colors.blueGrey,
-    Colors.redAccent,
-    Colors.blueAccent,
-    Colors.greenAccent,
-    Colors.orangeAccent,
-    Colors.purpleAccent,
-    Colors.tealAccent,
-    Colors.pinkAccent,
-    Colors.indigoAccent,
-    Colors.amberAccent,
-    Colors.cyanAccent,
-    Colors.deepOrangeAccent,
-    Colors.lightGreenAccent,
-    Colors.deepPurpleAccent,
-    Colors.lightBlueAccent,
-    Colors.limeAccent,
-    Colors.yellow,
-    Colors.grey,
-    Colors.yellowAccent,
-  ];
-
   late final _GridRange _gridRange = _visibleGridRange();
   List<DayOfWeek> get _visibleDaysOfWeek => _gridRange.visibleDaysOfWeek;
   List<Period> get _visiblePeriods => _gridRange.visiblePeriods;
@@ -157,7 +121,7 @@ class CourseTableGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    late final colorByCourseId = _buildColorByCourseId();
+    final colorByCourseId = buildCourseTableColorMap(courseTableData);
     final scrollView = CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics().applyTo(
         ScrollConfiguration.of(context).getScrollPhysics(context),
@@ -216,18 +180,6 @@ class CourseTableGrid extends StatelessWidget {
         child: scrollView,
       ),
       null => scrollView,
-    };
-  }
-
-  Map<int, Color> _buildColorByCourseId() {
-    final courseIds = {
-      ...courseTableData.scheduled.values.map((cell) => cell.id),
-      ...courseTableData.unscheduled.map((cell) => cell.id),
-    }.toList()..sort();
-
-    return {
-      for (var i = 0; i < courseIds.length; i++)
-        courseIds[i]: _cellColors[i % _cellColors.length],
     };
   }
 
@@ -447,9 +399,6 @@ class CourseTableGrid extends StatelessWidget {
         spanLength,
       );
       final delayMs = 50 + random.nextInt(101);
-      const riseDurationMs = 350;
-      final totalDurationMs = riseDurationMs + delayMs;
-      final startAt = delayMs / totalDurationMs;
 
       cells.add(
         Positioned(
@@ -461,19 +410,8 @@ class CourseTableGrid extends StatelessWidget {
             height: cellHeight,
             child: Padding(
               padding: const .all(2),
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 1, end: 0),
-                duration: Duration(milliseconds: totalDurationMs),
-                curve: Interval(startAt, 1, curve: Curves.easeOutCubic),
-                builder: (context, t, child) {
-                  return Opacity(
-                    opacity: 1 - t,
-                    child: Transform.translate(
-                      offset: Offset(0, 16 * t),
-                      child: child,
-                    ),
-                  );
-                },
+              child: CourseTableEntranceAnimation(
+                delay: Duration(milliseconds: delayMs),
                 child: const CourseTableCellSkeleton(),
               ),
             ),
@@ -521,9 +459,6 @@ class CourseTableGrid extends StatelessWidget {
       final cellLeft = _stubWidth + (dayIndex * columnWidth);
       final cellHeight = _courseCellHeight(visiblePeriods, startIndex, cell);
       final delayMs = 50 + random.nextInt(101);
-      const riseDurationMs = 350;
-      final totalDurationMs = riseDurationMs + delayMs;
-      final startAt = delayMs / totalDurationMs;
 
       cells.add(
         Positioned(
@@ -535,19 +470,8 @@ class CourseTableGrid extends StatelessWidget {
             height: cellHeight,
             child: Padding(
               padding: const .all(2),
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 1, end: 0),
-                duration: Duration(milliseconds: totalDurationMs),
-                curve: Interval(startAt, 1, curve: Curves.easeOutCubic),
-                builder: (context, t, child) {
-                  return Opacity(
-                    opacity: 1 - t,
-                    child: Transform.translate(
-                      offset: Offset(0, 16 * t),
-                      child: child,
-                    ),
-                  );
-                },
+              child: CourseTableEntranceAnimation(
+                delay: Duration(milliseconds: delayMs),
                 child: CourseTableCell(
                   courseTableCellData: cell,
                   cellColor: colorByCourseId[cell.id] ?? Colors.grey,
@@ -581,7 +505,7 @@ class CourseTableGrid extends StatelessWidget {
         children: [
           SectionHeader(title: t.courseTable.unscheduled),
           for (final cell in courseTableData.unscheduled)
-            CourseTableUnscheduledCell(
+            CourseTableListCell(
               courseTableCellData: cell,
               indicatorColor: colorByCourseId[cell.id] ?? Colors.grey,
               onTap: switch (cell.number) {

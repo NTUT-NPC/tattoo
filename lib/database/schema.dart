@@ -469,6 +469,16 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   /// Not a [Fetchable] field.
   late final remarks = text().nullable()();
 
+  /// Whether this offering appeared in the student's own course table.
+  ///
+  /// Distinguishes offerings fetched by [CourseRepository.refreshCourseTable]
+  /// from those created as side effects by other flows (e.g. a scored course
+  /// number the course table never returned). Only the former belong in the
+  /// course table grid and its credit/hour totals.
+  ///
+  /// Not a [Fetchable] field.
+  late final inCourseTable = boolean().withDefault(Constant(false))();
+
   // Syllabus header fields (課程基本資料): identical on every syllabus page, so
   // they live on the offering. Populated lazily by the syllabus refresh, which
   // also sets `fetchedAt` (a last-populated marker here, not a fetch gate).
@@ -614,6 +624,7 @@ class SyllabusSections extends Table with AutoIncrementId {
   late final syllabus = integer().references(
     Syllabuses,
     #id,
+    onDelete: .cascade,
   )();
 
   /// Source title or flattened source-title path.
@@ -652,10 +663,12 @@ class Scores extends Table with AutoIncrementId {
 
   /// Reference to the specific course offering.
   ///
-  /// Nullable because credit waivers (抵免) have no associated offering.
+  /// Nullable because credit waivers (抵免) have no associated offering, and
+  /// because the score outlives an offering dropped from the course table.
   late final courseOffering = integer().nullable().references(
     CourseOfferings,
     #id,
+    onDelete: .setNull,
   )();
 
   /// Numeric grade (null when [status] is set instead).
