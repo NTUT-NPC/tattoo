@@ -238,18 +238,29 @@ class _SemesterScoreList extends StatelessWidget {
             ),
             if (hasScores)
               SliverPadding(
-                padding: const .symmetric(horizontal: 16),
+                padding: .fromLTRB(
+                  16,
+                  0,
+                  16,
+                  _floatingBarBottomInset + bottomInset,
+                ),
                 sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, scoreIndex) {
-                    final score = scores[scoreIndex];
-                    return Column(
-                      children: [
-                        _ScoreTile(score: score),
-                        if (scoreIndex != scores.length - 1)
-                          const Divider(height: 1),
-                      ],
-                    );
-                  }, childCount: scores.length),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    if (index < scores.length) {
+                      final score = scores[index];
+                      return Column(
+                        children: [
+                          _ScoreTile(score: score),
+                          if (index != scores.length - 1)
+                            const Divider(height: 1),
+                        ],
+                      );
+                    } else {
+                      return Skeleton.keep(
+                        child: _SemesterRankingCard(rankings: record.rankings),
+                      );
+                    }
+                  }, childCount: scores.length + (loading ? 0 : 1)),
                 ),
               )
             else
@@ -259,17 +270,6 @@ class _SemesterScoreList extends StatelessWidget {
                   child: Center(child: Text(t.score.noScoresThisSemester)),
                 ),
               ),
-            if (!loading)
-              SliverToBoxAdapter(
-                child: Skeleton.keep(
-                  child: _SemesterRankingCard(rankings: record.rankings),
-                ),
-              ),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: _floatingBarBottomInset + bottomInset,
-              ),
-            ),
           ],
         ),
       ),
@@ -414,7 +414,7 @@ class _SemesterRankingCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const .symmetric(vertical: 8),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
@@ -496,22 +496,18 @@ class _SemesterRankingCard extends StatelessWidget {
                                 ),
                           ),
                           Text(
-                            t.score.ranking
-                                .rankAndTotal(
-                                  rank: ranking.semesterRank,
-                                  total: ranking.semesterTotal,
-                                )
-                                .spaced,
+                            _formatRankAndTotal(
+                              ranking.semesterRank,
+                              ranking.semesterTotal,
+                            ).spaced,
                             style: Theme.of(context).textTheme.bodyMedium,
                             textAlign: TextAlign.center,
                           ),
                           Text(
-                            t.score.ranking
-                                .rankAndTotal(
-                                  rank: ranking.grandTotalRank,
-                                  total: ranking.grandTotalTotal,
-                                )
-                                .spaced,
+                            _formatRankAndTotal(
+                              ranking.grandTotalRank,
+                              ranking.grandTotalTotal,
+                            ).spaced,
                             style: Theme.of(context).textTheme.bodyMedium,
                             textAlign: TextAlign.center,
                           ),
@@ -532,6 +528,17 @@ class _SemesterRankingCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  String _formatRankAndTotal(int rank, int total) {
+    final percentage = total > 0
+        ? (rank / total * 100).toStringAsFixed(1)
+        : '0.0';
+    return t.score.ranking.rankAndTotal(
+      rank: rank,
+      total: total,
+      percentage: percentage,
     );
   }
 

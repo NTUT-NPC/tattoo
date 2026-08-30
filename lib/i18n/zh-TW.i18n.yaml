@@ -99,7 +99,7 @@ score:
       departmentLevel: 系所
     semester: 學期
     cumulative: 歷年
-    rankAndTotal: ${rank} / ${total}
+    rankAndTotal: ${rank} / ${total} (${percentage}%)
     empty: 尚無排名
   status:
     notEntered: 未輸入

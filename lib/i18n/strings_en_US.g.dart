@@ -461,7 +461,7 @@ class _Translations$score$ranking$en_US extends Translations$score$ranking$zh_TW
 	@override late final _Translations$score$ranking$type$en_US type = _Translations$score$ranking$type$en_US._(_root);
 	@override String get semester => 'Semester';
 	@override String get cumulative => 'Cumulative';
-	@override String rankAndTotal({required Object rank, required Object total}) => '${rank} / ${total}';
+	@override String rankAndTotal({required Object rank, required Object total, required Object percentage}) => '${rank} / ${total} (${percentage}%)';
 	@override String get empty => 'No rankings yet';
 }
 
@@ -808,7 +808,7 @@ extension on TranslationsEnUs {
 			'score.ranking.type.departmentLevel' => 'Dept.',
 			'score.ranking.semester' => 'Semester',
 			'score.ranking.cumulative' => 'Cumulative',
-			'score.ranking.rankAndTotal' => ({required Object rank, required Object total}) => '${rank} / ${total}',
+			'score.ranking.rankAndTotal' => ({required Object rank, required Object total, required Object percentage}) => '${rank} / ${total} (${percentage}%)',
 			'score.ranking.empty' => 'No rankings yet',
 			'score.status.notEntered' => 'Not entered',
 			'score.status.withdraw' => 'Withdrawn',

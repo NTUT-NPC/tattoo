@@ -99,7 +99,7 @@ score:
       departmentLevel: Dept.
     semester: Semester
     cumulative: Cumulative
-    rankAndTotal: ${rank} / ${total}
+    rankAndTotal: ${rank} / ${total} (${percentage}%)
     empty: No rankings yet
   status:
     notEntered: Not entered
