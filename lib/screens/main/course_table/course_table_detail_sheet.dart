@@ -19,7 +19,9 @@ Future<void> showCourseTableDetailSheet(
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
-    builder: (context) => Center(
+    builder: (context) => Align(
+      alignment: Alignment.bottomCenter,
+      heightFactor: 1,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: contentMaxWidth),
         child: CourseTableDetailSheet(number: number),
