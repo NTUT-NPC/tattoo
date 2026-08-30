@@ -141,8 +141,8 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
       _terminalProgress > 0 || (_isSwitchingWeek && _weekDirection == .next);
 
   Animation<Offset> get _weekSlideAnimation => switch (_weekDirection) {
-    .previous => _weekSlideFromRightAnimation,
-    .next => _weekSlideFromLeftAnimation,
+    .previous => _weekSlideFromLeftAnimation,
+    .next => _weekSlideFromRightAnimation,
   };
 
   Future<void> _switchWeek(_WeekDirection direction) async {

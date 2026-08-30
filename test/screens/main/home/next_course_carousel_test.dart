@@ -6,6 +6,52 @@ import 'package:tattoo/screens/main/home/next_course_card.dart';
 import 'package:tattoo/screens/main/home/next_course_carousel.dart';
 
 void main() {
+  testWidgets('reverses entry offsets for adjacent course dates', (
+    tester,
+  ) async {
+    Future<List<double>> entryOffsetsForPage(int page) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: NextCourseCarousel(
+              key: ValueKey(page),
+              courses: const [],
+              initialCourseIndex: null,
+            ),
+          ),
+        ),
+      );
+      final controller = tester
+          .widget<PageView>(find.byType(PageView))
+          .controller!;
+      unawaited(
+        controller.animateToPage(
+          page,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.linear,
+        ),
+      );
+      await tester.pump();
+      final offsets = <double>[];
+      for (var frame = 0; frame < 20; frame++) {
+        await tester.pump(const Duration(milliseconds: 50));
+        offsets.add(
+          tester
+              .widget<SlideTransition>(
+                find.byKey(const Key('week-slide-transition')),
+              )
+              .position
+              .value
+              .dx,
+        );
+      }
+      return offsets;
+    }
+
+    expect((await entryOffsetsForPage(2)).any((offset) => offset > 0), isTrue);
+    expect((await entryOffsetsForPage(0)).any((offset) => offset < 0), isTrue);
+  });
+
   testWidgets('shows the coffee notice when the selected date has no courses', (
     tester,
   ) async {
