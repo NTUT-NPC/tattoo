@@ -70,6 +70,9 @@ typedef CourseTableCellData = ({
   /// Localized classroom name for this timeslot.
   String? classroomName,
 
+  /// Localized teacher names for this offering.
+  List<String> teacherNames,
+
   /// Number of credits for this course.
   double credits,
 
@@ -121,6 +124,12 @@ typedef CourseTableData = ({
 
   /// Sum of hours across all distinct courses (scheduled + unscheduled).
   int totalHours,
+});
+
+typedef _CourseTableOfferingData = ({
+  CourseOffering offering,
+  Course? course,
+  List<String> teacherNames,
 });
 
 /// An empty [CourseTableData] with no courses.
@@ -285,26 +294,66 @@ class CourseRepository {
 
     await for (final rows in query.watch()) {
       final allOfferingRows =
-          await (_database.select(_database.courseOfferings)..where(
+          await ((_database.select(_database.courseOfferings)..where(
                 (o) =>
                     o.semester.equals(semesterId) &
                     o.inCourseTable.equals(true),
               ))
               .join([
-                leftOuterJoin(
-                  _database.courses,
-                  _database.courses.code.equalsExp(
-                    _database.courseOfferings.courseCode,
+                  leftOuterJoin(
+                    _database.courses,
+                    _database.courses.code.equalsExp(
+                      _database.courseOfferings.courseCode,
+                    ),
                   ),
-                ),
-              ])
+                  leftOuterJoin(
+                    _database.courseOfferingTeachers,
+                    _database.courseOfferingTeachers.courseOffering.equalsExp(
+                      _database.courseOfferings.id,
+                    ),
+                  ),
+                  leftOuterJoin(
+                    _database.teacherSemesters,
+                    _database.teacherSemesters.id.equalsExp(
+                      _database.courseOfferingTeachers.teacherSemester,
+                    ),
+                  ),
+                  leftOuterJoin(
+                    _database.teachers,
+                    _database.teachers.id.equalsExp(
+                      _database.teacherSemesters.teacher,
+                    ),
+                  ),
+                ])
+                ..orderBy([
+                  .asc(_database.courseOfferings.id),
+                  .asc(_database.teachers.code),
+                ]))
               .get();
-      final allOfferings = allOfferingRows.map((row) {
+      final allOfferings = <int, _CourseTableOfferingData>{};
+      for (final row in allOfferingRows) {
         final offering = row.readTable(_database.courseOfferings);
         final course = row.readTableOrNull(_database.courses);
-        return (offering: offering, course: course);
-      }).toList();
-      final data = _buildCourseTableData(rows, allOfferings);
+        final data = allOfferings.putIfAbsent(
+          offering.id,
+          () => (offering: offering, course: course, teacherNames: []),
+        );
+        if (row.readTableOrNull(_database.teachers) case final teacher?) {
+          final name = localized(teacher.nameZh, teacher.nameEn);
+          if (!data.teacherNames.contains(name)) data.teacherNames.add(name);
+        }
+      }
+      final data = _buildCourseTableData(
+        rows,
+        [
+          for (final data in allOfferings.values)
+            (
+              offering: data.offering,
+              course: data.course,
+              teacherNames: data.teacherNames.toList(growable: false),
+            ),
+        ],
+      );
 
       if (data.scheduled.isEmpty && data.unscheduled.isEmpty) {
         try {
@@ -513,9 +562,12 @@ class CourseRepository {
   /// the semester, computing multi-period spans and layout metadata.
   static CourseTableData _buildCourseTableData(
     List<CourseTableSlot> rows,
-    List<({CourseOffering offering, Course? course})> allOfferings,
+    List<_CourseTableOfferingData> allOfferings,
   ) {
     final scheduled = <({DayOfWeek day, Period period}), CourseTableCellData>{};
+    final offeringsById = {
+      for (final offering in allOfferings) offering.offering.id: offering,
+    };
 
     for (final row in rows) {
       final key = (day: row.dayOfWeek, period: row.period);
@@ -532,6 +584,7 @@ class CourseRepository {
           (final zh?, final en) => localized(zh, en),
           _ => null,
         },
+        teacherNames: offeringsById[row.id]?.teacherNames ?? const [],
         credits: row.credits ?? 0,
         hours: row.hours ?? 0,
       );
@@ -581,6 +634,7 @@ class CourseRepository {
           crossesNoon: crossesNoon,
           courseName: entry.value.courseName,
           classroomName: entry.value.classroomName,
+          teacherNames: entry.value.teacherNames,
           credits: entry.value.credits,
           hours: entry.value.hours,
         );
@@ -605,6 +659,7 @@ class CourseRepository {
             crossesNoon: false,
             courseName: courseName,
             classroomName: null,
+            teacherNames: row.teacherNames,
             credits: row.offering.credits ?? row.course?.credits ?? 0.0,
             hours: row.offering.hours ?? row.course?.hours ?? 0,
           );

@@ -120,6 +120,7 @@ CourseTableCellData _course({
   crossesNoon: crossesNoon,
   courseName: 'Course $id',
   classroomName: 'Room $id',
+  teacherNames: const ['Teacher'],
   credits: 3,
   hours: 3,
 );
