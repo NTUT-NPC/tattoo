@@ -512,8 +512,8 @@ class Translations$forceUpdate$zh_TW {
 	/// zh-TW: '有新版本可用'
 	String get title => '有新版本可用';
 
-	/// zh-TW: '請更新至最新版本以繼續使用Project Tattoo。'
-	String get message => '請更新至最新版本以繼續使用Project Tattoo。';
+	/// zh-TW: '請更新至最新版本以繼續使用TAT。'
+	String get message => '請更新至最新版本以繼續使用TAT。';
 
 	/// zh-TW: '版本 ${version}'
 	String requiredVersion({required Object version}) => '版本 ${version}';
@@ -1384,7 +1384,7 @@ extension on Translations {
 			'about.viewOpenSourceLicenses' => 'TAT的實作歸功於開放原始碼社群',
 			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
 			'forceUpdate.title' => '有新版本可用',
-			'forceUpdate.message' => '請更新至最新版本以繼續使用Project Tattoo。',
+			'forceUpdate.message' => '請更新至最新版本以繼續使用TAT。',
 			'forceUpdate.requiredVersion' => ({required Object version}) => '版本 ${version}',
 			'forceUpdate.updateButton' => '立即更新',
 			'forceUpdate.later' => '稍後',

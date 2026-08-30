@@ -337,7 +337,7 @@ class _Translations$forceUpdate$en_US extends Translations$forceUpdate$zh_TW {
 
 	// Translations
 	@override String get title => 'Update Available';
-	@override String get message => 'Please update to the latest version to continue using Project Tattoo.';
+	@override String get message => 'Please update to the latest version to continue using TAT.';
 	@override String requiredVersion({required Object version}) => 'Version ${version}';
 	@override String get updateButton => 'Update Now';
 	@override String get later => 'Later';
@@ -948,7 +948,7 @@ extension on TranslationsEnUs {
 			'about.viewOpenSourceLicenses' => 'TAT\'s implementation is made possible by the open source community',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
 			'forceUpdate.title' => 'Update Available',
-			'forceUpdate.message' => 'Please update to the latest version to continue using Project Tattoo.',
+			'forceUpdate.message' => 'Please update to the latest version to continue using TAT.',
 			'forceUpdate.requiredVersion' => ({required Object version}) => 'Version ${version}',
 			'forceUpdate.updateButton' => 'Update Now',
 			'forceUpdate.later' => 'Later',
