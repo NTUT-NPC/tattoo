@@ -18,6 +18,7 @@ import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/shells/animated_shell_container.dart';
+import 'package:tattoo/shells/centered_max_width_frame.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -37,6 +38,8 @@ abstract class AppRoutes {
   static const regedit = '/regedit';
   static const changePassword = '/change-password';
 }
+
+Widget _framed(Widget child) => CenteredMaxWidthFrame(child: child);
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
 class _SessionRefreshListenable extends ChangeNotifier {
@@ -80,7 +83,7 @@ GoRouter createAppRouter({
     ),
     GoRoute(
       path: AppRoutes.login,
-      builder: (context, state) => const LoginScreen(),
+      builder: (context, state) => _framed(const LoginScreen()),
     ),
     GoRoute(
       path: AppRoutes.changePassword,
@@ -88,15 +91,17 @@ GoRouter createAppRouter({
         final extra = state.extra as Map<String, dynamic>?;
         final isExpired = extra?['isExpired'] as bool? ?? false;
         final username = extra?['username'] as String?;
-        return ChangePasswordScreen(
-          isExpired: isExpired,
-          username: username,
+        return _framed(
+          ChangePasswordScreen(
+            isExpired: isExpired,
+            username: username,
+          ),
         );
       },
     ),
     GoRoute(
       path: AppRoutes.about,
-      builder: (context, state) => const AboutScreen(),
+      builder: (context, state) => _framed(const AboutScreen()),
     ),
     GoRoute(
       path: AppRoutes.scanner,
@@ -104,19 +109,19 @@ GoRouter createAppRouter({
     ),
     GoRoute(
       path: AppRoutes.regedit,
-      builder: (context, state) => const RegeditScreen(),
+      builder: (context, state) => _framed(const RegeditScreen()),
     ),
     GoRoute(
       path: AppRoutes.portal,
-      builder: (context, state) => const PortalScreen(),
+      builder: (context, state) => _framed(const PortalScreen()),
     ),
     GoRoute(
       path: AppRoutes.calendar,
-      builder: (context, state) => const CalendarScreen(),
+      builder: (context, state) => _framed(const CalendarScreen()),
     ),
     GoRoute(
       path: AppRoutes.kioskLoginQr,
-      builder: (context, state) => const KioskLoginQrScreen(),
+      builder: (context, state) => _framed(const KioskLoginQrScreen()),
     ),
     StatefulShellRoute(
       builder: (context, state, navigationShell) =>
