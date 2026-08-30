@@ -1,24 +1,12 @@
-import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:pub_semver/pub_semver.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/utils/pref_type.dart';
 
-/// Remote Config key for the version configuration JSON.
-const _versionConfigKey = 'version_config';
-
-/// Parsed contents of the `version_config` Remote Config value.
-///
-/// ```json
-/// {
-///   "is_focus_update": true,
-///   "last_version": { "ios": "1.6.9", "android": "1.6.9" },
-///   "last_version_detail": "..."
-/// }
-/// ```
+/// Parsed contents of the update configuration from Remote Config.
 ///
 /// When `isForcedUpdate` is `true`, the router blocks all navigation.
 /// When `false`, an optional update banner is shown without blocking the user.
@@ -28,70 +16,86 @@ typedef VersionConfig = ({
   String detail,
 });
 
-/// Compares two semver-like version strings (e.g. "1.6.9" vs "1.0.0").
+/// Compares two Semantic Versioning (SemVer) strings (e.g., "1.6.9", "1.0.0-pr.666").
 ///
 /// Returns `true` when [current] is strictly older than [required].
 bool _isOutdated(String current, String required) {
-  final c = current.split('.').map(int.tryParse).nonNulls.toList();
-  final r = required.split('.').map(int.tryParse).nonNulls.toList();
-  final len = r.length > c.length ? r.length : c.length;
-  for (var i = 0; i < len; i++) {
-    final cv = i < c.length ? c[i] : 0;
-    final rv = i < r.length ? r[i] : 0;
-    if (cv < rv) return true;
-    if (cv > rv) return false;
+  try {
+    final currentVer = Version.parse(current);
+    final requiredVer = Version.parse(required);
+    return currentVer < requiredVer;
+  } catch (e) {
+    log(
+      'SemVer parse error (current: $current, required: $required): $e',
+      name: 'UpdateService',
+    );
+    return false;
   }
-  return false;
 }
 
-/// Reads and parses the `version_config` Remote Config JSON, or `null` if
-/// Firebase is disabled, the key is absent, or the JSON is malformed.
+/// Reads and parses the update parameters from Remote Config.
+///
+/// Parameters:
+/// - `isForceUpdate` (bool)
+/// - `latestVersionName` (string)
+/// - `updateNote` (string)
+///
+/// Returns `null` if Firebase is disabled, or if `latestVersionName` has no
+/// remote value (defaults to no action).
 VersionConfig? _parseVersionConfig() {
-  final rcResult = firebaseService.getRemoteConfigTyped(
-    _versionConfigKey,
+  final latestVersionRc = firebaseService.getRemoteConfigTyped(
+    'latestVersionName',
     PrefType.string,
   );
 
-  if (!rcResult.isRemote) return null;
+  // If there's no latest version configured, default to no action.
+  if (!latestVersionRc.isRemote) return null;
+  final requiredVersion = latestVersionRc.value as String;
+  if (requiredVersion.isEmpty) return null;
 
-  final raw = rcResult.value as String;
-  if (raw.isEmpty) return null;
+  final forceUpdateRc = firebaseService.getRemoteConfigTyped(
+    'isForceUpdate',
+    PrefType.boolean,
+  );
 
-  try {
-    final json = jsonDecode(raw) as Map<String, dynamic>;
-    final isForcedUpdate = json['is_focus_update'] as bool? ?? false;
-    final versions = json['last_version'] as Map<String, dynamic>? ?? {};
-    final detail = json['last_version_detail'] as String? ?? '';
+  final updateNoteRc = firebaseService.getRemoteConfigTyped(
+    'updateNote',
+    PrefType.string,
+  );
 
-    final platformKey = Platform.isIOS ? 'ios' : 'android';
-    final requiredVersion = versions[platformKey] as String? ?? '';
+  return (
+    isForcedUpdate: (forceUpdateRc.value as bool?) ?? false,
+    requiredVersion: requiredVersion,
+    detail: (updateNoteRc.value as String?) ?? '',
+  );
+}
 
-    return (
-      isForcedUpdate: isForcedUpdate,
-      requiredVersion: requiredVersion,
-      detail: detail,
-    );
-  } catch (e) {
-    log('Failed to parse version_config: $e', name: 'UpdateService');
-    return null;
+/// Gets the current application version exactly as structured in the About screen.
+/// Includes `VERSION_SUFFIX` (e.g., `-pr.666` or `-daily20260830`) so that
+/// SemVer pre-release comparisons work correctly.
+Future<String> _getCurrentSemVer() async {
+  final packageInfo = await PackageInfo.fromPlatform();
+  const suffix = String.fromEnvironment('VERSION_SUFFIX');
+
+  if (suffix.isEmpty) {
+    return packageInfo.version;
   }
+  return '${packageInfo.version}-$suffix';
 }
 
 /// Checks whether the running app version is older than the version declared
 /// in Remote Config.
 ///
 /// Returns `null` when Firebase is disabled, the config key is absent, or the
-/// app is already up to date — regardless of `is_focus_update`.
+/// app is already up to date — regardless of `isForceUpdate`.
 /// Returns a [VersionConfig] record (with `isForcedUpdate` set accordingly)
 /// when the running version is outdated, covering both forced and optional
 /// update scenarios.
 Future<VersionConfig?> checkForUpdate() async {
   final config = _parseVersionConfig();
   if (config == null) return null;
-  if (config.requiredVersion.isEmpty) return null;
 
-  final info = await PackageInfo.fromPlatform();
-  final currentVersion = info.version;
+  final currentVersion = await _getCurrentSemVer();
 
   if (_isOutdated(currentVersion, config.requiredVersion)) {
     log(
