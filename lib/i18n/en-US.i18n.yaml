@@ -91,6 +91,16 @@ score:
     semesterAverage: Semester Avg
     creditsPassed: Credits Passed
     totalCredits: Total Credits
+  ranking:
+    title: Rankings
+    type:
+      classLevel: Class
+      groupLevel: Group
+      departmentLevel: Dept.
+    semester: Semester
+    cumulative: Cumulative
+    rankAndTotal: ${rank} / ${total} (${percentage}%)
+    empty: No rankings yet
   status:
     notEntered: Not entered
     withdraw: Withdrawn
@@ -305,6 +315,14 @@ about:
   openSourceLicenses: Open Source Licenses
   viewOpenSourceLicenses: TAT's implementation is made possible by the open source community
   copyright: © 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0
+forceUpdate:
+  title: Update Available
+  message: Please update to the latest version to continue using TAT.
+  requiredVersion: "Version ${version}"
+  updateButton: Update Now
+  later: Later
+  view: View
+  isForced: This update is required.
 regedit:
   title: Registry Editor
   fetch: Fetch from remote

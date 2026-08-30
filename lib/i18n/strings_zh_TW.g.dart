@@ -56,6 +56,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$kioskLogin$zh_TW kioskLogin = Translations$kioskLogin$zh_TW.internal(_root);
 	late final Translations$enrollmentStatus$zh_TW enrollmentStatus = Translations$enrollmentStatus$zh_TW.internal(_root);
 	late final Translations$about$zh_TW about = Translations$about$zh_TW.internal(_root);
+	late final Translations$forceUpdate$zh_TW forceUpdate = Translations$forceUpdate$zh_TW.internal(_root);
 	late final Translations$regedit$zh_TW regedit = Translations$regedit$zh_TW.internal(_root);
 	late final Translations$changePassword$zh_TW changePassword = Translations$changePassword$zh_TW.internal(_root);
 }
@@ -287,6 +288,7 @@ class Translations$score$zh_TW {
 	String get none => '無';
 
 	late final Translations$score$summary$zh_TW summary = Translations$score$summary$zh_TW.internal(_root);
+	late final Translations$score$ranking$zh_TW ranking = Translations$score$ranking$zh_TW.internal(_root);
 	late final Translations$score$status$zh_TW status = Translations$score$status$zh_TW.internal(_root);
 }
 
@@ -574,6 +576,36 @@ class Translations$about$zh_TW {
 	String get copyright => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出';
 }
 
+// Path: forceUpdate
+class Translations$forceUpdate$zh_TW {
+	Translations$forceUpdate$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '有新版本可用'
+	String get title => '有新版本可用';
+
+	/// zh-TW: '請更新至最新版本以繼續使用TAT。'
+	String get message => '請更新至最新版本以繼續使用TAT。';
+
+	/// zh-TW: '版本 ${version}'
+	String requiredVersion({required Object version}) => '版本 ${version}';
+
+	/// zh-TW: '立即更新'
+	String get updateButton => '立即更新';
+
+	/// zh-TW: '稍後'
+	String get later => '稍後';
+
+	/// zh-TW: '查看'
+	String get view => '查看';
+
+	/// zh-TW: '此為強制更新。'
+	String get isForced => '此為強制更新。';
+}
+
 // Path: regedit
 class Translations$regedit$zh_TW {
 	Translations$regedit$zh_TW.internal(this._root);
@@ -768,6 +800,32 @@ class Translations$score$summary$zh_TW {
 
 	/// zh-TW: '修課總學分'
 	String get totalCredits => '修課總學分';
+}
+
+// Path: score.ranking
+class Translations$score$ranking$zh_TW {
+	Translations$score$ranking$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '排名資訊'
+	String get title => '排名資訊';
+
+	late final Translations$score$ranking$type$zh_TW type = Translations$score$ranking$type$zh_TW.internal(_root);
+
+	/// zh-TW: '學期'
+	String get semester => '學期';
+
+	/// zh-TW: '歷年'
+	String get cumulative => '歷年';
+
+	/// zh-TW: '${rank} / ${total} (${percentage}%)'
+	String rankAndTotal({required Object rank, required Object total, required Object percentage}) => '${rank} / ${total} (${percentage}%)';
+
+	/// zh-TW: '尚無排名'
+	String get empty => '尚無排名';
 }
 
 // Path: score.status
@@ -1303,6 +1361,24 @@ class Translations$intro$features$campusLife$zh_TW {
 	String get description => '彙整其他校園生活資訊，更多功能敬請期待。';
 }
 
+// Path: score.ranking.type
+class Translations$score$ranking$type$zh_TW {
+	Translations$score$ranking$type$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '班級'
+	String get classLevel => '班級';
+
+	/// zh-TW: '分組'
+	String get groupLevel => '分組';
+
+	/// zh-TW: '系所'
+	String get departmentLevel => '系所';
+}
+
 // Path: profile.dangerZone.items
 class Translations$profile$dangerZone$items$zh_TW {
 	Translations$profile$dangerZone$items$zh_TW.internal(this._root);
@@ -1437,6 +1513,14 @@ extension on Translations {
 			'score.summary.semesterAverage' => '學期平均',
 			'score.summary.creditsPassed' => '實得學分',
 			'score.summary.totalCredits' => '修課總學分',
+			'score.ranking.title' => '排名資訊',
+			'score.ranking.type.classLevel' => '班級',
+			'score.ranking.type.groupLevel' => '分組',
+			'score.ranking.type.departmentLevel' => '系所',
+			'score.ranking.semester' => '學期',
+			'score.ranking.cumulative' => '歷年',
+			'score.ranking.rankAndTotal' => ({required Object rank, required Object total, required Object percentage}) => '${rank} / ${total} (${percentage}%)',
+			'score.ranking.empty' => '尚無排名',
 			'score.status.notEntered' => '未輸入',
 			'score.status.withdraw' => '撤選',
 			'score.status.undelivered' => '未送成績',
@@ -1616,6 +1700,13 @@ extension on Translations {
 			'about.openSourceLicenses' => '開放原始碼授權',
 			'about.viewOpenSourceLicenses' => 'TAT的實作歸功於開放原始碼社群',
 			'about.copyright' => '© 2025北科程式設計研究社\n以GNU GPL v3.0授權條款釋出',
+			'forceUpdate.title' => '有新版本可用',
+			'forceUpdate.message' => '請更新至最新版本以繼續使用TAT。',
+			'forceUpdate.requiredVersion' => ({required Object version}) => '版本 ${version}',
+			'forceUpdate.updateButton' => '立即更新',
+			'forceUpdate.later' => '稍後',
+			'forceUpdate.view' => '查看',
+			'forceUpdate.isForced' => '此為強制更新。',
 			'regedit.title' => '登錄編輯程式',
 			'regedit.fetch' => '從遠端獲取',
 			'regedit.noRegistry' => '沒有登錄項目',

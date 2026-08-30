@@ -14,11 +14,14 @@ import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/profile/regedit_screen.dart';
 import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';
+import 'package:tattoo/screens/update_screen.dart';
 import 'package:tattoo/screens/welcome/change_password_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
+import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/shells/animated_shell_container.dart';
+import 'package:tattoo/shells/centered_max_width_frame.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -38,7 +41,10 @@ abstract class AppRoutes {
   static const ntutWifi = '/ntut-8021x';
   static const regedit = '/regedit';
   static const changePassword = '/change-password';
+  static const update = '/update';
 }
+
+Widget _framed(Widget child) => CenteredMaxWidthFrame(child: child);
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
 class _SessionRefreshListenable extends ChangeNotifier {
@@ -53,12 +59,16 @@ const _publicRoutes = {
   AppRoutes.login,
   AppRoutes.about,
   AppRoutes.changePassword,
+  AppRoutes.update,
 };
 
 /// Creates a configured [GoRouter] starting at [initialLocation].
 ///
-/// Watches [sessionProvider] via [GoRouter.new]'s `refreshListenable` and
-/// redirects to [AppRoutes.login] when the session becomes inactive.
+/// Watches [sessionProvider] via
+/// [GoRouter.new]'s `refreshListenable`. Redirects to
+/// [AppRoutes.update] when a *forced* update is pending (highest
+/// priority), and to [AppRoutes.login] when the session is inactive.
+/// Optional updates are surfaced as a dismissible banner instead.
 GoRouter createAppRouter({
   required String initialLocation,
   required ProviderContainer container,
@@ -67,22 +77,44 @@ GoRouter createAppRouter({
   initialLocation: initialLocation,
   refreshListenable: _SessionRefreshListenable(container),
   redirect: (context, state) {
+    // Force-update gate: block all navigation when a forced update is pending.
+    final updateConfig = container.read(updateConfigProvider);
+    final isForcedUpdate = updateConfig?.isForcedUpdate == true;
+    if (isForcedUpdate) {
+      if (state.matchedLocation == AppRoutes.update) return null;
+      return AppRoutes.update;
+    }
+
+    // Escape: forced update cleared remotely while user is on the gate screen.
+    // Also kicks the user out if they manually navigated to the update screen
+    // but no update is actually available.
+    if (state.matchedLocation == AppRoutes.update && updateConfig == null) {
+      final hasSession = container.read(sessionProvider);
+      return hasSession ? AppRoutes.home : AppRoutes.intro;
+    }
+
+    // Auth gate: redirect unauthenticated users to login.
     final hasSession = container.read(sessionProvider);
     if (hasSession) return null;
     if (_publicRoutes.contains(state.matchedLocation)) return null;
     return AppRoutes.login;
   },
   observers: [
-    ?firebaseService.analyticsObserver,
+    if (firebaseService.analyticsObserver != null)
+      firebaseService.analyticsObserver!,
   ],
   routes: [
+    GoRoute(
+      path: AppRoutes.update,
+      builder: (context, state) => const UpdateScreen(),
+    ),
     GoRoute(
       path: AppRoutes.intro,
       builder: (context, state) => const IntroScreen(),
     ),
     GoRoute(
       path: AppRoutes.login,
-      builder: (context, state) => const LoginScreen(),
+      builder: (context, state) => _framed(const LoginScreen()),
     ),
     GoRoute(
       path: AppRoutes.changePassword,
@@ -90,15 +122,17 @@ GoRouter createAppRouter({
         final extra = state.extra as Map<String, dynamic>?;
         final isExpired = extra?['isExpired'] as bool? ?? false;
         final username = extra?['username'] as String?;
-        return ChangePasswordScreen(
-          isExpired: isExpired,
-          username: username,
+        return _framed(
+          ChangePasswordScreen(
+            isExpired: isExpired,
+            username: username,
+          ),
         );
       },
     ),
     GoRoute(
       path: AppRoutes.about,
-      builder: (context, state) => const AboutScreen(),
+      builder: (context, state) => _framed(const AboutScreen()),
     ),
     GoRoute(
       path: AppRoutes.scanner,
@@ -106,19 +140,19 @@ GoRouter createAppRouter({
     ),
     GoRoute(
       path: AppRoutes.regedit,
-      builder: (context, state) => const RegeditScreen(),
+      builder: (context, state) => _framed(const RegeditScreen()),
     ),
     GoRoute(
       path: AppRoutes.portal,
-      builder: (context, state) => const PortalScreen(),
+      builder: (context, state) => _framed(const PortalScreen()),
     ),
     GoRoute(
       path: AppRoutes.calendar,
-      builder: (context, state) => const CalendarScreen(),
+      builder: (context, state) => _framed(const CalendarScreen()),
     ),
     GoRoute(
       path: AppRoutes.kioskLoginQr,
-      builder: (context, state) => const KioskLoginQrScreen(),
+      builder: (context, state) => _framed(const KioskLoginQrScreen()),
     ),
     GoRoute(
       path: AppRoutes.ntutWifi,
@@ -139,7 +173,7 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.home,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: MainHomeScreen()),
+                  NoTransitionPage(child: _framed(const MainHomeScreen())),
             ),
           ],
         ),
@@ -148,7 +182,7 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.courseTable,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: CourseTableScreen()),
+                  NoTransitionPage(child: _framed(const CourseTableScreen())),
             ),
           ],
         ),
@@ -157,7 +191,7 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.score,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ScoreScreen()),
+                  NoTransitionPage(child: _framed(const ScoreScreen())),
             ),
           ],
         ),
@@ -166,7 +200,7 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.profile,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ProfileScreen()),
+                  NoTransitionPage(child: _framed(const ProfileScreen())),
             ),
           ],
         ),

@@ -55,6 +55,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$kioskLogin$en_US kioskLogin = _Translations$kioskLogin$en_US._(_root);
 	@override late final _Translations$enrollmentStatus$en_US enrollmentStatus = _Translations$enrollmentStatus$en_US._(_root);
 	@override late final _Translations$about$en_US about = _Translations$about$en_US._(_root);
+	@override late final _Translations$forceUpdate$en_US forceUpdate = _Translations$forceUpdate$en_US._(_root);
 	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
 	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
 }
@@ -191,6 +192,7 @@ class _Translations$score$en_US extends Translations$score$zh_TW {
 	@override String courseNumber({required Object number, required Object code}) => 'No: ${number}  Code: ${code}';
 	@override String get none => 'N/A';
 	@override late final _Translations$score$summary$en_US summary = _Translations$score$summary$en_US._(_root);
+	@override late final _Translations$score$ranking$en_US ranking = _Translations$score$ranking$en_US._(_root);
 	@override late final _Translations$score$status$en_US status = _Translations$score$status$en_US._(_root);
 }
 
@@ -363,6 +365,22 @@ class _Translations$about$en_US extends Translations$about$zh_TW {
 	@override String get copyright => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0';
 }
 
+// Path: forceUpdate
+class _Translations$forceUpdate$en_US extends Translations$forceUpdate$zh_TW {
+	_Translations$forceUpdate$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Update Available';
+	@override String get message => 'Please update to the latest version to continue using TAT.';
+	@override String requiredVersion({required Object version}) => 'Version ${version}';
+	@override String get updateButton => 'Update Now';
+	@override String get later => 'Later';
+	@override String get view => 'View';
+	@override String get isForced => 'This update is required.';
+}
+
 // Path: regedit
 class _Translations$regedit$en_US extends Translations$regedit$zh_TW {
 	_Translations$regedit$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -483,6 +501,21 @@ class _Translations$score$summary$en_US extends Translations$score$summary$zh_TW
 	@override String get semesterAverage => 'Semester Avg';
 	@override String get creditsPassed => 'Credits Passed';
 	@override String get totalCredits => 'Total Credits';
+}
+
+// Path: score.ranking
+class _Translations$score$ranking$en_US extends Translations$score$ranking$zh_TW {
+	_Translations$score$ranking$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Rankings';
+	@override late final _Translations$score$ranking$type$en_US type = _Translations$score$ranking$type$en_US._(_root);
+	@override String get semester => 'Semester';
+	@override String get cumulative => 'Cumulative';
+	@override String rankAndTotal({required Object rank, required Object total, required Object percentage}) => '${rank} / ${total} (${percentage}%)';
+	@override String get empty => 'No rankings yet';
 }
 
 // Path: score.status
@@ -801,6 +834,18 @@ class _Translations$intro$features$campusLife$en_US extends Translations$intro$f
 	@override String get description => 'Access campus life information, with more features coming soon.';
 }
 
+// Path: score.ranking.type
+class _Translations$score$ranking$type$en_US extends Translations$score$ranking$type$zh_TW {
+	_Translations$score$ranking$type$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get classLevel => 'Class';
+	@override String get groupLevel => 'Group';
+	@override String get departmentLevel => 'Dept.';
+}
+
 // Path: profile.dangerZone.items
 class _Translations$profile$dangerZone$items$en_US extends Translations$profile$dangerZone$items$zh_TW {
 	_Translations$profile$dangerZone$items$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -913,6 +958,14 @@ extension on TranslationsEnUs {
 			'score.summary.semesterAverage' => 'Semester Avg',
 			'score.summary.creditsPassed' => 'Credits Passed',
 			'score.summary.totalCredits' => 'Total Credits',
+			'score.ranking.title' => 'Rankings',
+			'score.ranking.type.classLevel' => 'Class',
+			'score.ranking.type.groupLevel' => 'Group',
+			'score.ranking.type.departmentLevel' => 'Dept.',
+			'score.ranking.semester' => 'Semester',
+			'score.ranking.cumulative' => 'Cumulative',
+			'score.ranking.rankAndTotal' => ({required Object rank, required Object total, required Object percentage}) => '${rank} / ${total} (${percentage}%)',
+			'score.ranking.empty' => 'No rankings yet',
 			'score.status.notEntered' => 'Not entered',
 			'score.status.withdraw' => 'Withdrawn',
 			'score.status.undelivered' => 'Not submitted',
@@ -1092,6 +1145,13 @@ extension on TranslationsEnUs {
 			'about.openSourceLicenses' => 'Open Source Licenses',
 			'about.viewOpenSourceLicenses' => 'TAT\'s implementation is made possible by the open source community',
 			'about.copyright' => '© 2025 NTUT Programming Club\nLicensed under the GNU GPL v3.0',
+			'forceUpdate.title' => 'Update Available',
+			'forceUpdate.message' => 'Please update to the latest version to continue using TAT.',
+			'forceUpdate.requiredVersion' => ({required Object version}) => 'Version ${version}',
+			'forceUpdate.updateButton' => 'Update Now',
+			'forceUpdate.later' => 'Later',
+			'forceUpdate.view' => 'View',
+			'forceUpdate.isForced' => 'This update is required.',
 			'regedit.title' => 'Registry Editor',
 			'regedit.fetch' => 'Fetch from remote',
 			'regedit.noRegistry' => 'No Registry Keys',
