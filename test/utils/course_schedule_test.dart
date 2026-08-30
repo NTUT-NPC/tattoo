@@ -15,18 +15,19 @@ void main() {
     });
   });
 
-  group('todayCourseMeetings', () {
+  group('courseMeetingsForDate', () {
     test('returns only today and sorts meetings by start time', () {
       final mondayFirst = _course(id: 1);
       final mondayFifth = _course(id: 2, span: 2);
       final tuesday = _course(id: 3);
 
-      final meetings = todayCourseMeetings(
+      final meetings = courseMeetingsForDate(
         _table({
           (day: .monday, period: .fifth): mondayFifth,
           (day: .tuesday, period: .first): tuesday,
           (day: .monday, period: .first): mondayFirst,
         }),
+        date: DateTime(2026, 8, 10),
         now: DateTime(2026, 8, 10, 7),
       );
 
@@ -36,7 +37,7 @@ void main() {
     });
 
     test('skips noon when a merged meeting crosses the noon gap', () {
-      final meetings = todayCourseMeetings(
+      final meetings = courseMeetingsForDate(
         _table({
           (day: .monday, period: .fourth): _course(
             id: 1,
@@ -44,6 +45,7 @@ void main() {
             crossesNoon: true,
           ),
         }),
+        date: DateTime(2026, 8, 10),
         now: DateTime(2026, 8, 10, 7),
       );
 
@@ -52,14 +54,70 @@ void main() {
     });
   });
 
+  group('adjacentCourseDate', () {
+    final table = _table({
+      (day: .monday, period: .first): _course(id: 1),
+      (day: .thursday, period: .first): _course(id: 2),
+    });
+
+    test('skips empty dates when moving to the next course date', () {
+      expect(
+        adjacentCourseDate(
+          table,
+          date: DateTime(2026, 8, 10),
+          direction: .next,
+        ),
+        DateTime(2026, 8, 13),
+      );
+    });
+
+    test('skips empty dates and wraps when moving to the previous date', () {
+      expect(
+        adjacentCourseDate(
+          table,
+          date: DateTime(2026, 8, 10),
+          direction: .previous,
+        ),
+        DateTime(2026, 8, 6),
+      );
+    });
+
+    test('returns the following week when only the same weekday has class', () {
+      final mondayOnly = _table({
+        (day: .monday, period: .first): _course(id: 1),
+      });
+
+      expect(
+        adjacentCourseDate(
+          mondayOnly,
+          date: DateTime(2026, 8, 10),
+          direction: .next,
+        ),
+        DateTime(2026, 8, 17),
+      );
+    });
+
+    test('returns null when the semester has no scheduled courses', () {
+      expect(
+        adjacentCourseDate(
+          _table(const {}),
+          date: DateTime(2026, 8, 10),
+          direction: .next,
+        ),
+        isNull,
+      );
+    });
+  });
+
   group('preferredTodayCourseIndex', () {
     test('prefers a course starting within 30 minutes over an ongoing one', () {
       final now = DateTime(2026, 8, 10, 9, 45);
-      final meetings = todayCourseMeetings(
+      final meetings = courseMeetingsForDate(
         _table({
           (day: .monday, period: .second): _course(id: 1, span: 2),
           (day: .monday, period: .third): _course(id: 2),
         }),
+        date: now,
         now: now,
       );
 
@@ -70,11 +128,12 @@ void main() {
       'prefers the ongoing course when the next one is over 30 minutes away',
       () {
         final now = DateTime(2026, 8, 10, 9, 30);
-        final meetings = todayCourseMeetings(
+        final meetings = courseMeetingsForDate(
           _table({
             (day: .monday, period: .second): _course(id: 1, span: 2),
             (day: .monday, period: .fifth): _course(id: 2),
           }),
+          date: now,
           now: now,
         );
 
@@ -84,11 +143,12 @@ void main() {
 
     test('selects the next course before it enters the 30 minute window', () {
       final now = DateTime(2026, 8, 10, 7);
-      final meetings = todayCourseMeetings(
+      final meetings = courseMeetingsForDate(
         _table({
           (day: .monday, period: .first): _course(id: 1),
           (day: .monday, period: .fifth): _course(id: 2),
         }),
+        date: now,
         now: now,
       );
 
@@ -97,10 +157,11 @@ void main() {
 
     test('returns null after every course today has ended', () {
       final now = DateTime(2026, 8, 10, 22);
-      final meetings = todayCourseMeetings(
+      final meetings = courseMeetingsForDate(
         _table({
           (day: .monday, period: .first): _course(id: 1),
         }),
+        date: now,
         now: now,
       );
 

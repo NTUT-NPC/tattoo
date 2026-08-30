@@ -14,6 +14,8 @@ typedef CourseScheduleMeeting = ({
   bool isOngoing,
 });
 
+enum CourseDateDirection { previous, next }
+
 /// Official NTUT class times for each [Period].
 extension PeriodScheduleTime on Period {
   CourseScheduleTime get startTime => switch (this) {
@@ -76,18 +78,19 @@ Period courseMeetingEndPeriod({
   return Period.values[endIndex];
 }
 
-/// Returns today's scheduled meetings in chronological order.
-List<CourseScheduleMeeting> todayCourseMeetings(
+/// Returns the scheduled meetings on [date] in chronological order.
+List<CourseScheduleMeeting> courseMeetingsForDate(
   CourseTableData courseTable, {
+  required DateTime date,
   required DateTime now,
 }) {
-  final today = _dayOfWeek(now);
+  final day = _dayOfWeek(date);
   final meetings =
       [
         for (final entry in courseTable.scheduled.entries)
-          if (entry.key.day == today)
+          if (entry.key.day == day)
             _meetingFor(
-              date: now,
+              date: date,
               startPeriod: entry.key.period,
               course: entry.value,
               now: now,
@@ -99,6 +102,34 @@ List<CourseScheduleMeeting> todayCourseMeetings(
       });
 
   return meetings;
+}
+
+/// Finds the nearest date with scheduled courses in [direction].
+///
+/// The course table repeats weekly, so scanning seven dates is sufficient.
+/// Returns `null` when the semester has no scheduled courses at all.
+DateTime? adjacentCourseDate(
+  CourseTableData courseTable, {
+  required DateTime date,
+  required CourseDateDirection direction,
+}) {
+  final scheduledDays = courseTable.scheduled.keys
+      .map((slot) => slot.day)
+      .toSet();
+  if (scheduledDays.isEmpty) return null;
+
+  final dayStep = switch (direction) {
+    .previous => -1,
+    .next => 1,
+  };
+  for (var distance = 1; distance <= DateTime.daysPerWeek; distance++) {
+    final candidate = date.add(Duration(days: distance * dayStep));
+    if (scheduledDays.contains(_dayOfWeek(candidate))) {
+      return _dateOnly(candidate);
+    }
+  }
+
+  return null;
 }
 
 /// Selects the card that should receive focus on the home carousel.
@@ -168,6 +199,11 @@ DateTime _dateAtTime(DateTime date, CourseScheduleTime time) =>
         time.minute,
       ),
     };
+
+DateTime _dateOnly(DateTime date) => switch (date.isUtc) {
+  true => DateTime.utc(date.year, date.month, date.day),
+  false => DateTime(date.year, date.month, date.day),
+};
 
 DayOfWeek _dayOfWeek(DateTime date) => switch (date.weekday) {
   DateTime.monday => .monday,
