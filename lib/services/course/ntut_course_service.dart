@@ -512,19 +512,28 @@ class NtutCourseService implements CourseService {
   Future<SyllabusDto?> getSyllabus({
     required String courseNumber,
     required String teacherId,
+    required SyllabusLanguage language,
   }) async {
     final response = await _courseDio.get(
-      'tw/ShowSyllabus.jsp',
+      switch (language) {
+        .zhTw => 'tw/ShowSyllabus.jsp',
+        .enUs => 'en/ShowSyllabus.jsp',
+      },
       queryParameters: {'snum': courseNumber, 'code': teacherId},
     );
 
     final document = parse(response.data);
 
-    // When the teacher hasn't submitted a syllabus, the page shows a red
-    // "尚未登錄" marker in place of the 教學大綱與進度 content.
+    // An unsubmitted syllabus is a successful empty result in either page
+    // language, not a parser failure.
+    const notSubmittedMarkers = {
+      '尚未登錄',
+      'Not registered',
+      'Not submitted',
+    };
     final notSubmitted = document
         .querySelectorAll('font')
-        .any((f) => f.text.trim() == '尚未登錄');
+        .any((font) => notSubmittedMarkers.contains(font.text.trim()));
     if (notSubmitted) return null;
 
     final tables = document.querySelectorAll('table');
@@ -532,38 +541,77 @@ class NtutCourseService implements CourseService {
       throw Exception('Syllabus tables not found.');
     }
 
-    // Table 0: Header table (課程基本資料)
-    // Row 1 contains: semester, number, name, phase, credits, hours, type,
-    // instructor, classes, enrolled, withdrawn, remarks
-    final headerRow = tables[0].querySelectorAll('tr')[1];
-    final headerCells = headerRow.querySelectorAll('td');
+    // Table 0: Header table (課程基本資料). Pair labels with values so
+    // inserted columns cannot shift the metadata fields.
+    final headerRows = tables[0].querySelectorAll('tr');
+    final headerLabels = _directTableCells(headerRows[0]);
+    final headerValues = _directTableCells(headerRows[1]);
+    final header = <String, String?>{};
+    for (
+      var index = 0;
+      index < headerLabels.length && index < headerValues.length;
+      index++
+    ) {
+      final label = headerLabels[index].text.trim();
+      if (label.isNotEmpty) {
+        header[label] = _parseCellText(headerValues[index]);
+      }
+    }
 
-    final typeSymbol = _parseCellText(headerCells[6]);
+    final labels = switch (language) {
+      .zhTw => (type: '修', enrolled: '人', withdrawn: '撤'),
+      .enUs => (
+        type: 'Required/Elective',
+        enrolled: 'Student NO.',
+        withdrawn: 'Withdraw',
+      ),
+    };
+    final typeSymbol = header[labels.type];
     final type = CourseType.values.firstWhereOrNull(
-      (t) => t.symbol == typeSymbol,
+      (type) => type.symbol == typeSymbol,
     );
-    final enrolled = int.tryParse(headerCells[9].text.trim());
-    final withdrawn = int.tryParse(headerCells[10].text.trim());
+    final enrolled = int.tryParse(header[labels.enrolled] ?? '');
+    final withdrawn = int.tryParse(header[labels.withdrawn] ?? '');
 
-    // Table 1: Syllabus table (教學大綱與進度)
-    // Rows 0-2: Label and value both in th elements
-    // Rows 3+: Label in th, value in td (some with textarea)
-    final syllabusRows = tables[1].querySelectorAll('tr');
+    // Table 1: Syllabus table (教學大綱與進度).
+    String? email;
+    DateTime? lastUpdated;
+    final sections = <SyllabusSectionDto>[];
+    for (final row in _directTableRows(tables[1])) {
+      final cells = _directTableCells(row);
+      if (cells.length < 2) continue;
 
-    final email = _parseCellText(syllabusRows[1].querySelectorAll('th')[1]);
-    final lastUpdatedText = _parseCellText(
-      syllabusRows[2].querySelectorAll('th')[1],
-    );
-    final lastUpdated = DateTime.tryParse(lastUpdatedText ?? '');
+      final title = cells[0].text.trim();
+      if (title.isEmpty) continue;
 
-    // Rows 3-5 have textarea elements for long content
-    final objective = _parseTextareaValue(syllabusRows[3]);
-    final weeklyPlan = _parseTextareaValue(syllabusRows[4]);
-    final evaluation = _parseTextareaValue(syllabusRows[5]);
-    final materials = _parseTextareaValue(syllabusRows[6]);
+      final content = _parseCellText(cells[1]);
+      if (const {'教師姓名', 'Instructor'}.contains(title)) continue;
 
-    final remarksTd = syllabusRows[10].querySelector('td');
-    final remarks = remarksTd != null ? _parseCellText(remarksTd) : null;
+      final lowerTitle = title.toLowerCase();
+      if (lowerTitle == 'email' || lowerTitle == 'e-mail') {
+        email = content;
+        continue;
+      }
+      if (const {'最後更新時間', 'Last Updated'}.contains(title)) {
+        lastUpdated = DateTime.tryParse(content ?? '');
+        continue;
+      }
+
+      final nestedTables = cells[1].children.where(
+        (element) => element.localName == 'table',
+      );
+      if (nestedTables.isEmpty) {
+        sections.add((title: title, content: content));
+      } else {
+        for (final table in nestedTables) {
+          sections.addAll(_flattenSyllabusTable(table, parentTitle: title));
+        }
+      }
+    }
+
+    // Empty forms retain static boilerplate such as the materials copyright
+    // notice, but only submitted syllabuses have a last-updated timestamp.
+    if (lastUpdated == null) return null;
 
     return (
       type: type,
@@ -571,19 +619,54 @@ class NtutCourseService implements CourseService {
       withdrawn: withdrawn,
       email: email,
       lastUpdated: lastUpdated,
-      objective: objective,
-      weeklyPlan: weeklyPlan,
-      evaluation: evaluation,
-      materials: materials,
-      remarks: remarks,
+      sections: sections,
     );
   }
 
-  String? _parseTextareaValue(Element row) {
-    final textarea = row.querySelector('textarea');
-    if (textarea == null) return null;
-    final text = textarea.text.trim();
-    return text.isNotEmpty ? text : null;
+  List<SyllabusSectionDto> _flattenSyllabusTable(
+    Element table, {
+    required String parentTitle,
+  }) {
+    final sections = <SyllabusSectionDto>[];
+    for (final row in _directTableRows(table)) {
+      final cells = _directTableCells(row);
+      if (cells.length < 2) continue;
+
+      final title = cells[0].text.trim();
+      if (title.isEmpty) continue;
+      final path = '$parentTitle / $title';
+      final nestedTables = cells[1].children.where(
+        (element) => element.localName == 'table',
+      );
+      if (nestedTables.isEmpty) {
+        sections.add((title: path, content: _parseCellText(cells[1])));
+      } else {
+        for (final nestedTable in nestedTables) {
+          sections.addAll(
+            _flattenSyllabusTable(nestedTable, parentTitle: path),
+          );
+        }
+      }
+    }
+    return sections;
+  }
+
+  List<Element> _directTableRows(Element table) {
+    return table.children
+        .expand(
+          (child) => switch (child.localName) {
+            'tr' => [child],
+            'tbody' => child.children.where((row) => row.localName == 'tr'),
+            _ => const <Element>[],
+          },
+        )
+        .toList();
+  }
+
+  List<Element> _directTableCells(Element row) {
+    return row.children
+        .where((cell) => cell.localName == 'th' || cell.localName == 'td')
+        .toList();
   }
 
   String? _parseCellText(Element cell) {

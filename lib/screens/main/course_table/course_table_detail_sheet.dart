@@ -15,6 +15,7 @@ Future<void> showCourseTableDetailSheet(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
+    useSafeArea: true,
     backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
     constraints: BoxConstraints(
       minWidth: MediaQuery.sizeOf(context).width,
@@ -39,8 +40,9 @@ class CourseTableDetailSheet extends ConsumerWidget {
       child: Padding(
         padding: const .fromLTRB(16, 8, 16, 16),
         child: switch (detailAsync) {
-          AsyncData(value: final detail?) => _CourseDetailContent(
-            detail: detail,
+          AsyncData(value: final detail?) => SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.85,
+            child: _CourseDetailContent(detail: detail),
           ),
           AsyncData() => _DetailState(
             icon: Icons.search_off_outlined,
@@ -60,13 +62,13 @@ class CourseTableDetailSheet extends ConsumerWidget {
   }
 }
 
-class _CourseDetailContent extends StatelessWidget {
+class _CourseDetailContent extends ConsumerWidget {
   const _CourseDetailContent({required this.detail});
 
   final CourseOfferingDetail detail;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final overview = detail.overview;
     // TODO: replace with course name when available
@@ -96,10 +98,20 @@ class _CourseDetailContent extends StatelessWidget {
           (entry) => '${_dayOfWeekLabel(entry.key)} ${entry.value.join('、')}',
         )
         .join('；');
-    return Column(
-      mainAxisSize: .min,
-      crossAxisAlignment: .start,
-      spacing: 16,
+    final syllabusAsync = switch (overview.number) {
+      final courseNumber? => ref.watch(
+        syllabusProvider((
+          courseNumber: courseNumber,
+          language: switch (LocaleSettings.currentLocale) {
+            .zhTw => .zhTw,
+            .enUs => .enUs,
+          },
+        )),
+      ),
+      null => null,
+    };
+    return ListView(
+      padding: .zero,
       children: [
         SizedBox(
           width: .infinity,
@@ -136,9 +148,76 @@ class _CourseDetailContent extends StatelessWidget {
             ),
           ),
         ),
+        if (syllabusAsync case final syllabusAsync?)
+          switch (syllabusAsync) {
+            AsyncData(value: final syllabuses) => Column(
+              children: [
+                for (final detail in syllabuses)
+                  _SyllabusSections(detail: detail),
+              ],
+            ),
+            AsyncError(:final error) => _DetailState(
+              icon: Icons.error_outline,
+              message: 'Error: $error',
+            ),
+            AsyncLoading() => const Padding(
+              padding: .symmetric(horizontal: 8),
+              child: LinearProgressIndicator(),
+            ),
+          },
         SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
-        // TODO: scroll up to show more course query features like classmate, course outline, etc.
       ],
+    );
+  }
+}
+
+class _SyllabusSections extends StatelessWidget {
+  const _SyllabusSections({required this.detail});
+
+  final TeacherSyllabusDetail detail;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final teacherName = _normalizedText(
+      localized(detail.teacher.nameZh, detail.teacher.nameEn),
+    );
+    return Card(
+      margin: const .all(8),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: .circular(12),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
+      ),
+      color: theme.colorScheme.surfaceContainer,
+      child: SelectionArea(
+        child: Padding(
+          padding: const .all(12),
+          child: Column(
+            crossAxisAlignment: .start,
+            children: [
+              if (teacherName case final teacherName?)
+                Text(
+                  teacherName.spaced,
+                  style: theme.textTheme.titleLarge,
+                ),
+              for (final (index, section)
+                  in detail.syllabus.sections.indexed) ...[
+                if (index > 0 || teacherName != null) const Divider(height: 24),
+                Text(
+                  section.title.spaced,
+                  style: theme.textTheme.titleMedium,
+                ),
+                if (_normalizedText(section.content) case final content?)
+                  Padding(
+                    padding: const .only(top: 6),
+                    child: Text(content.spaced),
+                  ),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
