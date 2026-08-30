@@ -77,7 +77,7 @@ class _PrefTile extends ConsumerWidget {
 
   /// Toggles boolean preferences or opens an editor for other types.
   void _onTap(BuildContext context, WidgetRef ref) {
-    if (pref.type == PrefType.boolean) {
+    if (pref.type == .boolean) {
       ref
           .read(preferencesRepositoryProvider)
           .set(pref.key, !(pref.value as bool));
@@ -101,10 +101,10 @@ class _PrefTile extends ConsumerWidget {
           controller: controller,
           autofocus: true,
           keyboardType: switch (pref.type) {
-            PrefType.integer => const TextInputType.numberWithOptions(
+            .integer => const TextInputType.numberWithOptions(
               signed: true,
             ),
-            PrefType.double => const TextInputType.numberWithOptions(
+            .double => const TextInputType.numberWithOptions(
               signed: true,
               decimal: true,
             ),
@@ -119,10 +119,10 @@ class _PrefTile extends ConsumerWidget {
           TextButton(
             onPressed: () {
               final newValue = switch (pref.type) {
-                PrefType.integer => int.tryParse(controller.text),
-                PrefType.double => double.tryParse(controller.text),
-                PrefType.string => controller.text,
-                PrefType.boolean || PrefType.stringList => null,
+                .integer => int.tryParse(controller.text),
+                .double => double.tryParse(controller.text),
+                .string => controller.text,
+                .boolean || .stringList => null,
               };
 
               if (newValue != null) {
@@ -250,7 +250,7 @@ class _PrefTrailingAction extends ConsumerWidget {
             onPressed: () =>
                 ref.read(preferencesRepositoryProvider).reset(pref.key),
           ),
-        if (pref.type == PrefType.boolean)
+        if (pref.type == .boolean)
           Switch(
             value: pref.value as bool,
             onChanged: (val) {

@@ -13,10 +13,12 @@ import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/profile/regedit_screen.dart';
 import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
 import 'package:tattoo/screens/main/score/score_screen.dart';
+import 'package:tattoo/screens/update_screen.dart';
 import 'package:tattoo/screens/welcome/change_password_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
+import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/shells/animated_shell_container.dart';
 import 'package:tattoo/shells/centered_max_width_frame.dart';
 
@@ -37,6 +39,7 @@ abstract class AppRoutes {
   static const kioskLoginQr = '/kiosk-login-qr';
   static const regedit = '/regedit';
   static const changePassword = '/change-password';
+  static const update = '/update';
 }
 
 Widget _framed(Widget child) => CenteredMaxWidthFrame(child: child);
@@ -54,12 +57,16 @@ const _publicRoutes = {
   AppRoutes.login,
   AppRoutes.about,
   AppRoutes.changePassword,
+  AppRoutes.update,
 };
 
 /// Creates a configured [GoRouter] starting at [initialLocation].
 ///
-/// Watches [sessionProvider] via [GoRouter.new]'s `refreshListenable` and
-/// redirects to [AppRoutes.login] when the session becomes inactive.
+/// Watches [sessionProvider] via
+/// [GoRouter.new]'s `refreshListenable`. Redirects to
+/// [AppRoutes.update] when a *forced* update is pending (highest
+/// priority), and to [AppRoutes.login] when the session is inactive.
+/// Optional updates are surfaced as a dismissible banner instead.
 GoRouter createAppRouter({
   required String initialLocation,
   required ProviderContainer container,
@@ -68,15 +75,37 @@ GoRouter createAppRouter({
   initialLocation: initialLocation,
   refreshListenable: _SessionRefreshListenable(container),
   redirect: (context, state) {
+    // Force-update gate: block all navigation when a forced update is pending.
+    final updateConfig = container.read(updateConfigProvider);
+    final isForcedUpdate = updateConfig?.isForcedUpdate == true;
+    if (isForcedUpdate) {
+      if (state.matchedLocation == AppRoutes.update) return null;
+      return AppRoutes.update;
+    }
+
+    // Escape: forced update cleared remotely while user is on the gate screen.
+    // Also kicks the user out if they manually navigated to the update screen
+    // but no update is actually available.
+    if (state.matchedLocation == AppRoutes.update && updateConfig == null) {
+      final hasSession = container.read(sessionProvider);
+      return hasSession ? AppRoutes.home : AppRoutes.intro;
+    }
+
+    // Auth gate: redirect unauthenticated users to login.
     final hasSession = container.read(sessionProvider);
     if (hasSession) return null;
     if (_publicRoutes.contains(state.matchedLocation)) return null;
     return AppRoutes.login;
   },
   observers: [
-    ?firebaseService.analyticsObserver,
+    if (firebaseService.analyticsObserver != null)
+      firebaseService.analyticsObserver!,
   ],
   routes: [
+    GoRoute(
+      path: AppRoutes.update,
+      builder: (context, state) => const UpdateScreen(),
+    ),
     GoRoute(
       path: AppRoutes.intro,
       builder: (context, state) => const IntroScreen(),

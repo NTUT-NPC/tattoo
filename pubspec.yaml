@@ -50,6 +50,7 @@ dependencies:
   mobile_scanner: ^7.2.0
   qr_flutter: ^4.1.0
   firebase_remote_config: ^6.5.0
+  pub_semver: ^2.2.1
 
 # darwin <=0.3.2 declares iOS 12.0 but uses iOS-13+ CryptoKit, breaking the SPM
 # iOS build. 0.4.0 only raises that floor. Drop once fss 11 ships stable.

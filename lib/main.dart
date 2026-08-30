@@ -16,6 +16,7 @@ import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/firebase_service.dart';
+import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/network_error.dart';
 
@@ -161,6 +162,9 @@ Future<void> main() async {
 
   // Initialize Remote Config and preference defaults
   await container.read(preferencesRepositoryProvider).init();
+
+  // Run force-update check and wire Remote Config live updates.
+  await UpdateService.init(container);
 
   final database = container.read(databaseProvider);
   final user = await database.select(database.users).getSingleOrNull();

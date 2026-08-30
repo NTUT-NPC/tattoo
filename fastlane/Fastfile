@@ -57,15 +57,19 @@ platform :ios do
       profile_name: "match AppStore #{ENV["FASTLANE_APP_IDENTIFIER"]}",
     )
 
+    store_url = options[:store_url] || ENV["STORE_URL"] || ENV["TESTFLIGHT_PUBLIC_LINK"] || ""
+    build_args = [
+      "--no-codesign", 
+      "--dart-define=USE_FIREBASE=true",
+      "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}"
+    ]
+    build_args << "--dart-define=STORE_URL=#{store_url}" unless store_url.empty?
+
     # Build and create xcarchive without code signing
     archive_path = flutter_build(
       build: "ipa",
       build_number: settings[:build_number],
-      build_args: [
-        "--no-codesign", 
-        "--dart-define=USE_FIREBASE=true",
-        "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}"
-      ],
+      build_args: build_args,
     )
 
     build_app(
@@ -111,14 +115,18 @@ platform :android do
     settings = get_build_settings(options)
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
+    store_url = options[:store_url] || ENV["STORE_URL"] || ENV["GOOGLEPLAY_PUBLIC_LINK"] || ""
+    build_args = [
+      "--dart-define=USE_FIREBASE=true",
+      "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}",
+      "--dart-define=cronetHttpNoPlay=true"
+    ]
+    build_args << "--dart-define=STORE_URL=#{store_url}" unless store_url.empty?
+
     flutter_build(
       build: "apk",
       build_number: settings[:build_number],
-      build_args: [
-        "--dart-define=USE_FIREBASE=true",
-        "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}",
-        "--dart-define=cronetHttpNoPlay=true"
-      ],
+      build_args: build_args,
     )
   end
 
@@ -126,14 +134,18 @@ platform :android do
     settings = get_build_settings(options)
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
+    store_url = options[:store_url] || ENV["STORE_URL"] || ENV["GOOGLEPLAY_PUBLIC_LINK"] || ""
+    build_args = [
+      "--dart-define=USE_FIREBASE=true",
+      "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}",
+      "--dart-define=cronetHttpNoPlay=true"
+    ]
+    build_args << "--dart-define=STORE_URL=#{store_url}" unless store_url.empty?
+
     flutter_build(
       build: "appbundle",
       build_number: settings[:build_number],
-      build_args: [
-        "--dart-define=USE_FIREBASE=true",
-        "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}",
-        "--dart-define=cronetHttpNoPlay=true"
-      ],
+      build_args: build_args,
     )
   end
 

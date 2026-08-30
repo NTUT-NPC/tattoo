@@ -187,6 +187,7 @@ jobs:
         ${{ needs.prepare.outputs.store_changelog }}
       FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
       PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
+      GOOGLEPLAY_PUBLIC_LINK: ${{ vars.GOOGLEPLAY_PUBLIC_LINK }}
     timeout-minutes: 30
     steps:
       - name: Checkout code
@@ -280,6 +281,7 @@ jobs:
         Daily Build ${{ needs.prepare.outputs.date }}
         ${{ needs.prepare.outputs.store_changelog }}
       PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
+      TESTFLIGHT_PUBLIC_LINK: ${{ vars.TESTFLIGHT_PUBLIC_LINK }}
     timeout-minutes: 30
     steps:
       - name: Checkout code
