@@ -64,6 +64,8 @@ portal:
   addFavorite: 加入最愛
   removeFavorite: 取消最愛
 home:
+  coursesEnded: 今日課程已結束
+  previousDay: 查看上一天
   projectTattoo:
     title: 關於Project Tattoo
     description: 查看更多資訊或邀請你的朋友加入測試計畫。

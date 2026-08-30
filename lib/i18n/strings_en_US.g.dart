@@ -172,6 +172,8 @@ class _Translations$home$en_US extends Translations$home$zh_TW {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get coursesEnded => 'Today\'s classes are over';
+	@override String get previousDay => 'View previous day';
 	@override late final _Translations$home$projectTattoo$en_US projectTattoo = _Translations$home$projectTattoo$en_US._(_root);
 	@override late final _Translations$home$ideation$en_US ideation = _Translations$home$ideation$en_US._(_root);
 	@override late final _Translations$home$npcClub$en_US npcClub = _Translations$home$npcClub$en_US._(_root);
@@ -938,6 +940,8 @@ extension on TranslationsEnUs {
 			'portal.favorites' => 'My Favorites',
 			'portal.addFavorite' => 'Add to favorites',
 			'portal.removeFavorite' => 'Remove from favorites',
+			'home.coursesEnded' => 'Today\'s classes are over',
+			'home.previousDay' => 'View previous day',
 			'home.projectTattoo.title' => 'About Project Tattoo',
 			'home.projectTattoo.description' => 'Learn more or invite your friends to join the testing program.',
 			'home.projectTattoo.url' => 'https://ntut.app',

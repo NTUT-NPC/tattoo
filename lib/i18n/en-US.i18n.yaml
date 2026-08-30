@@ -64,6 +64,8 @@ portal:
   addFavorite: Add to favorites
   removeFavorite: Remove from favorites
 home:
+  coursesEnded: Today's classes are over
+  previousDay: View previous day
   projectTattoo:
     title: About Project Tattoo
     description: Learn more or invite your friends to join the testing program.

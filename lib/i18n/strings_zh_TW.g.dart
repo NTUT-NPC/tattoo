@@ -255,6 +255,13 @@ class Translations$home$zh_TW {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+
+	/// zh-TW: '今日課程已結束'
+	String get coursesEnded => '今日課程已結束';
+
+	/// zh-TW: '查看上一天'
+	String get previousDay => '查看上一天';
+
 	late final Translations$home$projectTattoo$zh_TW projectTattoo = Translations$home$projectTattoo$zh_TW.internal(_root);
 	late final Translations$home$ideation$zh_TW ideation = Translations$home$ideation$zh_TW.internal(_root);
 	late final Translations$home$npcClub$zh_TW npcClub = Translations$home$npcClub$zh_TW.internal(_root);
@@ -1496,6 +1503,8 @@ extension on Translations {
 			'portal.favorites' => '我的最愛',
 			'portal.addFavorite' => '加入最愛',
 			'portal.removeFavorite' => '取消最愛',
+			'home.coursesEnded' => '今日課程已結束',
+			'home.previousDay' => '查看上一天',
 			'home.projectTattoo.title' => '關於Project Tattoo',
 			'home.projectTattoo.description' => '查看更多資訊或邀請你的朋友加入測試計畫。',
 			'home.projectTattoo.url' => 'https://ntut.app',

@@ -141,6 +141,7 @@ class ClearNoticeVertical extends StatelessWidget {
     final resolvedColor = color ?? Colors.grey[600];
 
     return Column(
+      mainAxisSize: .min,
       spacing: 8.0,
       children: [
         IconTheme(
