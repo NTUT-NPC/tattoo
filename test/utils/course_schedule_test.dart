@@ -53,6 +53,45 @@ void main() {
       expect(meetings.single.end, DateTime(2026, 8, 10, 14));
     });
   });
+  group('semester date bounds', () {
+    final dateRange = ntutSemesterDateRange(year: 114, term: 1);
+    final table = _table({
+      (day: .monday, period: .first): _course(id: 1),
+    });
+
+    test('does not materialize recurring slots outside the semester', () {
+      expect(
+        courseMeetingsForDate(
+          table,
+          date: DateTime(2025, 7, 28),
+          now: DateTime(2025, 7, 28, 9),
+          dateRange: dateRange,
+        ),
+        isEmpty,
+      );
+      expect(
+        courseMeetingsForDate(
+          table,
+          date: DateTime(2026, 2, 2),
+          now: DateTime(2026, 2, 2, 9),
+          dateRange: dateRange,
+        ),
+        isEmpty,
+      );
+    });
+
+    test('does not navigate beyond semester boundaries', () {
+      expect(
+        adjacentCourseDate(
+          table,
+          date: DateTime(2026, 1, 26),
+          direction: .next,
+          dateRange: dateRange,
+        ),
+        isNull,
+      );
+    });
+  });
 
   group('adjacentCourseDate', () {
     final table = _table({

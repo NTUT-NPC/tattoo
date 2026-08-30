@@ -17,7 +17,29 @@ typedef CourseScheduleMeeting = ({
 /// The date and chronological index of the next scheduled course.
 typedef NextCourseMeetingPosition = ({DateTime date, int index});
 
+/// Inclusive start and exclusive end of a semester's approximate date range.
+typedef CourseScheduleDateRange = ({DateTime start, DateTime end});
+
 enum CourseDateDirection { previous, next }
+
+/// Returns the approximate date range for an NTUT semester.
+///
+/// The course-semester API exposes only the academic year and term. These
+/// boundaries prevent recurring timetable entries from leaking into adjacent
+/// semesters while the calendar supplies the exact instructional dates.
+CourseScheduleDateRange ntutSemesterDateRange({
+  required int year,
+  required int term,
+}) {
+  final adYear = year + 1911;
+  return switch (term) {
+    0 => (start: DateTime(adYear, 7, 1), end: DateTime(adYear, 8, 1)),
+    1 => (start: DateTime(adYear, 8, 1), end: DateTime(adYear + 1, 2, 1)),
+    2 => (start: DateTime(adYear + 1, 2, 1), end: DateTime(adYear + 1, 8, 1)),
+    3 => (start: DateTime(adYear + 1, 7, 1), end: DateTime(adYear + 1, 9, 1)),
+    _ => (start: DateTime(adYear, 8, 1), end: DateTime(adYear + 1, 2, 1)),
+  };
+}
 
 /// Official NTUT class times for each [Period].
 extension PeriodScheduleTime on Period {
@@ -82,12 +104,17 @@ Period courseMeetingEndPeriod({
 }
 
 /// Returns the scheduled meetings on [date] in chronological order.
+///
+/// When [dateRange] is provided, dates outside the selected semester return no
+/// meetings because the timetable rows repeat by weekday.
 List<CourseScheduleMeeting> courseMeetingsForDate(
   CourseTableData courseTable, {
   required DateTime date,
   required DateTime now,
+  CourseScheduleDateRange? dateRange,
 }) {
-  // TODO: Filter recurring slots by semester and instructional dates.
+  if (!_isInDateRange(date, dateRange)) return const [];
+
   final day = _dayOfWeek(date);
   final meetings =
       [
@@ -111,11 +138,13 @@ List<CourseScheduleMeeting> courseMeetingsForDate(
 /// Finds the nearest date with scheduled courses in [direction].
 ///
 /// The course table repeats weekly, so scanning seven dates is sufficient.
+/// When [dateRange] is provided, navigation stops at the semester boundaries.
 /// Returns `null` when the semester has no scheduled courses at all.
 DateTime? adjacentCourseDate(
   CourseTableData courseTable, {
   required DateTime date,
   required CourseDateDirection direction,
+  CourseScheduleDateRange? dateRange,
 }) {
   final scheduledDays = courseTable.scheduled.keys
       .map((slot) => slot.day)
@@ -128,7 +157,8 @@ DateTime? adjacentCourseDate(
   };
   for (var distance = 1; distance <= DateTime.daysPerWeek; distance++) {
     final candidate = date.add(Duration(days: distance * dayStep));
-    if (scheduledDays.contains(_dayOfWeek(candidate))) {
+    if (_isInDateRange(candidate, dateRange) &&
+        scheduledDays.contains(_dayOfWeek(candidate))) {
       return _dateOnly(candidate);
     }
   }
@@ -178,12 +208,14 @@ int? nextCourseIndex(
 NextCourseMeetingPosition? nextCourseMeetingPosition(
   CourseTableData courseTable, {
   required DateTime now,
+  CourseScheduleDateRange? dateRange,
 }) {
   final today = _dateOnly(now);
   final todayMeetings = courseMeetingsForDate(
     courseTable,
     date: today,
     now: now,
+    dateRange: dateRange,
   );
   if (nextCourseIndex(todayMeetings, now: now) case final index?) {
     return (date: today, index: index);
@@ -193,12 +225,33 @@ NextCourseMeetingPosition? nextCourseMeetingPosition(
         courseTable,
         date: today,
         direction: .next,
+        dateRange: dateRange,
       )
       case final date?) {
     return (date: date, index: 0);
   }
 
   return null;
+}
+
+bool _isInDateRange(
+  DateTime date,
+  CourseScheduleDateRange? dateRange,
+) {
+  if (dateRange == null) return true;
+
+  final day = DateTime(date.year, date.month, date.day);
+  final start = DateTime(
+    dateRange.start.year,
+    dateRange.start.month,
+    dateRange.start.day,
+  );
+  final end = DateTime(
+    dateRange.end.year,
+    dateRange.end.month,
+    dateRange.end.day,
+  );
+  return !day.isBefore(start) && day.isBefore(end);
 }
 
 CourseScheduleMeeting _meetingFor({

@@ -81,7 +81,11 @@ class _CourseDetailContent extends ConsumerWidget {
         _normalizedText(overview.number) ??
         t.general.unknown;
     final teachers = detail.teachers
-        .map((teacher) => _normalizedText(teacher.nameZh))
+        .map(
+          (teacher) => _normalizedText(
+            localized(teacher.nameZh, teacher.nameEn),
+          ),
+        )
         .nonNulls
         .join('、');
     final classrooms = detail.schedule

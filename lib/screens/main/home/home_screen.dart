@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/next_course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart';
 import 'package:tattoo/screens/main/course_table_providers.dart';
 import 'package:tattoo/screens/main/home/home_providers.dart';
-import 'package:tattoo/screens/main/home/next_course_card.dart';
 import 'package:tattoo/screens/main/home/next_course_carousel.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/services/update_service.dart';
@@ -84,6 +84,7 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
 
   void _showAdjacentCourseDate(
     CourseTableData? courseTable,
+    CourseScheduleDateRange? dateRange,
     DateTime displayedDate,
     DateTime today,
     CourseDateDirection direction,
@@ -93,6 +94,7 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
           courseTable,
           date: displayedDate,
           direction: direction,
+          dateRange: dateRange,
         )
         case final date?) {
       setState(() {
@@ -117,7 +119,7 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final now = ref.watch(homeClockProvider).asData?.value ?? DateTime.now();
+    final now = ref.watch(homeClockProvider).asData?.value ?? taipeiNow();
     final today = DateUtils.dateOnly(now);
     final displayedDate = switch ((_selectedDate, _selectionDay)) {
       (final selectedDate?, final selectionDay?)
@@ -126,11 +128,19 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
       _ => today,
     };
     final semestersAsync = ref.watch(courseTableSemestersProvider);
-    final latestSemesterId = switch (semestersAsync) {
+    final latestSemester = switch (semestersAsync) {
       AsyncValue(value: final semesters?, hasValue: true)
           when semesters.isNotEmpty =>
-        semesters.first.id,
+        semesters.first,
       _ => null,
+    };
+    final latestSemesterId = latestSemester?.id;
+    final semesterDateRange = switch (latestSemester) {
+      final semester? => ntutSemesterDateRange(
+        year: semester.year,
+        term: semester.term,
+      ),
+      null => null,
     };
     final courseTableAsync = switch (latestSemesterId) {
       final latestSemesterId? => ref.watch(
@@ -161,12 +171,17 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
         courseTable,
         date: displayedDate,
         now: now,
+        dateRange: semesterDateRange,
       ),
       null => <CourseScheduleMeeting>[],
     };
     final dayLabel = _courseDateLabel(displayedDate, today: today);
     final nextCoursePosition = switch (courseTable) {
-      final courseTable? => nextCourseMeetingPosition(courseTable, now: now),
+      final courseTable? => nextCourseMeetingPosition(
+        courseTable,
+        now: now,
+        dateRange: semesterDateRange,
+      ),
       null => null,
     };
     final courses = [
@@ -255,6 +270,7 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
                   spacing: 16,
                   children: [
                     NextCourseCarousel(
+                      key: ValueKey(displayedDate),
                       courses: courses,
                       initialCourseIndex: initialCourseIndex,
                       loading: isCourseScheduleLoading,
@@ -262,12 +278,14 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
                       onRetry: () => _retryCourseSchedule(latestSemesterId),
                       onPreviousDate: () => _showAdjacentCourseDate(
                         courseTable,
+                        semesterDateRange,
                         displayedDate,
                         today,
                         .previous,
                       ),
                       onNextDate: () => _showAdjacentCourseDate(
                         courseTable,
+                        semesterDateRange,
                         displayedDate,
                         today,
                         .next,

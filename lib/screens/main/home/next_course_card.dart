@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/next_course.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 const _nextCourseCardShadow = BoxShadow(
@@ -10,28 +11,6 @@ const _nextCourseCardShadow = BoxShadow(
 const _nextCourseCardBlue = Color.fromARGB(255, 223, 234, 255);
 const _nextCourseCardSurface = Color(0xFFF8FAFF);
 const _nextCourseCardMint = Color.fromARGB(255, 211, 255, 231);
-
-enum NextCourseState { finished, ongoing, imminent, upcoming, scheduled }
-
-class NextCourse {
-  const NextCourse({
-    required this.title,
-    required this.courseNumber,
-    required this.teacher,
-    required this.classroom,
-    required this.time,
-    required this.dayLabel,
-    required this.state,
-  });
-
-  final String title;
-  final String? courseNumber;
-  final String teacher;
-  final String classroom;
-  final String time;
-  final String dayLabel;
-  final NextCourseState state;
-}
 
 class NextCourseCard extends StatelessWidget {
   const NextCourseCard({
@@ -46,14 +25,14 @@ class NextCourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final mediaQuery = MediaQuery.of(context);
+    final textScaler = MediaQuery.textScalerOf(context);
     final courseTitleTextStyle = theme.textTheme.titleLarge?.copyWith(
       fontWeight: .w700,
       color: theme.colorScheme.onSurface,
       height: 1.2,
     );
     final courseTitleLineHeight =
-        (courseTitleTextStyle?.fontSize ?? 22) *
+        textScaler.scale(courseTitleTextStyle?.fontSize ?? 22) *
         (courseTitleTextStyle?.height ?? 1.2);
     final infoTextStyle = theme.textTheme.labelMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
@@ -162,10 +141,6 @@ class NextCourseCard extends StatelessWidget {
         ),
       ),
     );
-    return MediaQuery(
-      // TODO: support accessibility text scaling without breaking card layout.
-      data: mediaQuery.copyWith(textScaler: .noScaling),
-      child: card,
-    );
+    return card;
   }
 }

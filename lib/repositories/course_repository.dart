@@ -594,10 +594,13 @@ class CourseRepository {
     // same day. Matching offerings are tracked in a consumed set, and the
     // starting slot gets the total span. Consumed slots are removed at the end.
     //
-    // When no course occupies the noon period on any day, courses that span
-    // across noon (e.g. period 4 → 5) are merged. The noon period is skipped
-    // (not counted in span) and crossesNoon is set for UI height calculation.
-    final hasNoon = scheduled.keys.any((s) => s.period == .nPeriod);
+    // On days without a course in the noon period, courses that span across
+    // noon (e.g. period 4 → 5) are merged. The noon period is skipped (not
+    // counted in span) and crossesNoon is set for UI height calculation.
+    final daysWithNoon = scheduled.keys
+        .where((slot) => slot.period == .nPeriod)
+        .map((slot) => slot.day)
+        .toSet();
     final consumed = <({DayOfWeek day, Period period})>{};
     for (final entry in scheduled.entries) {
       if (consumed.contains(entry.key)) continue;
@@ -608,8 +611,8 @@ class CourseRepository {
 
       while (lookIndex < Period.values.length) {
         final nextPeriod = Period.values[lookIndex];
-        // Skip noon if no courses use it
-        if (nextPeriod == .nPeriod && !hasNoon) {
+        // Skip noon when this day has no course in the noon period.
+        if (nextPeriod == .nPeriod && !daysWithNoon.contains(entry.key.day)) {
           skippedNoon = true;
           lookIndex++;
           continue;

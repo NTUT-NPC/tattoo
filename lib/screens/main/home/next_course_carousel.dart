@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/next_course.dart';
 import 'package:tattoo/screens/main/home/next_course_card.dart';
 
 const _pagePadding = 8.0;
