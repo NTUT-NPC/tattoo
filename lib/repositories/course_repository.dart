@@ -295,36 +295,36 @@ class CourseRepository {
     await for (final rows in query.watch()) {
       final allOfferingRows =
           await ((_database.select(_database.courseOfferings)..where(
-                (o) =>
-                    o.semester.equals(semesterId) &
-                    o.inCourseTable.equals(true),
-              ))
-              .join([
-                  leftOuterJoin(
-                    _database.courses,
-                    _database.courses.code.equalsExp(
-                      _database.courseOfferings.courseCode,
+                    (o) =>
+                        o.semester.equals(semesterId) &
+                        o.inCourseTable.equals(true),
+                  ))
+                  .join([
+                    leftOuterJoin(
+                      _database.courses,
+                      _database.courses.code.equalsExp(
+                        _database.courseOfferings.courseCode,
+                      ),
                     ),
-                  ),
-                  leftOuterJoin(
-                    _database.courseOfferingTeachers,
-                    _database.courseOfferingTeachers.courseOffering.equalsExp(
-                      _database.courseOfferings.id,
+                    leftOuterJoin(
+                      _database.courseOfferingTeachers,
+                      _database.courseOfferingTeachers.courseOffering.equalsExp(
+                        _database.courseOfferings.id,
+                      ),
                     ),
-                  ),
-                  leftOuterJoin(
-                    _database.teacherSemesters,
-                    _database.teacherSemesters.id.equalsExp(
-                      _database.courseOfferingTeachers.teacherSemester,
+                    leftOuterJoin(
+                      _database.teacherSemesters,
+                      _database.teacherSemesters.id.equalsExp(
+                        _database.courseOfferingTeachers.teacherSemester,
+                      ),
                     ),
-                  ),
-                  leftOuterJoin(
-                    _database.teachers,
-                    _database.teachers.id.equalsExp(
-                      _database.teacherSemesters.teacher,
+                    leftOuterJoin(
+                      _database.teachers,
+                      _database.teachers.id.equalsExp(
+                        _database.teacherSemesters.teacher,
+                      ),
                     ),
-                  ),
-                ])
+                  ])
                 ..orderBy([
                   .asc(_database.courseOfferings.id),
                   .asc(_database.teachers.code),

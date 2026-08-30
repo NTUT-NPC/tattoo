@@ -192,6 +192,35 @@ void main() {
 
     expect(tappedCourse, same(course));
   });
+
+  testWidgets('uses enough height for every course card', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(360, 800));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: NextCourseCarousel(
+            courses: [
+              _course('資訊行為導論'),
+              NextCourse(
+                title: '視窗程式設計',
+                courseNumber: '342109',
+                teacher: '陳振炎',
+                classroom: '綜科 104',
+                time: '13:10 - 15:00',
+                dayLabel: '非常非常長的日期標籤會使這張卡片需要更多高度',
+                state: .upcoming,
+              ),
+            ],
+            initialCourseIndex: 0,
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+  });
 }
 
 NextCourse _course(String title) => NextCourse(

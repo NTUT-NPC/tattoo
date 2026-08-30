@@ -258,7 +258,11 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
   }
 
   Widget _buildHeightProbe(ColorScheme colorScheme) => switch (widget.courses) {
-    [final first, ...] => NextCourseCard(course: first),
+    [_, ...] => Stack(
+      children: [
+        for (final course in widget.courses) NextCourseCard(course: course),
+      ],
+    ),
     [] => Padding(
       padding: const .symmetric(vertical: 48),
       child: _buildCourseEndedContent(colorScheme, showProgress: false),
