@@ -492,7 +492,12 @@ class CampusWifiRepository {
     Ntut8021xProvisioningDto provisioning, {
     required Ntut8021xProvisioningMode defaultMode,
   }) {
-    final status = _provisioningStatusFromWire(provisioning.status);
+    var status = _provisioningStatusFromWire(provisioning.status);
+    if (provisioning.suggestionPermissionState == 'disallowed' &&
+        (status == Ntut8021xProvisioningStatus.success ||
+            status == Ntut8021xProvisioningStatus.successPendingWifi)) {
+      status = Ntut8021xProvisioningStatus.failed;
+    }
     final pendingPromptReason = _pendingPromptReasonFromProvisioning(
       status: status,
       suggestionPermissionState: provisioning.suggestionPermissionState,
