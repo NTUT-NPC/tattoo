@@ -122,13 +122,13 @@ class CourseTableCell extends StatelessWidget {
   }
 }
 
-/// A card row used by the unscheduled course section under the grid.
+/// A card row used by list-based course-table sections.
 ///
 /// It displays the course name/number and credits/hours, with a colored
 /// leading indicator that matches the corresponding scheduled course color.
-class CourseTableUnscheduledCell extends StatelessWidget {
-  /// Creates an unscheduled-course list row.
-  const CourseTableUnscheduledCell({
+class CourseTableListCell extends StatelessWidget {
+  /// Creates a course-table list row.
+  const CourseTableListCell({
     required this.courseTableCellData,
     required this.indicatorColor,
     this.onTap,
