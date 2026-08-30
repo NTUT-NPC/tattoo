@@ -5,6 +5,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
+import 'package:tattoo/shells/centered_max_width_frame.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/localized.dart';
 
@@ -18,11 +19,14 @@ Future<void> showCourseTableDetailSheet(
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
-    constraints: BoxConstraints(
-      minWidth: MediaQuery.sizeOf(context).width,
-      maxWidth: MediaQuery.sizeOf(context).width,
+    builder: (context) => Align(
+      alignment: Alignment.bottomCenter,
+      heightFactor: 1,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: contentMaxWidth),
+        child: CourseTableDetailSheet(number: number),
+      ),
     ),
-    builder: (context) => CourseTableDetailSheet(number: number),
   );
 }
 
