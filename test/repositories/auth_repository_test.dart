@@ -2,6 +2,8 @@ import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/portal/mock_portal_service.dart';
@@ -19,6 +21,7 @@ void main() {
     late AuthRepository repository;
 
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       secureStorage = {};
       FlutterSecureStoragePlatform.instance = _InMemorySecureStoragePlatform(
         secureStorage,
@@ -105,6 +108,40 @@ void main() {
         );
       },
     );
+
+    test('login removes legacy plaintext credentials', () async {
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.setString(
+        'UserDataJsonKey',
+        '{"account":"111360109","password":"old-password","info":null}',
+      );
+
+      await repository.login('111360109', 'new-password');
+
+      expect(preferences.containsKey('UserDataJsonKey'), isFalse);
+    });
+
+    test(
+      'logout preserves the session when legacy deletion fails',
+      () async {
+        await repository.login('111360109', 'password');
+        SharedPreferencesStorePlatform.instance =
+            _FailingRemovePreferencesStore({
+              'flutter.UserDataJsonKey':
+                  '{"account":"111360109","password":"password","info":null}',
+            });
+        SharedPreferences.resetStatic();
+
+        await expectLater(repository.logout(), throwsStateError);
+
+        expect(
+          await database.select(database.users).getSingleOrNull(),
+          isNotNull,
+        );
+        expect(secureStorage['username'], '111360109');
+        expect(secureStorage['password'], 'password');
+      },
+    );
   });
 }
 
@@ -187,6 +224,13 @@ class _InMemorySecureStoragePlatform extends FlutterSecureStoragePlatform {
   }) async {
     _data[key] = value;
   }
+}
+
+class _FailingRemovePreferencesStore extends InMemorySharedPreferencesStore {
+  _FailingRemovePreferencesStore(super.data) : super.withData();
+
+  @override
+  Future<bool> remove(String key) async => false;
 }
 
 void _noop() {}
