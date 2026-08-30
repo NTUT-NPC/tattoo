@@ -8063,7 +8063,7 @@ class $SyllabusSectionsTable extends SyllabusSections
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES syllabuses (id)',
+      'REFERENCES syllabuses (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
@@ -9275,7 +9275,7 @@ class $ScoresTable extends Scores with TableInfo<$ScoresTable, Score> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES course_offerings (id)',
+      'REFERENCES course_offerings (id) ON DELETE SET NULL',
     ),
   );
   static const VerificationMeta _scoreMeta = const VerificationMeta('score');
@@ -9428,7 +9428,8 @@ class Score extends DataClass implements Insertable<Score> {
 
   /// Reference to the specific course offering.
   ///
-  /// Nullable because credit waivers (抵免) have no associated offering.
+  /// Nullable because credit waivers (抵免) have no associated offering, and
+  /// because the score outlives an offering dropped from the course table.
   final int? courseOffering;
 
   /// Numeric grade (null when [status] is set instead).
@@ -13927,6 +13928,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
+        'syllabuses',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('syllabus_sections', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
         'course_offerings',
         limitUpdateKind: UpdateKind.delete,
       ),
@@ -13938,6 +13946,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('scores', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'course_offerings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('scores', kind: UpdateKind.update)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(

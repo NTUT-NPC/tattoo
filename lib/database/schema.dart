@@ -614,6 +614,7 @@ class SyllabusSections extends Table with AutoIncrementId {
   late final syllabus = integer().references(
     Syllabuses,
     #id,
+    onDelete: .cascade,
   )();
 
   /// Source title or flattened source-title path.
@@ -652,10 +653,12 @@ class Scores extends Table with AutoIncrementId {
 
   /// Reference to the specific course offering.
   ///
-  /// Nullable because credit waivers (抵免) have no associated offering.
+  /// Nullable because credit waivers (抵免) have no associated offering, and
+  /// because the score outlives an offering dropped from the course table.
   late final courseOffering = integer().nullable().references(
     CourseOfferings,
     #id,
+    onDelete: .setNull,
   )();
 
   /// Numeric grade (null when [status] is set instead).
