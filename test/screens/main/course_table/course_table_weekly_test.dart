@@ -87,7 +87,85 @@ void main() {
     expect(find.byType(CourseTableWeekly), findsOneWidget);
     expect(find.byTooltip('切換至網格檢視'), findsOneWidget);
   });
+
+  testWidgets('list cells reserve a subtitle line and grow for wrapping', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 360,
+                child: Column(
+                  mainAxisSize: .min,
+                  children: const [
+                    CourseTableListCell(
+                      key: Key('empty-subtitle'),
+                      courseTableCellData: _specialCourse,
+                      indicatorColor: Colors.blue,
+                      trailingText: '5',
+                    ),
+                    CourseTableListCell(
+                      key: Key('single-line-subtitle'),
+                      courseTableCellData: _regularCourse,
+                      indicatorColor: Colors.blue,
+                      additionalSubtitle: '共同科館201',
+                      trailingText: '5',
+                    ),
+                    CourseTableListCell(
+                      key: Key('wrapping-subtitle'),
+                      courseTableCellData: _regularCourse,
+                      indicatorColor: Colors.blue,
+                      additionalSubtitle: '共同科館201以及需要自然換行顯示的較長上課地點資訊',
+                      trailingText: '5',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final emptyHeight = tester
+        .getSize(find.byKey(const Key('empty-subtitle')))
+        .height;
+    final singleLineHeight = tester
+        .getSize(find.byKey(const Key('single-line-subtitle')))
+        .height;
+    final wrappingHeight = tester
+        .getSize(find.byKey(const Key('wrapping-subtitle')))
+        .height;
+
+    expect(emptyHeight, singleLineHeight);
+    expect(wrappingHeight, greaterThan(singleLineHeight));
+  });
 }
+
+const CourseTableCellData _specialCourse = (
+  id: 1,
+  number: null,
+  span: 1,
+  crossesNoon: false,
+  courseName: '班週會及導師時間',
+  classroomName: null,
+  credits: 0,
+  hours: 0,
+);
+
+const CourseTableCellData _regularCourse = (
+  id: 2,
+  number: 'CSIE3002',
+  span: 1,
+  crossesNoon: false,
+  courseName: '作業系統',
+  classroomName: null,
+  credits: 3,
+  hours: 3,
+);
 
 const CourseTableData _courseTableData = (
   scheduled: {

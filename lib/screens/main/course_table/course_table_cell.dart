@@ -220,17 +220,12 @@ class CourseTableListCell extends StatelessWidget {
                     maxLines: 1,
                     overflow: .ellipsis,
                   ),
-                  subtitle: switch (subtitleText) {
-                    final subtitleText when subtitleText.isNotEmpty => Text(
-                      subtitleText.spaced,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      maxLines: 1,
-                      overflow: .ellipsis,
+                  subtitle: Text(
+                    subtitleText.isEmpty ? ' ' : subtitleText.spaced,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
-                    _ => null,
-                  },
+                  ),
                 ),
               ),
               Text(
