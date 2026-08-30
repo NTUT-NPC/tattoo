@@ -74,9 +74,7 @@ class AdaptiveNavigationScaffold extends StatelessWidget {
                       selectedIndex: selectedIndex,
                       onDestinationSelected: onDestinationSelected,
                     ),
-                    Expanded(
-                      child: CenteredMaxWidthFrame(child: body),
-                    ),
+                    Expanded(child: body),
                   ],
                 )
               : CenteredMaxWidthFrame(child: body),

@@ -104,7 +104,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: AdaptiveNavigationScaffold(
-          body: const SizedBox(key: bodyKey),
+          body: const CenteredMaxWidthFrame(
+            child: SizedBox(key: bodyKey),
+          ),
           destinations: destinations,
           selectedIndex: 0,
           onDestinationSelected: (_) {},

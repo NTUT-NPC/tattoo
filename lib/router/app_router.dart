@@ -138,7 +138,7 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.home,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: MainHomeScreen()),
+                  NoTransitionPage(child: _framed(const MainHomeScreen())),
             ),
           ],
         ),
@@ -147,7 +147,7 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.courseTable,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: CourseTableScreen()),
+                  NoTransitionPage(child: _framed(const CourseTableScreen())),
             ),
           ],
         ),
@@ -156,7 +156,7 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.score,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ScoreScreen()),
+                  NoTransitionPage(child: _framed(const ScoreScreen())),
             ),
           ],
         ),
@@ -165,7 +165,7 @@ GoRouter createAppRouter({
             GoRoute(
               path: AppRoutes.profile,
               pageBuilder: (context, state) =>
-                  const NoTransitionPage(child: ProfileScreen()),
+                  NoTransitionPage(child: _framed(const ProfileScreen())),
             ),
           ],
         ),
