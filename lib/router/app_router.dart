@@ -41,12 +41,11 @@ abstract class AppRoutes {
   static const update = '/update';
 }
 
-/// Bridges [sessionProvider] and [updateConfigProvider] to a [Listenable] for
+/// Bridges [sessionProvider] to a [Listenable] for
 /// [GoRouter.refreshListenable].
 class _SessionRefreshListenable extends ChangeNotifier {
   _SessionRefreshListenable(ProviderContainer container) {
     container.listen(sessionProvider, (_, _) => notifyListeners());
-    container.listen(updateConfigProvider, (_, _) => notifyListeners());
   }
 }
 
@@ -61,7 +60,7 @@ const _publicRoutes = {
 
 /// Creates a configured [GoRouter] starting at [initialLocation].
 ///
-/// Watches [sessionProvider] and [updateConfigProvider] via
+/// Watches [sessionProvider] via
 /// [GoRouter.new]'s `refreshListenable`. Redirects to
 /// [AppRoutes.update] when a *forced* update is pending (highest
 /// priority), and to [AppRoutes.login] when the session is inactive.

@@ -145,26 +145,16 @@ final optionalUpdateDismissedProvider =
     );
 
 // ignore: avoid_classes_with_only_static_members
-/// Coordinates the update check and wires Remote Config live updates.
+/// Coordinates the update check at app startup.
 class UpdateService {
   UpdateService._();
 
-  /// Runs the initial update check and registers a listener so that a Remote
-  /// Config push during the session triggers a recheck.
+  /// Runs the initial update check.
   ///
   /// Call once at app start, after Remote Config has been initialized.
+  /// We intentionally do not listen to real-time Remote Config updates here to
+  /// avoid interrupting the user's workflow mid-session.
   static Future<void> init(ProviderContainer container) async {
-    await _check(container);
-
-    // Re-check whenever Remote Config is updated at runtime.
-    firebaseService.onConfigUpdated.listen((_) async {
-      // Reset dismissal so the user sees the new config's banner/gate.
-      container.read(optionalUpdateDismissedProvider.notifier).reset();
-      await _check(container);
-    });
-  }
-
-  static Future<void> _check(ProviderContainer container) async {
     final config = await checkForUpdate();
     container.read(updateConfigProvider.notifier).set(config);
   }

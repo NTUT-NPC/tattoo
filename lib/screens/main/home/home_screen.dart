@@ -61,23 +61,6 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Re-show snackbar when Remote Config pushes a fresh optional update during
-    // the session (UpdateService resets optionalUpdateDismissedProvider first).
-    // If it's a forced update, this will clear any existing snackbar.
-    ref.listen(updateConfigProvider, (_, config) {
-      if (config == null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          }
-        });
-        return;
-      }
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _maybeShowUpdateSnackbar();
-      });
-    });
-
     final options = [
       OptionEntryTile.svg(
         svgIconAsset: "assets/tat_icon.svg",
