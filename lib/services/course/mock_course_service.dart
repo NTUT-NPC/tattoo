@@ -1789,17 +1789,10 @@ class MockCourseService implements CourseService {
         semester: semester,
       )) {
         if (schedule.number != number) continue;
-        CourseType? courseType;
-        for (final candidate in CourseType.values) {
-          if (candidate.symbol == schedule.type) {
-            courseType = candidate;
-            break;
-          }
-        }
         return (
           semester: semester,
           schedule: schedule,
-          courseType: courseType,
+          courseType: null,
           enrolled: null,
           withdrawn: null,
         );
