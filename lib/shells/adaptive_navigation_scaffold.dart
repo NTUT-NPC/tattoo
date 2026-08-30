@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+import 'package:tattoo/shells/centered_max_width_frame.dart';
+
+/// Width at which the main navigation changes from a bar to a rail.
+const navigationRailBreakpoint = 580.0;
+
+/// Minimum width reserved for the compact navigation rail.
+const navigationRailMinWidth = 80.0;
+
+/// Maximum width of the centered main frame, including its navigation rail.
+const mainFrameMaxWidth = contentMaxWidth + navigationRailMinWidth;
+
+/// Shared data used to build bar and rail navigation destinations.
+class AdaptiveNavigationDestination {
+  const AdaptiveNavigationDestination({
+    required this.icon,
+    required this.label,
+    this.selectedIcon,
+  });
+
+  final Widget icon;
+  final Widget? selectedIcon;
+  final String label;
+}
+
+/// Displays bottom navigation in compact windows and a rail in wide windows.
+class AdaptiveNavigationScaffold extends StatelessWidget {
+  const AdaptiveNavigationScaffold({
+    super.key,
+    required this.body,
+    required this.destinations,
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+  });
+
+  final Widget body;
+  final List<AdaptiveNavigationDestination> destinations;
+  final int selectedIndex;
+  final ValueChanged<int> onDestinationSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final useNavigationRail =
+            constraints.maxWidth >= navigationRailBreakpoint;
+
+        return CenteredMaxWidthFrame(
+          maxWidth: useNavigationRail ? mainFrameMaxWidth : contentMaxWidth,
+          child: Scaffold(
+            body: useNavigationRail
+                ? Row(
+                    children: [
+                      NavigationRail(
+                        minWidth: navigationRailMinWidth,
+                        labelType: .all,
+                        scrollable: true,
+                        destinations: [
+                          for (final destination in destinations)
+                            NavigationRailDestination(
+                              icon: destination.icon,
+                              selectedIcon: destination.selectedIcon,
+                              label: Text(destination.label),
+                            ),
+                        ],
+                        selectedIndex: selectedIndex,
+                        onDestinationSelected: onDestinationSelected,
+                      ),
+                      Expanded(child: body),
+                    ],
+                  )
+                : body,
+            bottomNavigationBar: useNavigationRail
+                ? null
+                : NavigationBar(
+                    destinations: [
+                      for (final destination in destinations)
+                        NavigationDestination(
+                          icon: destination.icon,
+                          selectedIcon: destination.selectedIcon,
+                          label: destination.label,
+                        ),
+                    ],
+                    selectedIndex: selectedIndex,
+                    onDestinationSelected: onDestinationSelected,
+                  ),
+          ),
+        );
+      },
+    );
+  }
+}
