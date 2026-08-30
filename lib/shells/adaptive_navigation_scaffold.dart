@@ -48,6 +48,7 @@ class AdaptiveNavigationScaffold extends StatelessWidget {
                   children: [
                     NavigationRail(
                       minWidth: navigationRailMinWidth,
+                      groupAlignment: 1,
                       labelType: .all,
                       scrollable: true,
                       destinations: [
