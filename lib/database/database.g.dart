@@ -5053,6 +5053,21 @@ class $CourseOfferingsTable extends CourseOfferings
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _inCourseTableMeta = const VerificationMeta(
+    'inCourseTable',
+  );
+  @override
+  late final GeneratedColumn<bool> inCourseTable = GeneratedColumn<bool>(
+    'in_course_table',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("in_course_table" IN (0, 1))',
+    ),
+    defaultValue: Constant(false),
+  );
   static const VerificationMeta _enrolledMeta = const VerificationMeta(
     'enrolled',
   );
@@ -5091,6 +5106,7 @@ class $CourseOfferingsTable extends CourseOfferings
     status,
     language,
     remarks,
+    inCourseTable,
     enrolled,
     withdrawn,
   ];
@@ -5185,6 +5201,15 @@ class $CourseOfferingsTable extends CourseOfferings
         remarks.isAcceptableOrUnknown(data['remarks']!, _remarksMeta),
       );
     }
+    if (data.containsKey('in_course_table')) {
+      context.handle(
+        _inCourseTableMeta,
+        inCourseTable.isAcceptableOrUnknown(
+          data['in_course_table']!,
+          _inCourseTableMeta,
+        ),
+      );
+    }
     if (data.containsKey('enrolled')) {
       context.handle(
         _enrolledMeta,
@@ -5264,6 +5289,10 @@ class $CourseOfferingsTable extends CourseOfferings
         DriftSqlType.string,
         data['${effectivePrefix}remarks'],
       ),
+      inCourseTable: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}in_course_table'],
+      )!,
       enrolled: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}enrolled'],
@@ -5367,6 +5396,16 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
   /// Not a [Fetchable] field.
   final String? remarks;
 
+  /// Whether this offering appeared in the student's own course table.
+  ///
+  /// Distinguishes offerings fetched by [CourseRepository.refreshCourseTable]
+  /// from those created as side effects by other flows (e.g. a scored course
+  /// number the course table never returned). Only the former belong in the
+  /// course table grid and its credit/hour totals.
+  ///
+  /// Not a [Fetchable] field.
+  final bool inCourseTable;
+
   /// Number of enrolled students (人).
   final int? enrolled;
 
@@ -5387,6 +5426,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     this.status,
     this.language,
     this.remarks,
+    required this.inCourseTable,
     this.enrolled,
     this.withdrawn,
   });
@@ -5431,6 +5471,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     if (!nullToAbsent || remarks != null) {
       map['remarks'] = Variable<String>(remarks);
     }
+    map['in_course_table'] = Variable<bool>(inCourseTable);
     if (!nullToAbsent || enrolled != null) {
       map['enrolled'] = Variable<int>(enrolled);
     }
@@ -5478,6 +5519,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       remarks: remarks == null && nullToAbsent
           ? const Value.absent()
           : Value(remarks),
+      inCourseTable: Value(inCourseTable),
       enrolled: enrolled == null && nullToAbsent
           ? const Value.absent()
           : Value(enrolled),
@@ -5509,6 +5551,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       status: serializer.fromJson<String?>(json['status']),
       language: serializer.fromJson<String?>(json['language']),
       remarks: serializer.fromJson<String?>(json['remarks']),
+      inCourseTable: serializer.fromJson<bool>(json['inCourseTable']),
       enrolled: serializer.fromJson<int?>(json['enrolled']),
       withdrawn: serializer.fromJson<int?>(json['withdrawn']),
     );
@@ -5533,6 +5576,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       'status': serializer.toJson<String?>(status),
       'language': serializer.toJson<String?>(language),
       'remarks': serializer.toJson<String?>(remarks),
+      'inCourseTable': serializer.toJson<bool>(inCourseTable),
       'enrolled': serializer.toJson<int?>(enrolled),
       'withdrawn': serializer.toJson<int?>(withdrawn),
     };
@@ -5553,6 +5597,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     Value<String?> status = const Value.absent(),
     Value<String?> language = const Value.absent(),
     Value<String?> remarks = const Value.absent(),
+    bool? inCourseTable,
     Value<int?> enrolled = const Value.absent(),
     Value<int?> withdrawn = const Value.absent(),
   }) => CourseOffering(
@@ -5570,6 +5615,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     status: status.present ? status.value : this.status,
     language: language.present ? language.value : this.language,
     remarks: remarks.present ? remarks.value : this.remarks,
+    inCourseTable: inCourseTable ?? this.inCourseTable,
     enrolled: enrolled.present ? enrolled.value : this.enrolled,
     withdrawn: withdrawn.present ? withdrawn.value : this.withdrawn,
   );
@@ -5593,6 +5639,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       status: data.status.present ? data.status.value : this.status,
       language: data.language.present ? data.language.value : this.language,
       remarks: data.remarks.present ? data.remarks.value : this.remarks,
+      inCourseTable: data.inCourseTable.present
+          ? data.inCourseTable.value
+          : this.inCourseTable,
       enrolled: data.enrolled.present ? data.enrolled.value : this.enrolled,
       withdrawn: data.withdrawn.present ? data.withdrawn.value : this.withdrawn,
     );
@@ -5615,6 +5664,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           ..write('status: $status, ')
           ..write('language: $language, ')
           ..write('remarks: $remarks, ')
+          ..write('inCourseTable: $inCourseTable, ')
           ..write('enrolled: $enrolled, ')
           ..write('withdrawn: $withdrawn')
           ..write(')'))
@@ -5637,6 +5687,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     status,
     language,
     remarks,
+    inCourseTable,
     enrolled,
     withdrawn,
   );
@@ -5658,6 +5709,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           other.status == this.status &&
           other.language == this.language &&
           other.remarks == this.remarks &&
+          other.inCourseTable == this.inCourseTable &&
           other.enrolled == this.enrolled &&
           other.withdrawn == this.withdrawn);
 }
@@ -5677,6 +5729,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   final Value<String?> status;
   final Value<String?> language;
   final Value<String?> remarks;
+  final Value<bool> inCourseTable;
   final Value<int?> enrolled;
   final Value<int?> withdrawn;
   const CourseOfferingsCompanion({
@@ -5694,6 +5747,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.status = const Value.absent(),
     this.language = const Value.absent(),
     this.remarks = const Value.absent(),
+    this.inCourseTable = const Value.absent(),
     this.enrolled = const Value.absent(),
     this.withdrawn = const Value.absent(),
   });
@@ -5712,6 +5766,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.status = const Value.absent(),
     this.language = const Value.absent(),
     this.remarks = const Value.absent(),
+    this.inCourseTable = const Value.absent(),
     this.enrolled = const Value.absent(),
     this.withdrawn = const Value.absent(),
   }) : semester = Value(semester),
@@ -5731,6 +5786,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Expression<String>? status,
     Expression<String>? language,
     Expression<String>? remarks,
+    Expression<bool>? inCourseTable,
     Expression<int>? enrolled,
     Expression<int>? withdrawn,
   }) {
@@ -5749,6 +5805,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       if (status != null) 'status': status,
       if (language != null) 'language': language,
       if (remarks != null) 'remarks': remarks,
+      if (inCourseTable != null) 'in_course_table': inCourseTable,
       if (enrolled != null) 'enrolled': enrolled,
       if (withdrawn != null) 'withdrawn': withdrawn,
     });
@@ -5769,6 +5826,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Value<String?>? status,
     Value<String?>? language,
     Value<String?>? remarks,
+    Value<bool>? inCourseTable,
     Value<int?>? enrolled,
     Value<int?>? withdrawn,
   }) {
@@ -5787,6 +5845,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       status: status ?? this.status,
       language: language ?? this.language,
       remarks: remarks ?? this.remarks,
+      inCourseTable: inCourseTable ?? this.inCourseTable,
       enrolled: enrolled ?? this.enrolled,
       withdrawn: withdrawn ?? this.withdrawn,
     );
@@ -5839,6 +5898,9 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     if (remarks.present) {
       map['remarks'] = Variable<String>(remarks.value);
     }
+    if (inCourseTable.present) {
+      map['in_course_table'] = Variable<bool>(inCourseTable.value);
+    }
     if (enrolled.present) {
       map['enrolled'] = Variable<int>(enrolled.value);
     }
@@ -5865,6 +5927,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
           ..write('status: $status, ')
           ..write('language: $language, ')
           ..write('remarks: $remarks, ')
+          ..write('inCourseTable: $inCourseTable, ')
           ..write('enrolled: $enrolled, ')
           ..write('withdrawn: $withdrawn')
           ..write(')'))
@@ -8063,7 +8126,7 @@ class $SyllabusSectionsTable extends SyllabusSections
     type: DriftSqlType.int,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES syllabuses (id)',
+      'REFERENCES syllabuses (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
@@ -9275,7 +9338,7 @@ class $ScoresTable extends Scores with TableInfo<$ScoresTable, Score> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES course_offerings (id)',
+      'REFERENCES course_offerings (id) ON DELETE SET NULL',
     ),
   );
   static const VerificationMeta _scoreMeta = const VerificationMeta('score');
@@ -9428,7 +9491,8 @@ class Score extends DataClass implements Insertable<Score> {
 
   /// Reference to the specific course offering.
   ///
-  /// Nullable because credit waivers (抵免) have no associated offering.
+  /// Nullable because credit waivers (抵免) have no associated offering, and
+  /// because the score outlives an offering dropped from the course table.
   final int? courseOffering;
 
   /// Numeric grade (null when [status] is set instead).
@@ -12905,7 +12969,7 @@ class $CourseTableSlotsView
           courses.code.equalsExp(courseOfferings.courseCode),
         ),
         leftOuterJoin(classrooms, classrooms.id.equalsExp(schedules.classroom)),
-      ]);
+      ])..where(courseOfferings.inCourseTable.equals(true));
   @override
   Set<String> get readTables => const {
     'schedules',
@@ -13927,6 +13991,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
+        'syllabuses',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('syllabus_sections', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
         'course_offerings',
         limitUpdateKind: UpdateKind.delete,
       ),
@@ -13938,6 +14009,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('scores', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'course_offerings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('scores', kind: UpdateKind.update)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -18701,6 +18779,7 @@ typedef $$CourseOfferingsTableCreateCompanionBuilder =
       Value<String?> status,
       Value<String?> language,
       Value<String?> remarks,
+      Value<bool> inCourseTable,
       Value<int?> enrolled,
       Value<int?> withdrawn,
     });
@@ -18720,6 +18799,7 @@ typedef $$CourseOfferingsTableUpdateCompanionBuilder =
       Value<String?> status,
       Value<String?> language,
       Value<String?> remarks,
+      Value<bool> inCourseTable,
       Value<int?> enrolled,
       Value<int?> withdrawn,
     });
@@ -18974,6 +19054,11 @@ class $$CourseOfferingsTableFilterComposer
 
   ColumnFilters<String> get remarks => $composableBuilder(
     column: $table.remarks,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get inCourseTable => $composableBuilder(
+    column: $table.inCourseTable,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -19263,6 +19348,11 @@ class $$CourseOfferingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get inCourseTable => $composableBuilder(
+    column: $table.inCourseTable,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get enrolled => $composableBuilder(
     column: $table.enrolled,
     builder: (column) => ColumnOrderings(column),
@@ -19349,6 +19439,11 @@ class $$CourseOfferingsTableAnnotationComposer
 
   GeneratedColumn<String> get remarks =>
       $composableBuilder(column: $table.remarks, builder: (column) => column);
+
+  GeneratedColumn<bool> get inCourseTable => $composableBuilder(
+    column: $table.inCourseTable,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get enrolled =>
       $composableBuilder(column: $table.enrolled, builder: (column) => column);
@@ -19611,6 +19706,7 @@ class $$CourseOfferingsTableTableManager
                 Value<String?> status = const Value.absent(),
                 Value<String?> language = const Value.absent(),
                 Value<String?> remarks = const Value.absent(),
+                Value<bool> inCourseTable = const Value.absent(),
                 Value<int?> enrolled = const Value.absent(),
                 Value<int?> withdrawn = const Value.absent(),
               }) => CourseOfferingsCompanion(
@@ -19628,6 +19724,7 @@ class $$CourseOfferingsTableTableManager
                 status: status,
                 language: language,
                 remarks: remarks,
+                inCourseTable: inCourseTable,
                 enrolled: enrolled,
                 withdrawn: withdrawn,
               ),
@@ -19647,6 +19744,7 @@ class $$CourseOfferingsTableTableManager
                 Value<String?> status = const Value.absent(),
                 Value<String?> language = const Value.absent(),
                 Value<String?> remarks = const Value.absent(),
+                Value<bool> inCourseTable = const Value.absent(),
                 Value<int?> enrolled = const Value.absent(),
                 Value<int?> withdrawn = const Value.absent(),
               }) => CourseOfferingsCompanion.insert(
@@ -19664,6 +19762,7 @@ class $$CourseOfferingsTableTableManager
                 status: status,
                 language: language,
                 remarks: remarks,
+                inCourseTable: inCourseTable,
                 enrolled: enrolled,
                 withdrawn: withdrawn,
               ),
