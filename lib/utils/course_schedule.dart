@@ -14,6 +14,9 @@ typedef CourseScheduleMeeting = ({
   bool isOngoing,
 });
 
+/// The date and chronological index of the next scheduled course.
+typedef NextCourseMeetingPosition = ({DateTime date, int index});
+
 enum CourseDateDirection { previous, next }
 
 /// Official NTUT class times for each [Period].
@@ -153,10 +156,48 @@ int? preferredTodayCourseIndex(
   final ongoingIndex = meetings.indexWhere((meeting) => meeting.isOngoing);
   if (ongoingIndex >= 0) return ongoingIndex;
 
-  final nextIndex = meetings.indexWhere(
-    (meeting) => meeting.start.isAfter(now),
+  return nextCourseIndex(meetings, now: now);
+}
+
+/// Selects the first course that has not started yet.
+///
+/// Returns `null` when every course in [meetings] has already started.
+int? nextCourseIndex(
+  List<CourseScheduleMeeting> meetings, {
+  required DateTime now,
+}) {
+  final index = meetings.indexWhere((meeting) => meeting.start.isAfter(now));
+  return index < 0 ? null : index;
+}
+
+/// Finds the one scheduled course that occurs next relative to [now].
+///
+/// Today's remaining courses take priority. If none remain, the first course
+/// on the next date with a scheduled course is selected.
+NextCourseMeetingPosition? nextCourseMeetingPosition(
+  CourseTableData courseTable, {
+  required DateTime now,
+}) {
+  final today = _dateOnly(now);
+  final todayMeetings = courseMeetingsForDate(
+    courseTable,
+    date: today,
+    now: now,
   );
-  return nextIndex < 0 ? null : nextIndex;
+  if (nextCourseIndex(todayMeetings, now: now) case final index?) {
+    return (date: today, index: index);
+  }
+
+  if (adjacentCourseDate(
+        courseTable,
+        date: today,
+        direction: .next,
+      )
+      case final date?) {
+    return (date: date, index: 0);
+  }
+
+  return null;
 }
 
 CourseScheduleMeeting _meetingFor({

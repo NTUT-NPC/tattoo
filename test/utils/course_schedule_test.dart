@@ -168,6 +168,75 @@ void main() {
       expect(preferredTodayCourseIndex(meetings, now: now), isNull);
     });
   });
+
+  group('nextCourseIndex', () {
+    test('selects only the first course that has not started', () {
+      final now = DateTime(2026, 8, 10, 9, 30);
+      final meetings = courseMeetingsForDate(
+        _table({
+          (day: .monday, period: .first): _course(id: 1),
+          (day: .monday, period: .third): _course(id: 2),
+          (day: .monday, period: .fifth): _course(id: 3),
+        }),
+        date: now,
+        now: now,
+      );
+
+      expect(nextCourseIndex(meetings, now: now), 1);
+    });
+
+    test('returns null after every course has started', () {
+      final now = DateTime(2026, 8, 10, 22);
+      final meetings = courseMeetingsForDate(
+        _table({
+          (day: .monday, period: .first): _course(id: 1),
+        }),
+        date: now,
+        now: now,
+      );
+
+      expect(nextCourseIndex(meetings, now: now), isNull);
+    });
+  });
+
+  group('nextCourseMeetingPosition', () {
+    test('selects a remaining course today before a later date', () {
+      final now = DateTime(2026, 8, 10, 9, 30);
+      final table = _table({
+        (day: .monday, period: .first): _course(id: 1),
+        (day: .monday, period: .third): _course(id: 2),
+        (day: .tuesday, period: .first): _course(id: 3),
+      });
+
+      expect(
+        nextCourseMeetingPosition(table, now: now),
+        (date: DateTime(2026, 8, 10), index: 1),
+      );
+    });
+
+    test('selects the first course on the next course date', () {
+      final now = DateTime(2026, 8, 10, 22);
+      final table = _table({
+        (day: .monday, period: .first): _course(id: 1),
+        (day: .thursday, period: .fifth): _course(id: 2),
+      });
+
+      expect(
+        nextCourseMeetingPosition(table, now: now),
+        (date: DateTime(2026, 8, 13), index: 0),
+      );
+    });
+
+    test('returns null when the course table has no scheduled courses', () {
+      expect(
+        nextCourseMeetingPosition(
+          _table(const {}),
+          now: DateTime(2026, 8, 10, 9),
+        ),
+        isNull,
+      );
+    });
+  });
 }
 
 CourseTableCellData _course({

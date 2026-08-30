@@ -76,7 +76,6 @@ class _CourseDetailContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final overview = detail.overview;
-    // TODO: replace with course name when available
     final title =
         _normalizedText(localized(overview.nameZh, overview.nameEn)) ??
         _normalizedText(overview.number) ??

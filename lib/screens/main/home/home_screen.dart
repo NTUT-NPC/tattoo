@@ -121,9 +121,20 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
       null => <CourseScheduleMeeting>[],
     };
     final dayLabel = _courseDateLabel(displayedDate, today: today);
+    final nextCoursePosition = switch (courseTable) {
+      final courseTable? => nextCourseMeetingPosition(courseTable, now: now),
+      null => null,
+    };
     final courses = [
-      for (final meeting in meetings)
-        _toNextCourse(meeting, dayLabel: dayLabel, now: now),
+      for (final (index, meeting) in meetings.indexed)
+        _toNextCourse(
+          meeting,
+          dayLabel: dayLabel,
+          now: now,
+          isNextCourse:
+              nextCoursePosition?.index == index &&
+              DateUtils.isSameDay(nextCoursePosition?.date, displayedDate),
+        ),
     ];
     final initialCourseIndex = switch ((meetings.isEmpty, displayedDate)) {
       (true, _) => null,
@@ -237,6 +248,7 @@ NextCourse _toNextCourse(
   CourseScheduleMeeting meeting, {
   required String dayLabel,
   required DateTime now,
+  required bool isNextCourse,
 }) {
   final NextCourseState state = switch ((meeting.start, meeting.end)) {
     (final start, _)
@@ -245,7 +257,8 @@ NextCourse _toNextCourse(
       .imminent,
     _ when meeting.isOngoing => .ongoing,
     (_, final end) when !end.isAfter(now) => .finished,
-    _ => .upcoming,
+    _ when isNextCourse => .upcoming,
+    _ => .scheduled,
   };
   return NextCourse(
     title: meeting.course.courseName,

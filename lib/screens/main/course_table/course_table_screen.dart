@@ -13,7 +13,6 @@ import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/course_table/course_table_weekly.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 
-// TODO: Import mock data from demo mode when implemented
 const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
 const _floatingBarBottomInset = 80.0;
 const _floatingBarMargin = 16.0;

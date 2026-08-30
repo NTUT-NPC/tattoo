@@ -11,7 +11,7 @@ const _nextCourseCardBlue = Color.fromARGB(255, 223, 234, 255);
 const _nextCourseCardSurface = Color(0xFFF8FAFF);
 const _nextCourseCardMint = Color.fromARGB(255, 211, 255, 231);
 
-enum NextCourseState { finished, ongoing, imminent, upcoming }
+enum NextCourseState { finished, ongoing, imminent, upcoming, scheduled }
 
 class NextCourse {
   const NextCourse({
@@ -63,6 +63,7 @@ class NextCourseCard extends StatelessWidget {
       .ongoing => t.home.courseStatus.ongoing,
       .imminent => t.home.courseStatus.imminent,
       .upcoming => t.home.courseStatus.next,
+      .scheduled => null,
     };
     final header = [course.dayLabel, ?stateLabel].join(' · ');
 
