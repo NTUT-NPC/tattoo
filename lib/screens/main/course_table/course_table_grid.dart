@@ -11,6 +11,7 @@ import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_cell.dart';
 import 'package:tattoo/screens/main/course_table/course_table_colors.dart';
 import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart';
+import 'package:tattoo/screens/main/course_table/course_table_entrance_animation.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 /// Internal value type that describes the currently visible grid scope.
@@ -398,9 +399,6 @@ class CourseTableGrid extends StatelessWidget {
         spanLength,
       );
       final delayMs = 50 + random.nextInt(101);
-      const riseDurationMs = 350;
-      final totalDurationMs = riseDurationMs + delayMs;
-      final startAt = delayMs / totalDurationMs;
 
       cells.add(
         Positioned(
@@ -412,19 +410,8 @@ class CourseTableGrid extends StatelessWidget {
             height: cellHeight,
             child: Padding(
               padding: const .all(2),
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 1, end: 0),
-                duration: Duration(milliseconds: totalDurationMs),
-                curve: Interval(startAt, 1, curve: Curves.easeOutCubic),
-                builder: (context, t, child) {
-                  return Opacity(
-                    opacity: 1 - t,
-                    child: Transform.translate(
-                      offset: Offset(0, 16 * t),
-                      child: child,
-                    ),
-                  );
-                },
+              child: CourseTableEntranceAnimation(
+                delay: Duration(milliseconds: delayMs),
                 child: const CourseTableCellSkeleton(),
               ),
             ),
@@ -472,9 +459,6 @@ class CourseTableGrid extends StatelessWidget {
       final cellLeft = _stubWidth + (dayIndex * columnWidth);
       final cellHeight = _courseCellHeight(visiblePeriods, startIndex, cell);
       final delayMs = 50 + random.nextInt(101);
-      const riseDurationMs = 350;
-      final totalDurationMs = riseDurationMs + delayMs;
-      final startAt = delayMs / totalDurationMs;
 
       cells.add(
         Positioned(
@@ -486,19 +470,8 @@ class CourseTableGrid extends StatelessWidget {
             height: cellHeight,
             child: Padding(
               padding: const .all(2),
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 1, end: 0),
-                duration: Duration(milliseconds: totalDurationMs),
-                curve: Interval(startAt, 1, curve: Curves.easeOutCubic),
-                builder: (context, t, child) {
-                  return Opacity(
-                    opacity: 1 - t,
-                    child: Transform.translate(
-                      offset: Offset(0, 16 * t),
-                      child: child,
-                    ),
-                  );
-                },
+              child: CourseTableEntranceAnimation(
+                delay: Duration(milliseconds: delayMs),
                 child: CourseTableCell(
                   courseTableCellData: cell,
                   cellColor: colorByCourseId[cell.id] ?? Colors.grey,

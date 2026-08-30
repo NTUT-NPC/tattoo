@@ -6,6 +6,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_cell.dart';
 import 'package:tattoo/screens/main/course_table/course_table_colors.dart';
+import 'package:tattoo/screens/main/course_table/course_table_entrance_animation.dart';
 import 'package:tattoo/screens/main/course_table/course_table_grid.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
@@ -86,6 +87,48 @@ void main() {
     expect(find.byType(CourseTableGrid), findsNothing);
     expect(find.byType(CourseTableWeekly), findsOneWidget);
     expect(find.byTooltip('切換至網格檢視'), findsOneWidget);
+  });
+
+  testWidgets('weekly entries animate right to left from top to bottom', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: const MaterialApp(
+          home: Scaffold(
+            body: CourseTableWeekly(courseTableData: _courseTableData),
+          ),
+        ),
+      ),
+    );
+
+    final animations = tester
+        .widgetList<CourseTableEntranceAnimation>(
+          find.byType(CourseTableEntranceAnimation),
+        )
+        .toList(growable: false);
+
+    expect(animations, hasLength(3));
+    expect(
+      animations.map((animation) => animation.beginOffset),
+      everyElement(const Offset(16, 0)),
+    );
+    expect(
+      animations.map((animation) => animation.delay),
+      const [
+        Duration(milliseconds: 50),
+        Duration(milliseconds: 90),
+        Duration(milliseconds: 130),
+      ],
+    );
+    expect(
+      animations.map(
+        (animation) => (animation.child as CourseTableListCell)
+            .courseTableCellData
+            .courseName,
+      ),
+      const ['作業系統', '軟體工程', '校外實習'],
+    );
   });
 
   testWidgets('list cells reserve a subtitle line and grow for wrapping', (

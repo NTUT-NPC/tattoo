@@ -9,6 +9,7 @@ import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_cell.dart';
 import 'package:tattoo/screens/main/course_table/course_table_colors.dart';
 import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart';
+import 'package:tattoo/screens/main/course_table/course_table_entrance_animation.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 const _dayOrder = [
@@ -25,6 +26,10 @@ typedef _WeeklyCourse = ({
   Period startPeriod,
   CourseTableCellData cell,
 });
+
+const _initialEntranceDelay = Duration(milliseconds: 50);
+const _entranceStagger = Duration(milliseconds: 40);
+const _weeklyEntranceOffset = Offset(16, 0);
 
 /// A list-based weekly course-table view grouped by day.
 class CourseTableWeekly extends StatelessWidget {
@@ -69,62 +74,11 @@ class CourseTableWeekly extends StatelessWidget {
           SliverPadding(
             padding: const .all(16),
             sliver: SliverList.list(
-              children: [
-                for (final day in _dayOrder)
-                  if (coursesByDay[day] case final courses?) ...[
-                    SectionHeader(
-                      title: t.courseTable.dayOfWeekLong[day.name]!,
-                    ),
-                    const SizedBox(height: 8),
-                    for (final course in courses) ...[
-                      CourseTableListCell(
-                        courseTableCellData: course.cell,
-                        indicatorColor:
-                            colorByCourseId[course.cell.id] ?? Colors.grey,
-                        additionalSubtitle: course.cell.classroomName,
-                        trailingText: _periodLabel(course),
-                        onTap: switch (course.cell.number) {
-                          final number? => () => showCourseTableDetailSheet(
-                            context,
-                            number: number,
-                          ),
-                          null => null,
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  ],
-                if (courseTableData.unscheduled.isNotEmpty) ...[
-                  SectionHeader(title: t.courseTable.unscheduled),
-                  const SizedBox(height: 8),
-                  for (final cell in courseTableData.unscheduled) ...[
-                    CourseTableListCell(
-                      courseTableCellData: cell,
-                      indicatorColor: colorByCourseId[cell.id] ?? Colors.grey,
-                      onTap: switch (cell.number) {
-                        final number? => () => showCourseTableDetailSheet(
-                          context,
-                          number: number,
-                        ),
-                        null => null,
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                ],
-                Center(
-                  child: Padding(
-                    padding: const .all(8),
-                    child: Text(
-                      ' - '
-                      '${t.courseTable.summary.credits(count: courseTableData.totalCredits).spaced} · '
-                      '${t.courseTable.summary.hours(count: courseTableData.totalHours).spaced}'
-                      ' - ',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                ),
-              ],
+              children: _buildWeeklyChildren(
+                context,
+                coursesByDay,
+                colorByCourseId,
+              ),
             ),
           ),
         if (bottomInset > 0)
@@ -139,6 +93,97 @@ class CourseTableWeekly extends StatelessWidget {
       ),
       null => scrollView,
     };
+  }
+
+  List<Widget> _buildWeeklyChildren(
+    BuildContext context,
+    Map<DayOfWeek, List<_WeeklyCourse>> coursesByDay,
+    Map<int, Color> colorByCourseId,
+  ) {
+    final children = <Widget>[];
+    var animationIndex = 0;
+
+    for (final day in _dayOrder) {
+      final courses = coursesByDay[day];
+      if (courses == null) continue;
+
+      children.addAll([
+        SectionHeader(title: t.courseTable.dayOfWeekLong[day.name]!),
+        const SizedBox(height: 8),
+      ]);
+      for (final course in courses) {
+        children.addAll([
+          _buildAnimatedEntry(
+            animationIndex++,
+            CourseTableListCell(
+              courseTableCellData: course.cell,
+              indicatorColor: colorByCourseId[course.cell.id] ?? Colors.grey,
+              additionalSubtitle: course.cell.classroomName,
+              trailingText: _periodLabel(course),
+              onTap: switch (course.cell.number) {
+                final number? => () => showCourseTableDetailSheet(
+                  context,
+                  number: number,
+                ),
+                null => null,
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+        ]);
+      }
+    }
+
+    if (courseTableData.unscheduled.isNotEmpty) {
+      children.addAll([
+        SectionHeader(title: t.courseTable.unscheduled),
+        const SizedBox(height: 8),
+      ]);
+      for (final cell in courseTableData.unscheduled) {
+        children.addAll([
+          _buildAnimatedEntry(
+            animationIndex++,
+            CourseTableListCell(
+              courseTableCellData: cell,
+              indicatorColor: colorByCourseId[cell.id] ?? Colors.grey,
+              onTap: switch (cell.number) {
+                final number? => () => showCourseTableDetailSheet(
+                  context,
+                  number: number,
+                ),
+                null => null,
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+        ]);
+      }
+    }
+
+    children.add(
+      Center(
+        child: Padding(
+          padding: const .all(8),
+          child: Text(
+            ' - '
+            '${t.courseTable.summary.credits(count: courseTableData.totalCredits).spaced} · '
+            '${t.courseTable.summary.hours(count: courseTableData.totalHours).spaced}'
+            ' - ',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
+      ),
+    );
+    return children;
+  }
+
+  Widget _buildAnimatedEntry(int index, Widget child) {
+    return CourseTableEntranceAnimation(
+      key: ValueKey('weekly-course-$index'),
+      delay: _initialEntranceDelay + (_entranceStagger * index),
+      beginOffset: _weeklyEntranceOffset,
+      child: child,
+    );
   }
 
   Map<DayOfWeek, List<_WeeklyCourse>> _coursesByDay() {
@@ -196,11 +241,15 @@ class _WeeklyLoadingSkeleton extends StatelessWidget {
         children: [
           SectionHeader(title: t.courseTable.dayOfWeekLong['monday']!),
           for (var i = 0; i < 4; i++)
-            const CourseTableListCell(
-              courseTableCellData: placeholder,
-              indicatorColor: Colors.grey,
-              additionalSubtitle: '教室',
-              trailingText: '1–2',
+            CourseTableEntranceAnimation(
+              delay: _initialEntranceDelay + (_entranceStagger * i),
+              beginOffset: _weeklyEntranceOffset,
+              child: const CourseTableListCell(
+                courseTableCellData: placeholder,
+                indicatorColor: Colors.grey,
+                additionalSubtitle: '教室',
+                trailingText: '1–2',
+              ),
             ),
         ],
       ),
