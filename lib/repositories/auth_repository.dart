@@ -157,6 +157,11 @@ class AuthRepository {
   static const _passwordKey = 'password';
   static const _legacyUserDataKey = 'UserDataJsonKey';
 
+  /// Upper bound for the startup login in [restoreSession], which runs before
+  /// the first frame. NTUT requests have no Dio-level timeout, so without this
+  /// a black-holed connection would hold the app on the splash screen.
+  static const _restoreLoginTimeout = Duration(seconds: 20);
+
   AuthRepository({
     required this._portalService,
     required this._studentQueryService,
@@ -172,47 +177,64 @@ class AuthRepository {
   ///
   /// Secure credentials take precedence over legacy old TAT credentials.
   /// `hadStoredLogin` remains true when stored data is unusable or cannot be
-  /// verified because of a network failure, allowing startup to skip the intro.
+  /// verified because of a transient failure, allowing startup to skip the
+  /// intro.
+  ///
+  /// Never throws and never blocks longer than [_restoreLoginTimeout]: this
+  /// runs before `runApp`, so a storage failure, a malformed portal response,
+  /// or a stalled connection must degrade to "open the login screen" instead
+  /// of leaving the app without any UI.
   Future<({User? user, bool hadStoredLogin})> restoreSession() async {
     var hadStoredLogin = false;
     String? username;
     String? password;
 
-    final secureUsername = await _secureStorage.read(key: _usernameKey);
-    final securePassword = await _secureStorage.read(key: _passwordKey);
-    if (secureUsername != null || securePassword != null) {
-      hadStoredLogin = true;
-      if (secureUsername?.isNotEmpty == true &&
-          securePassword?.isNotEmpty == true) {
-        username = secureUsername;
-        password = securePassword;
-      } else {
-        await _clearSecureCredentials();
+    try {
+      final secureUsername = await _secureStorage.read(key: _usernameKey);
+      final securePassword = await _secureStorage.read(key: _passwordKey);
+      if (secureUsername != null || securePassword != null) {
+        hadStoredLogin = true;
+        if (secureUsername?.isNotEmpty == true &&
+            securePassword?.isNotEmpty == true) {
+          username = secureUsername;
+          password = securePassword;
+        } else {
+          await _clearSecureCredentials();
+        }
       }
+    } catch (error) {
+      log('Failed to read stored credentials: $error', name: 'AuthRepository');
     }
 
     if (username == null || password == null) {
-      final preferences = await SharedPreferences.getInstance();
-      final legacyUserData = preferences.get(_legacyUserDataKey);
-      if (legacyUserData != null) {
-        hadStoredLogin = true;
-        try {
-          final decoded = switch (legacyUserData) {
-            final String value => jsonDecode(value),
-            _ => null,
-          };
-          if (decoded case {
-            'account': final String account,
-            'password': final String legacyPassword,
-          } when account.isNotEmpty && legacyPassword.isNotEmpty) {
-            username = account;
-            password = legacyPassword;
-          } else {
+      try {
+        final preferences = await SharedPreferences.getInstance();
+        final legacyUserData = preferences.get(_legacyUserDataKey);
+        if (legacyUserData != null) {
+          hadStoredLogin = true;
+          try {
+            final decoded = switch (legacyUserData) {
+              final String value => jsonDecode(value),
+              _ => null,
+            };
+            if (decoded case {
+              'account': final String account,
+              'password': final String legacyPassword,
+            } when account.isNotEmpty && legacyPassword.isNotEmpty) {
+              username = account;
+              password = legacyPassword;
+            } else {
+              await _clearLegacyCredentials(preferences);
+            }
+          } on FormatException {
             await _clearLegacyCredentials(preferences);
           }
-        } on FormatException {
-          await _clearLegacyCredentials(preferences);
         }
+      } catch (error) {
+        log(
+          'Failed to read legacy credentials: $error',
+          name: 'AuthRepository',
+        );
       }
     }
 
@@ -224,13 +246,21 @@ class AuthRepository {
     }
 
     try {
-      final user = await login(username, password);
+      final user = await login(
+        username,
+        password,
+      ).timeout(_restoreLoginTimeout);
       return (user: user, hadStoredLogin: true);
     } on LoginException catch (exception) {
       await _clearCredentials();
       _onSessionDestroyed(exception);
       return (user: null, hadStoredLogin: true);
-    } on DioException {
+    } catch (error) {
+      // Everything else is treated as transient — a network failure, a stalled
+      // connection, or a captive portal answering `login.do` with HTML that
+      // fails to parse. Keep the credentials and let the user retry from the
+      // login screen rather than aborting startup.
+      log('Failed to restore session: $error', name: 'AuthRepository');
       return (user: null, hadStoredLogin: true);
     }
   }
@@ -272,8 +302,11 @@ class AuthRepository {
     if (!isDemo) {
       await _secureStorage.write(key: _usernameKey, value: username);
       await _secureStorage.write(key: _passwordKey, value: password);
+      // Secure storage now holds the credentials, so old TAT's plaintext copy
+      // is redundant. Demo logins keep it: they store nothing, and dropping it
+      // would strand a returning user's only migratable credentials.
+      await _clearLegacyCredentials();
     }
-    await _clearLegacyCredentials();
     final user = await _database.transaction(() async {
       await _database.delete(_database.users).go();
       return _database
@@ -303,9 +336,11 @@ class AuthRepository {
 
   /// Logs out and clears all local user data and stored credentials.
   Future<void> logout() async {
+    // Delete credentials before the user row so a failed persistent deletion
+    // cannot leave legacy credentials able to recreate a completed logout.
+    await _clearCredentials();
     await _database.deleteEverything();
     await cookieJar.deleteAll();
-    await _clearCredentials();
     await _clearAvatarCache();
     _ssoCache.clear();
     _ssoInFlight.clear();
@@ -775,8 +810,10 @@ class AuthRepository {
 
   /// Clears stored login credentials from secure and legacy storage.
   Future<void> _clearCredentials() async {
-    await _clearSecureCredentials();
+    // Delete the plaintext source first. If persistent deletion fails, keep the
+    // secure pair intact and do not acknowledge credential cleanup.
     await _clearLegacyCredentials();
+    await _clearSecureCredentials();
   }
 
   Future<void> _clearSecureCredentials() async {
@@ -784,9 +821,13 @@ class AuthRepository {
     await _secureStorage.delete(key: _passwordKey);
   }
 
+  /// Removes old TAT's plaintext credential payload.
   Future<void> _clearLegacyCredentials([SharedPreferences? preferences]) async {
     final storage = preferences ?? await SharedPreferences.getInstance();
-    await storage.remove(_legacyUserDataKey);
+    final removed = await storage.remove(_legacyUserDataKey);
+    if (!removed) {
+      throw StateError('Failed to clear legacy credentials');
+    }
   }
 
   /// Clears cached avatar files.

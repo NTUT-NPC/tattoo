@@ -181,9 +181,8 @@ Future<void> main() async {
     if (user.studentId == demoUsername) {
       container.read(isDemoProvider.notifier).set(true);
     }
-    if (!container.read(sessionProvider)) {
-      container.read(sessionProvider.notifier).create();
-    }
+    // Idempotent: restoreSession's login already created the session.
+    container.read(sessionProvider.notifier).create();
   }
   final initialLocation = switch ((user, hadStoredLogin)) {
     (final User _, _) => AppRoutes.home,
