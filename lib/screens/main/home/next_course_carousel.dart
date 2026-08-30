@@ -18,6 +18,8 @@ class NextCourseCarousel extends StatefulWidget {
     super.key,
     required this.courses,
     required this.initialCourseIndex,
+    this.onPreviousDate,
+    this.onNextDate,
     this.onCourseTap,
   }) : assert(
          initialCourseIndex == null ||
@@ -26,6 +28,8 @@ class NextCourseCarousel extends StatefulWidget {
 
   final List<NextCourse> courses;
   final int? initialCourseIndex;
+  final VoidCallback? onPreviousDate;
+  final VoidCallback? onNextDate;
   final ValueChanged<NextCourse>? onCourseTap;
 
   @override
@@ -154,6 +158,12 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
       if (!mounted) return;
     }
 
+    final onDateChanged = switch (direction) {
+      .previous => widget.onPreviousDate,
+      .next => widget.onNextDate,
+    };
+    onDateChanged?.call();
+
     setState(() {
       _currentIndex = _firstCoursePageIndex;
     });
@@ -200,31 +210,9 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
             key: const Key('course-ended-notice'),
             opacity: _isShowingCourseEnded ? 1 : 0,
             child: Center(
-              child: ClearNoticeVertical(
-                icon: SizedBox.square(
-                  dimension: 72,
-                  child: Stack(
-                    alignment: .center,
-                    children: [
-                      if (_nextWeekProgress > 0)
-                        SizedBox.expand(
-                          child: CircularProgressIndicator(
-                            key: const Key('next-week-progress-indicator'),
-                            value: _nextWeekProgress,
-                            strokeWidth: 3,
-                            strokeCap: .round,
-                            color: colorScheme.primary,
-                          ),
-                        ),
-                      const Icon(
-                        Icons.coffee_outlined,
-                        size: 40,
-                      ),
-                    ],
-                  ),
-                ),
-                text: TextSpan(text: t.home.coursesEnded),
-                color: colorScheme.onSurfaceVariant,
+              child: _buildCourseEndedContent(
+                colorScheme,
+                showProgress: true,
               ),
             ),
           ),
@@ -232,6 +220,50 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
       ),
     );
   }
+
+  Widget _buildCourseEndedContent(
+    ColorScheme colorScheme, {
+    required bool showProgress,
+  }) {
+    return ClearNoticeVertical(
+      icon: SizedBox.square(
+        dimension: 72,
+        child: Stack(
+          alignment: .center,
+          children: [
+            if (showProgress && _nextWeekProgress > 0)
+              SizedBox.expand(
+                child: CircularProgressIndicator(
+                  key: const Key('next-week-progress-indicator'),
+                  value: _nextWeekProgress,
+                  strokeWidth: 3,
+                  strokeCap: .round,
+                  color: colorScheme.primary,
+                ),
+              ),
+            const Icon(
+              Icons.coffee_outlined,
+              size: 40,
+            ),
+          ],
+        ),
+      ),
+      text: TextSpan(
+        text: widget.courses.isEmpty
+            ? t.home.noCoursesToday
+            : t.home.coursesEnded,
+      ),
+      color: colorScheme.onSurfaceVariant,
+    );
+  }
+
+  Widget _buildHeightProbe(ColorScheme colorScheme) => switch (widget.courses) {
+    [final first, ...] => NextCourseCard(course: first),
+    [] => Padding(
+      padding: const .symmetric(vertical: 48),
+      child: _buildCourseEndedContent(colorScheme, showProgress: false),
+    ),
+  };
 
   bool _handleScrollEnd(ScrollEndNotification notification) {
     if (notification.depth != 0) return false;
@@ -326,8 +358,6 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.courses.isEmpty) return const SizedBox.shrink();
-
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       spacing: 8,
@@ -350,7 +380,7 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
                     child: IgnorePointer(
                       child: Opacity(
                         opacity: 0,
-                        child: NextCourseCard(course: widget.courses.first),
+                        child: _buildHeightProbe(colorScheme),
                       ),
                     ),
                   ),
@@ -387,7 +417,7 @@ class _NextCourseCarouselState extends State<NextCourseCarousel>
             );
           },
         ),
-        _buildPageIndicator(colorScheme),
+        if (widget.courses.isNotEmpty) _buildPageIndicator(colorScheme),
       ],
     );
   }

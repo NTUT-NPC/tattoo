@@ -65,8 +65,12 @@ portal:
   removeFavorite: Remove from favorites
 home:
   coursesEnded: Today's classes are over
-  previousDay: View previous day
+  noCoursesToday: No classes today
+  previousDay: View previous class day
   today: Today
+  tomorrow: Tomorrow
+  yesterday: Yesterday
+  weekday: ${day}
   courseStatus:
     ongoing: Ongoing
     imminent: Starting soon

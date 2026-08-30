@@ -259,11 +259,23 @@ class Translations$home$zh_TW {
 	/// zh-TW: '今日課程已結束'
 	String get coursesEnded => '今日課程已結束';
 
-	/// zh-TW: '查看上一天'
-	String get previousDay => '查看上一天';
+	/// zh-TW: '今日沒有課程'
+	String get noCoursesToday => '今日沒有課程';
+
+	/// zh-TW: '查看上一個有課日'
+	String get previousDay => '查看上一個有課日';
 
 	/// zh-TW: '今日'
 	String get today => '今日';
+
+	/// zh-TW: '明日'
+	String get tomorrow => '明日';
+
+	/// zh-TW: '昨日'
+	String get yesterday => '昨日';
+
+	/// zh-TW: '週${day}'
+	String weekday({required Object day}) => '週${day}';
 
 	late final Translations$home$courseStatus$zh_TW courseStatus = Translations$home$courseStatus$zh_TW.internal(_root);
 	late final Translations$home$projectTattoo$zh_TW projectTattoo = Translations$home$projectTattoo$zh_TW.internal(_root);
@@ -1526,8 +1538,12 @@ extension on Translations {
 			'portal.addFavorite' => '加入最愛',
 			'portal.removeFavorite' => '取消最愛',
 			'home.coursesEnded' => '今日課程已結束',
-			'home.previousDay' => '查看上一天',
+			'home.noCoursesToday' => '今日沒有課程',
+			'home.previousDay' => '查看上一個有課日',
 			'home.today' => '今日',
+			'home.tomorrow' => '明日',
+			'home.yesterday' => '昨日',
+			'home.weekday' => ({required Object day}) => '週${day}',
 			'home.courseStatus.ongoing' => '進行中',
 			'home.courseStatus.imminent' => '即將開始',
 			'home.courseStatus.next' => '下一堂課',

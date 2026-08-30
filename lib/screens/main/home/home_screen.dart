@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
@@ -24,6 +25,7 @@ class MainHomeScreen extends ConsumerStatefulWidget {
 
 class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
   bool _updateSnackbarCheckScheduled = false;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -78,28 +80,57 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
     );
   }
 
+  void _showAdjacentCourseDate(
+    CourseTableData? courseTable,
+    DateTime displayedDate,
+    CourseDateDirection direction,
+  ) {
+    if (courseTable == null) return;
+    if (adjacentCourseDate(
+          courseTable,
+          date: displayedDate,
+          direction: direction,
+        )
+        case final date?) {
+      setState(() => _selectedDate = date);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final now = ref.watch(homeClockProvider).asData?.value ?? DateTime.now();
+    final today = DateUtils.dateOnly(now);
+    final displayedDate = _selectedDate ?? today;
     final semestersAsync = ref.watch(homeSemestersProvider);
-    final semesterId = switch (semestersAsync) {
+    final latestSemesterId = switch (semestersAsync) {
       AsyncData(value: final semesters) when semesters.isNotEmpty =>
         semesters.first.id,
       _ => null,
     };
-    final courseTable = switch (semesterId) {
-      final semesterId? =>
-        ref.watch(homeCourseTableProvider(semesterId)).asData?.value,
+    final courseTable = switch (latestSemesterId) {
+      final latestSemesterId? =>
+        ref.watch(homeCourseTableProvider(latestSemesterId)).asData?.value,
       null => null,
     };
     final meetings = switch (courseTable) {
-      final courseTable? => todayCourseMeetings(courseTable, now: now),
+      final courseTable? => courseMeetingsForDate(
+        courseTable,
+        date: displayedDate,
+        now: now,
+      ),
       null => <CourseScheduleMeeting>[],
     };
+    final dayLabel = _courseDateLabel(displayedDate, today: today);
     final courses = [
-      for (final meeting in meetings) _toNextCourse(meeting, now: now),
+      for (final meeting in meetings)
+        _toNextCourse(meeting, dayLabel: dayLabel, now: now),
     ];
-    final initialCourseIndex = preferredTodayCourseIndex(meetings, now: now);
+    final initialCourseIndex = switch ((meetings.isEmpty, displayedDate)) {
+      (true, _) => null,
+      (false, final date) when DateUtils.isSameDay(date, today) =>
+        preferredTodayCourseIndex(meetings, now: now),
+      (false, _) => 0,
+    };
     final options = [
       OptionEntryTile.svg(
         svgIconAsset: "assets/tat_icon.svg",
@@ -171,6 +202,16 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
                     NextCourseCarousel(
                       courses: courses,
                       initialCourseIndex: initialCourseIndex,
+                      onPreviousDate: () => _showAdjacentCourseDate(
+                        courseTable,
+                        displayedDate,
+                        .previous,
+                      ),
+                      onNextDate: () => _showAdjacentCourseDate(
+                        courseTable,
+                        displayedDate,
+                        .next,
+                      ),
                       onCourseTap: (course) {
                         if (course.courseNumber case final number?) {
                           showCourseTableDetailSheet(context, number: number);
@@ -194,6 +235,7 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
 
 NextCourse _toNextCourse(
   CourseScheduleMeeting meeting, {
+  required String dayLabel,
   required DateTime now,
 }) {
   final NextCourseState state = switch ((meeting.start, meeting.end)) {
@@ -213,8 +255,31 @@ NextCourse _toNextCourse(
         : meeting.course.teacherNames.join('、'),
     classroom: meeting.course.classroomName ?? '-',
     time: '${_formatTime(meeting.start)} - ${_formatTime(meeting.end)}',
+    dayLabel: dayLabel,
     state: state,
   );
+}
+
+String _courseDateLabel(DateTime date, {required DateTime today}) {
+  if (DateUtils.isSameDay(date, today)) return t.home.today;
+  if (DateUtils.isSameDay(date, today.add(const Duration(days: 1)))) {
+    return t.home.tomorrow;
+  }
+  if (DateUtils.isSameDay(date, today.subtract(const Duration(days: 1)))) {
+    return t.home.yesterday;
+  }
+
+  final dayKey = switch (date.weekday) {
+    DateTime.monday => 'monday',
+    DateTime.tuesday => 'tuesday',
+    DateTime.wednesday => 'wednesday',
+    DateTime.thursday => 'thursday',
+    DateTime.friday => 'friday',
+    DateTime.saturday => 'saturday',
+    DateTime.sunday => 'sunday',
+    _ => throw StateError('Unsupported weekday: ${date.weekday}'),
+  };
+  return t.home.weekday(day: t.courseTable.dayOfWeek[dayKey]!);
 }
 
 String _formatTime(DateTime time) =>

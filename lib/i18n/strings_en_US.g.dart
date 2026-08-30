@@ -173,8 +173,12 @@ class _Translations$home$en_US extends Translations$home$zh_TW {
 
 	// Translations
 	@override String get coursesEnded => 'Today\'s classes are over';
-	@override String get previousDay => 'View previous day';
+	@override String get noCoursesToday => 'No classes today';
+	@override String get previousDay => 'View previous class day';
 	@override String get today => 'Today';
+	@override String get tomorrow => 'Tomorrow';
+	@override String get yesterday => 'Yesterday';
+	@override String weekday({required Object day}) => '${day}';
 	@override late final _Translations$home$courseStatus$en_US courseStatus = _Translations$home$courseStatus$en_US._(_root);
 	@override late final _Translations$home$projectTattoo$en_US projectTattoo = _Translations$home$projectTattoo$en_US._(_root);
 	@override late final _Translations$home$ideation$en_US ideation = _Translations$home$ideation$en_US._(_root);
@@ -955,8 +959,12 @@ extension on TranslationsEnUs {
 			'portal.addFavorite' => 'Add to favorites',
 			'portal.removeFavorite' => 'Remove from favorites',
 			'home.coursesEnded' => 'Today\'s classes are over',
-			'home.previousDay' => 'View previous day',
+			'home.noCoursesToday' => 'No classes today',
+			'home.previousDay' => 'View previous class day',
 			'home.today' => 'Today',
+			'home.tomorrow' => 'Tomorrow',
+			'home.yesterday' => 'Yesterday',
+			'home.weekday' => ({required Object day}) => '${day}',
 			'home.courseStatus.ongoing' => 'Ongoing',
 			'home.courseStatus.imminent' => 'Starting soon',
 			'home.courseStatus.next' => 'Next course',

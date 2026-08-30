@@ -65,8 +65,12 @@ portal:
   removeFavorite: 取消最愛
 home:
   coursesEnded: 今日課程已結束
-  previousDay: 查看上一天
+  noCoursesToday: 今日沒有課程
+  previousDay: 查看上一個有課日
   today: 今日
+  tomorrow: 明日
+  yesterday: 昨日
+  weekday: 週${day}
   courseStatus:
     ongoing: 進行中
     imminent: 即將開始

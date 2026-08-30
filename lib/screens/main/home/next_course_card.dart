@@ -20,6 +20,7 @@ class NextCourse {
     required this.teacher,
     required this.classroom,
     required this.time,
+    required this.dayLabel,
     required this.state,
   });
 
@@ -28,6 +29,7 @@ class NextCourse {
   final String teacher;
   final String classroom;
   final String time;
+  final String dayLabel;
   final NextCourseState state;
 }
 
@@ -62,7 +64,7 @@ class NextCourseCard extends StatelessWidget {
       .imminent => t.home.courseStatus.imminent,
       .upcoming => t.home.courseStatus.next,
     };
-    final header = [t.home.today, ?stateLabel].join(' · ');
+    final header = [course.dayLabel, ?stateLabel].join(' · ');
 
     const BorderRadius borderRadius = .all(.circular(20));
 

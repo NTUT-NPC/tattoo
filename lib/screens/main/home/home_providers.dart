@@ -11,7 +11,7 @@ final homeClockProvider = StreamProvider.autoDispose<DateTime>((ref) async* {
   );
 });
 
-/// Provides the course-table semesters available to the current user.
+/// Provides course-table semesters newest first; home displays the first one.
 final homeSemestersProvider = StreamProvider.autoDispose<List<Semester>>((ref) {
   return ref.watch(courseRepositoryProvider).watchSemesters();
 });
