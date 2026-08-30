@@ -570,12 +570,13 @@ class Schedules extends Table with AutoIncrementId {
 
 /// A teacher-authored syllabus for a course offering (教學大綱與進度).
 ///
-/// An offering can have multiple syllabi — one per teacher who submits one,
-/// keyed by the authoring teacher's code (hence the [Teachers] reference;
-/// per-semester teacher details live on [TeacherSemesters]). Fields shared
-/// across an offering's syllabi (course type, enrolled, withdrawn) stay on
-/// [CourseOfferings]. A row exists only for a teacher who has submitted a
-/// syllabus; it is created lazily on first fetch and revalidated when stale.
+/// An offering can have multiple syllabi — one cache row per associated
+/// teacher and language variant, keyed by the teacher's code (hence the
+/// [Teachers] reference; per-semester teacher details live on
+/// [TeacherSemesters]). An unsubmitted syllabus retains only its fetch
+/// timestamp so the absence participates in TTL caching. Fields shared across
+/// an offering's submitted syllabi (course type, enrolled, withdrawn) stay on
+/// [CourseOfferings].
 // Without @DataClassName, Drift names the row class 'Syllabuse'.
 @DataClassName('Syllabus')
 class Syllabuses extends Table with AutoIncrementId {
