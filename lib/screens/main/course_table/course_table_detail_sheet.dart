@@ -195,10 +195,17 @@ class _SyllabusTabsState extends State<_SyllabusTabs>
       return;
     }
 
-    final previousIndex = _controller.index;
+    final previousTeacherCode = oldWidget.details.isEmpty
+        ? null
+        : oldWidget.details[_controller.index].teacher.code;
+    final updatedIndex = previousTeacherCode == null
+        ? -1
+        : widget.details.indexWhere(
+            (detail) => detail.teacher.code == previousTeacherCode,
+          );
     _controller.dispose();
     _controller = _createController(
-      initialIndex: previousIndex < widget.details.length ? previousIndex : 0,
+      initialIndex: updatedIndex < 0 ? 0 : updatedIndex,
     );
   }
 
