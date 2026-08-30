@@ -97,7 +97,7 @@ void main() {
     expect(find.byType(NavigationBar), findsNothing);
   });
 
-  testWidgets('caps the wide main frame at 660 pixels', (tester) async {
+  testWidgets('pins the rail left and centers capped content', (tester) async {
     await setWindowSize(tester, width: 1000);
     const bodyKey = Key('navigation-body');
 
@@ -114,17 +114,18 @@ void main() {
 
     final railWidth = tester.getSize(find.byType(NavigationRail)).width;
     expect(railWidth, greaterThanOrEqualTo(navigationRailMinWidth));
+    expect(tester.getTopLeft(find.byType(NavigationRail)).dx, 0);
     expect(
       tester.getSize(find.byKey(bodyKey)).width,
-      lessThanOrEqualTo(contentMaxWidth),
+      contentMaxWidth,
     );
     expect(
       tester.getSize(find.byType(Scaffold).first).width,
-      mainFrameMaxWidth,
+      1000,
     );
     expect(
-      tester.getTopLeft(find.byType(Scaffold).first).dx,
-      (1000 - mainFrameMaxWidth) / 2,
+      tester.getTopLeft(find.byKey(bodyKey)).dx,
+      railWidth + (1000 - railWidth - contentMaxWidth) / 2,
     );
   });
 

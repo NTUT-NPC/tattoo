@@ -7,9 +7,6 @@ const navigationRailBreakpoint = 580.0;
 /// Minimum width reserved for the compact navigation rail.
 const navigationRailMinWidth = 80.0;
 
-/// Maximum width of the centered main frame, including its navigation rail.
-const mainFrameMaxWidth = contentMaxWidth + navigationRailMinWidth;
-
 /// Shared data used to build bar and rail navigation destinations.
 class AdaptiveNavigationDestination {
   const AdaptiveNavigationDestination({
@@ -45,46 +42,45 @@ class AdaptiveNavigationScaffold extends StatelessWidget {
         final useNavigationRail =
             constraints.maxWidth >= navigationRailBreakpoint;
 
-        return CenteredMaxWidthFrame(
-          maxWidth: useNavigationRail ? mainFrameMaxWidth : contentMaxWidth,
-          child: Scaffold(
-            body: useNavigationRail
-                ? Row(
-                    children: [
-                      NavigationRail(
-                        minWidth: navigationRailMinWidth,
-                        labelType: .all,
-                        scrollable: true,
-                        destinations: [
-                          for (final destination in destinations)
-                            NavigationRailDestination(
-                              icon: destination.icon,
-                              selectedIcon: destination.selectedIcon,
-                              label: Text(destination.label),
-                            ),
-                        ],
-                        selectedIndex: selectedIndex,
-                        onDestinationSelected: onDestinationSelected,
+        return Scaffold(
+          body: useNavigationRail
+              ? Row(
+                  children: [
+                    NavigationRail(
+                      minWidth: navigationRailMinWidth,
+                      labelType: .all,
+                      scrollable: true,
+                      destinations: [
+                        for (final destination in destinations)
+                          NavigationRailDestination(
+                            icon: destination.icon,
+                            selectedIcon: destination.selectedIcon,
+                            label: Text(destination.label),
+                          ),
+                      ],
+                      selectedIndex: selectedIndex,
+                      onDestinationSelected: onDestinationSelected,
+                    ),
+                    Expanded(
+                      child: CenteredMaxWidthFrame(child: body),
+                    ),
+                  ],
+                )
+              : CenteredMaxWidthFrame(child: body),
+          bottomNavigationBar: useNavigationRail
+              ? null
+              : NavigationBar(
+                  destinations: [
+                    for (final destination in destinations)
+                      NavigationDestination(
+                        icon: destination.icon,
+                        selectedIcon: destination.selectedIcon,
+                        label: destination.label,
                       ),
-                      Expanded(child: body),
-                    ],
-                  )
-                : body,
-            bottomNavigationBar: useNavigationRail
-                ? null
-                : NavigationBar(
-                    destinations: [
-                      for (final destination in destinations)
-                        NavigationDestination(
-                          icon: destination.icon,
-                          selectedIcon: destination.selectedIcon,
-                          label: destination.label,
-                        ),
-                    ],
-                    selectedIndex: selectedIndex,
-                    onDestinationSelected: onDestinationSelected,
-                  ),
-          ),
+                  ],
+                  selectedIndex: selectedIndex,
+                  onDestinationSelected: onDestinationSelected,
+                ),
         );
       },
     );
