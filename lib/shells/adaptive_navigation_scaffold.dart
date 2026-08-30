@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tattoo/shells/centered_max_width_frame.dart';
 
 /// Width at which the main navigation changes from a bar to a rail.
@@ -51,6 +52,14 @@ class AdaptiveNavigationScaffold extends StatelessWidget {
                       groupAlignment: 1,
                       labelType: .all,
                       scrollable: true,
+                      leading: Padding(
+                        padding: const .only(top: 8),
+                        child: SvgPicture.asset(
+                          'assets/tat_icon.svg',
+                          width: 40,
+                          height: 40,
+                        ),
+                      ),
                       destinations: [
                         for (final destination in destinations)
                           NavigationRailDestination(
