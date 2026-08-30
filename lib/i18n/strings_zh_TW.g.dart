@@ -258,6 +258,10 @@ class Translations$home$zh_TW {
 	late final Translations$home$projectTattoo$zh_TW projectTattoo = Translations$home$projectTattoo$zh_TW.internal(_root);
 	late final Translations$home$ideation$zh_TW ideation = Translations$home$ideation$zh_TW.internal(_root);
 	late final Translations$home$npcClub$zh_TW npcClub = Translations$home$npcClub$zh_TW.internal(_root);
+
+	/// zh-TW: '連接校園Wi-Fi'
+	String get campusWifi => '連接校園Wi-Fi';
+
 	late final Translations$home$vote$zh_TW vote = Translations$home$vote$zh_TW.internal(_root);
 }
 
@@ -1501,6 +1505,7 @@ extension on Translations {
 			'home.npcClub.title' => '北科程式設計研究社',
 			'home.npcClub.description' => '有任何想法或是想加入開發，隨時歡迎聯絡我們！',
 			'home.npcClub.url' => 'https://ntut.club',
+			'home.campusWifi' => '連接校園Wi-Fi',
 			'home.vote.description' => '學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！',
 			'score.loadFailed' => '成績載入失敗',
 			'score.refreshFailed' => '成績更新失敗',

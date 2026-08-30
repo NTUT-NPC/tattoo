@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
@@ -122,6 +124,13 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
         title: t.nav.calendar,
         onTap: () => context.push(AppRoutes.calendar),
       ),
+      if (Theme.of(context).platform == TargetPlatform.android &&
+          ref.pref(PrefKey.showWifiButton))
+        OptionEntryTile.icon(
+          icon: Icons.wifi,
+          title: t.home.campusWifi.spaced,
+          onTap: () => context.push(AppRoutes.ntutWifi),
+        ),
     ];
 
     return Scaffold(

@@ -175,6 +175,7 @@ class _Translations$home$en_US extends Translations$home$zh_TW {
 	@override late final _Translations$home$projectTattoo$en_US projectTattoo = _Translations$home$projectTattoo$en_US._(_root);
 	@override late final _Translations$home$ideation$en_US ideation = _Translations$home$ideation$en_US._(_root);
 	@override late final _Translations$home$npcClub$en_US npcClub = _Translations$home$npcClub$en_US._(_root);
+	@override String get campusWifi => 'Connect to Campus Wi-Fi';
 	@override late final _Translations$home$vote$en_US vote = _Translations$home$vote$en_US._(_root);
 }
 
@@ -946,6 +947,7 @@ extension on TranslationsEnUs {
 			'home.npcClub.title' => 'NTUT Programming Club',
 			'home.npcClub.description' => 'If you have ideas or want to contribute, feel free to reach out anytime.',
 			'home.npcClub.url' => 'https://ntut.club',
+			'home.campusWifi' => 'Connect to Campus Wi-Fi',
 			'home.vote.description' => 'Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.',
 			'score.loadFailed' => 'Failed to load scores',
 			'score.refreshFailed' => 'Failed to refresh scores',
