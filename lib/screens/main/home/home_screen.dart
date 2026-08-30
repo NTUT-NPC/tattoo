@@ -16,12 +16,24 @@ class MainHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
+  bool _updateSnackbarCheckScheduled = false;
+
   @override
   void initState() {
     super.initState();
-    // Show the optional update snackbar once on first mount, after the frame is
-    // ready so ScaffoldMessenger is available.
+    ref.listenManual(updateConfigProvider, (_, _) {
+      _scheduleUpdateSnackbarCheck();
+    });
+    _scheduleUpdateSnackbarCheck();
+  }
+
+  /// Schedules the snackbar check after the current frame so
+  /// [ScaffoldMessenger] is available.
+  void _scheduleUpdateSnackbarCheck() {
+    if (_updateSnackbarCheckScheduled) return;
+    _updateSnackbarCheckScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateSnackbarCheckScheduled = false;
       _maybeShowUpdateSnackbar();
     });
   }
@@ -32,14 +44,14 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
     if (!mounted) return;
     final config = ref.read(updateConfigProvider);
 
-    // If it's a forced update, ensure no optional snackbar is left hanging.
-    if (config?.isForcedUpdate == true) {
+    // Clear an obsolete optional snackbar when the update is removed or forced.
+    if (config == null || config.isForcedUpdate) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       return;
     }
 
     final dismissed = ref.read(optionalUpdateDismissedProvider);
-    if (config == null || dismissed) return;
+    if (dismissed) return;
 
     // Mark as dismissed so the snackbar isn't re-shown on hot-reload / re-entry.
     ref.read(optionalUpdateDismissedProvider.notifier).dismiss();

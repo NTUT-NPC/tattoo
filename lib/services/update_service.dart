@@ -18,19 +18,8 @@ typedef VersionConfig = ({
 /// Compares two Semantic Versioning (SemVer) strings (e.g., "1.6.9", "1.0.0-pr.666").
 ///
 /// Returns `true` when [current] is strictly older than [required].
-bool _isOutdated(String current, String required) {
-  try {
-    final currentVer = Version.parse(current);
-    final requiredVer = Version.parse(required);
-    return currentVer < requiredVer;
-  } catch (e) {
-    log(
-      'SemVer parse error (current: $current, required: $required): $e',
-      name: 'UpdateService',
-    );
-    return false;
-  }
-}
+bool _isOutdated(String current, String required) =>
+    Version.parse(current) < Version.parse(required);
 
 /// Reads and parses the update parameters from Remote Config.
 ///
@@ -75,11 +64,12 @@ VersionConfig? _parseVersionConfig() {
 Future<String> _getCurrentSemVer() async {
   final packageInfo = await PackageInfo.fromPlatform();
   const suffix = String.fromEnvironment('VERSION_SUFFIX');
+  if (suffix.isEmpty) return packageInfo.version;
 
-  if (suffix.isEmpty) {
-    return packageInfo.version;
-  }
-  return '${packageInfo.version}-$suffix';
+  final normalizedSuffix = suffix.startsWith('-')
+      ? suffix.substring(1)
+      : suffix;
+  return '${packageInfo.version}-$normalizedSuffix';
 }
 
 /// Checks whether the running app version is older than the version declared
