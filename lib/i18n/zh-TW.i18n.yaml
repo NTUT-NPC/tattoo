@@ -91,6 +91,16 @@ score:
     semesterAverage: 學期平均
     creditsPassed: 實得學分
     totalCredits: 修課總學分
+  ranking:
+    title: 排名資訊
+    type:
+      classLevel: 班級
+      groupLevel: 分組
+      departmentLevel: 系所
+    semester: 學期
+    cumulative: 歷年
+    rankAndTotal: ${rank} / ${total} (${percentage}%)
+    empty: 尚無排名
   status:
     notEntered: 未輸入
     withdraw: 撤選

@@ -286,6 +286,7 @@ class Translations$score$zh_TW {
 	String get none => '無';
 
 	late final Translations$score$summary$zh_TW summary = Translations$score$summary$zh_TW.internal(_root);
+	late final Translations$score$ranking$zh_TW ranking = Translations$score$ranking$zh_TW.internal(_root);
 	late final Translations$score$status$zh_TW status = Translations$score$status$zh_TW.internal(_root);
 }
 
@@ -695,6 +696,32 @@ class Translations$score$summary$zh_TW {
 	String get totalCredits => '修課總學分';
 }
 
+// Path: score.ranking
+class Translations$score$ranking$zh_TW {
+	Translations$score$ranking$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '排名資訊'
+	String get title => '排名資訊';
+
+	late final Translations$score$ranking$type$zh_TW type = Translations$score$ranking$type$zh_TW.internal(_root);
+
+	/// zh-TW: '學期'
+	String get semester => '學期';
+
+	/// zh-TW: '歷年'
+	String get cumulative => '歷年';
+
+	/// zh-TW: '${rank} / ${total} (${percentage}%)'
+	String rankAndTotal({required Object rank, required Object total, required Object percentage}) => '${rank} / ${total} (${percentage}%)';
+
+	/// zh-TW: '尚無排名'
+	String get empty => '尚無排名';
+}
+
 // Path: score.status
 class Translations$score$status$zh_TW {
 	Translations$score$status$zh_TW.internal(this._root);
@@ -1045,6 +1072,24 @@ class Translations$intro$features$campusLife$zh_TW {
 	String get description => '彙整其他校園生活資訊，更多功能敬請期待。';
 }
 
+// Path: score.ranking.type
+class Translations$score$ranking$type$zh_TW {
+	Translations$score$ranking$type$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '班級'
+	String get classLevel => '班級';
+
+	/// zh-TW: '分組'
+	String get groupLevel => '分組';
+
+	/// zh-TW: '系所'
+	String get departmentLevel => '系所';
+}
+
 // Path: profile.dangerZone.items
 class Translations$profile$dangerZone$items$zh_TW {
 	Translations$profile$dangerZone$items$zh_TW.internal(this._root);
@@ -1179,6 +1224,14 @@ extension on Translations {
 			'score.summary.semesterAverage' => '學期平均',
 			'score.summary.creditsPassed' => '實得學分',
 			'score.summary.totalCredits' => '修課總學分',
+			'score.ranking.title' => '排名資訊',
+			'score.ranking.type.classLevel' => '班級',
+			'score.ranking.type.groupLevel' => '分組',
+			'score.ranking.type.departmentLevel' => '系所',
+			'score.ranking.semester' => '學期',
+			'score.ranking.cumulative' => '歷年',
+			'score.ranking.rankAndTotal' => ({required Object rank, required Object total, required Object percentage}) => '${rank} / ${total} (${percentage}%)',
+			'score.ranking.empty' => '尚無排名',
 			'score.status.notEntered' => '未輸入',
 			'score.status.withdraw' => '撤選',
 			'score.status.undelivered' => '未送成績',

@@ -7,6 +7,7 @@ import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/components/floating_action_bar.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/repositories/student_repository.dart';
 import 'package:tattoo/screens/main/score/score_providers.dart';
 import 'package:tattoo/screens/main/score/score_view_helpers.dart';
@@ -244,16 +245,22 @@ class _SemesterScoreList extends StatelessWidget {
                   _floatingBarBottomInset + bottomInset,
                 ),
                 sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, scoreIndex) {
-                    final score = scores[scoreIndex];
-                    return Column(
-                      children: [
-                        _ScoreTile(score: score),
-                        if (scoreIndex != scores.length - 1)
-                          const Divider(height: 1),
-                      ],
-                    );
-                  }, childCount: scores.length),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    if (index < scores.length) {
+                      final score = scores[index];
+                      return Column(
+                        children: [
+                          _ScoreTile(score: score),
+                          if (index != scores.length - 1)
+                            const Divider(height: 1),
+                        ],
+                      );
+                    } else {
+                      return Skeleton.keep(
+                        child: _SemesterRankingCard(rankings: record.rankings),
+                      );
+                    }
+                  }, childCount: scores.length + (loading ? 0 : 1)),
                 ),
               )
             else
@@ -394,5 +401,152 @@ class _ScoreTile extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _SemesterRankingCard extends StatelessWidget {
+  final List<UserSemesterRanking> rankings;
+
+  const _SemesterRankingCard({required this.rankings});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const .symmetric(vertical: 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                t.score.ranking.title,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (rankings.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const .symmetric(vertical: 8),
+                    child: Text(
+                      t.score.ranking.empty.spaced,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                )
+              else
+                Table(
+                  columnWidths: const {
+                    0: FlexColumnWidth(1.2),
+                    1: FlexColumnWidth(1.4),
+                    2: FlexColumnWidth(1.4),
+                  },
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  children: [
+                    TableRow(
+                      children: [
+                        const SizedBox(),
+                        Text(
+                          t.score.ranking.semester.spaced,
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontWeight: FontWeight.bold,
+                              ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          t.score.ranking.cumulative.spaced,
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                                fontWeight: FontWeight.bold,
+                              ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    const TableRow(
+                      children: [
+                        SizedBox(height: 8),
+                        SizedBox(height: 8),
+                        SizedBox(height: 8),
+                      ],
+                    ),
+                    for (final ranking in rankings) ...[
+                      TableRow(
+                        children: [
+                          Text(
+                            _getRankingTypeLabel(ranking.rankingType).spaced,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: colorScheme.onSurface,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          Text(
+                            _formatRankAndTotal(
+                              ranking.semesterRank,
+                              ranking.semesterTotal,
+                            ).spaced,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            _formatRankAndTotal(
+                              ranking.grandTotalRank,
+                              ranking.grandTotalTotal,
+                            ).spaced,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                      if (ranking != rankings.last)
+                        const TableRow(
+                          children: [
+                            SizedBox(height: 8),
+                            SizedBox(height: 8),
+                            SizedBox(height: 8),
+                          ],
+                        ),
+                    ],
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatRankAndTotal(int rank, int total) {
+    final percentage = total > 0
+        ? (rank / total * 100).toStringAsFixed(1)
+        : '0.0';
+    return t.score.ranking.rankAndTotal(
+      rank: rank,
+      total: total,
+      percentage: percentage,
+    );
+  }
+
+  String _getRankingTypeLabel(RankingType type) {
+    return switch (type) {
+      RankingType.classLevel => t.score.ranking.type.classLevel,
+      RankingType.groupLevel => t.score.ranking.type.groupLevel,
+      RankingType.departmentLevel => t.score.ranking.type.departmentLevel,
+    };
   }
 }

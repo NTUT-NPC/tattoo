@@ -91,6 +91,16 @@ score:
     semesterAverage: Semester Avg
     creditsPassed: Credits Passed
     totalCredits: Total Credits
+  ranking:
+    title: Rankings
+    type:
+      classLevel: Class
+      groupLevel: Group
+      departmentLevel: Dept.
+    semester: Semester
+    cumulative: Cumulative
+    rankAndTotal: ${rank} / ${total} (${percentage}%)
+    empty: No rankings yet
   status:
     notEntered: Not entered
     withdraw: Withdrawn
