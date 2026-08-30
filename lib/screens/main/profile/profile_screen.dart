@@ -81,12 +81,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  void _showDemoTap(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(t.general.notImplemented)),
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // settings options for the profile tab
@@ -110,11 +104,6 @@ class ProfileScreen extends ConsumerWidget {
 
       SectionHeader(title: 'TAT'),
       OptionEntryTile.icon(
-        icon: Icons.favorite_border_outlined,
-        title: t.profile.options.supportUs,
-        onTap: () => _showDemoTap(context),
-      ),
-      OptionEntryTile.icon(
         icon: Icons.info_outline,
         title: t.profile.options.about.spaced,
         onTap: () => context.push(AppRoutes.about),
@@ -126,11 +115,6 @@ class ProfileScreen extends ConsumerWidget {
       ),
 
       SectionHeader(title: t.profile.sections.appSettings),
-      OptionEntryTile.icon(
-        icon: Icons.settings_outlined,
-        title: t.profile.options.preferences,
-        onTap: () => _showDemoTap(context),
-      ),
       OptionEntryTile.icon(
         icon: Icons.logout,
         title: t.profile.options.logout,

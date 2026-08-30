@@ -18,10 +18,6 @@ const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
 const _floatingBarBottomInset = 80.0;
 const _floatingBarMargin = 16.0;
 
-enum _CourseTableMenuAction {
-  displayOptions,
-}
-
 enum _CourseTableView { grid, weekly }
 
 class CourseTableScreen extends ConsumerStatefulWidget {
@@ -40,12 +36,6 @@ class _CourseTableScreenState extends ConsumerState<CourseTableScreen> {
       courseRepository.refreshSemesters(),
       courseRepository.refreshCourseTable(semesterId: semester.id),
     ].wait;
-  }
-
-  void _showDemoTap(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(t.general.notImplemented)),
-    );
   }
 
   void _toggleView() {
@@ -115,33 +105,6 @@ class _CourseTableScreenState extends ConsumerState<CourseTableScreen> {
                         .weekly => t.courseTable.actions.showGridView,
                       },
                       onTap: _toggleView,
-                    ),
-                    Builder(
-                      builder: (context) {
-                        return FloatingActionBarMenuButton<
-                          _CourseTableMenuAction
-                        >(
-                          icon: Icons.more_vert_outlined,
-                          items: [
-                            PopupMenuItem(
-                              value: .displayOptions,
-                              child: ListTile(
-                                leading: const Icon(Icons.tune_outlined),
-                                title: Text(
-                                  t.courseTable.actions.displayOptions,
-                                ),
-                              ),
-                            ),
-                          ],
-                          onSelected: (action) async {
-                            switch (action) {
-                              case .displayOptions:
-                                _showDemoTap(context);
-                                break;
-                            }
-                          },
-                        );
-                      },
                     ),
                   ],
                   child: AppSkeleton(
