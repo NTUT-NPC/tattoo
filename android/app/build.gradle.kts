@@ -13,7 +13,7 @@ plugins {
 }
 
 android {
-    namespace = "club.ntut.tattoo"
+    namespace = "club.ntut.npc.tat"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -23,7 +23,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "club.ntut.tattoo"
+        applicationId = "club.ntut.npc.tat"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

@@ -7,8 +7,8 @@ import 'package:tattoo/utils/pref_type.dart';
 
 /// Global toggle for Firebase features.
 ///
-/// Defaults to `false` to avoid package name mismatch issues in debug mode
-/// (`club.ntut.tattoo.debug`). Override via: `--dart-define=USE_FIREBASE=true`
+/// Defaults to `false` so local builds do not report analytics or crashes.
+/// Override via: `--dart-define=USE_FIREBASE=true`.
 const bool useFirebase = .fromEnvironment(
   'USE_FIREBASE',
   defaultValue: false,

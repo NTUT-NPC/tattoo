@@ -1,8 +1,8 @@
-package club.ntut.tattoo
+package club.ntut.npc.tat
 
 import android.os.Bundle
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import club.ntut.tattoo.campuswifi.CampusWifiChannelHandler
+import club.ntut.npc.tat.campuswifi.CampusWifiChannelHandler
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 

@@ -1,4 +1,4 @@
-package club.ntut.tattoo.campuswifi
+package club.ntut.npc.tat.campuswifi
 
 import android.app.Activity
 import android.content.ActivityNotFoundException

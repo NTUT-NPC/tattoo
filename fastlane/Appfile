@@ -1,10 +1,10 @@
 # iOS configuration
-app_identifier(ENV["FASTLANE_APP_IDENTIFIER"]) # The bundle identifier of your app
+app_identifier(ENV["IOS_BUNDLE_IDENTIFIER"])
 apple_id(ENV["FASTLANE_APPLE_ID"]) # Your Apple Developer Portal username
 team_id(ENV["FASTLANE_TEAM_ID"]) # Your Apple Developer Team ID
 
 # Android configuration
-package_name(ENV["FASTLANE_APP_IDENTIFIER"]) # e.g. com.krausefx.app
+package_name(ENV["ANDROID_PACKAGE_NAME"])
 
 # For more information about the Appfile, see:
 #     https://docs.fastlane.tools/advanced/#appfile

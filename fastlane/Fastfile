@@ -54,7 +54,7 @@ platform :ios do
       path: "ios/Runner.xcodeproj",
       sdk: "iphoneos*",
       code_sign_identity: "iPhone Distribution",
-      profile_name: "match AppStore #{ENV["FASTLANE_APP_IDENTIFIER"]}",
+      profile_name: "match AppStore #{ENV["IOS_BUNDLE_IDENTIFIER"]}",
     )
 
     store_url = options[:store_url] || ENV["STORE_URL"] || ENV["TESTFLIGHT_PUBLIC_LINK"] || ""
@@ -192,7 +192,7 @@ platform :android do
     track = options[:track] || "internal"
 
     upload_to_play_store(
-      package_name: ENV["FASTLANE_APP_IDENTIFIER"],
+      package_name: ENV["ANDROID_PACKAGE_NAME"],
       track: track,
       aab: aab_path,
       json_key: File.expand_path("../service-account.json", __dir__),
