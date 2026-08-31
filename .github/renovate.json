@@ -8,7 +8,7 @@
   "timezone": "Asia/Taipei",
   "prHourlyLimit": 0,
   "constraints": {
-    "flutter": "3.44.8"
+    "flutter": "3.47.2"
   },
   "bundler": {
     "managerFilePatterns": ["/(^|/)Pluginfile$/"]
