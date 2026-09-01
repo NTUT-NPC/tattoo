@@ -66,35 +66,6 @@
         "enabled" : true,
         "value" : 0.5
       }
-    },
-    {
-      "layers" : [
-        {
-          "fill-specializations" : [
-            {
-              "value" : "automatic"
-            },
-            {
-              "appearance" : "dark",
-              "value" : {
-                "solid" : "extended-gray:0.50000,1.00000"
-              }
-            }
-          ],
-          "glass" : false,
-          "hidden" : false,
-          "image-name" : "guidelines.png",
-          "name" : "Guidelines"
-        }
-      ],
-      "shadow" : {
-        "kind" : "neutral",
-        "opacity" : 0.5
-      },
-      "translucency" : {
-        "enabled" : true,
-        "value" : 0.5
-      }
     }
   ],
   "supported-platforms" : {
