@@ -6,9 +6,11 @@ import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/portal_repository.dart';
+import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/utils/localized.dart';
+import 'package:tattoo/utils/network_error.dart';
 
 final _portalApplicationCatalogProvider = StreamProvider(
   (ref) => ref.watch(portalRepositoryProvider).watchApplicationCatalog(),
@@ -27,12 +29,22 @@ class PortalScreen extends ConsumerWidget {
         ref.read(authRepositoryProvider),
         serviceCode,
       );
-    } on DioException {
+    } on ISchoolPlusVpnRequiredException {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          SnackBar(content: Text(t.errors.connectionFailed)),
+          SnackBar(content: Text(t.errors.ischoolPlusVpnRequired)),
+        );
+    } on DioException catch (e) {
+      if (!context.mounted) return;
+      final message = isISchoolPlusConnectionError(e)
+          ? t.errors.ischoolPlusVpnRequired
+          : t.errors.connectionFailed;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(message)),
         );
     }
   }
