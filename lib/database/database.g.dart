@@ -12620,7 +12620,11 @@ class $CourseOfferingOverviewsView
         ],
       );
   @override
-  Set<String> get readTables => const {'course_offerings', 'courses'};
+  Set<String> get readTables => const {
+    'course_offerings',
+    'courses',
+    'semesters',
+  };
 }
 
 class CourseTableSlot extends DataClass {
@@ -12976,6 +12980,7 @@ class $CourseTableSlotsView
     'course_offerings',
     'courses',
     'classrooms',
+    'semesters',
   };
 }
 
@@ -13261,7 +13266,13 @@ class $ScoreDetailsView extends ViewInfo<$ScoreDetailsView, ScoreDetail>
         ),
       ]);
   @override
-  Set<String> get readTables => const {'scores', 'courses', 'course_offerings'};
+  Set<String> get readTables => const {
+    'scores',
+    'courses',
+    'course_offerings',
+    'semesters',
+    'users',
+  };
 }
 
 class UserAcademicSummary extends DataClass {
@@ -13578,7 +13589,11 @@ class $UserAcademicSummariesView
         ),
       ]);
   @override
-  Set<String> get readTables => const {'user_semester_summaries', 'semesters'};
+  Set<String> get readTables => const {
+    'user_semester_summaries',
+    'semesters',
+    'users',
+  };
 }
 
 class UserRegistration extends DataClass {
@@ -13779,7 +13794,11 @@ class $UserRegistrationsView
         ),
       ]);
   @override
-  Set<String> get readTables => const {'user_semester_summaries', 'semesters'};
+  Set<String> get readTables => const {
+    'user_semester_summaries',
+    'semesters',
+    'users',
+  };
 }
 
 abstract class _$AppDatabase extends GeneratedDatabase {
@@ -14055,46 +14074,44 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ]);
 }
 
-typedef $$UsersTableCreateCompanionBuilder =
-    UsersCompanion Function({
-      Value<int> id,
-      Value<DateTime?> fetchedAt,
-      required String studentId,
-      required String nameZh,
-      Value<String?> nameEn,
-      Value<DateTime?> dateOfBirth,
-      Value<String?> programZh,
-      Value<String?> programEn,
-      Value<String?> departmentZh,
-      Value<String?> departmentEn,
-      required String avatarFilename,
-      required String email,
-      Value<int?> passwordExpiresInDays,
-      Value<DateTime?> semestersFetchedAt,
-      Value<DateTime?> scoreDataFetchedAt,
-      Value<DateTime?> calendarFetchedAt,
-      Value<DateTime?> applicationCatalogFetchedAt,
-    });
-typedef $$UsersTableUpdateCompanionBuilder =
-    UsersCompanion Function({
-      Value<int> id,
-      Value<DateTime?> fetchedAt,
-      Value<String> studentId,
-      Value<String> nameZh,
-      Value<String?> nameEn,
-      Value<DateTime?> dateOfBirth,
-      Value<String?> programZh,
-      Value<String?> programEn,
-      Value<String?> departmentZh,
-      Value<String?> departmentEn,
-      Value<String> avatarFilename,
-      Value<String> email,
-      Value<int?> passwordExpiresInDays,
-      Value<DateTime?> semestersFetchedAt,
-      Value<DateTime?> scoreDataFetchedAt,
-      Value<DateTime?> calendarFetchedAt,
-      Value<DateTime?> applicationCatalogFetchedAt,
-    });
+typedef $$UsersTableCreateCompanionBuilder = UsersCompanion Function({
+  Value<int> id,
+  Value<DateTime?> fetchedAt,
+  required String studentId,
+  required String nameZh,
+  Value<String?> nameEn,
+  Value<DateTime?> dateOfBirth,
+  Value<String?> programZh,
+  Value<String?> programEn,
+  Value<String?> departmentZh,
+  Value<String?> departmentEn,
+  required String avatarFilename,
+  required String email,
+  Value<int?> passwordExpiresInDays,
+  Value<DateTime?> semestersFetchedAt,
+  Value<DateTime?> scoreDataFetchedAt,
+  Value<DateTime?> calendarFetchedAt,
+  Value<DateTime?> applicationCatalogFetchedAt,
+});
+typedef $$UsersTableUpdateCompanionBuilder = UsersCompanion Function({
+  Value<int> id,
+  Value<DateTime?> fetchedAt,
+  Value<String> studentId,
+  Value<String> nameZh,
+  Value<String?> nameEn,
+  Value<DateTime?> dateOfBirth,
+  Value<String?> programZh,
+  Value<String?> programEn,
+  Value<String?> departmentZh,
+  Value<String?> departmentEn,
+  Value<String> avatarFilename,
+  Value<String> email,
+  Value<int?> passwordExpiresInDays,
+  Value<DateTime?> semestersFetchedAt,
+  Value<DateTime?> scoreDataFetchedAt,
+  Value<DateTime?> calendarFetchedAt,
+  Value<DateTime?> applicationCatalogFetchedAt,
+});
 
 final class $$UsersTableReferences
     extends BaseReferences<_$AppDatabase, $UsersTable, User> {
@@ -14831,10 +14848,10 @@ class $$UsersTableTableManager
                                 table,
                                 p0,
                               ).portalApplicationCategoriesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.user == item.id,
-                              ),
+                          referencedItemsForCurrentItem: (
+                            item,
+                            referencedItems,
+                          ) => referencedItems.where((e) => e.user == item.id),
                           typedResults: items,
                         ),
                       if (portalApplicationFavoritesRefs)
@@ -14852,10 +14869,10 @@ class $$UsersTableTableManager
                                 table,
                                 p0,
                               ).portalApplicationFavoritesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.user == item.id,
-                              ),
+                          referencedItemsForCurrentItem: (
+                            item,
+                            referencedItems,
+                          ) => referencedItems.where((e) => e.user == item.id),
                           typedResults: items,
                         ),
                       if (scoresRefs)
@@ -14865,10 +14882,10 @@ class $$UsersTableTableManager
                               ._scoresRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$UsersTableReferences(db, table, p0).scoresRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.user == item.id,
-                              ),
+                          referencedItemsForCurrentItem: (
+                            item,
+                            referencedItems,
+                          ) => referencedItems.where((e) => e.user == item.id),
                           typedResults: items,
                         ),
                       if (userSemesterSummariesRefs)
@@ -14886,10 +14903,10 @@ class $$UsersTableTableManager
                                 table,
                                 p0,
                               ).userSemesterSummariesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.user == item.id,
-                              ),
+                          referencedItemsForCurrentItem: (
+                            item,
+                            referencedItems,
+                          ) => referencedItems.where((e) => e.user == item.id),
                           typedResults: items,
                         ),
                     ];
@@ -15288,72 +15305,73 @@ class $$PortalApplicationCategoriesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({user = false, portalApplicationsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (portalApplicationsRefs) db.portalApplications,
-              ],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (user) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.user,
-                                referencedTable:
-                                    $$PortalApplicationCategoriesTableReferences
-                                        ._userTable(db),
-                                referencedColumn:
-                                    $$PortalApplicationCategoriesTableReferences
-                                        ._userTable(db)
-                                        .id,
-                              )
-                              as T;
-                    }
+          prefetchHooksCallback:
+              ({user = false, portalApplicationsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (portalApplicationsRefs) db.portalApplications,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (user) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.user,
+                            referencedTable:
+                                $$PortalApplicationCategoriesTableReferences
+                                    ._userTable(db),
+                            referencedColumn:
+                                $$PortalApplicationCategoriesTableReferences
+                                    ._userTable(db)
+                                    .id,
+                          ) as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (portalApplicationsRefs)
+                        await $_getPrefetchedData<
+                          PortalApplicationCategory,
+                          $PortalApplicationCategoriesTable,
+                          PortalApplication
+                        >(
+                          currentTable: table,
+                          referencedTable:
+                              $$PortalApplicationCategoriesTableReferences
+                                  ._portalApplicationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PortalApplicationCategoriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).portalApplicationsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.category == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (portalApplicationsRefs)
-                    await $_getPrefetchedData<
-                      PortalApplicationCategory,
-                      $PortalApplicationCategoriesTable,
-                      PortalApplication
-                    >(
-                      currentTable: table,
-                      referencedTable:
-                          $$PortalApplicationCategoriesTableReferences
-                              ._portalApplicationsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$PortalApplicationCategoriesTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).portalApplicationsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.category == item.id),
-                      typedResults: items,
-                    ),
-                ];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -15702,19 +15720,15 @@ class $$PortalApplicationsTableTableManager
                     >
                   >(state) {
                     if (category) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.category,
-                                referencedTable:
-                                    $$PortalApplicationsTableReferences
-                                        ._categoryTable(db),
-                                referencedColumn:
-                                    $$PortalApplicationsTableReferences
-                                        ._categoryTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.category,
+                        referencedTable: $$PortalApplicationsTableReferences
+                            ._categoryTable(db),
+                        referencedColumn: $$PortalApplicationsTableReferences
+                            ._categoryTable(db)
+                            .id,
+                      ) as T;
                     }
 
                     return state;
@@ -15989,19 +16003,17 @@ class $$PortalApplicationFavoritesTableTableManager
                     >
                   >(state) {
                     if (user) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.user,
-                                referencedTable:
-                                    $$PortalApplicationFavoritesTableReferences
-                                        ._userTable(db),
-                                referencedColumn:
-                                    $$PortalApplicationFavoritesTableReferences
-                                        ._userTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.user,
+                        referencedTable:
+                            $$PortalApplicationFavoritesTableReferences
+                                ._userTable(db),
+                        referencedColumn:
+                            $$PortalApplicationFavoritesTableReferences
+                                ._userTable(db)
+                                .id,
+                      ) as T;
                     }
 
                     return state;
@@ -16029,18 +16041,16 @@ typedef $$PortalApplicationFavoritesTableProcessedTableManager =
       PortalApplicationFavorite,
       PrefetchHooks Function({bool user})
     >;
-typedef $$StudentsTableCreateCompanionBuilder =
-    StudentsCompanion Function({
-      Value<int> id,
-      required String studentId,
-      Value<String?> name,
-    });
-typedef $$StudentsTableUpdateCompanionBuilder =
-    StudentsCompanion Function({
-      Value<int> id,
-      Value<String> studentId,
-      Value<String?> name,
-    });
+typedef $$StudentsTableCreateCompanionBuilder = StudentsCompanion Function({
+  Value<int> id,
+  required String studentId,
+  Value<String?> name,
+});
+typedef $$StudentsTableUpdateCompanionBuilder = StudentsCompanion Function({
+  Value<int> id,
+  Value<String> studentId,
+  Value<String?> name,
+});
 
 final class $$StudentsTableReferences
     extends BaseReferences<_$AppDatabase, $StudentsTable, Student> {
@@ -16219,12 +16229,11 @@ class $$StudentsTableTableManager
               $$StudentsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$StudentsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> studentId = const Value.absent(),
-                Value<String?> name = const Value.absent(),
-              }) => StudentsCompanion(id: id, studentId: studentId, name: name),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> studentId = const Value.absent(),
+            Value<String?> name = const Value.absent(),
+          }) => StudentsCompanion(id: id, studentId: studentId, name: name),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -16292,24 +16301,22 @@ typedef $$StudentsTableProcessedTableManager =
       Student,
       PrefetchHooks Function({bool courseOfferingStudentsRefs})
     >;
-typedef $$SemestersTableCreateCompanionBuilder =
-    SemestersCompanion Function({
-      Value<int> id,
-      required int year,
-      required int term,
-      Value<bool> inCourseSemesterList,
-      Value<bool> inScoreSemesterList,
-      Value<DateTime?> courseTableFetchedAt,
-    });
-typedef $$SemestersTableUpdateCompanionBuilder =
-    SemestersCompanion Function({
-      Value<int> id,
-      Value<int> year,
-      Value<int> term,
-      Value<bool> inCourseSemesterList,
-      Value<bool> inScoreSemesterList,
-      Value<DateTime?> courseTableFetchedAt,
-    });
+typedef $$SemestersTableCreateCompanionBuilder = SemestersCompanion Function({
+  Value<int> id,
+  required int year,
+  required int term,
+  Value<bool> inCourseSemesterList,
+  Value<bool> inScoreSemesterList,
+  Value<DateTime?> courseTableFetchedAt,
+});
+typedef $$SemestersTableUpdateCompanionBuilder = SemestersCompanion Function({
+  Value<int> id,
+  Value<int> year,
+  Value<int> term,
+  Value<bool> inCourseSemesterList,
+  Value<bool> inScoreSemesterList,
+  Value<DateTime?> courseTableFetchedAt,
+});
 
 final class $$SemestersTableReferences
     extends BaseReferences<_$AppDatabase, $SemestersTable, Semester> {
@@ -17009,30 +17016,28 @@ typedef $$SemestersTableProcessedTableManager =
         bool userSemesterSummariesRefs,
       })
     >;
-typedef $$CoursesTableCreateCompanionBuilder =
-    CoursesCompanion Function({
-      Value<int> id,
-      Value<DateTime?> fetchedAt,
-      required String code,
-      required double credits,
-      required int hours,
-      required String nameZh,
-      Value<String?> nameEn,
-      Value<String?> descriptionZh,
-      Value<String?> descriptionEn,
-    });
-typedef $$CoursesTableUpdateCompanionBuilder =
-    CoursesCompanion Function({
-      Value<int> id,
-      Value<DateTime?> fetchedAt,
-      Value<String> code,
-      Value<double> credits,
-      Value<int> hours,
-      Value<String> nameZh,
-      Value<String?> nameEn,
-      Value<String?> descriptionZh,
-      Value<String?> descriptionEn,
-    });
+typedef $$CoursesTableCreateCompanionBuilder = CoursesCompanion Function({
+  Value<int> id,
+  Value<DateTime?> fetchedAt,
+  required String code,
+  required double credits,
+  required int hours,
+  required String nameZh,
+  Value<String?> nameEn,
+  Value<String?> descriptionZh,
+  Value<String?> descriptionEn,
+});
+typedef $$CoursesTableUpdateCompanionBuilder = CoursesCompanion Function({
+  Value<int> id,
+  Value<DateTime?> fetchedAt,
+  Value<String> code,
+  Value<double> credits,
+  Value<int> hours,
+  Value<String> nameZh,
+  Value<String?> nameEn,
+  Value<String?> descriptionZh,
+  Value<String?> descriptionEn,
+});
 
 final class $$CoursesTableReferences
     extends BaseReferences<_$AppDatabase, $CoursesTable, Course> {
@@ -17657,20 +17662,18 @@ typedef $$DepartmentsTableProcessedTableManager =
       Department,
       PrefetchHooks Function({bool teacherSemestersRefs})
     >;
-typedef $$TeachersTableCreateCompanionBuilder =
-    TeachersCompanion Function({
-      Value<int> id,
-      required String code,
-      required String nameZh,
-      Value<String?> nameEn,
-    });
-typedef $$TeachersTableUpdateCompanionBuilder =
-    TeachersCompanion Function({
-      Value<int> id,
-      Value<String> code,
-      Value<String> nameZh,
-      Value<String?> nameEn,
-    });
+typedef $$TeachersTableCreateCompanionBuilder = TeachersCompanion Function({
+  Value<int> id,
+  required String code,
+  required String nameZh,
+  Value<String?> nameEn,
+});
+typedef $$TeachersTableUpdateCompanionBuilder = TeachersCompanion Function({
+  Value<int> id,
+  Value<String> code,
+  Value<String> nameZh,
+  Value<String?> nameEn,
+});
 
 final class $$TeachersTableReferences
     extends BaseReferences<_$AppDatabase, $TeachersTable, Teacher> {
@@ -18033,24 +18036,22 @@ typedef $$TeachersTableProcessedTableManager =
       Teacher,
       PrefetchHooks Function({bool teacherSemestersRefs, bool syllabusesRefs})
     >;
-typedef $$ClassesTableCreateCompanionBuilder =
-    ClassesCompanion Function({
-      Value<int> id,
-      Value<DateTime?> fetchedAt,
-      required String code,
-      required int semester,
-      required String nameZh,
-      Value<String?> nameEn,
-    });
-typedef $$ClassesTableUpdateCompanionBuilder =
-    ClassesCompanion Function({
-      Value<int> id,
-      Value<DateTime?> fetchedAt,
-      Value<String> code,
-      Value<int> semester,
-      Value<String> nameZh,
-      Value<String?> nameEn,
-    });
+typedef $$ClassesTableCreateCompanionBuilder = ClassesCompanion Function({
+  Value<int> id,
+  Value<DateTime?> fetchedAt,
+  required String code,
+  required int semester,
+  required String nameZh,
+  Value<String?> nameEn,
+});
+typedef $$ClassesTableUpdateCompanionBuilder = ClassesCompanion Function({
+  Value<int> id,
+  Value<DateTime?> fetchedAt,
+  Value<String> code,
+  Value<int> semester,
+  Value<String> nameZh,
+  Value<String?> nameEn,
+});
 
 final class $$ClassesTableReferences
     extends BaseReferences<_$AppDatabase, $ClassesTable, ClassesData> {
@@ -18408,17 +18409,15 @@ class $$ClassesTableTableManager
                         >
                       >(state) {
                         if (semester) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.semester,
-                                    referencedTable: $$ClassesTableReferences
-                                        ._semesterTable(db),
-                                    referencedColumn: $$ClassesTableReferences
-                                        ._semesterTable(db)
-                                        .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.semester,
+                            referencedTable: $$ClassesTableReferences
+                                ._semesterTable(db),
+                            referencedColumn: $$ClassesTableReferences
+                                ._semesterTable(db)
+                                .id,
+                          ) as T;
                         }
 
                         return state;
@@ -18468,22 +18467,20 @@ typedef $$ClassesTableProcessedTableManager =
       ClassesData,
       PrefetchHooks Function({bool semester, bool courseOfferingClassesRefs})
     >;
-typedef $$ClassroomsTableCreateCompanionBuilder =
-    ClassroomsCompanion Function({
-      Value<int> id,
-      Value<DateTime?> fetchedAt,
-      required String code,
-      required String nameZh,
-      Value<String?> nameEn,
-    });
-typedef $$ClassroomsTableUpdateCompanionBuilder =
-    ClassroomsCompanion Function({
-      Value<int> id,
-      Value<DateTime?> fetchedAt,
-      Value<String> code,
-      Value<String> nameZh,
-      Value<String?> nameEn,
-    });
+typedef $$ClassroomsTableCreateCompanionBuilder = ClassroomsCompanion Function({
+  Value<int> id,
+  Value<DateTime?> fetchedAt,
+  required String code,
+  required String nameZh,
+  Value<String?> nameEn,
+});
+typedef $$ClassroomsTableUpdateCompanionBuilder = ClassroomsCompanion Function({
+  Value<int> id,
+  Value<DateTime?> fetchedAt,
+  Value<String> code,
+  Value<String> nameZh,
+  Value<String?> nameEn,
+});
 
 final class $$ClassroomsTableReferences
     extends BaseReferences<_$AppDatabase, $ClassroomsTable, Classroom> {
@@ -19813,19 +19810,15 @@ class $$CourseOfferingsTableTableManager
                         >
                       >(state) {
                         if (semester) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.semester,
-                                    referencedTable:
-                                        $$CourseOfferingsTableReferences
-                                            ._semesterTable(db),
-                                    referencedColumn:
-                                        $$CourseOfferingsTableReferences
-                                            ._semesterTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.semester,
+                            referencedTable: $$CourseOfferingsTableReferences
+                                ._semesterTable(db),
+                            referencedColumn: $$CourseOfferingsTableReferences
+                                ._semesterTable(db)
+                                .id,
+                          ) as T;
                         }
 
                         return state;
@@ -20768,49 +20761,37 @@ class $$TeacherSemestersTableTableManager
                         >
                       >(state) {
                         if (teacher) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.teacher,
-                                    referencedTable:
-                                        $$TeacherSemestersTableReferences
-                                            ._teacherTable(db),
-                                    referencedColumn:
-                                        $$TeacherSemestersTableReferences
-                                            ._teacherTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.teacher,
+                            referencedTable: $$TeacherSemestersTableReferences
+                                ._teacherTable(db),
+                            referencedColumn: $$TeacherSemestersTableReferences
+                                ._teacherTable(db)
+                                .id,
+                          ) as T;
                         }
                         if (semester) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.semester,
-                                    referencedTable:
-                                        $$TeacherSemestersTableReferences
-                                            ._semesterTable(db),
-                                    referencedColumn:
-                                        $$TeacherSemestersTableReferences
-                                            ._semesterTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.semester,
+                            referencedTable: $$TeacherSemestersTableReferences
+                                ._semesterTable(db),
+                            referencedColumn: $$TeacherSemestersTableReferences
+                                ._semesterTable(db)
+                                .id,
+                          ) as T;
                         }
                         if (department) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.department,
-                                    referencedTable:
-                                        $$TeacherSemestersTableReferences
-                                            ._departmentTable(db),
-                                    referencedColumn:
-                                        $$TeacherSemestersTableReferences
-                                            ._departmentTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.department,
+                            referencedTable: $$TeacherSemestersTableReferences
+                                ._departmentTable(db),
+                            referencedColumn: $$TeacherSemestersTableReferences
+                                ._departmentTable(db)
+                                .id,
+                          ) as T;
                         }
 
                         return state;
@@ -21229,34 +21210,30 @@ class $$CourseOfferingTeachersTableTableManager
                         >
                       >(state) {
                         if (courseOffering) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.courseOffering,
-                                    referencedTable:
-                                        $$CourseOfferingTeachersTableReferences
-                                            ._courseOfferingTable(db),
-                                    referencedColumn:
-                                        $$CourseOfferingTeachersTableReferences
-                                            ._courseOfferingTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.courseOffering,
+                            referencedTable:
+                                $$CourseOfferingTeachersTableReferences
+                                    ._courseOfferingTable(db),
+                            referencedColumn:
+                                $$CourseOfferingTeachersTableReferences
+                                    ._courseOfferingTable(db)
+                                    .id,
+                          ) as T;
                         }
                         if (teacherSemester) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.teacherSemester,
-                                    referencedTable:
-                                        $$CourseOfferingTeachersTableReferences
-                                            ._teacherSemesterTable(db),
-                                    referencedColumn:
-                                        $$CourseOfferingTeachersTableReferences
-                                            ._teacherSemesterTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.teacherSemester,
+                            referencedTable:
+                                $$CourseOfferingTeachersTableReferences
+                                    ._teacherSemesterTable(db),
+                            referencedColumn:
+                                $$CourseOfferingTeachersTableReferences
+                                    ._teacherSemesterTable(db)
+                                    .id,
+                          ) as T;
                         }
 
                         return state;
@@ -21602,34 +21579,30 @@ class $$CourseOfferingClassesTableTableManager
                         >
                       >(state) {
                         if (courseOffering) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.courseOffering,
-                                    referencedTable:
-                                        $$CourseOfferingClassesTableReferences
-                                            ._courseOfferingTable(db),
-                                    referencedColumn:
-                                        $$CourseOfferingClassesTableReferences
-                                            ._courseOfferingTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.courseOffering,
+                            referencedTable:
+                                $$CourseOfferingClassesTableReferences
+                                    ._courseOfferingTable(db),
+                            referencedColumn:
+                                $$CourseOfferingClassesTableReferences
+                                    ._courseOfferingTable(db)
+                                    .id,
+                          ) as T;
                         }
                         if (classEntity) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.classEntity,
-                                    referencedTable:
-                                        $$CourseOfferingClassesTableReferences
-                                            ._classEntityTable(db),
-                                    referencedColumn:
-                                        $$CourseOfferingClassesTableReferences
-                                            ._classEntityTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.classEntity,
+                            referencedTable:
+                                $$CourseOfferingClassesTableReferences
+                                    ._classEntityTable(db),
+                            referencedColumn:
+                                $$CourseOfferingClassesTableReferences
+                                    ._classEntityTable(db)
+                                    .id,
+                          ) as T;
                         }
 
                         return state;
@@ -21974,34 +21947,28 @@ class $$CourseOfferingStudentsTableTableManager
                     >
                   >(state) {
                     if (courseOffering) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.courseOffering,
-                                referencedTable:
-                                    $$CourseOfferingStudentsTableReferences
-                                        ._courseOfferingTable(db),
-                                referencedColumn:
-                                    $$CourseOfferingStudentsTableReferences
-                                        ._courseOfferingTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.courseOffering,
+                        referencedTable: $$CourseOfferingStudentsTableReferences
+                            ._courseOfferingTable(db),
+                        referencedColumn:
+                            $$CourseOfferingStudentsTableReferences
+                                ._courseOfferingTable(db)
+                                .id,
+                      ) as T;
                     }
                     if (student) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.student,
-                                referencedTable:
-                                    $$CourseOfferingStudentsTableReferences
-                                        ._studentTable(db),
-                                referencedColumn:
-                                    $$CourseOfferingStudentsTableReferences
-                                        ._studentTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.student,
+                        referencedTable: $$CourseOfferingStudentsTableReferences
+                            ._studentTable(db),
+                        referencedColumn:
+                            $$CourseOfferingStudentsTableReferences
+                                ._studentTable(db)
+                                .id,
+                      ) as T;
                     }
 
                     return state;
@@ -22029,22 +21996,20 @@ typedef $$CourseOfferingStudentsTableProcessedTableManager =
       CourseOfferingStudent,
       PrefetchHooks Function({bool courseOffering, bool student})
     >;
-typedef $$SchedulesTableCreateCompanionBuilder =
-    SchedulesCompanion Function({
-      Value<int> id,
-      required int courseOffering,
-      required DayOfWeek dayOfWeek,
-      required Period period,
-      Value<int?> classroom,
-    });
-typedef $$SchedulesTableUpdateCompanionBuilder =
-    SchedulesCompanion Function({
-      Value<int> id,
-      Value<int> courseOffering,
-      Value<DayOfWeek> dayOfWeek,
-      Value<Period> period,
-      Value<int?> classroom,
-    });
+typedef $$SchedulesTableCreateCompanionBuilder = SchedulesCompanion Function({
+  Value<int> id,
+  required int courseOffering,
+  required DayOfWeek dayOfWeek,
+  required Period period,
+  Value<int?> classroom,
+});
+typedef $$SchedulesTableUpdateCompanionBuilder = SchedulesCompanion Function({
+  Value<int> id,
+  Value<int> courseOffering,
+  Value<DayOfWeek> dayOfWeek,
+  Value<Period> period,
+  Value<int?> classroom,
+});
 
 final class $$SchedulesTableReferences
     extends BaseReferences<_$AppDatabase, $SchedulesTable, Schedule> {
@@ -22378,30 +22343,26 @@ class $$SchedulesTableTableManager
                     >
                   >(state) {
                     if (courseOffering) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.courseOffering,
-                                referencedTable: $$SchedulesTableReferences
-                                    ._courseOfferingTable(db),
-                                referencedColumn: $$SchedulesTableReferences
-                                    ._courseOfferingTable(db)
-                                    .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.courseOffering,
+                        referencedTable: $$SchedulesTableReferences
+                            ._courseOfferingTable(db),
+                        referencedColumn: $$SchedulesTableReferences
+                            ._courseOfferingTable(db)
+                            .id,
+                      ) as T;
                     }
                     if (classroom) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.classroom,
-                                referencedTable: $$SchedulesTableReferences
-                                    ._classroomTable(db),
-                                referencedColumn: $$SchedulesTableReferences
-                                    ._classroomTable(db)
-                                    .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.classroom,
+                        referencedTable: $$SchedulesTableReferences
+                            ._classroomTable(db),
+                        referencedColumn: $$SchedulesTableReferences
+                            ._classroomTable(db)
+                            .id,
+                      ) as T;
                     }
 
                     return state;
@@ -22429,24 +22390,22 @@ typedef $$SchedulesTableProcessedTableManager =
       Schedule,
       PrefetchHooks Function({bool courseOffering, bool classroom})
     >;
-typedef $$SyllabusesTableCreateCompanionBuilder =
-    SyllabusesCompanion Function({
-      Value<int> id,
-      required int courseOffering,
-      required int teacher,
-      required SyllabusLanguage language,
-      Value<DateTime?> updatedAt,
-      required DateTime fetchedAt,
-    });
-typedef $$SyllabusesTableUpdateCompanionBuilder =
-    SyllabusesCompanion Function({
-      Value<int> id,
-      Value<int> courseOffering,
-      Value<int> teacher,
-      Value<SyllabusLanguage> language,
-      Value<DateTime?> updatedAt,
-      Value<DateTime> fetchedAt,
-    });
+typedef $$SyllabusesTableCreateCompanionBuilder = SyllabusesCompanion Function({
+  Value<int> id,
+  required int courseOffering,
+  required int teacher,
+  required SyllabusLanguage language,
+  Value<DateTime?> updatedAt,
+  required DateTime fetchedAt,
+});
+typedef $$SyllabusesTableUpdateCompanionBuilder = SyllabusesCompanion Function({
+  Value<int> id,
+  Value<int> courseOffering,
+  Value<int> teacher,
+  Value<SyllabusLanguage> language,
+  Value<DateTime?> updatedAt,
+  Value<DateTime> fetchedAt,
+});
 
 final class $$SyllabusesTableReferences
     extends BaseReferences<_$AppDatabase, $SyllabusesTable, Syllabus> {
@@ -22877,32 +22836,26 @@ class $$SyllabusesTableTableManager
                         >
                       >(state) {
                         if (courseOffering) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.courseOffering,
-                                    referencedTable: $$SyllabusesTableReferences
-                                        ._courseOfferingTable(db),
-                                    referencedColumn:
-                                        $$SyllabusesTableReferences
-                                            ._courseOfferingTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.courseOffering,
+                            referencedTable: $$SyllabusesTableReferences
+                                ._courseOfferingTable(db),
+                            referencedColumn: $$SyllabusesTableReferences
+                                ._courseOfferingTable(db)
+                                .id,
+                          ) as T;
                         }
                         if (teacher) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.teacher,
-                                    referencedTable: $$SyllabusesTableReferences
-                                        ._teacherTable(db),
-                                    referencedColumn:
-                                        $$SyllabusesTableReferences
-                                            ._teacherTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.teacher,
+                            referencedTable: $$SyllabusesTableReferences
+                                ._teacherTable(db),
+                            referencedColumn: $$SyllabusesTableReferences
+                                ._teacherTable(db)
+                                .id,
+                          ) as T;
                         }
 
                         return state;
@@ -23236,19 +23189,15 @@ class $$SyllabusSectionsTableTableManager
                     >
                   >(state) {
                     if (syllabus) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.syllabus,
-                                referencedTable:
-                                    $$SyllabusSectionsTableReferences
-                                        ._syllabusTable(db),
-                                referencedColumn:
-                                    $$SyllabusSectionsTableReferences
-                                        ._syllabusTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.syllabus,
+                        referencedTable: $$SyllabusSectionsTableReferences
+                            ._syllabusTable(db),
+                        referencedColumn: $$SyllabusSectionsTableReferences
+                            ._syllabusTable(db)
+                            .id,
+                      ) as T;
                     }
 
                     return state;
@@ -23276,20 +23225,18 @@ typedef $$SyllabusSectionsTableProcessedTableManager =
       SyllabusSection,
       PrefetchHooks Function({bool syllabus})
     >;
-typedef $$MaterialsTableCreateCompanionBuilder =
-    MaterialsCompanion Function({
-      Value<int> id,
-      required int courseOffering,
-      Value<String?> title,
-      Value<String?> href,
-    });
-typedef $$MaterialsTableUpdateCompanionBuilder =
-    MaterialsCompanion Function({
-      Value<int> id,
-      Value<int> courseOffering,
-      Value<String?> title,
-      Value<String?> href,
-    });
+typedef $$MaterialsTableCreateCompanionBuilder = MaterialsCompanion Function({
+  Value<int> id,
+  required int courseOffering,
+  Value<String?> title,
+  Value<String?> href,
+});
+typedef $$MaterialsTableUpdateCompanionBuilder = MaterialsCompanion Function({
+  Value<int> id,
+  Value<int> courseOffering,
+  Value<String?> title,
+  Value<String?> href,
+});
 
 final class $$MaterialsTableReferences
     extends BaseReferences<_$AppDatabase, $MaterialsTable, CourseMaterial> {
@@ -23531,17 +23478,15 @@ class $$MaterialsTableTableManager
                     >
                   >(state) {
                     if (courseOffering) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.courseOffering,
-                                referencedTable: $$MaterialsTableReferences
-                                    ._courseOfferingTable(db),
-                                referencedColumn: $$MaterialsTableReferences
-                                    ._courseOfferingTable(db)
-                                    .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.courseOffering,
+                        referencedTable: $$MaterialsTableReferences
+                            ._courseOfferingTable(db),
+                        referencedColumn: $$MaterialsTableReferences
+                            ._courseOfferingTable(db)
+                            .id,
+                      ) as T;
                     }
 
                     return state;
@@ -23899,19 +23844,15 @@ class $$TeacherOfficeHoursTableTableManager
                     >
                   >(state) {
                     if (teacherSemester) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.teacherSemester,
-                                referencedTable:
-                                    $$TeacherOfficeHoursTableReferences
-                                        ._teacherSemesterTable(db),
-                                referencedColumn:
-                                    $$TeacherOfficeHoursTableReferences
-                                        ._teacherSemesterTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.teacherSemester,
+                        referencedTable: $$TeacherOfficeHoursTableReferences
+                            ._teacherSemesterTable(db),
+                        referencedColumn: $$TeacherOfficeHoursTableReferences
+                            ._teacherSemesterTable(db)
+                            .id,
+                      ) as T;
                     }
 
                     return state;
@@ -23939,26 +23880,24 @@ typedef $$TeacherOfficeHoursTableProcessedTableManager =
       TeacherOfficeHour,
       PrefetchHooks Function({bool teacherSemester})
     >;
-typedef $$ScoresTableCreateCompanionBuilder =
-    ScoresCompanion Function({
-      Value<int> id,
-      required int user,
-      required int semester,
-      required int course,
-      Value<int?> courseOffering,
-      Value<int?> score,
-      Value<ScoreStatus?> status,
-    });
-typedef $$ScoresTableUpdateCompanionBuilder =
-    ScoresCompanion Function({
-      Value<int> id,
-      Value<int> user,
-      Value<int> semester,
-      Value<int> course,
-      Value<int?> courseOffering,
-      Value<int?> score,
-      Value<ScoreStatus?> status,
-    });
+typedef $$ScoresTableCreateCompanionBuilder = ScoresCompanion Function({
+  Value<int> id,
+  required int user,
+  required int semester,
+  required int course,
+  Value<int?> courseOffering,
+  Value<int?> score,
+  Value<ScoreStatus?> status,
+});
+typedef $$ScoresTableUpdateCompanionBuilder = ScoresCompanion Function({
+  Value<int> id,
+  Value<int> user,
+  Value<int> semester,
+  Value<int> course,
+  Value<int?> courseOffering,
+  Value<int?> score,
+  Value<ScoreStatus?> status,
+});
 
 final class $$ScoresTableReferences
     extends BaseReferences<_$AppDatabase, $ScoresTable, Score> {
@@ -24480,56 +24419,49 @@ class $$ScoresTableTableManager
                         >
                       >(state) {
                         if (user) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.user,
-                                    referencedTable: $$ScoresTableReferences
-                                        ._userTable(db),
-                                    referencedColumn: $$ScoresTableReferences
-                                        ._userTable(db)
-                                        .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.user,
+                            referencedTable: $$ScoresTableReferences._userTable(
+                              db,
+                            ),
+                            referencedColumn: $$ScoresTableReferences
+                                ._userTable(db)
+                                .id,
+                          ) as T;
                         }
                         if (semester) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.semester,
-                                    referencedTable: $$ScoresTableReferences
-                                        ._semesterTable(db),
-                                    referencedColumn: $$ScoresTableReferences
-                                        ._semesterTable(db)
-                                        .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.semester,
+                            referencedTable: $$ScoresTableReferences
+                                ._semesterTable(db),
+                            referencedColumn: $$ScoresTableReferences
+                                ._semesterTable(db)
+                                .id,
+                          ) as T;
                         }
                         if (course) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.course,
-                                    referencedTable: $$ScoresTableReferences
-                                        ._courseTable(db),
-                                    referencedColumn: $$ScoresTableReferences
-                                        ._courseTable(db)
-                                        .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.course,
+                            referencedTable: $$ScoresTableReferences
+                                ._courseTable(db),
+                            referencedColumn: $$ScoresTableReferences
+                                ._courseTable(db)
+                                .id,
+                          ) as T;
                         }
                         if (courseOffering) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.courseOffering,
-                                    referencedTable: $$ScoresTableReferences
-                                        ._courseOfferingTable(db),
-                                    referencedColumn: $$ScoresTableReferences
-                                        ._courseOfferingTable(db)
-                                        .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.courseOffering,
+                            referencedTable: $$ScoresTableReferences
+                                ._courseOfferingTable(db),
+                            referencedColumn: $$ScoresTableReferences
+                                ._courseOfferingTable(db)
+                                .id,
+                          ) as T;
                         }
 
                         return state;
@@ -24673,13 +24605,11 @@ final class $$UserSemesterSummariesTableReferences
     $UserSemesterSummaryCadreRolesTable,
     List<UserSemesterSummaryCadreRole>
   >
-  _userSemesterSummaryCadreRolesRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.userSemesterSummaryCadreRoles,
-    aliasName:
-        'user_semester_summaries__id__user_semester_summary_cadre_roles__summary',
-  );
+  _userSemesterSummaryCadreRolesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.userSemesterSummaryCadreRoles,
+        aliasName: 'user_semester_summaries__id__user_semester_summary_cadre_roles__summary',
+      );
 
   $$UserSemesterSummaryCadreRolesTableProcessedTableManager
   get userSemesterSummaryCadreRolesRefs {
@@ -25354,34 +25284,30 @@ class $$UserSemesterSummariesTableTableManager
                         >
                       >(state) {
                         if (user) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.user,
-                                    referencedTable:
-                                        $$UserSemesterSummariesTableReferences
-                                            ._userTable(db),
-                                    referencedColumn:
-                                        $$UserSemesterSummariesTableReferences
-                                            ._userTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.user,
+                            referencedTable:
+                                $$UserSemesterSummariesTableReferences
+                                    ._userTable(db),
+                            referencedColumn:
+                                $$UserSemesterSummariesTableReferences
+                                    ._userTable(db)
+                                    .id,
+                          ) as T;
                         }
                         if (semester) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.semester,
-                                    referencedTable:
-                                        $$UserSemesterSummariesTableReferences
-                                            ._semesterTable(db),
-                                    referencedColumn:
-                                        $$UserSemesterSummariesTableReferences
-                                            ._semesterTable(db)
-                                            .id,
-                                  )
-                                  as T;
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.semester,
+                            referencedTable:
+                                $$UserSemesterSummariesTableReferences
+                                    ._semesterTable(db),
+                            referencedColumn:
+                                $$UserSemesterSummariesTableReferences
+                                    ._semesterTable(db)
+                                    .id,
+                          ) as T;
                         }
 
                         return state;
@@ -25807,34 +25733,30 @@ class $$UserSemesterSummaryTutorsTableTableManager
                     >
                   >(state) {
                     if (summary) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.summary,
-                                referencedTable:
-                                    $$UserSemesterSummaryTutorsTableReferences
-                                        ._summaryTable(db),
-                                referencedColumn:
-                                    $$UserSemesterSummaryTutorsTableReferences
-                                        ._summaryTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.summary,
+                        referencedTable:
+                            $$UserSemesterSummaryTutorsTableReferences
+                                ._summaryTable(db),
+                        referencedColumn:
+                            $$UserSemesterSummaryTutorsTableReferences
+                                ._summaryTable(db)
+                                .id,
+                      ) as T;
                     }
                     if (teacherSemester) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.teacherSemester,
-                                referencedTable:
-                                    $$UserSemesterSummaryTutorsTableReferences
-                                        ._teacherSemesterTable(db),
-                                referencedColumn:
-                                    $$UserSemesterSummaryTutorsTableReferences
-                                        ._teacherSemesterTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.teacherSemester,
+                        referencedTable:
+                            $$UserSemesterSummaryTutorsTableReferences
+                                ._teacherSemesterTable(db),
+                        referencedColumn:
+                            $$UserSemesterSummaryTutorsTableReferences
+                                ._teacherSemesterTable(db)
+                                .id,
+                      ) as T;
                     }
 
                     return state;
@@ -26126,19 +26048,17 @@ class $$UserSemesterSummaryCadreRolesTableTableManager
                     >
                   >(state) {
                     if (summary) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.summary,
-                                referencedTable:
-                                    $$UserSemesterSummaryCadreRolesTableReferences
-                                        ._summaryTable(db),
-                                referencedColumn:
-                                    $$UserSemesterSummaryCadreRolesTableReferences
-                                        ._summaryTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.summary,
+                        referencedTable:
+                            $$UserSemesterSummaryCadreRolesTableReferences
+                                ._summaryTable(db),
+                        referencedColumn:
+                            $$UserSemesterSummaryCadreRolesTableReferences
+                                ._summaryTable(db)
+                                .id,
+                      ) as T;
                     }
 
                     return state;
@@ -26501,19 +26421,15 @@ class $$UserSemesterRankingsTableTableManager
                     >
                   >(state) {
                     if (summary) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.summary,
-                                referencedTable:
-                                    $$UserSemesterRankingsTableReferences
-                                        ._summaryTable(db),
-                                referencedColumn:
-                                    $$UserSemesterRankingsTableReferences
-                                        ._summaryTable(db)
-                                        .id,
-                              )
-                              as T;
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.summary,
+                        referencedTable: $$UserSemesterRankingsTableReferences
+                            ._summaryTable(db),
+                        referencedColumn: $$UserSemesterRankingsTableReferences
+                            ._summaryTable(db)
+                            .id,
+                      ) as T;
                     }
 
                     return state;
