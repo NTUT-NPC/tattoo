@@ -39,13 +39,6 @@ runs:
       env:
         BUNDLE_FROZEN: "true"
 
-    - name: Use bundled CocoaPods
-      if: ${{ inputs.platform == 'ios' }}
-      shell: bash
-      run: |
-        BUNDLE_BIN="$RUNNER_TEMP/bin" bundle binstubs cocoapods --force
-        echo "BUNDLE_GEMFILE=$GITHUB_WORKSPACE/Gemfile" >> "$GITHUB_ENV"
-        echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
 
     - name: Setup Flutter pub cache
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -95,19 +88,11 @@ runs:
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         key: ${{ runner.os }}-spm-${{ runner.arch }}-xcode-${{ steps.xcode_version.outputs.xcode_version }}-${{ hashFiles('ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
-        path: ~/Library/Developer/Xcode/DerivedData/*/SourcePackages
+        path: build/ios/SourcePackages
         restore-keys: |
           ${{ runner.os }}-spm-${{ runner.arch }}-xcode-${{ steps.xcode_version.outputs.xcode_version }}-
           ${{ runner.os }}-spm-${{ runner.arch }}-
 
-    - name: Setup CocoaPods cache
-      if: ${{ inputs.platform == 'ios' }}
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-      with:
-        key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
-        path: ios/Pods
-        restore-keys: |
-          ${{ runner.os }}-pods-
 
     - name: Check iOS config drift
       id: ios-drift
