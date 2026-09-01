@@ -188,7 +188,7 @@ jobs:
     runs-on: macos-26
     needs: [prepare]
     env:
-      FASTLANE_APP_IDENTIFIER: ${{ secrets.FASTLANE_APP_IDENTIFIER }}
+      IOS_BUNDLE_IDENTIFIER: ${{ secrets.IOS_BUNDLE_IDENTIFIER }}
       FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 10
       MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
       MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}

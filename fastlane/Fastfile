@@ -28,7 +28,7 @@ end
 def get_build_settings(options)
   { 
     build_number: options[:build_number] || ENV["BUILD_NUMBER"],
-    version_suffix: options[:version_suffix] || ENV["VERSION_SUFFIX"] || "dev"
+    version_suffix: options[:version_suffix] || ENV["VERSION_SUFFIX"] || ""
   }
 end
 
@@ -54,15 +54,17 @@ platform :ios do
       path: "ios/Runner.xcodeproj",
       sdk: "iphoneos*",
       code_sign_identity: "iPhone Distribution",
-      profile_name: "match AppStore #{ENV["FASTLANE_APP_IDENTIFIER"]}",
+      profile_name: "match AppStore #{ENV["IOS_BUNDLE_IDENTIFIER"]}",
     )
+
+    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
     store_url = options[:store_url] || ENV["STORE_URL"] || ENV["TESTFLIGHT_PUBLIC_LINK"] || ""
     build_args = [
-      "--no-codesign", 
+      "--no-codesign",
       "--dart-define=USE_FIREBASE=true",
-      "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}"
     ]
+    build_args << "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}" unless settings[:version_suffix].empty?
     build_args << "--dart-define=STORE_URL=#{store_url}" unless store_url.empty?
 
     # Build and create xcarchive without code signing
@@ -81,12 +83,12 @@ platform :ios do
 
     next if skip_upload
 
-    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
-
-    # upload-symbols is located in Pods/ for CocoaPods, and in the SPM checkout for SPM.
-    # Flutter 3.44+ uses SPM by default.
-    spm_binary_path = Dir["#{Dir.home}/Library/Developer/Xcode/DerivedData/Runner-*/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols"].first
-    upload_symbols_binary_path = spm_binary_path || "ios/Pods/FirebaseCrashlytics/upload-symbols"
+    crashlytics_binary_paths = [
+      File.expand_path("../build/ios/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols", __dir__),
+      File.expand_path("../ios/Pods/FirebaseCrashlytics/upload-symbols", __dir__),
+    ]
+    upload_symbols_binary_path = crashlytics_binary_paths.find { |candidate| File.file?(candidate) }
+    UI.user_error!("Firebase Crashlytics upload-symbols executable not found") unless upload_symbols_binary_path
 
     upload_symbols_to_crashlytics(
       dsym_path: lane_context[SharedValues::DSYM_OUTPUT_PATH],
@@ -118,9 +120,9 @@ platform :android do
     store_url = options[:store_url] || ENV["STORE_URL"] || ENV["GOOGLEPLAY_PUBLIC_LINK"] || ""
     build_args = [
       "--dart-define=USE_FIREBASE=true",
-      "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}",
-      "--dart-define=cronetHttpNoPlay=true"
+      "--dart-define=cronetHttpNoPlay=true",
     ]
+    build_args << "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}" unless settings[:version_suffix].empty?
     build_args << "--dart-define=STORE_URL=#{store_url}" unless store_url.empty?
 
     flutter_build(
@@ -137,9 +139,9 @@ platform :android do
     store_url = options[:store_url] || ENV["STORE_URL"] || ENV["GOOGLEPLAY_PUBLIC_LINK"] || ""
     build_args = [
       "--dart-define=USE_FIREBASE=true",
-      "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}",
-      "--dart-define=cronetHttpNoPlay=true"
+      "--dart-define=cronetHttpNoPlay=true",
     ]
+    build_args << "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}" unless settings[:version_suffix].empty?
     build_args << "--dart-define=STORE_URL=#{store_url}" unless store_url.empty?
 
     flutter_build(
@@ -192,7 +194,7 @@ platform :android do
     track = options[:track] || "internal"
 
     upload_to_play_store(
-      package_name: ENV["FASTLANE_APP_IDENTIFIER"],
+      package_name: ENV["ANDROID_PACKAGE_NAME"],
       track: track,
       aab: aab_path,
       json_key: File.expand_path("../service-account.json", __dir__),

@@ -126,9 +126,9 @@ class UpdateScreen extends ConsumerWidget {
       // Fallback platform-specific store URLs when compile-time STORE_URL is not set
       // e.g. for local/manual builds.
       if (Theme.of(context).platform == TargetPlatform.iOS) {
-        url = 'https://apps.apple.com/app/project-tattoo/id6446218498';
+        url = 'https://apps.apple.com/app/id1513875597';
       } else {
-        url = 'https://play.google.com/store/apps/details?id=club.ntut.tattoo';
+        url = 'https://play.google.com/store/apps/details?id=club.ntut.npc.tat';
       }
     }
     await launchUrl(Uri.parse(url), inExternalApplication: true);

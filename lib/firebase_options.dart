@@ -5,66 +5,37 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Default [FirebaseOptions] for use with your Firebase apps.
-///
-/// Example:
-/// ```dart
-/// import 'firebase_options.dart';
-/// // ...
-/// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
-/// );
-/// ```
+/// [FirebaseOptions] for the TAT production Firebase project.
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
+        'DefaultFirebaseOptions have not been configured for web.',
       );
     }
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-        return android;
-      case TargetPlatform.iOS:
-        return ios;
-      case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      default:
-        throw UnsupportedError(
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.android => android,
+      TargetPlatform.iOS => ios,
+      _ => throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
-        );
-    }
+        ),
+    };
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAwy04VDvRscfjTPu2ShxLbB-_EyuezEhU',
-    appId: '1:838220085712:android:a85cf2541699925c3be1d5',
-    messagingSenderId: '838220085712',
-    projectId: 'npc-tattoo',
-    storageBucket: 'npc-tattoo.firebasestorage.app',
+    apiKey: 'AIzaSyAJSD6_YkutviZvQvtjwNi5wAQaOAV7YDQ',
+    appId: '1:596630117465:android:9d4275579e011f039f6548',
+    messagingSenderId: '596630117465',
+    projectId: 'npc-tattoo-prod',
+    storageBucket: 'npc-tattoo-prod.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDp_en-3_f7VONU8KA8zucI-tTgrsV_PJM',
-    appId: '1:838220085712:ios:d5b7636cdc72fd603be1d5',
-    messagingSenderId: '838220085712',
-    projectId: 'npc-tattoo',
-    storageBucket: 'npc-tattoo.firebasestorage.app',
-    iosBundleId: 'club.ntut.tattoo',
+    apiKey: 'AIzaSyBQ03equalPQPzbD7Jxd9vGWHzrDU-AY0w',
+    appId: '1:596630117465:ios:afd1697a77bcb95f9f6548',
+    messagingSenderId: '596630117465',
+    projectId: 'npc-tattoo-prod',
+    storageBucket: 'npc-tattoo-prod.firebasestorage.app',
+    iosBundleId: 'com.npc.tatFlutter',
   );
-
 }
+// dart format on

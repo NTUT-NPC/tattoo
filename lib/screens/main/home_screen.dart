@@ -23,6 +23,28 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _shownPasswordWarning = false;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.listenManual(
+        userProfileProvider.select(
+          (profile) => profile.asData?.value?.passwordExpiresInDays,
+        ),
+        (_, days) {
+          if (days != null && !_shownPasswordWarning) {
+            _shownPasswordWarning = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              _showPasswordExpirySnackbar(context, days);
+            });
+          }
+        },
+      );
+    });
+  }
+
   void _onDestinationSelected(int index) {
     final route =
         widget.navigationShell.route.branches[index].defaultRoute?.path;
@@ -58,19 +80,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(
-      userProfileProvider.select((a) => a.asData?.value?.passwordExpiresInDays),
-      (_, days) {
-        if (days != null && !_shownPasswordWarning) {
-          _shownPasswordWarning = true;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            _showPasswordExpirySnackbar(context, days);
-          });
-        }
-      },
-    );
-
     return AdaptiveNavigationScaffold(
       body: widget.navigationShell,
       destinations: <AdaptiveNavigationDestination>[

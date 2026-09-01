@@ -12,6 +12,7 @@ import 'package:tattoo/database/database.dart';
 import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/demo_mode.dart';
@@ -184,6 +185,9 @@ Future<void> main() async {
     // Idempotent: restoreSession's login already created the session.
     container.read(sessionProvider.notifier).create();
   }
+  // Prewarm the dependency graph before widgets subscribe. Riverpod cannot
+  // invalidate its root scope while Flutter is mounting the initial frame.
+  container.read(courseRepositoryProvider);
   final initialLocation = switch ((user, hadStoredLogin)) {
     (final User _, _) => AppRoutes.home,
     (null, true) => AppRoutes.login,
