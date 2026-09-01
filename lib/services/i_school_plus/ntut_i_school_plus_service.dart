@@ -4,6 +4,7 @@ import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/utils/http.dart';
+import 'package:tattoo/utils/network_error.dart';
 
 class NtutISchoolPlusService implements ISchoolPlusService {
   late final Dio _iSchoolPlusDio;
@@ -12,16 +13,46 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   /// course switches.
   String? _selectedInternalId;
 
-  NtutISchoolPlusService() {
-    _iSchoolPlusDio = createDio()
-      ..options.baseUrl = 'https://istudy.ntut.edu.tw/learn/'
-      ..interceptors.insert(0, InvalidCookieFilter()) // Prepend cookie filter
-      ..interceptors.add(_SessionCheckInterceptor())
-      ..transformer = PlainTextTransformer();
+  NtutISchoolPlusService({Dio? dio}) {
+    _iSchoolPlusDio =
+        dio ??
+        (createDio()
+          ..options.baseUrl = 'https://istudy.ntut.edu.tw/learn/'
+          ..interceptors.insert(
+            0,
+            InvalidCookieFilter(),
+          ) // Prepend cookie filter
+          ..interceptors.add(_ISchoolPlusInterceptor())
+          ..transformer = PlainTextTransformer());
+  }
+
+  Future<T> _wrap<T>(Future<T> Function() action) async {
+    try {
+      return await action();
+    } on DioException catch (e) {
+      if (e.error is ISchoolPlusVpnRequiredException) {
+        Error.throwWithStackTrace(e.error!, e.stackTrace);
+      }
+      if (e.error is SessionExpiredException) {
+        Error.throwWithStackTrace(e.error!, e.stackTrace);
+      }
+      if (e.response?.statusCode == 403) {
+        throw const SessionExpiredException(
+          'ISchoolPlus session expired',
+        );
+      }
+      if (isNetworkError(e)) {
+        throw ISchoolPlusVpnRequiredException(
+          'ISchoolPlus connection failed (VPN required off-campus)',
+          e,
+        );
+      }
+      rethrow;
+    }
   }
 
   @override
-  Future<List<ISchoolCourseDto>> getCourseList() async {
+  Future<List<ISchoolCourseDto>> getCourseList() => _wrap(() async {
     final response = await _iSchoolPlusDio.get('mooc_sysbar.php');
 
     final document = parse(response.data);
@@ -48,7 +79,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     }
 
     return courses;
-  }
+  });
 
   Future<void> _selectCourse(ISchoolCourseDto course) async {
     if (course.internalId == _selectedInternalId) return;
@@ -64,48 +95,56 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   }
 
   @override
-  Future<List<StudentDto>> getStudents(ISchoolCourseDto course) async {
-    await _selectCourse(course);
+  Future<List<StudentDto>> getStudents(ISchoolCourseDto course) =>
+      _wrap(() async {
+        await _selectCourse(course);
 
-    final response = await _iSchoolPlusDio.get('learn_ranking.php');
+        final response = await _iSchoolPlusDio.get('learn_ranking.php');
 
-    // Parse the HTML and extract the table of student rankings
-    final document = parse(response.data);
-    final studyRankingsTable = document.querySelector('.content>.data2 tbody');
-    if (studyRankingsTable == null) {
-      throw Exception(
-        'No student data found for course ${course.courseNumber}.',
-      );
-    }
-
-    // Extract second column from each row for student ID and name
-    // Example cell: "111360109 (何承軒)"
-    final students = studyRankingsTable.children
-        .map((row) => row.children[1].children.first.text)
-        .toList();
-    if (students.isEmpty) {
-      throw Exception('No students found for course ${course.courseNumber}.');
-    }
-
-    return students
-        .map((student) {
-          final parts = student.split(' (');
-          final id = parts[0];
-          final name = parts[1].replaceAll(')', '').trim();
-
-          return (
-            id: id.isEmpty ? null : id,
-            name: name.isEmpty ? null : name,
+        // Parse the HTML and extract the table of student rankings
+        final document = parse(response.data);
+        final studyRankingsTable = document.querySelector(
+          '.content>.data2 tbody',
+        );
+        if (studyRankingsTable == null) {
+          throw Exception(
+            'No student data found for course ${course.courseNumber}.',
           );
-        })
-        .where(
-          (student) => student.id != 'istudyoaa', // Filter out system account
-        )
-        .toList();
-  }
+        }
+
+        // Extract second column from each row for student ID and name
+        // Example cell: "111360109 (何承軒)"
+        final students = studyRankingsTable.children
+            .map((row) => row.children[1].children.first.text)
+            .toList();
+        if (students.isEmpty) {
+          throw Exception(
+            'No students found for course ${course.courseNumber}.',
+          );
+        }
+
+        return students
+            .map((student) {
+              final parts = student.split(' (');
+              final id = parts[0];
+              final name = parts[1].replaceAll(')', '').trim();
+
+              return (
+                id: id.isEmpty ? null : id,
+                name: name.isEmpty ? null : name,
+              );
+            })
+            .where(
+              (student) =>
+                  student.id != 'istudyoaa', // Filter out system account
+            )
+            .toList();
+      });
 
   @override
-  Future<List<MaterialRefDto>> getMaterials(ISchoolCourseDto course) async {
+  Future<List<MaterialRefDto>> getMaterials(
+    ISchoolCourseDto course,
+  ) => _wrap(() async {
     await _selectCourse(course);
 
     // Fetch and parse the SCORM manifest XML for file listings
@@ -134,12 +173,12 @@ class NtutISchoolPlusService implements ISchoolPlusService {
         href: href,
       );
     }).toList();
-  }
+  });
 
   @override
   Future<MaterialDto> getMaterial(
     MaterialRefDto material,
-  ) async {
+  ) => _wrap(() async {
     await _selectCourse(material.course);
 
     // Step 1: Get launch.php to extract the course ID (cid)
@@ -257,21 +296,30 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       referer: null,
       streamable: false,
     );
-  }
+  });
 }
 
-/// Detects expired sessions in ISchoolPlus responses.
+/// Detects expired sessions and VPN connection failures in ISchoolPlus responses.
 ///
 /// iSchool+ returns HTTP 403 when the session has expired, which Dio would
 /// normally surface as a [DioException]. This interceptor converts it to a
 /// [SessionExpiredException] so that [AuthRepository.withAuth] retries with
 /// re-authentication instead of treating it as a network error.
-class _SessionCheckInterceptor extends Interceptor {
+///
+/// Connection failures to iSchool+ (placed behind campus VPN) throw
+/// [ISchoolPlusVpnRequiredException].
+class _ISchoolPlusInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 403) {
       throw const SessionExpiredException(
         'ISchoolPlus session expired',
+      );
+    }
+    if (isNetworkError(err)) {
+      throw ISchoolPlusVpnRequiredException(
+        'ISchoolPlus connection failed (VPN required off-campus)',
+        err,
       );
     }
     handler.next(err);

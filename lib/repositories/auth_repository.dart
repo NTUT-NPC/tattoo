@@ -376,9 +376,14 @@ class AuthRepository {
         if (e.error is SessionExpiredException) {
           Error.throwWithStackTrace(e.error!, e.stackTrace);
         }
+        if (e.error is ISchoolPlusVpnRequiredException) {
+          Error.throwWithStackTrace(e.error!, e.stackTrace);
+        }
         rethrow;
       }
     } on DioException {
+      rethrow;
+    } on ISchoolPlusVpnRequiredException {
       rethrow;
     } catch (_) {
       try {
