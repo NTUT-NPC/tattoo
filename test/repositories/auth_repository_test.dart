@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
@@ -6,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/portal/mock_portal_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/mock_student_query_service.dart';
@@ -140,6 +142,45 @@ void main() {
         );
         expect(secureStorage['username'], '111360109');
         expect(secureStorage['password'], 'password');
+      },
+    );
+
+    test(
+      'withAuth rethrows ISchoolPlusVpnRequiredException without re-authenticating',
+      () async {
+        await repository.login('111360109', 'password');
+        final initialLoginCount = portalService.loginCalls.length;
+
+        expect(
+          () => repository.withAuth(() async {
+            throw const ISchoolPlusVpnRequiredException('VPN required');
+          }),
+          throwsA(isA<ISchoolPlusVpnRequiredException>()),
+        );
+
+        expect(portalService.loginCalls.length, initialLoginCount);
+      },
+    );
+
+    test(
+      'withAuth unwraps DioException wrapping ISchoolPlusVpnRequiredException',
+      () async {
+        await repository.login('111360109', 'password');
+        final initialLoginCount = portalService.loginCalls.length;
+
+        expect(
+          () => repository.withAuth(() async {
+            throw DioException(
+              requestOptions: RequestOptions(
+                path: 'https://istudy.ntut.edu.tw',
+              ),
+              error: const ISchoolPlusVpnRequiredException('VPN required'),
+            );
+          }),
+          throwsA(isA<ISchoolPlusVpnRequiredException>()),
+        );
+
+        expect(portalService.loginCalls.length, initialLoginCount);
       },
     );
   });
