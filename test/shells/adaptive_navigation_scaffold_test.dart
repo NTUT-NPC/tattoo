@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/shells/adaptive_navigation_scaffold.dart';
 import 'package:tattoo/shells/centered_max_width_frame.dart';
 

@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as legacy_material;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
@@ -93,34 +94,41 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     return Column(
       children: [
-        TableCalendar<CalendarEvent>(
-          firstDay: _firstDay,
-          lastDay: _lastDay,
-          focusedDay: _focusedDay,
-          selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-          onDaySelected: (newSelectedDay, newFocusedDay) {
-            setState(() {
-              _selectedDay = newSelectedDay;
-              _focusedDay = newFocusedDay;
-              if (newSelectedDay.isBefore(_range.start) ||
-                  !newSelectedDay.isBefore(_range.end)) {
-                _range = _threeMonthWindow(newSelectedDay);
-              }
-            });
-          },
-          onPageChanged: (newFocusedDay) {
-            setState(() {
-              _focusedDay = newFocusedDay;
-              if (newFocusedDay.isBefore(_range.start) ||
-                  !newFocusedDay.isBefore(_range.end)) {
-                _range = _threeMonthWindow(newFocusedDay);
-              }
-            });
-          },
-          eventLoader: (day) =>
-              eventsMap[DateTime(day.year, day.month, day.day)] ?? const [],
-          calendarFormat: .month,
-          headerStyle: const HeaderStyle(formatButtonVisible: false),
+        // Remove with the legacy TableCalendar dependency.
+        // ignore: deprecated_member_use
+        MaterialUiCompatibilityBridge(
+          child: legacy_material.Material(
+            type: legacy_material.MaterialType.transparency,
+            child: TableCalendar<CalendarEvent>(
+              firstDay: _firstDay,
+              lastDay: _lastDay,
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              onDaySelected: (newSelectedDay, newFocusedDay) {
+                setState(() {
+                  _selectedDay = newSelectedDay;
+                  _focusedDay = newFocusedDay;
+                  if (newSelectedDay.isBefore(_range.start) ||
+                      !newSelectedDay.isBefore(_range.end)) {
+                    _range = _threeMonthWindow(newSelectedDay);
+                  }
+                });
+              },
+              onPageChanged: (newFocusedDay) {
+                setState(() {
+                  _focusedDay = newFocusedDay;
+                  if (newFocusedDay.isBefore(_range.start) ||
+                      !newFocusedDay.isBefore(_range.end)) {
+                    _range = _threeMonthWindow(newFocusedDay);
+                  }
+                });
+              },
+              eventLoader: (day) =>
+                  eventsMap[DateTime(day.year, day.month, day.day)] ?? const [],
+              calendarFormat: .month,
+              headerStyle: const HeaderStyle(formatButtonVisible: false),
+            ),
+          ),
         ),
         const SizedBox(height: 8.0),
         Expanded(
