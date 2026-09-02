@@ -217,12 +217,10 @@ class AuthRepository {
               final String value => jsonDecode(value),
               _ => null,
             };
-            if (decoded
-                case {
-                  'account': final String account,
-                  'password': final String legacyPassword,
-                }
-                when account.isNotEmpty && legacyPassword.isNotEmpty) {
+            if (decoded case {
+              'account': final String account,
+              'password': final String legacyPassword,
+            } when account.isNotEmpty && legacyPassword.isNotEmpty) {
               username = account;
               password = legacyPassword;
             } else {

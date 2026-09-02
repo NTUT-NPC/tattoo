@@ -227,6 +227,7 @@ jobs:
           build_number: ${{ needs.prepare.outputs.build_number }}
           type: release
           testing_uri: ${{ steps.build.outputs.testing_uri }}
+          app_name: Tattoo
 
       - name: Write Dry Run Android Summary
         if: needs.prepare.outputs.dry_run == 'true'
@@ -317,6 +318,7 @@ jobs:
         uses: ./.github/actions/ios-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
+          app_name: Tattoo
 
       - name: Write Dry Run iOS Summary
         if: needs.prepare.outputs.dry_run == 'true'
@@ -339,7 +341,7 @@ jobs:
             [Join TestFlight](${{ vars.TESTFLIGHT_PUBLIC_LINK }}) to install build ${{ needs.prepare.outputs.build_number }}.
 
             1. Open the TestFlight app on your iOS device
-            2. Select "TAT"
+            2. Select "Tattoo"
             3. Install build ${{ needs.prepare.outputs.build_number }}
 
             > [!TIP]

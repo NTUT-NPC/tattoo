@@ -359,16 +359,24 @@ Future<void> fetch(Config config) async {
   }
 
   // 1. Common keystores and service account
-  final baseMappings = {
-    'keystores/keystore.jks': 'android/app/keystore.jks',
-    'keystores/key.properties.enc': 'android/key.properties',
-    'keystores/key.properties': 'android/key.properties',
-    'firebase/service-account.json.enc': 'service-account.json',
-    'firebase/service-account.json': 'service-account.json',
+  final baseMappings = <String, List<String>>{
+    'android/app/keystore.jks': ['keystores/keystore.jks'],
+    'android/key.properties': [
+      'keystores/key.properties.enc',
+      'keystores/key.properties',
+    ],
+    'service-account.json': [
+      'firebase/service-account.json.enc',
+      'firebase/service-account.json',
+    ],
   };
 
   for (final entry in baseMappings.entries) {
-    processFile(entry.key, entry.value);
+    for (final src in entry.value) {
+      if (processFile(src, entry.key)) {
+        break;
+      }
+    }
   }
 
   // 2. Google services (Android)
@@ -388,8 +396,10 @@ Future<void> fetch(Config config) async {
       'firebase/google-services.staging.json.enc',
       'firebase/google-services.staging.json',
     ],
-    'firebase/google-services.json.enc',
-    'firebase/google-services.json',
+    if (env == 'prod') ...[
+      'firebase/google-services.json.enc',
+      'firebase/google-services.json',
+    ],
   ];
 
   if (env == 'dev') {
@@ -482,8 +492,10 @@ Future<void> fetch(Config config) async {
       'firebase/GoogleService-Info.staging.plist.enc',
       'firebase/GoogleService-Info.staging.plist',
     ],
-    'firebase/GoogleService-Info.plist.enc',
-    'firebase/GoogleService-Info.plist',
+    if (env == 'prod') ...[
+      'firebase/GoogleService-Info.plist.enc',
+      'firebase/GoogleService-Info.plist',
+    ],
   ];
 
   if (env == 'dev') {

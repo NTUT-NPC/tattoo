@@ -5,6 +5,10 @@ inputs:
   build_number:
     description: 'Build number'
     required: true
+  app_name:
+    description: 'App name in TestFlight'
+    required: false
+    default: 'TAT'
 
 runs:
   using: composite
@@ -17,7 +21,7 @@ runs:
         Build **${{ inputs.build_number }}** successfully uploaded to App Store Connect.
 
         1. Open the TestFlight app on your iOS device
-        2. Select "TAT"
+        2. Select "${{ inputs.app_name }}"
         3. Install build ${{ inputs.build_number }}
 
         > **Note:** It may take ~15 minutes for the build to appear in TestFlight after upload.

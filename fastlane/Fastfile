@@ -175,7 +175,8 @@ platform :android do
         File.expand_path("../build/app/outputs/flutter-apk/app-release.apk", __dir__),
         File.expand_path("../build/app/outputs/bundle/release/app-release.aab", __dir__)
       ].compact
-      artifact_path = candidates.find { |f| File.exist?(f) } || candidates.first
+      artifact_path = candidates.find { |f| File.exist?(f) }
+      UI.user_error!("No APK or AAB found in build/app/outputs") unless artifact_path
       artifact_type ||= (artifact_path && artifact_path.end_with?(".aab")) ? "AAB" : "APK"
     elsif artifact_type.nil?
       artifact_type = artifact_path.end_with?(".aab") ? "AAB" : "APK"

@@ -362,7 +362,8 @@ class MockStudentQueryService implements StudentQueryService {
               (
                 number: '331345',
                 courseNameZh: '進階專業英文- 電資(二)',
-                courseNameEn: 'Advanced ESP (Electrical Engineering and Computer Science) II',
+                courseNameEn:
+                    'Advanced ESP (Electrical Engineering and Computer Science) II',
                 courseCode: '14E3073',
                 score: 90,
                 status: null,
@@ -413,7 +414,8 @@ class MockStudentQueryService implements StudentQueryService {
               (
                 number: '320427',
                 courseNameZh: '大學入門與工程倫理',
-                courseNameEn: 'First step to achieving the goals of universities and Engineering Ethics',
+                courseNameEn:
+                    'First step to achieving the goals of universities and Engineering Ethics',
                 courseCode: '1400102',
                 score: 89,
                 status: null,

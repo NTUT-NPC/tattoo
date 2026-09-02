@@ -14,18 +14,9 @@ class DefaultFirebaseOptions {
         'DefaultFirebaseOptions have not been configured for web.',
       );
     }
-    if (appFlavor == 'dev' || appFlavor == 'staging') {
-      return switch (defaultTargetPlatform) {
-        TargetPlatform.android => androidDev,
-        TargetPlatform.iOS => iosDev,
-        _ => throw UnsupportedError(
-            'DefaultFirebaseOptions are not supported for this platform.',
-          ),
-      };
-    }
     return switch (defaultTargetPlatform) {
-      TargetPlatform.android => androidProd,
-      TargetPlatform.iOS => iosProd,
+      TargetPlatform.android => android,
+      TargetPlatform.iOS => ios,
       _ => throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
         ),

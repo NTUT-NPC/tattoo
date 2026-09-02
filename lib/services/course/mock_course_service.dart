@@ -1517,7 +1517,8 @@ class MockCourseService implements CourseService {
           course: (
             id: '1400102',
             nameZh: '大學入門與工程倫理',
-            nameEn: 'First step to achieving the goals of universities and Engineering Ethics',
+            nameEn:
+                'First step to achieving the goals of universities and Engineering Ethics',
           ),
           phase: 1,
           credits: 1.0,

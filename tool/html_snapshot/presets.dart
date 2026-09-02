@@ -93,7 +93,8 @@ final _presetList = <SnapshotPreset>[
       'apPopupFull.do',
       query: {
         'apView': 'apMap',
-        'apDn': 'OU=aa,OU=aproot,OU=ldaproot,OU=ldapConfig,DC=campus,DC=cnc,DC=ntut,DC=edu,DC=tw',
+        'apDn':
+            'OU=aa,OU=aproot,OU=ldaproot,OU=ldapConfig,DC=campus,DC=cnc,DC=ntut,DC=edu,DC=tw',
       },
     ),
   ),
@@ -172,7 +173,8 @@ final _presetList = <SnapshotPreset>[
   SnapshotPreset(
     name: 'course.teacher_profile',
     service: .course,
-    description: 'Teacher profile page. Required: --teacher-id. Optional: --year --term.',
+    description:
+        'Teacher profile page. Required: --teacher-id. Optional: --year --term.',
     allSkipReason: 'requires --teacher-id',
     buildRequest: _courseSemesterRequiredId(
       path: 'tw/Teach.jsp',
@@ -184,7 +186,8 @@ final _presetList = <SnapshotPreset>[
   SnapshotPreset(
     name: 'course.teacher_office_hours',
     service: .course,
-    description: 'Teacher office hours page. Required: --teacher-id. Optional: --year --term.',
+    description:
+        'Teacher office hours page. Required: --teacher-id. Optional: --year --term.',
     allSkipReason: 'requires --teacher-id',
     buildRequest: _courseSemesterRequiredId(
       path: 'tw/Teach.jsp',
@@ -196,7 +199,8 @@ final _presetList = <SnapshotPreset>[
   SnapshotPreset(
     name: 'course.classroom',
     service: .course,
-    description: 'Classroom info page. Required: --classroom-id. Optional: --year --term.',
+    description:
+        'Classroom info page. Required: --classroom-id. Optional: --year --term.',
     allSkipReason: 'requires --classroom-id',
     buildRequest: _courseSemesterRequiredId(
       path: 'tw/Croom.jsp',
@@ -240,14 +244,16 @@ final _presetList = <SnapshotPreset>[
   SnapshotPreset(
     name: 'ischool.students',
     service: .ischool,
-    description: 'iSchool+ student ranking page. Optional: --course-internal-id --course-number.',
+    description:
+        'iSchool+ student ranking page. Optional: --course-internal-id --course-number.',
     includeInAll: true,
     buildRequest: _ischoolCoursePage('learn_ranking.php'),
   ),
   SnapshotPreset(
     name: 'ischool.materials',
     service: .ischool,
-    description: 'iSchool+ course materials page. Optional: --course-internal-id --course-number.',
+    description:
+        'iSchool+ course materials page. Optional: --course-internal-id --course-number.',
     includeInAll: true,
     buildRequest: _ischoolCoursePage(
       'path/SCORM_loadCA.php',
@@ -258,10 +264,11 @@ final _presetList = <SnapshotPreset>[
 
 final _presets = {for (final preset in _presetList) preset.name: preset};
 
-typedef SnapshotRequestBuilder = Future<SnapshotRequest> Function(
-  SnapshotContext context,
-  ArgResults args,
-);
+typedef SnapshotRequestBuilder =
+    Future<SnapshotRequest> Function(
+      SnapshotContext context,
+      ArgResults args,
+    );
 
 SnapshotRequestBuilder _simple(
   SnapshotService service,

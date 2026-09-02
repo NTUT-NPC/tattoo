@@ -56,32 +56,32 @@ jobs:
       deploy_android: ${{ github.event_name == 'push' || inputs.deploy_android != false }}
       deploy_ios: ${{ github.event_name == 'push' || inputs.deploy_ios != false }}
     steps:
-      - name: Checkout Actions
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          sparse-checkout: .github/actions
-          sparse-checkout-cone-mode: false
-
-      - name: Resolve Release Metadata
-        id: release-meta
-        run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
-            TAG="${{ github.ref_name }}"
-            echo "tag=$TAG" >> $GITHUB_OUTPUT
-            echo "title=TAT Release $TAG" >> $GITHUB_OUTPUT
-            echo "target_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
-          else
-            TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v2.0.1")
-            echo "tag=$TAG" >> $GITHUB_OUTPUT
-            echo "title=TAT Release (Manual Dispatch)" >> $GITHUB_OUTPUT
-            echo "target_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
-          fi
-
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ steps.release-meta.outputs.target_ref }}
+          ref: ${{ github.ref }}
           fetch-depth: 0
+
+      - name: Resolve Release Metadata
+        id: release-meta
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          REF: ${{ github.ref }}
+        run: |
+          if [ "$EVENT_NAME" = "push" ]; then
+            TAG="$REF_NAME"
+            TITLE="TAT Release $TAG"
+          else
+            TAG=$(git describe --tags --abbrev=0 2>/dev/null) || {
+              echo "No tag found for manual dispatch." >&2
+              exit 1
+            }
+            TITLE="TAT Release (Manual Dispatch)"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "title=$TITLE" >> "$GITHUB_OUTPUT"
+          echo "target_ref=$REF" >> "$GITHUB_OUTPUT"
 
       - name: Manage Build Number
         id: build-number
@@ -100,8 +100,12 @@ jobs:
       - name: Resolve Previous Tag for Changelog
         id: prev-tag
         run: |
-          PREV_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | sed -n '2p' || true)
-          echo "prev_sha=$PREV_TAG" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" = "push" ]; then
+            PREV_TAG=$(git describe --tags --abbrev=0 "${{ steps.release-meta.outputs.tag }}^" 2>/dev/null || git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | sed -n '2p' || true)
+          else
+            PREV_TAG="${{ steps.release-meta.outputs.tag }}"
+          fi
+          echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
 
       - name: Generate changelog
         id: changelog
@@ -109,7 +113,7 @@ jobs:
         with:
           github_token: ${{ github.token }}
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          last_sha: ${{ steps.prev-tag.outputs.prev_sha }}
+          last_sha: ${{ steps.prev-tag.outputs.prev_tag }}
           head_ref: ${{ steps.release-meta.outputs.target_ref }}
           fallback_message: ${{ steps.summary.outputs.message }}
           model: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash' }}
@@ -215,6 +219,7 @@ jobs:
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
           type: playstore
+          app_name: TAT
 
       - name: Write Dry Run Android Summary
         if: needs.prepare.outputs.dry_run == 'true'
@@ -298,6 +303,7 @@ jobs:
         uses: ./.github/actions/ios-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
+          app_name: TAT
 
       - name: Write Dry Run iOS Summary
         if: needs.prepare.outputs.dry_run == 'true'

@@ -12,6 +12,10 @@ inputs:
   testing_uri:
     description: 'Install URI (required for firebase)'
     required: false
+  app_name:
+    description: 'App name in store or tester app'
+    required: false
+    default: 'TAT'
 
 runs:
   using: composite
@@ -33,7 +37,7 @@ runs:
         Build **${{ inputs.build_number }}** successfully uploaded to Google Play.
 
         1. Open the Google Play Store on your Android device
-        2. Select "TAT"
+        2. Select "${{ inputs.app_name }}"
         3. Install or update to the latest build
 
         > **Note:** It may take ~30 minutes for the build to appear in the Play Store after upload.

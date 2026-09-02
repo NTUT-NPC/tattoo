@@ -50,7 +50,8 @@ void main() {
           expect(
             semester.term,
             isIn([0, 1, 2, 3]),
-            reason: 'Term should be 0 (pre-study), 1 (fall), 2 (spring), or 3 (summer)',
+            reason:
+                'Term should be 0 (pre-study), 1 (fall), 2 (spring), or 3 (summer)',
           );
         }
       });

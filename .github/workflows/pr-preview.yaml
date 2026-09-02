@@ -175,6 +175,7 @@ jobs:
           build_number: ${{ needs.prepare.outputs.build_number }}
           type: 'firebase'
           testing_uri: ${{ steps.upload.outputs.testing_uri }}
+          app_name: Tattoo
 
       - name: Update comment with Android build
         if: github.event_name == 'pull_request' && needs.prepare.outputs.deploy_android == 'true'
@@ -229,6 +230,7 @@ jobs:
         uses: ./.github/actions/ios-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
+          app_name: Tattoo
 
       - name: Update comment with iOS build
         if: github.event_name == 'pull_request' && needs.prepare.outputs.deploy_ios == 'true'
@@ -238,6 +240,6 @@ jobs:
           body: |
             ### iOS (TestFlight)
             1. Open the TestFlight app on your iOS device
-            2. Select "TAT"
+            2. Select "Tattoo"
             3. Install build ${{ needs.prepare.outputs.build_number }}
           edit-mode: append

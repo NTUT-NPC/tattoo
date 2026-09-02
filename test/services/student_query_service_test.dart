@@ -333,7 +333,8 @@ void main() {
                   (score.courseNameZh?.trim().isNotEmpty ?? false),
             ),
             isTrue,
-            reason: 'When NTUT omits English names, scores with course numbers should still keep Chinese names.',
+            reason:
+                'When NTUT omits English names, scores with course numbers should still keep Chinese names.',
           );
         }
       });
