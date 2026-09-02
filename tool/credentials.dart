@@ -22,6 +22,70 @@ const _ivLength = 16;
 // Where to clone the credentials repo (already in .gitignore via .dart_tool/)
 const _repoDir = '.dart_tool/credentials';
 
+const _devPackageName = 'club.ntut.tattoo';
+
+const _fallbackDevGoogleServicesJson = '''{
+  "project_info": {
+    "project_number": "838220085712",
+    "project_id": "npc-tattoo",
+    "storage_bucket": "npc-tattoo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:838220085712:android:a85cf2541699925c3be1d5",
+        "android_client_info": {
+          "package_name": "club.ntut.tattoo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwy04VDvRscfjTPu2ShxLbB-_EyuezEhU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}''';
+
+const _fallbackDevGoogleServiceInfoPlist =
+    '''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyDp_en-3_f7VONU8KA8zucI-tTgrsV_PJM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>838220085712</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>club.ntut.tattoo</string>
+	<key>PROJECT_ID</key>
+	<string>npc-tattoo</string>
+	<key>STORAGE_BUCKET</key>
+	<string>npc-tattoo.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:838220085712:ios:d5b7636cdc72fd603be1d5</string>
+</dict>
+</plist>''';
+
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
@@ -61,13 +125,14 @@ class Config {
       exit(1);
     }
 
-    var resolvedEnv = (overrideEnv ??
-            envMap['MATCH_ENV'] ??
-            envMap['APP_ENV'] ??
-            envMap['FLAVOR'] ??
-            envMap['ENV'] ??
-            'prod')
-        .toLowerCase();
+    var resolvedEnv =
+        (overrideEnv ??
+                envMap['MATCH_ENV'] ??
+                envMap['APP_ENV'] ??
+                envMap['FLAVOR'] ??
+                envMap['ENV'] ??
+                'prod')
+            .toLowerCase();
     if (resolvedEnv == 'staging') {
       resolvedEnv = 'dev';
     }
@@ -251,26 +316,43 @@ Future<void> fetch(Config config) async {
   await cloneOrPull(config);
 
   stdout.writeln('Target environment: ${config.env}');
-
-  bool processFile(String srcRelPath, String destPath) {
+  Uint8List? readOrDecrypt(String srcRelPath) {
     final srcPath = '$_repoDir/$srcRelPath';
     final srcFile = File(srcPath);
 
     if (!srcFile.existsSync()) {
+      return null;
+    }
+
+    if (srcRelPath.endsWith('.enc')) {
+      final encrypted = srcFile.readAsBytesSync();
+      return decryptBytes(encrypted, config.matchPassword);
+    } else {
+      return srcFile.readAsBytesSync();
+    }
+  }
+
+  bool processFile(
+    String srcRelPath,
+    String destPath, {
+    bool Function(Uint8List bytes)? validate,
+  }) {
+    final bytes = readOrDecrypt(srcRelPath);
+    if (bytes == null) {
+      return false;
+    }
+
+    if (validate != null && !validate(bytes)) {
       return false;
     }
 
     // Ensure destination directory exists
     File(destPath).parent.createSync(recursive: true);
+    File(destPath).writeAsBytesSync(bytes);
 
     if (srcRelPath.endsWith('.enc')) {
-      final encrypted = srcFile.readAsBytesSync();
-      final decrypted = decryptBytes(encrypted, config.matchPassword);
-
-      File(destPath).writeAsBytesSync(decrypted);
       stdout.writeln('  decrypt $srcRelPath -> $destPath');
     } else {
-      srcFile.copySync(destPath);
       stdout.writeln('  copy $srcRelPath -> $destPath');
     }
     return true;
@@ -291,11 +373,6 @@ Future<void> fetch(Config config) async {
 
   // 2. Google services (Android)
   final env = config.env;
-  final androidDestPaths = [
-    'android/app/src/$env/google-services.json',
-    'android/app/google-services.json',
-  ];
-
   final androidSourceCandidates = [
     'firebase/$env/google-services.json.enc',
     'firebase/$env/google-services.json',
@@ -315,10 +392,45 @@ Future<void> fetch(Config config) async {
     'firebase/google-services.json',
   ];
 
-  for (final dest in androidDestPaths) {
+  if (env == 'dev') {
+    var devAndroidFound = false;
     for (final src in androidSourceCandidates) {
-      if (processFile(src, dest)) {
+      if (processFile(
+        src,
+        'android/app/src/dev/google-services.json',
+        validate: (bytes) =>
+            utf8.decode(bytes, allowMalformed: true).contains(_devPackageName),
+      )) {
+        devAndroidFound = true;
+        processFile(src, 'android/app/google-services.json');
         break;
+      }
+    }
+    if (!devAndroidFound) {
+      final destFile = File('android/app/src/dev/google-services.json');
+      destFile.parent.createSync(recursive: true);
+      destFile.writeAsStringSync(_fallbackDevGoogleServicesJson.trim());
+      stdout.writeln(
+        '  fallback dev google-services.json -> android/app/src/dev/google-services.json',
+      );
+
+      final rootDestFile = File('android/app/google-services.json');
+      rootDestFile.parent.createSync(recursive: true);
+      rootDestFile.writeAsStringSync(_fallbackDevGoogleServicesJson.trim());
+      stdout.writeln(
+        '  fallback dev google-services.json -> android/app/google-services.json',
+      );
+    }
+  } else {
+    final androidDestPaths = [
+      'android/app/src/$env/google-services.json',
+      'android/app/google-services.json',
+    ];
+    for (final dest in androidDestPaths) {
+      for (final src in androidSourceCandidates) {
+        if (processFile(src, dest)) {
+          break;
+        }
       }
     }
   }
@@ -340,17 +452,21 @@ Future<void> fetch(Config config) async {
       ],
     ];
     for (final src in flavorSources) {
-      if (processFile(src, 'android/app/src/$flavor/google-services.json')) {
+      if (processFile(
+        src,
+        'android/app/src/$flavor/google-services.json',
+        validate: flavor == 'dev'
+            ? (bytes) => utf8
+                  .decode(bytes, allowMalformed: true)
+                  .contains(_devPackageName)
+            : null,
+      )) {
         break;
       }
     }
   }
 
   // 3. GoogleService-Info (iOS)
-  final iosDestPaths = [
-    'ios/Runner/GoogleService-Info.plist',
-  ];
-
   final iosSourceCandidates = [
     'firebase/$env/GoogleService-Info.plist.enc',
     'firebase/$env/GoogleService-Info.plist',
@@ -369,10 +485,37 @@ Future<void> fetch(Config config) async {
     'firebase/GoogleService-Info.plist.enc',
     'firebase/GoogleService-Info.plist',
   ];
-  for (final dest in iosDestPaths) {
+
+  if (env == 'dev') {
+    var devIosFound = false;
     for (final src in iosSourceCandidates) {
-      if (processFile(src, dest)) {
+      if (processFile(
+        src,
+        'ios/Runner/GoogleService-Info.plist',
+        validate: (bytes) =>
+            utf8.decode(bytes, allowMalformed: true).contains(_devPackageName),
+      )) {
+        devIosFound = true;
         break;
+      }
+    }
+    if (!devIosFound) {
+      final destFile = File('ios/Runner/GoogleService-Info.plist');
+      destFile.parent.createSync(recursive: true);
+      destFile.writeAsStringSync(_fallbackDevGoogleServiceInfoPlist.trim());
+      stdout.writeln(
+        '  fallback dev GoogleService-Info.plist -> ios/Runner/GoogleService-Info.plist',
+      );
+    }
+  } else {
+    final iosDestPaths = [
+      'ios/Runner/GoogleService-Info.plist',
+    ];
+    for (final dest in iosDestPaths) {
+      for (final src in iosSourceCandidates) {
+        if (processFile(src, dest)) {
+          break;
+        }
       }
     }
   }
@@ -448,7 +591,9 @@ Future<void> main(List<String> rawArgs) async {
 
   if (args.isEmpty) {
     stderr.writeln('Usage:');
-    stderr.writeln('  dart run tool/credentials.dart fetch [--env=dev|--env=prod]');
+    stderr.writeln(
+      '  dart run tool/credentials.dart fetch [--env=dev|--env=prod]',
+    );
     stderr.writeln(
       '  dart run tool/credentials.dart encrypt <source-file> <dest-path-in-repo>',
     );
