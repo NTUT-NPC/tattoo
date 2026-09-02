@@ -225,31 +225,31 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
         description: t.home.npcClub.description,
         onTap: () => launchUrl(.parse(t.home.npcClub.url)),
       ),
-      ...(_showVoteEntry()
-          ? <Widget>[
-              OptionEntryTile.icon(
-                icon: Icons.how_to_vote_outlined,
-                title: t.nav.vote,
-                description: t.home.vote.description.spaced,
-                onTap: () => context.push(AppRoutes.kioskLoginQr),
-              ),
-            ]
-          : <Widget>[]),
-      OptionEntryTile.icon(
-        icon: Icons.qr_code_scanner,
-        title: t.scanner.loginIStudy.spaced,
-        onTap: () => context.push(AppRoutes.scanner),
-      ),
-      OptionEntryTile.icon(
-        icon: Icons.switch_access_shortcut_outlined,
-        title: t.nav.portal,
-        onTap: () => context.push(AppRoutes.portal),
-      ),
-      OptionEntryTile.icon(
-        icon: Icons.calendar_month,
-        title: t.nav.calendar,
-        onTap: () => context.push(AppRoutes.calendar),
-      ),
+      if (ref.pref(PrefKey.showVoteButton))
+        OptionEntryTile.icon(
+          icon: Icons.how_to_vote_outlined,
+          title: t.nav.vote,
+          description: t.home.vote.description.spaced,
+          onTap: () => context.push(AppRoutes.kioskLoginQr),
+        ),
+      if (ref.pref(PrefKey.showScannerButton))
+        OptionEntryTile.icon(
+          icon: Icons.qr_code_scanner,
+          title: t.scanner.loginIStudy.spaced,
+          onTap: () => context.push(AppRoutes.scanner),
+        ),
+      if (ref.pref(PrefKey.showPortalButton))
+        OptionEntryTile.icon(
+          icon: Icons.switch_access_shortcut_outlined,
+          title: t.nav.portal,
+          onTap: () => context.push(AppRoutes.portal),
+        ),
+      if (ref.pref(PrefKey.showCalendarButton))
+        OptionEntryTile.icon(
+          icon: Icons.calendar_month,
+          title: t.nav.calendar,
+          onTap: () => context.push(AppRoutes.calendar),
+        ),
       if (Theme.of(context).platform == TargetPlatform.android &&
           ref.pref(PrefKey.showWifiButton))
         OptionEntryTile.icon(
@@ -269,33 +269,34 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
                 child: Column(
                   spacing: 16,
                   children: [
-                    NextCourseCarousel(
-                      key: ValueKey(displayedDate),
-                      courses: courses,
-                      initialCourseIndex: initialCourseIndex,
-                      loading: isCourseScheduleLoading,
-                      error: hasCourseScheduleError,
-                      onRetry: () => _retryCourseSchedule(latestSemesterId),
-                      onPreviousDate: () => _showAdjacentCourseDate(
-                        courseTable,
-                        semesterDateRange,
-                        displayedDate,
-                        today,
-                        .previous,
+                    if (ref.pref(PrefKey.showCourseSchedule))
+                      NextCourseCarousel(
+                        key: ValueKey(displayedDate),
+                        courses: courses,
+                        initialCourseIndex: initialCourseIndex,
+                        loading: isCourseScheduleLoading,
+                        error: hasCourseScheduleError,
+                        onRetry: () => _retryCourseSchedule(latestSemesterId),
+                        onPreviousDate: () => _showAdjacentCourseDate(
+                          courseTable,
+                          semesterDateRange,
+                          displayedDate,
+                          today,
+                          .previous,
+                        ),
+                        onNextDate: () => _showAdjacentCourseDate(
+                          courseTable,
+                          semesterDateRange,
+                          displayedDate,
+                          today,
+                          .next,
+                        ),
+                        onCourseTap: (course) {
+                          if (course.courseNumber case final number?) {
+                            showCourseTableDetailSheet(context, number: number);
+                          }
+                        },
                       ),
-                      onNextDate: () => _showAdjacentCourseDate(
-                        courseTable,
-                        semesterDateRange,
-                        displayedDate,
-                        today,
-                        .next,
-                      ),
-                      onCourseTap: (course) {
-                        if (course.courseNumber case final number?) {
-                          showCourseTableDetailSheet(context, number: number);
-                        }
-                      },
-                    ),
                     Column(
                       spacing: 8,
                       children: options,
@@ -365,8 +366,3 @@ String _courseDateLabel(DateTime date, {required DateTime today}) {
 String _formatTime(DateTime time) =>
     '${time.hour.toString().padLeft(2, '0')}:'
     '${time.minute.toString().padLeft(2, '0')}';
-
-bool _showVoteEntry() => DateTime.now()
-    .toUtc()
-    .add(const Duration(hours: 8))
-    .isBefore(.utc(2026, 5, 16));

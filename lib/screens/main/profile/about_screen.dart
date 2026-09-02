@@ -66,6 +66,44 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
     final showWeblateButton = ref.pref(PrefKey.showWeblateButton);
     final theme = Theme.of(context);
 
+    final relatedLinks = [
+      OptionEntryTile.icon(
+        icon: Icons.code,
+        title: 'GitHub',
+        description: t.about.viewSource,
+        onTap: () => launchUrl(
+          .parse('https://github.com/NTUT-NPC/tattoo'),
+        ),
+      ),
+      OptionEntryTile.icon(
+        icon: Icons.article_outlined,
+        title: t.about.openSourceLicenses,
+        description: t.about.viewOpenSourceLicenses.spaced,
+        onTap: () => showLicensePage(
+          context: context,
+          applicationLegalese: t.about.copyright.spaced,
+          applicationName: t.general.appTitle,
+          applicationVersion: packageInfoAsync.value ?? '...',
+        ),
+      ),
+      if (showWeblateButton)
+        OptionEntryTile.icon(
+          icon: Icons.translate,
+          title: 'Weblate',
+          description: t.about.helpTranslate.spaced,
+          onTap: () => launchUrl(
+            .parse('https://translate.ntut.app'),
+          ),
+        ),
+      OptionEntryTile.icon(
+        icon: Icons.privacy_tip,
+        title: t.about.privacyPolicy,
+        description: t.about.viewPrivacyPolicy,
+        onTap: () => launchUrl(
+          .parse(t.about.privacyPolicyUrl),
+        ),
+      ),
+    ];
     return Scaffold(
       appBar: AppBar(
         title: Text(t.profile.options.about.spaced),
@@ -122,42 +160,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                       spacing: 8,
                       children: [
                         SectionHeader(title: t.about.relatedLinks),
-                        OptionEntryTile.icon(
-                          icon: Icons.code,
-                          title: 'GitHub',
-                          description: t.about.viewSource,
-                          onTap: () => launchUrl(
-                            .parse('https://github.com/NTUT-NPC/tattoo'),
-                          ),
-                        ),
-                        OptionEntryTile.icon(
-                          icon: Icons.article_outlined,
-                          title: t.about.openSourceLicenses,
-                          description: t.about.viewOpenSourceLicenses.spaced,
-                          onTap: () => showLicensePage(
-                            context: context,
-                            applicationLegalese: t.about.copyright.spaced,
-                            applicationName: t.general.appTitle,
-                            applicationVersion: packageInfoAsync.value ?? '...',
-                          ),
-                        ),
-                        if (showWeblateButton)
-                          OptionEntryTile.icon(
-                            icon: Icons.translate,
-                            title: 'Weblate',
-                            description: t.about.helpTranslate.spaced,
-                            onTap: () => launchUrl(
-                              .parse('https://translate.ntut.app'),
-                            ),
-                          ),
-                        OptionEntryTile.icon(
-                          icon: Icons.privacy_tip,
-                          title: t.about.privacyPolicy,
-                          description: t.about.viewPrivacyPolicy,
-                          onTap: () => launchUrl(
-                            .parse(t.about.privacyPolicyUrl),
-                          ),
-                        ),
+                        ...relatedLinks,
                       ],
                     ),
 

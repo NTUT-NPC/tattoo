@@ -18,6 +18,7 @@ import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 import 'package:tattoo/services/portal/mock_portal_service.dart';
 import 'package:tattoo/services/student_query/mock_student_query_service.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -41,13 +42,14 @@ void main() {
     });
 
     testWidgets(
-      'shows the profile entry on Android when preference is enabled',
+      'shows change password and change avatar when preferences are enabled',
       (tester) async {
-        preferencesRepository.showWifiButtonValue = true;
+        preferencesRepository.overrides[PrefKey.showChangePasswordButton] =
+            true;
+        preferencesRepository.overrides[PrefKey.showChangeAvatarButton] = true;
         await tester.pumpWidget(
           _buildApp(
             const ProfileScreen(),
-            platform: TargetPlatform.android,
             overrides: [
               userProfileProvider.overrideWith((ref) => Stream.value(null)),
               userAvatarProvider.overrideWith((ref) async => null),
@@ -62,19 +64,23 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text(t.profile.options.ntutWifi), findsOneWidget);
-        expect(find.text(t.ntutWifi.entryDescription), findsOneWidget);
+        expect(find.text(t.profile.options.changePassword), findsOneWidget);
+        expect(find.text(t.profile.options.changeAvatar), findsOneWidget);
+        expect(find.text(t.profile.options.about.spaced), findsOneWidget);
+        expect(find.text(t.profile.options.npcClub), findsOneWidget);
+        expect(find.text(t.profile.options.logout), findsOneWidget);
       },
     );
 
     testWidgets(
-      'hides the profile entry on Android when preference is disabled',
+      'hides change password and change avatar when preferences are disabled',
       (tester) async {
-        preferencesRepository.showWifiButtonValue = false;
+        preferencesRepository.overrides[PrefKey.showChangePasswordButton] =
+            false;
+        preferencesRepository.overrides[PrefKey.showChangeAvatarButton] = false;
         await tester.pumpWidget(
           _buildApp(
             const ProfileScreen(),
-            platform: TargetPlatform.android,
             overrides: [
               userProfileProvider.overrideWith((ref) => Stream.value(null)),
               userAvatarProvider.overrideWith((ref) async => null),
@@ -89,35 +95,13 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text(t.profile.options.ntutWifi), findsNothing);
-        expect(find.text(t.ntutWifi.entryDescription), findsNothing);
+        expect(find.text(t.profile.options.changePassword), findsNothing);
+        expect(find.text(t.profile.options.changeAvatar), findsNothing);
+        expect(find.text(t.profile.options.about.spaced), findsOneWidget);
+        expect(find.text(t.profile.options.npcClub), findsOneWidget);
+        expect(find.text(t.profile.options.logout), findsOneWidget);
       },
     );
-
-    testWidgets('hides the profile entry on non-Android platforms', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _buildApp(
-          const ProfileScreen(),
-          platform: TargetPlatform.iOS,
-          overrides: [
-            userProfileProvider.overrideWith((ref) => Stream.value(null)),
-            userAvatarProvider.overrideWith((ref) async => null),
-            activeRegistrationProvider.overrideWith(
-              (ref) => Stream.value(null),
-            ),
-            preferencesRepositoryProvider.overrideWith((ref) {
-              return preferencesRepository;
-            }),
-          ],
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text(t.profile.options.ntutWifi), findsNothing);
-      expect(find.text(t.ntutWifi.entryDescription), findsNothing);
-    });
   });
 }
 
@@ -137,20 +121,20 @@ class _FakePreferencesRepository extends PreferencesRepository {
 
   final AppDatabase _database;
 
-  bool showWifiButtonValue = false;
+  final Map<PrefKey, Object> overrides = {};
 
   @override
   Future<T> get<T>(PrefKey<T> key) async {
-    if (key == PrefKey.showWifiButton) return showWifiButtonValue as T;
+    if (overrides.containsKey(key)) return overrides[key] as T;
     return key.defaultValue;
   }
 
   @override
   Future<ResolvedPreference> resolve(PrefKey key) async {
-    if (key == PrefKey.showWifiButton) {
+    if (overrides.containsKey(key)) {
       return ResolvedPreference(
         key: key,
-        value: showWifiButtonValue,
+        value: overrides[key]!,
         source: PrefSource.local,
       );
     }

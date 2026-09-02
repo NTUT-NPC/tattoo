@@ -4,11 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/course_table_providers.dart';
 import 'package:tattoo/screens/main/home/home_providers.dart';
 import 'package:tattoo/screens/main/home/home_screen.dart';
+import 'package:tattoo/screens/main/home/next_course_carousel.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 void main() {
   testWidgets('preserves loading until the course table emits data', (
@@ -125,6 +130,89 @@ void main() {
     expect(find.text('Monday course'), findsNothing);
     expect(find.byIcon(Icons.coffee_outlined), findsNWidgets(2));
   });
+
+  testWidgets('hides next course carousel when showCourseSchedule is false', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          preferenceValueProvider(
+            PrefKey.showCourseSchedule,
+          ).overrideWithValue(false),
+          courseTableSemestersProvider.overrideWith(
+            (ref) => Stream.value(const []),
+          ),
+        ],
+        child: const MaterialApp(home: MainHomeScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NextCourseCarousel), findsNothing);
+  });
+
+  testWidgets('shows wifi and vote button when preference is enabled', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          preferenceValueProvider(
+            PrefKey.showWifiButton,
+          ).overrideWithValue(true),
+          preferenceValueProvider(
+            PrefKey.showVoteButton,
+          ).overrideWithValue(true),
+          courseTableSemestersProvider.overrideWith(
+            (ref) => Stream.value(const []),
+          ),
+        ],
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.android),
+          home: const MainHomeScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(t.home.campusWifi.spaced), findsOneWidget);
+    expect(find.text(t.nav.vote), findsOneWidget);
+  });
+
+  testWidgets(
+    'hides dynamic tools when preferences are disabled while keeping standard links',
+    (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            preferenceValueProvider(
+              PrefKey.showScannerButton,
+            ).overrideWithValue(false),
+            preferenceValueProvider(
+              PrefKey.showPortalButton,
+            ).overrideWithValue(false),
+            preferenceValueProvider(
+              PrefKey.showCalendarButton,
+            ).overrideWithValue(false),
+            courseTableSemestersProvider.overrideWith(
+              (ref) => Stream.value(const []),
+            ),
+          ],
+          child: const MaterialApp(home: MainHomeScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(t.home.projectTattoo.title.spaced), findsOneWidget);
+      expect(find.text(t.home.ideation.title.spaced), findsOneWidget);
+      expect(find.text(t.home.npcClub.title), findsOneWidget);
+      expect(find.text(t.scanner.loginIStudy.spaced), findsNothing);
+      expect(find.text(t.nav.portal), findsNothing);
+      expect(find.text(t.nav.calendar), findsNothing);
+    },
+  );
 }
 
 Widget _homeWithSchedule({

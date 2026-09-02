@@ -9,7 +9,9 @@ import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
@@ -84,23 +86,31 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // settings options for the profile tab
-    final options = [
-      SectionHeader(title: t.profile.sections.accountSettings),
-      OptionEntryTile.icon(
-        icon: Icons.password,
-        title: t.profile.options.changePassword,
-        onTap: () => context.push(
-          AppRoutes.changePassword,
-          extra: {
-            'isExpired': false,
-          },
+    final accountOptions = [
+      if (ref.pref(PrefKey.showChangePasswordButton))
+        OptionEntryTile.icon(
+          icon: Icons.password,
+          title: t.profile.options.changePassword,
+          onTap: () => context.push(
+            AppRoutes.changePassword,
+            extra: {
+              'isExpired': false,
+            },
+          ),
         ),
-      ),
-      OptionEntryTile.icon(
-        icon: Icons.image,
-        title: t.profile.options.changeAvatar,
-        onTap: () => _changeAvatar(context, ref),
-      ),
+      if (ref.pref(PrefKey.showChangeAvatarButton))
+        OptionEntryTile.icon(
+          icon: Icons.image,
+          title: t.profile.options.changeAvatar,
+          onTap: () => _changeAvatar(context, ref),
+        ),
+    ];
+
+    final options = [
+      if (accountOptions.isNotEmpty) ...[
+        SectionHeader(title: t.profile.sections.accountSettings),
+        ...accountOptions,
+      ],
 
       SectionHeader(title: 'TAT'),
       OptionEntryTile.icon(
