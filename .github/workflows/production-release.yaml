@@ -1,28 +1,30 @@
-name: Daily Release
+name: Production Release
 
 on:
-  schedule:
-    - cron: "0 21 * * *" # Daily at 05:00 UTC+8 (21:00 UTC)
+  push:
+    tags:
+      - 'v*.*.*'
   workflow_dispatch:
     inputs:
-      branch_name:
-        description: 'Specific branch to build from HEAD (Uses CI logic from dropdown)'
+      track:
+        description: 'Google Play track (internal, beta, production)'
         required: false
-        type: string
-      commit_sha:
-        description: 'Specific commit SHA to build (overrides branch)'
-        required: false
-        type: string
-      include_public_testers:
-        description: 'Upload to external public testers (TestFlight & Google Play)'
-        required: false
-        type: boolean
-        default: false
-      force_build:
-        description: 'Force build even if no changes'
+        type: choice
+        default: 'internal'
+        options:
+          - 'internal'
+          - 'beta'
+          - 'production'
+      deploy_android:
+        description: 'Deploy Android to Google Play'
         required: false
         type: boolean
-        default: false
+        default: true
+      deploy_ios:
+        description: 'Deploy iOS to TestFlight'
+        required: false
+        type: boolean
+        default: true
       dry_run:
         description: 'Dry run (build only, do not upload/release)'
         required: false
@@ -43,14 +45,16 @@ jobs:
       contents: write
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number }}
-      version_suffix: ${{ steps.version-suffix.outputs.suffix }}
-      date: ${{ steps.version-suffix.outputs.date }}
+      release_tag: ${{ steps.release-meta.outputs.tag }}
+      release_title: ${{ steps.release-meta.outputs.title }}
       commit_sha: ${{ steps.summary.outputs.sha }}
       commit_message: ${{ steps.summary.outputs.message }}
-      target_ref: ${{ steps.set-ref.outputs.ref }}
-      skip_build: ${{ steps.check-changes.outputs.skip }}
+      target_ref: ${{ steps.release-meta.outputs.target_ref }}
       store_changelog: ${{ steps.changelog.outputs.store_changelog }}
       dry_run: ${{ inputs.dry_run == true }}
+      track: ${{ inputs.track || 'internal' }}
+      deploy_android: ${{ github.event_name == 'push' || inputs.deploy_android != false }}
+      deploy_ios: ${{ github.event_name == 'push' || inputs.deploy_ios != false }}
     steps:
       - name: Checkout Actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -58,51 +62,28 @@ jobs:
           sparse-checkout: .github/actions
           sparse-checkout-cone-mode: false
 
-      - name: Set Version Suffix
-        id: version-suffix
+      - name: Resolve Release Metadata
+        id: release-meta
         run: |
-          DATE=$(TZ='Asia/Taipei' date +'%Y%m%d')
-          echo "date=$DATE" >> $GITHUB_OUTPUT
-          echo "suffix=daily.$DATE" >> $GITHUB_OUTPUT
-
-      - name: Resolve Target Ref
-        id: set-ref
-        uses: ./.github/actions/resolve-ref
-        with:
-          branch_name: ${{ inputs.branch_name }}
-          commit_sha: ${{ inputs.commit_sha }}
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG="${{ github.ref_name }}"
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "title=TAT Release $TAG" >> $GITHUB_OUTPUT
+            echo "target_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+          else
+            TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v2.0.1")
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "title=TAT Release (Manual Dispatch)" >> $GITHUB_OUTPUT
+            echo "target_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ steps.set-ref.outputs.ref }}
-
-      - name: Check for changes
-        id: check-changes
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if [ "${{ inputs.force_build }}" = "true" ]; then
-            echo "skip=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          if gh release view daily &>/dev/null; then
-            LAST_SHA=$(gh release view daily --json targetCommitish -q .targetCommitish)
-            CURRENT_SHA=$(git rev-parse HEAD)
-            echo "last_sha=$LAST_SHA" >> $GITHUB_OUTPUT
-            if [ "$LAST_SHA" = "$CURRENT_SHA" ]; then
-              echo "skip=true" >> $GITHUB_OUTPUT
-              echo "No changes since last daily build ($LAST_SHA). Skipping."
-            else
-              echo "skip=false" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
+          ref: ${{ steps.release-meta.outputs.target_ref }}
+          fetch-depth: 0
 
       - name: Manage Build Number
-        if: steps.check-changes.outputs.skip != 'true'
         id: build-number
         uses: ./.github/actions/manage-build-number
         with:
@@ -110,36 +91,42 @@ jobs:
           current_build_number: ${{ vars.build_number }}
 
       - name: Write Build Summary
-        if: steps.check-changes.outputs.skip != 'true'
         id: summary
         uses: ./.github/actions/write-build-summary
         with:
-          title: "Release Builds"
+          title: "Production Release"
           build_number: ${{ steps.build-number.outputs.build_number }}
 
+      - name: Resolve Previous Tag for Changelog
+        id: prev-tag
+        run: |
+          PREV_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | sed -n '2p' || true)
+          echo "prev_sha=$PREV_TAG" >> $GITHUB_OUTPUT
+
       - name: Generate changelog
-        if: steps.check-changes.outputs.skip != 'true'
         id: changelog
         uses: ./.github/actions/generate-changelog
         with:
           github_token: ${{ github.token }}
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          last_sha: ${{ steps.check-changes.outputs.last_sha }}
-          head_ref: ${{ steps.set-ref.outputs.ref }}
+          last_sha: ${{ steps.prev-tag.outputs.prev_sha }}
+          head_ref: ${{ steps.release-meta.outputs.target_ref }}
           fallback_message: ${{ steps.summary.outputs.message }}
           model: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash' }}
 
-      - name: Find or create pre-release
-        if: steps.check-changes.outputs.skip != 'true' && inputs.dry_run != true
+      - name: Find or create GitHub release
+        if: inputs.dry_run != true
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release-meta.outputs.tag }}
+          TITLE: ${{ steps.release-meta.outputs.title }}
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
         run: |
           STATIC_TOP=$(cat <<'BODY_EOF'
           **Build Number:** ${{ steps.build-number.outputs.build_number }}
           **Commit:** ${{ steps.summary.outputs.sha }}
 
-          ## What's changed
+          ## What's Changed
           BODY_EOF
           )
 
@@ -149,28 +136,26 @@ jobs:
           <!--ios-build-->
 
           ---
-          > [!WARNING]
-          > Installing via the provided APK or IPA below is **discouraged**.
-          > Please use **Google Play** (Android) or **TestFlight** (iOS) for the best experience and automatic updates.
+          > [!TIP]
+          > Official releases are published on **Google Play** (Android) and the **App Store** (iOS).
           BODY_EOF
           )
 
           BODY=$(printf '%s\n\n%s\n\n%s\n' "$STATIC_TOP" "$CHANGELOG" "$STATIC_BOTTOM")
 
-          if gh release view daily &>/dev/null; then
-            gh release delete daily --yes --cleanup-tag
+          if gh release view "$TAG" &>/dev/null; then
+            gh release edit "$TAG" --title "$TITLE" --notes "$BODY"
+          else
+            gh release create "$TAG" \
+              --title "$TITLE" \
+              --notes "$BODY" \
+              --target $(git rev-parse HEAD)
           fi
-
-          gh release create daily \
-            --title "Daily Build $(TZ='Asia/Taipei' date +'%Y-%m-%d')" \
-            --notes "$BODY" \
-            --target $(git rev-parse HEAD) \
-            --prerelease
 
   android:
     runs-on: ubuntu-latest
     needs: [prepare]
-    if: needs.prepare.outputs.skip_build != 'true'
+    if: needs.prepare.outputs.deploy_android == 'true'
     env:
       ANDROID_PACKAGE_NAME: ${{ secrets.ANDROID_PACKAGE_NAME }}
       STAGING_ANDROID_PACKAGE_NAME: ${{ secrets.STAGING_ANDROID_PACKAGE_NAME }}
@@ -179,15 +164,11 @@ jobs:
       MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
-      VERSION_SUFFIX: ${{ needs.prepare.outputs.version_suffix }}
-      PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
+      VERSION_SUFFIX: ""
+      PR_TITLE: "Release ${{ needs.prepare.outputs.release_tag }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      CHANGELOG: |
-        Daily Build ${{ needs.prepare.outputs.date }}
-        ${{ needs.prepare.outputs.store_changelog }}
-      FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
-      PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
+      CHANGELOG: ${{ needs.prepare.outputs.store_changelog }}
       GOOGLEPLAY_PUBLIC_LINK: ${{ vars.GOOGLEPLAY_PUBLIC_LINK }}
     timeout-minutes: 30
     steps:
@@ -201,22 +182,30 @@ jobs:
         with:
           platform: android
 
-      - name: Build packages and upload to Firebase App Distribution
+      - name: Build Android App Bundle and upload to Google Play
         id: build
         run: |
           if [ "${{ needs.prepare.outputs.dry_run }}" = "true" ]; then
-            bundle exec fastlane android daily skip_upload_playstore:true skip_upload_firebase:true
-          elif [ "$PUBLIC_TESTERS" != "true" ]; then
-            bundle exec fastlane android daily skip_upload_playstore:true
+            bundle exec fastlane android release_prod track:${{ needs.prepare.outputs.track }} skip_upload:true
           else
-            bundle exec fastlane android daily
+            bundle exec fastlane android release_prod track:${{ needs.prepare.outputs.track }}
           fi
+          bundle exec fastlane android build_apk flavor:prod
+          AAB_PATH=$(find build/app/outputs/bundle -name "*.aab" | head -n 1)
           APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" -not -name "*sha1" | head -n 1)
+          echo "aab_path=$AAB_PATH" >> $GITHUB_OUTPUT
           echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
 
-      - name: Upload APK to Release
+      - name: Upload Android artifacts to GitHub Release
         if: needs.prepare.outputs.dry_run != 'true'
-        run: gh release upload daily "${{ steps.build.outputs.apk_path }}#tat-${{ needs.prepare.outputs.build_number }}-android.apk" --clobber
+        run: |
+          TAG="${{ needs.prepare.outputs.release_tag }}"
+          if [ -f "${{ steps.build.outputs.aab_path }}" ]; then
+            gh release upload "$TAG" "${{ steps.build.outputs.aab_path }}#tat-${{ needs.prepare.outputs.build_number }}-android.aab" --clobber
+          fi
+          if [ -f "${{ steps.build.outputs.apk_path }}" ]; then
+            gh release upload "$TAG" "${{ steps.build.outputs.apk_path }}#tat-${{ needs.prepare.outputs.build_number }}-android.apk" --clobber
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -225,8 +214,7 @@ jobs:
         uses: ./.github/actions/android-summary
         with:
           build_number: ${{ needs.prepare.outputs.build_number }}
-          type: release
-          testing_uri: ${{ steps.build.outputs.testing_uri }}
+          type: playstore
 
       - name: Write Dry Run Android Summary
         if: needs.prepare.outputs.dry_run == 'true'
@@ -234,33 +222,24 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
           ### Android (Dry Run)
-          Build **${{ needs.prepare.outputs.build_number }}** successfully compiled but NOT uploaded (dry run option enabled).
+          Build **${{ needs.prepare.outputs.build_number }}** successfully compiled AAB/APK but NOT uploaded (dry run enabled).
           EOF
 
-      - name: Append Android result to pre-release
+      - name: Append Android result to GitHub release notes
         if: needs.prepare.outputs.dry_run != 'true'
         uses: ./.github/actions/append-release-notes
         with:
           github_token: ${{ github.token }}
+          release_tag: ${{ needs.prepare.outputs.release_tag }}
           tag: "<!--android-build-->"
           body: |
-            ### Android
-            You can join the testing program here:
-
-            - **Google Play (Recommended):** [Join the testing program](${{ vars.GOOGLEPLAY_PUBLIC_LINK }})
-            - **Firebase App Distribution (For Internal Testers): ** [Install build ${{ needs.prepare.outputs.build_number }} in Firebase](${{ steps.build.outputs.testing_uri }})
-
-            > [!NOTE]
-            > We are migrating our daily build distribution to Google Play.
-            > The build will be available on Google Play within 30 minutes after the Google Play review process.
-            > Please use Google Play for the best experience and automatic updates.
-            > Firebase remains available for internal testers.
-            > Public testers on Firebase will not receive new builds, please switch to Google Play.
+            ### Android (Google Play)
+            - **Google Play:** [TAT on Google Play](${{ vars.GOOGLEPLAY_PUBLIC_LINK }})
 
   ios:
     runs-on: macos-26
     needs: [prepare]
-    if: needs.prepare.outputs.skip_build != 'true'
+    if: needs.prepare.outputs.deploy_ios == 'true'
     env:
       IOS_BUNDLE_IDENTIFIER: ${{ secrets.IOS_BUNDLE_IDENTIFIER }}
       STAGING_IOS_BUNDLE_IDENTIFIER: ${{ secrets.STAGING_IOS_BUNDLE_IDENTIFIER }}
@@ -274,14 +253,12 @@ jobs:
       APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
       BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
-      VERSION_SUFFIX: ${{ needs.prepare.outputs.version_suffix }}
-      PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
+      VERSION_SUFFIX: ""
+      PR_TITLE: "Release ${{ needs.prepare.outputs.release_tag }}"
       COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
       COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      CHANGELOG: |
-        Daily Build ${{ needs.prepare.outputs.date }}
-        ${{ needs.prepare.outputs.store_changelog }}
-      PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
+      CHANGELOG: ${{ needs.prepare.outputs.store_changelog }}
+      PUBLIC_TESTERS: true
       TESTFLIGHT_PUBLIC_LINK: ${{ vars.TESTFLIGHT_PUBLIC_LINK }}
     timeout-minutes: 30
     steps:
@@ -295,20 +272,24 @@ jobs:
         with:
           platform: ios
 
-      - name: Build iOS
+      - name: Build iOS and upload to TestFlight
         id: build
         run: |
           if [ "${{ needs.prepare.outputs.dry_run }}" = "true" ]; then
-            bundle exec fastlane ios upload_testflight flavor:dev skip_upload:true
+            bundle exec fastlane ios release_prod skip_upload:true
           else
-            bundle exec fastlane ios upload_testflight flavor:dev
+            bundle exec fastlane ios release_prod
           fi
           IPA_PATH=$(find . -maxdepth 2 -name "*.ipa" | head -n 1)
           echo "ipa_path=$IPA_PATH" >> $GITHUB_OUTPUT
 
-      - name: Upload iOS to Release
+      - name: Upload iOS artifact to GitHub Release
         if: needs.prepare.outputs.dry_run != 'true'
-        run: gh release upload daily "${{ steps.build.outputs.ipa_path }}#tat-${{ needs.prepare.outputs.build_number }}-ios.ipa" --clobber
+        run: |
+          TAG="${{ needs.prepare.outputs.release_tag }}"
+          if [ -f "${{ steps.build.outputs.ipa_path }}" ]; then
+            gh release upload "$TAG" "${{ steps.build.outputs.ipa_path }}#tat-${{ needs.prepare.outputs.build_number }}-ios.ipa" --clobber
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -324,24 +305,16 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
           ### iOS (Dry Run)
-          Build **${{ needs.prepare.outputs.build_number }}** successfully compiled but NOT uploaded (dry run option enabled).
+          Build **${{ needs.prepare.outputs.build_number }}** successfully compiled but NOT uploaded (dry run enabled).
           EOF
 
-      - name: Append iOS result to pre-release
+      - name: Append iOS result to GitHub release notes
         if: needs.prepare.outputs.dry_run != 'true'
         uses: ./.github/actions/append-release-notes
         with:
           github_token: ${{ github.token }}
+          release_tag: ${{ needs.prepare.outputs.release_tag }}
           tag: "<!--ios-build-->"
           body: |
-            ### iOS (TestFlight)
-            You can also join the TestFlight program here:
-            [Join TestFlight](${{ vars.TESTFLIGHT_PUBLIC_LINK }}) to install build ${{ needs.prepare.outputs.build_number }}.
-
-            1. Open the TestFlight app on your iOS device
-            2. Select "TAT"
-            3. Install build ${{ needs.prepare.outputs.build_number }}
-
-            > [!TIP]
-            > Install TestFlight app from App Store if you don't have it (required iOS 16.0 or later)
-            > TestFlight is unstable on NTUT Wi-Fi. If you encounter issues installing or updating, please switch to mobile data or a different network.
+            ### iOS (App Store)
+            - **App Store:** [TAT on App Store](${{ vars.APPSTORE_PUBLIC_LINK || vars.TESTFLIGHT_PUBLIC_LINK }})

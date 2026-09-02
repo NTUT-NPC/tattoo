@@ -8,10 +8,13 @@ inputs:
   tag:
     description: Placeholder tag to replace with the body (e.g., <!--android-build-->)
     required: false
+  release_tag:
+    description: GitHub Release tag to update (defaults to 'daily')
+    required: false
+    default: 'daily'
   github_token:
     description: GitHub token with contents:write permission
     required: true
-
 runs:
   using: composite
   steps:
@@ -21,8 +24,9 @@ runs:
         GH_TOKEN: ${{ inputs.github_token }}
         BODY: ${{ inputs.body }}
         TAG: ${{ inputs.tag }}
+        RELEASE_TAG: ${{ inputs.release_tag || 'daily' }}
       run: |
-        CURRENT=$(gh release view daily --json body -q .body)
+        CURRENT=$(gh release view "$RELEASE_TAG" --json body -q .body)
         export CURRENT
         
         if [[ -n "$TAG" ]] && echo "$CURRENT" | grep -q "$TAG"; then
@@ -39,4 +43,4 @@ runs:
           NEW_NOTES=$(printf '%s\n\n%s\n' "$CURRENT" "$BODY")
         fi
         
-        gh release edit daily --notes "$NEW_NOTES"
+        gh release edit "$RELEASE_TAG" --notes "$NEW_NOTES"

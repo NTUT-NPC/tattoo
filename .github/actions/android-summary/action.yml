@@ -33,7 +33,7 @@ runs:
         Build **${{ inputs.build_number }}** successfully uploaded to Google Play.
 
         1. Open the Google Play Store on your Android device
-        2. Select "Project Tattoo"
+        2. Select "TAT"
         3. Install or update to the latest build
 
         > **Note:** It may take ~30 minutes for the build to appear in the Play Store after upload.

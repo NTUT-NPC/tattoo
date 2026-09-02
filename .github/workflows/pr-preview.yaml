@@ -136,6 +136,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [prepare]
     env:
+      ANDROID_PACKAGE_NAME: ${{ secrets.ANDROID_PACKAGE_NAME }}
+      STAGING_ANDROID_PACKAGE_NAME: ${{ secrets.STAGING_ANDROID_PACKAGE_NAME }}
       MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
       MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
       MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
@@ -189,6 +191,7 @@ jobs:
     needs: [prepare]
     env:
       IOS_BUNDLE_IDENTIFIER: ${{ secrets.IOS_BUNDLE_IDENTIFIER }}
+      STAGING_IOS_BUNDLE_IDENTIFIER: ${{ secrets.STAGING_IOS_BUNDLE_IDENTIFIER }}
       FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 10
       MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
       MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
@@ -219,7 +222,7 @@ jobs:
           platform: ios
 
       - name: Build and Upload to TestFlight
-        run: bundle exec fastlane ios upload_testflight skip_upload:${{ needs.prepare.outputs.deploy_ios != 'true' }}
+        run: bundle exec fastlane ios upload_testflight flavor:dev skip_upload:${{ needs.prepare.outputs.deploy_ios != 'true' }}
 
       - name: Write iOS Job Summary
         if: needs.prepare.outputs.deploy_ios == 'true'
@@ -235,6 +238,6 @@ jobs:
           body: |
             ### iOS (TestFlight)
             1. Open the TestFlight app on your iOS device
-            2. Select "Project Tattoo"
+            2. Select "TAT"
             3. Install build ${{ needs.prepare.outputs.build_number }}
           edit-mode: append

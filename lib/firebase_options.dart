@@ -4,8 +4,9 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter/services.dart' show appFlavor;
 
-/// [FirebaseOptions] for the TAT production Firebase project.
+/// [FirebaseOptions] for the TAT Firebase projects (dev and prod).
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -13,23 +14,33 @@ class DefaultFirebaseOptions {
         'DefaultFirebaseOptions have not been configured for web.',
       );
     }
+    if (appFlavor == 'dev' || appFlavor == 'staging') {
+      return switch (defaultTargetPlatform) {
+        TargetPlatform.android => androidDev,
+        TargetPlatform.iOS => iosDev,
+        _ => throw UnsupportedError(
+            'DefaultFirebaseOptions are not supported for this platform.',
+          ),
+      };
+    }
     return switch (defaultTargetPlatform) {
-      TargetPlatform.android => android,
-      TargetPlatform.iOS => ios,
+      TargetPlatform.android => androidProd,
+      TargetPlatform.iOS => iosProd,
       _ => throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
         ),
     };
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
+  static const FirebaseOptions androidProd = FirebaseOptions(
     apiKey: 'AIzaSyAJSD6_YkutviZvQvtjwNi5wAQaOAV7YDQ',
     appId: '1:596630117465:android:9d4275579e011f039f6548',
     messagingSenderId: '596630117465',
     projectId: 'npc-tattoo-prod',
     storageBucket: 'npc-tattoo-prod.firebasestorage.app',
   );
-  static const FirebaseOptions ios = FirebaseOptions(
+
+  static const FirebaseOptions iosProd = FirebaseOptions(
     apiKey: 'AIzaSyBQ03equalPQPzbD7Jxd9vGWHzrDU-AY0w',
     appId: '1:596630117465:ios:afd1697a77bcb95f9f6548',
     messagingSenderId: '596630117465',
@@ -37,5 +48,31 @@ class DefaultFirebaseOptions {
     storageBucket: 'npc-tattoo-prod.firebasestorage.app',
     iosBundleId: 'com.npc.tatFlutter',
   );
+
+  static const FirebaseOptions androidDev = FirebaseOptions(
+    apiKey: 'AIzaSyAwy04VDvRscfjTPu2ShxLbB-_EyuezEhU',
+    appId: '1:838220085712:android:a85cf2541699925c3be1d5',
+    messagingSenderId: '838220085712',
+    projectId: 'npc-tattoo',
+    storageBucket: 'npc-tattoo.firebasestorage.app',
+  );
+
+  static const FirebaseOptions iosDev = FirebaseOptions(
+    apiKey: 'AIzaSyDp_en-3_f7VONU8KA8zucI-tTgrsV_PJM',
+    appId: '1:838220085712:ios:d5b7636cdc72fd603be1d5',
+    messagingSenderId: '838220085712',
+    projectId: 'npc-tattoo',
+    storageBucket: 'npc-tattoo.firebasestorage.app',
+    iosBundleId: 'club.ntut.tattoo',
+  );
+
+  static const FirebaseOptions androidStaging = androidDev;
+  static const FirebaseOptions iosStaging = iosDev;
+
+  static FirebaseOptions get android =>
+      (appFlavor == 'dev' || appFlavor == 'staging') ? androidDev : androidProd;
+
+  static FirebaseOptions get ios =>
+      (appFlavor == 'dev' || appFlavor == 'staging') ? iosDev : iosProd;
 }
 // dart format on

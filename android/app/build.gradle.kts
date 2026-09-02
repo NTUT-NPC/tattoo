@@ -30,6 +30,22 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["appLabel"] = "TAT"
+    }
+
+    flavorDimensions += "environment"
+
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationId = "club.ntut.tattoo"
+            manifestPlaceholders["appLabel"] = "Tattoo"
+        }
+        create("prod") {
+            dimension = "environment"
+            applicationId = "club.ntut.npc.tat"
+            manifestPlaceholders["appLabel"] = "TAT"
+        }
     }
 
     val keystorePropertiesFile = rootProject.file("key.properties")

@@ -4,7 +4,7 @@
 // Compatible with the match_keystore encryption format (AES-256-CBC, PBKDF2).
 //
 // Usage:
-//   dart run tool/credentials.dart fetch
+//   dart run tool/credentials.dart fetch [--env=dev|--env=prod]
 //   dart run tool/credentials.dart encrypt <source-file> <dest-path-in-repo>
 
 import 'dart:convert';
@@ -22,17 +22,6 @@ const _ivLength = 16;
 // Where to clone the credentials repo (already in .gitignore via .dart_tool/)
 const _repoDir = '.dart_tool/credentials';
 
-// Encrypted files in the credentials repo → local destination paths.
-// Files ending in .enc are decrypted; others are copied as-is.
-const _fileMappings = {
-  'keystores/keystore.jks': 'android/app/keystore.jks',
-  'keystores/key.properties.enc': 'android/key.properties',
-  'firebase/google-services.json.enc': 'android/app/google-services.json',
-  'firebase/GoogleService-Info.plist.enc':
-      'ios/Runner/GoogleService-Info.plist',
-  'firebase/service-account.json.enc': 'service-account.json',
-};
-
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
@@ -42,26 +31,28 @@ class Config {
   final String gitBranch;
   final String gitBasicAuthorization;
   final String matchPassword;
+  final String env;
 
   Config({
     required this.gitUrl,
     required this.gitBranch,
     required this.gitBasicAuthorization,
     required this.matchPassword,
+    required this.env,
   });
 
-  factory Config.load() {
-    var env = Platform.environment;
+  factory Config.load({String? overrideEnv}) {
+    var envMap = Platform.environment;
 
     // Fall back to .env file if env vars are missing
-    if (!env.containsKey('MATCH_GIT_URL') ||
-        !env.containsKey('MATCH_PASSWORD')) {
+    if (!envMap.containsKey('MATCH_GIT_URL') ||
+        !envMap.containsKey('MATCH_PASSWORD')) {
       final dotenv = _parseDotEnv();
-      env = {...dotenv, ...env}; // env vars take precedence
+      envMap = {...dotenv, ...envMap}; // env vars take precedence
     }
 
-    final gitUrl = env['MATCH_GIT_URL'];
-    final password = env['MATCH_PASSWORD'];
+    final gitUrl = envMap['MATCH_GIT_URL'];
+    final password = envMap['MATCH_PASSWORD'];
     if (gitUrl == null || password == null) {
       stderr.writeln(
         'Missing required config: MATCH_GIT_URL and MATCH_PASSWORD.\n'
@@ -70,11 +61,23 @@ class Config {
       exit(1);
     }
 
+    var resolvedEnv = (overrideEnv ??
+            envMap['MATCH_ENV'] ??
+            envMap['APP_ENV'] ??
+            envMap['FLAVOR'] ??
+            envMap['ENV'] ??
+            'prod')
+        .toLowerCase();
+    if (resolvedEnv == 'staging') {
+      resolvedEnv = 'dev';
+    }
+
     return Config(
       gitUrl: gitUrl,
-      gitBranch: env['MATCH_GIT_BRANCH'] ?? 'main',
-      gitBasicAuthorization: env['MATCH_GIT_BASIC_AUTHORIZATION'] ?? '',
+      gitBranch: envMap['MATCH_GIT_BRANCH'] ?? 'main',
+      gitBasicAuthorization: envMap['MATCH_GIT_BASIC_AUTHORIZATION'] ?? '',
       matchPassword: password,
+      env: resolvedEnv,
     );
   }
 }
@@ -166,7 +169,7 @@ Uint8List encryptBytes(Uint8List plaintext, String matchPassword) {
   final password = _deriveKeyPassword(matchPassword);
   final random = Random.secure();
   final salt = Uint8List.fromList(
-    .generate(8, (_) => random.nextInt(256)),
+    List.generate(8, (_) => random.nextInt(256)),
   );
 
   final keyIv = _pbkdf2(password, salt, _keyLength + _ivLength);
@@ -187,7 +190,7 @@ Uint8List encryptBytes(Uint8List plaintext, String matchPassword) {
     cipher.processBlock(padded, offset, ciphertext, offset);
   }
 
-  return .fromList([
+  return Uint8List.fromList([
     ...utf8.encode(_saltHeader),
     ...salt,
     ...ciphertext,
@@ -247,28 +250,130 @@ Future<void> cloneOrPull(Config config) async {
 Future<void> fetch(Config config) async {
   await cloneOrPull(config);
 
-  for (final entry in _fileMappings.entries) {
-    final srcPath = '$_repoDir/${entry.key}';
-    final destPath = entry.value;
+  stdout.writeln('Target environment: ${config.env}');
+
+  bool processFile(String srcRelPath, String destPath) {
+    final srcPath = '$_repoDir/$srcRelPath';
     final srcFile = File(srcPath);
 
     if (!srcFile.existsSync()) {
-      stdout.writeln('  skip ${entry.key} (not found)');
-      continue;
+      return false;
     }
 
     // Ensure destination directory exists
     File(destPath).parent.createSync(recursive: true);
 
-    if (entry.key.endsWith('.enc')) {
+    if (srcRelPath.endsWith('.enc')) {
       final encrypted = srcFile.readAsBytesSync();
       final decrypted = decryptBytes(encrypted, config.matchPassword);
 
       File(destPath).writeAsBytesSync(decrypted);
-      stdout.writeln('  decrypt ${entry.key} -> $destPath');
+      stdout.writeln('  decrypt $srcRelPath -> $destPath');
     } else {
       srcFile.copySync(destPath);
-      stdout.writeln('  copy ${entry.key} -> $destPath');
+      stdout.writeln('  copy $srcRelPath -> $destPath');
+    }
+    return true;
+  }
+
+  // 1. Common keystores and service account
+  final baseMappings = {
+    'keystores/keystore.jks': 'android/app/keystore.jks',
+    'keystores/key.properties.enc': 'android/key.properties',
+    'keystores/key.properties': 'android/key.properties',
+    'firebase/service-account.json.enc': 'service-account.json',
+    'firebase/service-account.json': 'service-account.json',
+  };
+
+  for (final entry in baseMappings.entries) {
+    processFile(entry.key, entry.value);
+  }
+
+  // 2. Google services (Android)
+  final env = config.env;
+  final androidDestPaths = [
+    'android/app/src/$env/google-services.json',
+    'android/app/google-services.json',
+  ];
+
+  final androidSourceCandidates = [
+    'firebase/$env/google-services.json.enc',
+    'firebase/$env/google-services.json',
+    'firebase/google-services-$env.json.enc',
+    'firebase/google-services-$env.json',
+    'firebase/google-services.$env.json.enc',
+    'firebase/google-services.$env.json',
+    if (env == 'dev') ...[
+      'firebase/staging/google-services.json.enc',
+      'firebase/staging/google-services.json',
+      'firebase/google-services-staging.json.enc',
+      'firebase/google-services-staging.json',
+      'firebase/google-services.staging.json.enc',
+      'firebase/google-services.staging.json',
+    ],
+    'firebase/google-services.json.enc',
+    'firebase/google-services.json',
+  ];
+
+  for (final dest in androidDestPaths) {
+    for (final src in androidSourceCandidates) {
+      if (processFile(src, dest)) {
+        break;
+      }
+    }
+  }
+
+  // Also place other flavor configs if available in credentials repo
+  const allFlavors = ['dev', 'prod'];
+  for (final flavor in allFlavors) {
+    if (flavor == env) continue;
+    final flavorSources = [
+      'firebase/$flavor/google-services.json.enc',
+      'firebase/$flavor/google-services.json',
+      'firebase/google-services-$flavor.json.enc',
+      'firebase/google-services-$flavor.json',
+      if (flavor == 'dev') ...[
+        'firebase/staging/google-services.json.enc',
+        'firebase/staging/google-services.json',
+        'firebase/google-services-staging.json.enc',
+        'firebase/google-services-staging.json',
+      ],
+    ];
+    for (final src in flavorSources) {
+      if (processFile(src, 'android/app/src/$flavor/google-services.json')) {
+        break;
+      }
+    }
+  }
+
+  // 3. GoogleService-Info (iOS)
+  final iosDestPaths = [
+    'ios/Runner/GoogleService-Info.plist',
+  ];
+
+  final iosSourceCandidates = [
+    'firebase/$env/GoogleService-Info.plist.enc',
+    'firebase/$env/GoogleService-Info.plist',
+    'firebase/GoogleService-Info-$env.plist.enc',
+    'firebase/GoogleService-Info-$env.plist',
+    'firebase/GoogleService-Info.$env.plist.enc',
+    'firebase/GoogleService-Info.$env.plist',
+    if (env == 'dev') ...[
+      'firebase/staging/GoogleService-Info.plist.enc',
+      'firebase/staging/GoogleService-Info.plist',
+      'firebase/GoogleService-Info-staging.plist.enc',
+      'firebase/GoogleService-Info-staging.plist',
+      'firebase/GoogleService-Info.staging.plist.enc',
+      'firebase/GoogleService-Info.staging.plist',
+    ],
+    'firebase/GoogleService-Info.plist.enc',
+    'firebase/GoogleService-Info.plist',
+  ];
+  for (final dest in iosDestPaths) {
+    for (final src in iosSourceCandidates) {
+      if (processFile(src, dest)) {
+        break;
+      }
     }
   }
 
@@ -306,19 +411,59 @@ Future<void> encrypt(
 // Main
 // ---------------------------------------------------------------------------
 
-Future<void> main(List<String> args) async {
+String? _extractEnv(List<String> args) {
+  for (var i = 0; i < args.length; i++) {
+    final arg = args[i];
+    if (arg.startsWith('--env=')) {
+      return arg.substring(6);
+    }
+    if (arg == '--env' || arg == '-e') {
+      if (i + 1 < args.length) {
+        return args[i + 1];
+      }
+    }
+  }
+  return null;
+}
+
+List<String> _cleanArgs(List<String> args) {
+  final result = <String>[];
+  for (var i = 0; i < args.length; i++) {
+    final arg = args[i];
+    if (arg.startsWith('--env=')) {
+      continue;
+    }
+    if (arg == '--env' || arg == '-e') {
+      i++; // Skip value
+      continue;
+    }
+    result.add(arg);
+  }
+  return result;
+}
+
+Future<void> main(List<String> rawArgs) async {
+  final envOverride = _extractEnv(rawArgs);
+  final args = _cleanArgs(rawArgs);
+
   if (args.isEmpty) {
     stderr.writeln('Usage:');
-    stderr.writeln('  dart run tool/credentials.dart fetch');
+    stderr.writeln('  dart run tool/credentials.dart fetch [--env=dev|--env=prod]');
     stderr.writeln(
       '  dart run tool/credentials.dart encrypt <source-file> <dest-path-in-repo>',
     );
     exit(1);
   }
 
-  final config = Config.load();
+  final command = args[0];
+  String? positionalEnv;
+  if (command == 'fetch' && args.length > 1 && !args[1].startsWith('-')) {
+    positionalEnv = args[1];
+  }
 
-  switch (args[0]) {
+  final config = Config.load(overrideEnv: envOverride ?? positionalEnv);
+
+  switch (command) {
     case 'fetch':
       await fetch(config);
     case 'encrypt':
@@ -330,7 +475,7 @@ Future<void> main(List<String> args) async {
       }
       await encrypt(config, args[1], args[2]);
     default:
-      stderr.writeln('Unknown command: ${args[0]}');
+      stderr.writeln('Unknown command: $command');
       exit(1);
   }
 }

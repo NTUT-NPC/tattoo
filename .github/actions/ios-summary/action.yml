@@ -17,7 +17,7 @@ runs:
         Build **${{ inputs.build_number }}** successfully uploaded to App Store Connect.
 
         1. Open the TestFlight app on your iOS device
-        2. Select "Project Tattoo"
+        2. Select "TAT"
         3. Install build ${{ inputs.build_number }}
 
         > **Note:** It may take ~15 minutes for the build to appear in TestFlight after upload.
