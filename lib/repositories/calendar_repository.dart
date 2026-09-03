@@ -147,8 +147,7 @@ class CalendarRepository {
               return (e.start.isSmallerThanValue(windowEnd) &
                       e.end.isBiggerThanValue(windowStart)) |
                   (e.start.equalsExp(e.end) &
-                      (e.start.isBiggerThanValue(windowStart) |
-                          e.start.equalsValue(windowStart)) &
+                      e.start.isBiggerOrEqualValue(windowStart) &
                       e.start.isSmallerThanValue(windowEnd));
             }))
             .go();
@@ -166,13 +165,15 @@ class CalendarRepository {
             ownerName: Value(dto.ownerName),
             creatorName: Value(dto.creatorName),
           );
-          await _database.into(_database.calendarEvents).insert(
-            companion,
-            onConflict: DoUpdate(
-              (old) => companion,
-              target: [_database.calendarEvents.portalId],
-            ),
-          );
+          await _database
+              .into(_database.calendarEvents)
+              .insert(
+                companion,
+                onConflict: DoUpdate(
+                  (old) => companion,
+                  target: [_database.calendarEvents.portalId],
+                ),
+              );
         }
 
         await _database
@@ -261,8 +262,7 @@ class CalendarRepository {
             (e.start.isSmallerThanValue(endDate) &
                 e.end.isBiggerThanValue(startDate)) |
             (e.start.equalsExp(e.end) &
-                (e.start.isBiggerThanValue(startDate) |
-                    e.start.equalsValue(startDate)) &
+                e.start.isBiggerOrEqualValue(startDate) &
                 e.start.isSmallerThanValue(endDate)),
       )
       ..orderBy([(e) => OrderingTerm.asc(e.start)]);
