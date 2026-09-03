@@ -26,8 +26,6 @@ class MainHomeScreen extends ConsumerStatefulWidget {
 
 class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
   bool _updateSnackbarCheckScheduled = false;
-  DateTime? _selectedDate;
-  DateTime? _selectionDay;
 
   @override
   void initState() {
@@ -81,6 +79,105 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final options = [
+      OptionEntryTile.svg(
+        svgIconAsset: "assets/tat_icon.svg",
+        actionIcon: .exitToApp,
+        title: t.home.projectTattoo.title.spaced,
+        description: t.home.projectTattoo.description,
+        onTap: () => launchUrl(.parse(t.home.projectTattoo.url)),
+      ),
+      OptionEntryTile.icon(
+        icon: Icons.explore_outlined,
+        actionIcon: .exitToApp,
+        title: t.home.ideation.title.spaced,
+        description: t.home.ideation.description,
+        onTap: () => launchUrl(
+          .parse(t.home.ideation.url),
+        ),
+      ),
+      OptionEntryTile.svg(
+        svgIconAsset: "assets/npc_logo.svg",
+        actionIcon: .exitToApp,
+        title: t.home.npcClub.title,
+        description: t.home.npcClub.description,
+        onTap: () => launchUrl(.parse(t.home.npcClub.url)),
+      ),
+      if (ref.pref(PrefKey.showVoteButton))
+        OptionEntryTile.icon(
+          icon: Icons.how_to_vote_outlined,
+          title: t.nav.vote,
+          description: t.home.vote.description.spaced,
+          onTap: () => context.push(AppRoutes.kioskLoginQr),
+        ),
+      if (ref.pref(PrefKey.showScannerButton))
+        OptionEntryTile.icon(
+          icon: Icons.qr_code_scanner,
+          title: t.scanner.loginIStudy.spaced,
+          onTap: () => context.push(AppRoutes.scanner),
+        ),
+      if (ref.pref(PrefKey.showPortalButton))
+        OptionEntryTile.icon(
+          icon: Icons.switch_access_shortcut_outlined,
+          title: t.nav.portal,
+          onTap: () => context.push(AppRoutes.portal),
+        ),
+      if (ref.pref(PrefKey.showCalendarButton))
+        OptionEntryTile.icon(
+          icon: Icons.calendar_month,
+          title: t.nav.calendar,
+          onTap: () => context.push(AppRoutes.calendar),
+        ),
+      if (Theme.of(context).platform == TargetPlatform.android &&
+          ref.pref(PrefKey.showWifiButton))
+        OptionEntryTile.icon(
+          icon: Icons.wifi,
+          title: t.home.campusWifi.spaced,
+          onTap: () => context.push(AppRoutes.ntutWifi),
+        ),
+    ];
+
+    return Scaffold(
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const .all(16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  spacing: 16,
+                  children: [
+                    if (ref.pref(PrefKey.showCourseSchedule))
+                      const _HomeCourseSchedule(),
+                    Column(
+                      spacing: 8,
+                      children: options,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeCourseSchedule extends ConsumerStatefulWidget {
+  const _HomeCourseSchedule();
+
+  @override
+  ConsumerState<_HomeCourseSchedule> createState() =>
+      _HomeCourseScheduleState();
+}
+
+class _HomeCourseScheduleState extends ConsumerState<_HomeCourseSchedule> {
+  DateTime? _selectedDate;
+  DateTime? _selectionDay;
 
   void _showAdjacentCourseDate(
     CourseTableData? courseTable,
@@ -201,113 +298,33 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
         preferredTodayCourseIndex(meetings, now: now),
       (false, _) => 0,
     };
-    final options = [
-      OptionEntryTile.svg(
-        svgIconAsset: "assets/tat_icon.svg",
-        actionIcon: .exitToApp,
-        title: t.home.projectTattoo.title.spaced,
-        description: t.home.projectTattoo.description,
-        onTap: () => launchUrl(.parse(t.home.projectTattoo.url)),
-      ),
-      OptionEntryTile.icon(
-        icon: Icons.explore_outlined,
-        actionIcon: .exitToApp,
-        title: t.home.ideation.title.spaced,
-        description: t.home.ideation.description,
-        onTap: () => launchUrl(
-          .parse(t.home.ideation.url),
-        ),
-      ),
-      OptionEntryTile.svg(
-        svgIconAsset: "assets/npc_logo.svg",
-        actionIcon: .exitToApp,
-        title: t.home.npcClub.title,
-        description: t.home.npcClub.description,
-        onTap: () => launchUrl(.parse(t.home.npcClub.url)),
-      ),
-      if (ref.pref(PrefKey.showVoteButton))
-        OptionEntryTile.icon(
-          icon: Icons.how_to_vote_outlined,
-          title: t.nav.vote,
-          description: t.home.vote.description.spaced,
-          onTap: () => context.push(AppRoutes.kioskLoginQr),
-        ),
-      if (ref.pref(PrefKey.showScannerButton))
-        OptionEntryTile.icon(
-          icon: Icons.qr_code_scanner,
-          title: t.scanner.loginIStudy.spaced,
-          onTap: () => context.push(AppRoutes.scanner),
-        ),
-      if (ref.pref(PrefKey.showPortalButton))
-        OptionEntryTile.icon(
-          icon: Icons.switch_access_shortcut_outlined,
-          title: t.nav.portal,
-          onTap: () => context.push(AppRoutes.portal),
-        ),
-      if (ref.pref(PrefKey.showCalendarButton))
-        OptionEntryTile.icon(
-          icon: Icons.calendar_month,
-          title: t.nav.calendar,
-          onTap: () => context.push(AppRoutes.calendar),
-        ),
-      if (Theme.of(context).platform == TargetPlatform.android &&
-          ref.pref(PrefKey.showWifiButton))
-        OptionEntryTile.icon(
-          icon: Icons.wifi,
-          title: t.home.campusWifi.spaced,
-          onTap: () => context.push(AppRoutes.ntutWifi),
-        ),
-    ];
 
-    return Scaffold(
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverPadding(
-              padding: const .all(16),
-              sliver: SliverToBoxAdapter(
-                child: Column(
-                  spacing: 16,
-                  children: [
-                    if (ref.pref(PrefKey.showCourseSchedule))
-                      NextCourseCarousel(
-                        key: ValueKey(displayedDate),
-                        courses: courses,
-                        initialCourseIndex: initialCourseIndex,
-                        loading: isCourseScheduleLoading,
-                        error: hasCourseScheduleError,
-                        onRetry: () => _retryCourseSchedule(latestSemesterId),
-                        onPreviousDate: () => _showAdjacentCourseDate(
-                          courseTable,
-                          semesterDateRange,
-                          displayedDate,
-                          today,
-                          .previous,
-                        ),
-                        onNextDate: () => _showAdjacentCourseDate(
-                          courseTable,
-                          semesterDateRange,
-                          displayedDate,
-                          today,
-                          .next,
-                        ),
-                        onCourseTap: (course) {
-                          if (course.courseNumber case final number?) {
-                            showCourseTableDetailSheet(context, number: number);
-                          }
-                        },
-                      ),
-                    Column(
-                      spacing: 8,
-                      children: options,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+    return NextCourseCarousel(
+      key: ValueKey(displayedDate),
+      courses: courses,
+      initialCourseIndex: initialCourseIndex,
+      loading: isCourseScheduleLoading,
+      error: hasCourseScheduleError,
+      onRetry: () => _retryCourseSchedule(latestSemesterId),
+      onPreviousDate: () => _showAdjacentCourseDate(
+        courseTable,
+        semesterDateRange,
+        displayedDate,
+        today,
+        .previous,
       ),
+      onNextDate: () => _showAdjacentCourseDate(
+        courseTable,
+        semesterDateRange,
+        displayedDate,
+        today,
+        .next,
+      ),
+      onCourseTap: (course) {
+        if (course.courseNumber case final number?) {
+          showCourseTableDetailSheet(context, number: number);
+        }
+      },
     );
   }
 }
