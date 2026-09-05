@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/welcome/change_password_providers.dart';
 
@@ -65,7 +66,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
     if (success && mounted) {
       if (widget.isExpired) {
-        context.go(AppRoutes.home);
+        final authenticatedLocation = await resolveAuthenticatedLocation(
+          ref.read(preferencesRepositoryProvider),
+        );
+        if (mounted) context.go(authenticatedLocation);
       } else {
         context.pop();
         ScaffoldMessenger.of(context).showSnackBar(
