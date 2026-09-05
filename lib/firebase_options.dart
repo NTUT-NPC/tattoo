@@ -53,7 +53,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '596630117465',
     projectId: 'npc-tattoo-prod',
     storageBucket: 'npc-tattoo-prod.firebasestorage.app',
-    iosBundleId: 'com.ntut.tatflutter',
+    iosBundleId: 'com.npc.tatFlutter',
   );
 
   static const FirebaseOptions androidDev = FirebaseOptions(

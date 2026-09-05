@@ -65,7 +65,7 @@ Tattoo supports 2 environments (Development vs Production) across 2 platforms (A
 |---|---|---|---|---|
 | **Environment** | `development` (`dev`) | `development` (`dev`) | `production` (`prod`) | `production` (`prod`) |
 | **App Name / Label** | Tattoo | Tattoo | TAT | TAT |
-| **Package / Bundle ID** | `club.ntut.tattoo` | `club.ntut.tattoo` | `club.ntut.npc.tat` | `com.ntut.tatflutter` |
+| **Package / Bundle ID** | `club.ntut.tattoo` | `club.ntut.tattoo` | `club.ntut.npc.tat` | `com.npc.tatFlutter` |
 | **Launcher / App Icon** | `android/app/src/dev/res` (wireframe dev icon) | `AppIcon-dev` (`ios/Runner/AppIcon-dev.icon`) | `android/app/src/main/res` (classic TAT artwork) | `AppIcon` (`ios/Runner/Assets.xcassets`) |
 | **Firebase Project** | `npc-tattoo` | `npc-tattoo` | `npc-tattoo-prod` | `npc-tattoo-prod` |
 | **Firebase Storage** | `npc-tattoo.firebasestorage.app` | `npc-tattoo.firebasestorage.app` | `npc-tattoo-prod.firebasestorage.app` | `npc-tattoo-prod.firebasestorage.app` |
@@ -90,8 +90,8 @@ Tattoo supports 2 environments (Development vs Production) across 2 platforms (A
    - Launcher Icon: Classic TAT icon located in `android/app/src/main/res`
    - Firebase: `npc-tattoo-prod`
 
-4. **Prod iOS (`com.ntut.tatflutter`)**:
-   - Bundle Identifier: `com.ntut.tatflutter` (legacy TAT iOS bundle identifier for App Store continuity)
+4. **Prod iOS (`com.npc.tatFlutter`)**:
+   - Bundle Identifier: `com.npc.tatFlutter` (legacy TAT iOS bundle identifier for App Store continuity)
    - Display Name: `TAT`
    - App Icon: `AppIcon` (classic TAT icon)
    - Firebase: `npc-tattoo-prod`
@@ -183,7 +183,7 @@ This workflow prepares and releases **Production Release Candidates (RC)** for s
 - **Environment**: Configures `production` (`--env=prod`).
 - **Distribution Targets**:
   - **Android**: Builds production AAB (`club.ntut.npc.tat`) and uploads to **Google Play Store Internal Testing Track**. Also builds release APK attached to the GitHub release.
-  - **iOS**: Builds production IPA (`com.ntut.tatflutter`) and uploads to **TestFlight for Internal Testers ONLY** (`distribute_external: false`). Also attaches the `.ipa` to the GitHub release.
+  - **iOS**: Builds production IPA (`com.npc.tatFlutter`) and uploads to **TestFlight for Internal Testers ONLY** (`distribute_external: false`). Also attaches the `.ipa` to the GitHub release.
 
 ### 4.2 Daily Release Workflow (`.github/workflows/daily-release.yaml`)
 
@@ -203,7 +203,7 @@ Fastlane commands in `fastlane/Fastfile` are environment-aware:
 
 #### iOS Lanes
 - `fastlane ios release_prod`:
-  - Builds production archive with `env: "prod"`, `bundle_identifier: "com.ntut.tatflutter"`.
+  - Builds production archive with `env: "prod"`, `bundle_identifier: "com.npc.tatFlutter"`.
   - Sets `internal_only: true` and `distribute_external: false` (uploads to TestFlight for Internal Testers only).
 - `fastlane ios upload_testflight`:
   - General TestFlight upload lane supporting `env: "dev"` or `env: "prod"`.

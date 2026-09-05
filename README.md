@@ -69,7 +69,7 @@ flutter run --dart-define-from-file=build_config/production.json
 
 ## Firebase & Credentials
 
-Tattoo supports both **Development** (`Tattoo`, `club.ntut.tattoo`) and **Production** (`TAT`, `club.ntut.npc.tat` on Android, `com.ntut.tatflutter` on iOS) environments. A private Git repository is used to manage sensitive credentials (signing keys, service accounts, and production Firebase configs).
+Tattoo supports both **Development** (`Tattoo`, `club.ntut.tattoo`) and **Production** (`TAT`, `club.ntut.npc.tat` on Android, `com.npc.tatFlutter` on iOS) environments. A private Git repository is used to manage sensitive credentials (signing keys, service accounts, and production Firebase configs).
 
 1. **Offline Development (No Credentials Needed):**
    If you do not have credentials repository access, run:
