@@ -449,7 +449,6 @@ class _Translations$preferences$startWithCourseTable$en_US extends Translations$
 
 	// Translations
 	@override String get title => 'Start with Course Table';
-	@override String get description => 'Open the course table first the next time you launch the app or log in.';
 }
 
 // Path: intro.features
@@ -933,7 +932,6 @@ extension on TranslationsEnUs {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'preferences.startWithCourseTable.title' => 'Start with Course Table',
-			'preferences.startWithCourseTable.description' => 'Open the course table first the next time you launch the app or log in.',
 			'preferences.darkMode' => 'Dark Mode',
 			'preferences.managed' => 'This setting is managed by the system and cannot be changed right now.',
 			'preferences.loadFailed' => 'Unable to load preferences',

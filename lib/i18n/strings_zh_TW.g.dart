@@ -736,9 +736,6 @@ class Translations$preferences$startWithCourseTable$zh_TW {
 
 	/// zh-TW: '啟動時開啟課表'
 	String get title => '啟動時開啟課表';
-
-	/// zh-TW: '下次啟動應用程式或登入後，優先顯示課表。'
-	String get description => '下次啟動應用程式或登入後，優先顯示課表。';
 }
 
 // Path: intro.features
@@ -1528,7 +1525,6 @@ extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'preferences.startWithCourseTable.title' => '啟動時開啟課表',
-			'preferences.startWithCourseTable.description' => '下次啟動應用程式或登入後，優先顯示課表。',
 			'preferences.darkMode' => '深色模式',
 			'preferences.managed' => '此設定由系統管理，目前無法變更。',
 			'preferences.loadFailed' => '無法載入偏好設定',

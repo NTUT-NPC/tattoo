@@ -1,7 +1,6 @@
 preferences:
   startWithCourseTable:
     title: 啟動時開啟課表
-    description: 下次啟動應用程式或登入後，優先顯示課表。
   darkMode: 深色模式
   managed: 此設定由系統管理，目前無法變更。
   loadFailed: 無法載入偏好設定

@@ -102,8 +102,6 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                       PrefKey.startWithCourseTable,
                       icon: Icons.table_chart_outlined,
                       title: t.preferences.startWithCourseTable.title,
-                      description:
-                          t.preferences.startWithCourseTable.description,
                     ),
                     toggle(
                       PrefKey.darkMode,

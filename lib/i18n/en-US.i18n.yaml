@@ -1,7 +1,6 @@
 preferences:
   startWithCourseTable:
     title: Start with Course Table
-    description: Open the course table first the next time you launch the app or log in.
   darkMode: Dark Mode
   managed: This setting is managed by the system and cannot be changed right now.
   loadFailed: Unable to load preferences
