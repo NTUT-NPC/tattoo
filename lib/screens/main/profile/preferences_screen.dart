@@ -6,6 +6,25 @@ import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
+typedef _PreferenceItem = ({
+  PrefKey<bool> key,
+  IconData icon,
+  String Function() title,
+});
+
+final _preferenceItems = <_PreferenceItem>[
+  (
+    key: PrefKey.startWithCourseTable,
+    icon: Icons.table_chart_outlined,
+    title: () => t.preferences.startWithCourseTable.title,
+  ),
+  (
+    key: PrefKey.darkMode,
+    icon: Icons.dark_mode_outlined,
+    title: () => t.preferences.darkMode,
+  ),
+];
+
 class PreferencesScreen extends ConsumerStatefulWidget {
   const PreferencesScreen({super.key});
 
@@ -98,16 +117,12 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                   spacing: 8,
                   crossAxisAlignment: .stretch,
                   children: [
-                    toggle(
-                      PrefKey.startWithCourseTable,
-                      icon: Icons.table_chart_outlined,
-                      title: t.preferences.startWithCourseTable.title,
-                    ),
-                    toggle(
-                      PrefKey.darkMode,
-                      icon: Icons.dark_mode_outlined,
-                      title: t.preferences.darkMode,
-                    ),
+                    for (final item in _preferenceItems)
+                      toggle(
+                        item.key,
+                        icon: item.icon,
+                        title: item.title(),
+                      ),
                   ],
                 ),
               ],
