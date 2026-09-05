@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/components/floating_action_bar.dart';

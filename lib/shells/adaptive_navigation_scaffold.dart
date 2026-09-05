@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/shells/centered_max_width_frame.dart';
 
 /// Width at which the main navigation changes from a bar to a rail.

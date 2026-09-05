@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Shared fade-and-slide entrance animation for course-table entries.
 class CourseTableEntranceAnimation extends StatelessWidget {
