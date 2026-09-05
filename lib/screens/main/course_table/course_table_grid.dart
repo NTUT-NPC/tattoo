@@ -133,7 +133,7 @@ class CourseTableGrid extends StatelessWidget {
           primary: false,
           toolbarHeight: _tableHeaderHeight,
           automaticallyImplyLeading: false,
-          backgroundColor: Colors.grey[100],
+          // backgroundColor: Colors.grey[100],
           surfaceTintColor: Colors.transparent,
           scrolledUnderElevation: 0,
           elevation: 0,
