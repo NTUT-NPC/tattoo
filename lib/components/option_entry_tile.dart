@@ -122,10 +122,10 @@ class OptionEntryTile extends StatelessWidget {
   /// Built-in trailing icon selection used when [customActionIcon] is null.
   final OptionEntryTileActionIcon actionIcon;
 
-  /// Custom trailing icon widget.
+  /// Custom trailing widget, such as an icon or a switch.
   ///
   /// When provided, this overrides [actionIcon].
-  final Icon? customActionIcon;
+  final Widget? customActionIcon;
 
   /// Optional color for the leading icon or SVG. Defaults to the theme's primary color.
   final Color? color;

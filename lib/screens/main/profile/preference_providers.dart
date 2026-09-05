@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 
-/// The resolved state of every preference, for the overrides debug screen.
+/// The resolved state of every preference, for settings and the debug screen.
 ///
 /// Single-value consumers should use [PreferenceReader.pref] instead.
 final preferencesProvider =
