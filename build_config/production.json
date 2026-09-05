@@ -12,7 +12,7 @@
   "ANDROID_APP_LABEL": "TAT",
   "ANDROID_RES_DIR": "android/app/src/main/res",
   "ANDROID_FIREBASE_CONFIG_PATH": "android/app/google-services.json",
-  "IOS_BUNDLE_IDENTIFIER": "com.ntut.tatflutter",
+  "IOS_BUNDLE_IDENTIFIER": "com.npc.tatFlutter",
   "IOS_BUNDLE_DISPLAY_NAME": "TAT",
   "IOS_APP_ICON_NAME": "AppIcon",
   "IOS_FIREBASE_CONFIG_PATH": "ios/Runner/GoogleService-Info.plist",
@@ -24,7 +24,7 @@
     "google_services_path": "android/app/google-services.json"
   },
   "ios": {
-    "bundle_identifier": "com.ntut.tatflutter",
+    "bundle_identifier": "com.npc.tatFlutter",
     "bundle_display_name": "TAT",
     "app_icon_name": "AppIcon",
     "google_service_info_path": "ios/Runner/GoogleService-Info.plist"
@@ -37,7 +37,7 @@
       "app_id": "1:596630117465:android:9d4275579e011f039f6548"
     },
     "ios": {
-      "bundle_id": "com.ntut.tatflutter",
+      "bundle_id": "com.npc.tatFlutter",
       "app_id": "1:596630117465:ios:afd1697a77bcb95f9f6548"
     }
   }

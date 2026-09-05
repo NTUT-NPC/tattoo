@@ -52,7 +52,7 @@ jobs:
       commit_message: ${{ steps.summary.outputs.message }}
       target_ref: ${{ steps.set-ref.outputs.ref }}
       store_changelog: ${{ steps.changelog.outputs.store_changelog }}
-      dry_run: ${{ inputs.dry_run == true }}
+      dry_run: ${{ inputs.dry_run == true || github.event_name == 'pull_request' || github.event_name == 'pull_request_review' }}
     steps:
       - name: Checkout Actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -129,7 +129,7 @@ jobs:
           model: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash' }}
 
       - name: Find or create GitHub release
-        if: inputs.dry_run != true
+        if: inputs.dry_run != true && github.event_name != 'pull_request' && github.event_name != 'pull_request_review'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.release-meta.outputs.tag }}
@@ -177,7 +177,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [prepare]
     env:
-      ANDROID_PACKAGE_NAME: "club.ntut.npc.tat"
+      ANDROID_PACKAGE_NAME: ${{ secrets.ANDROID_PACKAGE_NAME || 'club.ntut.npc.tat' }}
       MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
       MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
       MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
@@ -268,7 +268,7 @@ jobs:
     runs-on: macos-26
     needs: [prepare]
     env:
-      IOS_BUNDLE_IDENTIFIER: "com.ntut.tatflutter"
+      IOS_BUNDLE_IDENTIFIER: ${{ secrets.IOS_BUNDLE_IDENTIFIER || 'com.npc.tatFlutter' }}
       MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
       MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
       MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}

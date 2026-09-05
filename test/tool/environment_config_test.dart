@@ -64,7 +64,7 @@ void main() {
       );
 
       final ios = json['ios'] as Map<String, dynamic>;
-      expect(ios['bundle_identifier'], equals('com.ntut.tatflutter'));
+      expect(ios['bundle_identifier'], equals('com.npc.tatFlutter'));
       expect(ios['bundle_display_name'], equals('TAT'));
       expect(ios['app_icon_name'], equals('AppIcon'));
       expect(
@@ -114,7 +114,7 @@ void main() {
       );
       expect(
         DefaultFirebaseOptions.iosProd.iosBundleId,
-        equals('com.ntut.tatflutter'),
+        equals('com.npc.tatFlutter'),
       );
     });
   });
