@@ -16,7 +16,11 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Code generation:** Run `dart run build_runner build` (Drift) and `dart run slang` (i18n) after modifying annotated source files or i18n YAMLs. Commit generated files (`.g.dart`) alongside source changes.
 
-**Credentials:** `tool/credentials.dart` manages encrypted credentials from the `tattoo-credentials` Git repo. Run `dart run tool/credentials.dart fetch` to decrypt and place Firebase configs, Android keystore, and service account. Config from env vars or `.env` file.
+**Credentials & Multi-Environment:** `tool/credentials.dart` manages multi-environment build configurations (`build_config/*.json`) and encrypted credentials from the `tattoo-credentials` Git repo:
+- `dart run tool/credentials.dart configure --env=dev` (or `--env=prod`): generates native configuration files (`android/app/app.properties`, `ios/Flutter/AppConfig.xcconfig`) and safe offline stubs for Firebase configs when credentials repo access is unavailable.
+- `dart run tool/credentials.dart fetch [--env=dev|--env=prod]`: decrypts and places environment-specific Firebase configs (`google-services.json`, `GoogleService-Info.plist`), Android keystore, and service account. Config from env vars or `.env` file.
+- `dart run tool/credentials.dart validate`: validates all build configuration JSONs against `build_config/schema.json`.
+- See `doc/environments.md` for full architecture details, the 4-combination matrix (dev vs prod, Android vs iOS), and CI/CD release workflow documentation.
 
 **HTML snapshot capture:** `tool/html_snapshot.dart` captures raw NTUT HTML/XML responses for parser development. Supporting part files live under `tool/html_snapshot/`; presets live in `tool/html_snapshot/presets.dart`. The CLI reads `test/test_config.json` and writes local-only files under `tmp/html_snapshot/`. `capture <preset> [<preset>...] -m "<message>"` captures one or more known pages, and `capture -a -m "<message>"` captures presets that can be resolved without explicit IDs. Raw captures may contain personal data and must not be committed before de-identification. Promoted snapshots must keep a meaningful metadata `message`; replace a `message:` TODO placeholder before promotion because message-less snapshots are not accepted. The parser expected-result TODO is separate from `message` and may remain until the HTML-based test code is complete.
 

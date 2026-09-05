@@ -443,7 +443,8 @@ ASSETCATALOG_COMPILER_APPICON_NAME = ${envConfig.iosAppIconName}
   final appPropsFile = File('android/app/app.properties');
   appPropsFile.parent.createSync(recursive: true);
 
-  final resDir = envConfig.androidResDir ??
+  final resDir =
+      envConfig.androidResDir ??
       (envConfig.flavor == 'dev'
           ? 'android/app/src/dev/res'
           : 'android/app/src/main/res');
@@ -503,7 +504,8 @@ resDir=$resDir
   if (!gspFile.existsSync() ||
       !gspFile.readAsStringSync().contains(envConfig.iosBundleId)) {
     gspFile.parent.createSync(recursive: true);
-    final stubPlist = '''
+    final stubPlist =
+        '''
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -664,7 +666,8 @@ Future<void> fetch(Config config) async {
           : null,
     )) {
       androidResolved = true;
-      if (envConfig.androidGoogleServicesPath != 'android/app/google-services.json') {
+      if (envConfig.androidGoogleServicesPath !=
+          'android/app/google-services.json') {
         processFile(src, 'android/app/google-services.json');
       }
       break;
@@ -721,7 +724,8 @@ Future<void> fetch(Config config) async {
           : null,
     )) {
       iosResolved = true;
-      if (envConfig.iosGoogleServiceInfoPath != 'ios/Runner/GoogleService-Info.plist') {
+      if (envConfig.iosGoogleServiceInfoPath !=
+          'ios/Runner/GoogleService-Info.plist') {
         processFile(src, 'ios/Runner/GoogleService-Info.plist');
       }
       break;
