@@ -78,6 +78,40 @@ void main() {
       expect(firebase['project_id'], equals('npc-tattoo-prod'));
     });
 
+    test('canonical configs and flat Dart defines stay separate', () {
+      const environments = [
+        ('dev', 'development', 'dev.defines.json'),
+        ('prod', 'production', 'prod.defines.json'),
+      ];
+
+      for (final (alias, canonicalName, definesName) in environments) {
+        final canonical = jsonDecode(
+          File('build_config/$alias.json').readAsStringSync(),
+        ) as Map<String, dynamic>;
+        expect(canonical['name'], equals(canonicalName));
+        expect(canonical, isNot(contains('ENV')));
+        expect(canonical['android'], isA<Map<String, dynamic>>());
+        expect(canonical['ios'], isA<Map<String, dynamic>>());
+        expect(canonical['firebase'], isA<Map<String, dynamic>>());
+
+        final defines = jsonDecode(
+          File('build_config/$definesName').readAsStringSync(),
+        ) as Map<String, dynamic>;
+        expect(
+          defines.values.every((value) => value is String),
+          isTrue,
+        );
+        expect(defines['FLAVOR'], equals(canonical['flavor']));
+        expect(defines['APP_NAME'], equals(canonical['app_name']));
+        expect(
+          defines['ANDROID_APPLICATION_ID'],
+          equals(
+            (canonical['android'] as Map<String, dynamic>)['application_id'],
+          ),
+        );
+      }
+    });
+
     test('schema.json exists and defines required properties', () {
       final file = File('build_config/schema.json');
       expect(file.existsSync(), isTrue);

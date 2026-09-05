@@ -37,7 +37,7 @@ def canonical_env(options, default_env)
 end
 
 def dart_defines_file(env)
-  filename = %w[dev staging].include?(env.to_s) ? "dev.json" : "prod.json"
+  filename = %w[dev staging].include?(env.to_s) ? "dev.defines.json" : "prod.defines.json"
   File.expand_path("../build_config/#{filename}", __dir__)
 end
 
