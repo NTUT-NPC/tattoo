@@ -1,0 +1,5 @@
+{
+  "ignores": [
+    "fastlane/README.md"
+  ]
+}

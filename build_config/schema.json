@@ -33,43 +33,7 @@
     "app_name": {
       "type": "string"
     },
-    "ENV": {
-      "type": "string"
-    },
-    "FLAVOR": {
-      "type": "string"
-    },
-    "APP_NAME": {
-      "type": "string"
-    },
-    "APP_CONFIG_NAME": {
-      "type": "string"
-    },
-    "APP_CONFIG_ICON_NAME": {
-      "type": "string"
-    },
-    "ANDROID_APPLICATION_ID": {
-      "type": "string"
-    },
-    "ANDROID_APP_LABEL": {
-      "type": "string"
-    },
     "ANDROID_RES_DIR": {
-      "type": "string"
-    },
-    "ANDROID_FIREBASE_CONFIG_PATH": {
-      "type": "string"
-    },
-    "IOS_BUNDLE_IDENTIFIER": {
-      "type": "string"
-    },
-    "IOS_BUNDLE_DISPLAY_NAME": {
-      "type": "string"
-    },
-    "IOS_APP_ICON_NAME": {
-      "type": "string"
-    },
-    "IOS_FIREBASE_CONFIG_PATH": {
       "type": "string"
     },
     "android": {

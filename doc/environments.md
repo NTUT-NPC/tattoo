@@ -178,7 +178,7 @@ Tattoo uses GitHub Actions and Fastlane to automate testing, build generation, a
 This workflow prepares and releases **Production Release Candidates (RC)** for store deployment.
 
 - **Triggers**:
-  - Git tag push matching `v*` (e.g. `v2.0.0`, `v2.0.0-rc.1`).
+  - Git tag push matching `v[0-9]+.[0-9]+.[0-9]+*` (e.g. `v2.0.0`, `v2.0.0-rc.1`).
   - Manual trigger via `workflow_dispatch` (with options for `dry_run`, `force_build`, specific branch or commit SHA).
 - **Environment**: Configures `production` (`--env=prod`).
 - **Distribution Targets**:

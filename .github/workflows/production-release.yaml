@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
-      - 'v*'
   workflow_dispatch:
     inputs:
       force_build:
@@ -24,14 +23,10 @@ on:
       commit_sha:
         description: 'Specific commit SHA to build'
         required: false
+      release_tag:
+        description: 'Release tag to create or update (required for non-dry runs)'
+        required: false
         type: string
-
-  # TEMPORARY: allow triggering from PR review for diagnostics.
-  # DROP THIS COMMIT BEFORE MERGING TO MAIN!
-  pull_request_review:
-    types: [submitted]
-  pull_request:
-    types: [opened, synchronize, reopened]
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
@@ -52,12 +47,11 @@ jobs:
       commit_message: ${{ steps.summary.outputs.message }}
       target_ref: ${{ steps.set-ref.outputs.ref }}
       store_changelog: ${{ steps.changelog.outputs.store_changelog }}
-      dry_run: ${{ inputs.dry_run == true || github.event_name == 'pull_request' || github.event_name == 'pull_request_review' }}
+      dry_run: ${{ inputs.dry_run == true }}
     steps:
       - name: Checkout Actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          sparse-checkout: .github/actions
           sparse-checkout-cone-mode: false
 
       - name: Resolve Target Ref
@@ -79,20 +73,25 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           REF_NAME: ${{ github.ref_name }}
           REF: ${{ steps.set-ref.outputs.ref }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          DRY_RUN: ${{ inputs.dry_run }}
         run: |
           if [ "$EVENT_NAME" = "push" ]; then
             TAG="$REF_NAME"
             TITLE="TAT Release $TAG"
-          elif [ "$EVENT_NAME" = "pull_request" ] || [ "$EVENT_NAME" = "pull_request_review" ]; then
-            TAG="rc-pr${{ github.event.pull_request.number || 'test' }}"
-            TITLE="TAT Production RC (PR #${{ github.event.pull_request.number || 'test' }} Diagnostic)"
+          elif [ "$DRY_RUN" = "true" ]; then
+            TAG="${RELEASE_TAG:-dry-run-${GITHUB_RUN_ID}}"
+            TITLE="TAT Release (Manual Dry Run)"
           else
-            TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v2.0.0")
-            TITLE="TAT Release (Manual Dispatch)"
+            if [ -z "$RELEASE_TAG" ]; then
+              echo "::error::release_tag is required for non-dry manual dispatches."
+              exit 1
+            fi
+            TAG="$RELEASE_TAG"
+            TITLE="TAT Release $TAG"
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "title=$TITLE" >> "$GITHUB_OUTPUT"
-
       - name: Manage Build Number
         id: build-number
         uses: ./.github/actions/manage-build-number
@@ -115,7 +114,7 @@ jobs:
           else
             PREV_TAG="${{ steps.release-meta.outputs.tag }}"
           fi
-          echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+          echo "prev_tag=$PREV_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Generate changelog
         id: changelog
@@ -129,7 +128,7 @@ jobs:
           model: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash' }}
 
       - name: Find or create GitHub release
-        if: inputs.dry_run != true && github.event_name != 'pull_request' && github.event_name != 'pull_request_review'
+        if: inputs.dry_run != true
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.release-meta.outputs.tag }}
@@ -168,7 +167,7 @@ jobs:
             gh release create "$TAG" \
               --title "$TITLE" \
               --notes "$BODY" \
-              --target $(git rev-parse HEAD) \
+              --target "$(git rev-parse HEAD)" \
               $PRERELEASE_FLAG
           fi
 
@@ -203,9 +202,10 @@ jobs:
 
       - name: Fetch credentials and configure production environment
         run: |
-          dart run tool/credentials.dart configure --env=prod
           if [ -n "$MATCH_GIT_URL" ] && [ -n "$MATCH_PASSWORD" ]; then
             dart run tool/credentials.dart fetch --env=prod
+          else
+            dart run tool/credentials.dart configure --env=prod
           fi
 
       - name: Build Android App Bundle and upload to Google Play Internal
@@ -219,8 +219,8 @@ jobs:
           bundle exec fastlane android build_apk env:prod
           AAB_PATH=$(find build/app/outputs/bundle -name "*.aab" | head -n 1)
           APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" -not -name "*sha1" | head -n 1)
-          echo "aab_path=$AAB_PATH" >> $GITHUB_OUTPUT
-          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+          echo "aab_path=$AAB_PATH" >> "$GITHUB_OUTPUT"
+          echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
 
       - name: Upload Android artifacts to GitHub Release
         if: needs.prepare.outputs.dry_run != 'true'
@@ -300,9 +300,10 @@ jobs:
 
       - name: Configure production environment and credentials
         run: |
-          dart run tool/credentials.dart configure --env=prod
           if [ -n "$MATCH_GIT_URL" ] && [ -n "$MATCH_PASSWORD" ]; then
             dart run tool/credentials.dart fetch --env=prod
+          else
+            dart run tool/credentials.dart configure --env=prod
           fi
 
       - name: Build iOS and upload to TestFlight (Internal Testers ONLY)
@@ -314,7 +315,7 @@ jobs:
             bundle exec fastlane ios release_prod internal_only:true
           fi
           IPA_PATH=$(find . -maxdepth 2 -name "*.ipa" | head -n 1)
-          echo "ipa_path=$IPA_PATH" >> $GITHUB_OUTPUT
+          echo "ipa_path=$IPA_PATH" >> "$GITHUB_OUTPUT"
 
       - name: Upload iOS artifact to GitHub Release
         if: needs.prepare.outputs.dry_run != 'true'

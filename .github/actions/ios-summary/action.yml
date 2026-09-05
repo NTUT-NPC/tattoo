@@ -15,8 +15,9 @@ runs:
   steps:
     - name: Write iOS Job Summary
       shell: bash
+      env:
+        APP_NAME: ${{ inputs.app_name }}
       run: |
-        APP_NAME="${{ inputs.app_name || 'Project Tattoo' }}"
         cat >> "$GITHUB_STEP_SUMMARY" <<EOF
         ### iOS (TestFlight)
         Build **${{ inputs.build_number }}** successfully uploaded to App Store Connect.

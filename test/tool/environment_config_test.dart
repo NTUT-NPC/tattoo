@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/firebase_options.dart';
 
+import '../../tool/credentials.dart';
+
 void main() {
   group('Environment Configuration Files', () {
     test('development.json has valid dev settings', () {
@@ -93,6 +95,10 @@ void main() {
       expect(Directory('ios/Runner/AppIcon-dev.icon').existsSync(), isTrue);
       expect(Directory('ios/Runner/AppIcon.icon').existsSync(), isTrue);
     });
+    test('EnvironmentConfig resolves both short environment names', () {
+      expect(EnvironmentConfig.load('dev').flavor, equals('dev'));
+      expect(EnvironmentConfig.load('prod').flavor, equals('prod'));
+    });
   });
 
   group('Firebase Options', () {
@@ -111,6 +117,38 @@ void main() {
       expect(
         DefaultFirebaseOptions.iosDev.iosBundleId,
         equals('club.ntut.tattoo'),
+      );
+      final development = jsonDecode(
+        File('build_config/development.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final production = jsonDecode(
+        File('build_config/production.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final devFirebase = development['firebase'] as Map<String, dynamic>;
+      final prodFirebase = production['firebase'] as Map<String, dynamic>;
+      expect(
+        (devFirebase['android'] as Map<String, dynamic>)['app_id'],
+        equals(DefaultFirebaseOptions.androidDev.appId),
+      );
+      expect(
+        (devFirebase['ios'] as Map<String, dynamic>)['app_id'],
+        equals(DefaultFirebaseOptions.iosDev.appId),
+      );
+      expect(
+        devFirebase['project_id'],
+        equals(DefaultFirebaseOptions.androidDev.projectId),
+      );
+      expect(
+        (prodFirebase['android'] as Map<String, dynamic>)['app_id'],
+        equals(DefaultFirebaseOptions.androidProd.appId),
+      );
+      expect(
+        (prodFirebase['ios'] as Map<String, dynamic>)['app_id'],
+        equals(DefaultFirebaseOptions.iosProd.appId),
+      );
+      expect(
+        prodFirebase['project_id'],
+        equals(DefaultFirebaseOptions.androidProd.projectId),
       );
       expect(
         DefaultFirebaseOptions.iosProd.iosBundleId,

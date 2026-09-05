@@ -40,8 +40,6 @@ appConfigFile?.let { cfgFile ->
                 val key = parts[0].trim()
                 val value = parts[1].trim()
                 when (key) {
-                    "PRODUCT_BUNDLE_IDENTIFIER" -> dartEnvironmentVariables["ANDROID_APPLICATION_ID"] = value
-                    "BUNDLE_DISPLAY_NAME" -> dartEnvironmentVariables["ANDROID_APP_LABEL"] = value
                     "APP_CONFIG_NAME" -> dartEnvironmentVariables["ANDROID_APP_LABEL"] = value
                 }
             }
@@ -80,6 +78,8 @@ tasks.register("copyGoogleServices") {
     val configPath = dartEnvironmentVariables["ANDROID_FIREBASE_CONFIG_PATH"] ?: "android/app/google-services.json"
     val sourceFile = File(repoRootDir, configPath)
     val targetFile = file("google-services.json")
+    inputs.file(sourceFile)
+    outputs.file(targetFile)
     doLast {
         if (sourceFile.exists() && sourceFile.canonicalPath != targetFile.canonicalPath) {
             sourceFile.copyTo(targetFile, overwrite = true)
@@ -88,7 +88,7 @@ tasks.register("copyGoogleServices") {
     }
 }
 
-tasks.whenTaskAdded {
+tasks.configureEach {
     if (name == "processDebugGoogleServices" || name == "processReleaseGoogleServices") {
         dependsOn("copyGoogleServices")
     }

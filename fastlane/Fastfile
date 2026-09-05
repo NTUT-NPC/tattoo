@@ -24,6 +24,10 @@ def get_build_settings(options)
     version_suffix: options[:version_suffix] || ENV["VERSION_SUFFIX"] || ""
   }
 end
+def dart_defines_file(env)
+  filename = %w[dev staging development].include?(env.to_s) ? "dev.json" : "prod.json"
+  File.expand_path("../build_config/#{filename}", __dir__)
+end
 
 platform :ios do
   desc "Build and upload to TestFlight (Preview, Daily, or Production RC)"
@@ -60,7 +64,7 @@ platform :ios do
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch", "--env=#{env}") }
 
     store_url = options[:store_url] || ENV["STORE_URL"] || ENV["TESTFLIGHT_PUBLIC_LINK"] || ""
-    config_file = File.expand_path("../build_config/#{env}.json", __dir__)
+    config_file = dart_defines_file(env)
     build_args = [
       "--no-codesign",
       "--dart-define=ENV=#{env}",
@@ -141,7 +145,7 @@ platform :android do
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch", "--env=#{env}") }
 
     store_url = options[:store_url] || ENV["STORE_URL"] || ENV["GOOGLEPLAY_PUBLIC_LINK"] || ""
-    config_file = File.expand_path("../build_config/#{env}.json", __dir__)
+    config_file = dart_defines_file(env)
     build_args = [
       "--dart-define=ENV=#{env}",
       "--dart-define=USE_FIREBASE=true",
@@ -165,7 +169,7 @@ platform :android do
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch", "--env=#{env}") }
 
     store_url = options[:store_url] || ENV["STORE_URL"] || ENV["GOOGLEPLAY_PUBLIC_LINK"] || ""
-    config_file = File.expand_path("../build_config/#{env}.json", __dir__)
+    config_file = dart_defines_file(env)
     build_args = [
       "--dart-define=ENV=#{env}",
       "--dart-define=USE_FIREBASE=true",
