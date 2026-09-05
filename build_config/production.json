@@ -1,0 +1,44 @@
+{
+  "$schema": "./schema.json",
+  "name": "production",
+  "flavor": "prod",
+  "app_name": "TAT",
+  "ENV": "production",
+  "FLAVOR": "prod",
+  "APP_NAME": "TAT",
+  "APP_CONFIG_NAME": "TAT",
+  "APP_CONFIG_ICON_NAME": "AppIcon",
+  "ANDROID_APPLICATION_ID": "club.ntut.npc.tat",
+  "ANDROID_APP_LABEL": "TAT",
+  "ANDROID_RES_DIR": "android/app/src/main/res",
+  "ANDROID_FIREBASE_CONFIG_PATH": "android/app/google-services.json",
+  "IOS_BUNDLE_IDENTIFIER": "com.ntut.tatflutter",
+  "IOS_BUNDLE_DISPLAY_NAME": "TAT",
+  "IOS_APP_ICON_NAME": "AppIcon",
+  "IOS_FIREBASE_CONFIG_PATH": "ios/Runner/GoogleService-Info.plist",
+  "android": {
+    "application_id": "club.ntut.npc.tat",
+    "app_name": "TAT",
+    "icon": "ic_launcher",
+    "res_dir": "android/app/src/main/res",
+    "google_services_path": "android/app/google-services.json"
+  },
+  "ios": {
+    "bundle_identifier": "com.ntut.tatflutter",
+    "bundle_display_name": "TAT",
+    "app_icon_name": "AppIcon",
+    "google_service_info_path": "ios/Runner/GoogleService-Info.plist"
+  },
+  "firebase": {
+    "project_id": "npc-tattoo-prod",
+    "storage_bucket": "npc-tattoo-prod.firebasestorage.app",
+    "android": {
+      "package_name": "club.ntut.npc.tat",
+      "app_id": "1:596630117465:android:9d4275579e011f039f6548"
+    },
+    "ios": {
+      "bundle_id": "com.ntut.tatflutter",
+      "app_id": "1:596630117465:ios:afd1697a77bcb95f9f6548"
+    }
+  }
+}
