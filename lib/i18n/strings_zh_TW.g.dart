@@ -74,6 +74,8 @@ class Translations$preferences$zh_TW {
 	/// zh-TW: '深色模式'
 	String get darkMode => '深色模式';
 
+	late final Translations$preferences$language$zh_TW language = Translations$preferences$language$zh_TW.internal(_root);
+
 	/// zh-TW: '此設定由系統管理，目前無法變更。'
 	String get managed => '此設定由系統管理，目前無法變更。';
 
@@ -736,6 +738,42 @@ class Translations$preferences$startWithCourseTable$zh_TW {
 
 	/// zh-TW: '啟動時開啟課表'
 	String get title => '啟動時開啟課表';
+}
+
+// Path: preferences.language
+class Translations$preferences$language$zh_TW {
+	Translations$preferences$language$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '語言'
+	String get title => '語言';
+
+	/// zh-TW: '預設'
+	String get followSystem => '預設';
+
+	/// zh-TW: '繁體中文'
+	String get traditionalChinese => '繁體中文';
+
+	/// zh-TW: 'English'
+	String get english => 'English';
+
+	/// zh-TW: '在iOS設定中切換語言'
+	String get iosGuideTitle => '在iOS設定中切換語言';
+
+	/// zh-TW: 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，找到「語言」或「偏好的語言」，再選擇要使用的語言。 '
+	String get iosGuideDescription => 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，找到「語言」或「偏好的語言」，再選擇要使用的語言。\n';
+
+	/// zh-TW: '前往系統設定'
+	String get openSettings => '前往系統設定';
+
+	/// zh-TW: '無法變更語言，請稍後再試。'
+	String get changeFailed => '無法變更語言，請稍後再試。';
+
+	/// zh-TW: '無法開啟系統語言設定，請稍後再試。'
+	String get openFailed => '無法開啟系統語言設定，請稍後再試。';
 }
 
 // Path: intro.features
@@ -1526,6 +1564,15 @@ extension on Translations {
 		return switch (path) {
 			'preferences.startWithCourseTable.title' => '啟動時開啟課表',
 			'preferences.darkMode' => '深色模式',
+			'preferences.language.title' => '語言',
+			'preferences.language.followSystem' => '預設',
+			'preferences.language.traditionalChinese' => '繁體中文',
+			'preferences.language.english' => 'English',
+			'preferences.language.iosGuideTitle' => '在iOS設定中切換語言',
+			'preferences.language.iosGuideDescription' => 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，找到「語言」或「偏好的語言」，再選擇要使用的語言。\n',
+			'preferences.language.openSettings' => '前往系統設定',
+			'preferences.language.changeFailed' => '無法變更語言，請稍後再試。',
+			'preferences.language.openFailed' => '無法開啟系統語言設定，請稍後再試。',
 			'preferences.managed' => '此設定由系統管理，目前無法變更。',
 			'preferences.loadFailed' => '無法載入偏好設定',
 			'preferences.saveFailed' => '無法儲存偏好設定，請稍後再試。',

@@ -2,6 +2,17 @@ preferences:
   startWithCourseTable:
     title: 啟動時開啟課表
   darkMode: 深色模式
+  language:
+    title: 語言
+    followSystem: 預設
+    traditionalChinese: 繁體中文
+    english: English
+    iosGuideTitle: 在iOS設定中切換語言
+    iosGuideDescription: |
+      iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，找到「語言」或「偏好的語言」，再選擇要使用的語言。
+    openSettings: 前往系統設定
+    changeFailed: 無法變更語言，請稍後再試。
+    openFailed: 無法開啟系統語言設定，請稍後再試。
   managed: 此設定由系統管理，目前無法變更。
   loadFailed: 無法載入偏好設定
   saveFailed: 無法儲存偏好設定，請稍後再試。
