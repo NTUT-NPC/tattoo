@@ -19,6 +19,17 @@ on:
   workflow_dispatch:
 
 jobs:
+  flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Seed Linux Flutter cache
+        uses: ./.github/actions/setup-project
+        with:
+          save-caches: "true"
+
   android:
     runs-on: ubuntu-latest
     steps:
@@ -26,12 +37,37 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup project
+        id: setup
         uses: ./.github/actions/setup-project
         with:
           platform: android
+          save-caches: "true"
 
       - name: Warm Gradle and Android SDK caches
         run: flutter build apk --debug --no-pub
+
+      - name: Save Flutter pub cache
+        if: ${{ steps.setup.outputs.pub-cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          key: ${{ steps.setup.outputs.pub-cache-primary-key }}
+          path: ~/.pub-cache
+
+      - name: Save Gradle cache
+        if: ${{ steps.setup.outputs.gradle-cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          key: ${{ steps.setup.outputs.gradle-cache-primary-key }}
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+
+      - name: Save Android SDK cache
+        if: ${{ steps.setup.outputs.android-sdk-cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          key: ${{ steps.setup.outputs.android-sdk-cache-primary-key }}
+          path: /usr/local/lib/android/sdk/cmake/3.22.1
 
   ios:
     runs-on: macos-26
@@ -40,9 +76,25 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup project
+        id: setup
         uses: ./.github/actions/setup-project
         with:
           platform: ios
+          save-caches: "true"
 
       - name: Warm Swift Package Manager cache
         run: flutter build ios --no-pub --no-codesign
+
+      - name: Save Flutter pub cache
+        if: ${{ steps.setup.outputs.pub-cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          key: ${{ steps.setup.outputs.pub-cache-primary-key }}
+          path: ~/.pub-cache
+
+      - name: Save Swift Package Manager cache
+        if: ${{ steps.setup.outputs.spm-cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          key: ${{ steps.setup.outputs.spm-cache-primary-key }}
+          path: build/ios/SourcePackages
