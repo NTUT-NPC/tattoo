@@ -127,6 +127,13 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                             'assets/tat_icon.svg',
                             width: 80,
                             height: 80,
+                            colorFilter: switch (theme.brightness) {
+                              .dark => .mode(
+                                theme.colorScheme.onSurfaceVariant,
+                                .srcIn,
+                              ),
+                              .light => null,
+                            },
                           ),
                         ),
                         Text(
@@ -247,7 +254,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                       TextSpan(text: t.about.copyright.spaced),
                       style: theme.textTheme.bodySmall?.copyWith(
                         height: 1.6,
-                        color: Colors.grey[600],
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                       textAlign: .center,
                     ),
