@@ -242,6 +242,7 @@ jobs:
           build_number: ${{ needs.prepare.outputs.build_number }}
           type: playstore
           app_name: TAT
+          play_store_uri: ${{ vars.GOOGLEPLAY_PUBLIC_LINK }}
 
       - name: Write Dry Run Android Summary
         if: needs.prepare.outputs.dry_run == 'true'

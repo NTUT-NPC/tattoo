@@ -78,7 +78,9 @@ tasks.register("copyGoogleServices") {
     val configPath = dartEnvironmentVariables["ANDROID_FIREBASE_CONFIG_PATH"] ?: "android/app/google-services.json"
     val sourceFile = File(repoRootDir, configPath)
     val targetFile = file("google-services.json")
-    inputs.file(sourceFile)
+    if (sourceFile.canonicalPath != targetFile.canonicalPath) {
+        inputs.file(sourceFile)
+    }
     outputs.file(targetFile)
     doLast {
         if (sourceFile.exists() && sourceFile.canonicalPath != targetFile.canonicalPath) {
