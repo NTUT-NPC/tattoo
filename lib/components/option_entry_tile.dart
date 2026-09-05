@@ -130,7 +130,7 @@ class OptionEntryTile extends StatelessWidget {
   /// Optional color for the leading icon or SVG. Defaults to the theme's primary color.
   final Color? color;
 
-  /// Optional color for the tile border. Defaults to the theme's outlineVariant color.
+  /// Optional color for the tile border. Defaults to the theme's outline color.
   final Color? borderColor;
 
   @override
@@ -149,7 +149,7 @@ class OptionEntryTile extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: borderRadius,
             border: Border.all(
-              color: borderColor ?? colorScheme.outlineVariant,
+              color: borderColor ?? colorScheme.outline,
             ),
           ),
           child: Padding(
