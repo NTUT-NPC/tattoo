@@ -74,7 +74,7 @@ Upload App Bundle (AAB) to Google Play Store
 [bundle exec] fastlane android preview
 ```
 
-Build APK and AAB, then upload PR preview to Firebase App Distribution and Google Play Store
+Build APK and upload PR preview to Firebase App Distribution
 
 ### android daily
 
