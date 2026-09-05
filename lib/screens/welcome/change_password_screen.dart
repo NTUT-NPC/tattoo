@@ -287,18 +287,18 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: theme.colorScheme.primary,
-                                foregroundColor: Colors.white,
+                                foregroundColor: theme.colorScheme.onPrimary,
                               ),
                               onPressed: state.isLoading ? null : _submit,
                               child: Padding(
                                 padding: const EdgeInsets.all(12.0),
                                 child: state.isLoading
-                                    ? const SizedBox(
+                                    ? SizedBox(
                                         height: 20,
                                         width: 20,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          color: Colors.white,
+                                          color: theme.colorScheme.onPrimary,
                                         ),
                                       )
                                     : Text(t.changePassword.submit),
