@@ -26,17 +26,20 @@ Instead of native flavors, Tattoo uses centralized, schema-validated JSON files 
 
 ```
 build_config/
-├── schema.json          # JSON Schema defining configuration rules
-├── development.json     # Development environment settings
-├── production.json      # Production environment settings
-├── dev.json -> development.json (alias)
-└── prod.json -> production.json (alias)
+├── schema.json             # JSON Schema defining canonical configuration
+├── development.json        # Development nested environment configuration
+├── production.json         # Production nested environment configuration
+├── dev.json                # Short-name development configuration
+├── prod.json               # Short-name production configuration
+├── dev.defines.json        # Flat Flutter/Dart compile-time defines
+└── prod.defines.json       # Flat Flutter/Dart compile-time defines
 ```
 
 Configuration variables are passed into builds through two complementary layers:
 
 1. **Dart / Flutter Compilation Layer**:
-   - Passed via `--dart-define-from-file=build_config/development.json` (or `production.json`).
+   - Passed via the flat `--dart-define-from-file=build_config/dev.defines.json` (or `prod.defines.json`) files.
+   - The nested `development.json`, `production.json`, `dev.json`, and `prod.json` files are canonical configuration documents for `EnvironmentConfig`.
    - Provides compile-time environment variables (`ENV`, `FLAVOR`, `APP_NAME`, etc.).
    - `lib/firebase_options.dart` detects `ENV` / `FLAVOR` at compile time and switches between development and production Firebase configurations without runtime overhead or package mismatch.
 
@@ -144,11 +147,11 @@ Always run using `--dart-define-from-file` corresponding to your target environm
 ```bash
 # Run in Development mode (default)
 dart run tool/credentials.dart configure --env=dev
-flutter run --dart-define-from-file=build_config/development.json
+flutter run --dart-define-from-file=build_config/dev.defines.json
 
 # Run in Production mode
 dart run tool/credentials.dart configure --env=prod
-flutter run --dart-define-from-file=build_config/production.json
+flutter run --dart-define-from-file=build_config/prod.defines.json
 ```
 
 ### 3.5 Building Locally with Flutter CLI
@@ -156,15 +159,15 @@ flutter run --dart-define-from-file=build_config/production.json
 ```bash
 # Build Development APK
 dart run tool/credentials.dart configure --env=dev
-flutter build apk --dart-define-from-file=build_config/development.json
+flutter build apk --dart-define-from-file=build_config/dev.defines.json
 
 # Build Production Android App Bundle (AAB)
 dart run tool/credentials.dart configure --env=prod
-flutter build appbundle --dart-define-from-file=build_config/production.json
+flutter build appbundle --dart-define-from-file=build_config/prod.defines.json
 
 # Build Production iOS IPA
 dart run tool/credentials.dart configure --env=prod
-flutter build ipa --dart-define-from-file=build_config/production.json
+flutter build ipa --dart-define-from-file=build_config/prod.defines.json
 ```
 
 ---

@@ -60,11 +60,11 @@ bundle install
 dart run tool/credentials.dart configure --env=dev
 
 # Run the app in development mode
-flutter run --dart-define-from-file=build_config/development.json
+flutter run --dart-define-from-file=build_config/dev.defines.json
 
 # Or run in production mode
 dart run tool/credentials.dart configure --env=prod
-flutter run --dart-define-from-file=build_config/production.json
+flutter run --dart-define-from-file=build_config/prod.defines.json
 ```
 
 ## Firebase & Credentials
