@@ -106,10 +106,14 @@ android {
 
     sourceSets {
         getByName("main") {
-            if (androidResDir.exists() && androidResDir.isDirectory && androidResDir.canonicalPath != file("src/main/res").canonicalPath) {
-                res.srcDirs("src/main/res", androidResDir)
-            } else {
-                res.srcDirs("src/main/res")
+            res.srcDirs("src/main/res")
+        }
+        if (androidResDir.exists() && androidResDir.isDirectory && androidResDir.canonicalPath != file("src/main/res").canonicalPath) {
+            getByName("release") {
+                res.srcDirs("src/release/res", androidResDir)
+            }
+            getByName("debug") {
+                res.srcDirs("src/debug/res", androidResDir)
             }
         }
     }
