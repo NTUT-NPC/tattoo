@@ -1,29 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
-
-typedef _PreferenceItem = ({
-  PrefKey<bool> key,
-  IconData icon,
-  String Function() title,
-});
-
-final _preferenceItems = <_PreferenceItem>[
-  (
-    key: PrefKey.startWithCourseTable,
-    icon: Icons.table_chart_outlined,
-    title: () => t.preferences.startWithCourseTable.title,
-  ),
-  (
-    key: PrefKey.darkMode,
-    icon: Icons.dark_mode_outlined,
-    title: () => t.preferences.darkMode,
-  ),
-];
 
 class PreferencesScreen extends ConsumerStatefulWidget {
   const PreferencesScreen({super.key});
@@ -90,25 +73,38 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
               final enabled =
                   pref != null && !pref.isForced && !_saving.contains(key);
 
-              return MergeSemantics(
-                child: OptionEntryTile.icon(
-                  icon: icon,
-                  title: title.spaced,
-                  description:
-                      (pref?.isForced == true
-                              ? t.preferences.managed
-                              : description)
-                          ?.spaced,
-                  onTap: enabled ? () => _setPreference(key, !value) : null,
-                  customActionIcon: Switch(
-                    value: value,
-                    onChanged: enabled
-                        ? (value) => _setPreference(key, value)
-                        : null,
-                  ),
-                ),
+              return OptionEntryTile.toggle(
+                icon: icon,
+                title: title.spaced,
+                description:
+                    (pref?.isForced == true
+                            ? t.preferences.managed
+                            : description)
+                        ?.spaced,
+                value: value,
+                onChanged: enabled
+                    ? (value) => _setPreference(key, value)
+                    : null,
               );
             }
+
+            final preferenceItems = <Widget>[
+              toggle(
+                PrefKey.startWithCourseTable,
+                icon: Icons.dashboard_outlined,
+                title: t.preferences.startWithCourseTable.title,
+              ),
+              toggle(
+                PrefKey.darkMode,
+                icon: Icons.dark_mode_outlined,
+                title: t.preferences.darkMode,
+              ),
+              OptionEntryTile.icon(
+                icon: Icons.language_outlined,
+                title: t.preferences.language.title,
+                onTap: () => context.push(AppRoutes.language),
+              ),
+            ];
 
             return ListView(
               padding: const .all(16),
@@ -116,14 +112,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                 Column(
                   spacing: 8,
                   crossAxisAlignment: .stretch,
-                  children: [
-                    for (final item in _preferenceItems)
-                      toggle(
-                        item.key,
-                        icon: item.icon,
-                        title: item.title(),
-                      ),
-                  ],
+                  children: preferenceItems,
                 ),
               ],
             );
