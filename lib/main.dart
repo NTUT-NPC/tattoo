@@ -15,6 +15,7 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/update_service.dart';
@@ -213,7 +214,7 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key, required this.router});
 
   final GoRouter router;
@@ -221,7 +222,7 @@ class MyApp extends StatelessWidget {
   static const themeColor = Color(0xFF4B709B);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       title: t.general.appTitle,
       scaffoldMessengerKey: rootScaffoldMessengerKey,
@@ -237,7 +238,7 @@ class MyApp extends StatelessWidget {
           brightness: .dark,
         ),
       ),
-      themeMode: .system,
+      themeMode: ref.pref(PrefKey.darkMode) ? .dark : .light,
       routerConfig: router,
     );
   }

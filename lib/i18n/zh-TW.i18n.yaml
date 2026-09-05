@@ -1,14 +1,8 @@
 preferences:
-  sections:
-    startup: 啟動設定
-    home: 首頁顯示
   startWithCourseTable:
     title: 啟動時開啟課表
     description: 下次啟動應用程式或登入後，優先顯示課表。
-  showCourseSchedule: 課程卡片
-  showScannerButton: i學園掃描器
-  showPortalButton: 傳送門
-  showCalendarButton: 行事曆
+  darkMode: 深色模式
   managed: 此設定由系統管理，目前無法變更。
   loadFailed: 無法載入偏好設定
   saveFailed: 無法儲存偏好設定，請稍後再試。

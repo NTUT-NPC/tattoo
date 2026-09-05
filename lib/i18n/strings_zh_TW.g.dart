@@ -69,20 +69,10 @@ class Translations$preferences$zh_TW {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	late final Translations$preferences$sections$zh_TW sections = Translations$preferences$sections$zh_TW.internal(_root);
 	late final Translations$preferences$startWithCourseTable$zh_TW startWithCourseTable = Translations$preferences$startWithCourseTable$zh_TW.internal(_root);
 
-	/// zh-TW: '課程卡片'
-	String get showCourseSchedule => '課程卡片';
-
-	/// zh-TW: 'i學園掃描器'
-	String get showScannerButton => 'i學園掃描器';
-
-	/// zh-TW: '傳送門'
-	String get showPortalButton => '傳送門';
-
-	/// zh-TW: '行事曆'
-	String get showCalendarButton => '行事曆';
+	/// zh-TW: '深色模式'
+	String get darkMode => '深色模式';
 
 	/// zh-TW: '此設定由系統管理，目前無法變更。'
 	String get managed => '此設定由系統管理，目前無法變更。';
@@ -734,21 +724,6 @@ class Translations$changePassword$zh_TW {
 	String get success => '密碼變更成功';
 
 	late final Translations$changePassword$errors$zh_TW errors = Translations$changePassword$errors$zh_TW.internal(_root);
-}
-
-// Path: preferences.sections
-class Translations$preferences$sections$zh_TW {
-	Translations$preferences$sections$zh_TW.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '啟動設定'
-	String get startup => '啟動設定';
-
-	/// zh-TW: '首頁顯示'
-	String get home => '首頁顯示';
 }
 
 // Path: preferences.startWithCourseTable
@@ -1552,14 +1527,9 @@ class Translations$changePassword$errors$server$zh_TW {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
-			'preferences.sections.startup' => '啟動設定',
-			'preferences.sections.home' => '首頁顯示',
 			'preferences.startWithCourseTable.title' => '啟動時開啟課表',
 			'preferences.startWithCourseTable.description' => '下次啟動應用程式或登入後，優先顯示課表。',
-			'preferences.showCourseSchedule' => '課程卡片',
-			'preferences.showScannerButton' => 'i學園掃描器',
-			'preferences.showPortalButton' => '傳送門',
-			'preferences.showCalendarButton' => '行事曆',
+			'preferences.darkMode' => '深色模式',
 			'preferences.managed' => '此設定由系統管理，目前無法變更。',
 			'preferences.loadFailed' => '無法載入偏好設定',
 			'preferences.saveFailed' => '無法儲存偏好設定，請稍後再試。',

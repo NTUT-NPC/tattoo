@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/components/option_entry_tile.dart';
-import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
@@ -99,7 +98,6 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                   spacing: 8,
                   crossAxisAlignment: .stretch,
                   children: [
-                    SectionHeader(title: t.preferences.sections.startup.spaced),
                     toggle(
                       PrefKey.startWithCourseTable,
                       icon: Icons.table_chart_outlined,
@@ -107,26 +105,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                       description:
                           t.preferences.startWithCourseTable.description,
                     ),
-                    SectionHeader(title: t.preferences.sections.home.spaced),
                     toggle(
-                      PrefKey.showCourseSchedule,
-                      icon: Icons.view_carousel_outlined,
-                      title: t.preferences.showCourseSchedule,
-                    ),
-                    toggle(
-                      PrefKey.showScannerButton,
-                      icon: Icons.qr_code_scanner,
-                      title: t.preferences.showScannerButton,
-                    ),
-                    toggle(
-                      PrefKey.showPortalButton,
-                      icon: Icons.apps,
-                      title: t.preferences.showPortalButton,
-                    ),
-                    toggle(
-                      PrefKey.showCalendarButton,
-                      icon: Icons.calendar_month_outlined,
-                      title: t.preferences.showCalendarButton,
+                      PrefKey.darkMode,
+                      icon: Icons.dark_mode_outlined,
+                      title: t.preferences.darkMode,
                     ),
                   ],
                 ),
