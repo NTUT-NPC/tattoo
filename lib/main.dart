@@ -226,6 +226,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: themeColor),
       ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: themeColor,
+          brightness: .dark,
+        ),
+      ),
+      themeMode: .system,
       routerConfig: router,
     );
   }

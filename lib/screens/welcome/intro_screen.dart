@@ -26,6 +26,13 @@ class _IntroScreenState extends State<IntroScreen>
     final icon = SvgPicture.asset(
       'assets/tat_icon.svg',
       height: verticalPadding,
+      colorFilter: switch (theme.brightness) {
+        .dark => .mode(
+          theme.colorScheme.onSurfaceVariant,
+          .srcIn,
+        ),
+        .light => null,
+      },
     );
 
     final body = Column(
@@ -54,7 +61,7 @@ class _IntroScreenState extends State<IntroScreen>
         'assets/npc_horizontal.svg',
         height: 24,
         colorFilter: .mode(
-          Colors.grey[600]!,
+          theme.colorScheme.onSurfaceVariant,
           .srcIn,
         ),
       ),

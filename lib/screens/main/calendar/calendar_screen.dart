@@ -84,6 +84,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   Widget _buildBody(Map<DateTime, List<CalendarEvent>> eventsMap) {
+    final theme = Theme.of(context);
     final selectedKey = DateTime(
       _selectedDay.year,
       _selectedDay.month,
@@ -120,6 +121,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           eventLoader: (day) =>
               eventsMap[DateTime(day.year, day.month, day.day)] ?? const [],
           calendarFormat: .month,
+          calendarStyle: CalendarStyle(
+            markerDecoration: BoxDecoration(
+              color: theme.colorScheme.primary,
+              shape: .circle,
+            ),
+          ),
           headerStyle: const HeaderStyle(formatButtonVisible: false),
         ),
         const SizedBox(height: 8.0),

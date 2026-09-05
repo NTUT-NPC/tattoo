@@ -42,6 +42,7 @@ class AdaptiveNavigationScaffold extends StatelessWidget {
       builder: (context, constraints) {
         final useNavigationRail =
             constraints.maxWidth >= navigationRailBreakpoint;
+        final theme = Theme.of(context);
 
         return Scaffold(
           body: useNavigationRail
@@ -61,6 +62,13 @@ class AdaptiveNavigationScaffold extends StatelessWidget {
                           'assets/tat_icon.svg',
                           width: 40,
                           height: 40,
+                          colorFilter: switch (theme.brightness) {
+                            .dark => .mode(
+                              theme.colorScheme.onSurfaceVariant,
+                              .srcIn,
+                            ),
+                            .light => null,
+                          },
                         ),
                       ),
                       destinations: [
