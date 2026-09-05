@@ -1,0 +1,343 @@
+name: Production Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      force_build:
+        description: 'Force build even if no changes'
+        required: false
+        type: boolean
+        default: false
+      dry_run:
+        description: 'Dry run (build only, do not upload/release)'
+        required: false
+        type: boolean
+        default: false
+      branch_name:
+        description: 'Specific branch to build from HEAD'
+        required: false
+        type: string
+      commit_sha:
+        description: 'Specific commit SHA to build'
+        required: false
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      build_number: ${{ steps.build-number.outputs.build_number }}
+      release_tag: ${{ steps.release-meta.outputs.tag }}
+      release_title: ${{ steps.release-meta.outputs.title }}
+      commit_sha: ${{ steps.summary.outputs.sha }}
+      commit_message: ${{ steps.summary.outputs.message }}
+      target_ref: ${{ steps.set-ref.outputs.ref }}
+      store_changelog: ${{ steps.changelog.outputs.store_changelog }}
+      dry_run: ${{ inputs.dry_run == true }}
+    steps:
+      - name: Checkout Actions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+
+      - name: Resolve Target Ref
+        id: set-ref
+        uses: ./.github/actions/resolve-ref
+        with:
+          branch_name: ${{ inputs.branch_name }}
+          commit_sha: ${{ inputs.commit_sha }}
+
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ steps.set-ref.outputs.ref }}
+          fetch-depth: 0
+
+      - name: Resolve Release Metadata
+        id: release-meta
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          REF: ${{ steps.set-ref.outputs.ref }}
+        run: |
+          if [ "$EVENT_NAME" = "push" ]; then
+            TAG="$REF_NAME"
+            TITLE="TAT Release $TAG"
+          else
+            TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v2.0.0")
+            TITLE="TAT Release (Manual Dispatch)"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "title=$TITLE" >> "$GITHUB_OUTPUT"
+
+      - name: Manage Build Number
+        id: build-number
+        uses: ./.github/actions/manage-build-number
+        with:
+          github_token: ${{ secrets.BUILD_NUMBER_PAT }}
+          current_build_number: ${{ vars.build_number }}
+
+      - name: Write Build Summary
+        id: summary
+        uses: ./.github/actions/write-build-summary
+        with:
+          title: "Production Release (RC)"
+          build_number: ${{ steps.build-number.outputs.build_number }}
+
+      - name: Resolve Previous Tag for Changelog
+        id: prev-tag
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            PREV_TAG=$(git describe --tags --abbrev=0 "${{ steps.release-meta.outputs.tag }}^" 2>/dev/null || git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | sed -n '2p' || true)
+          else
+            PREV_TAG="${{ steps.release-meta.outputs.tag }}"
+          fi
+          echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        uses: ./.github/actions/generate-changelog
+        with:
+          github_token: ${{ github.token }}
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          last_sha: ${{ steps.prev-tag.outputs.prev_tag }}
+          head_ref: ${{ steps.set-ref.outputs.ref }}
+          fallback_message: ${{ steps.summary.outputs.message }}
+          model: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash' }}
+
+      - name: Find or create GitHub release
+        if: inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release-meta.outputs.tag }}
+          TITLE: ${{ steps.release-meta.outputs.title }}
+          CHANGELOG: ${{ steps.changelog.outputs.changelog }}
+        run: |
+          STATIC_TOP=$(cat <<'BODY_EOF'
+          **Build Number:** ${{ steps.build-number.outputs.build_number }}
+          **Commit:** ${{ steps.summary.outputs.sha }}
+
+          ## What's Changed
+          BODY_EOF
+          )
+
+          STATIC_BOTTOM=$(cat <<'BODY_EOF'
+          <!--android-build-->
+
+          <!--ios-build-->
+
+          ---
+          > [!TIP]
+          > Official releases are published on **Google Play** (Android) and the **App Store** (iOS).
+          BODY_EOF
+          )
+
+          BODY=$(printf '%s\n\n%s\n\n%s\n' "$STATIC_TOP" "$CHANGELOG" "$STATIC_BOTTOM")
+
+          PRERELEASE_FLAG=""
+          if [[ "$TAG" == *"rc"* ]] || [[ "$TAG" == *"-"* ]]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+
+          if gh release view "$TAG" &>/dev/null; then
+            gh release edit "$TAG" --title "$TITLE" --notes "$BODY"
+          else
+            gh release create "$TAG" \
+              --title "$TITLE" \
+              --notes "$BODY" \
+              --target $(git rev-parse HEAD) \
+              $PRERELEASE_FLAG
+          fi
+
+  android:
+    runs-on: ubuntu-latest
+    needs: [prepare]
+    env:
+      ANDROID_PACKAGE_NAME: "club.ntut.npc.tat"
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      VERSION_SUFFIX: ""
+      PR_TITLE: "Release ${{ needs.prepare.outputs.release_tag }}"
+      COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+      COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+      CHANGELOG: ${{ needs.prepare.outputs.store_changelog }}
+      GOOGLEPLAY_PUBLIC_LINK: ${{ vars.GOOGLEPLAY_PUBLIC_LINK }}
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.prepare.outputs.target_ref }}
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          platform: android
+
+      - name: Fetch credentials and configure production environment
+        run: |
+          dart run tool/credentials.dart configure --env=prod
+          if [ -n "$MATCH_GIT_URL" ] && [ -n "$MATCH_PASSWORD" ]; then
+            dart run tool/credentials.dart fetch --env=prod
+          fi
+
+      - name: Build Android App Bundle and upload to Google Play Internal
+        id: build
+        run: |
+          if [ "${{ needs.prepare.outputs.dry_run }}" = "true" ]; then
+            bundle exec fastlane android release_prod track:internal skip_upload:true
+          else
+            bundle exec fastlane android release_prod track:internal
+          fi
+          bundle exec fastlane android build_apk env:prod
+          AAB_PATH=$(find build/app/outputs/bundle -name "*.aab" | head -n 1)
+          APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" -not -name "*sha1" | head -n 1)
+          echo "aab_path=$AAB_PATH" >> $GITHUB_OUTPUT
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload Android artifacts to GitHub Release
+        if: needs.prepare.outputs.dry_run != 'true'
+        run: |
+          TAG="${{ needs.prepare.outputs.release_tag }}"
+          if [ -f "${{ steps.build.outputs.aab_path }}" ]; then
+            gh release upload "$TAG" "${{ steps.build.outputs.aab_path }}#tat-${{ needs.prepare.outputs.build_number }}-android.aab" --clobber
+          fi
+          if [ -f "${{ steps.build.outputs.apk_path }}" ]; then
+            gh release upload "$TAG" "${{ steps.build.outputs.apk_path }}#tat-${{ needs.prepare.outputs.build_number }}-android.apk" --clobber
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Write Android Job Summary
+        if: needs.prepare.outputs.dry_run != 'true'
+        uses: ./.github/actions/android-summary
+        with:
+          build_number: ${{ needs.prepare.outputs.build_number }}
+          type: playstore
+          app_name: TAT
+
+      - name: Write Dry Run Android Summary
+        if: needs.prepare.outputs.dry_run == 'true'
+        shell: bash
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ### Android (Dry Run)
+          Build **${{ needs.prepare.outputs.build_number }}** successfully compiled AAB/APK but NOT uploaded (dry run enabled).
+          EOF
+
+      - name: Append Android result to GitHub release notes
+        if: needs.prepare.outputs.dry_run != 'true'
+        uses: ./.github/actions/append-release-notes
+        with:
+          github_token: ${{ github.token }}
+          release_tag: ${{ needs.prepare.outputs.release_tag }}
+          tag: "<!--android-build-->"
+          body: |
+            ### Android (Google Play Internal)
+            - **Google Play:** Uploaded to Internal Testing Track (TAT)
+
+  ios:
+    runs-on: macos-26
+    needs: [prepare]
+    env:
+      IOS_BUNDLE_IDENTIFIER: "com.ntut.tatflutter"
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      FASTLANE_APPLE_ID: ${{ secrets.FASTLANE_APPLE_ID }}
+      FASTLANE_TEAM_ID: ${{ secrets.FASTLANE_TEAM_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+      APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+      BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+      VERSION_SUFFIX: ""
+      PR_TITLE: "Release ${{ needs.prepare.outputs.release_tag }}"
+      COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+      COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+      CHANGELOG: ${{ needs.prepare.outputs.store_changelog }}
+      DISTRIBUTE_EXTERNAL: "false"
+      TESTFLIGHT_PUBLIC_LINK: ${{ vars.TESTFLIGHT_PUBLIC_LINK }}
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ needs.prepare.outputs.target_ref }}
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          platform: ios
+
+      - name: Configure production environment and credentials
+        run: |
+          dart run tool/credentials.dart configure --env=prod
+          if [ -n "$MATCH_GIT_URL" ] && [ -n "$MATCH_PASSWORD" ]; then
+            dart run tool/credentials.dart fetch --env=prod
+          fi
+
+      - name: Build iOS and upload to TestFlight (Internal Testers ONLY)
+        id: build
+        run: |
+          if [ "${{ needs.prepare.outputs.dry_run }}" = "true" ]; then
+            bundle exec fastlane ios release_prod internal_only:true skip_upload:true
+          else
+            bundle exec fastlane ios release_prod internal_only:true
+          fi
+          IPA_PATH=$(find . -maxdepth 2 -name "*.ipa" | head -n 1)
+          echo "ipa_path=$IPA_PATH" >> $GITHUB_OUTPUT
+
+      - name: Upload iOS artifact to GitHub Release
+        if: needs.prepare.outputs.dry_run != 'true'
+        run: |
+          TAG="${{ needs.prepare.outputs.release_tag }}"
+          if [ -f "${{ steps.build.outputs.ipa_path }}" ]; then
+            gh release upload "$TAG" "${{ steps.build.outputs.ipa_path }}#tat-${{ needs.prepare.outputs.build_number }}-ios.ipa" --clobber
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Write iOS Job Summary
+        if: needs.prepare.outputs.dry_run != 'true'
+        uses: ./.github/actions/ios-summary
+        with:
+          build_number: ${{ needs.prepare.outputs.build_number }}
+          app_name: TAT
+
+      - name: Write Dry Run iOS Summary
+        if: needs.prepare.outputs.dry_run == 'true'
+        shell: bash
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ### iOS (Dry Run)
+          Build **${{ needs.prepare.outputs.build_number }}** successfully compiled but NOT uploaded (dry run enabled).
+          EOF
+
+      - name: Append iOS result to GitHub release notes
+        if: needs.prepare.outputs.dry_run != 'true'
+        uses: ./.github/actions/append-release-notes
+        with:
+          github_token: ${{ github.token }}
+          release_tag: ${{ needs.prepare.outputs.release_tag }}
+          tag: "<!--ios-build-->"
+          body: |
+            ### iOS (TestFlight Internal)
+            - **TestFlight:** Uploaded for Internal Testers (TAT)

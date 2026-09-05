@@ -65,6 +65,8 @@ test/test_config.json
 /android/key.properties
 /ios/Runner/GoogleService-Info.plist
 /service-account.json
+/android/app/app.properties
+/ios/Flutter/AppConfig.xcconfig
 
 # Slang analysis output
 lib/i18n/_missing_translations.yaml

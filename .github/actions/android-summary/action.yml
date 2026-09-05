@@ -12,6 +12,10 @@ inputs:
   testing_uri:
     description: 'Install URI (required for firebase)'
     required: false
+  app_name:
+    description: 'App display name'
+    required: false
+    default: 'Project Tattoo'
 
 runs:
   using: composite
@@ -19,6 +23,7 @@ runs:
     - name: Write Android Job Summary
       shell: bash
       run: |
+        APP_NAME="${{ inputs.app_name || 'Project Tattoo' }}"
         if [ "${{ inputs.type }}" == "firebase" ] || [ "${{ inputs.type }}" == "release" ]; then
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
         ### Android (Firebase App Distribution)
@@ -33,7 +38,7 @@ runs:
         Build **${{ inputs.build_number }}** successfully uploaded to Google Play.
 
         1. Open the Google Play Store on your Android device
-        2. Select "Project Tattoo"
+        2. Select "$APP_NAME"
         3. Install or update to the latest build
 
         > **Note:** It may take ~30 minutes for the build to appear in the Play Store after upload.
