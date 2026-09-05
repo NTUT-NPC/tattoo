@@ -26,6 +26,12 @@ on:
         required: false
         type: string
 
+  # TEMPORARY: allow triggering from PR review for diagnostics.
+  # DROP THIS COMMIT BEFORE MERGING TO MAIN!
+  pull_request_review:
+    types: [submitted]
+  pull_request:
+    types: [opened, synchronize, reopened]
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
@@ -77,6 +83,9 @@ jobs:
           if [ "$EVENT_NAME" = "push" ]; then
             TAG="$REF_NAME"
             TITLE="TAT Release $TAG"
+          elif [ "$EVENT_NAME" = "pull_request" ] || [ "$EVENT_NAME" = "pull_request_review" ]; then
+            TAG="rc-pr${{ github.event.pull_request.number || 'test' }}"
+            TITLE="TAT Production RC (PR #${{ github.event.pull_request.number || 'test' }} Diagnostic)"
           else
             TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v2.0.0")
             TITLE="TAT Release (Manual Dispatch)"
