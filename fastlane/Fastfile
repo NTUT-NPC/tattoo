@@ -184,6 +184,7 @@ platform :android do
 
   desc "Upload artifact (APK or AAB) to Firebase App Distribution"
   lane :upload_firebase do |options|
+    next if options[:skip_upload].to_s == "true"
     pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
     pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
     commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
@@ -231,6 +232,7 @@ platform :android do
 
   desc "Upload App Bundle (AAB) to Google Play Store"
   lane :upload_playstore do |options|
+    next if options[:skip_upload].to_s == "true"
     env = options[:env] || options[:flavor] || "prod"
     build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
     pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
@@ -258,6 +260,7 @@ platform :android do
       aab: aab_path,
       json_key: File.expand_path("../service-account.json", __dir__),
       skip_upload_metadata: false,
+      skip_upload_apk: options.key?(:skip_upload_apk) ? (options[:skip_upload_apk].to_s == "true") : true,
       skip_upload_images: true,
       skip_upload_screenshots: true,
       skip_upload_changelogs: false,
@@ -269,23 +272,25 @@ platform :android do
     upload_to_play_store(upload_params)
   end
 
-  desc "Build APK and AAB, then upload PR preview to Firebase App Distribution and Google Play Store"
+  desc "Build APK and upload PR preview to Firebase App Distribution"
   lane :preview do |options|
     env = options[:env] || options[:flavor] || "dev"
     track = options[:track] || "internal"
     skip_build = options[:skip_build].to_s == "true"
     skip_upload = options[:skip_upload].to_s == "true"
     skip_upload_firebase = options[:skip_upload_firebase].to_s == "true" || skip_upload
-    skip_upload_playstore = options[:skip_upload_playstore].to_s == "true" || skip_upload
+    skip_upload_playstore = options.key?(:skip_upload_playstore) ? (options[:skip_upload_playstore].to_s == "true") : true
     groups = options[:groups] || "dev-tester"
 
     apk = options[:apk]
     apk ||= build_apk(options.merge(env: env)) unless skip_build
     upload_firebase(options.merge(env: env, apk: apk, android_artifact_type: "APK", groups: groups)) unless skip_upload_firebase
 
-    aab = options[:aab]
-    aab ||= build_appbundle(options.merge(env: env)) unless skip_build
-    upload_playstore(options.merge(env: env, aab: aab, track: track)) unless skip_upload_playstore
+    unless skip_upload_playstore
+      aab = options[:aab]
+      aab ||= build_appbundle(options.merge(env: env)) unless skip_build
+      upload_playstore(options.merge(env: env, aab: aab, track: track))
+    end
   end
 
   desc "Daily release: build APK for Firebase and AAB for Google Play Store (beta track)"

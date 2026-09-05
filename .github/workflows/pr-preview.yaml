@@ -164,7 +164,7 @@ jobs:
         id: upload
         env:
           FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
-        run: bundle exec fastlane android preview skip_upload:${{ needs.prepare.outputs.deploy_android != 'true' }}
+        run: bundle exec fastlane android preview skip_upload:${{ needs.prepare.outputs.deploy_android != 'true' }} skip_upload_playstore:true
 
       - name: Write Android Job Summary
         if: needs.prepare.outputs.deploy_android == 'true'
