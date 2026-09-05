@@ -29,11 +29,10 @@ class PreferencesNotifier extends AsyncNotifier<List<ResolvedPreference>> {
 final preferenceValueProvider = Provider.family<Object?, PrefKey>((ref, key) {
   return ref.watch(
     preferencesProvider.select(
-      (async) => async.maybeWhen(
-        data: (prefs) =>
-            prefs.where((p) => p.key == key).map((p) => p.value).firstOrNull,
-        orElse: () => null,
-      ),
+      (async) => async.value
+          ?.where((p) => p.key == key)
+          .map((p) => p.value)
+          .firstOrNull,
     ),
   );
 });

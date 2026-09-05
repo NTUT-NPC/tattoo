@@ -43,6 +43,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
       appBar: AppBar(title: Text(t.profile.options.preferences.spaced)),
       body: SafeArea(
         child: prefsAsync.when(
+          skipLoadingOnReload: true,
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) => Center(
             child: Column(
@@ -69,10 +70,7 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
               final pref = preferences[key];
               final value = pref?.value as bool? ?? key.defaultValue;
               final enabled =
-                  pref != null &&
-                  !pref.isForced &&
-                  !prefsAsync.isLoading &&
-                  !_saving.contains(key);
+                  pref != null && !pref.isForced && !_saving.contains(key);
 
               return MergeSemantics(
                 child: OptionEntryTile.icon(
