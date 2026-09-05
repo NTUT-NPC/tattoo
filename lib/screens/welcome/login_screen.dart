@@ -8,6 +8,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/campus_wifi_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/utils/launch_url.dart';
@@ -139,7 +140,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _showMessage(t.ntutWifi.provisioning.failed);
         }
       }
-      if (mounted) context.go(AppRoutes.home);
+      final authenticatedLocation = await resolveAuthenticatedLocation(
+        ref.read(preferencesRepositoryProvider),
+      );
+      if (mounted) context.go(authenticatedLocation);
     } on DioException {
       if (mounted) _setError(t.errors.connectionFailed);
     } on LoginException catch (e) {
