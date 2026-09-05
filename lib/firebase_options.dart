@@ -26,18 +26,38 @@ class DefaultFirebaseOptions {
   static const String _env = String.fromEnvironment('ENV', defaultValue: '');
   static const String _flavor = String.fromEnvironment('FLAVOR', defaultValue: '');
 
-  static bool get isDev =>
-      _env == 'dev' ||
-      _env == 'development' ||
-      _env == 'staging' ||
-      _flavor == 'dev' ||
-      _flavor == 'staging' ||
-      appFlavor == 'dev' ||
-      appFlavor == 'staging';
+  static String get _environment {
+    final dev = _env == 'dev' ||
+        _env == 'development' ||
+        _env == 'staging' ||
+        _flavor == 'dev' ||
+        _flavor == 'staging' ||
+        appFlavor == 'dev' ||
+        appFlavor == 'staging';
+    final prod = _env == 'prod' ||
+        _env == 'production' ||
+        _flavor == 'prod' ||
+        _flavor == 'production' ||
+        appFlavor == 'prod' ||
+        appFlavor == 'production';
+    if (dev && prod) {
+      throw StateError('Conflicting Firebase environments were specified.');
+    }
+    if (dev) return 'dev';
+    if (prod) return 'prod';
+    throw StateError(
+      'Firebase environment is missing or unsupported. '
+      'Set ENV or FLAVOR to dev/staging or prod/production.',
+    );
+  }
 
-  static FirebaseOptions get android => isDev ? androidDev : androidProd;
+  static bool get isDev => _environment == 'dev';
 
-  static FirebaseOptions get ios => isDev ? iosDev : iosProd;
+  static FirebaseOptions get android =>
+      _environment == 'dev' ? androidDev : androidProd;
+
+  static FirebaseOptions get ios =>
+      _environment == 'dev' ? iosDev : iosProd;
 
   static const FirebaseOptions androidProd = FirebaseOptions(
     apiKey: 'AIzaSyAJSD6_YkutviZvQvtjwNi5wAQaOAV7YDQ',

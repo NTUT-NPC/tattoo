@@ -23,7 +23,7 @@ if command -v magick >/dev/null 2>&1; then
   adb exec-out screencap -p | magick - -resize '1999x1999>' "$out"
 else
   adb exec-out screencap -p > "$out"
-  sips --resampleHeightWidthMax 1999 "$out" >/dev/null 2>&1 || true
+  sips --resampleHeightWidthMax 1999 "$out" >/dev/null
 fi
 echo "$out"
 exit 0

@@ -16,14 +16,19 @@ inputs:
     description: 'App display name'
     required: false
     default: 'Project Tattoo'
+  play_store_uri:
+    description: 'Google Play listing URL for updating the app'
+    required: false
+    default: 'https://play.google.com/store/apps/details?id=club.ntut.tattoo'
 
 runs:
   using: composite
   steps:
     - name: Write Android Job Summary
       shell: bash
+      env:
+        APP_NAME: ${{ inputs.app_name }}
       run: |
-        APP_NAME="${{ inputs.app_name || 'Project Tattoo' }}"
         if [ "${{ inputs.type }}" == "firebase" ] || [ "${{ inputs.type }}" == "release" ]; then
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
         ### Android (Firebase App Distribution)
@@ -34,8 +39,8 @@ runs:
         fi
         if [ "${{ inputs.type }}" == "playstore" ] || [ "${{ inputs.type }}" == "release" ]; then
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
-        ### Android (Google Play)
         Build **${{ inputs.build_number }}** successfully uploaded to Google Play.
+        [Update to the latest build on Google Play](${{ inputs.play_store_uri }})
 
         1. Open the Google Play Store on your Android device
         2. Select "$APP_NAME"

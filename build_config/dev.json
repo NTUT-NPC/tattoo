@@ -1,1 +1,15 @@
-development.json
+{
+  "ENV": "development",
+  "FLAVOR": "dev",
+  "APP_NAME": "Tattoo",
+  "APP_CONFIG_NAME": "Tattoo",
+  "APP_CONFIG_ICON_NAME": "AppIcon-dev",
+  "ANDROID_APPLICATION_ID": "club.ntut.tattoo",
+  "ANDROID_APP_LABEL": "Tattoo",
+  "ANDROID_RES_DIR": "android/app/src/dev/res",
+  "ANDROID_FIREBASE_CONFIG_PATH": "android/app/google-services.json",
+  "IOS_BUNDLE_IDENTIFIER": "club.ntut.tattoo",
+  "IOS_BUNDLE_DISPLAY_NAME": "Tattoo",
+  "IOS_APP_ICON_NAME": "AppIcon-dev",
+  "IOS_FIREBASE_CONFIG_PATH": "ios/Runner/GoogleService-Info.plist"
+}
