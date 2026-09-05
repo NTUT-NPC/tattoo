@@ -96,6 +96,7 @@ class _Translations$errors$en_US extends Translations$errors$zh_TW {
 	@override String get sessionExpired => 'Session expired. Please sign in again.';
 	@override String get credentialsInvalid => 'Credentials are no longer valid. Please sign in again.';
 	@override String get connectionFailed => 'Cannot connect to the server. Please check your network connection.';
+	@override String get ischoolPlusVpnRequired => 'Cannot connect to iSchool Plus. Please connect to campus VPN when off-campus.';
 }
 
 // Path: intro
@@ -926,6 +927,7 @@ extension on TranslationsEnUs {
 			'errors.sessionExpired' => 'Session expired. Please sign in again.',
 			'errors.credentialsInvalid' => 'Credentials are no longer valid. Please sign in again.',
 			'errors.connectionFailed' => 'Cannot connect to the server. Please check your network connection.',
+			'errors.ischoolPlusVpnRequired' => 'Cannot connect to iSchool Plus. Please connect to campus VPN when off-campus.',
 			'intro.features.courseTable.title' => 'Courses',
 			'intro.features.courseTable.description' => 'Quickly view your course schedule and switch between semesters.',
 			'intro.features.scores.title' => 'Scores',

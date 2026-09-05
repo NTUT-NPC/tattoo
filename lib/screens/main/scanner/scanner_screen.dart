@@ -9,6 +9,7 @@ import 'package:tattoo/screens/main/scanner/scanner_guide_bottom_sheet.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/http.dart';
+import 'package:tattoo/utils/network_error.dart';
 
 class ScannerScreen extends ConsumerStatefulWidget {
   const ScannerScreen({super.key});
@@ -188,6 +189,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         return '[${error.type}] $msg';
       }
       return '[${error.type}] ${t.scanner.errors['unknown']}';
+    }
+    if (isISchoolPlusConnectionError(error)) {
+      return t.errors.ischoolPlusVpnRequired;
     }
     return switch (error) {
       SessionExpiredException() => t.errors.sessionExpired,

@@ -20,6 +20,7 @@ errors:
   sessionExpired: Session expired. Please sign in again.
   credentialsInvalid: Credentials are no longer valid. Please sign in again.
   connectionFailed: Cannot connect to the server. Please check your network connection.
+  ischoolPlusVpnRequired: Cannot connect to iSchool Plus. Please connect to campus VPN when off-campus.
 intro:
   features:
     courseTable:
