@@ -208,22 +208,22 @@ class _PrefSubtitle extends StatelessWidget {
     return switch (pref.source) {
       .override => (
         text: t.regedit.status.localOverride,
-        bgColor: Colors.blue.withValues(alpha: 0.15),
+        bgColor: Colors.blue.shade100,
         textColor: Colors.blue.shade800,
       ),
       .remote => (
         text: t.regedit.status.remote,
-        bgColor: Colors.purple.withValues(alpha: 0.15),
+        bgColor: Colors.purple.shade100,
         textColor: Colors.purple.shade800,
       ),
       .local => (
         text: t.regedit.status.local,
-        bgColor: Colors.grey.withValues(alpha: 0.2),
+        bgColor: Colors.grey.shade200,
         textColor: Colors.grey.shade800,
       ),
       .forced => (
         text: t.regedit.status.remoteOverride,
-        bgColor: Colors.red.withValues(alpha: 0.15),
+        bgColor: Colors.red.shade100,
         textColor: Colors.red.shade800,
       ),
     };
