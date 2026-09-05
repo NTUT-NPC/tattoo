@@ -8,9 +8,6 @@ const _nextCourseCardShadow = BoxShadow(
   blurRadius: 16,
   offset: Offset(0, 4),
 );
-const _nextCourseCardBlue = Color.fromARGB(255, 223, 234, 255);
-const _nextCourseCardSurface = Color(0xFFF8FAFF);
-const _nextCourseCardMint = Color.fromARGB(255, 211, 255, 231);
 
 class NextCourseCard extends StatelessWidget {
   const NextCourseCard({
@@ -25,17 +22,28 @@ class NextCourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final gradientColors = isDark
+        ? const [Color(0xFF25483F), Color(0xFF1D2936), Color(0xFF293B59)]
+        : const [Color(0xFFD3FFE7), Color(0xFFF8FAFF), Color(0xFFDFEAFF)];
+    const gradientStops = [0.0, 0.6, 1.0];
+    final titleColor = isDark
+        ? const Color(0xFFF0F5FF)
+        : theme.colorScheme.onSurface;
+    final infoColor = isDark
+        ? const Color(0xFFBECBD9)
+        : theme.colorScheme.onSurfaceVariant;
     final textScaler = MediaQuery.textScalerOf(context);
     final courseTitleTextStyle = theme.textTheme.titleLarge?.copyWith(
       fontWeight: .w700,
-      color: theme.colorScheme.onSurface,
+      color: titleColor,
       height: 1.2,
     );
     final courseTitleLineHeight =
         textScaler.scale(courseTitleTextStyle?.fontSize ?? 22) *
         (courseTitleTextStyle?.height ?? 1.2);
     final infoTextStyle = theme.textTheme.labelMedium?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
+      color: infoColor,
       height: 1.4,
     );
     final stateLabel = switch (course.state) {
@@ -53,15 +61,11 @@ class NextCourseCard extends StatelessWidget {
       width: double.infinity,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: const RadialGradient(
+          gradient: RadialGradient(
             center: .bottomRight,
             radius: 1.35,
-            colors: [
-              _nextCourseCardMint,
-              _nextCourseCardSurface,
-              _nextCourseCardBlue,
-            ],
-            stops: [0, 0.6, 1],
+            colors: gradientColors,
+            stops: gradientStops,
           ),
           borderRadius: borderRadius,
           boxShadow: const [_nextCourseCardShadow],
@@ -82,7 +86,7 @@ class NextCourseCard extends StatelessWidget {
                   Text(
                     header.spaced,
                     style: theme.textTheme.labelMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                      color: infoColor,
                       fontWeight: .w600,
                     ),
                   ),
