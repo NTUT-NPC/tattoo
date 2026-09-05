@@ -403,6 +403,54 @@ Future<void> cloneOrPull(Config config) async {
 // Generation and Configuration
 // ---------------------------------------------------------------------------
 
+bool _containsOtherEnvironmentCredential(
+  File file,
+  EnvironmentConfig envConfig,
+) {
+  if (envConfig.flavor != 'dev' || !file.existsSync()) {
+    return false;
+  }
+
+  final content = utf8.decode(file.readAsBytesSync(), allowMalformed: true);
+  final production = EnvironmentConfig.load('prod');
+  final productionValues = [
+    production.androidAppId,
+    production.iosBundleId,
+    production.firebaseProjectId,
+    production.firebaseAndroidAppId,
+    production.firebaseIosAppId,
+  ];
+  return productionValues.any(
+    (value) => value != null && content.contains(value),
+  );
+}
+
+void _refuseOverwritingOtherEnvironmentCredential(
+  String destinationPath,
+  EnvironmentConfig envConfig,
+) {
+  final destination = File(destinationPath);
+  if (!_containsOtherEnvironmentCredential(destination, envConfig)) {
+    return;
+  }
+
+  stderr.writeln(
+    'Error: ${destination.path} contains production Firebase credentials; '
+    'refusing to overwrite it while configuring development.',
+  );
+  exit(1);
+}
+
+void _writeCredentialBytes(
+  String destinationPath,
+  List<int> bytes,
+  EnvironmentConfig envConfig,
+) {
+  _refuseOverwritingOtherEnvironmentCredential(destinationPath, envConfig);
+  File(destinationPath).parent.createSync(recursive: true);
+  File(destinationPath).writeAsBytesSync(bytes);
+}
+
 void generateAppConfig(EnvironmentConfig envConfig) {
   // 1. Generate AppConfig.xcconfig for iOS
   final xcconfigFile = File('ios/Flutter/AppConfig.xcconfig');
@@ -447,6 +495,7 @@ resDir=$resDir
       gsFile.existsSync() &&
       gsFile.readAsStringSync().contains(envConfig.androidAppId);
   if (!androidConfigValid) {
+    _refuseOverwritingOtherEnvironmentCredential(gsFile.path, envConfig);
     if (envConfig.flavor != 'dev') {
       stderr.writeln(
         'Error: ${gsFile.path} is missing or does not contain '
@@ -480,8 +529,10 @@ resDir=$resDir
       ],
       'configuration_version': '1',
     };
-    gsFile.writeAsStringSync(
-      const JsonEncoder.withIndent('  ').convert(stubJson),
+    _writeCredentialBytes(
+      gsFile.path,
+      utf8.encode(const JsonEncoder.withIndent('  ').convert(stubJson)),
+      envConfig,
     );
     stdout.writeln('  generated ${gsFile.path} for ${envConfig.flavor}');
   }
@@ -492,6 +543,7 @@ resDir=$resDir
       gspFile.existsSync() &&
       gspFile.readAsStringSync().contains(envConfig.iosBundleId);
   if (!iosConfigValid) {
+    _refuseOverwritingOtherEnvironmentCredential(gspFile.path, envConfig);
     if (envConfig.flavor != 'dev') {
       stderr.writeln(
         'Error: ${gspFile.path} is missing or does not contain '
@@ -537,7 +589,11 @@ resDir=$resDir
 </dict>
 </plist>
 ''';
-    gspFile.writeAsStringSync(stubPlist.trim());
+    _writeCredentialBytes(
+      gspFile.path,
+      utf8.encode(stubPlist.trim()),
+      envConfig,
+    );
     stdout.writeln('  generated ${gspFile.path} for ${envConfig.flavor}');
   }
 }
@@ -582,7 +638,9 @@ Future<void> fetch(Config config) async {
       return false;
     }
 
-    // Ensure destination directory exists
+    if (validate != null) {
+      _refuseOverwritingOtherEnvironmentCredential(destPath, envConfig);
+    }
     File(destPath).parent.createSync(recursive: true);
     File(destPath).writeAsBytesSync(bytes);
 
@@ -596,7 +654,10 @@ Future<void> fetch(Config config) async {
 
   // 1. Common keystores and service account (encrypted files take precedence, stop on first match)
   final baseMappings = <String, List<String>>{
-    'android/app/keystore.jks': ['keystores/keystore.jks'],
+    'android/app/keystore.jks': [
+      'keystores/keystore.jks.enc',
+      'keystores/keystore.jks',
+    ],
     'android/key.properties': [
       'keystores/key.properties.enc',
       'keystores/key.properties',
