@@ -334,7 +334,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             style: theme.textTheme.bodySmall?.copyWith(
                               fontSize: 16,
                               height: 1.6,
-                              color: Colors.grey[600],
+                              color: theme.colorScheme.onSurfaceVariant,
                             ),
                             textAlign: .center,
                           ),
