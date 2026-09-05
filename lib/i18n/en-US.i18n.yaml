@@ -1,3 +1,17 @@
+preferences:
+  sections:
+    startup: Startup
+    home: Home Screen
+  startWithCourseTable:
+    title: Start with Course Table
+    description: Open the course table first the next time you launch the app or log in.
+  showCourseSchedule: Course Cards
+  showScannerButton: iSchool Scanner
+  showPortalButton: Portal
+  showCalendarButton: Calendar
+  managed: This setting is managed by the system and cannot be changed right now.
+  loadFailed: Unable to load preferences
+  saveFailed: Unable to save preferences. Please try again later.
 general:
   appTitle: Project Tattoo
   notImplemented: Not implemented

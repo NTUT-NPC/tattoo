@@ -39,6 +39,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	TranslationsEnUs $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsEnUs(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _Translations$preferences$en_US preferences = _Translations$preferences$en_US._(_root);
 	@override late final _Translations$general$en_US general = _Translations$general$en_US._(_root);
 	@override late final _Translations$errors$en_US errors = _Translations$errors$en_US._(_root);
 	@override late final _Translations$intro$en_US intro = _Translations$intro$en_US._(_root);
@@ -58,6 +59,24 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$forceUpdate$en_US forceUpdate = _Translations$forceUpdate$en_US._(_root);
 	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
 	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
+}
+
+// Path: preferences
+class _Translations$preferences$en_US extends Translations$preferences$zh_TW {
+	_Translations$preferences$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$preferences$sections$en_US sections = _Translations$preferences$sections$en_US._(_root);
+	@override late final _Translations$preferences$startWithCourseTable$en_US startWithCourseTable = _Translations$preferences$startWithCourseTable$en_US._(_root);
+	@override String get showCourseSchedule => 'Course Cards';
+	@override String get showScannerButton => 'iSchool Scanner';
+	@override String get showPortalButton => 'Portal';
+	@override String get showCalendarButton => 'Calendar';
+	@override String get managed => 'This setting is managed by the system and cannot be changed right now.';
+	@override String get loadFailed => 'Unable to load preferences';
+	@override String get saveFailed => 'Unable to save preferences. Please try again later.';
 }
 
 // Path: general
@@ -424,6 +443,28 @@ class _Translations$changePassword$en_US extends Translations$changePassword$zh_
 	@override String get submit => 'Change Password';
 	@override String get success => 'Password changed successfully';
 	@override late final _Translations$changePassword$errors$en_US errors = _Translations$changePassword$errors$en_US._(_root);
+}
+
+// Path: preferences.sections
+class _Translations$preferences$sections$en_US extends Translations$preferences$sections$zh_TW {
+	_Translations$preferences$sections$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get startup => 'Startup';
+	@override String get home => 'Home Screen';
+}
+
+// Path: preferences.startWithCourseTable
+class _Translations$preferences$startWithCourseTable$en_US extends Translations$preferences$startWithCourseTable$zh_TW {
+	_Translations$preferences$startWithCourseTable$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Start with Course Table';
+	@override String get description => 'Open the course table first the next time you launch the app or log in.';
 }
 
 // Path: intro.features
@@ -906,6 +947,17 @@ class _Translations$changePassword$errors$server$en_US extends Translations$chan
 extension on TranslationsEnUs {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'preferences.sections.startup' => 'Startup',
+			'preferences.sections.home' => 'Home Screen',
+			'preferences.startWithCourseTable.title' => 'Start with Course Table',
+			'preferences.startWithCourseTable.description' => 'Open the course table first the next time you launch the app or log in.',
+			'preferences.showCourseSchedule' => 'Course Cards',
+			'preferences.showScannerButton' => 'iSchool Scanner',
+			'preferences.showPortalButton' => 'Portal',
+			'preferences.showCalendarButton' => 'Calendar',
+			'preferences.managed' => 'This setting is managed by the system and cannot be changed right now.',
+			'preferences.loadFailed' => 'Unable to load preferences',
+			'preferences.saveFailed' => 'Unable to save preferences. Please try again later.',
 			'general.appTitle' => 'Project Tattoo',
 			'general.notImplemented' => 'Not implemented',
 			'general.dataDisclaimer' => 'For reference only',
