@@ -42,12 +42,14 @@ platform :ios do
 
     setup_ci if is_ci
 
+    bundle_identifier = options[:bundle_identifier] || (["dev", "staging"].include?(env) ? (ENV["DEV_IOS_BUNDLE_IDENTIFIER"] || ENV["STAGING_IOS_BUNDLE_IDENTIFIER"] || "club.ntut.tattoo") : (ENV["IOS_BUNDLE_IDENTIFIER"] || ENV["FASTLANE_IOS_APP_IDENTIFIER"] || "com.npc.tatFlutter"))
+
     sync_code_signing(
       type: "appstore",
       readonly: is_ci,
+      app_identifier: bundle_identifier,
     )
 
-    bundle_identifier = options[:bundle_identifier] || (["dev", "staging"].include?(env) ? (ENV["DEV_IOS_BUNDLE_IDENTIFIER"] || ENV["STAGING_IOS_BUNDLE_IDENTIFIER"] || "club.ntut.tattoo") : (ENV["IOS_BUNDLE_IDENTIFIER"] || "com.npc.tatFlutter"))
     update_code_signing_settings(
       path: "ios/Runner.xcodeproj",
       sdk: "iphoneos*",
@@ -206,14 +208,19 @@ platform :android do
     end
 
     target_groups = options[:groups] || "dev-tester"
+    env = options[:env] || options[:flavor] || "dev"
+    app_id = options[:app] || (["dev", "staging"].include?(env) ? (ENV["DEV_FIREBASEAPPDISTRO_APP"] || "1:838220085712:android:a85cf2541699925c3be1d5") : ENV["FIREBASEAPPDISTRO_APP"])
 
-    release = firebase_app_distribution(
+    distro_params = {
       groups: target_groups,
       release_notes: changelog_text,
       android_artifact_type: artifact_type,
       android_artifact_path: artifact_path,
       service_credentials_file: File.expand_path("../service-account.json", __dir__),
-    )
+    }
+    distro_params[:app] = app_id if app_id
+
+    release = firebase_app_distribution(distro_params)
 
     if ENV["GITHUB_OUTPUT"] && release && release[:testingUri]
       File.open(ENV["GITHUB_OUTPUT"], "a") do |f|
@@ -243,9 +250,9 @@ platform :android do
     aab_path = options[:aab] || options[:artifact_path] || default_aab
     track = options[:track] || "internal"
 
-    package_name = options[:package_name] || (["dev", "staging"].include?(env) ? (ENV["DEV_ANDROID_PACKAGE_NAME"] || ENV["STAGING_ANDROID_PACKAGE_NAME"] || "club.ntut.tattoo") : (ENV["ANDROID_PACKAGE_NAME"] || "club.ntut.npc.tat"))
+    package_name = options[:package_name] || (["dev", "staging"].include?(env) ? (ENV["DEV_ANDROID_PACKAGE_NAME"] || ENV["STAGING_ANDROID_PACKAGE_NAME"] || "club.ntut.tattoo") : (ENV["ANDROID_PACKAGE_NAME"] || ENV["FASTLANE_ANDROID_APP_IDENTIFIER"] || "club.ntut.npc.tat"))
 
-    upload_to_play_store(
+    upload_params = {
       package_name: package_name,
       track: track,
       aab: aab_path,
@@ -255,8 +262,11 @@ platform :android do
       skip_upload_screenshots: true,
       skip_upload_changelogs: false,
       release_status: options[:release_status] || "completed",
-      changes_not_sent_for_review: false
-    )
+      changes_not_sent_for_review: false,
+    }
+    upload_params[:validate_only] = true if options[:validate_only].to_s == "true"
+
+    upload_to_play_store(upload_params)
   end
 
   desc "Build APK and AAB, then upload PR preview to Firebase App Distribution and Google Play Store"
