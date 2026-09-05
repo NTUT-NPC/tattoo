@@ -456,8 +456,12 @@ class _FloatingActionBarSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Material(
-      color: Colors.white.withValues(alpha: 0.84),
+      color: isDark
+          ? Colors.grey[900]!.withValues(alpha: 0.84)
+          : Colors.white.withValues(alpha: 0.84),
       elevation: 4,
       shadowColor: Colors.black.withValues(alpha: 0.08),
       surfaceTintColor: Colors.transparent,
