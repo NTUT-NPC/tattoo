@@ -34,14 +34,35 @@ enum PrefKey<T> {
   /// Whether the Weblate button is shown on the about page.
   showWeblateButton<bool>(.boolean, false),
 
-  /// Whether the Wi-Fi auto-connect button is shown on the profile screen.
+  /// Whether the Wi-Fi auto-connect button is shown on the home screen.
   showWifiButton<bool>(.boolean, false),
 
   /// Whether to show the detailed error dialog on uncaught exceptions.
   ///
   /// Defaults to `kDebugMode` (true in debug, false in release). Can be
   /// overridden via the regedit screen or Remote Config for on-device debugging.
-  showErrorDialog<bool>(.boolean, kDebugMode);
+  showErrorDialog<bool>(.boolean, kDebugMode),
+
+  /// Whether the next course schedule carousel is shown on the home screen.
+  showCourseSchedule<bool>(.boolean, true),
+
+  /// Whether the vote / kiosk login button is shown on the home screen.
+  showVoteButton<bool>(.boolean, false),
+
+  /// Whether the iStudy QR scanner button is shown on the home screen.
+  showScannerButton<bool>(.boolean, true),
+
+  /// Whether the portal entry button is shown on the home screen.
+  showPortalButton<bool>(.boolean, true),
+
+  /// Whether the academic calendar button is shown on the home screen.
+  showCalendarButton<bool>(.boolean, true),
+
+  /// Whether the change password button is shown on the profile screen.
+  showChangePasswordButton<bool>(.boolean, true),
+
+  /// Whether the change avatar button is shown on the profile screen.
+  showChangeAvatarButton<bool>(.boolean, true);
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;
