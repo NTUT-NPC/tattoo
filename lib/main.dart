@@ -225,7 +225,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: themeColor),
       ),
-      // Remove after dependencies stop importing Flutter's design libraries.
+      // TODO: Remove after dependencies stop importing Flutter's design libraries.
       // ignore: deprecated_member_use
       builder: (context, child) => MaterialUiCompatibilityBridge(child: child!),
       routerConfig: router,
