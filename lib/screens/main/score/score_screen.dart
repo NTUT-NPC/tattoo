@@ -257,7 +257,7 @@ class _SemesterScoreList extends StatelessWidget {
                       );
                     } else {
                       return Skeleton.keep(
-                        child: SemesterRankingCard(rankings: record.rankings),
+                        child: _SemesterRankingCard(rankings: record.rankings),
                       );
                     }
                   }, childCount: scores.length + (loading ? 0 : 1)),
@@ -404,10 +404,10 @@ class _ScoreTile extends StatelessWidget {
   }
 }
 
-class SemesterRankingCard extends StatelessWidget {
+class _SemesterRankingCard extends StatelessWidget {
   final List<UserSemesterRanking> rankings;
 
-  const SemesterRankingCard({super.key, required this.rankings});
+  const _SemesterRankingCard({required this.rankings});
 
   @override
   Widget build(BuildContext context) {
