@@ -31,6 +31,9 @@ enum PrefKey<T> {
   /// Whether authenticated navigation starts on the course table instead of home.
   startWithCourseTable<bool>(.boolean, false),
 
+  /// The app theme mode: system, light, or dark.
+  themeMode<String>(.string, 'system'),
+
   /// Whether the danger zone section is shown on the profile screen.
   showDangerZone<bool>(.boolean, false),
 

@@ -126,6 +126,11 @@ class ProfileScreen extends ConsumerWidget {
 
       SectionHeader(title: t.profile.sections.appSettings),
       OptionEntryTile.icon(
+        icon: Icons.tune,
+        title: t.profile.options.preferences.spaced,
+        onTap: () => context.push(AppRoutes.preferences),
+      ),
+      OptionEntryTile.icon(
         icon: Icons.logout,
         title: t.profile.options.logout,
         onTap: () => _logout(ref),

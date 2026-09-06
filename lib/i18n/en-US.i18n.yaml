@@ -1,3 +1,25 @@
+preferences:
+  startWithCourseTable:
+    title: Start with Course Table
+  darkMode: Dark Mode
+  themeMode:
+    system: Default
+    light: Light
+    dark: Dark
+  language:
+    title: Language
+    followSystem: Default
+    traditionalChinese: Traditional Chinese(繁體中文)
+    english: English
+    iosGuideTitle: Change the language in iOS Settings
+    iosGuideDescription: |
+      iOS manages each app's language in Settings. Use the button below to open TAT's settings, then tap Language under Preferred Language and choose the language you want. If the Preferred Language section isn't shown, first add another preferred language in General > Language & Region, then return to TAT's settings.
+    openSettings: Open System Settings
+    changeFailed: Unable to change the language. Please try again later.
+    openFailed: Unable to open system language settings. Please try again later.
+  managed: This setting is managed by the system and cannot be changed right now.
+  loadFailed: Unable to load preferences
+  saveFailed: Unable to save preferences. Please try again later.
 general:
   appTitle: Project Tattoo
   notImplemented: Not implemented

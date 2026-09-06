@@ -82,6 +82,29 @@ class OptionEntryTile extends StatelessWidget {
        _icon = icon,
        _svgIconAsset = null;
 
+  /// Creates an option row whose trailing action is a [Switch].
+  factory OptionEntryTile.toggle({
+    Key? key,
+    IconData icon = Icons.adjust_outlined,
+    required String title,
+    String? description,
+    required bool value,
+    ValueChanged<bool>? onChanged,
+    Color? color,
+    Color? borderColor,
+  }) {
+    return OptionEntryTile.icon(
+      key: key,
+      icon: icon,
+      title: title,
+      description: description,
+      onTap: onChanged == null ? null : () => onChanged(!value),
+      customActionIcon: Switch(value: value, onChanged: onChanged),
+      color: color,
+      borderColor: borderColor,
+    );
+  }
+
   /// Creates an [OptionEntryTile] with an SVG asset as the leading widget.
   const OptionEntryTile.svg({
     super.key,
@@ -122,10 +145,10 @@ class OptionEntryTile extends StatelessWidget {
   /// Built-in trailing icon selection used when [customActionIcon] is null.
   final OptionEntryTileActionIcon actionIcon;
 
-  /// Custom trailing icon widget.
+  /// Custom trailing widget, such as an icon or a switch.
   ///
   /// When provided, this overrides [actionIcon].
-  final Icon? customActionIcon;
+  final Widget? customActionIcon;
 
   /// Optional color for the leading icon or SVG. Defaults to the theme's primary color.
   final Color? color;
@@ -139,7 +162,7 @@ class OptionEntryTile extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final borderRadius = BorderRadius.circular(14);
 
-    return Material(
+    final tile = Material(
       color: colorScheme.surface,
       borderRadius: borderRadius,
       child: InkWell(
@@ -194,6 +217,8 @@ class OptionEntryTile extends StatelessWidget {
         ),
       ),
     );
+
+    return customActionIcon is Switch ? MergeSemantics(child: tile) : tile;
   }
 
   Widget _buildLeading(ColorScheme colorScheme) {

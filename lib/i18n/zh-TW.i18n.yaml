@@ -1,3 +1,25 @@
+preferences:
+  startWithCourseTable:
+    title: 啟動時開啟課表
+  darkMode: 深色模式
+  themeMode:
+    system: 預設
+    light: 淺色
+    dark: 深色
+  language:
+    title: 語言
+    followSystem: 預設
+    traditionalChinese: 繁體中文
+    english: 英文(English)
+    iosGuideTitle: 在iOS設定中切換語言
+    iosGuideDescription: |
+      iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，在「偏好的語言」區段點擊「語言」，再選擇要使用的語言。若未顯示「偏好的語言」區段，請先在「一般」>「語言與地區」加入另一種偏好的語言，再返回TAT設定。
+    openSettings: 前往系統設定
+    changeFailed: 無法變更語言，請稍後再試。
+    openFailed: 無法開啟系統語言設定，請稍後再試。
+  managed: 此設定由系統管理，目前無法變更。
+  loadFailed: 無法載入偏好設定
+  saveFailed: 無法儲存偏好設定，請稍後再試。
 general:
   appTitle: Project Tattoo
   notImplemented: 尚未實作

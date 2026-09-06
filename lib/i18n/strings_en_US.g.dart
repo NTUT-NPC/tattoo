@@ -39,6 +39,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	TranslationsEnUs $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsEnUs(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _Translations$preferences$en_US preferences = _Translations$preferences$en_US._(_root);
 	@override late final _Translations$general$en_US general = _Translations$general$en_US._(_root);
 	@override late final _Translations$errors$en_US errors = _Translations$errors$en_US._(_root);
 	@override late final _Translations$intro$en_US intro = _Translations$intro$en_US._(_root);
@@ -58,6 +59,22 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$forceUpdate$en_US forceUpdate = _Translations$forceUpdate$en_US._(_root);
 	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
 	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
+}
+
+// Path: preferences
+class _Translations$preferences$en_US extends Translations$preferences$zh_TW {
+	_Translations$preferences$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$preferences$startWithCourseTable$en_US startWithCourseTable = _Translations$preferences$startWithCourseTable$en_US._(_root);
+	@override String get darkMode => 'Dark Mode';
+	@override late final _Translations$preferences$themeMode$en_US themeMode = _Translations$preferences$themeMode$en_US._(_root);
+	@override late final _Translations$preferences$language$en_US language = _Translations$preferences$language$en_US._(_root);
+	@override String get managed => 'This setting is managed by the system and cannot be changed right now.';
+	@override String get loadFailed => 'Unable to load preferences';
+	@override String get saveFailed => 'Unable to save preferences. Please try again later.';
 }
 
 // Path: general
@@ -424,6 +441,46 @@ class _Translations$changePassword$en_US extends Translations$changePassword$zh_
 	@override String get submit => 'Change Password';
 	@override String get success => 'Password changed successfully';
 	@override late final _Translations$changePassword$errors$en_US errors = _Translations$changePassword$errors$en_US._(_root);
+}
+
+// Path: preferences.startWithCourseTable
+class _Translations$preferences$startWithCourseTable$en_US extends Translations$preferences$startWithCourseTable$zh_TW {
+	_Translations$preferences$startWithCourseTable$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Start with Course Table';
+}
+
+// Path: preferences.themeMode
+class _Translations$preferences$themeMode$en_US extends Translations$preferences$themeMode$zh_TW {
+	_Translations$preferences$themeMode$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get system => 'Default';
+	@override String get light => 'Light';
+	@override String get dark => 'Dark';
+}
+
+// Path: preferences.language
+class _Translations$preferences$language$en_US extends Translations$preferences$language$zh_TW {
+	_Translations$preferences$language$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Language';
+	@override String get followSystem => 'Default';
+	@override String get traditionalChinese => 'Traditional Chinese(繁體中文)';
+	@override String get english => 'English';
+	@override String get iosGuideTitle => 'Change the language in iOS Settings';
+	@override String get iosGuideDescription => 'iOS manages each app\'s language in Settings. Use the button below to open TAT\'s settings, then tap Language under Preferred Language and choose the language you want. If the Preferred Language section isn\'t shown, first add another preferred language in General > Language & Region, then return to TAT\'s settings.\n';
+	@override String get openSettings => 'Open System Settings';
+	@override String get changeFailed => 'Unable to change the language. Please try again later.';
+	@override String get openFailed => 'Unable to open system language settings. Please try again later.';
 }
 
 // Path: intro.features
@@ -906,6 +963,23 @@ class _Translations$changePassword$errors$server$en_US extends Translations$chan
 extension on TranslationsEnUs {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'preferences.startWithCourseTable.title' => 'Start with Course Table',
+			'preferences.darkMode' => 'Dark Mode',
+			'preferences.themeMode.system' => 'Default',
+			'preferences.themeMode.light' => 'Light',
+			'preferences.themeMode.dark' => 'Dark',
+			'preferences.language.title' => 'Language',
+			'preferences.language.followSystem' => 'Default',
+			'preferences.language.traditionalChinese' => 'Traditional Chinese(繁體中文)',
+			'preferences.language.english' => 'English',
+			'preferences.language.iosGuideTitle' => 'Change the language in iOS Settings',
+			'preferences.language.iosGuideDescription' => 'iOS manages each app\'s language in Settings. Use the button below to open TAT\'s settings, then tap Language under Preferred Language and choose the language you want. If the Preferred Language section isn\'t shown, first add another preferred language in General > Language & Region, then return to TAT\'s settings.\n',
+			'preferences.language.openSettings' => 'Open System Settings',
+			'preferences.language.changeFailed' => 'Unable to change the language. Please try again later.',
+			'preferences.language.openFailed' => 'Unable to open system language settings. Please try again later.',
+			'preferences.managed' => 'This setting is managed by the system and cannot be changed right now.',
+			'preferences.loadFailed' => 'Unable to load preferences',
+			'preferences.saveFailed' => 'Unable to save preferences. Please try again later.',
 			'general.appTitle' => 'Project Tattoo',
 			'general.notImplemented' => 'Not implemented',
 			'general.dataDisclaimer' => 'For reference only',
