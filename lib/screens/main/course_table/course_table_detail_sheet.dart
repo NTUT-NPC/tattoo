@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
+import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/shells/centered_max_width_frame.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
+import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/utils/localized.dart';
 
 Future<void> showCourseTableDetailSheet(
@@ -118,6 +122,30 @@ class _CourseDetailContent extends ConsumerWidget {
       ),
       null => null,
     };
+    final syllabus = switch (syllabusAsync) {
+      AsyncData(value: final syllabuses) => _SyllabusTabs(
+        details: syllabuses,
+      ),
+      AsyncError(:final error) => _DetailState(
+        icon: Icons.error_outline,
+        message: 'Error: $error',
+      ),
+      AsyncLoading() => const Padding(
+        padding: .symmetric(horizontal: 8),
+        child: LinearProgressIndicator(),
+      ),
+      null => const SizedBox.shrink(),
+    };
+    final rosterKey = switch ((overview.id, overview.number)) {
+      (final id, final number?) when id >= 0 => (
+        courseOfferingId: id,
+        courseNumber: number,
+      ),
+      _ => null,
+    };
+    final showCourseRoster =
+        rosterKey != null && ref.pref(PrefKey.showCourseRoster);
+
     return ListView(
       padding: .zero,
       children: [
@@ -156,22 +184,349 @@ class _CourseDetailContent extends ConsumerWidget {
             ),
           ),
         ),
-        if (syllabusAsync case final syllabusAsync?)
-          switch (syllabusAsync) {
-            AsyncData(value: final syllabuses) => _SyllabusTabs(
-              details: syllabuses,
-            ),
-            AsyncError(:final error) => _DetailState(
-              icon: Icons.error_outline,
-              message: 'Error: $error',
-            ),
-            AsyncLoading() => const Padding(
-              padding: .symmetric(horizontal: 8),
-              child: LinearProgressIndicator(),
-            ),
-          },
+        if (showCourseRoster)
+          _CourseDetailTabs(rosterKey: rosterKey, syllabus: syllabus)
+        else
+          syllabus,
         SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
       ],
+    );
+  }
+}
+
+class _CourseDetailTabs extends StatefulWidget {
+  const _CourseDetailTabs({required this.rosterKey, required this.syllabus});
+
+  final CourseRosterKey rosterKey;
+  final Widget syllabus;
+
+  @override
+  State<_CourseDetailTabs> createState() => _CourseDetailTabsState();
+}
+
+class _CourseDetailTabsState extends State<_CourseDetailTabs>
+    with SingleTickerProviderStateMixin {
+  late final TabController _controller;
+  var _rosterVisited = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TabController(length: 2, vsync: this)
+      ..addListener(_handleTabChanged);
+  }
+
+  void _handleTabChanged() {
+    if (!mounted) return;
+    setState(() {
+      if (_controller.index == 1) _rosterVisited = true;
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TabBar(
+          controller: _controller,
+          tabs: [
+            Tab(text: t.courseTable.detail.tabs.syllabus.spaced),
+            Tab(text: t.courseTable.detail.tabs.roster.spaced),
+          ],
+        ),
+        Offstage(
+          offstage: _controller.index != 0,
+          child: Padding(
+            padding: const .only(top: 8),
+            child: widget.syllabus,
+          ),
+        ),
+        if (_rosterVisited)
+          Offstage(
+            offstage: _controller.index != 1,
+            child: Padding(
+              padding: const .only(top: 8),
+              child: _CourseRosterPane(rosterKey: widget.rosterKey),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _CourseRosterPane extends ConsumerStatefulWidget {
+  const _CourseRosterPane({required this.rosterKey});
+
+  final CourseRosterKey rosterKey;
+
+  @override
+  ConsumerState<_CourseRosterPane> createState() => _CourseRosterPaneState();
+}
+
+class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
+  var _showNetworkGuide = false;
+
+  void _retry() {
+    setState(() => _showNetworkGuide = false);
+    ref
+      ..invalidate(courseStudentRosterProvider(widget.rosterKey))
+      ..invalidate(courseStudentRosterRefreshProvider(widget.rosterKey));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cacheProvider = courseStudentRosterProvider(widget.rosterKey);
+    final refreshProvider = courseStudentRosterRefreshProvider(
+      widget.rosterKey,
+    );
+    final cacheAsync = ref.watch(cacheProvider);
+    final refreshAsync = ref.watch(refreshProvider);
+    final strings = Translations.of(context).courseTable.detail.roster;
+
+    ref.listen(refreshProvider, (previous, next) {
+      if (previous?.hasError == true || !next.hasError) return;
+      final cachedStudents =
+          ref.read(cacheProvider).value?.students ?? const [];
+      if (cachedStudents.isEmpty) return;
+
+      final messenger = ScaffoldMessenger.of(context);
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(strings.networkSnackbar.spaced),
+            persist: false,
+            action: SnackBarAction(
+              label: strings.learnMore,
+              onPressed: () {
+                if (mounted) setState(() => _showNetworkGuide = true);
+              },
+            ),
+          ),
+        );
+    });
+
+    final guideUrl = courseRosterGuideUri(
+      ref.pref(PrefKey.courseRosterGuideUrl),
+    );
+    if (_showNetworkGuide) {
+      return _CourseRosterNetworkGuide(
+        guideUrl: guideUrl,
+        onBack: () => setState(() => _showNetworkGuide = false),
+        onRetry: _retry,
+      );
+    }
+
+    final roster = cacheAsync.value;
+    final refreshError = refreshAsync.error;
+    if (cacheAsync.isLoading ||
+        (roster?.fetchedAt == null && refreshAsync.isLoading)) {
+      return _CourseRosterLoading(
+        onLearnMore: () => setState(() => _showNetworkGuide = true),
+      );
+    }
+    if (cacheAsync.hasError) {
+      return _DetailState(
+        icon: Icons.error_outline,
+        message: strings.loadFailed,
+        onRetry: _retry,
+      );
+    }
+    if ((roster?.students.isEmpty ?? true) && refreshError != null) {
+      return _CourseRosterNetworkGuide(
+        guideUrl: guideUrl,
+        onRetry: _retry,
+      );
+    }
+    if (roster == null || roster.students.isEmpty) {
+      return _DetailState(
+        icon: Icons.group_off_outlined,
+        message: strings.empty,
+      );
+    }
+    return _CourseRosterTable(students: roster.students);
+  }
+}
+
+class _CourseRosterLoading extends StatelessWidget {
+  const _CourseRosterLoading({required this.onLearnMore});
+
+  final VoidCallback onLearnMore;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final strings = Translations.of(context).courseTable.detail.roster;
+    final hintStyle = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    return SizedBox(
+      height: 160,
+      child: Center(
+        child: Column(
+          mainAxisSize: .min,
+          spacing: 8,
+          children: [
+            const CircularProgressIndicator(),
+            Wrap(
+              alignment: .center,
+              crossAxisAlignment: .center,
+              spacing: 4,
+              children: [
+                Text(strings.loadingNetworkHint.spaced, style: hintStyle),
+                Semantics(
+                  link: true,
+                  child: GestureDetector(
+                    behavior: .opaque,
+                    onTap: onLearnMore,
+                    child: Text(
+                      strings.learnMore.spaced,
+                      style: hintStyle?.copyWith(
+                        color: theme.colorScheme.primary,
+                        decoration: .underline,
+                        decorationColor: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CourseRosterTable extends StatelessWidget {
+  const _CourseRosterTable({required this.students});
+
+  final List<Student> students;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final strings = Translations.of(context).courseTable.detail.roster;
+    return Card(
+      margin: const .all(8),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: .circular(12),
+        side: BorderSide(color: theme.colorScheme.outlineVariant),
+      ),
+      color: theme.colorScheme.surfaceContainer,
+      clipBehavior: .antiAlias,
+      child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          scrollDirection: .horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: constraints.maxWidth),
+            child: DataTable(
+              columns: [
+                DataColumn(label: Text(strings.studentId.spaced)),
+                DataColumn(label: Text(strings.name.spaced)),
+              ],
+              rows: [
+                for (final student in students)
+                  DataRow(
+                    cells: [
+                      DataCell(Text(student.studentId.spaced)),
+                      DataCell(Text((student.name ?? '-').spaced)),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CourseRosterNetworkGuide extends StatelessWidget {
+  const _CourseRosterNetworkGuide({
+    required this.guideUrl,
+    this.onBack,
+    this.onRetry,
+  });
+
+  final Uri guideUrl;
+  final VoidCallback? onBack;
+  final VoidCallback? onRetry;
+
+  Future<void> _openGuide(BuildContext context) async {
+    try {
+      await launchUrl(guideUrl);
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              t.courseTable.detail.roster.openGuideFailed.spaced,
+            ),
+          ),
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final strings = Translations.of(context).courseTable.detail.roster;
+    return Padding(
+      padding: const .fromLTRB(16, 32, 16, 8),
+      child: Column(
+        mainAxisSize: .min,
+        crossAxisAlignment: .stretch,
+        children: [
+          Icon(
+            Icons.vpn_lock_outlined,
+            size: 64,
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(height: 24),
+          Text(
+            strings.networkTitle.spaced,
+            style: theme.textTheme.headlineSmall,
+            textAlign: .center,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            strings.networkDescription.spaced,
+            style: theme.textTheme.bodyLarge,
+            textAlign: .center,
+          ),
+          if (onBack case final onBack?) ...[
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: onBack,
+              child: Text(strings.backToRoster.spaced),
+            ),
+          ],
+          const SizedBox(height: 24),
+          if (onRetry case final onRetry?) ...[
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: Text(strings.refresh.spaced),
+            ),
+            const SizedBox(height: 8),
+          ],
+          OutlinedButton.icon(
+            onPressed: () => _openGuide(context),
+            icon: const Icon(Icons.open_in_new),
+            label: Text(strings.openGuide.spaced),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -311,10 +666,15 @@ class _SyllabusSections extends StatelessWidget {
 }
 
 class _DetailState extends StatelessWidget {
-  const _DetailState({required this.icon, required this.message});
+  const _DetailState({
+    required this.icon,
+    required this.message,
+    this.onRetry,
+  });
 
   final IconData icon;
   final String message;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -333,11 +693,27 @@ class _DetailState extends StatelessWidget {
               textAlign: .center,
               style: TextStyle(color: colorScheme.onSurfaceVariant),
             ),
+            if (onRetry case final onRetry?)
+              TextButton(
+                onPressed: onRetry,
+                child: Text(t.courseTable.detail.roster.refresh.spaced),
+              ),
           ],
         ),
       ),
     );
   }
+}
+
+/// Returns a safe course-roster guide URL, falling back from invalid config.
+Uri courseRosterGuideUri(String configuredUrl) {
+  final configured = Uri.tryParse(configuredUrl);
+  if (configured != null &&
+      (configured.scheme == 'http' || configured.scheme == 'https') &&
+      configured.host.isNotEmpty) {
+    return configured;
+  }
+  return Uri.parse(defaultCourseRosterGuideUrl);
 }
 
 String? _normalizedText(String? value) {

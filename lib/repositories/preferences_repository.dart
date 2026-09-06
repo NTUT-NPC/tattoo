@@ -17,6 +17,9 @@ import 'package:tattoo/utils/shared_preferences.dart';
 
 export 'package:tattoo/utils/pref_type.dart' show PrefType;
 
+const defaultCourseRosterGuideUrl =
+    'https://cnc.ntut.edu.tw/p/405-1004-110297.php?Lang=zh-tw';
+
 // dart format off
 /// Typed preference keys with defaults.
 ///
@@ -68,7 +71,13 @@ enum PrefKey<T> {
   showChangePasswordButton<bool>(.boolean, true),
 
   /// Whether the change avatar button is shown on the profile screen.
-  showChangeAvatarButton<bool>(.boolean, true);
+  showChangeAvatarButton<bool>(.boolean, true),
+
+  /// Whether the I-School Plus student roster is shown in course details.
+  showCourseRoster<bool>(.boolean, true),
+
+  /// Link to instructions for connecting to the NTUT network remotely.
+  courseRosterGuideUrl<String>(.string, defaultCourseRosterGuideUrl);
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;

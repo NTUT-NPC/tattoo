@@ -377,6 +377,7 @@ class Translations$courseTable$zh_TW {
 	/// zh-TW: '未安排時間的課程'
 	String get unscheduled => '未安排時間的課程';
 
+	late final Translations$courseTable$detail$zh_TW detail = Translations$courseTable$detail$zh_TW.internal(_root);
 	late final Translations$courseTable$summary$zh_TW summary = Translations$courseTable$summary$zh_TW.internal(_root);
 	late final Translations$courseTable$actions$zh_TW actions = Translations$courseTable$actions$zh_TW.internal(_root);
 	Map<String, String> get dayOfWeek => {
@@ -998,6 +999,17 @@ class Translations$score$status$zh_TW {
 	String get creditTransfer => '抵免';
 }
 
+// Path: courseTable.detail
+class Translations$courseTable$detail$zh_TW {
+	Translations$courseTable$detail$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final Translations$courseTable$detail$tabs$zh_TW tabs = Translations$courseTable$detail$tabs$zh_TW.internal(_root);
+	late final Translations$courseTable$detail$roster$zh_TW roster = Translations$courseTable$detail$roster$zh_TW.internal(_root);
+}
+
 // Path: courseTable.summary
 class Translations$courseTable$summary$zh_TW {
 	Translations$courseTable$summary$zh_TW.internal(this._root);
@@ -1522,6 +1534,69 @@ class Translations$score$ranking$type$zh_TW {
 	String get departmentLevel => '系所';
 }
 
+// Path: courseTable.detail.tabs
+class Translations$courseTable$detail$tabs$zh_TW {
+	Translations$courseTable$detail$tabs$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '同學名單'
+	String get roster => '同學名單';
+
+	/// zh-TW: '課程大綱'
+	String get syllabus => '課程大綱';
+}
+
+// Path: courseTable.detail.roster
+class Translations$courseTable$detail$roster$zh_TW {
+	Translations$courseTable$detail$roster$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '學號'
+	String get studentId => '學號';
+
+	/// zh-TW: '姓名'
+	String get name => '姓名';
+
+	/// zh-TW: '目前沒有同學名單'
+	String get empty => '目前沒有同學名單';
+
+	/// zh-TW: '無法載入同學名單，請稍後再試。'
+	String get loadFailed => '無法載入同學名單，請稍後再試。';
+
+	/// zh-TW: 'i學園功能需要使用學校網路，'
+	String get loadingNetworkHint => 'i學園功能需要使用學校網路，';
+
+	/// zh-TW: '重新整理'
+	String get refresh => '重新整理';
+
+	/// zh-TW: '需要連接學校網路'
+	String get networkTitle => '需要連接學校網路';
+
+	/// zh-TW: 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。'
+	String get networkDescription => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。';
+
+	/// zh-TW: '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。'
+	String get networkSnackbar => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。';
+
+	/// zh-TW: '瞭解更多'
+	String get learnMore => '瞭解更多';
+
+	/// zh-TW: '查看VPN連線說明'
+	String get openGuide => '查看VPN連線說明';
+
+	/// zh-TW: '返回同學名單'
+	String get backToRoster => '返回同學名單';
+
+	/// zh-TW: '無法開啟VPN連線說明，請稍後再試。'
+	String get openGuideFailed => '無法開啟VPN連線說明，請稍後再試。';
+}
+
 // Path: profile.dangerZone.items
 class Translations$profile$dangerZone$items$zh_TW {
 	Translations$profile$dangerZone$items$zh_TW.internal(this._root);
@@ -1703,6 +1778,21 @@ extension on Translations {
 			'calendar.today' => '今天',
 			'courseTable.notFound' => '找不到課表',
 			'courseTable.unscheduled' => '未安排時間的課程',
+			'courseTable.detail.tabs.roster' => '同學名單',
+			'courseTable.detail.tabs.syllabus' => '課程大綱',
+			'courseTable.detail.roster.studentId' => '學號',
+			'courseTable.detail.roster.name' => '姓名',
+			'courseTable.detail.roster.empty' => '目前沒有同學名單',
+			'courseTable.detail.roster.loadFailed' => '無法載入同學名單，請稍後再試。',
+			'courseTable.detail.roster.loadingNetworkHint' => 'i學園功能需要使用學校網路，',
+			'courseTable.detail.roster.refresh' => '重新整理',
+			'courseTable.detail.roster.networkTitle' => '需要連接學校網路',
+			'courseTable.detail.roster.networkDescription' => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。',
+			'courseTable.detail.roster.networkSnackbar' => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。',
+			'courseTable.detail.roster.learnMore' => '瞭解更多',
+			'courseTable.detail.roster.openGuide' => '查看VPN連線說明',
+			'courseTable.detail.roster.backToRoster' => '返回同學名單',
+			'courseTable.detail.roster.openGuideFailed' => '無法開啟VPN連線說明，請稍後再試。',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
 			'courseTable.actions.showMoreOptions' => '顯示更多選項',

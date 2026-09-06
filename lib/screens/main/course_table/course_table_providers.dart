@@ -34,3 +34,27 @@ final syllabusProvider = StreamProvider.autoDispose
             language: key.language,
           );
     });
+
+typedef CourseRosterKey = ({int courseOfferingId, String courseNumber});
+
+/// Watches the locally cached I-School Plus roster for one course offering.
+final courseStudentRosterProvider = StreamProvider.autoDispose
+    .family<CourseStudentRoster, CourseRosterKey>((ref, key) {
+      return ref
+          .watch(courseRepositoryProvider)
+          .watchStudentRoster(key.courseOfferingId);
+    });
+
+/// Refreshes an I-School Plus roster once for the provider's lifecycle.
+///
+/// Keeping refresh separate from the cache stream lets the UI retain cached
+/// students while also reacting to a failed background refresh.
+final courseStudentRosterRefreshProvider = FutureProvider.autoDispose
+    .family<void, CourseRosterKey>((ref, key) {
+      return ref
+          .watch(courseRepositoryProvider)
+          .refreshStudentRoster(
+            courseOfferingId: key.courseOfferingId,
+            courseNumber: key.courseNumber,
+          );
+    });

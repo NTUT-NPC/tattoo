@@ -51,6 +51,15 @@ void main() {
 
       expect(PrefKey.showChangeAvatarButton.type, PrefType.boolean);
       expect(PrefKey.showChangeAvatarButton.defaultValue, true);
+
+      expect(PrefKey.showCourseRoster.type, PrefType.boolean);
+      expect(PrefKey.showCourseRoster.defaultValue, true);
+
+      expect(PrefKey.courseRosterGuideUrl.type, PrefType.string);
+      expect(
+        PrefKey.courseRosterGuideUrl.defaultValue,
+        defaultCourseRosterGuideUrl,
+      );
     });
 
     test('can be written and read from TypedPreferenceStore', () async {

@@ -6,6 +6,8 @@ import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/utils/http.dart';
 
 class NtutISchoolPlusService implements ISchoolPlusService {
+  static const _requestTimeout = Duration(seconds: 20);
+
   late final Dio _iSchoolPlusDio;
 
   /// The currently selected course, used to avoid redundant server-side
@@ -15,6 +17,9 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   NtutISchoolPlusService() {
     _iSchoolPlusDio = createDio()
       ..options.baseUrl = 'https://istudy.ntut.edu.tw/learn/'
+      ..options.connectTimeout = _requestTimeout
+      ..options.sendTimeout = _requestTimeout
+      ..options.receiveTimeout = _requestTimeout
       ..interceptors.insert(0, InvalidCookieFilter()) // Prepend cookie filter
       ..interceptors.add(_SessionCheckInterceptor())
       ..transformer = PlainTextTransformer();

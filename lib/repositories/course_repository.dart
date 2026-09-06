@@ -49,6 +49,12 @@ typedef TeacherSyllabusDetail = ({
   SyllabusDetail syllabus,
 });
 
+/// Cached I-School Plus roster for a course offering.
+typedef CourseStudentRoster = ({
+  List<Student> students,
+  DateTime? fetchedAt,
+});
+
 /// Data for a single cell in the course table grid.
 typedef CourseTableCellData = ({
   /// [CourseOfferings] primary key, for navigating to detail view.
@@ -1340,10 +1346,118 @@ class CourseRepository {
     throw UnimplementedError();
   }
 
-  /// Gets students enrolled in a course from I-School Plus.
+  /// Watches the cached I-School Plus student roster for [courseOfferingId].
   ///
-  /// Throws [Exception] on network failure.
-  Future<List<Student>> getStudents(CourseOffering courseOffering) async {
-    throw UnimplementedError();
+  /// The fetch timestamp distinguishes a successfully cached empty roster from
+  /// a roster that has never been fetched.
+  Stream<CourseStudentRoster> watchStudentRoster(int courseOfferingId) {
+    final query =
+        _database.select(_database.courseOfferings).join([
+            leftOuterJoin(
+              _database.courseOfferingStudents,
+              _database.courseOfferingStudents.courseOffering.equalsExp(
+                _database.courseOfferings.id,
+              ),
+            ),
+            leftOuterJoin(
+              _database.students,
+              _database.students.id.equalsExp(
+                _database.courseOfferingStudents.student,
+              ),
+            ),
+          ])
+          ..where(_database.courseOfferings.id.equals(courseOfferingId))
+          ..orderBy([OrderingTerm.asc(_database.students.studentId)]);
+
+    return query.watch().map((rows) {
+      if (rows.isEmpty) {
+        return (students: const <Student>[], fetchedAt: null);
+      }
+
+      return (
+        students: rows
+            .map((row) => row.readTableOrNull(_database.students))
+            .nonNulls
+            .toList(growable: false),
+        fetchedAt: rows.first
+            .readTable(_database.courseOfferings)
+            .studentRosterFetchedAt,
+      );
+    });
+  }
+
+  /// Refreshes a course offering's student roster from I-School Plus.
+  ///
+  /// Network work completes before the transaction begins, so any failure
+  /// leaves the existing cached roster untouched.
+  Future<void> refreshStudentRoster({
+    required int courseOfferingId,
+    required String courseNumber,
+  }) async {
+    final studentDtos = await _authRepository.withAuth(() async {
+      final courses = await _iSchoolPlusService.getCourseList();
+      final course = courses.where(
+        (course) => course.courseNumber == courseNumber,
+      );
+      if (course.isEmpty) return const <StudentDto>[];
+      return _iSchoolPlusService.getStudents(course.first);
+    }, sso: [.iSchoolPlusService]);
+
+    final seenStudentIds = <String>{};
+    final students = <({String studentId, String? name})>[];
+    var skippedStudents = 0;
+    for (final dto in studentDtos) {
+      final studentId = dto.id?.trim();
+      if (studentId == null ||
+          studentId.isEmpty ||
+          !seenStudentIds.add(studentId)) {
+        skippedStudents++;
+        continue;
+      }
+      students.add((
+        studentId: studentId,
+        name: switch (dto.name?.trim()) {
+          final name? when name.isNotEmpty => name,
+          _ => null,
+        },
+      ));
+    }
+    if (skippedStudents > 0) {
+      _firebaseService.recordNonFatal(
+        'Skipped $skippedStudents invalid or duplicate students while '
+        'refreshing roster for $courseNumber',
+      );
+    }
+
+    await _database.transaction(() async {
+      await (_database.delete(_database.courseOfferingStudents)..where(
+            (row) => row.courseOffering.equals(courseOfferingId),
+          ))
+          .go();
+
+      for (final student in students) {
+        final studentId = await _database.upsertStudent(
+          studentId: student.studentId,
+          name: student.name,
+        );
+        await _database
+            .into(_database.courseOfferingStudents)
+            .insert(
+              CourseOfferingStudentsCompanion.insert(
+                courseOffering: courseOfferingId,
+                student: studentId,
+              ),
+            );
+      }
+
+      await (_database.update(_database.courseOfferings)..where(
+            (offering) => offering.id.equals(courseOfferingId),
+          ))
+          .write(
+            CourseOfferingsCompanion(
+              studentRosterFetchedAt: Value(DateTime.now()),
+            ),
+          );
+    });
   }
 }
