@@ -35,7 +35,15 @@ class SystemSettingsChannelHandler(
         val isSystemManaged = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
         val languageTag = if (isSystemManaged) {
             val localeManager = activity.getSystemService(LocaleManager::class.java)
-            localeManager.applicationLocales.takeUnless(LocaleList::isEmpty)?.get(0)?.toLanguageTag()
+            val applicationLocales = localeManager.applicationLocales
+            if (applicationLocales.isEmpty) {
+                preferences.getString(LEGACY_LANGUAGE_KEY, null)?.also { legacyLanguageTag ->
+                    localeManager.applicationLocales = LocaleList.forLanguageTags(legacyLanguageTag)
+                    preferences.edit().remove(LEGACY_LANGUAGE_KEY).apply()
+                }
+            } else {
+                applicationLocales[0].toLanguageTag()
+            }
         } else {
             preferences.getString(LEGACY_LANGUAGE_KEY, null)
         }
