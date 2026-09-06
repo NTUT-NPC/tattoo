@@ -1569,6 +1569,12 @@ class Translations$courseTable$detail$roster$zh_TW {
 	/// zh-TW: '無法載入同學名單，請稍後再試。'
 	String get loadFailed => '無法載入同學名單，請稍後再試。';
 
+	/// zh-TW: 'i學園功能需要使用學校網路，'
+	String get loadingNetworkHint => 'i學園功能需要使用學校網路，';
+
+	/// zh-TW: '重新整理'
+	String get refresh => '重新整理';
+
 	/// zh-TW: '需要連接學校網路'
 	String get networkTitle => '需要連接學校網路';
 
@@ -1778,6 +1784,8 @@ extension on Translations {
 			'courseTable.detail.roster.name' => '姓名',
 			'courseTable.detail.roster.empty' => '目前沒有同學名單',
 			'courseTable.detail.roster.loadFailed' => '無法載入同學名單，請稍後再試。',
+			'courseTable.detail.roster.loadingNetworkHint' => 'i學園功能需要使用學校網路，',
+			'courseTable.detail.roster.refresh' => '重新整理',
 			'courseTable.detail.roster.networkTitle' => '需要連接學校網路',
 			'courseTable.detail.roster.networkDescription' => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。',
 			'courseTable.detail.roster.networkSnackbar' => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。',

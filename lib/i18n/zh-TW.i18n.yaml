@@ -158,6 +158,8 @@ courseTable:
       name: 姓名
       empty: 目前沒有同學名單
       loadFailed: 無法載入同學名單，請稍後再試。
+      loadingNetworkHint: i學園功能需要使用學校網路，
+      refresh: 重新整理
       networkTitle: 需要連接學校網路
       networkDescription: i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。
       networkSnackbar: 無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。

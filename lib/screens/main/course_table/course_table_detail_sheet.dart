@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
@@ -273,6 +272,13 @@ class _CourseRosterPane extends ConsumerStatefulWidget {
 class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
   var _showNetworkGuide = false;
 
+  void _retry() {
+    setState(() => _showNetworkGuide = false);
+    ref
+      ..invalidate(courseStudentRosterProvider(widget.rosterKey))
+      ..invalidate(courseStudentRosterRefreshProvider(widget.rosterKey));
+  }
+
   @override
   Widget build(BuildContext context) {
     final cacheProvider = courseStudentRosterProvider(widget.rosterKey);
@@ -294,21 +300,14 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text(
-              (next.error is DioException
-                      ? strings.networkSnackbar
-                      : strings.loadFailed)
-                  .spaced,
-            ),
+            content: Text(strings.networkSnackbar.spaced),
             persist: false,
-            action: next.error is DioException
-                ? SnackBarAction(
-                    label: strings.learnMore,
-                    onPressed: () {
-                      if (mounted) setState(() => _showNetworkGuide = true);
-                    },
-                  )
-                : null,
+            action: SnackBarAction(
+              label: strings.learnMore,
+              onPressed: () {
+                if (mounted) setState(() => _showNetworkGuide = true);
+              },
+            ),
           ),
         );
     });
@@ -320,6 +319,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
       return _CourseRosterNetworkGuide(
         guideUrl: guideUrl,
         onBack: () => setState(() => _showNetworkGuide = false),
+        onRetry: _retry,
       );
     }
 
@@ -327,25 +327,21 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     final refreshError = refreshAsync.error;
     if (cacheAsync.isLoading ||
         (roster?.fetchedAt == null && refreshAsync.isLoading)) {
-      return const _DetailState(
-        icon: Icons.groups_outlined,
-        message: '',
-        loading: true,
+      return _CourseRosterLoading(
+        onLearnMore: () => setState(() => _showNetworkGuide = true),
       );
     }
     if (cacheAsync.hasError) {
       return _DetailState(
         icon: Icons.error_outline,
         message: strings.loadFailed,
+        onRetry: _retry,
       );
     }
-    if ((roster?.students.isEmpty ?? true) && refreshError is DioException) {
-      return _CourseRosterNetworkGuide(guideUrl: guideUrl);
-    }
     if ((roster?.students.isEmpty ?? true) && refreshError != null) {
-      return _DetailState(
-        icon: Icons.error_outline,
-        message: strings.loadFailed,
+      return _CourseRosterNetworkGuide(
+        guideUrl: guideUrl,
+        onRetry: _retry,
       );
     }
     if (roster == null || roster.students.isEmpty) {
@@ -355,6 +351,51 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
       );
     }
     return _CourseRosterTable(students: roster.students);
+  }
+}
+
+class _CourseRosterLoading extends StatelessWidget {
+  const _CourseRosterLoading({required this.onLearnMore});
+
+  final VoidCallback onLearnMore;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final strings = Translations.of(context).courseTable.detail.roster;
+    final hintStyle = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    return SizedBox(
+      height: 160,
+      child: Center(
+        child: Column(
+          mainAxisSize: .min,
+          spacing: 8,
+          children: [
+            const CircularProgressIndicator(),
+            Wrap(
+              alignment: .center,
+              crossAxisAlignment: .center,
+              spacing: 4,
+              children: [
+                Text(strings.loadingNetworkHint.spaced, style: hintStyle),
+                TextButton(
+                  onPressed: onLearnMore,
+                  style: TextButton.styleFrom(
+                    minimumSize: .zero,
+                    padding: .zero,
+                    tapTargetSize: .shrinkWrap,
+                    textStyle: theme.textTheme.bodySmall,
+                  ),
+                  child: Text(strings.learnMore.spaced),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -404,10 +445,15 @@ class _CourseRosterTable extends StatelessWidget {
 }
 
 class _CourseRosterNetworkGuide extends StatelessWidget {
-  const _CourseRosterNetworkGuide({required this.guideUrl, this.onBack});
+  const _CourseRosterNetworkGuide({
+    required this.guideUrl,
+    this.onBack,
+    this.onRetry,
+  });
 
   final Uri guideUrl;
   final VoidCallback? onBack;
+  final VoidCallback? onRetry;
 
   Future<void> _openGuide(BuildContext context) async {
     try {
@@ -461,7 +507,15 @@ class _CourseRosterNetworkGuide extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 24),
-          FilledButton.icon(
+          if (onRetry case final onRetry?) ...[
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: Text(strings.refresh.spaced),
+            ),
+            const SizedBox(height: 8),
+          ],
+          OutlinedButton.icon(
             onPressed: () => _openGuide(context),
             icon: const Icon(Icons.open_in_new),
             label: Text(strings.openGuide.spaced),
@@ -610,12 +664,12 @@ class _DetailState extends StatelessWidget {
   const _DetailState({
     required this.icon,
     required this.message,
-    this.loading = false,
+    this.onRetry,
   });
 
   final IconData icon;
   final String message;
-  final bool loading;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -628,16 +682,17 @@ class _DetailState extends StatelessWidget {
           mainAxisSize: .min,
           spacing: 8,
           children: [
-            if (loading)
-              const CircularProgressIndicator()
-            else ...[
-              Icon(icon, color: colorScheme.onSurfaceVariant),
-              Text(
-                message.spaced,
-                textAlign: .center,
-                style: TextStyle(color: colorScheme.onSurfaceVariant),
+            Icon(icon, color: colorScheme.onSurfaceVariant),
+            Text(
+              message.spaced,
+              textAlign: .center,
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
+            ),
+            if (onRetry case final onRetry?)
+              TextButton(
+                onPressed: onRetry,
+                child: Text(t.courseTable.detail.roster.refresh.spaced),
               ),
-            ],
           ],
         ),
       ),
