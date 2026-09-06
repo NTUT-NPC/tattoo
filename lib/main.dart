@@ -13,12 +13,12 @@ import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/repositories/language_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/firebase_service.dart';
-import 'package:tattoo/services/system_settings.dart';
 import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/network_error.dart';
@@ -161,28 +161,8 @@ Future<void> main() async {
 
   firebaseService.analytics?.logAppOpen();
 
-  if (defaultTargetPlatform == .android) {
-    // Android 13+ stores the selected app locale in LocaleManager, while older
-    // versions use TAT's device-local fallback. Keep listening for platform
-    // locale changes only when Android owns that selection.
-    try {
-      final language = await SystemSettings.getAppLanguage();
-      if (language.languageTag case final languageTag?) {
-        await LocaleSettings.setLocaleRaw(
-          languageTag,
-          listenToDeviceLocale: language.isSystemManaged,
-        );
-      } else {
-        await LocaleSettings.useDeviceLocale();
-      }
-    } catch (e) {
-      log('Failed to restore app language: $e', name: 'SystemSettings');
-      await LocaleSettings.useDeviceLocale();
-    }
-  } else {
-    // Other platforms continue to follow the device locale directly.
-    await LocaleSettings.useDeviceLocale();
-  }
+  // Restore the platform language selection before mounting the app.
+  await container.read(languageRepositoryProvider).restore();
 
   // Initialize Remote Config and preference defaults
   final preferencesRepository = container.read(preferencesRepositoryProvider);
