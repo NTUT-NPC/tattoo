@@ -243,6 +243,7 @@ class _Translations$courseTable$en_US extends Translations$courseTable$zh_TW {
 	// Translations
 	@override String get notFound => 'Course table not found';
 	@override String get unscheduled => 'Unscheduled Courses';
+	@override late final _Translations$courseTable$detail$en_US detail = _Translations$courseTable$detail$en_US._(_root);
 	@override late final _Translations$courseTable$summary$en_US summary = _Translations$courseTable$summary$en_US._(_root);
 	@override late final _Translations$courseTable$actions$en_US actions = _Translations$courseTable$actions$en_US._(_root);
 	@override Map<String, String> get dayOfWeek => {
@@ -613,6 +614,17 @@ class _Translations$score$status$en_US extends Translations$score$status$zh_TW {
 	@override String get creditTransfer => 'Credit transfer';
 }
 
+// Path: courseTable.detail
+class _Translations$courseTable$detail$en_US extends Translations$courseTable$detail$zh_TW {
+	_Translations$courseTable$detail$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$courseTable$detail$tabs$en_US tabs = _Translations$courseTable$detail$tabs$en_US._(_root);
+	@override late final _Translations$courseTable$detail$roster$en_US roster = _Translations$courseTable$detail$roster$en_US._(_root);
+}
+
 // Path: courseTable.summary
 class _Translations$courseTable$summary$en_US extends Translations$courseTable$summary$zh_TW {
 	_Translations$courseTable$summary$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -926,6 +938,37 @@ class _Translations$score$ranking$type$en_US extends Translations$score$ranking$
 	@override String get departmentLevel => 'Dept.';
 }
 
+// Path: courseTable.detail.tabs
+class _Translations$courseTable$detail$tabs$en_US extends Translations$courseTable$detail$tabs$zh_TW {
+	_Translations$courseTable$detail$tabs$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get roster => 'Course Roster';
+	@override String get syllabus => 'Syllabus';
+}
+
+// Path: courseTable.detail.roster
+class _Translations$courseTable$detail$roster$en_US extends Translations$courseTable$detail$roster$zh_TW {
+	_Translations$courseTable$detail$roster$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get studentId => 'Student ID';
+	@override String get name => 'Name';
+	@override String get empty => 'No classmates are listed for this course';
+	@override String get loadFailed => 'Unable to load the course roster. Please try again later.';
+	@override String get networkTitle => 'Connect to the NTUT network';
+	@override String get networkDescription => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then reopen the course roster.';
+	@override String get networkSnackbar => 'Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.';
+	@override String get learnMore => 'Learn More';
+	@override String get openGuide => 'View VPN Instructions';
+	@override String get backToRoster => 'Back to Course Roster';
+	@override String get openGuideFailed => 'Unable to open the VPN instructions. Please try again later.';
+}
+
 // Path: profile.dangerZone.items
 class _Translations$profile$dangerZone$items$en_US extends Translations$profile$dangerZone$items$zh_TW {
 	_Translations$profile$dangerZone$items$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -1085,6 +1128,19 @@ extension on TranslationsEnUs {
 			'calendar.today' => 'Today',
 			'courseTable.notFound' => 'Course table not found',
 			'courseTable.unscheduled' => 'Unscheduled Courses',
+			'courseTable.detail.tabs.roster' => 'Course Roster',
+			'courseTable.detail.tabs.syllabus' => 'Syllabus',
+			'courseTable.detail.roster.studentId' => 'Student ID',
+			'courseTable.detail.roster.name' => 'Name',
+			'courseTable.detail.roster.empty' => 'No classmates are listed for this course',
+			'courseTable.detail.roster.loadFailed' => 'Unable to load the course roster. Please try again later.',
+			'courseTable.detail.roster.networkTitle' => 'Connect to the NTUT network',
+			'courseTable.detail.roster.networkDescription' => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then reopen the course roster.',
+			'courseTable.detail.roster.networkSnackbar' => 'Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.',
+			'courseTable.detail.roster.learnMore' => 'Learn More',
+			'courseTable.detail.roster.openGuide' => 'View VPN Instructions',
+			'courseTable.detail.roster.backToRoster' => 'Back to Course Roster',
+			'courseTable.detail.roster.openGuideFailed' => 'Unable to open the VPN instructions. Please try again later.',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',
