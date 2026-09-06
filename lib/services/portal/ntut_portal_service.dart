@@ -11,6 +11,8 @@ import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/utils/http.dart';
 
+import 'package:tattoo/utils/network_error.dart';
+
 typedef _PortalApplicationPageDto = ({
   String code,
   String name,
@@ -39,16 +41,18 @@ class NtutPortalService implements PortalService {
   Future<void> _portalLocaleOperation = Future.value();
   bool _portalLocaleStateUncertain = false;
 
-  NtutPortalService() {
+  NtutPortalService({Dio? dio}) {
     // Emulate the NTUT iOS app's HTTP client
-    _portalDio = createDio()
-      ..options.baseUrl = 'https://app.ntut.edu.tw/'
-      ..options.headers = {
-        'User-Agent': 'Direk ios App',
-        // Prevent keep-alive connection reuse — NTUT servers close their end
-        // after multipart uploads, causing stale connection errors.
-        'Connection': 'close',
-      };
+    _portalDio =
+        dio ??
+        (createDio()
+          ..options.baseUrl = 'https://app.ntut.edu.tw/'
+          ..options.headers = {
+            'User-Agent': 'Direk ios App',
+            // Prevent keep-alive connection reuse — NTUT servers close their end
+            // after multipart uploads, causing stale connection errors.
+            'Connection': 'close',
+          });
   }
 
   @override
@@ -183,11 +187,22 @@ class NtutPortalService implements PortalService {
 
       // Submit the SSO form and follow redirects
       // Sets the necessary cookies for the target service
-      await _portalDio.post(
-        actionUrl,
-        data: formData,
-        options: Options(contentType: Headers.formUrlEncodedContentType),
-      );
+      try {
+        await _portalDio.post(
+          actionUrl,
+          data: formData,
+          options: Options(contentType: Headers.formUrlEncodedContentType),
+        );
+      } on DioException catch (e) {
+        if (serviceCode == PortalServiceCode.iSchoolPlusService.code &&
+            isISchoolPlusConnectionError(e)) {
+          throw ISchoolPlusVpnRequiredException(
+            'ISchoolPlus SSO connection failed (VPN required off-campus)',
+            e,
+          );
+        }
+        rethrow;
+      }
     });
   }
 
@@ -203,27 +218,38 @@ class NtutPortalService implements PortalService {
           (interceptor) => interceptor is RedirectInterceptor,
         );
 
-      final response = await dioWithoutRedirects.post(
-        actionUrl,
-        data: formData,
-        options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-          followRedirects: false,
-          validateStatus: (status) => status != null && status < 400,
-        ),
-      );
+      try {
+        final response = await dioWithoutRedirects.post(
+          actionUrl,
+          data: formData,
+          options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+            followRedirects: false,
+            validateStatus: (status) => status != null && status < 400,
+          ),
+        );
 
-      final location = response.headers.value('location');
-      if (location == null) {
-        throw Exception('SSO redirect not received. Are you logged in?');
-      }
+        final location = response.headers.value('location');
+        if (location == null) {
+          throw Exception('SSO redirect not received. Are you logged in?');
+        }
 
-      // The portal may return http:// URLs; upgrade to https://
-      var uri = Uri.parse(location);
-      if (uri.scheme == 'http') {
-        uri = uri.replace(scheme: 'https');
+        // The portal may return http:// URLs; upgrade to https://
+        var uri = Uri.parse(location);
+        if (uri.scheme == 'http') {
+          uri = uri.replace(scheme: 'https');
+        }
+        return uri;
+      } on DioException catch (e) {
+        if (serviceCode == PortalServiceCode.iSchoolPlusService.code &&
+            isISchoolPlusConnectionError(e)) {
+          throw ISchoolPlusVpnRequiredException(
+            'ISchoolPlus SSO connection failed (VPN required off-campus)',
+            e,
+          );
+        }
+        rethrow;
       }
-      return uri;
     });
   }
 

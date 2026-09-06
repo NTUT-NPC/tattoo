@@ -12,6 +12,8 @@ import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:tattoo/services/firebase_service.dart';
 
 export 'package:dio/dio.dart';
+export 'package:tattoo/services/i_school_plus/i_school_plus_service.dart'
+    show ISchoolPlusVpnRequiredException;
 
 /// Thrown when an NTUT service returns a success response but the content
 /// indicates the session has expired (e.g., a redirect page instead of data).

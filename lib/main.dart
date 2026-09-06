@@ -98,9 +98,12 @@ Future<void> main() async {
   }
 
   void showErrorSnackBar(Object error) {
-    final message = isNetworkError(error)
-        ? t.errors.networkError
-        : t.errors.unexpected;
+    final message = switch (error) {
+      _ when isISchoolPlusConnectionError(error) =>
+        t.errors.ischoolPlusVpnRequired,
+      _ when isNetworkError(error) => t.errors.networkError,
+      _ => t.errors.unexpected,
+    };
 
     rootScaffoldMessengerKey.currentState
       ?..hideCurrentSnackBar()

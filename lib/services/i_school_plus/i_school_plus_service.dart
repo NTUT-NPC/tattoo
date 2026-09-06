@@ -58,6 +58,22 @@ typedef MaterialDto = ({
   bool streamable,
 });
 
+/// Thrown when connection to iSchool+ (iStudy / istudy.ntut.edu.tw) fails,
+/// typically because the service is placed behind the campus VPN and unreachable
+/// from off-campus networks.
+class ISchoolPlusVpnRequiredException implements Exception {
+  final String message;
+  final Object? cause;
+
+  const ISchoolPlusVpnRequiredException([
+    this.message = 'ISchoolPlus connection failed (VPN required off-campus)',
+    this.cause,
+  ]);
+
+  @override
+  String toString() => 'ISchoolPlusVpnRequiredException: $message';
+}
+
 /// Provides the singleton [ISchoolPlusService] instance.
 final iSchoolPlusServiceProvider = Provider<ISchoolPlusService>((ref) {
   if (ref.watch(isDemoProvider)) {
