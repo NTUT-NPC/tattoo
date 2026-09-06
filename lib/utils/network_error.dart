@@ -7,3 +7,7 @@ bool isNetworkError(Object error) {
   if (error is DioException) return true;
   return isNativeNetworkError(error);
 }
+
+/// Whether an error is expected to occur when the device cannot reach a
+/// network service and should therefore be excluded from Crashlytics errors.
+bool shouldReportToCrashlytics(Object error) => !isNetworkError(error);

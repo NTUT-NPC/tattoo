@@ -136,9 +136,12 @@ Future<void> main() async {
     }
   }
 
-  // Pass all uncaught "fatal" errors from the framework to Crashlytics
+  // Network failures are expected when the device cannot reach an external
+  // service and should not be reported as Crashlytics fatal errors.
   FlutterError.onError = (details) {
-    firebaseService.crashlytics?.recordFlutterFatalError(details);
+    if (shouldReportToCrashlytics(details.exception)) {
+      firebaseService.crashlytics?.recordFlutterFatalError(details);
+    }
     FlutterError.dumpErrorToConsole(details);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       handleUncaughtError(
@@ -149,9 +152,11 @@ Future<void> main() async {
     });
   };
 
-  // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
+  // Pass unexpected uncaught asynchronous errors to Crashlytics.
   PlatformDispatcher.instance.onError = (error, stack) {
-    firebaseService.crashlytics?.recordError(error, stack, fatal: true);
+    if (shouldReportToCrashlytics(error)) {
+      firebaseService.crashlytics?.recordError(error, stack, fatal: true);
+    }
     log('Uncaught asynchronous error: $error', stackTrace: stack);
     handleUncaughtError(error, type: .async, stackTrace: stack);
     return true;
