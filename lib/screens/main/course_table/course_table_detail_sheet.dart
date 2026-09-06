@@ -213,14 +213,14 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
   @override
   void initState() {
     super.initState();
-    _controller = TabController(length: 2, initialIndex: 1, vsync: this)
+    _controller = TabController(length: 2, vsync: this)
       ..addListener(_handleTabChanged);
   }
 
   void _handleTabChanged() {
     if (!mounted) return;
     setState(() {
-      if (_controller.index == 0) _rosterVisited = true;
+      if (_controller.index == 1) _rosterVisited = true;
     });
   }
 
@@ -237,19 +237,25 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
         TabBar(
           controller: _controller,
           tabs: [
-            Tab(text: t.courseTable.detail.tabs.roster.spaced),
             Tab(text: t.courseTable.detail.tabs.syllabus.spaced),
+            Tab(text: t.courseTable.detail.tabs.roster.spaced),
           ],
+        ),
+        Offstage(
+          offstage: _controller.index != 0,
+          child: Padding(
+            padding: const .only(top: 8),
+            child: widget.syllabus,
+          ),
         ),
         if (_rosterVisited)
           Offstage(
-            offstage: _controller.index != 0,
-            child: _CourseRosterPane(rosterKey: widget.rosterKey),
+            offstage: _controller.index != 1,
+            child: Padding(
+              padding: const .only(top: 8),
+              child: _CourseRosterPane(rosterKey: widget.rosterKey),
+            ),
           ),
-        Offstage(
-          offstage: _controller.index != 1,
-          child: widget.syllabus,
-        ),
       ],
     );
   }
