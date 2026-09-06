@@ -257,7 +257,7 @@ class _SemesterScoreList extends StatelessWidget {
                       );
                     } else {
                       return Skeleton.keep(
-                        child: _SemesterRankingCard(rankings: record.rankings),
+                        child: SemesterRankingCard(rankings: record.rankings),
                       );
                     }
                   }, childCount: scores.length + (loading ? 0 : 1)),
@@ -404,33 +404,128 @@ class _ScoreTile extends StatelessWidget {
   }
 }
 
-class _SemesterRankingCard extends StatelessWidget {
+class SemesterRankingCard extends StatelessWidget {
   final List<UserSemesterRanking> rankings;
 
-  const _SemesterRankingCard({required this.rankings});
+  const SemesterRankingCard({super.key, required this.rankings});
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final isGolden = hasGoldenRanking(rankings);
+
+    final BoxDecoration decoration;
+    final Color titleColor;
+    final Color headerColor;
+    final Color primaryScopeColor;
+    final Color primaryRankColor;
+    final Color secondaryRankColor;
+
+    if (isGolden) {
+      if (isDark) {
+        decoration = BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF2E230D),
+              Color(0xFF3D2F10),
+              Color(0xFF241C07),
+            ],
+            stops: [0.0, 0.5, 1.0],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFFFBBF24).withValues(alpha: 0.35),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        );
+        titleColor = const Color(0xFFFDE68A);
+        headerColor = const Color(0xFFD1A84E);
+        primaryScopeColor = const Color(0xFFFFFBEB);
+        primaryRankColor = const Color(0xFFFDE68A);
+        secondaryRankColor = const Color(0xFFE2D1A3);
+      } else {
+        decoration = BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFFFF9E6),
+              Color(0xFFFEF0C3),
+              Color(0xFFFDE68A),
+            ],
+            stops: [0.0, 0.5, 1.0],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFFF59E0B).withValues(alpha: 0.35),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFD97706).withValues(alpha: 0.12),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        );
+        titleColor = const Color(0xFF92400E);
+        headerColor = const Color(0xFF92400E).withValues(alpha: 0.85);
+        primaryScopeColor = const Color(0xFF451A03);
+        primaryRankColor = const Color(0xFF78350F);
+        secondaryRankColor = const Color(0xFF5A3205);
+      }
+    } else {
+      decoration = BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+      );
+      titleColor = colorScheme.primary;
+      headerColor = colorScheme.onSurfaceVariant;
+      primaryScopeColor = colorScheme.onSurface;
+      primaryRankColor = colorScheme.onSurface;
+      secondaryRankColor = colorScheme.onSurface;
+    }
 
     return Padding(
       padding: const .symmetric(vertical: 8),
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        decoration: decoration,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                t.score.ranking.title,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.primary,
-                ),
+              Row(
+                children: [
+                  if (isGolden) ...[
+                    Icon(
+                      Icons.workspace_premium_rounded,
+                      size: 18,
+                      color: isDark
+                          ? const Color(0xFFFBBF24)
+                          : const Color(0xFFB45309),
+                    ),
+                    const SizedBox(width: 6),
+                  ],
+                  Text(
+                    t.score.ranking.title,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: titleColor,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               if (rankings.isEmpty)
@@ -439,8 +534,10 @@ class _SemesterRankingCard extends StatelessWidget {
                     padding: const .symmetric(vertical: 8),
                     child: Text(
                       t.score.ranking.empty.spaced,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: isGolden
+                            ? headerColor
+                            : colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -459,20 +556,18 @@ class _SemesterRankingCard extends StatelessWidget {
                         const SizedBox(),
                         Text(
                           t.score.ranking.semester.spaced,
-                          style: Theme.of(context).textTheme.labelMedium
-                              ?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: headerColor,
+                            fontWeight: FontWeight.bold,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                         Text(
                           t.score.ranking.cumulative.spaced,
-                          style: Theme.of(context).textTheme.labelMedium
-                              ?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: headerColor,
+                            fontWeight: FontWeight.bold,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -489,18 +584,38 @@ class _SemesterRankingCard extends StatelessWidget {
                         children: [
                           Text(
                             _getRankingTypeLabel(ranking.rankingType).spaced,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: colorScheme.onSurface,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: primaryScopeColor,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           Text(
                             _formatRankAndTotal(
                               ranking.semesterRank,
                               ranking.semesterTotal,
                             ).spaced,
-                            style: Theme.of(context).textTheme.bodyMedium,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color:
+                                  isGolden &&
+                                      ranking.rankingType ==
+                                          RankingType.classLevel &&
+                                      isGoldenRanking(
+                                        rank: ranking.semesterRank,
+                                        total: ranking.semesterTotal,
+                                      )
+                                  ? primaryRankColor
+                                  : secondaryRankColor,
+                              fontWeight:
+                                  isGolden &&
+                                      ranking.rankingType ==
+                                          RankingType.classLevel &&
+                                      isGoldenRanking(
+                                        rank: ranking.semesterRank,
+                                        total: ranking.semesterTotal,
+                                      )
+                                  ? FontWeight.bold
+                                  : null,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                           Text(
@@ -508,7 +623,9 @@ class _SemesterRankingCard extends StatelessWidget {
                               ranking.grandTotalRank,
                               ranking.grandTotalTotal,
                             ).spaced,
-                            style: Theme.of(context).textTheme.bodyMedium,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: secondaryRankColor,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                         ],
