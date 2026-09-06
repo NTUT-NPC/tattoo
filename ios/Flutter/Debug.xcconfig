@@ -1,2 +1,5 @@
+APP_CONFIG_NAME = Tattoo
+APP_BUNDLE_IDENTIFIER = club.ntut.tattoo
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
 #include "Generated.xcconfig"
+#include? "AppConfig.xcconfig"

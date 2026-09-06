@@ -4,8 +4,9 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter/services.dart' show appFlavor;
 
-/// [FirebaseOptions] for the TAT production Firebase project.
+/// [FirebaseOptions] for the TAT Firebase projects (dev and prod).
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -22,20 +23,74 @@ class DefaultFirebaseOptions {
     };
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
+  static const String _env = String.fromEnvironment('ENV', defaultValue: '');
+  static const String _flavor = String.fromEnvironment('FLAVOR', defaultValue: '');
+
+  static String get _environment {
+    final dev = _env == 'dev' ||
+        _env == 'development' ||
+        _env == 'staging' ||
+        _flavor == 'dev' ||
+        _flavor == 'staging' ||
+        appFlavor == 'dev' ||
+        appFlavor == 'staging';
+    final prod = _env == 'prod' ||
+        _env == 'production' ||
+        _flavor == 'prod' ||
+        _flavor == 'production' ||
+        appFlavor == 'prod' ||
+        appFlavor == 'production';
+    if (dev && prod) {
+      throw StateError('Conflicting Firebase environments were specified.');
+    }
+    if (dev) return 'dev';
+    if (prod) return 'prod';
+    throw StateError(
+      'Firebase environment is missing or unsupported. '
+      'Set ENV or FLAVOR to dev/staging or prod/production.',
+    );
+  }
+
+  static bool get isDev => _environment == 'dev';
+
+  static FirebaseOptions get android =>
+      _environment == 'dev' ? androidDev : androidProd;
+
+  static FirebaseOptions get ios =>
+      _environment == 'dev' ? iosDev : iosProd;
+
+  static const FirebaseOptions androidProd = FirebaseOptions(
     apiKey: 'AIzaSyAJSD6_YkutviZvQvtjwNi5wAQaOAV7YDQ',
     appId: '1:596630117465:android:9d4275579e011f039f6548',
     messagingSenderId: '596630117465',
     projectId: 'npc-tattoo-prod',
     storageBucket: 'npc-tattoo-prod.firebasestorage.app',
   );
-  static const FirebaseOptions ios = FirebaseOptions(
+
+  static const FirebaseOptions iosProd = FirebaseOptions(
     apiKey: 'AIzaSyBQ03equalPQPzbD7Jxd9vGWHzrDU-AY0w',
     appId: '1:596630117465:ios:afd1697a77bcb95f9f6548',
     messagingSenderId: '596630117465',
     projectId: 'npc-tattoo-prod',
     storageBucket: 'npc-tattoo-prod.firebasestorage.app',
     iosBundleId: 'com.npc.tatFlutter',
+  );
+
+  static const FirebaseOptions androidDev = FirebaseOptions(
+    apiKey: 'AIzaSyAwy04VDvRscfjTPu2ShxLbB-_EyuezEhU',
+    appId: '1:838220085712:android:a85cf2541699925c3be1d5',
+    messagingSenderId: '838220085712',
+    projectId: 'npc-tattoo',
+    storageBucket: 'npc-tattoo.firebasestorage.app',
+  );
+
+  static const FirebaseOptions iosDev = FirebaseOptions(
+    apiKey: 'AIzaSyDp_en-3_f7VONU8KA8zucI-tTgrsV_PJM',
+    appId: '1:838220085712:ios:d5b7636cdc72fd603be1d5',
+    messagingSenderId: '838220085712',
+    projectId: 'npc-tattoo',
+    storageBucket: 'npc-tattoo.firebasestorage.app',
+    iosBundleId: 'club.ntut.tattoo',
   );
 }
 // dart format on

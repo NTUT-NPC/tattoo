@@ -1,0 +1,31 @@
+{
+  "$schema": "./schema.json",
+  "name": "production",
+  "flavor": "prod",
+  "app_name": "TAT",
+  "android": {
+    "application_id": "club.ntut.npc.tat",
+    "app_name": "TAT",
+    "icon": "ic_launcher",
+    "res_dir": "android/app/src/main/res",
+    "google_services_path": "android/app/google-services.json"
+  },
+  "ios": {
+    "bundle_identifier": "com.npc.tatFlutter",
+    "bundle_display_name": "TAT",
+    "app_icon_name": "AppIcon",
+    "google_service_info_path": "ios/Runner/GoogleService-Info.plist"
+  },
+  "firebase": {
+    "project_id": "npc-tattoo-prod",
+    "storage_bucket": "npc-tattoo-prod.firebasestorage.app",
+    "android": {
+      "package_name": "club.ntut.npc.tat",
+      "app_id": "1:596630117465:android:9d4275579e011f039f6548"
+    },
+    "ios": {
+      "bundle_id": "com.npc.tatFlutter",
+      "app_id": "1:596630117465:ios:afd1697a77bcb95f9f6548"
+    }
+  }
+}

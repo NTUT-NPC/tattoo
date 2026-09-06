@@ -5,19 +5,25 @@ inputs:
   build_number:
     description: 'Build number'
     required: true
+  app_name:
+    description: 'App display name'
+    required: false
+    default: 'Project Tattoo'
 
 runs:
   using: composite
   steps:
     - name: Write iOS Job Summary
       shell: bash
+      env:
+        APP_NAME: ${{ inputs.app_name }}
       run: |
         cat >> "$GITHUB_STEP_SUMMARY" <<EOF
         ### iOS (TestFlight)
         Build **${{ inputs.build_number }}** successfully uploaded to App Store Connect.
 
         1. Open the TestFlight app on your iOS device
-        2. Select "Project Tattoo"
+        2. Select "$APP_NAME"
         3. Install build ${{ inputs.build_number }}
 
         > **Note:** It may take ~15 minutes for the build to appear in TestFlight after upload.

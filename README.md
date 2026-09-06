@@ -56,17 +56,34 @@ flutter pub get
 # (Optional) Install Ruby dependencies for fastlane
 bundle install
 
-# Run the app
-flutter run
+# Configure the local environment (dev or prod)
+dart run tool/credentials.dart configure --env=dev
+
+# Run the app in development mode
+flutter run --dart-define-from-file=build_config/dev.defines.json
+
+# Or run in production mode
+dart run tool/credentials.dart configure --env=prod
+flutter run --dart-define-from-file=build_config/prod.defines.json
 ```
 
 ## Firebase & Credentials
 
-This project uses a private Git repository to manage sensitive credentials (signing keys, service accounts, and Firebase configuration files).
+Tattoo supports both **Development** (`Tattoo`, `club.ntut.tattoo`) and **Production** (`TAT`, `club.ntut.npc.tat` on Android, `com.npc.tatFlutter` on iOS) environments. A private Git repository is used to manage sensitive credentials (signing keys, service accounts, and production Firebase configs).
 
-1. **Request Access:** Contact the maintainers for access to the `tattoo-credentials` repository.
-2. **Configure `.env`:** Copy `.env.example` to `.env` and fill in the `MATCH_GIT_URL` and `MATCH_PASSWORD`.
-3. **Fetch Configs:** Run `dart run tool/credentials.dart fetch`. This will decrypt and place files like `google-services.json` and `keystore.jks` in their respective directories.
+1. **Offline Development (No Credentials Needed):**
+   If you do not have credentials repository access, run:
+   ```bash
+   dart run tool/credentials.dart configure --env=dev
+   ```
+   This automatically generates safe offline stub configurations for Firebase and native properties so you can immediately build and develop the app locally.
+
+2. **With Credentials Repository Access:**
+   - **Configure `.env`:** Copy `.env.example` to `.env` and set `MATCH_GIT_URL` and `MATCH_PASSWORD`.
+   - **Fetch Configs:** Run `dart run tool/credentials.dart fetch --env=dev` (or `--env=prod`). This decrypts and places files like `google-services.json`, `GoogleService-Info.plist`, and `keystore.jks`.
+   - **Validate Configs:** Run `dart run tool/credentials.dart validate` to ensure configuration files comply with schema.
+
+For full details on the Pure JSON architecture, environment matrix, and CI/CD release workflows, see [Multi-Environment Build Configuration](doc/environments.md).
 
 ### Firebase Setup (Maintainers only)
 

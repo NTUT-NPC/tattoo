@@ -12,12 +12,22 @@ inputs:
   testing_uri:
     description: 'Install URI (required for firebase)'
     required: false
+  app_name:
+    description: 'App display name'
+    required: false
+    default: 'Project Tattoo'
+  play_store_uri:
+    description: 'Google Play listing URL for updating the app'
+    required: false
+    default: 'https://play.google.com/store/apps/details?id=club.ntut.tattoo'
 
 runs:
   using: composite
   steps:
     - name: Write Android Job Summary
       shell: bash
+      env:
+        APP_NAME: ${{ inputs.app_name }}
       run: |
         if [ "${{ inputs.type }}" == "firebase" ] || [ "${{ inputs.type }}" == "release" ]; then
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
@@ -29,11 +39,11 @@ runs:
         fi
         if [ "${{ inputs.type }}" == "playstore" ] || [ "${{ inputs.type }}" == "release" ]; then
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
-        ### Android (Google Play)
         Build **${{ inputs.build_number }}** successfully uploaded to Google Play.
+        [Update to the latest build on Google Play](${{ inputs.play_store_uri }})
 
         1. Open the Google Play Store on your Android device
-        2. Select "Project Tattoo"
+        2. Select "$APP_NAME"
         3. Install or update to the latest build
 
         > **Note:** It may take ~30 minutes for the build to appear in the Play Store after upload.

@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TattooBuildConfig",
+  "type": "object",
+  "required": [
+    "name",
+    "flavor",
+    "app_name",
+    "android",
+    "ios",
+    "firebase"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "enum": [
+        "development",
+        "production",
+        "dev",
+        "prod"
+      ]
+    },
+    "flavor": {
+      "type": "string",
+      "enum": [
+        "dev",
+        "prod"
+      ]
+    },
+    "app_name": {
+      "type": "string"
+    },
+    "ANDROID_RES_DIR": {
+      "type": "string"
+    },
+    "android": {
+      "type": "object",
+      "required": [
+        "application_id",
+        "app_name",
+        "icon",
+        "google_services_path"
+      ],
+      "properties": {
+        "application_id": {
+          "type": "string"
+        },
+        "app_name": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "res_dir": {
+          "type": "string"
+        },
+        "google_services_path": {
+          "type": "string"
+        }
+      }
+    },
+    "ios": {
+      "type": "object",
+      "required": [
+        "bundle_identifier",
+        "bundle_display_name",
+        "app_icon_name",
+        "google_service_info_path"
+      ],
+      "properties": {
+        "bundle_identifier": {
+          "type": "string"
+        },
+        "bundle_display_name": {
+          "type": "string"
+        },
+        "app_icon_name": {
+          "type": "string"
+        },
+        "google_service_info_path": {
+          "type": "string"
+        }
+      }
+    },
+    "firebase": {
+      "type": "object",
+      "required": [
+        "project_id",
+        "storage_bucket"
+      ],
+      "properties": {
+        "project_id": {
+          "type": "string"
+        },
+        "storage_bucket": {
+          "type": "string"
+        },
+        "android": {
+          "type": "object",
+          "properties": {
+            "package_name": {
+              "type": "string"
+            },
+            "app_id": {
+              "type": "string"
+            }
+          }
+        },
+        "ios": {
+          "type": "object",
+          "properties": {
+            "bundle_id": {
+              "type": "string"
+            },
+            "app_id": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
