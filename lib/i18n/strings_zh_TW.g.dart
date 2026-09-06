@@ -74,6 +74,7 @@ class Translations$preferences$zh_TW {
 	/// zh-TW: '深色模式'
 	String get darkMode => '深色模式';
 
+	late final Translations$preferences$themeMode$zh_TW themeMode = Translations$preferences$themeMode$zh_TW.internal(_root);
 	late final Translations$preferences$language$zh_TW language = Translations$preferences$language$zh_TW.internal(_root);
 
 	/// zh-TW: '此設定由系統管理，目前無法變更。'
@@ -740,6 +741,24 @@ class Translations$preferences$startWithCourseTable$zh_TW {
 	String get title => '啟動時開啟課表';
 }
 
+// Path: preferences.themeMode
+class Translations$preferences$themeMode$zh_TW {
+	Translations$preferences$themeMode$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '預設'
+	String get system => '預設';
+
+	/// zh-TW: '淺色'
+	String get light => '淺色';
+
+	/// zh-TW: '深色'
+	String get dark => '深色';
+}
+
 // Path: preferences.language
 class Translations$preferences$language$zh_TW {
 	Translations$preferences$language$zh_TW.internal(this._root);
@@ -757,8 +776,8 @@ class Translations$preferences$language$zh_TW {
 	/// zh-TW: '繁體中文'
 	String get traditionalChinese => '繁體中文';
 
-	/// zh-TW: 'English'
-	String get english => 'English';
+	/// zh-TW: '英文(English)'
+	String get english => '英文(English)';
 
 	/// zh-TW: '在iOS設定中切換語言'
 	String get iosGuideTitle => '在iOS設定中切換語言';
@@ -1564,10 +1583,13 @@ extension on Translations {
 		return switch (path) {
 			'preferences.startWithCourseTable.title' => '啟動時開啟課表',
 			'preferences.darkMode' => '深色模式',
+			'preferences.themeMode.system' => '預設',
+			'preferences.themeMode.light' => '淺色',
+			'preferences.themeMode.dark' => '深色',
 			'preferences.language.title' => '語言',
 			'preferences.language.followSystem' => '預設',
 			'preferences.language.traditionalChinese' => '繁體中文',
-			'preferences.language.english' => 'English',
+			'preferences.language.english' => '英文(English)',
 			'preferences.language.iosGuideTitle' => '在iOS設定中切換語言',
 			'preferences.language.iosGuideDescription' => 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，找到「語言」或「偏好的語言」，再選擇要使用的語言。\n',
 			'preferences.language.openSettings' => '前往系統設定',

@@ -94,10 +94,10 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
                 icon: Icons.dashboard_outlined,
                 title: t.preferences.startWithCourseTable.title,
               ),
-              toggle(
-                PrefKey.darkMode,
+              OptionEntryTile.icon(
                 icon: Icons.dark_mode_outlined,
                 title: t.preferences.darkMode,
+                onTap: () => context.push(AppRoutes.themeMode),
               ),
               OptionEntryTile.icon(
                 icon: Icons.language_outlined,

@@ -16,6 +16,9 @@ void main() {
       expect(PrefKey.startWithCourseTable.type, PrefType.boolean);
       expect(PrefKey.startWithCourseTable.defaultValue, false);
 
+      expect(PrefKey.themeMode.type, PrefType.string);
+      expect(PrefKey.themeMode.defaultValue, 'system');
+
       expect(PrefKey.showDangerZone.type, PrefType.boolean);
       expect(PrefKey.showDangerZone.defaultValue, false);
 

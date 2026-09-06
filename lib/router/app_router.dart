@@ -10,8 +10,8 @@ import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/kiosk_login/kiosk_login_qr_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
-import 'package:tattoo/screens/main/profile/language_screen.dart';
 import 'package:tattoo/screens/main/profile/ntut_wifi_screen.dart';
+import 'package:tattoo/screens/main/profile/preference_detail_screen.dart';
 import 'package:tattoo/screens/main/profile/preferences_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/profile/regedit_screen.dart';
@@ -38,6 +38,7 @@ abstract class AppRoutes {
   static const profile = '/profile';
   static const preferences = '/preferences';
   static const language = '/preferences/language';
+  static const themeMode = '/preferences/theme';
   static const intro = '/intro';
   static const login = '/login';
   static const about = '/about';
@@ -175,7 +176,15 @@ GoRouter createAppRouter({
     ),
     GoRoute(
       path: AppRoutes.language,
-      builder: (context, state) => _framed(const LanguageScreen()),
+      builder: (context, state) => _framed(
+        const PreferenceDetailScreen(id: .language),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.themeMode,
+      builder: (context, state) => _framed(
+        const PreferenceDetailScreen(id: .themeMode),
+      ),
     ),
     GoRoute(
       path: AppRoutes.portal,

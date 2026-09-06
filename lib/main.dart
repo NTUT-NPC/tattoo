@@ -240,7 +240,11 @@ class MyApp extends ConsumerWidget {
           brightness: .dark,
         ),
       ),
-      themeMode: ref.pref(PrefKey.darkMode) ? .dark : .light,
+      themeMode: switch (ref.pref(PrefKey.themeMode)) {
+        'light' => .light,
+        'dark' => .dark,
+        _ => .system,
+      },
       routerConfig: router,
     );
   }

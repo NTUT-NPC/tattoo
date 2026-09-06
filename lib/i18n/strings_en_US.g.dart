@@ -70,6 +70,7 @@ class _Translations$preferences$en_US extends Translations$preferences$zh_TW {
 	// Translations
 	@override late final _Translations$preferences$startWithCourseTable$en_US startWithCourseTable = _Translations$preferences$startWithCourseTable$en_US._(_root);
 	@override String get darkMode => 'Dark Mode';
+	@override late final _Translations$preferences$themeMode$en_US themeMode = _Translations$preferences$themeMode$en_US._(_root);
 	@override late final _Translations$preferences$language$en_US language = _Translations$preferences$language$en_US._(_root);
 	@override String get managed => 'This setting is managed by the system and cannot be changed right now.';
 	@override String get loadFailed => 'Unable to load preferences';
@@ -452,6 +453,18 @@ class _Translations$preferences$startWithCourseTable$en_US extends Translations$
 	@override String get title => 'Start with Course Table';
 }
 
+// Path: preferences.themeMode
+class _Translations$preferences$themeMode$en_US extends Translations$preferences$themeMode$zh_TW {
+	_Translations$preferences$themeMode$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get system => 'Default';
+	@override String get light => 'Light';
+	@override String get dark => 'Dark';
+}
+
 // Path: preferences.language
 class _Translations$preferences$language$en_US extends Translations$preferences$language$zh_TW {
 	_Translations$preferences$language$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -461,7 +474,7 @@ class _Translations$preferences$language$en_US extends Translations$preferences$
 	// Translations
 	@override String get title => 'Language';
 	@override String get followSystem => 'Default';
-	@override String get traditionalChinese => 'Traditional Chinese';
+	@override String get traditionalChinese => 'Traditional Chinese(繁體中文)';
 	@override String get english => 'English';
 	@override String get iosGuideTitle => 'Change the language in iOS Settings';
 	@override String get iosGuideDescription => 'iOS manages each app\'s language in Settings. Use the button below to open TAT\'s settings, find Language or Preferred Language, and select the language you want.\n';
@@ -952,9 +965,12 @@ extension on TranslationsEnUs {
 		return switch (path) {
 			'preferences.startWithCourseTable.title' => 'Start with Course Table',
 			'preferences.darkMode' => 'Dark Mode',
+			'preferences.themeMode.system' => 'Default',
+			'preferences.themeMode.light' => 'Light',
+			'preferences.themeMode.dark' => 'Dark',
 			'preferences.language.title' => 'Language',
 			'preferences.language.followSystem' => 'Default',
-			'preferences.language.traditionalChinese' => 'Traditional Chinese',
+			'preferences.language.traditionalChinese' => 'Traditional Chinese(繁體中文)',
 			'preferences.language.english' => 'English',
 			'preferences.language.iosGuideTitle' => 'Change the language in iOS Settings',
 			'preferences.language.iosGuideDescription' => 'iOS manages each app\'s language in Settings. Use the button below to open TAT\'s settings, find Language or Preferred Language, and select the language you want.\n',
