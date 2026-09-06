@@ -477,7 +477,7 @@ class _Translations$preferences$language$en_US extends Translations$preferences$
 	@override String get traditionalChinese => 'Traditional Chinese(繁體中文)';
 	@override String get english => 'English';
 	@override String get iosGuideTitle => 'Change the language in iOS Settings';
-	@override String get iosGuideDescription => 'iOS manages each app\'s language in Settings. Use the button below to open TAT\'s settings, find Language or Preferred Language, and select the language you want.\n';
+	@override String get iosGuideDescription => 'iOS manages each app\'s language in Settings. Use the button below to open TAT\'s settings, then tap Language under Preferred Language and choose the language you want. If the Preferred Language section isn\'t shown, first add another preferred language in General > Language & Region, then return to TAT\'s settings.\n';
 	@override String get openSettings => 'Open System Settings';
 	@override String get changeFailed => 'Unable to change the language. Please try again later.';
 	@override String get openFailed => 'Unable to open system language settings. Please try again later.';
@@ -973,7 +973,7 @@ extension on TranslationsEnUs {
 			'preferences.language.traditionalChinese' => 'Traditional Chinese(繁體中文)',
 			'preferences.language.english' => 'English',
 			'preferences.language.iosGuideTitle' => 'Change the language in iOS Settings',
-			'preferences.language.iosGuideDescription' => 'iOS manages each app\'s language in Settings. Use the button below to open TAT\'s settings, find Language or Preferred Language, and select the language you want.\n',
+			'preferences.language.iosGuideDescription' => 'iOS manages each app\'s language in Settings. Use the button below to open TAT\'s settings, then tap Language under Preferred Language and choose the language you want. If the Preferred Language section isn\'t shown, first add another preferred language in General > Language & Region, then return to TAT\'s settings.\n',
 			'preferences.language.openSettings' => 'Open System Settings',
 			'preferences.language.changeFailed' => 'Unable to change the language. Please try again later.',
 			'preferences.language.openFailed' => 'Unable to open system language settings. Please try again later.',

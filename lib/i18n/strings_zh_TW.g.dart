@@ -782,8 +782,8 @@ class Translations$preferences$language$zh_TW {
 	/// zh-TW: '在iOS設定中切換語言'
 	String get iosGuideTitle => '在iOS設定中切換語言';
 
-	/// zh-TW: 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，找到「語言」或「偏好的語言」，再選擇要使用的語言。 '
-	String get iosGuideDescription => 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，找到「語言」或「偏好的語言」，再選擇要使用的語言。\n';
+	/// zh-TW: 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，在「偏好的語言」區段點擊「語言」，再選擇要使用的語言。若未顯示「偏好的語言」區段，請先在「一般」>「語言與地區」加入另一種偏好的語言，再返回TAT設定。 '
+	String get iosGuideDescription => 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，在「偏好的語言」區段點擊「語言」，再選擇要使用的語言。若未顯示「偏好的語言」區段，請先在「一般」>「語言與地區」加入另一種偏好的語言，再返回TAT設定。\n';
 
 	/// zh-TW: '前往系統設定'
 	String get openSettings => '前往系統設定';
@@ -1591,7 +1591,7 @@ extension on Translations {
 			'preferences.language.traditionalChinese' => '繁體中文',
 			'preferences.language.english' => '英文(English)',
 			'preferences.language.iosGuideTitle' => '在iOS設定中切換語言',
-			'preferences.language.iosGuideDescription' => 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，找到「語言」或「偏好的語言」，再選擇要使用的語言。\n',
+			'preferences.language.iosGuideDescription' => 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，在「偏好的語言」區段點擊「語言」，再選擇要使用的語言。若未顯示「偏好的語言」區段，請先在「一般」>「語言與地區」加入另一種偏好的語言，再返回TAT設定。\n',
 			'preferences.language.openSettings' => '前往系統設定',
 			'preferences.language.changeFailed' => '無法變更語言，請稍後再試。',
 			'preferences.language.openFailed' => '無法開啟系統語言設定，請稍後再試。',
