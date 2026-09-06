@@ -66,10 +66,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
     if (success && mounted) {
       if (widget.isExpired) {
-        final authenticatedLocation = await resolveAuthenticatedLocation(
+        final landingLocation = await resolveLandingLocation(
           ref.read(preferencesRepositoryProvider),
         );
-        if (mounted) context.go(authenticatedLocation);
+        if (mounted) context.go(landingLocation);
       } else {
         context.pop();
         ScaffoldMessenger.of(context).showSnackBar(

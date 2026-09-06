@@ -189,17 +189,17 @@ Future<void> main() async {
   // Prewarm the dependency graph before widgets subscribe. Riverpod cannot
   // invalidate its root scope while Flutter is mounting the initial frame.
   container.read(courseRepositoryProvider);
-  final authenticatedLocation = await resolveAuthenticatedLocation(
+  final landingLocation = await resolveLandingLocation(
     preferencesRepository,
   );
   final initialLocation = switch ((user, hadStoredLogin)) {
-    (final User _, _) => authenticatedLocation,
+    (final User _, _) => landingLocation,
     (null, true) => AppRoutes.login,
     (null, false) => AppRoutes.intro,
   };
   final router = createAppRouter(
     initialLocation: initialLocation,
-    authenticatedLocation: authenticatedLocation,
+    landingLocation: landingLocation,
     container: container,
   );
 

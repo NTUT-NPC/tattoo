@@ -140,10 +140,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _showMessage(t.ntutWifi.provisioning.failed);
         }
       }
-      final authenticatedLocation = await resolveAuthenticatedLocation(
+      final landingLocation = await resolveLandingLocation(
         ref.read(preferencesRepositoryProvider),
       );
-      if (mounted) context.go(authenticatedLocation);
+      if (mounted) context.go(landingLocation);
     } on DioException {
       if (mounted) _setError(t.errors.connectionFailed);
     } on LoginException catch (e) {

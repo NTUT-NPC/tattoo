@@ -49,7 +49,7 @@ abstract class AppRoutes {
 ///
 /// Falls back to home if preferences cannot be read so a storage failure does
 /// not block app startup or a successful login.
-Future<String> resolveAuthenticatedLocation(
+Future<String> resolveLandingLocation(
   PreferencesRepository preferencesRepository,
 ) async {
   try {
@@ -93,7 +93,7 @@ const _publicRoutes = {
 /// Optional updates are surfaced as a dismissible banner instead.
 GoRouter createAppRouter({
   required String initialLocation,
-  required String authenticatedLocation,
+  required String landingLocation,
   required ProviderContainer container,
 }) => GoRouter(
   navigatorKey: rootNavigatorKey,
@@ -113,7 +113,7 @@ GoRouter createAppRouter({
     // but no update is actually available.
     if (state.matchedLocation == AppRoutes.update && updateConfig == null) {
       final hasSession = container.read(sessionProvider);
-      return hasSession ? authenticatedLocation : AppRoutes.intro;
+      return hasSession ? landingLocation : AppRoutes.intro;
     }
 
     // Auth gate: redirect unauthenticated users to login.
