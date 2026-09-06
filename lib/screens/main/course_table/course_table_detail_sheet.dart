@@ -380,15 +380,20 @@ class _CourseRosterLoading extends StatelessWidget {
               spacing: 4,
               children: [
                 Text(strings.loadingNetworkHint.spaced, style: hintStyle),
-                TextButton(
-                  onPressed: onLearnMore,
-                  style: TextButton.styleFrom(
-                    minimumSize: .zero,
-                    padding: .zero,
-                    tapTargetSize: .shrinkWrap,
-                    textStyle: theme.textTheme.bodySmall,
+                Semantics(
+                  link: true,
+                  child: GestureDetector(
+                    behavior: .opaque,
+                    onTap: onLearnMore,
+                    child: Text(
+                      strings.learnMore.spaced,
+                      style: hintStyle?.copyWith(
+                        color: theme.colorScheme.primary,
+                        decoration: .underline,
+                        decorationColor: theme.colorScheme.primary,
+                      ),
+                    ),
                   ),
-                  child: Text(strings.learnMore.spaced),
                 ),
               ],
             ),
