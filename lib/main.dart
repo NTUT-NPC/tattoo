@@ -162,7 +162,8 @@ Future<void> main() async {
   await LocaleSettings.useDeviceLocale();
 
   // Initialize Remote Config and preference defaults
-  await container.read(preferencesRepositoryProvider).init();
+  final preferencesRepository = container.read(preferencesRepositoryProvider);
+  await preferencesRepository.init();
 
   // Run force-update check and wire Remote Config live updates.
   await UpdateService.init(container);
@@ -188,13 +189,17 @@ Future<void> main() async {
   // Prewarm the dependency graph before widgets subscribe. Riverpod cannot
   // invalidate its root scope while Flutter is mounting the initial frame.
   container.read(courseRepositoryProvider);
+  final landingLocation = await resolveLandingLocation(
+    preferencesRepository,
+  );
   final initialLocation = switch ((user, hadStoredLogin)) {
-    (final User _, _) => AppRoutes.home,
+    (final User _, _) => landingLocation,
     (null, true) => AppRoutes.login,
     (null, false) => AppRoutes.intro,
   };
   final router = createAppRouter(
     initialLocation: initialLocation,
+    landingLocation: landingLocation,
     container: container,
   );
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/calendar/calendar_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/main/home/home_screen.dart';
@@ -44,6 +45,27 @@ abstract class AppRoutes {
   static const update = '/update';
 }
 
+/// Resolves the landing route used after authentication.
+///
+/// Falls back to home if preferences cannot be read so a storage failure does
+/// not block app startup or a successful login.
+Future<String> resolveLandingLocation(
+  PreferencesRepository preferencesRepository,
+) async {
+  try {
+    final startWithCourseTable = await preferencesRepository.get(
+      PrefKey.startWithCourseTable,
+    );
+    return switch (startWithCourseTable) {
+      true => AppRoutes.courseTable,
+      false => AppRoutes.home,
+    };
+  } catch (error) {
+    debugPrint('Failed to resolve authenticated landing preference: $error');
+    return AppRoutes.home;
+  }
+}
+
 Widget _framed(Widget child) => CenteredMaxWidthFrame(child: child);
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
@@ -71,6 +93,7 @@ const _publicRoutes = {
 /// Optional updates are surfaced as a dismissible banner instead.
 GoRouter createAppRouter({
   required String initialLocation,
+  required String landingLocation,
   required ProviderContainer container,
 }) => GoRouter(
   navigatorKey: rootNavigatorKey,
@@ -90,7 +113,7 @@ GoRouter createAppRouter({
     // but no update is actually available.
     if (state.matchedLocation == AppRoutes.update && updateConfig == null) {
       final hasSession = container.read(sessionProvider);
-      return hasSession ? AppRoutes.home : AppRoutes.intro;
+      return hasSession ? landingLocation : AppRoutes.intro;
     }
 
     // Auth gate: redirect unauthenticated users to login.
