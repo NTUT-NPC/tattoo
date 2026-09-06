@@ -162,7 +162,7 @@ class OptionEntryTile extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final borderRadius = BorderRadius.circular(14);
 
-    return Material(
+    final tile = Material(
       color: colorScheme.surface,
       borderRadius: borderRadius,
       child: InkWell(
@@ -217,6 +217,8 @@ class OptionEntryTile extends StatelessWidget {
         ),
       ),
     );
+
+    return customActionIcon is Switch ? MergeSemantics(child: tile) : tile;
   }
 
   Widget _buildLeading(ColorScheme colorScheme) {
