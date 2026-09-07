@@ -11,6 +11,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   static const _availabilityTimeout = Duration(seconds: 5);
 
   late final Dio _iSchoolPlusDio;
+  late final Dio _availabilityDio;
 
   /// The currently selected course, used to avoid redundant server-side
   /// course switches.
@@ -25,6 +26,10 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       ..interceptors.insert(0, InvalidCookieFilter()) // Prepend cookie filter
       ..interceptors.add(_SessionCheckInterceptor())
       ..transformer = PlainTextTransformer();
+    _availabilityDio = createDio(useCookies: false)
+      ..options.connectTimeout = _availabilityTimeout
+      ..options.sendTimeout = _availabilityTimeout
+      ..options.receiveTimeout = _availabilityTimeout;
   }
 
   @override
@@ -35,9 +40,10 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       () => cancelToken.cancel('I-School Plus availability check timed out'),
     );
     try {
-      await _iSchoolPlusDio.get(
+      await _availabilityDio.get(
         'https://istudy.ntut.edu.tw/mooc/index.php',
         cancelToken: cancelToken,
+        options: Options(responseType: .bytes),
       );
     } finally {
       timer.cancel();
