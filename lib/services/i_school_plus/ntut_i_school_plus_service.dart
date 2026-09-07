@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
@@ -7,8 +8,10 @@ import 'package:tattoo/utils/http.dart';
 
 class NtutISchoolPlusService implements ISchoolPlusService {
   static const _requestTimeout = Duration(seconds: 20);
+  static const _availabilityTimeout = Duration(seconds: 5);
 
   late final Dio _iSchoolPlusDio;
+  late final Dio _availabilityDio;
 
   /// The currently selected course, used to avoid redundant server-side
   /// course switches.
@@ -23,6 +26,27 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       ..interceptors.insert(0, InvalidCookieFilter()) // Prepend cookie filter
       ..interceptors.add(_SessionCheckInterceptor())
       ..transformer = PlainTextTransformer();
+    _availabilityDio = createDio()
+      ..options.connectTimeout = _availabilityTimeout
+      ..options.sendTimeout = _availabilityTimeout
+      ..options.receiveTimeout = _availabilityTimeout;
+  }
+
+  @override
+  Future<void> checkAvailability() async {
+    final cancelToken = CancelToken();
+    final timer = Timer(
+      _availabilityTimeout,
+      () => cancelToken.cancel('I-School Plus availability check timed out'),
+    );
+    try {
+      await _availabilityDio.get(
+        'https://istudy.ntut.edu.tw/',
+        cancelToken: cancelToken,
+      );
+    } finally {
+      timer.cancel();
+    }
   }
 
   @override
