@@ -1584,6 +1584,9 @@ class Translations$courseTable$detail$roster$zh_TW {
 	/// zh-TW: '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。'
 	String get networkSnackbar => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。';
 
+	/// zh-TW: '同學名單已更新。'
+	String get updateSuccess => '同學名單已更新。';
+
 	/// zh-TW: '瞭解更多'
 	String get learnMore => '瞭解更多';
 
@@ -1789,6 +1792,7 @@ extension on Translations {
 			'courseTable.detail.roster.networkTitle' => '需要連接學校網路',
 			'courseTable.detail.roster.networkDescription' => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。',
 			'courseTable.detail.roster.networkSnackbar' => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。',
+			'courseTable.detail.roster.updateSuccess' => '同學名單已更新。',
 			'courseTable.detail.roster.learnMore' => '瞭解更多',
 			'courseTable.detail.roster.openGuide' => '查看VPN連線說明',
 			'courseTable.detail.roster.backToRoster' => '返回同學名單',

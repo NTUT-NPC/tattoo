@@ -163,6 +163,7 @@ courseTable:
       networkTitle: 需要連接學校網路
       networkDescription: i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。
       networkSnackbar: 無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。
+      updateSuccess: 同學名單已更新。
       learnMore: 瞭解更多
       openGuide: 查看VPN連線說明
       backToRoster: 返回同學名單
