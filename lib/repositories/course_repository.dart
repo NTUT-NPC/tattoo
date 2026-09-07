@@ -1386,6 +1386,14 @@ class CourseRepository {
     });
   }
 
+  /// Verifies that I-School Plus is reachable from the current network.
+  ///
+  /// This intentionally skips SSO so callers can surface network guidance
+  /// while an authenticated roster refresh continues independently.
+  Future<void> checkISchoolPlusAvailability() {
+    return _iSchoolPlusService.checkAvailability();
+  }
+
   /// Refreshes a course offering's student roster from I-School Plus.
   ///
   /// Network work completes before the transaction begins, so any failure

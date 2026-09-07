@@ -45,6 +45,11 @@ final courseStudentRosterProvider = StreamProvider.autoDispose
           .watchStudentRoster(key.courseOfferingId);
     });
 
+/// Checks I-School Plus reachability independently from roster SSO and refresh.
+final iSchoolPlusAvailabilityProvider = FutureProvider.autoDispose<void>((ref) {
+  return ref.watch(courseRepositoryProvider).checkISchoolPlusAvailability();
+});
+
 /// Refreshes an I-School Plus roster once for the provider's lifecycle.
 ///
 /// Keeping refresh separate from the cache stream lets the UI retain cached
