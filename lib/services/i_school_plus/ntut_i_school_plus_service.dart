@@ -56,7 +56,11 @@ class NtutISchoolPlusService implements ISchoolPlusService {
 
     final document = parse(response.data);
     final courseSelect = document.getElementById('selcourse');
-    if (courseSelect == null) return [];
+    if (courseSelect == null) {
+      throw const SessionExpiredException(
+        'I-School Plus course list is unavailable',
+      );
+    }
 
     // Options may be inside <optgroup> elements, so use querySelectorAll.
     // Example option: <option value="10099386">1141_智慧財產權_352902</option>
