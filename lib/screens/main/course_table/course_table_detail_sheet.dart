@@ -271,12 +271,41 @@ class _CourseRosterPane extends ConsumerStatefulWidget {
 
 class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
   var _showNetworkGuide = false;
+  var _availabilityFailed = false;
+  var _networkFailureSnackbarShown = false;
 
   void _retry() {
-    setState(() => _showNetworkGuide = false);
+    setState(() {
+      _showNetworkGuide = false;
+      _availabilityFailed = false;
+      _networkFailureSnackbarShown = false;
+    });
     ref
       ..invalidate(courseStudentRosterProvider(widget.rosterKey))
+      ..invalidate(iSchoolPlusAvailabilityProvider)
       ..invalidate(courseStudentRosterRefreshProvider(widget.rosterKey));
+  }
+
+  void _showNetworkSnackbar({
+    required String message,
+    required String actionLabel,
+  }) {
+    _networkFailureSnackbarShown = true;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message.spaced),
+          persist: false,
+          action: SnackBarAction(
+            label: actionLabel,
+            onPressed: () {
+              if (mounted) setState(() => _showNetworkGuide = true);
+            },
+          ),
+        ),
+      );
   }
 
   @override
@@ -285,29 +314,56 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     final refreshProvider = courseStudentRosterRefreshProvider(
       widget.rosterKey,
     );
+    final availabilityProvider = iSchoolPlusAvailabilityProvider;
     final cacheAsync = ref.watch(cacheProvider);
     final refreshAsync = ref.watch(refreshProvider);
     final strings = Translations.of(context).courseTable.detail.roster;
 
-    ref.listen(refreshProvider, (previous, next) {
+    ref.listen(availabilityProvider, (previous, next) {
       if (previous?.hasError == true || !next.hasError) return;
-      final cachedStudents =
-          ref.read(cacheProvider).value?.students ?? const [];
-      if (cachedStudents.isEmpty) return;
+      if (ref.read(refreshProvider).hasValue) return;
+
+      final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
+      setState(() => _availabilityFailed = true);
+      if (hasCache && !_networkFailureSnackbarShown) {
+        _showNetworkSnackbar(
+          message: strings.networkSnackbar,
+          actionLabel: strings.learnMore,
+        );
+      }
+    });
+
+    ref.listen(refreshProvider, (previous, next) {
+      if (next.hasError) {
+        if (previous?.hasError == true ||
+            _availabilityFailed ||
+            _networkFailureSnackbarShown) {
+          return;
+        }
+        final cachedStudents =
+            ref.read(cacheProvider).value?.students ?? const [];
+        if (cachedStudents.isEmpty) return;
+
+        _showNetworkSnackbar(
+          message: strings.networkSnackbar,
+          actionLabel: strings.learnMore,
+        );
+        return;
+      }
+      if (!next.hasValue || !_availabilityFailed) return;
+
+      setState(() {
+        _availabilityFailed = false;
+        _networkFailureSnackbarShown = false;
+      });
 
       final messenger = ScaffoldMessenger.of(context);
       messenger
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text(strings.networkSnackbar.spaced),
+            content: Text(strings.updateSuccess.spaced),
             persist: false,
-            action: SnackBarAction(
-              label: strings.learnMore,
-              onPressed: () {
-                if (mounted) setState(() => _showNetworkGuide = true);
-              },
-            ),
           ),
         );
     });
@@ -325,6 +381,12 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
 
     final roster = cacheAsync.value;
     final refreshError = refreshAsync.error;
+    if (roster?.fetchedAt == null && _availabilityFailed) {
+      return _CourseRosterNetworkGuide(
+        guideUrl: guideUrl,
+        onRetry: _retry,
+      );
+    }
     if (cacheAsync.isLoading ||
         (roster?.fetchedAt == null && refreshAsync.isLoading)) {
       return _CourseRosterLoading(
