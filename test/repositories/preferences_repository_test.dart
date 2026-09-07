@@ -10,9 +10,6 @@ void main() {
 
   group('PrefKey', () {
     test('all keys have expected types and defaults', () {
-      expect(PrefKey.demoMode.type, PrefType.boolean);
-      expect(PrefKey.demoMode.defaultValue, false);
-
       expect(PrefKey.startWithCourseTable.type, PrefType.boolean);
       expect(PrefKey.startWithCourseTable.defaultValue, false);
 

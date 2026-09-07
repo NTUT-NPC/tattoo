@@ -28,9 +28,6 @@ const defaultCourseRosterGuideUrl =
 /// settings UI), others are app-controlled gates managed only via Remote
 /// Config and the debug screen.
 enum PrefKey<T> {
-  /// Whether to use mock data instead of live NTUT services.
-  demoMode<bool>(.boolean, false),
-
   /// Whether authenticated navigation starts on the course table instead of home.
   startWithCourseTable<bool>(.boolean, false),
 
