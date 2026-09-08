@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
@@ -19,10 +21,10 @@ class UpdateScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final config = ref.watch(updateConfigProvider);
     if (config == null) return const Scaffold();
-
     final requiredVersion = config.requiredVersion;
     final detail = config.detail;
     final isForced = config.isForcedUpdate;
+    final storeUrl = ref.pref(PrefKey.storeUrl);
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final colorScheme = theme.colorScheme;
@@ -91,7 +93,7 @@ class UpdateScreen extends ConsumerWidget {
                     ],
                     const SizedBox(height: 40),
                     FilledButton.icon(
-                      onPressed: () => _openStore(context),
+                      onPressed: () => _openStore(context, storeUrl),
                       icon: const Icon(Icons.download_outlined),
                       label: Text(t.forceUpdate.updateButton),
                     ),
@@ -113,15 +115,12 @@ class UpdateScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _openStore(BuildContext context) async {
-    // Platform-specific store URLs — adjust to your actual app IDs.
-    const compiledUrl = String.fromEnvironment('STORE_URL');
+  Future<void> _openStore(BuildContext context, String storeUrl) async {
     final String url;
-    if (compiledUrl.isNotEmpty && compiledUrl != 'https://ntut.app') {
-      url = compiledUrl;
+    if (storeUrl.isNotEmpty && storeUrl != 'https://ntut.app') {
+      url = storeUrl;
     } else {
-      // Fallback platform-specific store URLs when compile-time STORE_URL is not set
-      // e.g. for local/manual builds.
+      // Fallback platform-specific store URLs when Remote Config is unset.
       final theme = Theme.of(context);
       if (theme.platform == .iOS) {
         url = 'https://apps.apple.com/app/id1513875597';

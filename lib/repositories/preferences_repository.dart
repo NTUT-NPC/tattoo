@@ -77,7 +77,10 @@ enum PrefKey<T> {
   showCourseRoster<bool>(.boolean, true),
 
   /// Link to instructions for connecting to the NTUT network remotely.
-  courseRosterGuideUrl<String>(.string, defaultCourseRosterGuideUrl);
+  courseRosterGuideUrl<String>(.string, defaultCourseRosterGuideUrl),
+
+  /// Store URL used by the update screen.
+  storeUrl<String>(.string, '');
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;
