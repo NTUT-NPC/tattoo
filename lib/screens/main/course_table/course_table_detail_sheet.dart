@@ -320,7 +320,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     final strings = Translations.of(context).courseTable.detail.roster;
 
     ref.listen(availabilityProvider, (previous, next) {
-      if (previous?.hasError == true || !next.hasError) return;
+      if (!_hasNewError(previous, next) || _availabilityFailed) return;
       if (ref.read(refreshProvider).hasValue) return;
 
       final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
@@ -334,15 +334,12 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     });
 
     ref.listen(refreshProvider, (previous, next) {
-      if (next.hasError) {
-        if (previous?.hasError == true ||
-            _availabilityFailed ||
-            _networkFailureSnackbarShown) {
+      if (_hasNewError(previous, next)) {
+        if (_availabilityFailed || _networkFailureSnackbarShown) {
           return;
         }
-        final cachedStudents =
-            ref.read(cacheProvider).value?.students ?? const [];
-        if (cachedStudents.isEmpty) return;
+        final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
+        if (!hasCache) return;
 
         _showNetworkSnackbar(
           message: strings.networkSnackbar,
@@ -400,7 +397,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         onRetry: _retry,
       );
     }
-    if ((roster?.students.isEmpty ?? true) && refreshError != null) {
+    if (roster?.fetchedAt == null && refreshError != null) {
       return _CourseRosterNetworkGuide(
         guideUrl: guideUrl,
         onRetry: _retry,
@@ -414,6 +411,13 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     }
     return _CourseRosterTable(students: roster.students);
   }
+}
+
+bool _hasNewError(AsyncValue<void>? previous, AsyncValue<void> next) {
+  if (!next.hasError) return false;
+  return previous?.hasError != true ||
+      !identical(previous?.error, next.error) ||
+      !identical(previous?.stackTrace, next.stackTrace);
 }
 
 class _CourseRosterLoading extends StatelessWidget {
