@@ -198,7 +198,10 @@ This workflow generates nightly preview and development builds for internal and 
 - **Environment**: Configures `development` (`--env=dev`).
 - **Distribution Targets**:
   - **Android**: Builds development APK (`club.ntut.tattoo`) for **Firebase App Distribution** (`dev-tester` group) and development AAB for Google Play Store testing.
-  - **iOS**: Builds development IPA (`club.ntut.tattoo`) and uploads to **TestFlight** for internal and external testing groups.
+  - **iOS**: Builds development IPA (`club.ntut.tattoo`) and uploads to **TestFlight** for internal and external testing groups. When `include_public_testers` is true, both `Private External Testers` and `Public External Testers` are selected.
+- **TestFlight test message**: The generated daily changelog is passed as Fastlane's `changelog` (`What to Test`). A manual `test_message` input, or the `TESTFLIGHT_TEST_MESSAGE` repository variable, is appended for per-build tester instructions.
+- **TestFlight app information**: Persistent App Store Connect Test Information (such as Beta App Description and Feedback Email) must be populated in App Store Connect once. It is not injected as hardcoded contact data or CI secrets.
+- **Processing timeout**: The iOS job allows up to 60 minutes for App Store Connect processing before cancellation.
 
 ### 4.3 Fastlane Lanes
 
