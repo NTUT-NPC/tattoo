@@ -7,8 +7,7 @@ analyzer:
     - ios/**
 
 plugins:
-  riverpod_lint: 3.1.2
-  prefer_shorthands: 0.4.7
+  riverpod_lint: 3.1.9
 
 formatter:
   trailing_commas: preserve
