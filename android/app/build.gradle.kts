@@ -22,6 +22,17 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    flavorDimensions += "environment"
+    productFlavors {
+        create("staging") {
+            applicationId = "club.ntut.tattoo"
+            resValue("string", "app_name", "Tattoo")
+        }
+        create("production") {
+            resValue("string", "app_name", "TAT")
+        }
+    }
+
     defaultConfig {
         applicationId = "club.ntut.npc.tat"
         // You can update the following values to match your application needs.
@@ -55,9 +66,6 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
-        }
-        debug {
-            applicationIdSuffix = ".debug"
         }
     }
 }

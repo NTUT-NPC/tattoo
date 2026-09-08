@@ -35,6 +35,7 @@ end
 platform :ios do
   desc "Build and upload to TestFlight"
   lane :upload_testflight do |options|
+    flavor = options[:env] || "staging"
     settings = get_build_settings(options)
     pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
     pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
@@ -42,6 +43,7 @@ platform :ios do
     commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
     skip_upload = options[:skip_upload].to_s == "true"
     include_public_testers = options[:include_public_testers].to_s == "true" || ENV["PUBLIC_TESTERS"] == "true"
+    internal_only = options[:internal_only].to_s == "true"
 
     setup_ci if is_ci
 
@@ -63,6 +65,7 @@ platform :ios do
     build_args = [
       "--no-codesign",
       "--dart-define=USE_FIREBASE=true",
+      "--flavor=#{flavor}",
     ]
     build_args << "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}" unless settings[:version_suffix].empty?
     build_args << "--dart-define=STORE_URL=#{store_url}" unless store_url.empty?
@@ -89,7 +92,7 @@ platform :ios do
 
     upload_symbols_to_crashlytics(
       dsym_path: lane_context[SharedValues::DSYM_OUTPUT_PATH],
-      gsp_path: "ios/Runner/GoogleService-Info.plist",
+      gsp_path: "ios/Runner/GoogleService-Info-#{flavor}.plist",
       binary_path: upload_symbols_binary_path,
     )
 
@@ -103,14 +106,20 @@ platform :ios do
 
     upload_to_testflight(
       changelog: changelog,
-      distribute_external: true,
-      groups: target_groups,
+      distribute_external: !internal_only,
+      groups: internal_only ? nil : target_groups,
     )
+  end
+
+  desc "Build and upload the production flavor to internal TestFlight"
+  lane :release_production do |options|
+    upload_testflight(options.merge(env: "production", internal_only: true))
   end
 end
 
 platform :android do
   lane :build_apk do |options|
+    flavor = options[:env] || "staging"
     settings = get_build_settings(options)
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
@@ -118,6 +127,7 @@ platform :android do
     build_args = [
       "--dart-define=USE_FIREBASE=true",
       "--dart-define=cronetHttpNoPlay=true",
+      "--flavor=#{flavor}",
     ]
     build_args << "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}" unless settings[:version_suffix].empty?
     build_args << "--dart-define=STORE_URL=#{store_url}" unless store_url.empty?
@@ -131,12 +141,14 @@ platform :android do
 
   lane :build_appbundle do |options|
     settings = get_build_settings(options)
+    flavor = options[:env] || "staging"
     Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
 
     store_url = options[:store_url] || ENV["STORE_URL"] || ENV["GOOGLEPLAY_PUBLIC_LINK"] || ""
     build_args = [
       "--dart-define=USE_FIREBASE=true",
       "--dart-define=cronetHttpNoPlay=true",
+      "--flavor=#{flavor}",
     ]
     build_args << "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}" unless settings[:version_suffix].empty?
     build_args << "--dart-define=STORE_URL=#{store_url}" unless store_url.empty?
@@ -217,5 +229,13 @@ platform :android do
     aab ||= build_appbundle(options) unless options[:skip_build].to_s == "true"
     upload_playstore(options.merge(aab: aab, track: "beta")) unless options[:skip_upload_playstore].to_s == "true"
     upload_firebase(options.merge(aab: aab)) unless options[:skip_upload_firebase].to_s == "true"
+  end
+
+  desc "Build and upload the production flavor to Google Play Internal"
+  lane :release_production do |options|
+    production_options = options.merge(env: "production")
+    aab = production_options[:aab]
+    aab ||= build_appbundle(production_options) unless production_options[:skip_build].to_s == "true"
+    upload_playstore(production_options.merge(aab: aab, track: options[:track] || "internal")) unless production_options[:skip_upload].to_s == "true"
   end
 end
