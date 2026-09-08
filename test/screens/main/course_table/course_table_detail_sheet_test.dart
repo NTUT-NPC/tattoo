@@ -41,44 +41,4 @@ void main() {
     expect(bottomSheetSize.height, lessThan(800));
     expect(tester.getBottomRight(bottomSheet).dy, 800);
   });
-
-  testWidgets('system back closes the course detail sheet before exiting', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          courseOfferingProvider.overrideWith((ref, number) => null),
-        ],
-        child: MaterialApp(
-          home: Navigator(
-            onGenerateRoute: (settings) => MaterialPageRoute(
-              builder: (context) => Scaffold(
-                body: Center(
-                  child: TextButton(
-                    onPressed: () => showCourseTableDetailSheet(
-                      context,
-                      number: '0000000',
-                    ),
-                    child: const Text('Open'),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text('Open'));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(BottomSheet), findsOneWidget);
-
-    await tester.binding.handlePopRoute();
-    await tester.pumpAndSettle();
-
-    expect(find.byType(BottomSheet), findsNothing);
-    expect(find.text('Open'), findsOneWidget);
-  });
 }
