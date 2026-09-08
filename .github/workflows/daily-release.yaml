@@ -55,6 +55,7 @@ jobs:
       - name: Checkout Actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          persist-credentials: false
           sparse-checkout: .github/actions
           sparse-checkout-cone-mode: false
 
@@ -75,6 +76,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          persist-credentials: false
           ref: ${{ steps.set-ref.outputs.ref }}
 
       - name: Check for changes
@@ -193,6 +195,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          persist-credentials: false
           ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup project
@@ -287,6 +290,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          persist-credentials: false
           ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup project
