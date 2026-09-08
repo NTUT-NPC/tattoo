@@ -156,6 +156,38 @@ void main() {
         expect(iSchoolPlusService.studentsCalls, 0);
       },
     );
+
+    test('preserves a cached empty roster when refresh fails', () async {
+      iSchoolPlusService.courseListResult = [];
+      await repository.refreshStudentRoster(
+        courseOfferingId: courseOfferingId,
+        courseNumber: '352902',
+      );
+      final cachedAt =
+          (await repository.watchStudentRoster(courseOfferingId).first)
+              .fetchedAt;
+
+      iSchoolPlusService
+        ..courseListResult = null
+        ..studentsError = DioException(
+          requestOptions: RequestOptions(path: '/learn/learn_ranking.php'),
+          type: .connectionError,
+        );
+
+      await expectLater(
+        repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        ),
+        throwsA(isA<DioException>()),
+      );
+      final roster = await repository
+          .watchStudentRoster(courseOfferingId)
+          .first;
+
+      expect(roster.students, isEmpty);
+      expect(roster.fetchedAt, cachedAt);
+    });
   });
 }
 
