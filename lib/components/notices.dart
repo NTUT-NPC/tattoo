@@ -36,7 +36,7 @@ class ClearNotice extends StatelessWidget {
   /// that reads [IconTheme]). If [icon] is another custom widget, this color
   /// does not automatically change that widget's appearance.
   ///
-  /// Defaults to `Colors.grey[600]` when omitted.
+  /// Defaults to `theme.colorScheme.onSurfaceVariant` when omitted.
   final Color? color;
 
   /// Optional text style override for [text].
@@ -44,7 +44,8 @@ class ClearNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedColor = color ?? Colors.grey[600];
+    final theme = Theme.of(context);
+    final resolvedColor = color ?? theme.colorScheme.onSurfaceVariant;
 
     return Padding(
       padding: const .symmetric(horizontal: 16),
@@ -124,7 +125,7 @@ class ClearNoticeVertical extends StatelessWidget {
   /// that reads [IconTheme]). If [icon] is another custom widget, this color
   /// does not automatically change that widget's appearance.
   ///
-  /// Defaults to `Colors.grey[600]` when omitted.
+  /// Defaults to `theme.colorScheme.onSurfaceVariant` when omitted.
   final Color? color;
 
   /// Creates a vertical notice with rich-text support.
@@ -138,7 +139,7 @@ class ClearNoticeVertical extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final resolvedColor = color ?? Colors.grey[600];
+    final resolvedColor = color ?? theme.colorScheme.onSurfaceVariant;
 
     return Column(
       mainAxisSize: .min,

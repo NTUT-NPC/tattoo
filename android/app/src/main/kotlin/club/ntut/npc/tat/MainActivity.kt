@@ -8,6 +8,7 @@ import io.flutter.embedding.engine.FlutterEngine
 
 class MainActivity : FlutterFragmentActivity() {
     private val campusWifiChannelHandler by lazy { CampusWifiChannelHandler(this) }
+    private val systemSettingsChannelHandler by lazy { SystemSettingsChannelHandler(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -17,5 +18,6 @@ class MainActivity : FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         campusWifiChannelHandler.register(flutterEngine.dartExecutor.binaryMessenger)
+        systemSettingsChannelHandler.register(flutterEngine.dartExecutor.binaryMessenger)
     }
 }

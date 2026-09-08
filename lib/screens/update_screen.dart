@@ -23,73 +23,70 @@ class UpdateScreen extends ConsumerWidget {
     final requiredVersion = config.requiredVersion;
     final detail = config.detail;
     final isForced = config.isForcedUpdate;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+              padding: const .symmetric(horizontal: 32, vertical: 24),
               sliver: SliverFillRemaining(
                 hasScrollBody: false,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: .center,
+                  crossAxisAlignment: .stretch,
                   children: [
                     const SizedBox(height: 16),
                     const Icon(Icons.system_update_outlined, size: 80),
                     const SizedBox(height: 32),
                     Text(
                       t.forceUpdate.title,
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                      textAlign: TextAlign.center,
+                      style: textTheme.headlineSmall?.copyWith(
+                        fontWeight: .bold,
+                      ),
+                      textAlign: .center,
                     ),
                     const SizedBox(height: 16),
                     Text(
                       t.forceUpdate.message.spaced,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                      textAlign: TextAlign.center,
+                      style: textTheme.bodyLarge,
+                      textAlign: .center,
                     ),
                     if (requiredVersion.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       Text(
                         t.forceUpdate.requiredVersion(version: requiredVersion),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
+                        style: textTheme.bodyMedium?.copyWith(
+                          fontWeight: .w600,
                         ),
-                        textAlign: TextAlign.center,
+                        textAlign: .center,
                       ),
                     ],
                     if (isForced) ...[
                       const SizedBox(height: 8),
                       Text(
                         t.forceUpdate.isForced,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                          fontWeight: FontWeight.bold,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.error,
+                          fontWeight: .bold,
                         ),
-                        textAlign: TextAlign.center,
+                        textAlign: .center,
                       ),
                     ],
                     if (detail.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       Text(
                         detail,
-                        style:
-                            Theme.of(
-                              context,
-                            ).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey[600],
-                            ),
-                        textAlign: TextAlign.center,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        textAlign: .center,
                       ),
                     ],
                     const SizedBox(height: 40),
@@ -125,7 +122,8 @@ class UpdateScreen extends ConsumerWidget {
     } else {
       // Fallback platform-specific store URLs when compile-time STORE_URL is not set
       // e.g. for local/manual builds.
-      if (Theme.of(context).platform == TargetPlatform.iOS) {
+      final theme = Theme.of(context);
+      if (theme.platform == .iOS) {
         url = 'https://apps.apple.com/app/id1513875597';
       } else {
         url = 'https://play.google.com/store/apps/details?id=club.ntut.npc.tat';

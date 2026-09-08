@@ -40,6 +40,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
+	late final Translations$preferences$zh_TW preferences = Translations$preferences$zh_TW.internal(_root);
 	late final Translations$general$zh_TW general = Translations$general$zh_TW.internal(_root);
 	late final Translations$errors$zh_TW errors = Translations$errors$zh_TW.internal(_root);
 	late final Translations$intro$zh_TW intro = Translations$intro$zh_TW.internal(_root);
@@ -59,6 +60,31 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$forceUpdate$zh_TW forceUpdate = Translations$forceUpdate$zh_TW.internal(_root);
 	late final Translations$regedit$zh_TW regedit = Translations$regedit$zh_TW.internal(_root);
 	late final Translations$changePassword$zh_TW changePassword = Translations$changePassword$zh_TW.internal(_root);
+}
+
+// Path: preferences
+class Translations$preferences$zh_TW {
+	Translations$preferences$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final Translations$preferences$startWithCourseTable$zh_TW startWithCourseTable = Translations$preferences$startWithCourseTable$zh_TW.internal(_root);
+
+	/// zh-TW: '深色模式'
+	String get darkMode => '深色模式';
+
+	late final Translations$preferences$themeMode$zh_TW themeMode = Translations$preferences$themeMode$zh_TW.internal(_root);
+	late final Translations$preferences$language$zh_TW language = Translations$preferences$language$zh_TW.internal(_root);
+
+	/// zh-TW: '此設定由系統管理，目前無法變更。'
+	String get managed => '此設定由系統管理，目前無法變更。';
+
+	/// zh-TW: '無法載入偏好設定'
+	String get loadFailed => '無法載入偏好設定';
+
+	/// zh-TW: '無法儲存偏好設定，請稍後再試。'
+	String get saveFailed => '無法儲存偏好設定，請稍後再試。';
 }
 
 // Path: general
@@ -351,6 +377,7 @@ class Translations$courseTable$zh_TW {
 	/// zh-TW: '未安排時間的課程'
 	String get unscheduled => '未安排時間的課程';
 
+	late final Translations$courseTable$detail$zh_TW detail = Translations$courseTable$detail$zh_TW.internal(_root);
 	late final Translations$courseTable$summary$zh_TW summary = Translations$courseTable$summary$zh_TW.internal(_root);
 	late final Translations$courseTable$actions$zh_TW actions = Translations$courseTable$actions$zh_TW.internal(_root);
 	Map<String, String> get dayOfWeek => {
@@ -703,6 +730,72 @@ class Translations$changePassword$zh_TW {
 	late final Translations$changePassword$errors$zh_TW errors = Translations$changePassword$errors$zh_TW.internal(_root);
 }
 
+// Path: preferences.startWithCourseTable
+class Translations$preferences$startWithCourseTable$zh_TW {
+	Translations$preferences$startWithCourseTable$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '啟動時開啟課表'
+	String get title => '啟動時開啟課表';
+}
+
+// Path: preferences.themeMode
+class Translations$preferences$themeMode$zh_TW {
+	Translations$preferences$themeMode$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '預設'
+	String get system => '預設';
+
+	/// zh-TW: '淺色'
+	String get light => '淺色';
+
+	/// zh-TW: '深色'
+	String get dark => '深色';
+}
+
+// Path: preferences.language
+class Translations$preferences$language$zh_TW {
+	Translations$preferences$language$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '語言'
+	String get title => '語言';
+
+	/// zh-TW: '預設'
+	String get followSystem => '預設';
+
+	/// zh-TW: '繁體中文'
+	String get traditionalChinese => '繁體中文';
+
+	/// zh-TW: '英文(English)'
+	String get english => '英文(English)';
+
+	/// zh-TW: '在iOS設定中切換語言'
+	String get iosGuideTitle => '在iOS設定中切換語言';
+
+	/// zh-TW: 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，在「偏好的語言」區段點擊「語言」，再選擇要使用的語言。若未顯示「偏好的語言」區段，請先在「一般」>「語言與地區」加入另一種偏好的語言，再返回TAT設定。 '
+	String get iosGuideDescription => 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，在「偏好的語言」區段點擊「語言」，再選擇要使用的語言。若未顯示「偏好的語言」區段，請先在「一般」>「語言與地區」加入另一種偏好的語言，再返回TAT設定。\n';
+
+	/// zh-TW: '前往系統設定'
+	String get openSettings => '前往系統設定';
+
+	/// zh-TW: '無法變更語言，請稍後再試。'
+	String get changeFailed => '無法變更語言，請稍後再試。';
+
+	/// zh-TW: '無法開啟系統語言設定，請稍後再試。'
+	String get openFailed => '無法開啟系統語言設定，請稍後再試。';
+}
+
 // Path: intro.features
 class Translations$intro$features$zh_TW {
 	Translations$intro$features$zh_TW.internal(this._root);
@@ -904,6 +997,17 @@ class Translations$score$status$zh_TW {
 
 	/// zh-TW: '抵免'
 	String get creditTransfer => '抵免';
+}
+
+// Path: courseTable.detail
+class Translations$courseTable$detail$zh_TW {
+	Translations$courseTable$detail$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final Translations$courseTable$detail$tabs$zh_TW tabs = Translations$courseTable$detail$tabs$zh_TW.internal(_root);
+	late final Translations$courseTable$detail$roster$zh_TW roster = Translations$courseTable$detail$roster$zh_TW.internal(_root);
 }
 
 // Path: courseTable.summary
@@ -1430,6 +1534,69 @@ class Translations$score$ranking$type$zh_TW {
 	String get departmentLevel => '系所';
 }
 
+// Path: courseTable.detail.tabs
+class Translations$courseTable$detail$tabs$zh_TW {
+	Translations$courseTable$detail$tabs$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '同學名單'
+	String get roster => '同學名單';
+
+	/// zh-TW: '課程大綱'
+	String get syllabus => '課程大綱';
+}
+
+// Path: courseTable.detail.roster
+class Translations$courseTable$detail$roster$zh_TW {
+	Translations$courseTable$detail$roster$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '學號'
+	String get studentId => '學號';
+
+	/// zh-TW: '姓名'
+	String get name => '姓名';
+
+	/// zh-TW: '目前沒有同學名單'
+	String get empty => '目前沒有同學名單';
+
+	/// zh-TW: '無法載入同學名單，請稍後再試。'
+	String get loadFailed => '無法載入同學名單，請稍後再試。';
+
+	/// zh-TW: 'i學園功能需要使用學校網路，'
+	String get loadingNetworkHint => 'i學園功能需要使用學校網路，';
+
+	/// zh-TW: '重新整理'
+	String get refresh => '重新整理';
+
+	/// zh-TW: '需要連接學校網路'
+	String get networkTitle => '需要連接學校網路';
+
+	/// zh-TW: 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。'
+	String get networkDescription => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。';
+
+	/// zh-TW: '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。'
+	String get networkSnackbar => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。';
+
+	/// zh-TW: '瞭解更多'
+	String get learnMore => '瞭解更多';
+
+	/// zh-TW: '查看VPN連線說明'
+	String get openGuide => '查看VPN連線說明';
+
+	/// zh-TW: '返回同學名單'
+	String get backToRoster => '返回同學名單';
+
+	/// zh-TW: '無法開啟VPN連線說明，請稍後再試。'
+	String get openGuideFailed => '無法開啟VPN連線說明，請稍後再試。';
+}
+
 // Path: profile.dangerZone.items
 class Translations$profile$dangerZone$items$zh_TW {
 	Translations$profile$dangerZone$items$zh_TW.internal(this._root);
@@ -1489,6 +1656,23 @@ class Translations$changePassword$errors$server$zh_TW {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'preferences.startWithCourseTable.title' => '啟動時開啟課表',
+			'preferences.darkMode' => '深色模式',
+			'preferences.themeMode.system' => '預設',
+			'preferences.themeMode.light' => '淺色',
+			'preferences.themeMode.dark' => '深色',
+			'preferences.language.title' => '語言',
+			'preferences.language.followSystem' => '預設',
+			'preferences.language.traditionalChinese' => '繁體中文',
+			'preferences.language.english' => '英文(English)',
+			'preferences.language.iosGuideTitle' => '在iOS設定中切換語言',
+			'preferences.language.iosGuideDescription' => 'iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，在「偏好的語言」區段點擊「語言」，再選擇要使用的語言。若未顯示「偏好的語言」區段，請先在「一般」>「語言與地區」加入另一種偏好的語言，再返回TAT設定。\n',
+			'preferences.language.openSettings' => '前往系統設定',
+			'preferences.language.changeFailed' => '無法變更語言，請稍後再試。',
+			'preferences.language.openFailed' => '無法開啟系統語言設定，請稍後再試。',
+			'preferences.managed' => '此設定由系統管理，目前無法變更。',
+			'preferences.loadFailed' => '無法載入偏好設定',
+			'preferences.saveFailed' => '無法儲存偏好設定，請稍後再試。',
 			'general.appTitle' => 'Project Tattoo',
 			'general.notImplemented' => '尚未實作',
 			'general.dataDisclaimer' => '本資料僅供參考',
@@ -1594,6 +1778,21 @@ extension on Translations {
 			'calendar.today' => '今天',
 			'courseTable.notFound' => '找不到課表',
 			'courseTable.unscheduled' => '未安排時間的課程',
+			'courseTable.detail.tabs.roster' => '同學名單',
+			'courseTable.detail.tabs.syllabus' => '課程大綱',
+			'courseTable.detail.roster.studentId' => '學號',
+			'courseTable.detail.roster.name' => '姓名',
+			'courseTable.detail.roster.empty' => '目前沒有同學名單',
+			'courseTable.detail.roster.loadFailed' => '無法載入同學名單，請稍後再試。',
+			'courseTable.detail.roster.loadingNetworkHint' => 'i學園功能需要使用學校網路，',
+			'courseTable.detail.roster.refresh' => '重新整理',
+			'courseTable.detail.roster.networkTitle' => '需要連接學校網路',
+			'courseTable.detail.roster.networkDescription' => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。',
+			'courseTable.detail.roster.networkSnackbar' => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。',
+			'courseTable.detail.roster.learnMore' => '瞭解更多',
+			'courseTable.detail.roster.openGuide' => '查看VPN連線說明',
+			'courseTable.detail.roster.backToRoster' => '返回同學名單',
+			'courseTable.detail.roster.openGuideFailed' => '無法開啟VPN連線說明，請稍後再試。',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
 			'courseTable.actions.showMoreOptions' => '顯示更多選項',

@@ -1,3 +1,25 @@
+preferences:
+  startWithCourseTable:
+    title: 啟動時開啟課表
+  darkMode: 深色模式
+  themeMode:
+    system: 預設
+    light: 淺色
+    dark: 深色
+  language:
+    title: 語言
+    followSystem: 預設
+    traditionalChinese: 繁體中文
+    english: 英文(English)
+    iosGuideTitle: 在iOS設定中切換語言
+    iosGuideDescription: |
+      iOS由系統管理每個App的語言。點擊下方按鈕前往TAT設定，在「偏好的語言」區段點擊「語言」，再選擇要使用的語言。若未顯示「偏好的語言」區段，請先在「一般」>「語言與地區」加入另一種偏好的語言，再返回TAT設定。
+    openSettings: 前往系統設定
+    changeFailed: 無法變更語言，請稍後再試。
+    openFailed: 無法開啟系統語言設定，請稍後再試。
+  managed: 此設定由系統管理，目前無法變更。
+  loadFailed: 無法載入偏好設定
+  saveFailed: 無法儲存偏好設定，請稍後再試。
 general:
   appTitle: Project Tattoo
   notImplemented: 尚未實作
@@ -127,6 +149,24 @@ calendar:
 courseTable:
   notFound: 找不到課表
   unscheduled: 未安排時間的課程
+  detail:
+    tabs:
+      roster: 同學名單
+      syllabus: 課程大綱
+    roster:
+      studentId: 學號
+      name: 姓名
+      empty: 目前沒有同學名單
+      loadFailed: 無法載入同學名單，請稍後再試。
+      loadingNetworkHint: i學園功能需要使用學校網路，
+      refresh: 重新整理
+      networkTitle: 需要連接學校網路
+      networkDescription: i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。
+      networkSnackbar: 無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。
+      learnMore: 瞭解更多
+      openGuide: 查看VPN連線說明
+      backToRoster: 返回同學名單
+      openGuideFailed: 無法開啟VPN連線說明，請稍後再試。
   summary:
     credits(plural, param=count):
       one: ${count}學分

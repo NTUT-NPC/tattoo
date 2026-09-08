@@ -178,8 +178,6 @@ class AnchoredPopupMenuStyle {
 
   /// App-wide floating popup menu styling shared by floating controls.
   static const floatingSurface = AnchoredPopupMenuStyle(
-    color: Color(0xF5FFFFFF),
-    shadowColor: Color(0x14000000),
     surfaceTintColor: Colors.transparent,
     shape: RoundedRectangleBorder(
       borderRadius: .all(.circular(16)),

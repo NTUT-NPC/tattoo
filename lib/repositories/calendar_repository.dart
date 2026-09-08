@@ -36,7 +36,7 @@ class CalendarRepository {
   final PortalService _portalService;
   final AppDatabase _database;
   final AuthRepository _authRepository;
-  Completer<void>? _refreshInFlight;
+  Future<void>? _refreshInFlight;
 
   CalendarRepository({
     required this._portalService,
@@ -129,12 +129,10 @@ class CalendarRepository {
   ///
   /// The [watchCalendarEvents] stream automatically emits the updated value.
   /// Network errors propagate to the caller.
-  Future<void> refreshCalendarEvents() async {
-    if (_refreshInFlight case final existing?) return existing.future;
+  Future<void> refreshCalendarEvents() {
+    if (_refreshInFlight case final existing?) return existing;
 
-    final completer = Completer<void>();
-    _refreshInFlight = completer;
-    try {
+    final refresh = () async {
       final (windowStart, windowEnd) = await _computeWindow();
 
       final dtos = await _authRepository.withAuth(
@@ -146,45 +144,50 @@ class CalendarRepository {
         // (consistent with read queries) so boundary-spanning events are
         // cleaned up too.
         await (_database.delete(_database.calendarEvents)..where((e) {
-              return e.start.isSmallerThanValue(windowEnd) &
-                  e.end.isBiggerThanValue(windowStart);
+              return (e.start.isSmallerThanValue(windowEnd) &
+                      e.end.isBiggerThanValue(windowStart)) |
+                  (e.start.equalsExp(e.end) &
+                      e.start.isBiggerOrEqualValue(windowStart) &
+                      e.start.isSmallerThanValue(windowEnd));
             }))
             .go();
 
         // Skip events without an ID — we can't sync or dedupe them.
-        final companions = dtos
-            .where((dto) => dto.id != null)
-            .map(
-              (dto) => CalendarEventsCompanion.insert(
-                portalId: dto.id!,
-                start: dto.start,
-                end: dto.end,
-                allDay: Value(dto.allDay),
-                title: Value(dto.title),
-                place: Value(dto.place),
-                content: Value(dto.content),
-                ownerName: Value(dto.ownerName),
-                creatorName: Value(dto.creatorName),
-              ),
-            )
-            .toList();
-
-        await _database.batch((batch) {
-          batch.insertAll(_database.calendarEvents, companions);
-        });
+        for (final dto in dtos.where((dto) => dto.id != null)) {
+          final companion = CalendarEventsCompanion.insert(
+            portalId: dto.id!,
+            start: dto.start,
+            end: dto.end,
+            allDay: Value(dto.allDay),
+            title: Value(dto.title),
+            place: Value(dto.place),
+            content: Value(dto.content),
+            ownerName: Value(dto.ownerName),
+            creatorName: Value(dto.creatorName),
+          );
+          await _database
+              .into(_database.calendarEvents)
+              .insert(
+                companion,
+                onConflict: DoUpdate(
+                  (old) => companion,
+                  target: [_database.calendarEvents.portalId],
+                ),
+              );
+        }
 
         await _database
             .update(_database.users)
             .write(UsersCompanion(calendarFetchedAt: Value(DateTime.now())));
       });
+    }();
 
-      completer.complete();
-    } catch (e, st) {
-      completer.completeError(e, st);
-      rethrow;
-    } finally {
-      _refreshInFlight = null;
-    }
+    _refreshInFlight = refresh;
+    return refresh.whenComplete(() {
+      if (identical(_refreshInFlight, refresh)) {
+        _refreshInFlight = null;
+      }
+    });
   }
 
   /// Computes the half-open fetch window `[start, end)` from the student's
@@ -256,8 +259,11 @@ class CalendarRepository {
     return _database.select(_database.calendarEvents)
       ..where(
         (e) =>
-            e.start.isSmallerThanValue(endDate) &
-            e.end.isBiggerThanValue(startDate),
+            (e.start.isSmallerThanValue(endDate) &
+                e.end.isBiggerThanValue(startDate)) |
+            (e.start.equalsExp(e.end) &
+                e.start.isBiggerOrEqualValue(startDate) &
+                e.start.isSmallerThanValue(endDate)),
       )
       ..orderBy([(e) => OrderingTerm.asc(e.start)]);
   }

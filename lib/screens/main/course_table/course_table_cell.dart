@@ -39,15 +39,27 @@ class CourseTableCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final containerColor = HSLColor.fromColor(
-      cellColor,
-    ).withLightness(0.9).withSaturation(0.4).toColor();
-    final borderColor = HSLColor.fromColor(
-      cellColor,
-    ).withLightness(0.3).withSaturation(0.6).toColor();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final containerColor =
+        HSLColor.fromColor(
+              cellColor,
+            )
+            .withLightness(isDark ? 0.7 : 0.9)
+            .withSaturation(isDark ? 0.2 : 0.4)
+            .toColor();
+
+    final borderColor =
+        HSLColor.fromColor(
+              cellColor,
+            )
+            .withLightness(isDark ? 0.3 : 0.3)
+            .withSaturation(isDark ? 0.5 : 0.6)
+            .toColor();
+
     final borderStyle = Border.all(
       color: borderColor,
-      width: 1,
+      width: 1.5,
     );
     final borderRadius = BorderRadius.circular(8);
     final theme = Theme.of(context);
@@ -55,6 +67,7 @@ class CourseTableCell extends StatelessWidget {
         ? courseTableCellData.courseName
         : courseTableCellData.number ?? '';
     final classroomName = courseTableCellData.classroomName;
+    final fontColor = Colors.grey[900];
     final splashColor = borderColor.withValues(alpha: 0.22);
     final highlightColor = borderColor.withValues(alpha: 0.14);
 
@@ -89,6 +102,7 @@ class CourseTableCell extends StatelessWidget {
                       AutoSizeText(
                         courseTitle.spaced,
                         style: theme.textTheme.bodyMedium?.copyWith(
+                          color: fontColor,
                           fontSize: 12,
                           fontWeight: .w700,
                         ),
@@ -102,6 +116,7 @@ class CourseTableCell extends StatelessWidget {
                         AutoSizeText(
                           classroomName.spaced,
                           style: theme.textTheme.bodySmall?.copyWith(
+                            color: fontColor,
                             fontSize: 8,
                             fontWeight: .w400,
                           ),

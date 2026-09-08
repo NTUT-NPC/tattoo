@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/welcome/change_password_providers.dart';
 
@@ -65,7 +66,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
     if (success && mounted) {
       if (widget.isExpired) {
-        context.go(AppRoutes.home);
+        final landingLocation = await resolveLandingLocation(
+          ref.read(preferencesRepositoryProvider),
+        );
+        if (mounted) context.go(landingLocation);
       } else {
         context.pop();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -287,18 +291,18 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: theme.colorScheme.primary,
-                                foregroundColor: Colors.white,
+                                foregroundColor: theme.colorScheme.onPrimary,
                               ),
                               onPressed: state.isLoading ? null : _submit,
                               child: Padding(
                                 padding: const EdgeInsets.all(12.0),
                                 child: state.isLoading
-                                    ? const SizedBox(
+                                    ? SizedBox(
                                         height: 20,
                                         width: 20,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          color: Colors.white,
+                                          color: theme.colorScheme.onPrimary,
                                         ),
                                       )
                                     : Text(t.changePassword.submit),

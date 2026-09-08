@@ -5,7 +5,15 @@ on:
     branches:
       - main
     paths:
+      - .github/actions/setup-project/action.yml
+      - .github/workflows/seed-caches.yaml
+      - Gemfile.lock
       - mise.toml
+      - pubspec.lock
+      - android/**/*.gradle*
+      - android/**/gradle.properties
+      - android/gradle/wrapper/gradle-wrapper.properties
+      - ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
   schedule:
     - cron: "17 0 * * 0" # Weekly on Sunday at 00:17 UTC
   workflow_dispatch:
@@ -36,5 +44,5 @@ jobs:
         with:
           platform: ios
 
-      - name: Warm CocoaPods cache
-        run: cd ios && bundle exec pod install
+      - name: Warm Swift Package Manager cache
+        run: flutter build ios --no-pub --no-codesign

@@ -1,3 +1,25 @@
+preferences:
+  startWithCourseTable:
+    title: Start with Course Table
+  darkMode: Dark Mode
+  themeMode:
+    system: Default
+    light: Light
+    dark: Dark
+  language:
+    title: Language
+    followSystem: Default
+    traditionalChinese: Traditional Chinese(繁體中文)
+    english: English
+    iosGuideTitle: Change the language in iOS Settings
+    iosGuideDescription: |
+      iOS manages each app's language in Settings. Use the button below to open TAT's settings, then tap Language under Preferred Language and choose the language you want. If the Preferred Language section isn't shown, first add another preferred language in General > Language & Region, then return to TAT's settings.
+    openSettings: Open System Settings
+    changeFailed: Unable to change the language. Please try again later.
+    openFailed: Unable to open system language settings. Please try again later.
+  managed: This setting is managed by the system and cannot be changed right now.
+  loadFailed: Unable to load preferences
+  saveFailed: Unable to save preferences. Please try again later.
 general:
   appTitle: Project Tattoo
   notImplemented: Not implemented
@@ -127,6 +149,24 @@ calendar:
 courseTable:
   notFound: Course table not found
   unscheduled: Unscheduled Courses
+  detail:
+    tabs:
+      roster: Course Roster
+      syllabus: Syllabus
+    roster:
+      studentId: Student ID
+      name: Name
+      empty: No classmates are listed for this course
+      loadFailed: Unable to load the course roster. Please try again later.
+      loadingNetworkHint: I-School Plus requires the NTUT network.
+      refresh: Refresh
+      networkTitle: Connect to the NTUT network
+      networkDescription: I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then reopen the course roster.
+      networkSnackbar: Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.
+      learnMore: Learn More
+      openGuide: View VPN Instructions
+      backToRoster: Back to Course Roster
+      openGuideFailed: Unable to open the VPN instructions. Please try again later.
   summary:
     credits(plural, param=count):
       one: ${count} credit

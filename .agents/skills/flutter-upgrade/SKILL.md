@@ -44,7 +44,7 @@ If the runner image already ships the version Flutter expects, drop that path fr
 
 ## 4. Diff against a fresh template
 
-Generate a clean Flutter project from the new SDK and look for adoptable changes (gradle wrapper version, AGP/Kotlin pins, Podfile boilerplate, `MainActivity.kt`/`AppDelegate.swift` regen, etc.):
+Generate a clean Flutter project from the new SDK and look for adoptable changes (gradle wrapper version, AGP/Kotlin pins, `MainActivity.kt`/`AppDelegate.swift` regeneration, etc.):
 
 ```bash
 cd /tmp
@@ -55,7 +55,7 @@ diff -ruN flutter_template_check/ "$OLDPWD/" \
   | less
 ```
 
-Adopt template-driven updates selectively — never overwrite project files wholesale. Common things worth picking up: `android/gradle/wrapper/gradle-wrapper.properties` version, AGP version in `android/settings.gradle.kts` `plugins` block, `ios/Podfile` `platform :ios` floor.
+Adopt template-driven updates selectively — never overwrite project files wholesale. Common things worth picking up: `android/gradle/wrapper/gradle-wrapper.properties` version and the AGP version in `android/settings.gradle.kts`'s `plugins` block.
 
 List the upstream template content at the new tag:
 
@@ -67,13 +67,13 @@ gh api "repos/flutter/flutter/contents/packages/flutter_tools/templates/app?ref=
 
 ```bash
 flutter pub get
-( cd ios && pod install )
-git diff pubspec.yaml pubspec.lock ios/Podfile.lock
+flutter build ios --config-only --no-pub --no-codesign
+git diff -- pubspec.yaml pubspec.lock ios/
 ```
 
 - `pubspec.yaml` — bump `environment.sdk` if the new Flutter's bundled Dart minor exceeds the current floor. Find the bundled Dart in the Flutter release notes (<https://docs.flutter.dev/install/archive>) or by reading `bin/cache/dart-sdk/version` after running any `flutter` command at the new version.
 - `pubspec.lock` — `flutter pub get` rewrites this. The `sdks: dart:` line tracks `pubspec.yaml`.
-- `ios/Podfile.lock` — `pod install` rewrites this. CI's `ios-drift` step (`flutter build ios --config-only --no-pub --no-codesign` then `git diff --quiet ios/`) is the source of truth; if you can't run `pod install` locally with the same Xcode CI uses (`Xcode_26.4.app`), let CI report drift via the `ios-drift.patch` artifact and apply it:
+- `Package.resolved` — the config-only iOS build rewrites the tracked Swift Package Manager resolution. CI's `ios-drift` step runs the same command and is the source of truth. If local Xcode differs from CI's selected version, let CI report drift through its `ios-drift.patch` artifact and apply it:
 
   ```bash
   gh run download <run-id> -n ios-drift.patch && git apply ios-drift.patch
@@ -83,7 +83,7 @@ git diff pubspec.yaml pubspec.lock ios/Podfile.lock
 
 Per `CONTRIBUTING.md`: type `chore` for dependency/config bumps. One follow-up commit on the Renovate branch — leave Renovate's `mise.toml` commit intact.
 
-Stage `.github/actions/setup-project/action.yml` and `.github/renovate.json`. Also stage `pubspec.yaml`, `pubspec.lock`, and `ios/Podfile.lock` if step 5 produced diffs, plus any `android/` or `ios/` changes from step 4.
+Stage `.github/actions/setup-project/action.yml` and `.github/renovate.json`. Also stage `pubspec.yaml`, `pubspec.lock`, and `ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved` if step 5 produced diffs, plus any `android/` or `ios/` changes from step 4.
 
 Commit message: `chore: update hardcoded Flutter version references` — or, when the Dart SDK constraint also moves, `chore: update hardcoded Flutter version references and Dart SDK constraint`.
 

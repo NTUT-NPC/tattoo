@@ -12,8 +12,10 @@ import 'package:tattoo/firebase_options.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/repositories/language_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/update_service.dart';
@@ -135,9 +137,12 @@ Future<void> main() async {
     }
   }
 
-  // Pass all uncaught "fatal" errors from the framework to Crashlytics
+  // Network failures are expected when the device cannot reach an external
+  // service and should not be reported as Crashlytics fatal errors.
   FlutterError.onError = (details) {
-    firebaseService.crashlytics?.recordFlutterFatalError(details);
+    if (shouldReportToCrashlytics(details.exception)) {
+      firebaseService.crashlytics?.recordFlutterFatalError(details);
+    }
     FlutterError.dumpErrorToConsole(details);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       handleUncaughtError(
@@ -148,9 +153,11 @@ Future<void> main() async {
     });
   };
 
-  // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
+  // Pass unexpected uncaught asynchronous errors to Crashlytics.
   PlatformDispatcher.instance.onError = (error, stack) {
-    firebaseService.crashlytics?.recordError(error, stack, fatal: true);
+    if (shouldReportToCrashlytics(error)) {
+      firebaseService.crashlytics?.recordError(error, stack, fatal: true);
+    }
     log('Uncaught asynchronous error: $error', stackTrace: stack);
     handleUncaughtError(error, type: .async, stackTrace: stack);
     return true;
@@ -158,10 +165,12 @@ Future<void> main() async {
 
   firebaseService.analytics?.logAppOpen();
 
-  await LocaleSettings.useDeviceLocale();
+  // Restore the platform language selection before mounting the app.
+  await container.read(languageRepositoryProvider).restore();
 
   // Initialize Remote Config and preference defaults
-  await container.read(preferencesRepositoryProvider).init();
+  final preferencesRepository = container.read(preferencesRepositoryProvider);
+  await preferencesRepository.init();
 
   // Run force-update check and wire Remote Config live updates.
   await UpdateService.init(container);
@@ -187,13 +196,17 @@ Future<void> main() async {
   // Prewarm the dependency graph before widgets subscribe. Riverpod cannot
   // invalidate its root scope while Flutter is mounting the initial frame.
   container.read(courseRepositoryProvider);
+  final landingLocation = await resolveLandingLocation(
+    preferencesRepository,
+  );
   final initialLocation = switch ((user, hadStoredLogin)) {
-    (final User _, _) => AppRoutes.home,
+    (final User _, _) => landingLocation,
     (null, true) => AppRoutes.login,
     (null, false) => AppRoutes.intro,
   };
   final router = createAppRouter(
     initialLocation: initialLocation,
+    landingLocation: landingLocation,
     container: container,
   );
 
@@ -207,7 +220,7 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key, required this.router});
 
   final GoRouter router;
@@ -215,7 +228,7 @@ class MyApp extends StatelessWidget {
   static const themeColor = Color(0xFF4B709B);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       title: t.general.appTitle,
       scaffoldMessengerKey: rootScaffoldMessengerKey,
@@ -228,6 +241,17 @@ class MyApp extends StatelessWidget {
       // TODO: Remove after dependencies stop importing Flutter's design libraries.
       // ignore: deprecated_member_use
       builder: (context, child) => MaterialUiCompatibilityBridge(child: child!),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: themeColor,
+          brightness: .dark,
+        ),
+      ),
+      themeMode: switch (ref.pref(PrefKey.themeMode)) {
+        'light' => .light,
+        'dark' => .dark,
+        _ => .system,
+      },
       routerConfig: router,
     );
   }

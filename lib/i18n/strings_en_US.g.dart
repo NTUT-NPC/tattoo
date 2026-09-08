@@ -39,6 +39,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	TranslationsEnUs $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsEnUs(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _Translations$preferences$en_US preferences = _Translations$preferences$en_US._(_root);
 	@override late final _Translations$general$en_US general = _Translations$general$en_US._(_root);
 	@override late final _Translations$errors$en_US errors = _Translations$errors$en_US._(_root);
 	@override late final _Translations$intro$en_US intro = _Translations$intro$en_US._(_root);
@@ -58,6 +59,22 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$forceUpdate$en_US forceUpdate = _Translations$forceUpdate$en_US._(_root);
 	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
 	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
+}
+
+// Path: preferences
+class _Translations$preferences$en_US extends Translations$preferences$zh_TW {
+	_Translations$preferences$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$preferences$startWithCourseTable$en_US startWithCourseTable = _Translations$preferences$startWithCourseTable$en_US._(_root);
+	@override String get darkMode => 'Dark Mode';
+	@override late final _Translations$preferences$themeMode$en_US themeMode = _Translations$preferences$themeMode$en_US._(_root);
+	@override late final _Translations$preferences$language$en_US language = _Translations$preferences$language$en_US._(_root);
+	@override String get managed => 'This setting is managed by the system and cannot be changed right now.';
+	@override String get loadFailed => 'Unable to load preferences';
+	@override String get saveFailed => 'Unable to save preferences. Please try again later.';
 }
 
 // Path: general
@@ -226,6 +243,7 @@ class _Translations$courseTable$en_US extends Translations$courseTable$zh_TW {
 	// Translations
 	@override String get notFound => 'Course table not found';
 	@override String get unscheduled => 'Unscheduled Courses';
+	@override late final _Translations$courseTable$detail$en_US detail = _Translations$courseTable$detail$en_US._(_root);
 	@override late final _Translations$courseTable$summary$en_US summary = _Translations$courseTable$summary$en_US._(_root);
 	@override late final _Translations$courseTable$actions$en_US actions = _Translations$courseTable$actions$en_US._(_root);
 	@override Map<String, String> get dayOfWeek => {
@@ -426,6 +444,46 @@ class _Translations$changePassword$en_US extends Translations$changePassword$zh_
 	@override late final _Translations$changePassword$errors$en_US errors = _Translations$changePassword$errors$en_US._(_root);
 }
 
+// Path: preferences.startWithCourseTable
+class _Translations$preferences$startWithCourseTable$en_US extends Translations$preferences$startWithCourseTable$zh_TW {
+	_Translations$preferences$startWithCourseTable$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Start with Course Table';
+}
+
+// Path: preferences.themeMode
+class _Translations$preferences$themeMode$en_US extends Translations$preferences$themeMode$zh_TW {
+	_Translations$preferences$themeMode$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get system => 'Default';
+	@override String get light => 'Light';
+	@override String get dark => 'Dark';
+}
+
+// Path: preferences.language
+class _Translations$preferences$language$en_US extends Translations$preferences$language$zh_TW {
+	_Translations$preferences$language$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Language';
+	@override String get followSystem => 'Default';
+	@override String get traditionalChinese => 'Traditional Chinese(繁體中文)';
+	@override String get english => 'English';
+	@override String get iosGuideTitle => 'Change the language in iOS Settings';
+	@override String get iosGuideDescription => 'iOS manages each app\'s language in Settings. Use the button below to open TAT\'s settings, then tap Language under Preferred Language and choose the language you want. If the Preferred Language section isn\'t shown, first add another preferred language in General > Language & Region, then return to TAT\'s settings.\n';
+	@override String get openSettings => 'Open System Settings';
+	@override String get changeFailed => 'Unable to change the language. Please try again later.';
+	@override String get openFailed => 'Unable to open system language settings. Please try again later.';
+}
+
 // Path: intro.features
 class _Translations$intro$features$en_US extends Translations$intro$features$zh_TW {
 	_Translations$intro$features$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -554,6 +612,17 @@ class _Translations$score$status$en_US extends Translations$score$status$zh_TW {
 	@override String get pass => 'Pass';
 	@override String get fail => 'Fail';
 	@override String get creditTransfer => 'Credit transfer';
+}
+
+// Path: courseTable.detail
+class _Translations$courseTable$detail$en_US extends Translations$courseTable$detail$zh_TW {
+	_Translations$courseTable$detail$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$courseTable$detail$tabs$en_US tabs = _Translations$courseTable$detail$tabs$en_US._(_root);
+	@override late final _Translations$courseTable$detail$roster$en_US roster = _Translations$courseTable$detail$roster$en_US._(_root);
 }
 
 // Path: courseTable.summary
@@ -869,6 +938,39 @@ class _Translations$score$ranking$type$en_US extends Translations$score$ranking$
 	@override String get departmentLevel => 'Dept.';
 }
 
+// Path: courseTable.detail.tabs
+class _Translations$courseTable$detail$tabs$en_US extends Translations$courseTable$detail$tabs$zh_TW {
+	_Translations$courseTable$detail$tabs$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get roster => 'Course Roster';
+	@override String get syllabus => 'Syllabus';
+}
+
+// Path: courseTable.detail.roster
+class _Translations$courseTable$detail$roster$en_US extends Translations$courseTable$detail$roster$zh_TW {
+	_Translations$courseTable$detail$roster$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get studentId => 'Student ID';
+	@override String get name => 'Name';
+	@override String get empty => 'No classmates are listed for this course';
+	@override String get loadFailed => 'Unable to load the course roster. Please try again later.';
+	@override String get loadingNetworkHint => 'I-School Plus requires the NTUT network.';
+	@override String get refresh => 'Refresh';
+	@override String get networkTitle => 'Connect to the NTUT network';
+	@override String get networkDescription => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then reopen the course roster.';
+	@override String get networkSnackbar => 'Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.';
+	@override String get learnMore => 'Learn More';
+	@override String get openGuide => 'View VPN Instructions';
+	@override String get backToRoster => 'Back to Course Roster';
+	@override String get openGuideFailed => 'Unable to open the VPN instructions. Please try again later.';
+}
+
 // Path: profile.dangerZone.items
 class _Translations$profile$dangerZone$items$en_US extends Translations$profile$dangerZone$items$zh_TW {
 	_Translations$profile$dangerZone$items$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -906,6 +1008,23 @@ class _Translations$changePassword$errors$server$en_US extends Translations$chan
 extension on TranslationsEnUs {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'preferences.startWithCourseTable.title' => 'Start with Course Table',
+			'preferences.darkMode' => 'Dark Mode',
+			'preferences.themeMode.system' => 'Default',
+			'preferences.themeMode.light' => 'Light',
+			'preferences.themeMode.dark' => 'Dark',
+			'preferences.language.title' => 'Language',
+			'preferences.language.followSystem' => 'Default',
+			'preferences.language.traditionalChinese' => 'Traditional Chinese(繁體中文)',
+			'preferences.language.english' => 'English',
+			'preferences.language.iosGuideTitle' => 'Change the language in iOS Settings',
+			'preferences.language.iosGuideDescription' => 'iOS manages each app\'s language in Settings. Use the button below to open TAT\'s settings, then tap Language under Preferred Language and choose the language you want. If the Preferred Language section isn\'t shown, first add another preferred language in General > Language & Region, then return to TAT\'s settings.\n',
+			'preferences.language.openSettings' => 'Open System Settings',
+			'preferences.language.changeFailed' => 'Unable to change the language. Please try again later.',
+			'preferences.language.openFailed' => 'Unable to open system language settings. Please try again later.',
+			'preferences.managed' => 'This setting is managed by the system and cannot be changed right now.',
+			'preferences.loadFailed' => 'Unable to load preferences',
+			'preferences.saveFailed' => 'Unable to save preferences. Please try again later.',
 			'general.appTitle' => 'Project Tattoo',
 			'general.notImplemented' => 'Not implemented',
 			'general.dataDisclaimer' => 'For reference only',
@@ -1011,6 +1130,21 @@ extension on TranslationsEnUs {
 			'calendar.today' => 'Today',
 			'courseTable.notFound' => 'Course table not found',
 			'courseTable.unscheduled' => 'Unscheduled Courses',
+			'courseTable.detail.tabs.roster' => 'Course Roster',
+			'courseTable.detail.tabs.syllabus' => 'Syllabus',
+			'courseTable.detail.roster.studentId' => 'Student ID',
+			'courseTable.detail.roster.name' => 'Name',
+			'courseTable.detail.roster.empty' => 'No classmates are listed for this course',
+			'courseTable.detail.roster.loadFailed' => 'Unable to load the course roster. Please try again later.',
+			'courseTable.detail.roster.loadingNetworkHint' => 'I-School Plus requires the NTUT network.',
+			'courseTable.detail.roster.refresh' => 'Refresh',
+			'courseTable.detail.roster.networkTitle' => 'Connect to the NTUT network',
+			'courseTable.detail.roster.networkDescription' => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then reopen the course roster.',
+			'courseTable.detail.roster.networkSnackbar' => 'Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.',
+			'courseTable.detail.roster.learnMore' => 'Learn More',
+			'courseTable.detail.roster.openGuide' => 'View VPN Instructions',
+			'courseTable.detail.roster.backToRoster' => 'Back to Course Roster',
+			'courseTable.detail.roster.openGuideFailed' => 'Unable to open the VPN instructions. Please try again later.',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',

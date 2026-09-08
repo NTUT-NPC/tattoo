@@ -13,6 +13,12 @@ void main() {
       expect(PrefKey.demoMode.type, PrefType.boolean);
       expect(PrefKey.demoMode.defaultValue, false);
 
+      expect(PrefKey.startWithCourseTable.type, PrefType.boolean);
+      expect(PrefKey.startWithCourseTable.defaultValue, false);
+
+      expect(PrefKey.themeMode.type, PrefType.string);
+      expect(PrefKey.themeMode.defaultValue, 'system');
+
       expect(PrefKey.showDangerZone.type, PrefType.boolean);
       expect(PrefKey.showDangerZone.defaultValue, false);
 
@@ -45,6 +51,15 @@ void main() {
 
       expect(PrefKey.showChangeAvatarButton.type, PrefType.boolean);
       expect(PrefKey.showChangeAvatarButton.defaultValue, true);
+
+      expect(PrefKey.showCourseRoster.type, PrefType.boolean);
+      expect(PrefKey.showCourseRoster.defaultValue, true);
+
+      expect(PrefKey.courseRosterGuideUrl.type, PrefType.string);
+      expect(
+        PrefKey.courseRosterGuideUrl.defaultValue,
+        defaultCourseRosterGuideUrl,
+      );
     });
 
     test('can be written and read from TypedPreferenceStore', () async {

@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/calendar/calendar_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/main/home/home_screen.dart';
@@ -10,6 +11,8 @@ import 'package:tattoo/screens/main/kiosk_login/kiosk_login_qr_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
 import 'package:tattoo/screens/main/profile/ntut_wifi_screen.dart';
+import 'package:tattoo/screens/main/profile/preference_detail_screen.dart';
+import 'package:tattoo/screens/main/profile/preferences_screen.dart';
 import 'package:tattoo/screens/main/profile/profile_screen.dart';
 import 'package:tattoo/screens/main/profile/regedit_screen.dart';
 import 'package:tattoo/screens/main/scanner/scanner_screen.dart';
@@ -33,6 +36,9 @@ abstract class AppRoutes {
   static const portal = '/portal';
   static const calendar = '/calendar';
   static const profile = '/profile';
+  static const preferences = '/preferences';
+  static const language = '/preferences/language';
+  static const themeMode = '/preferences/theme';
   static const intro = '/intro';
   static const login = '/login';
   static const about = '/about';
@@ -42,6 +48,27 @@ abstract class AppRoutes {
   static const regedit = '/regedit';
   static const changePassword = '/change-password';
   static const update = '/update';
+}
+
+/// Resolves the landing route used after authentication.
+///
+/// Falls back to home if preferences cannot be read so a storage failure does
+/// not block app startup or a successful login.
+Future<String> resolveLandingLocation(
+  PreferencesRepository preferencesRepository,
+) async {
+  try {
+    final startWithCourseTable = await preferencesRepository.get(
+      PrefKey.startWithCourseTable,
+    );
+    return switch (startWithCourseTable) {
+      true => AppRoutes.courseTable,
+      false => AppRoutes.home,
+    };
+  } catch (error) {
+    debugPrint('Failed to resolve authenticated landing preference: $error');
+    return AppRoutes.home;
+  }
 }
 
 Widget _framed(Widget child) => CenteredMaxWidthFrame(child: child);
@@ -71,6 +98,7 @@ const _publicRoutes = {
 /// Optional updates are surfaced as a dismissible banner instead.
 GoRouter createAppRouter({
   required String initialLocation,
+  required String landingLocation,
   required ProviderContainer container,
 }) => GoRouter(
   navigatorKey: rootNavigatorKey,
@@ -90,7 +118,7 @@ GoRouter createAppRouter({
     // but no update is actually available.
     if (state.matchedLocation == AppRoutes.update && updateConfig == null) {
       final hasSession = container.read(sessionProvider);
-      return hasSession ? AppRoutes.home : AppRoutes.intro;
+      return hasSession ? landingLocation : AppRoutes.intro;
     }
 
     // Auth gate: redirect unauthenticated users to login.
@@ -141,6 +169,22 @@ GoRouter createAppRouter({
     GoRoute(
       path: AppRoutes.regedit,
       builder: (context, state) => _framed(const RegeditScreen()),
+    ),
+    GoRoute(
+      path: AppRoutes.preferences,
+      builder: (context, state) => _framed(const PreferencesScreen()),
+    ),
+    GoRoute(
+      path: AppRoutes.language,
+      builder: (context, state) => _framed(
+        const PreferenceDetailScreen(id: .language),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.themeMode,
+      builder: (context, state) => _framed(
+        const PreferenceDetailScreen(id: .themeMode),
+      ),
     ),
     GoRoute(
       path: AppRoutes.portal,

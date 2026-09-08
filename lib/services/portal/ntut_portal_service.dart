@@ -55,11 +55,12 @@ class NtutPortalService implements PortalService {
   Future<UserDto> login(String username, String password) async {
     final response = await _portalDio.post(
       'login.do',
-      queryParameters: {
+      data: {
         'muid': username,
         'mpassword': password,
         'thetime': DateTime.now().millisecondsSinceEpoch.toString(),
       },
+      options: Options(contentType: Headers.formUrlEncodedContentType),
     );
 
     final body = jsonDecode(response.data);
@@ -103,6 +104,7 @@ class NtutPortalService implements PortalService {
   }) async {
     final response = await _portalDio.post(
       !isExpired ? 'passwordMdy.do' : 'passwordFirstMdy.do',
+      // TODO: Move credentials to form data
       queryParameters: !isExpired
           ? {
               "oldPassword": currentPassword,

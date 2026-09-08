@@ -154,10 +154,6 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       extendBodyBehindAppBar: false,
       appBar: AppBar(
         title: Text(t.scanner.title),
-        backgroundColor: Theme.of(context).colorScheme.primary, // 使用主題主色
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: Colors.white,
       ),
       body: Stack(
         children: [

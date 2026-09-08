@@ -44,6 +44,27 @@ void main() {
     });
   });
 
+  group('shouldReportToCrashlytics', () {
+    test('excludes expected network failures', () {
+      expect(
+        shouldReportToCrashlytics(
+          DioException(
+            requestOptions: RequestOptions(path: 'https://example.com'),
+          ),
+        ),
+        isFalse,
+      );
+      expect(
+        shouldReportToCrashlytics(const SocketException('offline')),
+        isFalse,
+      );
+    });
+
+    test('keeps unexpected errors reportable', () {
+      expect(shouldReportToCrashlytics(Exception('unexpected')), isTrue);
+    });
+  });
+
   group('network_error_stub', () {
     test('isNativeNetworkError returns false on stub platform', () {
       expect(stub.isNativeNetworkError(Exception('something failed')), isFalse);

@@ -488,6 +488,9 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
 
   /// Number of withdrawn students (撤).
   late final withdrawn = integer().nullable()();
+
+  /// Last time the I-School Plus student roster was refreshed successfully.
+  late final studentRosterFetchedAt = dateTime().nullable()();
 }
 
 // Junction tables and dependent tables

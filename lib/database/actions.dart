@@ -100,6 +100,20 @@ extension DatabaseActions on AppDatabase {
     )).id;
   }
 
+  /// Returns the ID of an existing student row, or creates/updates one.
+  Future<int> upsertStudent({required String studentId, String? name}) async {
+    return (await into(students).insertReturning(
+      StudentsCompanion.insert(
+        studentId: studentId,
+        name: Value(name),
+      ),
+      onConflict: DoUpdate(
+        (old) => StudentsCompanion(name: Value(name)),
+        target: [students.studentId],
+      ),
+    )).id;
+  }
+
   /// Returns the ID of an existing teacher semester, or creates/updates one.
   Future<int> upsertTeacherSemester({
     required String code,

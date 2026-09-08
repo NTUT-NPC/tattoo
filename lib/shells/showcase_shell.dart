@@ -83,7 +83,7 @@ class ShowcaseShell extends StatelessWidget {
                         Text(
                           subtitle,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
                           textAlign: .center,
                         ),
