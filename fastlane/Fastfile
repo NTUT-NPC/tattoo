@@ -117,6 +117,9 @@ platform :ios do
     )
 
     changelog = release_notes(pr_number, pr_title, commit_sha, commit_message)
+    test_message = options[:test_message].to_s.strip
+    test_message = ENV["TESTFLIGHT_TEST_MESSAGE"].to_s.strip if test_message.empty?
+    changelog = [changelog, test_message].reject(&:empty?).join("\n\n")
 
     target_groups = if options[:groups]
                       options[:groups].is_a?(Array) ? options[:groups] : options[:groups].to_s.split(",").map(&:strip)

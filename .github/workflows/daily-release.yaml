@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      test_message:
+        description: 'Message describing what external testers should verify in this build'
+        required: false
+        type: string
+        default: ''
       force_build:
         description: 'Force build even if no changes'
         required: false
@@ -284,8 +289,9 @@ jobs:
         Daily Build ${{ needs.prepare.outputs.date }}
         ${{ needs.prepare.outputs.store_changelog }}
       PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
+      TESTFLIGHT_TEST_MESSAGE: ${{ inputs.test_message || vars.TESTFLIGHT_TEST_MESSAGE }}
       TESTFLIGHT_PUBLIC_LINK: ${{ vars.TESTFLIGHT_PUBLIC_LINK }}
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -302,9 +308,9 @@ jobs:
         id: build
         run: |
           if [ "${{ needs.prepare.outputs.dry_run }}" = "true" ]; then
-            bundle exec fastlane ios upload_testflight skip_upload:true
+            bundle exec fastlane ios upload_testflight skip_upload:true test_message:"$TESTFLIGHT_TEST_MESSAGE" include_public_testers:"$PUBLIC_TESTERS" distribute_external:true
           else
-            bundle exec fastlane ios upload_testflight
+            bundle exec fastlane ios upload_testflight test_message:"$TESTFLIGHT_TEST_MESSAGE" include_public_testers:"$PUBLIC_TESTERS" distribute_external:true
           fi
           IPA_PATH=$(find . -maxdepth 2 -name "*.ipa" | head -n 1)
           echo "ipa_path=$IPA_PATH" >> $GITHUB_OUTPUT
