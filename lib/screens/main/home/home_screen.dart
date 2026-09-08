@@ -88,7 +88,10 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
         actionIcon: .exitToApp,
         title: t.home.projectTattoo.title.spaced,
         description: t.home.projectTattoo.description,
-        onTap: () => launchUrl(.parse(t.home.projectTattoo.url)),
+        onTap: () => launchUrl(
+          .parse(t.home.projectTattoo.url),
+          inExternalApplication: true,
+        ),
       ),
       OptionEntryTile.icon(
         icon: Icons.explore_outlined,
@@ -104,7 +107,8 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
         actionIcon: .exitToApp,
         title: t.home.npcClub.title,
         description: t.home.npcClub.description,
-        onTap: () => launchUrl(.parse(t.home.npcClub.url)),
+        onTap: () =>
+            launchUrl(.parse(t.home.npcClub.url), inExternalApplication: true),
       ),
       if (ref.pref(PrefKey.showVoteButton))
         OptionEntryTile.icon(
