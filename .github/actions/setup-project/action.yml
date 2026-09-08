@@ -4,6 +4,35 @@ description: Install development tools with mise and get dependencies
 inputs:
   platform:
     description: The target platform (e.g., ios, android)
+  save-caches:
+    description: Whether mise may save its populated tool cache
+    default: "false"
+
+outputs:
+  pub-cache-hit:
+    description: Whether the exact Flutter pub cache was restored
+    value: ${{ steps.pub-cache.outputs.cache-hit }}
+  pub-cache-primary-key:
+    description: Primary key used to restore the Flutter pub cache
+    value: ${{ steps.pub-cache.outputs.cache-primary-key }}
+  gradle-cache-hit:
+    description: Whether the exact Gradle cache was restored
+    value: ${{ steps.gradle-cache.outputs.cache-hit }}
+  gradle-cache-primary-key:
+    description: Primary key used to restore the Gradle cache
+    value: ${{ steps.gradle-cache.outputs.cache-primary-key }}
+  android-sdk-cache-hit:
+    description: Whether the exact Android SDK cache was restored
+    value: ${{ steps.android-sdk-cache.outputs.cache-hit }}
+  android-sdk-cache-primary-key:
+    description: Primary key used to restore the Android SDK cache
+    value: ${{ steps.android-sdk-cache.outputs.cache-primary-key }}
+  spm-cache-hit:
+    description: Whether the exact Swift Package Manager cache was restored
+    value: ${{ steps.spm-cache.outputs.cache-hit }}
+  spm-cache-primary-key:
+    description: Primary key used to restore the Swift Package Manager cache
+    value: ${{ steps.spm-cache.outputs.cache-primary-key }}
 
 runs:
   using: composite
@@ -18,6 +47,7 @@ runs:
             'flutter'
           ) }}
         add_shims_to_path: false # Use direct bin paths
+        cache_save: ${{ inputs.save-caches }}
 
     - name: Verify Flutter version
       id: flutter-version
@@ -39,9 +69,9 @@ runs:
       env:
         BUNDLE_FROZEN: "true"
 
-
-    - name: Setup Flutter pub cache
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+    - name: Restore Flutter pub cache
+      id: pub-cache
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
         path: ~/.pub-cache
@@ -52,9 +82,10 @@ runs:
       shell: bash
       run: flutter pub get --enforce-lockfile
 
-    - name: Setup Gradle cache
+    - name: Restore Gradle cache
+      id: gradle-cache
       if: ${{ inputs.platform == 'android' }}
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/*.gradle*', 'android/**/gradle.properties', 'android/gradle/wrapper/gradle-wrapper.properties') }}
         path: |
@@ -63,9 +94,10 @@ runs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Setup Android SDK cache
+    - name: Restore Android SDK cache
+      id: android-sdk-cache
       if: ${{ inputs.platform == 'android' }}
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         key: ${{ runner.os }}-android-sdk-${{ steps.flutter-version.outputs.flutter_version }}
         # Update paths when updating Flutter version
@@ -83,16 +115,16 @@ runs:
         XCODE_VERSION=$(xcodebuild -version | sed -n 's/^Xcode //p')
         echo "xcode_version=$XCODE_VERSION" >> "$GITHUB_OUTPUT"
 
-    - name: Setup Swift Package Manager cache
+    - name: Restore Swift Package Manager cache
+      id: spm-cache
       if: ${{ inputs.platform == 'ios' }}
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         key: ${{ runner.os }}-spm-${{ runner.arch }}-xcode-${{ steps.xcode_version.outputs.xcode_version }}-${{ hashFiles('ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
         path: build/ios/SourcePackages
         restore-keys: |
           ${{ runner.os }}-spm-${{ runner.arch }}-xcode-${{ steps.xcode_version.outputs.xcode_version }}-
           ${{ runner.os }}-spm-${{ runner.arch }}-
-
 
     - name: Check iOS config drift
       id: ios-drift
