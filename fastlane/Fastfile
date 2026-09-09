@@ -130,6 +130,7 @@ platform :ios do
                     end
 
     upload_params = {
+      app_identifier: bundle_identifier,
       changelog: changelog,
       distribute_external: !internal_only,
     }
