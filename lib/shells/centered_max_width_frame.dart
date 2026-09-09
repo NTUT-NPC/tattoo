@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Maximum width used by phone-oriented screen content.
 const contentMaxWidth = 580.0;

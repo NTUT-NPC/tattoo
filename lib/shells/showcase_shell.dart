@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// A vertically centered showcase layout with icon/title header, body, and footer.
 ///

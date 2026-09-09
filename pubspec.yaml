@@ -10,9 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
-
   cupertino_icons: ^1.0.9
   dio: ^5.11.0
   native_dio_adapter: ^1.8.0
@@ -52,6 +49,7 @@ dependencies:
   qr_flutter: ^4.1.0
   firebase_remote_config: ^6.6.0
   pub_semver: ^2.2.1
+  material_ui: ^1.1.0
 
 # darwin <=0.3.2 declares iOS 12.0 but uses iOS-13+ CryptoKit, breaking the SPM
 # iOS build. 0.4.0 only raises that floor. Drop once fss 11 ships stable.
