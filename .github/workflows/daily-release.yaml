@@ -170,6 +170,7 @@ jobs:
             --prerelease
 
   android:
+    environment: staging
     runs-on: ubuntu-latest
     needs: [prepare]
     if: needs.prepare.outputs.skip_build != 'true'
@@ -261,6 +262,7 @@ jobs:
             > Public testers on Firebase will not receive new builds, please switch to Google Play.
 
   ios:
+    environment: staging
     runs-on: macos-26
     needs: [prepare]
     if: needs.prepare.outputs.skip_build != 'true'
