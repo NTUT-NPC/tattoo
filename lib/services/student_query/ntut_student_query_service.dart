@@ -23,6 +23,12 @@ class NtutStudentQueryService implements StudentQueryService {
 
     final table = document.querySelector('table');
     if (table == null) {
+      final html =
+          document.querySelector('iframe')?.outerHtml ??
+          response.data.toString();
+      if (html.isNotEmpty) {
+        throw ActionRequiredException(html);
+      }
       throw FormatException('No table found in QryBasisData.jsp');
     }
 
@@ -92,6 +98,14 @@ class NtutStudentQueryService implements StudentQueryService {
     );
 
     final document = parse(response.data);
+    if (document.querySelector('table') == null) {
+      final html =
+          document.querySelector('iframe')?.outerHtml ??
+          response.data.toString();
+      if (html.isNotEmpty) {
+        throw ActionRequiredException(html);
+      }
+    }
 
     // Semester labels are in submit button values: "114 學年度 第 1 學期 (2025 - Fall)"
     final semesterPattern = RegExp(r'(\d+)\s*學年度\s*第\s*(\d+)\s*學期');
@@ -176,6 +190,14 @@ class NtutStudentQueryService implements StudentQueryService {
   Future<List<GpaDto>> getGpa() async {
     final response = await _studentQueryDio.get('QryGPA.jsp');
     final document = parse(response.data);
+    if (document.querySelector('table') == null) {
+      final html =
+          document.querySelector('iframe')?.outerHtml ??
+          response.data.toString();
+      if (html.isNotEmpty) {
+        throw ActionRequiredException(html);
+      }
+    }
 
     final semesterPattern = RegExp(r'(\d{2,4})\s*[-－–—]\s*([12])');
     final gpaPattern = RegExp(r'\d+(?:\.\d+)?');
@@ -228,7 +250,15 @@ class NtutStudentQueryService implements StudentQueryService {
     final document = parse(response.data);
 
     final table = document.querySelector('table');
-    if (table == null) return [];
+    if (table == null) {
+      final html =
+          document.querySelector('iframe')?.outerHtml ??
+          response.data.toString();
+      if (html.isNotEmpty) {
+        throw ActionRequiredException(html);
+      }
+      return [];
+    }
 
     final semesterPattern = RegExp(r'(\d+)\s*-\s*(\d+)');
     final results = <GradeRankingDto>[];
@@ -309,7 +339,15 @@ class NtutStudentQueryService implements StudentQueryService {
     // Single table with 7 columns: semester, class, enrollment status,
     // registered, graduated, tutors, class cadres
     final table = document.querySelector('table');
-    if (table == null) return [];
+    if (table == null) {
+      final html =
+          document.querySelector('iframe')?.outerHtml ??
+          response.data.toString();
+      if (html.isNotEmpty) {
+        throw ActionRequiredException(html);
+      }
+      return [];
+    }
 
     // Semester cell: <div>"114 - 2"<br>"2026 - Spring"</div> — use first text node
     final semesterPattern = RegExp(r'(\d+)\s*-\s*(\d+)');
@@ -365,6 +403,462 @@ class NtutStudentQueryService implements StudentQueryService {
     return results;
   }
 
+  @override
+  Future<List<MidtermWarningDto>> getMidtermWarnings() async {
+    final response = await _studentQueryDio.get('QrySCWarn.jsp');
+    final document = parse(response.data);
+    final table = document.querySelector('table');
+    if (table == null) return [];
+
+    final results = <MidtermWarningDto>[];
+    for (final row in table.querySelectorAll('tr').skip(1)) {
+      final cells = row.querySelectorAll('th, td');
+      if (cells.length < 9) continue;
+
+      final reqText = _parseCellText(cells[1]) ?? '';
+      final required = reqText.contains('必') || reqText.contains('Required')
+          ? true
+          : (reqText.contains('選') || reqText.contains('Elective')
+                ? false
+                : null);
+
+      results.add((
+        courseNumber: _parseCellText(cells[0]),
+        required: required,
+        courseNameZh: _parseCellText(cells[2]),
+        courseNameEn: _parseCellText(cells[3]),
+        credits: double.tryParse(_parseCellText(cells[4]) ?? ''),
+        note: _parseCellText(cells[5]),
+        isPoorLearning: cells[6].text.trim().isNotEmpty,
+        isUndelivered: cells[7].text.trim().isNotEmpty,
+        warnedRatio: _parseCellText(cells[8]),
+      ));
+    }
+    return results;
+  }
+
+  @override
+  Future<StudentAffairsDto> getStudentAffairs() async {
+    final response = await _studentQueryDio.get('QryAbsRew.jsp');
+    final document = parse(response.data);
+    final tables = document.querySelectorAll('table');
+
+    final rewardSummary = <String, int>{};
+    final rewardRecords = <RewardPunishmentRecordDto>[];
+    final attendanceSummary = <String, int>{};
+    final attendanceRecords = <AttendanceRecordDto>[];
+
+    // Table 0: Reward and Punishment Statistics
+    if (tables.isNotEmpty) {
+      for (final row in tables[0].querySelectorAll('tr').skip(1)) {
+        final cells = row.querySelectorAll('th, td');
+        if (cells.length >= 2) {
+          final classification = cells[0].text.trim();
+          final times = int.tryParse(cells[1].text.trim());
+          if (classification.isNotEmpty && times != null) {
+            rewardSummary[classification] = times;
+          }
+        }
+      }
+    }
+
+    // Table 1: Reward and Punishment Detailed Records
+    if (tables.length >= 2) {
+      for (final row in tables[1].querySelectorAll('tr').skip(1)) {
+        final cells = row.querySelectorAll('th, td');
+        if (cells.length >= 4) {
+          final dateStr = cells[0].text.trim();
+          final classification = cells[1].text.trim();
+          final timesStr = cells[2].text.trim();
+          final reason = _parseCellText(cells[3]);
+          if (classification.isEmpty ||
+              classification.contains('無') ||
+              classification.contains('None')) {
+            continue;
+          }
+          final times = int.tryParse(timesStr) ?? 1;
+          rewardRecords.add((
+            date: _parseWesternDate(dateStr),
+            classification: classification,
+            times: times,
+            reason: reason,
+          ));
+        }
+      }
+    }
+
+    // Table 2: Absenteeism and Leave Statistics
+    if (tables.length >= 3) {
+      for (final row in tables[2].querySelectorAll('tr').skip(1)) {
+        final cells = row.querySelectorAll('th, td');
+        if (cells.length >= 2) {
+          final classification = cells[0].text.trim();
+          final times = int.tryParse(cells[1].text.trim());
+          if (classification.isNotEmpty && times != null) {
+            attendanceSummary[classification] = times;
+          }
+        }
+      }
+    }
+
+    // Table 3: Absenteeism and Leave Detailed Records
+    if (tables.length >= 4) {
+      for (final row in tables[3].querySelectorAll('tr').skip(1)) {
+        final cells = row.querySelectorAll('th, td');
+        if (cells.length >= 6) {
+          final dateStr = cells[1].text.trim();
+          final classification = cells[4].text.trim();
+          if (classification.isEmpty ||
+              classification.contains('無') ||
+              classification.contains('None')) {
+            continue;
+          }
+          attendanceRecords.add((
+            week: int.tryParse(cells[0].text.trim()),
+            date: _parseWesternDate(dateStr),
+            period: int.tryParse(cells[2].text.trim()),
+            rollCallNumber: _parseCellText(cells[3]),
+            classification: classification,
+            note: _parseCellText(cells[5]),
+          ));
+        }
+      }
+    }
+
+    return (
+      rewardPunishmentSummary: rewardSummary,
+      rewardPunishmentRecords: rewardRecords,
+      attendanceSummary: attendanceSummary,
+      attendanceRecords: attendanceRecords,
+    );
+  }
+
+  @override
+  Future<List<StudentLoanDto>> getStudentLoan() async {
+    final response = await _studentQueryDio.get('QryFeeLoan.jsp');
+    final document = parse(response.data);
+    final table = document.querySelector('table');
+    if (table == null) return [];
+
+    final semesterPattern = RegExp(r'(\d+)\s*[-－–—]\s*([12])');
+    final results = <StudentLoanDto>[];
+    for (final row in table.querySelectorAll('tr').skip(1)) {
+      final cells = row.querySelectorAll('th, td');
+      if (cells.length < 4) continue;
+
+      final semText = cells[0].text;
+      final match = semesterPattern.firstMatch(semText);
+      final semester = match != null
+          ? (
+              year: int.parse(match.group(1)!),
+              term: int.parse(match.group(2)!),
+            )
+          : null;
+
+      results.add((
+        semester: semester,
+        loanType: _parseCellText(cells[1]),
+        amount: double.tryParse(cells[2].text.replaceAll(',', '').trim()),
+        status: _parseCellText(cells[3]),
+      ));
+    }
+    return results;
+  }
+
+  @override
+  Future<List<GeneralEducationDimensionDto>>
+  getGeneralEducationDimension() async {
+    final response = await _studentQueryDio.get('QryLAECourse.jsp');
+    final document = parse(response.data);
+    final table = document.querySelector('table');
+    if (table == null) return [];
+
+    final semesterPattern = RegExp(r'(\d+)\s*[-－–—]\s*([12])');
+    final results = <GeneralEducationDimensionDto>[];
+    String? currentDimZh;
+    String? currentDimEn;
+    double? reqCred;
+    double? coreCred;
+    double? elecCred;
+    var currentCourses = <GeneralEducationCourseDto>[];
+
+    void saveCurrent() {
+      if (currentDimZh != null) {
+        results.add((
+          dimensionZh: currentDimZh,
+          dimensionEn: currentDimEn,
+          requiredCredits: reqCred,
+          coreCreditsTaken: coreCred,
+          electiveCreditsTaken: elecCred,
+          courses: currentCourses,
+        ));
+      }
+    }
+
+    for (final row in table.querySelectorAll('tr').skip(2)) {
+      final cells = row.querySelectorAll('th, td');
+      if (cells.length < 5) continue;
+
+      int courseStart = 0;
+      if (cells.length >= 10) {
+        saveCurrent();
+        currentCourses = [];
+        final dimText = cells[0].text.trim();
+        final i = dimText.indexOf(RegExp(r'[A-Za-z]'));
+        if (i > 0) {
+          currentDimZh = dimText.substring(0, i).trim();
+          currentDimEn = dimText.substring(i).trim();
+        } else {
+          currentDimZh = dimText;
+          currentDimEn = null;
+        }
+        reqCred = double.tryParse(cells[1].text.trim());
+        coreCred = double.tryParse(cells[2].text.trim());
+        elecCred = double.tryParse(cells[3].text.trim());
+        courseStart = 4;
+      }
+
+      if (cells.length >= courseStart + 7) {
+        final semText = cells[courseStart].text;
+        final semMatch = semesterPattern.firstMatch(semText);
+        final semester = semMatch != null
+            ? (
+                year: int.parse(semMatch.group(1)!),
+                term: int.parse(semMatch.group(2)!),
+              )
+            : null;
+        final code = _parseCellText(cells[courseStart + 2]);
+        if (code != null) {
+          final isCoreText = cells[courseStart + 1].text.trim();
+          currentCourses.add((
+            semester: semester,
+            isCore: isCoreText.isNotEmpty ? true : false,
+            courseCode: code,
+            courseNameZh: _parseCellText(cells[courseStart + 3]),
+            courseNameEn: _parseCellText(cells[courseStart + 4]),
+            credits: double.tryParse(cells[courseStart + 5].text.trim()),
+            score: int.tryParse(cells[courseStart + 6].text.trim()),
+          ));
+        }
+      }
+    }
+    saveCurrent();
+    return results;
+  }
+
+  @override
+  Future<List<EnglishProficiencyDto>> getEnglishProficiency() async {
+    final response = await _studentQueryDio.get('QryGeptScore.jsp');
+    final document = parse(response.data);
+    final table = document.querySelector('table');
+    if (table == null) return [];
+
+    final semesterPattern = RegExp(r'(\d+)\s*[-－–—]\s*([12])');
+    final results = <EnglishProficiencyDto>[];
+    for (final row in table.querySelectorAll('tr').skip(1)) {
+      final cells = row.querySelectorAll('th, td');
+      if (cells.length < 7) continue;
+
+      final semMatch = semesterPattern.firstMatch(cells[0].text);
+      final semester = semMatch != null
+          ? (
+              year: int.parse(semMatch.group(1)!),
+              term: int.parse(semMatch.group(2)!),
+            )
+          : null;
+
+      results.add((
+        semester: semester,
+        sequenceNumber: int.tryParse(cells[1].text.trim()),
+        className: _parseCellText(cells[2]),
+        grade: double.tryParse(cells[3].text.trim()),
+        level: _parseCellText(cells[4]),
+        certificate: _parseCellText(cells[5]),
+        reviewResult: _parseCellText(cells[6]),
+      ));
+    }
+    return results;
+  }
+
+  @override
+  Future<List<ExamScoreDto>> getExamScores() async {
+    final response = await _studentQueryDio.get('QryExamScore.jsp');
+    final document = parse(response.data);
+    final table = document.querySelector('table');
+    if (table == null) return [];
+
+    final results = <ExamScoreDto>[];
+    String? currentName;
+    DateTime? currentDate;
+    String? currentPaper;
+    var currentSections = <ExamSectionScoreDto>[];
+
+    void saveCurrent() {
+      if (currentName != null) {
+        results.add((
+          examName: currentName,
+          date: currentDate,
+          testPaper: currentPaper,
+          sectionScores: currentSections,
+        ));
+      }
+    }
+
+    for (final row in table.querySelectorAll('tr').skip(1)) {
+      final cells = row.querySelectorAll('th, td');
+      if (cells.length >= 5) {
+        saveCurrent();
+        currentSections = [];
+        currentName = _parseCellText(cells[0]);
+        currentDate = _parseWesternDate(cells[1].text);
+        currentPaper = _parseCellText(cells[2]);
+        final secName = _parseCellText(cells[3]);
+        final secScore = double.tryParse(cells[4].text.trim());
+        if (secName != null) {
+          currentSections.add((sectionName: secName, score: secScore));
+        }
+      } else if (cells.length >= 2 && currentName != null) {
+        final secName = _parseCellText(cells[0]);
+        final secScore = double.tryParse(cells[1].text.trim());
+        if (secName != null) {
+          currentSections.add((sectionName: secName, score: secScore));
+        }
+      }
+    }
+    saveCurrent();
+    return results;
+  }
+
+  @override
+  Future<ContactInfoDto> getContactInfo() async {
+    final response = await _studentQueryDio.get('UpdContact.jsp');
+    final document = parse(response.data);
+
+    String? val(String name) => document
+        .querySelector('input[name="$name"]')
+        ?.attributes['value']
+        ?.trim();
+
+    final commuteModes = document
+        .querySelectorAll('input[name="commute"][checked]')
+        .map((e) => e.attributes['value']?.trim() ?? '')
+        .where((s) => s.isNotEmpty)
+        .toList();
+
+    return (
+      mobilePhone: val('mtelno'),
+      email: val('email'),
+      commuteModes: commuteModes,
+      rentalAddress: val('rent_addr'),
+      landlordName: val('lessor'),
+      landlordPhone: val('ltelno'),
+    );
+  }
+
+  @override
+  Future<void> updateContactInfo(ContactInfoDto info) async {
+    await _studentQueryDio.post(
+      'UpdContact.jsp',
+      data: {
+        'tosave': '1',
+        'mtelno': info.mobilePhone ?? '',
+        'email': info.email ?? '',
+        'commute': info.commuteModes,
+        'rent_addr': info.rentalAddress ?? '',
+        'lessor': info.landlordName ?? '',
+        'ltelno': info.landlordPhone ?? '',
+        'Save': '確認並儲存資料 (Save)',
+      },
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
+  }
+
+  @override
+  Future<GraduationQualificationDto?> getGraduationQualifications() async {
+    final funcRes = await _studentQueryDio.get('Function.jsp');
+    final funcDoc = parse(funcRes.data);
+    final link = funcDoc.querySelectorAll('a').firstWhere(
+      (a) {
+        final text = a.text;
+        final href = a.attributes['href'] ?? '';
+        if (href.contains('QryGeptScore') ||
+            text.contains('英語') ||
+            text.contains('English')) {
+          return false;
+        }
+        return text.contains('畢業資格') || text.contains('Graduation');
+      },
+      orElse: () => Element.tag('a'),
+    );
+    final href = link.attributes['href'];
+    if (href == null || href.isEmpty) return null;
+
+    final response = await _studentQueryDio.get(href);
+    final document = parse(response.data);
+    final table = document.querySelector('table');
+    if (table == null) return null;
+
+    final details = <({String requirement, bool passed, String? note})>[];
+    String? status;
+    for (final row in table.querySelectorAll('tr')) {
+      final cells = row.querySelectorAll('th, td');
+      if (cells.length >= 3) {
+        final req = cells[0].text.trim();
+        final resText = cells[1].text.trim();
+        final note = _parseCellText(cells[2]);
+        if (req.isNotEmpty) {
+          details.add((
+            requirement: req,
+            passed:
+                resText.contains('通過') ||
+                resText.contains('Pass') ||
+                resText.contains('合格') ||
+                resText.contains('符合'),
+            note: note,
+          ));
+        }
+      } else if (cells.length == 1 || cells.length == 2) {
+        if (cells[0].text.contains('審查結果') ||
+            cells[0].text.contains('狀態') ||
+            cells[0].text.contains('總結') ||
+            cells[0].text.contains('Status')) {
+          status = cells.last.text.trim();
+        }
+      }
+    }
+
+    return (status: status, details: details);
+  }
+
+  DateTime? _parseWesternDate(String? text) {
+    if (text == null) return null;
+    final match = RegExp(
+      r'(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})',
+    ).firstMatch(text);
+    if (match != null) {
+      return DateTime(
+        int.parse(match.group(1)!),
+        int.parse(match.group(2)!),
+        int.parse(match.group(3)!),
+      );
+    }
+    // Try ROC year format: 115.05.29
+    final rocMatch = RegExp(
+      r'(\d{2,3})[-/.](\d{1,2})[-/.](\d{1,2})',
+    ).firstMatch(text);
+    if (rocMatch != null) {
+      final rocYear = int.parse(rocMatch.group(1)!);
+      if (rocYear < 200) {
+        return DateTime(
+          rocYear + 1911,
+          int.parse(rocMatch.group(2)!),
+          int.parse(rocMatch.group(3)!),
+        );
+      }
+    }
+    return null;
+  }
+
   String? _parseCellText(Element cell) {
     final text = cell.text.trim();
     return text.isNotEmpty ? text : null;
@@ -396,12 +890,12 @@ class NtutStudentQueryService implements StudentQueryService {
     if (numeric != null) return (numeric, null);
 
     final status = switch (text) {
-      'N' => ScoreStatus.notEntered,
+      'N' || 'Ｎ' => ScoreStatus.notEntered,
       'W' || 'Ｗ' => ScoreStatus.withdraw,
-      '#' => ScoreStatus.undelivered,
-      'P' => ScoreStatus.pass,
-      'F' => ScoreStatus.fail,
-      '抵免' => ScoreStatus.creditTransfer,
+      '#' || '＃' => ScoreStatus.undelivered,
+      'P' || 'Ｐ' => ScoreStatus.pass,
+      'F' || 'Ｆ' => ScoreStatus.fail,
+      '抵免' || '抵' => ScoreStatus.creditTransfer,
       _ => null,
     };
 
