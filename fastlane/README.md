@@ -23,6 +23,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Build and upload to TestFlight
 
+### ios release_production
+
+```sh
+[bundle exec] fastlane ios release_production
+```
+
+Build and upload the production flavor to internal TestFlight
+
 ----
 
 
@@ -59,6 +67,14 @@ Build and upload PR preview to Firebase App Distribution
 ```
 
 Build and upload to Google Play Console & Firebase
+
+### android release_production
+
+```sh
+[bundle exec] fastlane android release_production
+```
+
+Build and upload the production flavor to Google Play Internal
 
 ----
 
