@@ -5,6 +5,7 @@
 //
 // Usage:
 //   dart run tool/credentials.dart fetch
+//   dart run tool/credentials.dart fetch-build <android|ios> <staging|production>
 //   dart run tool/credentials.dart encrypt <source-file> <dest-path-in-repo>
 
 import 'dart:convert';
@@ -249,32 +250,72 @@ Future<void> cloneOrPull(Config config) async {
 // Commands
 // ---------------------------------------------------------------------------
 
+void _writeMapping(
+  MapEntry<String, String> entry,
+  Config config,
+) {
+  final srcFile = File('$_repoDir/${entry.key}');
+  final destPath = entry.value;
+  File(destPath).parent.createSync(recursive: true);
+
+  if (entry.key.endsWith('.enc')) {
+    final encrypted = srcFile.readAsBytesSync();
+    final decrypted = decryptBytes(encrypted, config.matchPassword);
+    File(destPath).writeAsBytesSync(decrypted);
+    stdout.writeln('  decrypt ${entry.key} -> $destPath');
+  } else {
+    srcFile.copySync(destPath);
+    stdout.writeln('  copy ${entry.key} -> $destPath');
+  }
+}
+
 Future<void> fetch(Config config) async {
   await cloneOrPull(config);
 
   for (final entry in _fileMappings.entries) {
-    final srcPath = '$_repoDir/${entry.key}';
-    final destPath = entry.value;
-    final srcFile = File(srcPath);
-
-    if (!srcFile.existsSync()) {
+    if (!File('$_repoDir/${entry.key}').existsSync()) {
       stdout.writeln('  skip ${entry.key} (not found)');
       continue;
     }
+    _writeMapping(entry, config);
+  }
 
-    // Ensure destination directory exists
-    File(destPath).parent.createSync(recursive: true);
+  stdout.writeln('Done.');
+}
 
-    if (entry.key.endsWith('.enc')) {
-      final encrypted = srcFile.readAsBytesSync();
-      final decrypted = decryptBytes(encrypted, config.matchPassword);
+Future<void> fetchBuild(
+  Config config,
+  String platform,
+  String flavor,
+) async {
+  final sourcePaths = switch (platform) {
+    'android' => [
+      'keystores/keystore.jks',
+      'keystores/key.properties.enc',
+      'firebase/$flavor/google-services.json.enc',
+    ],
+    'ios' => ['firebase/$flavor/GoogleService-Info.plist.enc'],
+    _ => throw ArgumentError.value(platform, 'platform'),
+  };
 
-      File(destPath).writeAsBytesSync(decrypted);
-      stdout.writeln('  decrypt ${entry.key} -> $destPath');
-    } else {
-      srcFile.copySync(destPath);
-      stdout.writeln('  copy ${entry.key} -> $destPath');
+  await cloneOrPull(config);
+
+  final missing = sourcePaths
+      .where((path) => !File('$_repoDir/$path').existsSync())
+      .toList();
+  if (missing.isNotEmpty) {
+    stderr.writeln('Missing required credential files:');
+    for (final path in missing) {
+      stderr.writeln('  $path');
     }
+    exit(1);
+  }
+
+  for (final sourcePath in sourcePaths) {
+    _writeMapping(
+      MapEntry(sourcePath, _fileMappings[sourcePath]!),
+      config,
+    );
   }
 
   stdout.writeln('Done.');
@@ -312,30 +353,51 @@ Future<void> encrypt(
 // ---------------------------------------------------------------------------
 
 Future<void> main(List<String> args) async {
-  if (args.isEmpty) {
+  void printUsage() {
     stderr.writeln('Usage:');
     stderr.writeln('  dart run tool/credentials.dart fetch');
     stderr.writeln(
+      '  dart run tool/credentials.dart fetch-build <android|ios> <staging|production>',
+    );
+    stderr.writeln(
       '  dart run tool/credentials.dart encrypt <source-file> <dest-path-in-repo>',
     );
+  }
+
+  if (args.isEmpty) {
+    printUsage();
     exit(1);
+  }
+
+  if (args[0] == 'fetch-build') {
+    if (args.length != 3 ||
+        !const {'android', 'ios'}.contains(args[1]) ||
+        !const {'staging', 'production'}.contains(args[2])) {
+      printUsage();
+      exit(1);
+    }
   }
 
   final config = Config.load();
 
   switch (args[0]) {
     case 'fetch':
+      if (args.length != 1) {
+        printUsage();
+        exit(1);
+      }
       await fetch(config);
+    case 'fetch-build':
+      await fetchBuild(config, args[1], args[2]);
     case 'encrypt':
-      if (args.length < 3) {
-        stderr.writeln(
-          'Usage: dart run tool/credentials.dart encrypt <source-file> <dest-path-in-repo>',
-        );
+      if (args.length != 3) {
+        printUsage();
         exit(1);
       }
       await encrypt(config, args[1], args[2]);
     default:
       stderr.writeln('Unknown command: ${args[0]}');
+      printUsage();
       exit(1);
   }
 }

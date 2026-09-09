@@ -15,66 +15,58 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
+### ios build
+
+```sh
+[bundle exec] fastlane ios build
+```
+
+Build an iOS IPA and stage its Crashlytics inputs
+
 ### ios upload_testflight
 
 ```sh
 [bundle exec] fastlane ios upload_testflight
 ```
 
-Build and upload to TestFlight
+Upload an existing IPA to TestFlight
 
-### ios release_production
+### ios upload_symbols
 
 ```sh
-[bundle exec] fastlane ios release_production
+[bundle exec] fastlane ios upload_symbols
 ```
 
-Build and upload the production flavor to internal TestFlight
+Upload an existing dSYM archive to Firebase Crashlytics
 
 ----
 
 
 ## Android
 
-### android build_apk
+### android build
 
 ```sh
-[bundle exec] fastlane android build_apk
+[bundle exec] fastlane android build
 ```
 
+Build an Android App Bundle and optionally an APK
 
-
-### android build_appbundle
+### android upload_firebase
 
 ```sh
-[bundle exec] fastlane android build_appbundle
+[bundle exec] fastlane android upload_firebase
 ```
 
+Upload an existing App Bundle to Firebase App Distribution
 
-
-### android preview
+### android upload_play_store
 
 ```sh
-[bundle exec] fastlane android preview
+[bundle exec] fastlane android upload_play_store
 ```
 
-Build and upload PR preview to Firebase App Distribution
-
-### android release
-
-```sh
-[bundle exec] fastlane android release
-```
-
-Build and upload to Google Play Console & Firebase
-
-### android release_production
-
-```sh
-[bundle exec] fastlane android release_production
-```
-
-Build and upload the production flavor to Google Play Internal
+Upload an existing App Bundle to Google Play
 
 ----
 
