@@ -66,7 +66,7 @@ This project uses a private Git repository to manage sensitive credentials (sign
 
 1. **Request Access:** Contact the maintainers for access to the `tattoo-credentials` repository.
 2. **Configure `.env`:** Copy `.env.example` to `.env` and fill in the `MATCH_GIT_URL` and `MATCH_PASSWORD`.
-3. **Fetch Configs:** Run `dart run tool/credentials.dart fetch`. This will decrypt and place files like `google-services.json` and `keystore.jks` in their respective directories.
+3. **Fetch Configs:** Run `dart run tool/credentials.dart fetch`. The tool decrypts the staging and production Firebase configurations directly into their flavor-specific paths and installs the shared Android keystore and service account.
 
 ### Firebase Setup (Maintainers only)
 
@@ -74,8 +74,27 @@ If you need to reconfigure Firebase:
 
 1. Install the [Firebase CLI](https://firebase.google.com/docs/cli).
 2. Install the [FlutterFire CLI](https://firebase.google.com/docs/flutter/setup).
-3. Run `flutterfire configure` to update `lib/firebase_options.dart`.
-4. Encrypt and push new config files using `dart run tool/credentials.dart encrypt <file> <path_in_repo>`.
+3. Run FlutterFire CLI separately for each flavor, writing Dart output to `lib/firebase_options_staging.dart` or `lib/firebase_options_production.dart` and supplying the matching native identifiers, output paths, and iOS build configuration. Do not overwrite the handwritten `lib/firebase_options.dart` selector.
+4. Encrypt each native Firebase file to its matching path under `firebase/staging/` or `firebase/production/` with `dart run tool/credentials.dart encrypt <file> <path_in_repo>`.
+
+## Build Flavors
+
+Tattoo has two native Flutter flavors:
+
+| Flavor | Android application ID | iOS bundle ID | Name and icon |
+| --- | --- | --- | --- |
+| `staging` | `club.ntut.tattoo` | `club.ntut.tattoo` | Tattoo, outlined wireframe T |
+| `production` | `club.ntut.npc.tat` | `com.npc.tatFlutter` | TAT, filled T |
+
+Staging is the default flavor. Select production explicitly:
+
+```bash
+flutter run --flavor staging
+flutter build appbundle --flavor production
+flutter build ipa --flavor production
+```
+
+PR previews and daily releases always build `staging`; the production release workflow always builds `production`.
 
 ## HTML Snapshot Capture
 

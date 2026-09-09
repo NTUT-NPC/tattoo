@@ -69,6 +69,7 @@ dev_dependencies:
   shared_preferences_platform_interface: ^2.4.2
 
 flutter:
+  default-flavor: staging
   uses-material-design: true
   assets:
     - assets/

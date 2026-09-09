@@ -27,10 +27,15 @@ const _repoDir = '.dart_tool/credentials';
 const _fileMappings = {
   'keystores/keystore.jks': 'android/app/keystore.jks',
   'keystores/key.properties.enc': 'android/key.properties',
-  'firebase/google-services.json.enc': 'android/app/google-services.json',
-  'firebase/GoogleService-Info.plist.enc':
-      'ios/Runner/GoogleService-Info.plist',
   'firebase/service-account.json.enc': 'service-account.json',
+  'firebase/staging/google-services.json.enc':
+      'android/app/src/staging/google-services.json',
+  'firebase/staging/GoogleService-Info.plist.enc':
+      'ios/Runner/GoogleService-Info-staging.plist',
+  'firebase/production/google-services.json.enc':
+      'android/app/src/production/google-services.json',
+  'firebase/production/GoogleService-Info.plist.enc':
+      'ios/Runner/GoogleService-Info-production.plist',
 };
 
 // ---------------------------------------------------------------------------

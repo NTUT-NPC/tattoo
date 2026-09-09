@@ -601,21 +601,22 @@ class _SyllabusTabsState extends State<_SyllabusTabs>
 
     return Column(
       children: [
-        ChipTabSwitcher(
-          controller: _controller,
-          padding: const .symmetric(horizontal: 8),
-          tabs: [
-            for (final detail in widget.details)
-              (_normalizedText(
-                        localized(
-                          detail.teacher.nameZh,
-                          detail.teacher.nameEn,
-                        ),
-                      ) ??
-                      t.general.unknown)
-                  .spaced,
-          ],
-        ),
+        if (widget.details.length > 1)
+          ChipTabSwitcher(
+            controller: _controller,
+            padding: const .symmetric(horizontal: 8),
+            tabs: [
+              for (final detail in widget.details)
+                (_normalizedText(
+                          localized(
+                            detail.teacher.nameZh,
+                            detail.teacher.nameEn,
+                          ),
+                        ) ??
+                        t.general.unknown)
+                    .spaced,
+            ],
+          ),
         _SyllabusSections(detail: widget.details[_controller.index]),
       ],
     );
