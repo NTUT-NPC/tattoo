@@ -34,7 +34,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   prepare:
@@ -270,7 +270,7 @@ jobs:
     outputs:
       testing_uri: ${{ steps.upload.outputs.testing_uri }}
     env:
-      FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
+      FIREBASEAPPDISTRO_APP: ${{ vars.FIREBASEAPPDISTRO_APP }}
       ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON: ${{ secrets.ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON }}
       CHANGELOG: |
         Daily Build ${{ needs.prepare.outputs.date }}

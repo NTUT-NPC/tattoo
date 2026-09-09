@@ -5,7 +5,7 @@ on:
     types: [labeled, unlabeled]
 
 permissions:
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: >-
@@ -17,6 +17,9 @@ concurrency:
 
 jobs:
   prepare:
+    permissions:
+      contents: read
+      pull-requests: write
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
       contains(github.event.pull_request.labels.*.name, 'Production') &&
@@ -296,6 +299,9 @@ jobs:
           upload_symbols_binary:"${{ github.workspace }}/build/ci/ios/upload-symbols"
 
   report:
+    permissions:
+      contents: read
+      pull-requests: write
     if: always() && needs.prepare.result == 'success'
     runs-on: ubuntu-latest
     needs:

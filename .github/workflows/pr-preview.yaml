@@ -25,7 +25,7 @@ on:
         default: false
 
 permissions:
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: >-
@@ -39,6 +39,9 @@ concurrency:
 
 jobs:
   prepare:
+    permissions:
+      contents: read
+      pull-requests: write
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
@@ -246,7 +249,7 @@ jobs:
     outputs:
       testing_uri: ${{ steps.upload.outputs.testing_uri }}
     env:
-      FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
+      FIREBASEAPPDISTRO_APP: ${{ vars.FIREBASEAPPDISTRO_APP }}
       ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON: ${{ secrets.ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       PR_TITLE: ${{ github.event.pull_request.title }}
@@ -359,6 +362,9 @@ jobs:
           upload_symbols_binary:"${{ github.workspace }}/build/ci/ios/upload-symbols"
 
   report:
+    permissions:
+      contents: read
+      pull-requests: write
     if: always() && needs.prepare.result == 'success'
     runs-on: ubuntu-latest
     needs:

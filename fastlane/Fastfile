@@ -252,7 +252,7 @@ platform :android do
 
     if ENV["GITHUB_OUTPUT"]
       File.open(ENV["GITHUB_OUTPUT"], "a") do |file|
-        file.puts "testing_uri=#{release[:testing_uri]}"
+        file.puts "testing_uri=#{release.fetch(:testingUri)}"
       end
     end
   end
