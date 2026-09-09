@@ -67,7 +67,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: github-actions[bot]
-          body-includes: <!-- pr-preview-comment -->
+          body-includes: <!-- production-release-comment -->
 
       - name: Create or update initial comment
         id: create
@@ -76,7 +76,7 @@ jobs:
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            <!-- pr-preview-comment -->
+            <!-- production-release-comment -->
             ## Production Release Validation
             **Build Number:** ${{ steps.build-number.outputs.build_number }}
             **Commit:** ${{ steps.summary.outputs.sha }}
@@ -328,7 +328,7 @@ jobs:
           fi
 
           cat > pr-comment.md <<'EOF'
-          <!-- pr-preview-comment -->
+          <!-- production-release-comment -->
           ## Production Release Validation
           **Build Number:** ${{ needs.prepare.outputs.build_number }}
           **Commit:** ${{ needs.prepare.outputs.commit_sha }}
