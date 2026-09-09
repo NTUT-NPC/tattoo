@@ -403,50 +403,7 @@ Future<void> cloneOrPull(Config config) async {
 // Generation and Configuration
 // ---------------------------------------------------------------------------
 
-bool _containsOtherEnvironmentCredential(
-  File file,
-  EnvironmentConfig envConfig,
-) {
-  if (envConfig.flavor != 'dev' || !file.existsSync()) {
-    return false;
-  }
-
-  final content = utf8.decode(file.readAsBytesSync(), allowMalformed: true);
-  final production = EnvironmentConfig.load('prod');
-  final productionValues = [
-    production.androidAppId,
-    production.iosBundleId,
-    production.firebaseProjectId,
-    production.firebaseAndroidAppId,
-    production.firebaseIosAppId,
-  ];
-  return productionValues.any(
-    (value) => value != null && content.contains(value),
-  );
-}
-
-void _refuseOverwritingOtherEnvironmentCredential(
-  String destinationPath,
-  EnvironmentConfig envConfig,
-) {
-  final destination = File(destinationPath);
-  if (!_containsOtherEnvironmentCredential(destination, envConfig)) {
-    return;
-  }
-
-  stderr.writeln(
-    'Error: ${destination.path} contains production Firebase credentials; '
-    'refusing to overwrite it while configuring development.',
-  );
-  exit(1);
-}
-
-void _writeCredentialBytes(
-  String destinationPath,
-  List<int> bytes,
-  EnvironmentConfig envConfig,
-) {
-  _refuseOverwritingOtherEnvironmentCredential(destinationPath, envConfig);
+void _writeCredentialBytes(String destinationPath, List<int> bytes) {
   File(destinationPath).parent.createSync(recursive: true);
   File(destinationPath).writeAsBytesSync(bytes);
 }
@@ -495,7 +452,6 @@ resDir=$resDir
       gsFile.existsSync() &&
       gsFile.readAsStringSync().contains(envConfig.androidAppId);
   if (!androidConfigValid) {
-    _refuseOverwritingOtherEnvironmentCredential(gsFile.path, envConfig);
     if (envConfig.flavor != 'dev') {
       stderr.writeln(
         'Error: ${gsFile.path} is missing or does not contain '
@@ -532,7 +488,6 @@ resDir=$resDir
     _writeCredentialBytes(
       gsFile.path,
       utf8.encode(const JsonEncoder.withIndent('  ').convert(stubJson)),
-      envConfig,
     );
     stdout.writeln('  generated ${gsFile.path} for ${envConfig.flavor}');
   }
@@ -543,7 +498,6 @@ resDir=$resDir
       gspFile.existsSync() &&
       gspFile.readAsStringSync().contains(envConfig.iosBundleId);
   if (!iosConfigValid) {
-    _refuseOverwritingOtherEnvironmentCredential(gspFile.path, envConfig);
     if (envConfig.flavor != 'dev') {
       stderr.writeln(
         'Error: ${gspFile.path} is missing or does not contain '
@@ -592,7 +546,6 @@ resDir=$resDir
     _writeCredentialBytes(
       gspFile.path,
       utf8.encode(stubPlist.trim()),
-      envConfig,
     );
     stdout.writeln('  generated ${gspFile.path} for ${envConfig.flavor}');
   }
@@ -638,9 +591,6 @@ Future<void> fetch(Config config) async {
       return false;
     }
 
-    if (validate != null) {
-      _refuseOverwritingOtherEnvironmentCredential(destPath, envConfig);
-    }
     File(destPath).parent.createSync(recursive: true);
     File(destPath).writeAsBytesSync(bytes);
 
