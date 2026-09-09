@@ -170,8 +170,8 @@ platform :ios do
     rescue => error
       expected_beta_review_conflict =
         !internal_only &&
-        error.message.include?("Another build is in review") &&
-        error.message.include?("Another build in the same train is already in beta review")
+        (error.message.include?("Another build is in review") ||
+         error.message.include?("Another build in the same train is already in beta review"))
       raise unless expected_beta_review_conflict
 
       UI.important("TestFlight upload completed, but external distribution is waiting for the build already in beta review")
@@ -252,7 +252,7 @@ platform :android do
 
     if ENV["GITHUB_OUTPUT"]
       File.open(ENV["GITHUB_OUTPUT"], "a") do |file|
-        file.puts "testing_uri=#{release[:testingUri]}"
+        file.puts "testing_uri=#{release[:testing_uri]}"
       end
     end
   end
