@@ -962,7 +962,7 @@ class _Translations$courseTable$detail$roster$en_US extends Translations$courseT
 	@override String get loadFailed => 'Unable to load the course roster. Please try again later.';
 	@override String get loadingNetworkHint => 'I-School Plus requires the NTUT network.';
 	@override String get refresh => 'Refresh';
-	@override String get networkTitle => 'Connect to the NTUT network';
+	@override String get networkTitle => 'Unable to connect to I-School Plus';
 	@override String get networkDescription => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then reopen the course roster.';
 	@override String get networkSnackbar => 'Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.';
 	@override String get updateSuccess => 'Course roster updated.';
@@ -1139,7 +1139,7 @@ extension on TranslationsEnUs {
 			'courseTable.detail.roster.loadFailed' => 'Unable to load the course roster. Please try again later.',
 			'courseTable.detail.roster.loadingNetworkHint' => 'I-School Plus requires the NTUT network.',
 			'courseTable.detail.roster.refresh' => 'Refresh',
-			'courseTable.detail.roster.networkTitle' => 'Connect to the NTUT network',
+			'courseTable.detail.roster.networkTitle' => 'Unable to connect to I-School Plus',
 			'courseTable.detail.roster.networkDescription' => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then reopen the course roster.',
 			'courseTable.detail.roster.networkSnackbar' => 'Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.',
 			'courseTable.detail.roster.updateSuccess' => 'Course roster updated.',

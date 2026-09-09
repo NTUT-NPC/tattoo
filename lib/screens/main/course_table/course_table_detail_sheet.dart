@@ -568,7 +568,7 @@ class _CourseRosterNetworkGuide extends StatelessWidget {
           Text(
             strings.networkDescription.spaced,
             style: theme.textTheme.bodyLarge,
-            textAlign: .center,
+            textAlign: .justify,
           ),
           if (onBack case final onBack?) ...[
             const SizedBox(height: 12),
