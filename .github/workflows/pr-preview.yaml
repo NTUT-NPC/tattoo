@@ -42,7 +42,6 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
-      !contains(github.event.pull_request.labels.*.name, 'Production') &&
       ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
       contains(fromJSON('["Production","deploy:android","deploy:ios"]'), github.event.label.name)))
     runs-on: ubuntu-latest
@@ -140,7 +139,6 @@ jobs:
     if: >-
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name != github.repository &&
-      !contains(github.event.pull_request.labels.*.name, 'Production') &&
       ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
       contains(fromJSON('["Production","deploy:android","deploy:ios"]'), github.event.label.name))
     runs-on: ubuntu-latest
