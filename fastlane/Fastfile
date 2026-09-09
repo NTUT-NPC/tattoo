@@ -159,28 +159,13 @@ platform :ios do
                       ["Private External Testers"]
                     end
 
-    begin
-      upload_to_testflight(
-        ipa: ipa_path,
-        changelog: test_notes,
-        distribute_external: !internal_only,
-        groups: internal_only ? nil : target_groups,
-        skip_waiting_for_build_processing: false
-      )
-    rescue => error
-      expected_beta_review_conflict =
-        !internal_only &&
-        (error.message.include?("Another build is in review") ||
-         error.message.include?("Another build in the same train is already in beta review"))
-      raise unless expected_beta_review_conflict
-
-      UI.important("TestFlight upload completed, but external distribution is waiting for the build already in beta review")
-      if ENV["GITHUB_OUTPUT"]
-        File.open(ENV["GITHUB_OUTPUT"], "a") do |file|
-          file.puts "beta_review_blocked=true"
-        end
-      end
-    end
+    upload_to_testflight(
+      ipa: ipa_path,
+      changelog: test_notes,
+      distribute_external: !internal_only,
+      groups: internal_only ? nil : target_groups,
+      skip_waiting_for_build_processing: false
+    )
   end
 
   desc "Upload an existing dSYM archive to Firebase Crashlytics"

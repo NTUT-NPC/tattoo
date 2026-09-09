@@ -383,8 +383,6 @@ jobs:
     environment: staging
     runs-on: macos-26
     needs: [prepare, build_ios]
-    outputs:
-      beta_review_blocked: ${{ steps.upload.outputs.beta_review_blocked }}
     env:
       APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
       APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
@@ -537,9 +535,6 @@ jobs:
               echo
               echo "### iOS"
               echo "TestFlight: successful"
-              if [ "${{ needs.upload_ios_testflight.outputs.beta_review_blocked }}" = "true" ]; then
-                echo "External distribution is waiting for the build already in beta review; the IPA and test notes were accepted."
-              fi
               echo "Crashlytics symbols: successful"
               echo "GitHub Release IPA: successful"
             fi
@@ -596,7 +591,6 @@ jobs:
             [Join TestFlight](${{ vars.IOS_STORE_URL }}) to install build ${{ needs.prepare.outputs.build_number }}.
 
             TestFlight groups: ${{ needs.prepare.outputs.public_testers == 'true' && 'Private External Testers and Public External Testers' || 'Private External Testers' }}.
-            ${{ needs.upload_ios_testflight.outputs.beta_review_blocked == 'true' && 'External distribution is waiting for the build already in beta review; the IPA and test notes were accepted.' || '' }}
 
             > [!TIP]
             > Install TestFlight from the App Store if needed. TestFlight is unstable on NTUT Wi-Fi; switch networks if installation or updates fail.
