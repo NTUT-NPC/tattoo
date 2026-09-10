@@ -2,7 +2,7 @@ name: Daily Release
 
 on:
   schedule:
-    - cron: "0 21 * * *" # Daily at 05:00 UTC+8 (21:00 UTC)
+    - cron: "7 22 * * *" # Daily at 06:07 UTC+8 (22:07 UTC) 🫴
   workflow_dispatch:
     inputs:
       include_public_testers:
