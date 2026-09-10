@@ -31,7 +31,6 @@ concurrency:
   group: >-
     ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}${{
       (github.event.action == 'labeled' || github.event.action == 'unlabeled')
-      && github.event.label.name != 'Production'
       && github.event.label.name != 'deploy:android'
       && github.event.label.name != 'deploy:ios'
       && '-noop' || '' }}
@@ -46,7 +45,7 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
       ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
-      contains(fromJSON('["Production","deploy:android","deploy:ios"]'), github.event.label.name)))
+      contains(fromJSON('["deploy:android","deploy:ios"]'), github.event.label.name)))
     runs-on: ubuntu-latest
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number || vars.build_number }}
@@ -143,7 +142,7 @@ jobs:
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name != github.repository &&
       ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
-      contains(fromJSON('["Production","deploy:android","deploy:ios"]'), github.event.label.name))
+      contains(fromJSON('["deploy:android","deploy:ios"]'), github.event.label.name))
     runs-on: ubuntu-latest
     steps:
       - name: Explain trust boundary
