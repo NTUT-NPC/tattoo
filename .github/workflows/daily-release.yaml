@@ -5,29 +5,11 @@ on:
     - cron: "0 21 * * *" # Daily at 05:00 UTC+8 (21:00 UTC)
   workflow_dispatch:
     inputs:
-      branch_name:
-        description: Specific branch to build from HEAD (uses CI logic from dropdown)
-        required: false
-        type: string
-      commit_sha:
-        description: Specific commit SHA to build (overrides branch)
-        required: false
-        type: string
       include_public_testers:
         description: Upload to external public testers (TestFlight and Google Play)
         required: false
         type: boolean
         default: true
-      force_build:
-        description: Force build even if no changes
-        required: false
-        type: boolean
-        default: false
-      dry_run:
-        description: Build and retain artifacts without uploading or releasing
-        required: false
-        type: boolean
-        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -47,18 +29,14 @@ jobs:
       date: ${{ steps.version-suffix.outputs.date }}
       commit_sha: ${{ steps.summary.outputs.sha }}
       commit_message: ${{ steps.summary.outputs.message }}
-      target_ref: ${{ steps.set-ref.outputs.ref }}
       skip_build: ${{ steps.check-changes.outputs.skip }}
       store_changelog: ${{ steps.changelog.outputs.store_changelog }}
-      dry_run: ${{ inputs.dry_run == true }}
       public_testers: ${{ github.event_name == 'schedule' || inputs.include_public_testers == true }}
     steps:
-      - name: Checkout Actions
+      - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          sparse-checkout: .github/actions
-          sparse-checkout-cone-mode: false
 
       - name: Set Version Suffix
         id: version-suffix
@@ -68,30 +46,12 @@ jobs:
           echo "date=$DATE" >> "$GITHUB_OUTPUT"
           echo "suffix=daily.$DATE" >> "$GITHUB_OUTPUT"
 
-      - name: Resolve Target Ref
-        id: set-ref
-        uses: ./.github/actions/resolve-ref
-        with:
-          branch_name: ${{ inputs.branch_name }}
-          commit_sha: ${{ inputs.commit_sha }}
-
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          persist-credentials: false
-          ref: ${{ steps.set-ref.outputs.ref }}
-
       - name: Check for changes
         id: check-changes
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          if [ "${{ inputs.force_build }}" = "true" ]; then
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
           if gh release view daily &>/dev/null; then
             LAST_SHA=$(gh release view daily --json targetCommitish -q .targetCommitish)
             CURRENT_SHA=$(git rev-parse HEAD)
@@ -130,12 +90,12 @@ jobs:
           github_token: ${{ github.token }}
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           last_sha: ${{ steps.check-changes.outputs.last_sha }}
-          head_ref: ${{ steps.set-ref.outputs.ref }}
+          head_ref: ${{ github.sha }}
           fallback_message: ${{ steps.summary.outputs.message }}
           model: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash' }}
 
       - name: Find or create pre-release
-        if: steps.check-changes.outputs.skip != 'true' && inputs.dry_run != true
+        if: steps.check-changes.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
@@ -189,7 +149,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup project
         uses: ./.github/actions/setup-project
@@ -235,7 +194,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup project
         uses: ./.github/actions/setup-project
@@ -263,7 +221,6 @@ jobs:
           retention-days: 7
 
   upload_android_firebase:
-    if: needs.prepare.outputs.dry_run != 'true'
     environment: staging
     runs-on: ubuntu-latest
     needs: [prepare, build_android]
@@ -283,7 +240,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup Fastlane
         uses: ./.github/actions/setup-fastlane
@@ -312,7 +268,7 @@ jobs:
           service_credentials_file:"${{ steps.credential.outputs.path }}"
 
   upload_android_play:
-    if: needs.prepare.outputs.dry_run != 'true' && needs.prepare.outputs.public_testers == 'true'
+    if: needs.prepare.outputs.public_testers == 'true'
     environment: staging
     runs-on: ubuntu-latest
     needs: [prepare, build_android]
@@ -330,7 +286,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup Fastlane
         uses: ./.github/actions/setup-fastlane
@@ -360,7 +315,6 @@ jobs:
           build_number:${{ needs.prepare.outputs.build_number }}
 
   publish_android_release_asset:
-    if: needs.prepare.outputs.dry_run != 'true'
     runs-on: ubuntu-latest
     needs: [prepare, build_android]
     permissions:
@@ -379,7 +333,6 @@ jobs:
         run: gh release upload daily "build/ci/android/tattoo.apk#tattoo-${{ needs.prepare.outputs.build_number }}-android.apk" --clobber
 
   upload_ios_testflight:
-    if: needs.prepare.outputs.dry_run != 'true'
     environment: staging
     runs-on: macos-26
     needs: [prepare, build_ios]
@@ -398,7 +351,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup Fastlane
         uses: ./.github/actions/setup-fastlane
@@ -419,7 +371,6 @@ jobs:
           include_public_testers:${{ needs.prepare.outputs.public_testers }}
 
   upload_ios_symbols:
-    if: needs.prepare.outputs.dry_run != 'true'
     environment: staging
     runs-on: macos-26
     needs: [prepare, build_ios]
@@ -428,7 +379,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup Fastlane
         uses: ./.github/actions/setup-fastlane
@@ -452,7 +402,6 @@ jobs:
           upload_symbols_binary:"${{ github.workspace }}/build/ci/ios/upload-symbols"
 
   publish_ios_release_asset:
-    if: needs.prepare.outputs.dry_run != 'true'
     runs-on: ubuntu-latest
     needs: [prepare, build_ios]
     permissions:
@@ -474,8 +423,7 @@ jobs:
     if: >-
       always() &&
       needs.prepare.result == 'success' &&
-      needs.prepare.outputs.skip_build != 'true' &&
-      needs.prepare.outputs.dry_run != 'true'
+      needs.prepare.outputs.skip_build != 'true'
     environment: staging
     runs-on: ubuntu-latest
     needs:
@@ -493,7 +441,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
           sparse-checkout: .github/actions
           sparse-checkout-cone-mode: false
 
@@ -602,26 +549,3 @@ jobs:
           echo "::error::One or more daily release destinations failed or were unexpectedly skipped"
           exit 1
 
-  dry-run-summary:
-    if: >-
-      always() &&
-      needs.prepare.result == 'success' &&
-      needs.prepare.outputs.skip_build != 'true' &&
-      needs.prepare.outputs.dry_run == 'true'
-    runs-on: ubuntu-latest
-    needs: [prepare, build_android, build_ios]
-    steps:
-      - name: Validate retained build artifacts
-        shell: bash
-        run: |
-          {
-            echo "## Daily Release Dry Run"
-            echo "**Build Number:** ${{ needs.prepare.outputs.build_number }}"
-            echo "Android build: ${{ needs.build_android.result }}"
-            echo "iOS build: ${{ needs.build_ios.result }}"
-            echo "No release asset or distribution upload was attempted."
-          } >> "$GITHUB_STEP_SUMMARY"
-          if [ "${{ needs.build_android.result }}" != "success" ] || [ "${{ needs.build_ios.result }}" != "success" ]; then
-            echo "::error::Both platform builds must succeed in a dry run"
-            exit 1
-          fi

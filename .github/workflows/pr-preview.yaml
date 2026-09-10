@@ -5,14 +5,6 @@ on:
     types: [opened, synchronize, reopened, labeled, unlabeled]
   workflow_dispatch:
     inputs:
-      branch_name:
-        description: Specific branch to build from HEAD (uses CI logic from dropdown)
-        required: false
-        type: string
-      commit_sha:
-        description: Specific commit SHA to build (overrides branch)
-        required: false
-        type: string
       deploy_android:
         description: Deploy Android to Firebase App Distribution
         required: false
@@ -53,16 +45,13 @@ jobs:
       commit_sha: ${{ steps.summary.outputs.sha }}
       commit_message: ${{ steps.summary.outputs.message }}
       comment_id: ${{ steps.create.outputs.comment-id }}
-      target_ref: ${{ steps.set-ref.outputs.ref }}
       deploy_android: ${{ steps.deploy-flags.outputs.android }}
       deploy_ios: ${{ steps.deploy-flags.outputs.ios }}
     steps:
-      - name: Checkout Actions
+      - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          sparse-checkout: .github/actions
-          sparse-checkout-cone-mode: false
 
       - name: Set Version Suffix
         id: version-suffix
@@ -73,19 +62,6 @@ jobs:
           else
             echo "suffix=dev" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Resolve Target Ref
-        id: set-ref
-        uses: ./.github/actions/resolve-ref
-        with:
-          branch_name: ${{ inputs.branch_name }}
-          commit_sha: ${{ inputs.commit_sha }}
-
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          persist-credentials: false
-          ref: ${{ steps.set-ref.outputs.ref }}
 
       - name: Manage Build Number
         id: build-number
@@ -169,7 +145,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup project
         uses: ./.github/actions/setup-project
@@ -213,7 +188,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup project
         uses: ./.github/actions/setup-project
@@ -259,7 +233,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup Fastlane
         uses: ./.github/actions/setup-fastlane
@@ -305,7 +278,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup Fastlane
         uses: ./.github/actions/setup-fastlane
@@ -335,7 +307,6 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
       - name: Setup Fastlane
         uses: ./.github/actions/setup-fastlane
