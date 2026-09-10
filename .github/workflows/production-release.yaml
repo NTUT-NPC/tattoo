@@ -1,28 +1,8 @@
-name: PR Preview
+name: Production
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, labeled, unlabeled]
-  workflow_dispatch:
-    inputs:
-      branch_name:
-        description: Specific branch to build from HEAD (uses CI logic from dropdown)
-        required: false
-        type: string
-      commit_sha:
-        description: Specific commit SHA to build (overrides branch)
-        required: false
-        type: string
-      deploy_android:
-        description: Deploy Android to Firebase App Distribution
-        required: false
-        type: boolean
-        default: true
-      deploy_ios:
-        description: Deploy iOS to TestFlight
-        required: false
-        type: boolean
-        default: false
+    types: [labeled, unlabeled]
 
 permissions:
   contents: read
@@ -32,8 +12,6 @@ concurrency:
     ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}${{
       (github.event.action == 'labeled' || github.event.action == 'unlabeled')
       && github.event.label.name != 'Production'
-      && github.event.label.name != 'deploy:android'
-      && github.event.label.name != 'deploy:ios'
       && '-noop' || '' }}
   cancel-in-progress: true
 
@@ -43,20 +21,17 @@ jobs:
       contents: read
       pull-requests: write
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'Production') &&
       ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
-      contains(fromJSON('["Production","deploy:android","deploy:ios"]'), github.event.label.name)))
+      github.event.label.name == 'Production')
     runs-on: ubuntu-latest
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number || vars.build_number }}
-      version_suffix: ${{ steps.version-suffix.outputs.suffix }}
       commit_sha: ${{ steps.summary.outputs.sha }}
       commit_message: ${{ steps.summary.outputs.message }}
       comment_id: ${{ steps.create.outputs.comment-id }}
       target_ref: ${{ steps.set-ref.outputs.ref }}
-      deploy_android: ${{ steps.deploy-flags.outputs.android }}
-      deploy_ios: ${{ steps.deploy-flags.outputs.ios }}
     steps:
       - name: Checkout Actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -65,22 +40,9 @@ jobs:
           sparse-checkout: .github/actions
           sparse-checkout-cone-mode: false
 
-      - name: Set Version Suffix
-        id: version-suffix
-        shell: bash
-        run: |
-          if [ -n "${{ github.event.pull_request.number }}" ]; then
-            echo "suffix=pr.${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "suffix=dev" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Resolve Target Ref
         id: set-ref
         uses: ./.github/actions/resolve-ref
-        with:
-          branch_name: ${{ inputs.branch_name }}
-          commit_sha: ${{ inputs.commit_sha }}
 
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -99,64 +61,49 @@ jobs:
         id: summary
         uses: ./.github/actions/write-build-summary
         with:
-          title: Preview Builds
+          title: Production Release Validation
           build_number: ${{ steps.build-number.outputs.build_number || vars.build_number }}
 
-      - name: Resolve deploy flags
-        id: deploy-flags
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "android=${{ inputs.deploy_android != false }}" >> "$GITHUB_OUTPUT"
-            echo "ios=${{ inputs.deploy_ios == true }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "android=${{ contains(github.event.pull_request.labels.*.name, 'deploy:android') }}" >> "$GITHUB_OUTPUT"
-            echo "ios=${{ contains(github.event.pull_request.labels.*.name, 'deploy:ios') }}" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Find existing comment
-        if: github.event_name == 'pull_request'
         id: find-comment
         uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: github-actions[bot]
-          body-includes: <!-- pr-preview-comment -->
+          body-includes: <!-- production-release-comment -->
 
       - name: Create or update initial comment
         id: create
-        if: github.event_name == 'pull_request'
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            <!-- pr-preview-comment -->
-            ## PR Preview Builds (Staging)
+            <!-- production-release-comment -->
+            ## Production Release Validation
             **Build Number:** ${{ steps.build-number.outputs.build_number }}
             **Commit:** ${{ steps.summary.outputs.sha }}
             **Message:** ${{ steps.summary.outputs.message }}
           edit-mode: replace
 
-  fork-preview:
+  production-fork:
     if: >-
-      github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name != github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'Production') &&
       ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
-      contains(fromJSON('["Production","deploy:android","deploy:ios"]'), github.event.label.name))
+      github.event.label.name == 'Production')
     runs-on: ubuntu-latest
     steps:
       - name: Explain trust boundary
         shell: bash
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
-          ## PR Preview Skipped
-          Signed staging builds and uploads are skipped for fork pull requests because they cannot receive repository deployment credentials. Move the reviewed commit to a branch in this repository to request a preview.
+          ## Production Validation Skipped
+          Production signing and upload credentials are never exposed to fork pull requests. Move the reviewed commit to a branch in this repository before applying the Production label.
           EOF
 
   build_android:
-    if: github.event_name == 'pull_request' || needs.prepare.outputs.deploy_android == 'true'
-    environment: staging
+    environment: production
     runs-on: ubuntu-latest
     needs: [prepare]
     timeout-minutes: 30
@@ -177,26 +124,24 @@ jobs:
         with:
           platform: android
 
-      - name: Build Android staging artifact
+      - name: Build Android production artifact
         run: >-
           bundle exec fastlane android build
-          env:staging
+          env:production
           build_number:${{ needs.prepare.outputs.build_number }}
-          version_suffix:${{ needs.prepare.outputs.version_suffix }}
           store_url:"${{ vars.ANDROID_STORE_URL }}"
           include_apk:false
 
       - name: Upload Android artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: android-staging-${{ needs.prepare.outputs.build_number }}
+          name: android-production-${{ needs.prepare.outputs.build_number }}
           path: build/ci/android/tattoo.aab
           if-no-files-found: error
           retention-days: 7
 
   build_ios:
-    if: github.event_name == 'pull_request' || needs.prepare.outputs.deploy_ios == 'true'
-    environment: staging
+    environment: production
     runs-on: macos-26
     needs: [prepare]
     timeout-minutes: 30
@@ -221,18 +166,17 @@ jobs:
         with:
           platform: ios
 
-      - name: Build iOS staging artifact
+      - name: Build iOS production artifact
         run: >-
           bundle exec fastlane ios build
-          env:staging
+          env:production
           build_number:${{ needs.prepare.outputs.build_number }}
-          version_suffix:${{ needs.prepare.outputs.version_suffix }}
           store_url:"${{ vars.IOS_STORE_URL }}"
 
       - name: Upload iOS artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ios-staging-${{ needs.prepare.outputs.build_number }}
+          name: ios-production-${{ needs.prepare.outputs.build_number }}
           path: |
             build/ci/ios/tattoo.ipa
             build/ci/ios/tattoo.app.dSYM.zip
@@ -241,15 +185,12 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  upload_android_firebase:
-    if: needs.prepare.outputs.deploy_android == 'true'
-    environment: staging
+  upload_android_play:
+    environment: production
     runs-on: ubuntu-latest
     needs: [prepare, build_android]
-    outputs:
-      testing_uri: ${{ steps.upload.outputs.testing_uri }}
     env:
-      FIREBASEAPPDISTRO_APP: ${{ vars.FIREBASEAPPDISTRO_APP }}
+      ANDROID_PACKAGE_NAME: ${{ secrets.ANDROID_PACKAGE_NAME }}
       ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON: ${{ secrets.ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       PR_TITLE: ${{ github.event.pull_request.title }}
@@ -270,7 +211,7 @@ jobs:
       - name: Download Android artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: android-staging-${{ needs.prepare.outputs.build_number }}
+          name: android-production-${{ needs.prepare.outputs.build_number }}
           path: build/ci/android
 
       - name: Materialize Android upload credential
@@ -281,16 +222,16 @@ jobs:
           printf '%s' "$ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/android-upload-service-account.json"
           echo "path=$RUNNER_TEMP/android-upload-service-account.json" >> "$GITHUB_OUTPUT"
 
-      - name: Upload to Firebase App Distribution
-        id: upload
+      - name: Upload to Google Play internal
         run: >-
-          bundle exec fastlane android upload_firebase
+          bundle exec fastlane android upload_play_store
           aab:"${{ github.workspace }}/build/ci/android/tattoo.aab"
           service_credentials_file:"${{ steps.credential.outputs.path }}"
+          track:internal
+          build_number:${{ needs.prepare.outputs.build_number }}
 
   upload_ios_testflight:
-    if: needs.prepare.outputs.deploy_ios == 'true'
-    environment: staging
+    environment: production
     runs-on: macos-26
     needs: [prepare, build_ios]
     env:
@@ -316,19 +257,17 @@ jobs:
       - name: Download iOS artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: ios-staging-${{ needs.prepare.outputs.build_number }}
+          name: ios-production-${{ needs.prepare.outputs.build_number }}
           path: build/ci/ios
 
-      - name: Upload to TestFlight
-        id: upload
+      - name: Upload to internal TestFlight
         run: >-
           bundle exec fastlane ios upload_testflight
           ipa:"${{ github.workspace }}/build/ci/ios/tattoo.ipa"
-          include_public_testers:false
+          internal_only:true
 
   upload_ios_symbols:
-    if: needs.prepare.outputs.deploy_ios == 'true'
-    environment: staging
+    environment: production
     runs-on: macos-26
     needs: [prepare, build_ios]
     steps:
@@ -346,7 +285,7 @@ jobs:
       - name: Download iOS artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: ios-staging-${{ needs.prepare.outputs.build_number }}
+          name: ios-production-${{ needs.prepare.outputs.build_number }}
           path: build/ci/ios
 
       - name: Restore upload-symbols permission
@@ -369,7 +308,7 @@ jobs:
       - prepare
       - build_android
       - build_ios
-      - upload_android_firebase
+      - upload_android_play
       - upload_ios_testflight
       - upload_ios_symbols
     steps:
@@ -381,79 +320,55 @@ jobs:
           android_reportable=false
           ios_reportable=false
 
-          if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ needs.prepare.outputs.deploy_android }}" = "true" ]; then
-            if [ "${{ needs.build_android.result }}" != "success" ]; then
-              failed=true
-            elif [ "${{ needs.prepare.outputs.deploy_android }}" != "true" ]; then
-              android_reportable=true
-            elif [ "${{ needs.upload_android_firebase.result }}" = "success" ]; then
-              android_reportable=true
-            else
-              failed=true
-            fi
-          elif [ "${{ needs.build_android.result }}" != "skipped" ]; then
+          if [ "${{ needs.build_android.result }}" = "success" ] && [ "${{ needs.upload_android_play.result }}" = "success" ]; then
+            android_reportable=true
+          else
             failed=true
           fi
-
-          if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ needs.prepare.outputs.deploy_ios }}" = "true" ]; then
-            if [ "${{ needs.build_ios.result }}" != "success" ]; then
-              failed=true
-            elif [ "${{ needs.prepare.outputs.deploy_ios }}" != "true" ]; then
-              ios_reportable=true
-            elif [ "${{ needs.upload_ios_testflight.result }}" = "success" ] && [ "${{ needs.upload_ios_symbols.result }}" = "success" ]; then
-              ios_reportable=true
-            else
-              failed=true
-            fi
-          elif [ "${{ needs.build_ios.result }}" != "skipped" ]; then
+          if [ "${{ needs.build_ios.result }}" = "success" ] && \
+             [ "${{ needs.upload_ios_testflight.result }}" = "success" ] && \
+             [ "${{ needs.upload_ios_symbols.result }}" = "success" ]; then
+            ios_reportable=true
+          else
             failed=true
           fi
 
           cat > pr-comment.md <<'EOF'
-          <!-- pr-preview-comment -->
-          ## PR Preview Builds (Staging)
+          <!-- production-release-comment -->
+          ## Production Release Validation
           **Build Number:** ${{ needs.prepare.outputs.build_number }}
           **Commit:** ${{ needs.prepare.outputs.commit_sha }}
           **Message:** ${{ needs.prepare.outputs.commit_message }}
           EOF
 
           if [ "$android_reportable" = "true" ]; then
-            {
-              echo
-              echo "### Android"
-              echo "Build: successful"
-              if [ "${{ needs.prepare.outputs.deploy_android }}" = "true" ]; then
-                echo "Firebase App Distribution: successful"
-                echo "[Install build ${{ needs.prepare.outputs.build_number }}](${{ needs.upload_android_firebase.outputs.testing_uri }})"
-              else
-                echo "Firebase App Distribution: skipped (add the \`deploy:android\` label to upload)"
-              fi
-            } >> pr-comment.md
-          fi
+            cat >> pr-comment.md <<'EOF'
 
+          ### Android
+          Google Play internal upload: successful
+          EOF
+          fi
           if [ "$ios_reportable" = "true" ]; then
-            {
-              echo
-              echo "### iOS"
-              echo "Build: successful"
-              if [ "${{ needs.prepare.outputs.deploy_ios }}" = "true" ]; then
-                echo "TestFlight: successful"
-                echo "Crashlytics symbols: successful"
-              else
-                echo "TestFlight and Crashlytics symbols: skipped (add the \`deploy:ios\` label to upload)"
-              fi
-            } >> pr-comment.md
-          fi
+            cat >> pr-comment.md <<'EOF'
 
+          ### iOS
+          Internal TestFlight upload: successful (`distribute_external: false`)
+          Production Crashlytics symbols upload: successful
+          EOF
+          fi
           if [ "$android_reportable" != "true" ] && [ "$ios_reportable" != "true" ]; then
             printf '\nNo platform completed successfully.\n' >> pr-comment.md
           fi
+          cat >> pr-comment.md <<'EOF'
+
+          App Store Connect and Google Play production promotion remain manual.
+          EOF
 
           cat pr-comment.md >> "$GITHUB_STEP_SUMMARY"
           echo "failed=$failed" >> "$GITHUB_OUTPUT"
 
       - name: Update pull request comment
-        if: always() && github.event_name == 'pull_request'
+        if: always()
         uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         with:
           comment-id: ${{ needs.prepare.outputs.comment_id }}
@@ -461,9 +376,9 @@ jobs:
           body-path: pr-comment.md
           edit-mode: replace
 
-      - name: Fail unsuccessful preview
+      - name: Fail incomplete production validation
         if: steps.report.outputs.failed == 'true'
         shell: bash
         run: |
-          echo "::error::One or more required preview builds or uploads failed"
+          echo "::error::One or more production validation builds or uploads failed"
           exit 1
