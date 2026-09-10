@@ -16,7 +16,7 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A1B2C3D4E5F6071800000001 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071800000002 /* SceneDelegate.swift */; };
-		BF7D061D2F5E154B00AFD197 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = BF7D061C2F5E154B00AFD197 /* AppIcon.icon */; };
+		BF7D061D2F5E154B00AFD197 /* AppIcon-production.icon in Resources */ = {isa = PBXBuildFile; fileRef = BF7D061C2F5E154B00AFD197 /* AppIcon-production.icon */; };
 		CB856815BC7EE0866F70337B /* AppIcon-staging.icon in Resources */ = {isa = PBXBuildFile; fileRef = F2BD15EECAB9A8B1517B1275 /* AppIcon-staging.icon */; };
 /* End PBXBuildFile section */
 
@@ -61,7 +61,7 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071800000002 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		BF7D061C2F5E154B00AFD197 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		BF7D061C2F5E154B00AFD197 /* AppIcon-production.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = "AppIcon-production.icon"; sourceTree = "<group>"; };
 		F2BD15EECAB9A8B1517B1275 /* AppIcon-staging.icon */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.iconcomposer.icon; path = "AppIcon-staging.icon"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -128,7 +128,7 @@
 			children = (
 				97C147021CF9000F007C117D /* Info.plist */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
-				BF7D061C2F5E154B00AFD197 /* AppIcon.icon */,
+				BF7D061C2F5E154B00AFD197 /* AppIcon-production.icon */,
 				F2BD15EECAB9A8B1517B1275 /* AppIcon-staging.icon */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -243,7 +243,7 @@
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
-				BF7D061D2F5E154B00AFD197 /* AppIcon.icon in Resources */,
+				BF7D061D2F5E154B00AFD197 /* AppIcon-production.icon in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				CB856815BC7EE0866F70337B /* AppIcon-staging.icon in Resources */,
 			);
@@ -467,7 +467,7 @@
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
 				APP_DISPLAY_NAME = TAT;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-production";
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				ENABLE_BITCODE = NO;
@@ -491,7 +491,7 @@
 			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
 				APP_DISPLAY_NAME = TAT;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-production";
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				ENABLE_BITCODE = NO;
@@ -656,7 +656,7 @@
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
 				APP_DISPLAY_NAME = TAT;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-production";
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				ENABLE_BITCODE = NO;
