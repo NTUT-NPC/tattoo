@@ -59,6 +59,20 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$forceUpdate$en_US forceUpdate = _Translations$forceUpdate$en_US._(_root);
 	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
 	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
+	@override late final _Translations$iSchoolPlus$en_US iSchoolPlus = _Translations$iSchoolPlus$en_US._(_root);
+}
+
+// Path: iSchoolPlus.network
+class _Translations$iSchoolPlus$en_US extends Translations$iSchoolPlus$zh_TW {
+	_Translations$iSchoolPlus$en_US._(TranslationsEnUs root) : _root = root, super.internal(root);
+	final TranslationsEnUs _root;
+	@override String get loadingNetworkHint => 'I-School Plus requires the NTUT network.';
+	@override String get title => 'Unable to connect to I-School Plus';
+	@override String get description => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then try this feature again.';
+	@override String get learnMore => 'Learn More';
+	@override String get retry => 'Retry';
+	@override String get openGuide => 'View VPN Instructions';
+	@override String get openGuideFailed => 'Unable to open the VPN instructions. Please try again later.';
 }
 
 // Path: preferences
@@ -960,16 +974,9 @@ class _Translations$courseTable$detail$roster$en_US extends Translations$courseT
 	@override String get name => 'Name';
 	@override String get empty => 'No classmates are listed for this course';
 	@override String get loadFailed => 'Unable to load the course roster. Please try again later.';
-	@override String get loadingNetworkHint => 'I-School Plus requires the NTUT network.';
-	@override String get refresh => 'Refresh';
-	@override String get networkTitle => 'Unable to connect to I-School Plus';
-	@override String get networkDescription => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then reopen the course roster.';
 	@override String get networkSnackbar => 'Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.';
 	@override String get updateSuccess => 'Course roster updated.';
-	@override String get learnMore => 'Learn More';
-	@override String get openGuide => 'View VPN Instructions';
 	@override String get backToRoster => 'Back to Course Roster';
-	@override String get openGuideFailed => 'Unable to open the VPN instructions. Please try again later.';
 }
 
 // Path: profile.dangerZone.items
@@ -1137,16 +1144,16 @@ extension on TranslationsEnUs {
 			'courseTable.detail.roster.name' => 'Name',
 			'courseTable.detail.roster.empty' => 'No classmates are listed for this course',
 			'courseTable.detail.roster.loadFailed' => 'Unable to load the course roster. Please try again later.',
-			'courseTable.detail.roster.loadingNetworkHint' => 'I-School Plus requires the NTUT network.',
-			'courseTable.detail.roster.refresh' => 'Refresh',
-			'courseTable.detail.roster.networkTitle' => 'Unable to connect to I-School Plus',
-			'courseTable.detail.roster.networkDescription' => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then reopen the course roster.',
 			'courseTable.detail.roster.networkSnackbar' => 'Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.',
 			'courseTable.detail.roster.updateSuccess' => 'Course roster updated.',
-			'courseTable.detail.roster.learnMore' => 'Learn More',
-			'courseTable.detail.roster.openGuide' => 'View VPN Instructions',
 			'courseTable.detail.roster.backToRoster' => 'Back to Course Roster',
-			'courseTable.detail.roster.openGuideFailed' => 'Unable to open the VPN instructions. Please try again later.',
+			'iSchoolPlus.network.loadingNetworkHint' => 'I-School Plus requires the NTUT network.',
+			'iSchoolPlus.network.title' => 'Unable to connect to I-School Plus',
+			'iSchoolPlus.network.description' => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then try this feature again.',
+			'iSchoolPlus.network.learnMore' => 'Learn More',
+			'iSchoolPlus.network.retry' => 'Retry',
+			'iSchoolPlus.network.openGuide' => 'View VPN Instructions',
+			'iSchoolPlus.network.openGuideFailed' => 'Unable to open the VPN instructions. Please try again later.',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',

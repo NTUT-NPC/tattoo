@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
+import 'package:tattoo/components/i_school_plus_network_guide.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
@@ -11,7 +12,6 @@ import 'package:tattoo/screens/main/i_school_plus_providers.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/shells/centered_max_width_frame.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
-import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/utils/localized.dart';
 
 Future<void> showCourseTableDetailSheet(
@@ -317,6 +317,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     final cacheAsync = ref.watch(cacheProvider);
     final refreshAsync = ref.watch(refreshProvider);
     final strings = Translations.of(context).courseTable.detail.roster;
+    final networkStrings = Translations.of(context).iSchoolPlus.network;
     final availabilityAsync = ref.watch(iSchoolPlusAvailabilityProvider);
 
     ref.listen(availabilityProvider, (previous, next) {
@@ -327,7 +328,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
       if (hasCache && !_networkFailureSnackbarShown) {
         _showNetworkSnackbar(
           message: strings.networkSnackbar,
-          actionLabel: strings.learnMore,
+          actionLabel: networkStrings.learnMore,
         );
       }
     });
@@ -343,7 +344,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
 
         _showNetworkSnackbar(
           message: strings.networkSnackbar,
-          actionLabel: strings.learnMore,
+          actionLabel: networkStrings.learnMore,
         );
         return;
       }
@@ -372,9 +373,12 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
       ref.pref(PrefKey.courseRosterGuideUrl),
     );
     if (_showNetworkGuide) {
-      return _CourseRosterNetworkGuide(
+      return ISchoolPlusNetworkGuide(
         guideUrl: guideUrl,
-        onBack: () => setState(() => _showNetworkGuide = false),
+        onBack: (
+          label: strings.backToRoster,
+          onPressed: () => setState(() => _showNetworkGuide = false),
+        ),
         onRetry: _retry,
       );
     }
@@ -382,7 +386,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     final roster = cacheAsync.value;
     final refreshError = refreshAsync.error;
     if (roster?.fetchedAt == null && availabilityAsync.hasError) {
-      return _CourseRosterNetworkGuide(
+      return ISchoolPlusNetworkGuide(
         guideUrl: guideUrl,
         onRetry: _retry,
       );
@@ -401,7 +405,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
       );
     }
     if (roster?.fetchedAt == null && refreshError != null) {
-      return _CourseRosterNetworkGuide(
+      return ISchoolPlusNetworkGuide(
         guideUrl: guideUrl,
         onRetry: _retry,
       );
@@ -431,7 +435,7 @@ class _CourseRosterLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final strings = Translations.of(context).courseTable.detail.roster;
+    final strings = Translations.of(context).iSchoolPlus.network;
     final hintStyle = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
@@ -513,88 +517,6 @@ class _CourseRosterTable extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _CourseRosterNetworkGuide extends StatelessWidget {
-  const _CourseRosterNetworkGuide({
-    required this.guideUrl,
-    this.onBack,
-    this.onRetry,
-  });
-
-  final Uri guideUrl;
-  final VoidCallback? onBack;
-  final VoidCallback? onRetry;
-
-  Future<void> _openGuide(BuildContext context) async {
-    try {
-      await launchUrl(guideUrl);
-    } catch (_) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              t.courseTable.detail.roster.openGuideFailed.spaced,
-            ),
-          ),
-        );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final strings = Translations.of(context).courseTable.detail.roster;
-    return Padding(
-      padding: const .fromLTRB(16, 32, 16, 8),
-      child: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: .stretch,
-        children: [
-          Icon(
-            Icons.vpn_lock_outlined,
-            size: 64,
-            color: theme.colorScheme.primary,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            strings.networkTitle.spaced,
-            style: theme.textTheme.headlineSmall,
-            textAlign: .center,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            strings.networkDescription.spaced,
-            style: theme.textTheme.bodyLarge,
-            textAlign: .justify,
-          ),
-          if (onBack case final onBack?) ...[
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: onBack,
-              child: Text(strings.backToRoster.spaced),
-            ),
-          ],
-          const SizedBox(height: 24),
-          if (onRetry case final onRetry?) ...[
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: Text(strings.refresh.spaced),
-            ),
-            const SizedBox(height: 8),
-          ],
-          OutlinedButton.icon(
-            onPressed: () => _openGuide(context),
-            icon: const Icon(Icons.open_in_new),
-            label: Text(strings.openGuide.spaced),
-          ),
-        ],
       ),
     );
   }
@@ -766,7 +688,7 @@ class _DetailState extends StatelessWidget {
             if (onRetry case final onRetry?)
               TextButton(
                 onPressed: onRetry,
-                child: Text(t.courseTable.detail.roster.refresh.spaced),
+                child: Text(t.iSchoolPlus.network.retry.spaced),
               ),
           ],
         ),
