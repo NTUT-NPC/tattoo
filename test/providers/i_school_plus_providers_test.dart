@@ -80,7 +80,7 @@ void main() {
     test('retries from loading and reports a subsequent success', () async {
       final initialRequest = Completer<void>();
       iSchoolPlusService.availabilityResult = initialRequest.future;
-      final subscription = container.listen<void>(
+      final subscription = container.listen<AsyncValue<void>>(
         iSchoolPlusAvailabilityProvider,
         (_, _) {},
       );
@@ -126,7 +126,7 @@ void main() {
     test('ignores a late failure after markAvailable', () async {
       final oldRequest = Completer<void>();
       iSchoolPlusService.availabilityResult = oldRequest.future;
-      final subscription = container.listen<void>(
+      final subscription = container.listen<AsyncValue<void>>(
         iSchoolPlusAvailabilityProvider,
         (_, _) {},
       );
