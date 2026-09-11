@@ -139,6 +139,57 @@ void main() {
     );
 
     test(
+      'recovers cached students after a failed refresh',
+      () async {
+        iSchoolPlusService.studentsResult = [
+          (id: '111000001', name: '第一次快取'),
+        ];
+        await repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        final cached = await repository
+            .watchStudentRoster(courseOfferingId)
+            .first;
+
+        iSchoolPlusService.studentsError = DioException(
+          requestOptions: RequestOptions(path: '/learn/learn_ranking.php'),
+          type: .connectionError,
+        );
+        await expectLater(
+          repository.refreshStudentRoster(
+            courseOfferingId: courseOfferingId,
+            courseNumber: '352902',
+          ),
+          throwsA(isA<DioException>()),
+        );
+        final retained = await repository
+            .watchStudentRoster(courseOfferingId)
+            .first;
+        expect(retained.fetchedAt, cached.fetchedAt);
+        expect(retained.students.single.name, '第一次快取');
+
+        iSchoolPlusService
+          ..studentsError = null
+          ..studentsResult = [
+            (id: '111000002', name: '恢復後同學'),
+          ];
+        await repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        final refreshed = await repository
+            .watchStudentRoster(courseOfferingId)
+            .first;
+        expect(refreshed.fetchedAt, isNotNull);
+        expect(
+          refreshed.students.map((student) => student.name),
+          ['恢復後同學'],
+        );
+      },
+    );
+
+    test(
       'caches an empty roster when the course is absent from iSchool',
       () async {
         iSchoolPlusService.courseListResult = [];
