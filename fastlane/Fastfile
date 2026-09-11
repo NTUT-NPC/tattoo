@@ -96,7 +96,7 @@ platform :ios do
     )
 
     Dir.chdir(PROJECT_ROOT) do
-      sh("dart", "run", "tool/credentials.dart", "fetch-build", "ios", flavor)
+      sh("dart", "run", "tool/credentials.dart", "fetch")
     end
 
     archive_path = flutter_build(
@@ -189,7 +189,7 @@ platform :android do
 
     prepare_output_directory(CI_ANDROID_DIR)
     Dir.chdir(PROJECT_ROOT) do
-      sh("dart", "run", "tool/credentials.dart", "fetch-build", "android", flavor)
+      sh("dart", "run", "tool/credentials.dart", "fetch")
     end
 
     arguments = build_arguments(
