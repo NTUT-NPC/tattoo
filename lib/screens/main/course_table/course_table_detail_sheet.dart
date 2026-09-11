@@ -7,6 +7,7 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
+import 'package:tattoo/screens/main/i_school_plus_providers.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/shells/centered_max_width_frame.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
@@ -271,18 +272,16 @@ class _CourseRosterPane extends ConsumerStatefulWidget {
 
 class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
   var _showNetworkGuide = false;
-  var _availabilityFailed = false;
   var _networkFailureSnackbarShown = false;
 
   void _retry() {
     setState(() {
       _showNetworkGuide = false;
-      _availabilityFailed = false;
       _networkFailureSnackbarShown = false;
     });
+    ref.read(iSchoolPlusAvailabilityProvider.notifier).retry();
     ref
       ..invalidate(courseStudentRosterProvider(widget.rosterKey))
-      ..invalidate(iSchoolPlusAvailabilityProvider)
       ..invalidate(courseStudentRosterRefreshProvider(widget.rosterKey));
   }
 
@@ -318,13 +317,13 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     final cacheAsync = ref.watch(cacheProvider);
     final refreshAsync = ref.watch(refreshProvider);
     final strings = Translations.of(context).courseTable.detail.roster;
+    final availabilityAsync = ref.watch(iSchoolPlusAvailabilityProvider);
 
     ref.listen(availabilityProvider, (previous, next) {
-      if (!_hasNewError(previous, next) || _availabilityFailed) return;
+      if (!_hasNewError(previous, next)) return;
       if (ref.read(refreshProvider).hasValue) return;
 
       final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
-      setState(() => _availabilityFailed = true);
       if (hasCache && !_networkFailureSnackbarShown) {
         _showNetworkSnackbar(
           message: strings.networkSnackbar,
@@ -335,7 +334,8 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
 
     ref.listen(refreshProvider, (previous, next) {
       if (_hasNewError(previous, next)) {
-        if (_availabilityFailed || _networkFailureSnackbarShown) {
+        if (ref.read(availabilityProvider).hasError ||
+            _networkFailureSnackbarShown) {
           return;
         }
         final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
@@ -347,10 +347,13 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         );
         return;
       }
-      if (!next.hasValue || !_availabilityFailed) return;
+      if (!next.hasValue) return;
+
+      final availabilityFailed = ref.read(availabilityProvider).hasError;
+      ref.read(availabilityProvider.notifier).markAvailable();
+      if (!availabilityFailed) return;
 
       setState(() {
-        _availabilityFailed = false;
         _networkFailureSnackbarShown = false;
       });
 
@@ -378,7 +381,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
 
     final roster = cacheAsync.value;
     final refreshError = refreshAsync.error;
-    if (roster?.fetchedAt == null && _availabilityFailed) {
+    if (roster?.fetchedAt == null && availabilityAsync.hasError) {
       return _CourseRosterNetworkGuide(
         guideUrl: guideUrl,
         onRetry: _retry,
