@@ -16,9 +16,6 @@ on:
         type: boolean
         default: false
 
-permissions:
-  contents: read
-
 concurrency:
   group: >-
     ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}${{
@@ -331,7 +328,6 @@ jobs:
 
   report:
     permissions:
-      contents: read
       pull-requests: write
     if: always() && needs.prepare.result == 'success'
     runs-on: ubuntu-latest
