@@ -367,6 +367,7 @@ jobs:
         if: steps.results.outputs.failed != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           if gh release view daily &>/dev/null; then
             gh api \
