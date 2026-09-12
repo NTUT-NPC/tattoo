@@ -19,7 +19,6 @@ on:
 
 jobs:
   build:
-    name: Build Android
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:
