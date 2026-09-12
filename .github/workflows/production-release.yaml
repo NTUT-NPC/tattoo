@@ -16,14 +16,17 @@ jobs:
   prepare:
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.action == 'labeled' &&
-      github.event.label.name == 'deploy:production' &&
-      contains(github.event.pull_request.labels.*.name, 'deploy:production')
+      contains(github.event.pull_request.labels.*.name, 'deploy:production') &&
+      (github.event.action == 'synchronize' ||
+      (github.event.action == 'labeled' &&
+      github.event.label.name == 'deploy:production'))
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: write
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number }}
+      comment_id: ${{ steps.find-comment.outputs.comment-id || steps.create.outputs.comment-id }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -36,6 +39,28 @@ jobs:
         with:
           github_token: ${{ secrets.BUILD_NUMBER_PAT }}
           current_build_number: ${{ vars.build_number }}
+
+      - name: Find existing Production comment
+        id: find-comment
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: <!-- production-release-comment -->
+
+      - name: Create or update Production comment
+        id: create
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            <!-- production-release-comment -->
+            ## Production Release
+            **Build Number:** ${{ steps.build-number.outputs.build_number }}
+            **Commit:** ${{ github.event.pull_request.head.sha }}
+            **Message:** ${{ github.event.pull_request.title }}
+          edit-mode: replace
 
   build-android:
     needs: [prepare]
@@ -228,6 +253,9 @@ jobs:
           upload_symbols_binary:"${{ github.workspace }}/build/ios/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols"
 
   report:
+    permissions:
+      contents: read
+      pull-requests: write
     if: always() && needs.prepare.result == 'success'
     needs:
       - prepare
@@ -240,6 +268,10 @@ jobs:
     steps:
       - name: Write validation report
         id: results
+        env:
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           failed=false
           for result in \
@@ -254,9 +286,11 @@ jobs:
           done
 
           {
+            echo "<!-- production-release-comment -->"
             echo "## Production Release"
             echo "**Build Number:** ${{ needs.prepare.outputs.build_number }}"
-            echo "**Commit:** [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
+            printf '**Commit:** [%s](%s)\n' "$COMMIT_SHA" "$COMMIT_URL"
+            printf '**Message:** %s\n' "$PR_TITLE"
             echo
             echo "### Android"
             echo "- **Signed production build:** ${{ needs.build-android.result }}"
@@ -266,9 +300,18 @@ jobs:
             echo "- **Signed production build:** ${{ needs.build-ios.result }}"
             echo "- **Internal TestFlight:** ${{ needs.upload-ios-testflight.result }}"
             echo "- **Crashlytics symbols:** ${{ needs.upload-ios-symbols.result }}"
-          } >> "$GITHUB_STEP_SUMMARY"
+          } > pr-comment.md
 
+          cat pr-comment.md >> "$GITHUB_STEP_SUMMARY"
           echo "failed=$failed" >> "$GITHUB_OUTPUT"
+
+      - name: Update Production comment
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
+        with:
+          comment-id: ${{ needs.prepare.outputs.comment_id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: pr-comment.md
+          edit-mode: replace
 
       - name: Fail incomplete production validation
         if: steps.results.outputs.failed == 'true'
