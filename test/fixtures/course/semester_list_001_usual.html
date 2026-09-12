@@ -1,0 +1,68 @@
+<!--
+
+preset: course.semester_list
+request_url: https://aps.ntut.edu.tw/course/tw/Select.jsp
+
+fetchtime: 2026-07-15 17:33:15
+message: This is a usual course-system semester list page.
+
+TODO: Add the expected parse result after the HTML-based test code is complete.
+
+-->
+
+
+
+
+<HTML>
+<HEAD>
+<!-- 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+-->
+<TITLE>選課表</TITLE> 
+<Script src="https://font.ntut.edu.tw/wfs/js/lib/wfs.js" type="text/javascript" ></Script>
+<!-- 
+<Script Language=JavaScript>
+function CheckData1(form) {
+  if (form.code.value.length==0) {
+     alert("請輸入[學號]");  form.code.focus();  return false;
+  }
+  return true;
+}
+function CheckData2(form) {
+  if (form.code.value.length==0) {
+     alert("請輸入[課號]");  form.code.focus();  return false;
+  }
+  return true;
+}
+</Script>
+-->
+</HEAD>
+
+
+<BODY bgcolor=#ffffdf background="../image/grey918y.gif" text=#003398>
+<H2>選 課 表</H2>
+
+<table border=1>
+<tr><th>王大同 (111590001)
+<tr><td><img src=../image/or_ball.gif> <a href="Select.jsp?format=-2&code=111590001&year=114&sem=2">114 學年度　第 2 學期</a>
+<tr><td><img src=../image/or_ball.gif> <a href="Select.jsp?format=-2&code=111590001&year=114&sem=1">114 學年度　第 1 學期</a>
+<tr><td><img src=../image/or_ball.gif> <a href="Select.jsp?format=-2&code=111590001&year=113&sem=2">113 學年度　第 2 學期</a>
+<tr><td><img src=../image/or_ball.gif> <a href="Select.jsp?format=-2&code=111590001&year=113&sem=1">113 學年度　第 1 學期</a>
+<tr><td><img src=../image/or_ball.gif> <a href="Select.jsp?format=-2&code=111590001&year=112&sem=2">112 學年度　第 2 學期</a>
+<tr><td><img src=../image/or_ball.gif> <a href="Select.jsp?format=-2&code=111590001&year=112&sem=1">112 學年度　第 1 學期</a>
+<tr><td><img src=../image/or_ball.gif> <a href="Select.jsp?format=-2&code=111590001&year=111&sem=2">111 學年度　第 2 學期</a>
+<tr><td><img src=../image/or_ball.gif> <a href="Select.jsp?format=-2&code=111590001&year=111&sem=1">111 學年度　第 1 學期</a>
+</table>
+
+
+<P>備註：<input type="button" onClick="history.back()" value="回上一頁"></P><OL>
+<LI>本資料係由本校各教學單位、教務處課務組、進修部教務組、進修學院教務組及計網中心所共同提供！</LI>
+<LI>若您對課程有任何問題，請洽各開課系所。</LI>
+<!--
+<LI>您是自86年9月9日以來第<IMG SRC="/cgi-bin/cgiwrap/dbquery/db_select_counter">人次查詢本頁。</LI></OL>
+-->
+</OL>
+ 
+
+</BODY>
+</HTML>
