@@ -1,0 +1,97 @@
+name: Build iOS
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: Build flavor and GitHub environment
+        required: true
+        type: string
+      build_number:
+        description: Flutter build number
+        required: true
+        type: string
+      version_suffix:
+        description: Version suffix appended by the build
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 30
+    concurrency:
+      group: >-
+        ${{ github.workflow }}-${{
+          github.event.pull_request.number || github.ref }}-ios-build
+      cancel-in-progress: ${{ github.event.action == 'synchronize' }}
+    environment:
+      name: ${{ inputs.environment }}
+      deployment: false
+    env:
+      IOS_BUNDLE_IDENTIFIER: ${{ secrets.IOS_BUNDLE_IDENTIFIER }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      FASTLANE_TEAM_ID: ${{ secrets.FASTLANE_TEAM_ID }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          platform: ios
+
+      - name: Prepare build credentials
+        run: dart run tool/credentials.dart fetch
+
+      - name: Prepare iOS signing
+        run: >-
+          bundle exec fastlane ios prepare_signing
+          env:${{ inputs.environment }}
+
+      - name: Build iOS artifact
+        run: >-
+          PATH="/usr/bin:/bin:/usr/sbin:/sbin:$PATH" flutter build ipa
+          --release
+          --flavor "${{ inputs.environment }}"
+          --build-number "${{ inputs.build_number }}"
+          --no-pub
+          --export-method app-store
+          --dart-define=USE_FIREBASE=true
+          --dart-define="VERSION_SUFFIX=${{ inputs.version_suffix }}"
+          --dart-define="STORE_URL=${{ vars.IOS_STORE_URL }}"
+
+      - name: Normalize iOS artifact
+        run: |
+          shopt -s nullglob
+          ipas=(build/ios/ipa/*.ipa)
+          if [ "${#ipas[@]}" -ne 1 ]; then
+            echo "::error::Expected exactly one exported IPA, found ${#ipas[@]}"
+            exit 1
+          fi
+          if [ "${ipas[0]}" != "build/ios/ipa/app-release.ipa" ]; then
+            mv "${ipas[0]}" build/ios/ipa/app-release.ipa
+          fi
+
+      - name: Archive iOS dSYM
+        run: >-
+          ditto -c -k --sequesterRsrc --keepParent
+          build/ios/archive/Runner.xcarchive/dSYMs/Runner.app.dSYM
+          build/ios/archive/Runner.xcarchive/dSYMs/Runner.app.dSYM.zip
+
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ios-${{ inputs.environment }}-${{ inputs.build_number }}
+          path: |
+            build/ios/ipa/app-release.ipa
+            build/ios/archive/Runner.xcarchive/dSYMs/Runner.app.dSYM.zip
+            ios/Runner/GoogleService-Info-${{ inputs.environment }}.plist
+            build/ios/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols
+          if-no-files-found: error

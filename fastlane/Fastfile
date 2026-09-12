@@ -1,17 +1,9 @@
 # This file contains the fastlane.tools configuration
 # You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
 
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
+require "fileutils"
+
+PROJECT_ROOT = File.expand_path("..", __dir__)
 
 def changelog(pr_number, pr_title, commit_sha, commit_message)
   prefix = pr_number.to_s.empty? ? pr_title : "PR ##{pr_number}: #{pr_title}"
@@ -25,188 +17,122 @@ def release_notes(pr_number, pr_title, commit_sha, commit_message)
   generated.empty? ? changelog(pr_number, pr_title, commit_sha, commit_message) : generated
 end
 
-def get_build_settings(options)
-  { 
-    build_number: options[:build_number] || ENV["BUILD_NUMBER"],
-    version_suffix: options[:version_suffix] || ENV["VERSION_SUFFIX"] || ""
+def required_file(path, description)
+  UI.user_error!("#{description} path is required") if path.to_s.empty?
+
+  absolute_path = File.expand_path(path, PROJECT_ROOT)
+  UI.user_error!("#{description} not found at #{absolute_path}") unless File.file?(absolute_path)
+
+  absolute_path
+end
+
+def release_metadata(options)
+  {
+    pr_number: options[:pr_number] || ENV["PR_NUMBER"] || "",
+    pr_title: options[:pr_title] || ENV["PR_TITLE"] || "manual build",
+    commit_sha: options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build",
+    commit_message: options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
   }
 end
 
 platform :ios do
-  desc "Build and upload to TestFlight"
-  lane :upload_testflight do |options|
+  desc "Install and configure iOS signing credentials"
+  lane :prepare_signing do |options|
     flavor = options[:env] || "staging"
-    settings = get_build_settings(options)
-    pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
-    pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
-    commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
-    commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
-    skip_upload = options[:skip_upload].to_s == "true"
-    include_public_testers = options[:include_public_testers].to_s == "true" || ENV["PUBLIC_TESTERS"] == "true"
-    internal_only = options[:internal_only].to_s == "true"
 
     setup_ci if is_ci
 
     sync_code_signing(
       type: "appstore",
-      readonly: is_ci,
+      readonly: is_ci
     )
 
     update_code_signing_settings(
-      path: "ios/Runner.xcodeproj",
+      path: File.join(PROJECT_ROOT, "ios", "Runner.xcodeproj"),
+      targets: ["Runner"],
+      build_configurations: ["Release-#{flavor}"],
       sdk: "iphoneos*",
-      code_sign_identity: "iPhone Distribution",
-      profile_name: "match AppStore #{ENV["IOS_BUNDLE_IDENTIFIER"]}",
-    )
-
-    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
-
-    store_url = options[:store_url] || ENV["STORE_URL"] || ENV["TESTFLIGHT_PUBLIC_LINK"] || ""
-    build_args = [
-      "--no-codesign",
-      "--dart-define=USE_FIREBASE=true",
-      "--flavor=#{flavor}",
-    ]
-    build_args << "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}" unless settings[:version_suffix].empty?
-    build_args << "--dart-define=STORE_URL=#{store_url}" unless store_url.empty?
-
-    # Build and create xcarchive without code signing
-    archive_path = flutter_build(
-      build: "ipa",
-      build_number: settings[:build_number],
-      build_args: build_args,
-    )
-
-    build_app(
-      skip_build_archive: true,
-      archive_path: archive_path,
-      export_team_id: ENV["FASTLANE_TEAM_ID"],
-      suppress_xcode_output: true,
-    )
-
-    next if skip_upload
-
-    upload_symbols_binary_path =
-      File.expand_path("../build/ios/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols", __dir__)
-    UI.user_error!("Firebase Crashlytics upload-symbols executable not found") unless File.file?(upload_symbols_binary_path)
-
-    upload_symbols_to_crashlytics(
-      dsym_path: lane_context[SharedValues::DSYM_OUTPUT_PATH],
-      gsp_path: "ios/Runner/GoogleService-Info-#{flavor}.plist",
-      binary_path: upload_symbols_binary_path,
-    )
-
-    app_store_connect_api_key(
-      is_key_content_base64: true,
-    )
-
-    changelog = release_notes(pr_number, pr_title, commit_sha, commit_message)
-
-    target_groups = include_public_testers ? ["Private External Testers", "Public External Testers"] : ["Private External Testers"]
-
-    upload_to_testflight(
-      changelog: changelog,
-      distribute_external: !internal_only,
-      groups: internal_only ? nil : target_groups,
+      team_id: ENV["FASTLANE_TEAM_ID"],
+      code_sign_identity: "Apple Distribution",
+      profile_name: "match AppStore #{ENV['IOS_BUNDLE_IDENTIFIER']}"
     )
   end
 
-  desc "Build and upload the production flavor to internal TestFlight"
-  lane :release_production do |options|
-    upload_testflight(options.merge(env: "production", internal_only: true))
+  desc "Upload an existing IPA to TestFlight"
+  lane :upload_testflight do |options|
+    ipa_path = required_file(options[:ipa], "iOS IPA")
+    metadata = release_metadata(options)
+    include_public_testers = options[:include_public_testers].to_s == "true" || ENV["PUBLIC_TESTERS"] == "true"
+    internal_only = options[:internal_only].to_s == "true"
+    test_notes = release_notes(*metadata.values)
+    if !internal_only && test_notes.strip.empty?
+      UI.user_error!("TestFlight test notes are required for external distribution")
+    end
+
+    app_store_connect_api_key(is_key_content_base64: true)
+
+    target_groups = if include_public_testers
+                      ["Private External Testers", "Public External Testers"]
+                    else
+                      ["Private External Testers"]
+                    end
+
+    upload_to_testflight(
+      ipa: ipa_path,
+      changelog: test_notes,
+      distribute_external: !internal_only,
+      groups: internal_only ? nil : target_groups,
+      skip_waiting_for_build_processing: false
+    )
+  end
+
+  desc "Upload an existing dSYM archive to Firebase Crashlytics"
+  lane :upload_symbols do |options|
+    upload_symbols_to_crashlytics(
+      dsym_path: required_file(options[:dsym], "iOS dSYM archive"),
+      gsp_path: required_file(options[:gsp], "Firebase iOS configuration"),
+      binary_path: required_file(options[:upload_symbols_binary], "Firebase Crashlytics upload-symbols executable"),
+      fail_on_error: true
+    )
   end
 end
 
 platform :android do
-  lane :build_apk do |options|
-    flavor = options[:env] || "staging"
-    settings = get_build_settings(options)
-    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
-
-    store_url = options[:store_url] || ENV["STORE_URL"] || ENV["GOOGLEPLAY_PUBLIC_LINK"] || ""
-    build_args = [
-      "--dart-define=USE_FIREBASE=true",
-      "--dart-define=cronetHttpNoPlay=true",
-      "--flavor=#{flavor}",
-    ]
-    build_args << "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}" unless settings[:version_suffix].empty?
-    build_args << "--dart-define=STORE_URL=#{store_url}" unless store_url.empty?
-
-    flutter_build(
-      build: "apk",
-      build_number: settings[:build_number],
-      build_args: build_args,
-    )
-  end
-
-  lane :build_appbundle do |options|
-    settings = get_build_settings(options)
-    flavor = options[:env] || "staging"
-    Dir.chdir("..") { sh("dart", "run", "tool/credentials.dart", "fetch") }
-
-    store_url = options[:store_url] || ENV["STORE_URL"] || ENV["GOOGLEPLAY_PUBLIC_LINK"] || ""
-    build_args = [
-      "--dart-define=USE_FIREBASE=true",
-      "--dart-define=cronetHttpNoPlay=true",
-      "--flavor=#{flavor}",
-    ]
-    build_args << "--dart-define=VERSION_SUFFIX=#{settings[:version_suffix]}" unless settings[:version_suffix].empty?
-    build_args << "--dart-define=STORE_URL=#{store_url}" unless store_url.empty?
-
-    flutter_build(
-      build: "appbundle",
-      build_number: settings[:build_number],
-      build_args: build_args,
-    )
-  end
-
-  private_lane :upload_firebase do |options|
-    pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
-    pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
-    commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
-    commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
-    changelog_text = release_notes(pr_number, pr_title, commit_sha, commit_message)
-    aab_path = options[:aab] || File.expand_path("../build/app/outputs/bundle/release/app-release.aab", __dir__)
-
-    target_groups = "dev-tester"
-
+  desc "Upload an existing App Bundle to Firebase App Distribution"
+  lane :upload_firebase do |options|
+    metadata = release_metadata(options)
     release = firebase_app_distribution(
-      groups: target_groups,
-      release_notes: changelog_text,
+      groups: "dev-tester",
+      release_notes: release_notes(*metadata.values),
       android_artifact_type: "AAB",
-      android_artifact_path: aab_path,
-      service_credentials_file: File.expand_path("../service-account.json", __dir__),
+      android_artifact_path: required_file(options[:aab], "Android App Bundle"),
+      service_credentials_file: required_file(options[:service_credentials_file], "Android upload service account")
     )
 
     if ENV["GITHUB_OUTPUT"]
-      File.open(ENV["GITHUB_OUTPUT"], "a") do |f|
-        f.puts "testing_uri=#{release[:testingUri]}"
+      File.open(ENV["GITHUB_OUTPUT"], "a") do |file|
+        file.puts "testing_uri=#{release.fetch(:testingUri)}"
       end
     end
   end
 
-  private_lane :upload_playstore do |options|
+  desc "Upload an existing App Bundle to Google Play"
+  lane :upload_play_store do |options|
     build_number = options[:build_number] || ENV["BUILD_NUMBER"] || 1
-    pr_number = options[:pr_number] || ENV["PR_NUMBER"] || ""
-    pr_title = options[:pr_title] || ENV["PR_TITLE"] || "manual build"
-    commit_sha = options[:commit_sha] || ENV["COMMIT_SHA"] || "manual build"
-    commit_message = options[:commit_message] || ENV["COMMIT_MESSAGE"] || "This is a manual build without PR information"
+    metadata = release_metadata(options)
+    changelog_text = release_notes(*metadata.values)
+    changelog_directory = File.join(PROJECT_ROOT, "fastlane", "metadata", "android", "zh-TW", "changelogs")
+    FileUtils.mkdir_p(changelog_directory)
+    File.write(File.join(changelog_directory, "#{build_number}.txt"), changelog_text)
 
-    changelog_text = release_notes(pr_number, pr_title, commit_sha, commit_message)
-    ["zh-TW"].each do |locale|
-      path = "metadata/android/#{locale}/changelogs"
-      FileUtils.mkdir_p(path)
-      File.write("#{path}/#{build_number}.txt", changelog_text)
-    end
-
-    aab_path = options[:aab] || File.expand_path("../build/app/outputs/bundle/release/app-release.aab", __dir__)
-    track = options[:track] || "internal"
+    track = options[:track].to_s
+    UI.user_error!("Google Play track is required") if track.empty?
 
     upload_to_play_store(
       package_name: ENV["ANDROID_PACKAGE_NAME"],
       track: track,
-      aab: aab_path,
-      json_key: File.expand_path("../service-account.json", __dir__),
+      aab: required_file(options[:aab], "Android App Bundle"),
+      json_key: required_file(options[:service_credentials_file], "Android upload service account"),
       skip_upload_metadata: false,
       skip_upload_images: true,
       skip_upload_screenshots: true,
@@ -214,28 +140,5 @@ platform :android do
       release_status: "completed",
       changes_not_sent_for_review: false
     )
-  end
-
-  desc "Build and upload PR preview to Firebase App Distribution"
-  lane :preview do |options|
-    aab = options[:aab]
-    aab ||= build_appbundle(options) unless options[:skip_build].to_s == "true"
-    upload_firebase(options.merge(aab: aab)) unless options[:skip_upload].to_s == "true"
-  end
-
-  desc "Build and upload to Google Play Console & Firebase"
-  lane :release do |options|
-    aab = options[:aab]
-    aab ||= build_appbundle(options) unless options[:skip_build].to_s == "true"
-    upload_playstore(options.merge(aab: aab, track: "beta")) unless options[:skip_upload_playstore].to_s == "true"
-    upload_firebase(options.merge(aab: aab)) unless options[:skip_upload_firebase].to_s == "true"
-  end
-
-  desc "Build and upload the production flavor to Google Play Internal"
-  lane :release_production do |options|
-    production_options = options.merge(env: "production")
-    aab = production_options[:aab]
-    aab ||= build_appbundle(production_options) unless production_options[:skip_build].to_s == "true"
-    upload_playstore(production_options.merge(aab: aab, track: options[:track] || "internal")) unless production_options[:skip_upload].to_s == "true"
   end
 end

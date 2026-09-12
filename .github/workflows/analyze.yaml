@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   analyze:
+    name: Analyze
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
