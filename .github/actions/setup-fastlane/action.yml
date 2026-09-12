@@ -1,0 +1,33 @@
+name: Setup Fastlane
+description: Install only the Ruby tooling required by artifact upload jobs
+
+inputs:
+  platform:
+    description: The upload platform (android or ios)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Validate platform
+      shell: bash
+      run: |
+        case "${{ inputs.platform }}" in
+          android|ios) ;;
+          *)
+            echo "::error::platform must be android or ios"
+            exit 1
+            ;;
+        esac
+
+    - name: Select Xcode version
+      if: ${{ inputs.platform == 'ios' }}
+      shell: bash
+      run: sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+      with:
+        bundler-cache: true
+      env:
+        BUNDLE_FROZEN: "true"

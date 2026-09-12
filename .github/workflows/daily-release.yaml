@@ -2,105 +2,64 @@ name: Daily Release
 
 on:
   schedule:
-    - cron: "0 21 * * *" # Daily at 05:00 UTC+8 (21:00 UTC)
+    - cron: "7 22 * * *" # Daily at 06:07 UTC+8 (22:07 UTC) 🫴
   workflow_dispatch:
     inputs:
-      branch_name:
-        description: 'Specific branch to build from HEAD (Uses CI logic from dropdown)'
-        required: false
-        type: string
-      commit_sha:
-        description: 'Specific commit SHA to build (overrides branch)'
-        required: false
-        type: string
       include_public_testers:
-        description: 'Upload to external public testers (TestFlight & Google Play)'
+        description: Upload to external public testers (TestFlight and Google Play)
         required: false
         type: boolean
-        default: false
-      force_build:
-        description: 'Force build even if no changes'
-        required: false
-        type: boolean
-        default: false
-      dry_run:
-        description: 'Dry run (build only, do not upload/release)'
-        required: false
-        type: boolean
-        default: false
+        default: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number }}
       version_suffix: ${{ steps.version-suffix.outputs.suffix }}
       date: ${{ steps.version-suffix.outputs.date }}
-      commit_sha: ${{ steps.summary.outputs.sha }}
-      commit_message: ${{ steps.summary.outputs.message }}
-      target_ref: ${{ steps.set-ref.outputs.ref }}
+      commit_sha: ${{ steps.check-changes.outputs.commit_sha }}
+      commit_message: ${{ steps.check-changes.outputs.commit_message }}
       skip_build: ${{ steps.check-changes.outputs.skip }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
       store_changelog: ${{ steps.changelog.outputs.store_changelog }}
-      dry_run: ${{ inputs.dry_run == true }}
+      public_testers: ${{ github.event_name == 'schedule' || inputs.include_public_testers == true }}
     steps:
-      - name: Checkout Actions
+      - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          sparse-checkout: .github/actions
-          sparse-checkout-cone-mode: false
 
       - name: Set Version Suffix
         id: version-suffix
         run: |
           DATE=$(TZ='Asia/Taipei' date +'%Y%m%d')
-          echo "date=$DATE" >> $GITHUB_OUTPUT
-          echo "suffix=daily.$DATE" >> $GITHUB_OUTPUT
-
-      - name: Resolve Target Ref
-        id: set-ref
-        uses: ./.github/actions/resolve-ref
-        with:
-          branch_name: ${{ inputs.branch_name }}
-          commit_sha: ${{ inputs.commit_sha }}
-
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          persist-credentials: false
-          ref: ${{ steps.set-ref.outputs.ref }}
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+          echo "suffix=daily.$DATE" >> "$GITHUB_OUTPUT"
 
       - name: Check for changes
         id: check-changes
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if [ "${{ inputs.force_build }}" = "true" ]; then
-            echo "skip=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
+          echo "commit_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "commit_message=$(git show -s --format=%s)" >> "$GITHUB_OUTPUT"
           if gh release view daily &>/dev/null; then
             LAST_SHA=$(gh release view daily --json targetCommitish -q .targetCommitish)
             CURRENT_SHA=$(git rev-parse HEAD)
-            echo "last_sha=$LAST_SHA" >> $GITHUB_OUTPUT
+            echo "last_sha=$LAST_SHA" >> "$GITHUB_OUTPUT"
             if [ "$LAST_SHA" = "$CURRENT_SHA" ]; then
-              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "skip=true" >> "$GITHUB_OUTPUT"
               echo "No changes since last daily build ($LAST_SHA). Skipping."
             else
-              echo "skip=false" >> $GITHUB_OUTPUT
+              echo "skip=false" >> "$GITHUB_OUTPUT"
             fi
           else
-            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Manage Build Number
@@ -111,14 +70,6 @@ jobs:
           github_token: ${{ secrets.BUILD_NUMBER_PAT }}
           current_build_number: ${{ vars.build_number }}
 
-      - name: Write Build Summary
-        if: steps.check-changes.outputs.skip != 'true'
-        id: summary
-        uses: ./.github/actions/write-build-summary
-        with:
-          title: "Release Builds"
-          build_number: ${{ steps.build-number.outputs.build_number }}
-
       - name: Generate changelog
         if: steps.check-changes.outputs.skip != 'true'
         id: changelog
@@ -127,226 +78,312 @@ jobs:
           github_token: ${{ github.token }}
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           last_sha: ${{ steps.check-changes.outputs.last_sha }}
-          head_ref: ${{ steps.set-ref.outputs.ref }}
-          fallback_message: ${{ steps.summary.outputs.message }}
+          head_ref: ${{ github.sha }}
+          fallback_message: ${{ steps.check-changes.outputs.commit_message }}
           model: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash' }}
 
-      - name: Find or create pre-release
-        if: steps.check-changes.outputs.skip != 'true' && inputs.dry_run != true
-        env:
-          GH_TOKEN: ${{ github.token }}
-          CHANGELOG: ${{ steps.changelog.outputs.changelog }}
-        run: |
-          STATIC_TOP=$(cat <<'BODY_EOF'
-          **Build Number:** ${{ steps.build-number.outputs.build_number }}
-          **Commit:** ${{ steps.summary.outputs.sha }}
-
-          ## What's changed
-          BODY_EOF
-          )
-
-          STATIC_BOTTOM=$(cat <<'BODY_EOF'
-          <!--android-build-->
-
-          <!--ios-build-->
-
-          ---
-          > [!WARNING]
-          > Installing via the provided APK or IPA below is **discouraged**.
-          > Please use **Google Play** (Android) or **TestFlight** (iOS) for the best experience and automatic updates.
-          BODY_EOF
-          )
-
-          BODY=$(printf '%s\n\n%s\n\n%s\n' "$STATIC_TOP" "$CHANGELOG" "$STATIC_BOTTOM")
-
-          if gh release view daily &>/dev/null; then
-            gh release delete daily --yes --cleanup-tag
-          fi
-
-          gh release create daily \
-            --title "Daily Build $(TZ='Asia/Taipei' date +'%Y-%m-%d')" \
-            --notes "$BODY" \
-            --target $(git rev-parse HEAD) \
-            --prerelease
-
-  android:
-    environment: staging
-    runs-on: ubuntu-latest
-    needs: [prepare]
+  build-android:
     if: needs.prepare.outputs.skip_build != 'true'
-    env:
-      ANDROID_PACKAGE_NAME: ${{ secrets.ANDROID_PACKAGE_NAME }}
-      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
-      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
-      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-      BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
-      VERSION_SUFFIX: ${{ needs.prepare.outputs.version_suffix }}
-      PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
-      COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
-      COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      CHANGELOG: |
-        Daily Build ${{ needs.prepare.outputs.date }}
-        ${{ needs.prepare.outputs.store_changelog }}
-      FIREBASEAPPDISTRO_APP: ${{ secrets.FIREBASEAPPDISTRO_APP }}
-      PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
-      GOOGLEPLAY_PUBLIC_LINK: ${{ vars.GOOGLEPLAY_PUBLIC_LINK }}
-    timeout-minutes: 30
+    needs: [prepare]
+    uses: ./.github/workflows/build-android.yaml
+    with:
+      environment: staging
+      build_number: ${{ needs.prepare.outputs.build_number }}
+      version_suffix: ${{ needs.prepare.outputs.version_suffix }}
+    secrets: inherit
+
+  build-ios:
+    if: needs.prepare.outputs.skip_build != 'true'
+    needs: [prepare]
+    uses: ./.github/workflows/build-ios.yaml
+    with:
+      environment: staging
+      build_number: ${{ needs.prepare.outputs.build_number }}
+      version_suffix: ${{ needs.prepare.outputs.version_suffix }}
+    secrets: inherit
+
+  upload-android-firebase:
+    environment:
+      name: staging
+      deployment: false
+    runs-on: ubuntu-latest
+    needs: [prepare, build-android]
+    outputs:
+      testing_uri: ${{ steps.upload.outputs.testing_uri }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
-      - name: Setup project
-        uses: ./.github/actions/setup-project
+      - name: Setup Fastlane
+        uses: ./.github/actions/setup-fastlane
         with:
           platform: android
 
-      - name: Build packages and upload to Firebase App Distribution
-        id: build
-        run: |
-          bundle exec fastlane android build_apk
-          if [ "${{ needs.prepare.outputs.dry_run }}" = "true" ]; then
-            bundle exec fastlane android release skip_upload_playstore:true skip_upload_firebase:true
-          elif [ "$PUBLIC_TESTERS" != "true" ]; then
-            bundle exec fastlane android release skip_upload_playstore:true
-          else
-            bundle exec fastlane android release
-          fi
-          APK_PATH=$(find build/app/outputs/flutter-apk -name "*.apk" -not -name "*sha1" | head -n 1)
-          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+      - name: Download Android artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: android-staging-${{ needs.prepare.outputs.build_number }}
+          path: build/app/outputs/bundle/stagingRelease
 
-      - name: Upload APK to Release
-        if: needs.prepare.outputs.dry_run != 'true'
-        run: gh release upload daily "${{ steps.build.outputs.apk_path }}#tattoo-${{ needs.prepare.outputs.build_number }}-android.apk" --clobber
+      - name: Materialize Android upload credential
         env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Write Android Job Summary
-        if: needs.prepare.outputs.dry_run != 'true'
-        uses: ./.github/actions/android-summary
-        with:
-          build_number: ${{ needs.prepare.outputs.build_number }}
-          type: release
-          testing_uri: ${{ steps.build.outputs.testing_uri }}
-
-      - name: Write Dry Run Android Summary
-        if: needs.prepare.outputs.dry_run == 'true'
-        shell: bash
+          ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON: ${{ secrets.ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON }}
+        id: credential
         run: |
-          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
-          ### Android (Dry Run)
-          Build **${{ needs.prepare.outputs.build_number }}** successfully compiled but NOT uploaded (dry run option enabled).
-          EOF
+          umask 077
+          printf '%s' "$ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/android-upload-service-account.json"
+          echo "path=$RUNNER_TEMP/android-upload-service-account.json" >> "$GITHUB_OUTPUT"
 
-      - name: Append Android result to pre-release
-        if: needs.prepare.outputs.dry_run != 'true'
-        uses: ./.github/actions/append-release-notes
-        with:
-          github_token: ${{ github.token }}
-          tag: "<!--android-build-->"
-          body: |
-            ### Android
-            You can join the testing program here:
+      - name: Upload to Firebase App Distribution
+        env:
+          FIREBASEAPPDISTRO_APP: ${{ vars.FIREBASEAPPDISTRO_APP }}
+          CHANGELOG: |
+            Daily Build ${{ needs.prepare.outputs.date }}
+            ${{ needs.prepare.outputs.store_changelog }}
+          PR_TITLE: Daily Build ${{ needs.prepare.outputs.date }}
+          COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+          COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+        id: upload
+        run: >-
+          bundle exec fastlane android upload_firebase
+          aab:"${{ github.workspace }}/build/app/outputs/bundle/stagingRelease/app-staging-release.aab"
+          service_credentials_file:"${{ steps.credential.outputs.path }}"
 
-            - **Google Play (Recommended):** [Join the testing program](${{ vars.GOOGLEPLAY_PUBLIC_LINK }})
-            - **Firebase App Distribution (For Internal Testers): ** [Install build ${{ needs.prepare.outputs.build_number }} in Firebase](${{ steps.build.outputs.testing_uri }})
-
-            > [!NOTE]
-            > We are migrating our daily build distribution to Google Play.
-            > The build will be available on Google Play within 30 minutes after the Google Play review process.
-            > Please use Google Play for the best experience and automatic updates.
-            > Firebase remains available for internal testers.
-            > Public testers on Firebase will not receive new builds, please switch to Google Play.
-
-  ios:
-    environment: staging
-    runs-on: macos-26
-    needs: [prepare]
-    if: needs.prepare.outputs.skip_build != 'true'
-    env:
-      IOS_BUNDLE_IDENTIFIER: ${{ secrets.IOS_BUNDLE_IDENTIFIER }}
-      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
-      MATCH_GIT_BRANCH: ${{ secrets.MATCH_GIT_BRANCH }}
-      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-      FASTLANE_APPLE_ID: ${{ secrets.FASTLANE_APPLE_ID }}
-      FASTLANE_TEAM_ID: ${{ secrets.FASTLANE_TEAM_ID }}
-      APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-      APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-      APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
-      BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
-      VERSION_SUFFIX: ${{ needs.prepare.outputs.version_suffix }}
-      PR_TITLE: "Daily Build ${{ needs.prepare.outputs.date }}"
-      COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
-      COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
-      CHANGELOG: |
-        Daily Build ${{ needs.prepare.outputs.date }}
-        ${{ needs.prepare.outputs.store_changelog }}
-      PUBLIC_TESTERS: ${{ github.event_name == 'schedule' || inputs.include_public_testers }}
-      TESTFLIGHT_PUBLIC_LINK: ${{ vars.TESTFLIGHT_PUBLIC_LINK }}
-    timeout-minutes: 30
+  upload-android-play:
+    if: needs.prepare.outputs.public_testers == 'true'
+    environment:
+      name: staging
+      deployment: false
+    runs-on: ubuntu-latest
+    needs: [prepare, build-android]
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-          ref: ${{ needs.prepare.outputs.target_ref }}
 
-      - name: Setup project
-        uses: ./.github/actions/setup-project
+      - name: Setup Fastlane
+        uses: ./.github/actions/setup-fastlane
+        with:
+          platform: android
+
+      - name: Download Android artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: android-staging-${{ needs.prepare.outputs.build_number }}
+          path: build/app/outputs/bundle/stagingRelease
+
+      - name: Materialize Android upload credential
+        env:
+          ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON: ${{ secrets.ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON }}
+        id: credential
+        run: |
+          umask 077
+          printf '%s' "$ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/android-upload-service-account.json"
+          echo "path=$RUNNER_TEMP/android-upload-service-account.json" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to Google Play beta
+        env:
+          ANDROID_PACKAGE_NAME: ${{ secrets.ANDROID_PACKAGE_NAME }}
+          CHANGELOG: |
+            Daily Build ${{ needs.prepare.outputs.date }}
+            ${{ needs.prepare.outputs.store_changelog }}
+          PR_TITLE: Daily Build ${{ needs.prepare.outputs.date }}
+          COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+          COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+        run: >-
+          bundle exec fastlane android upload_play_store
+          aab:"${{ github.workspace }}/build/app/outputs/bundle/stagingRelease/app-staging-release.aab"
+          service_credentials_file:"${{ steps.credential.outputs.path }}"
+          track:beta
+          build_number:${{ needs.prepare.outputs.build_number }}
+
+  upload-ios-testflight:
+    environment:
+      name: staging
+      deployment: false
+    runs-on: macos-26
+    needs: [prepare, build-ios]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Fastlane
+        uses: ./.github/actions/setup-fastlane
         with:
           platform: ios
 
-      - name: Build iOS
-        id: build
-        run: |
-          if [ "${{ needs.prepare.outputs.dry_run }}" = "true" ]; then
-            bundle exec fastlane ios upload_testflight skip_upload:true
-          else
-            bundle exec fastlane ios upload_testflight
-          fi
-          IPA_PATH=$(find . -maxdepth 2 -name "*.ipa" | head -n 1)
-          echo "ipa_path=$IPA_PATH" >> $GITHUB_OUTPUT
+      - name: Download iOS artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ios-staging-${{ needs.prepare.outputs.build_number }}
+          path: .
 
-      - name: Upload iOS to Release
-        if: needs.prepare.outputs.dry_run != 'true'
-        run: gh release upload daily "${{ steps.build.outputs.ipa_path }}#tattoo-${{ needs.prepare.outputs.build_number }}-ios.ipa" --clobber
+      - name: Upload to TestFlight
+        env:
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+          CHANGELOG: |
+            Daily Build ${{ needs.prepare.outputs.date }}
+            ${{ needs.prepare.outputs.store_changelog }}
+          PR_TITLE: Daily Build ${{ needs.prepare.outputs.date }}
+          COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+          COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+        id: upload
+        run: >-
+          bundle exec fastlane ios upload_testflight
+          ipa:"${{ github.workspace }}/build/ios/ipa/app-release.ipa"
+          include_public_testers:${{ needs.prepare.outputs.public_testers }}
+
+  upload-ios-symbols:
+    environment:
+      name: staging
+      deployment: false
+    runs-on: macos-26
+    needs: [prepare, build-ios]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Fastlane
+        uses: ./.github/actions/setup-fastlane
+        with:
+          platform: ios
+
+      - name: Download iOS artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ios-staging-${{ needs.prepare.outputs.build_number }}
+          path: .
+
+      - name: Restore upload-symbols permission
+        run: chmod +x build/ios/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols
+
+      - name: Upload Crashlytics symbols
+        run: >-
+          bundle exec fastlane ios upload_symbols
+          dsym:"${{ github.workspace }}/build/ios/archive/Runner.xcarchive/dSYMs/Runner.app.dSYM.zip"
+          gsp:"${{ github.workspace }}/ios/Runner/GoogleService-Info-staging.plist"
+          upload_symbols_binary:"${{ github.workspace }}/build/ios/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols"
+
+  report:
+    if: >-
+      always() &&
+      needs.prepare.result == 'success' &&
+      needs.prepare.outputs.skip_build != 'true'
+    environment: staging
+    runs-on: ubuntu-latest
+    needs:
+      - prepare
+      - upload-android-firebase
+      - upload-android-play
+      - upload-ios-testflight
+      - upload-ios-symbols
+    permissions:
+      contents: write
+    steps:
+      - name: Write deployment report
+        id: results
+        env:
+          CHANGELOG: ${{ needs.prepare.outputs.changelog }}
+        run: |
+          android_success=true
+          ios_success=true
+
+          if [ "${{ needs.upload-android-firebase.result }}" != "success" ]; then
+            android_success=false
+          fi
+          if [ "${{ needs.prepare.outputs.public_testers }}" = "true" ]; then
+            if [ "${{ needs.upload-android-play.result }}" != "success" ]; then
+              android_success=false
+            fi
+          elif [ "${{ needs.upload-android-play.result }}" != "skipped" ]; then
+            android_success=false
+          fi
+
+          if [ "${{ needs.upload-ios-testflight.result }}" != "success" ] || \
+             [ "${{ needs.upload-ios-symbols.result }}" != "success" ]; then
+            ios_success=false
+          fi
+
+          {
+            echo "**Build Number:** ${{ needs.prepare.outputs.build_number }}"
+            echo "**Commit:** [${{ needs.prepare.outputs.commit_sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
+            echo
+            echo "## What's changed"
+            printf '%s\n' "$CHANGELOG"
+            echo
+            echo "## Deployment"
+            echo
+            echo "### Android"
+            if [ "${{ needs.upload-android-firebase.result }}" = "success" ]; then
+              echo "- **Firebase App Distribution:** [Install build ${{ needs.prepare.outputs.build_number }}](${{ needs.upload-android-firebase.outputs.testing_uri }})"
+            else
+              echo "- **Firebase App Distribution:** ${{ needs.upload-android-firebase.result }}"
+            fi
+            if [ "${{ needs.upload-android-play.result }}" = "success" ]; then
+              echo "- **Google Play beta:** [Join the testing program](${{ vars.ANDROID_STORE_URL }})"
+              echo
+              echo "> [!NOTE]"
+              echo "> Google Play processing may take up to 30 minutes."
+            else
+              echo "- **Google Play beta:** ${{ needs.upload-android-play.result }}"
+            fi
+            echo
+            echo "### iOS (TestFlight)"
+            if [ "${{ needs.upload-ios-testflight.result }}" = "success" ]; then
+              echo "- **TestFlight:** [Join TestFlight](${{ vars.IOS_STORE_URL }}) to install build ${{ needs.prepare.outputs.build_number }}."
+              echo "- **Tester groups:** ${{ needs.prepare.outputs.public_testers == 'true' && 'Private External Testers and Public External Testers' || 'Private External Testers' }}"
+              echo
+              echo "> [!TIP]"
+              echo "> Install TestFlight from the App Store if needed. TestFlight is unstable on NTUT Wi-Fi; switch networks if installation or updates fail."
+            else
+              echo "- **TestFlight:** ${{ needs.upload-ios-testflight.result }}"
+            fi
+            echo "- **Crashlytics symbols:** ${{ needs.upload-ios-symbols.result }}"
+          } > "$RUNNER_TEMP/daily-release-notes.md"
+
+          {
+            echo "## Daily Release"
+            cat "$RUNNER_TEMP/daily-release-notes.md"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "android_success=$android_success" >> "$GITHUB_OUTPUT"
+          echo "ios_success=$ios_success" >> "$GITHUB_OUTPUT"
+          if [ "$android_success" = "true" ] && [ "$ios_success" = "true" ]; then
+            echo "failed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "failed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create pre-release
+        if: steps.results.outputs.failed != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-
-      - name: Write iOS Job Summary
-        if: needs.prepare.outputs.dry_run != 'true'
-        uses: ./.github/actions/ios-summary
-        with:
-          build_number: ${{ needs.prepare.outputs.build_number }}
-
-      - name: Write Dry Run iOS Summary
-        if: needs.prepare.outputs.dry_run == 'true'
-        shell: bash
         run: |
-          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
-          ### iOS (Dry Run)
-          Build **${{ needs.prepare.outputs.build_number }}** successfully compiled but NOT uploaded (dry run option enabled).
-          EOF
+          if gh release view daily &>/dev/null; then
+            gh release edit daily \
+              --title "Daily Build $(TZ='Asia/Taipei' date +'%Y-%m-%d')" \
+              --notes-file "$RUNNER_TEMP/daily-release-notes.md" \
+              --target "${{ github.sha }}" \
+              --prerelease
+          else
+            gh release create daily \
+              --title "Daily Build $(TZ='Asia/Taipei' date +'%Y-%m-%d')" \
+              --notes-file "$RUNNER_TEMP/daily-release-notes.md" \
+              --target "${{ github.sha }}" \
+              --prerelease
+          fi
 
-      - name: Append iOS result to pre-release
-        if: needs.prepare.outputs.dry_run != 'true'
-        uses: ./.github/actions/append-release-notes
-        with:
-          github_token: ${{ github.token }}
-          tag: "<!--ios-build-->"
-          body: |
-            ### iOS (TestFlight)
-            You can also join the TestFlight program here:
-            [Join TestFlight](${{ vars.TESTFLIGHT_PUBLIC_LINK }}) to install build ${{ needs.prepare.outputs.build_number }}.
-
-            1. Open the TestFlight app on your iOS device
-            2. Select "Project Tattoo"
-            3. Install build ${{ needs.prepare.outputs.build_number }}
-
-            > [!TIP]
-            > Install TestFlight app from App Store if you don't have it (required iOS 16.0 or later)
-            > TestFlight is unstable on NTUT Wi-Fi. If you encounter issues installing or updating, please switch to mobile data or a different network.
+      - name: Fail incomplete daily release
+        if: steps.results.outputs.failed == 'true'
+        run: |
+          echo "::error::One or more daily release destinations failed or were unexpectedly skipped"
+          exit 1

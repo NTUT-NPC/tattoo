@@ -62,7 +62,7 @@ runs:
         echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_OUTPUT
 
     - name: Setup Ruby
-      if: ${{ inputs.platform == 'android' || inputs.platform == 'ios' }}
+      if: ${{ inputs.platform == 'ios' }}
       uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
       with:
         bundler-cache: true
