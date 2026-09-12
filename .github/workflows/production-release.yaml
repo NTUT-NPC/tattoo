@@ -1,0 +1,277 @@
+name: Production
+
+on:
+  pull_request:
+    types: [labeled, unlabeled, synchronize, closed]
+
+concurrency:
+  group: >-
+    ${{ github.workflow }}-${{ github.event.pull_request.number }}${{
+      (github.event.action == 'labeled' || github.event.action == 'unlabeled')
+      && github.event.label.name != 'deploy:production'
+      && '-noop' || '' }}
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'deploy:production' &&
+      contains(github.event.pull_request.labels.*.name, 'deploy:production')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      build_number: ${{ steps.build-number.outputs.build_number }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Manage build number
+        id: build-number
+        uses: ./.github/actions/manage-build-number
+        with:
+          github_token: ${{ secrets.BUILD_NUMBER_PAT }}
+          current_build_number: ${{ vars.build_number }}
+
+  build-android:
+    needs: [prepare]
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build-android.yaml
+    with:
+      environment: production
+      build_number: ${{ needs.prepare.outputs.build_number }}
+    secrets: inherit
+
+  build-ios:
+    needs: [prepare]
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build-ios.yaml
+    with:
+      environment: production
+      build_number: ${{ needs.prepare.outputs.build_number }}
+    secrets: inherit
+
+  upload-android-play:
+    needs: [prepare, build-android]
+    environment:
+      name: production
+      deployment: false
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Fastlane
+        uses: ./.github/actions/setup-fastlane
+        with:
+          platform: android
+
+      - name: Download Android artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: android-production-${{ needs.prepare.outputs.build_number }}
+          path: build/app/outputs/bundle/productionRelease
+
+      - name: Verify Production authorization
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          pr=$(gh api "/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER")
+          if ! jq -e --arg sha "$EXPECTED_HEAD_SHA" \
+            '.state == "open" and .head.sha == $sha and any(.labels[]; .name == "deploy:production")' \
+            <<< "$pr" >/dev/null; then
+            echo "::error::deploy:production authorization changed before the Google Play upload"
+            exit 1
+          fi
+
+      - name: Materialize Android upload credential
+        id: credential
+        env:
+          ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON: ${{ secrets.ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON }}
+        run: |
+          umask 077
+          printf '%s' "$ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/android-upload-service-account.json"
+          echo "path=$RUNNER_TEMP/android-upload-service-account.json" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to Google Play internal
+        env:
+          ANDROID_PACKAGE_NAME: ${{ secrets.ANDROID_PACKAGE_NAME }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_MESSAGE: ${{ github.event.pull_request.title }}
+        run: >-
+          bundle exec fastlane android upload_play_store
+          aab:"${{ github.workspace }}/build/app/outputs/bundle/productionRelease/app-production-release.aab"
+          service_credentials_file:"${{ steps.credential.outputs.path }}"
+          track:internal
+          build_number:${{ needs.prepare.outputs.build_number }}
+
+  upload-ios-testflight:
+    needs: [prepare, build-ios]
+    environment:
+      name: production
+      deployment: false
+    runs-on: macos-26
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Fastlane
+        uses: ./.github/actions/setup-fastlane
+        with:
+          platform: ios
+
+      - name: Download iOS artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ios-production-${{ needs.prepare.outputs.build_number }}
+          path: .
+
+      - name: Verify Production authorization
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          pr=$(gh api "/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER")
+          if ! jq -e --arg sha "$EXPECTED_HEAD_SHA" \
+            '.state == "open" and .head.sha == $sha and any(.labels[]; .name == "deploy:production")' \
+            <<< "$pr" >/dev/null; then
+            echo "::error::deploy:production authorization changed before the TestFlight upload"
+            exit 1
+          fi
+
+      - name: Upload to internal TestFlight
+        env:
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_MESSAGE: ${{ github.event.pull_request.title }}
+        run: >-
+          bundle exec fastlane ios upload_testflight
+          ipa:"${{ github.workspace }}/build/ios/ipa/app-release.ipa"
+          internal_only:true
+
+  upload-ios-symbols:
+    needs: [prepare, build-ios]
+    environment:
+      name: production
+      deployment: false
+    runs-on: macos-26
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Fastlane
+        uses: ./.github/actions/setup-fastlane
+        with:
+          platform: ios
+
+      - name: Download iOS artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ios-production-${{ needs.prepare.outputs.build_number }}
+          path: .
+
+      - name: Verify Production authorization
+        env:
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          pr=$(gh api "/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER")
+          if ! jq -e --arg sha "$EXPECTED_HEAD_SHA" \
+            '.state == "open" and .head.sha == $sha and any(.labels[]; .name == "deploy:production")' \
+            <<< "$pr" >/dev/null; then
+            echo "::error::deploy:production authorization changed before the Crashlytics upload"
+            exit 1
+          fi
+
+      - name: Restore upload-symbols permission
+        run: chmod +x build/ios/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols
+
+      - name: Upload Crashlytics symbols
+        run: >-
+          bundle exec fastlane ios upload_symbols
+          dsym:"${{ github.workspace }}/build/ios/archive/Runner.xcarchive/dSYMs/Runner.app.dSYM.zip"
+          gsp:"${{ github.workspace }}/ios/Runner/GoogleService-Info-production.plist"
+          upload_symbols_binary:"${{ github.workspace }}/build/ios/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols"
+
+  report:
+    if: always() && needs.prepare.result == 'success'
+    needs:
+      - prepare
+      - build-android
+      - build-ios
+      - upload-android-play
+      - upload-ios-testflight
+      - upload-ios-symbols
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write validation report
+        id: results
+        run: |
+          failed=false
+          for result in \
+            "${{ needs.build-android.result }}" \
+            "${{ needs.build-ios.result }}" \
+            "${{ needs.upload-android-play.result }}" \
+            "${{ needs.upload-ios-testflight.result }}" \
+            "${{ needs.upload-ios-symbols.result }}"; do
+            if [ "$result" != success ]; then
+              failed=true
+            fi
+          done
+
+          {
+            echo "## Production Release"
+            echo "**Build Number:** ${{ needs.prepare.outputs.build_number }}"
+            echo "**Commit:** [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
+            echo
+            echo "### Android"
+            echo "- **Signed production build:** ${{ needs.build-android.result }}"
+            echo "- **Google Play internal:** ${{ needs.upload-android-play.result }}"
+            echo
+            echo "### iOS"
+            echo "- **Signed production build:** ${{ needs.build-ios.result }}"
+            echo "- **Internal TestFlight:** ${{ needs.upload-ios-testflight.result }}"
+            echo "- **Crashlytics symbols:** ${{ needs.upload-ios-symbols.result }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
+
+      - name: Fail incomplete production validation
+        if: steps.results.outputs.failed == 'true'
+        run: |
+          echo "::error::One or more production validation jobs failed or were skipped"
+          exit 1
