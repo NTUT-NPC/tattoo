@@ -137,7 +137,7 @@ jobs:
           ANDROID_PACKAGE_NAME: ${{ secrets.ANDROID_PACKAGE_NAME }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_TITLE: ${{ github.event.pull_request.title }}
-          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
           COMMIT_MESSAGE: ${{ github.event.pull_request.title }}
         run: >-
           bundle exec fastlane android upload_play_store
@@ -194,7 +194,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_TITLE: ${{ github.event.pull_request.title }}
-          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
           COMMIT_MESSAGE: ${{ github.event.pull_request.title }}
         run: >-
           bundle exec fastlane ios upload_testflight
