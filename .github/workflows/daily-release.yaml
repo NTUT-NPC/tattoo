@@ -369,10 +369,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           if gh release view daily &>/dev/null; then
+            gh api \
+              --method PATCH \
+              "/repos/${{ github.repository }}/git/refs/tags/daily" \
+              -f sha="${{ github.sha }}" \
+              -F force=true
             gh release edit daily \
               --title "Daily Build $(TZ='Asia/Taipei' date +'%Y-%m-%d')" \
               --notes-file "$RUNNER_TEMP/daily-release-notes.md" \
-              --target "${{ github.sha }}" \
               --prerelease
           else
             gh release create daily \
