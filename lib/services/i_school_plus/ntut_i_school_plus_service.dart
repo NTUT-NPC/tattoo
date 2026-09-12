@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
@@ -7,8 +8,10 @@ import 'package:tattoo/utils/http.dart';
 
 class NtutISchoolPlusService implements ISchoolPlusService {
   static const _requestTimeout = Duration(seconds: 20);
+  static const _availabilityTimeout = Duration(seconds: 5);
 
   late final Dio _iSchoolPlusDio;
+  late final Dio _availabilityDio;
 
   /// The currently selected course, used to avoid redundant server-side
   /// course switches.
@@ -23,6 +26,28 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       ..interceptors.insert(0, InvalidCookieFilter()) // Prepend cookie filter
       ..interceptors.add(_SessionCheckInterceptor())
       ..transformer = PlainTextTransformer();
+    _availabilityDio = createDio(useCookies: false)
+      ..options.connectTimeout = _availabilityTimeout
+      ..options.sendTimeout = _availabilityTimeout
+      ..options.receiveTimeout = _availabilityTimeout;
+  }
+
+  @override
+  Future<void> checkAvailability() async {
+    final cancelToken = CancelToken();
+    final timer = Timer(
+      _availabilityTimeout,
+      () => cancelToken.cancel('I-School Plus availability check timed out'),
+    );
+    try {
+      await _availabilityDio.get(
+        'https://istudy.ntut.edu.tw/mooc/index.php',
+        cancelToken: cancelToken,
+        options: Options(responseType: .bytes),
+      );
+    } finally {
+      timer.cancel();
+    }
   }
 
   @override
@@ -31,7 +56,11 @@ class NtutISchoolPlusService implements ISchoolPlusService {
 
     final document = parse(response.data);
     final courseSelect = document.getElementById('selcourse');
-    if (courseSelect == null) return [];
+    if (courseSelect == null) {
+      throw const SessionExpiredException(
+        'I-School Plus course list is unavailable',
+      );
+    }
 
     // Options may be inside <optgroup> elements, so use querySelectorAll.
     // Example option: <option value="10099386">1141_智慧財產權_352902</option>
