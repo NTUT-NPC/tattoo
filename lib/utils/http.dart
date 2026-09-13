@@ -26,6 +26,19 @@ class SessionExpiredException implements Exception {
   String toString() => 'SessionExpiredException: $message';
 }
 
+/// Thrown when an NTUT service blocks access to data because the student must
+/// complete a pending action or acknowledge a notice (e.g., teaching
+/// evaluations, basic info confirmation, mandatory surveys or sign-offs).
+class ActionRequiredException implements Exception {
+  final String message;
+  const ActionRequiredException([
+    this.message = '請先登錄北科大系統完成相關確認或評量後，再嘗試查詢',
+  ]);
+
+  @override
+  String toString() => 'ActionRequiredException: $message';
+}
+
 /// [Interceptor] to convert HTTP requests to HTTPS.
 class HttpsInterceptor extends Interceptor {
   HttpsInterceptor();
