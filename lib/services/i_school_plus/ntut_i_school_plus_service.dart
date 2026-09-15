@@ -55,11 +55,16 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   }
 
   @override
-  Future<List<ISchoolCourseDto>> getCourseList() async {
+  Future<List<ISchoolCourseDto>> getCourseList({
+    CancelToken? cancelToken,
+  }) async {
     // A freshly fetched list reflects the current server session. Force the
     // next course-scoped request to establish its selection in that session.
     _selectedInternalId = null;
-    final response = await _iSchoolPlusDio.get('mooc_sysbar.php');
+    final response = await _iSchoolPlusDio.get(
+      'mooc_sysbar.php',
+      cancelToken: cancelToken,
+    );
 
     final document = parse(response.data);
     final courseSelect = document.getElementById('selcourse');
@@ -94,24 +99,36 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     return courses;
   }
 
-  Future<void> _selectCourse(ISchoolCourseDto course) async {
+  Future<void> _selectCourse(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) async {
+    if (cancelToken?.cancelError case final error?) throw error;
     if (course.internalId == _selectedInternalId) return;
 
     await _iSchoolPlusDio.post(
       'goto_course.php',
       data:
           '<manifest><ticket/><course_id>${course.internalId}</course_id><env/></manifest>',
+      cancelToken: cancelToken,
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
 
+    if (cancelToken?.cancelError case final error?) throw error;
     _selectedInternalId = course.internalId;
   }
 
   @override
-  Future<List<StudentDto>> getStudents(ISchoolCourseDto course) async {
-    await _selectCourse(course);
+  Future<List<StudentDto>> getStudents(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) async {
+    await _selectCourse(course, cancelToken: cancelToken);
 
-    final response = await _iSchoolPlusDio.get('learn_ranking.php');
+    final response = await _iSchoolPlusDio.get(
+      'learn_ranking.php',
+      cancelToken: cancelToken,
+    );
 
     // Parse the HTML and extract the table of student rankings
     final document = parse(response.data);

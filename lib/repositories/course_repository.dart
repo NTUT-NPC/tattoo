@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
@@ -189,6 +190,7 @@ class CourseRepository {
   final AppDatabase _database;
   final AuthRepository _authRepository;
   final FirebaseService _firebaseService;
+  CancelToken? _studentRosterRefreshToken;
 
   CourseRepository({
     required this._portalService,
@@ -1394,6 +1396,15 @@ class CourseRepository {
     return _iSchoolPlusService.checkAvailability();
   }
 
+  void _cancelStudentRosterRefresh() {
+    _studentRosterRefreshToken?.cancel('Student roster refresh cancelled');
+    _studentRosterRefreshToken = null;
+  }
+
+  void _throwIfStudentRosterRefreshCancelled(CancelToken cancelToken) {
+    if (cancelToken.cancelError case final error?) throw error;
+  }
+
   /// Refreshes a course offering's student roster from I-School Plus.
   ///
   /// Network work completes before the transaction begins, so any failure
@@ -1402,70 +1413,94 @@ class CourseRepository {
     required int courseOfferingId,
     required String courseNumber,
   }) async {
-    final studentDtos = await _authRepository.withAuth(() async {
-      final courses = await _iSchoolPlusService.getCourseList();
-      final course = courses.where(
-        (course) => course.courseNumber == courseNumber,
-      );
-      if (course.isEmpty) return const <StudentDto>[];
-      return _iSchoolPlusService.getStudents(course.first);
-    }, sso: [.iSchoolPlusService]);
+    _cancelStudentRosterRefresh();
+    final cancelToken = CancelToken();
+    _studentRosterRefreshToken = cancelToken;
 
-    final seenStudentIds = <String>{};
-    final students = <({String studentId, String? name})>[];
-    var skippedStudents = 0;
-    for (final dto in studentDtos) {
-      final studentId = dto.id?.trim();
-      if (studentId == null ||
-          studentId.isEmpty ||
-          !seenStudentIds.add(studentId)) {
-        skippedStudents++;
-        continue;
-      }
-      students.add((
-        studentId: studentId,
-        name: switch (dto.name?.trim()) {
-          final name? when name.isNotEmpty => name,
-          _ => null,
-        },
-      ));
-    }
-    if (skippedStudents > 0) {
-      _firebaseService.recordNonFatal(
-        'Skipped $skippedStudents invalid or duplicate students while '
-        'refreshing roster for $courseNumber',
-      );
-    }
-
-    await _database.transaction(() async {
-      await (_database.delete(_database.courseOfferingStudents)..where(
-            (row) => row.courseOffering.equals(courseOfferingId),
-          ))
-          .go();
-
-      for (final student in students) {
-        final studentId = await _database.upsertStudent(
-          studentId: student.studentId,
-          name: student.name,
+    try {
+      final studentDtos = await _authRepository.withAuth(() async {
+        _throwIfStudentRosterRefreshCancelled(cancelToken);
+        final courses = await _iSchoolPlusService.getCourseList(
+          cancelToken: cancelToken,
         );
-        await _database
-            .into(_database.courseOfferingStudents)
-            .insert(
-              CourseOfferingStudentsCompanion.insert(
-                courseOffering: courseOfferingId,
-                student: studentId,
+        _throwIfStudentRosterRefreshCancelled(cancelToken);
+        final course = courses.where(
+          (course) => course.courseNumber == courseNumber,
+        );
+        if (course.isEmpty) return const <StudentDto>[];
+        return _iSchoolPlusService.getStudents(
+          course.first,
+          cancelToken: cancelToken,
+        );
+      }, sso: [.iSchoolPlusService]);
+
+      _throwIfStudentRosterRefreshCancelled(cancelToken);
+
+      final seenStudentIds = <String>{};
+      final students = <({String studentId, String? name})>[];
+      var skippedStudents = 0;
+      for (final dto in studentDtos) {
+        final studentId = dto.id?.trim();
+        if (studentId == null ||
+            studentId.isEmpty ||
+            !seenStudentIds.add(studentId)) {
+          skippedStudents++;
+          continue;
+        }
+        students.add((
+          studentId: studentId,
+          name: switch (dto.name?.trim()) {
+            final name? when name.isNotEmpty => name,
+            _ => null,
+          },
+        ));
+      }
+      if (skippedStudents > 0) {
+        _firebaseService.recordNonFatal(
+          'Skipped $skippedStudents invalid or duplicate students while '
+          'refreshing roster for $courseNumber',
+        );
+      }
+
+      await _database.transaction(() async {
+        _throwIfStudentRosterRefreshCancelled(cancelToken);
+        await (_database.delete(_database.courseOfferingStudents)..where(
+              (row) => row.courseOffering.equals(courseOfferingId),
+            ))
+            .go();
+
+        for (final student in students) {
+          _throwIfStudentRosterRefreshCancelled(cancelToken);
+          final studentId = await _database.upsertStudent(
+            studentId: student.studentId,
+            name: student.name,
+          );
+          _throwIfStudentRosterRefreshCancelled(cancelToken);
+          await _database
+              .into(_database.courseOfferingStudents)
+              .insert(
+                CourseOfferingStudentsCompanion.insert(
+                  courseOffering: courseOfferingId,
+                  student: studentId,
+                ),
+              );
+        }
+
+        _throwIfStudentRosterRefreshCancelled(cancelToken);
+        await (_database.update(_database.courseOfferings)..where(
+              (offering) => offering.id.equals(courseOfferingId),
+            ))
+            .write(
+              CourseOfferingsCompanion(
+                studentRosterFetchedAt: Value(DateTime.now()),
               ),
             );
+        _throwIfStudentRosterRefreshCancelled(cancelToken);
+      });
+    } finally {
+      if (identical(_studentRosterRefreshToken, cancelToken)) {
+        _studentRosterRefreshToken = null;
       }
-
-      await (_database.update(_database.courseOfferings)..where(
-            (offering) => offering.id.equals(courseOfferingId),
-          ))
-          .write(
-            CourseOfferingsCompanion(
-              studentRosterFetchedAt: Value(DateTime.now()),
-            ),
-          );
-    });
+    }
   }
 }
