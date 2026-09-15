@@ -24,7 +24,11 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       ..options.sendTimeout = _requestTimeout
       ..options.receiveTimeout = _requestTimeout
       ..interceptors.insert(0, InvalidCookieFilter()) // Prepend cookie filter
-      ..interceptors.add(_SessionCheckInterceptor())
+      ..interceptors.add(
+        _SessionCheckInterceptor(
+          onSessionExpired: () => _selectedInternalId = null,
+        ),
+      )
       ..transformer = PlainTextTransformer();
     _availabilityDio = createDio(useCookies: false)
       ..options.connectTimeout = _availabilityTimeout
@@ -52,13 +56,19 @@ class NtutISchoolPlusService implements ISchoolPlusService {
 
   @override
   Future<List<ISchoolCourseDto>> getCourseList() async {
+    // A freshly fetched list reflects the current server session. Force the
+    // next course-scoped request to establish its selection in that session.
+    _selectedInternalId = null;
     final response = await _iSchoolPlusDio.get('mooc_sysbar.php');
 
     final document = parse(response.data);
     final courseSelect = document.getElementById('selcourse');
     if (courseSelect == null) {
-      throw const SessionExpiredException(
-        'I-School Plus course list is unavailable',
+      // The server-side selection cannot be trusted after an unexpected page.
+      // This may be an expired HTTP-200 session or an upstream HTML change, so
+      // keep the parse failure distinct from the known 403 session response.
+      throw const FormatException(
+        'I-School Plus course selector is missing',
       );
     }
 
@@ -301,9 +311,14 @@ class NtutISchoolPlusService implements ISchoolPlusService {
 /// [SessionExpiredException] so that [AuthRepository.withAuth] retries with
 /// re-authentication instead of treating it as a network error.
 class _SessionCheckInterceptor extends Interceptor {
+  final void Function() onSessionExpired;
+
+  const _SessionCheckInterceptor({required this.onSessionExpired});
+
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 403) {
+      onSessionExpired();
       throw const SessionExpiredException(
         'ISchoolPlus session expired',
       );
