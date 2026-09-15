@@ -444,13 +444,12 @@ class _CourseRosterLoading extends StatelessWidget {
       child: Center(
         child: Column(
           mainAxisSize: .min,
-          spacing: 8,
+          spacing: 16,
           children: [
             const CircularProgressIndicator(),
             Wrap(
               alignment: .center,
               crossAxisAlignment: .center,
-              spacing: 4,
               children: [
                 Text(strings.loadingNetworkHint.spaced, style: hintStyle),
                 Semantics(
