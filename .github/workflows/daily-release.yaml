@@ -84,7 +84,7 @@ jobs:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           last_sha: ${{ steps.check-changes.outputs.last_sha }}
           head_ref: ${{ github.sha }}
-          fallback_message: ${{ steps.check-changes.outputs.commit_message }}
+          fallback_message: ${{ steps.check-changes.outputs.commit_sha }} ${{ steps.check-changes.outputs.commit_message }}
           model: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash' }}
 
   build-android:

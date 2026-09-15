@@ -24,7 +24,7 @@ jobs:
       artifact_run_id: ${{ steps.existing-artifact.outputs.run_id || github.run_id }}
       artifact_ready: ${{ github.event.action != 'labeled' || steps.existing-artifact.outputs.ready == 'true' }}
       version_suffix: pr.${{ github.event.pull_request.number }}
-      commit_sha: ${{ github.event.pull_request.head.sha }}
+      commit_sha: ${{ steps.commit.outputs.short_sha }}
       commit_message: ${{ github.event.pull_request.title }}
       comment_id: ${{ steps.find-comment.outputs.comment-id || steps.create.outputs.comment-id }}
     steps:
@@ -32,6 +32,12 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+
+      - name: Resolve short commit SHA
+        id: commit
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: echo "short_sha=${HEAD_SHA:0:7}" >> "$GITHUB_OUTPUT"
 
       - name: Manage Build Number
         if: github.event.action != 'labeled'
@@ -85,7 +91,7 @@ jobs:
             <!-- pr-preview-comment -->
             ## PR Preview Builds (Staging)
             **Build Number:** ${{ steps.existing-artifact.outputs.build_number || steps.build-number.outputs.build_number }}
-            **Commit:** ${{ github.event.pull_request.head.sha }}
+            **Commit:** ${{ steps.commit.outputs.short_sha }}
             **Message:** ${{ github.event.pull_request.title }}
           edit-mode: replace
 
