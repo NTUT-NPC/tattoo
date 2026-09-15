@@ -277,7 +277,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
 
   void _retry() {
     setState(() {
-      _showNetworkGuide = false;
+      _showNetworkGuide = true;
       _networkFailureSnackbarShown = false;
     });
     ref.read(iSchoolPlusAvailabilityProvider.notifier).retry();
@@ -356,11 +356,14 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
       final refreshFailedWithCache = _refreshFailedWithCache;
       _refreshFailedWithCache = false;
       ref.read(availabilityProvider.notifier).markAvailable();
-      if (!availabilityFailed && !refreshFailedWithCache) return;
 
-      setState(() {
-        _networkFailureSnackbarShown = false;
-      });
+      if (_showNetworkGuide || _networkFailureSnackbarShown) {
+        setState(() {
+          _showNetworkGuide = false;
+          _networkFailureSnackbarShown = false;
+        });
+      }
+      if (!availabilityFailed && !refreshFailedWithCache) return;
 
       final messenger = ScaffoldMessenger.of(context);
       messenger
@@ -383,7 +386,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
           label: strings.backToRoster,
           onPressed: () => setState(() => _showNetworkGuide = false),
         ),
-        onRetry: refreshAsync.isLoading ? null : _retry,
+        onRetry: _retry,
       );
     }
 
@@ -392,7 +395,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     if (roster?.fetchedAt == null && availabilityAsync.hasError) {
       return ISchoolPlusNetworkGuide(
         guideUrl: guideUrl,
-        onRetry: refreshAsync.isLoading ? null : _retry,
+        onRetry: _retry,
       );
     }
     if (cacheAsync.isLoading ||

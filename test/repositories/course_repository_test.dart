@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -239,17 +241,75 @@ void main() {
       expect(roster.students, isEmpty);
       expect(roster.fetchedAt, cachedAt);
     });
+
+    test(
+      'a newer refresh cancels the old request and is the only DB writer',
+      () async {
+        final firstStudents = Completer<List<StudentDto>>();
+        iSchoolPlusService.studentsCompleter = firstStudents;
+
+        final firstRefresh = repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        final firstResult = expectLater(
+          firstRefresh,
+          throwsA(
+            isA<DioException>().having(
+              (error) => error.type == .cancel,
+              'is cancelled',
+              isTrue,
+            ),
+          ),
+        );
+        await iSchoolPlusService.studentsRequested.future;
+
+        iSchoolPlusService
+          ..studentsCompleter = null
+          ..studentsResult = [(id: '111000002', name: '最新同學')];
+        await repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        await firstResult;
+        firstStudents.complete([(id: '111000001', name: '過期同學')]);
+
+        final roster = await repository
+            .watchStudentRoster(courseOfferingId)
+            .first;
+        expect(iSchoolPlusService.cancelTokens.first.isCancelled, isTrue);
+        expect(
+          roster.students.map((student) => student.name),
+          ['最新同學'],
+        );
+      },
+    );
   });
 }
 
 class _TestISchoolPlusService extends MockISchoolPlusService {
   Object? studentsError;
   int studentsCalls = 0;
+  Completer<List<StudentDto>>? studentsCompleter;
+  Completer<void> studentsRequested = Completer<void>();
+  final List<CancelToken> cancelTokens = [];
 
   @override
-  Future<List<StudentDto>> getStudents(ISchoolCourseDto course) async {
+  Future<List<StudentDto>> getStudents(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) async {
     studentsCalls++;
+    if (!studentsRequested.isCompleted) studentsRequested.complete();
+    if (cancelToken case final token?) cancelTokens.add(token);
     if (studentsError case final error?) throw error;
-    return super.getStudents(course);
+    if (studentsCompleter case final completer?) {
+      return Future.any([
+        completer.future,
+        if (cancelToken case final token?)
+          token.whenCancel.then((error) => throw error),
+      ]);
+    }
+    return super.getStudents(course, cancelToken: cancelToken);
   }
 }
