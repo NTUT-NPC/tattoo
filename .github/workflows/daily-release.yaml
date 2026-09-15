@@ -49,7 +49,12 @@ jobs:
           echo "commit_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
           echo "commit_message=$(git show -s --format=%s)" >> "$GITHUB_OUTPUT"
           if gh release view daily &>/dev/null; then
-            LAST_SHA=$(gh release view daily --json targetCommitish -q .targetCommitish)
+            # Read the commit currently pointed to by the release tag itself.
+            # The release's targetCommitish is creation metadata and is not
+            # updated when the existing tag is moved.
+            LAST_SHA=$(gh api \
+              "/repos/${{ github.repository }}/commits/tags/daily" \
+              --jq .sha)
             CURRENT_SHA=$(git rev-parse HEAD)
             echo "last_sha=$LAST_SHA" >> "$GITHUB_OUTPUT"
             if [ "$LAST_SHA" = "$CURRENT_SHA" ]; then
