@@ -273,6 +273,7 @@ class _CourseRosterPane extends ConsumerStatefulWidget {
 class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
   var _showNetworkGuide = false;
   var _networkFailureSnackbarShown = false;
+  var _refreshFailedWithCache = false;
 
   void _retry() {
     setState(() {
@@ -335,11 +336,12 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
 
     ref.listen(refreshProvider, (previous, next) {
       if (_hasNewError(previous, next)) {
+        final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
+        if (hasCache) _refreshFailedWithCache = true;
         if (ref.read(availabilityProvider).hasError ||
             _networkFailureSnackbarShown) {
           return;
         }
-        final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
         if (!hasCache) return;
 
         _showNetworkSnackbar(
@@ -351,8 +353,10 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
       if (!next.hasValue) return;
 
       final availabilityFailed = ref.read(availabilityProvider).hasError;
+      final refreshFailedWithCache = _refreshFailedWithCache;
+      _refreshFailedWithCache = false;
       ref.read(availabilityProvider.notifier).markAvailable();
-      if (!availabilityFailed) return;
+      if (!availabilityFailed && !refreshFailedWithCache) return;
 
       setState(() {
         _networkFailureSnackbarShown = false;
@@ -379,7 +383,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
           label: strings.backToRoster,
           onPressed: () => setState(() => _showNetworkGuide = false),
         ),
-        onRetry: _retry,
+        onRetry: refreshAsync.isLoading ? null : _retry,
       );
     }
 
@@ -388,7 +392,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     if (roster?.fetchedAt == null && availabilityAsync.hasError) {
       return ISchoolPlusNetworkGuide(
         guideUrl: guideUrl,
-        onRetry: _retry,
+        onRetry: refreshAsync.isLoading ? null : _retry,
       );
     }
     if (cacheAsync.isLoading ||
