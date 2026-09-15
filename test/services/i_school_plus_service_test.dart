@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/i_school_plus/ntut_i_school_plus_service.dart';
@@ -36,7 +39,12 @@ void main() {
         await availabilityService.checkAvailability().timeout(
           const Duration(seconds: 5),
         );
-      } catch (_) {
+      } on TimeoutException {
+        availabilitySkipReason =
+            'I-School Plus is unavailable; skipping integration tests.';
+        return;
+      } on DioException catch (error) {
+        if (error.type == .unknown) rethrow;
         availabilitySkipReason =
             'I-School Plus is unavailable; skipping integration tests.';
         return;
