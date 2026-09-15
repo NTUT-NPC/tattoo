@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -139,6 +141,57 @@ void main() {
     );
 
     test(
+      'recovers cached students after a failed refresh',
+      () async {
+        iSchoolPlusService.studentsResult = [
+          (id: '111000001', name: '第一次快取'),
+        ];
+        await repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        final cached = await repository
+            .watchStudentRoster(courseOfferingId)
+            .first;
+
+        iSchoolPlusService.studentsError = DioException(
+          requestOptions: RequestOptions(path: '/learn/learn_ranking.php'),
+          type: .connectionError,
+        );
+        await expectLater(
+          repository.refreshStudentRoster(
+            courseOfferingId: courseOfferingId,
+            courseNumber: '352902',
+          ),
+          throwsA(isA<DioException>()),
+        );
+        final retained = await repository
+            .watchStudentRoster(courseOfferingId)
+            .first;
+        expect(retained.fetchedAt, cached.fetchedAt);
+        expect(retained.students.single.name, '第一次快取');
+
+        iSchoolPlusService
+          ..studentsError = null
+          ..studentsResult = [
+            (id: '111000002', name: '恢復後同學'),
+          ];
+        await repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        final refreshed = await repository
+            .watchStudentRoster(courseOfferingId)
+            .first;
+        expect(refreshed.fetchedAt, isNotNull);
+        expect(
+          refreshed.students.map((student) => student.name),
+          ['恢復後同學'],
+        );
+      },
+    );
+
+    test(
       'caches an empty roster when the course is absent from iSchool',
       () async {
         iSchoolPlusService.courseListResult = [];
@@ -156,17 +209,107 @@ void main() {
         expect(iSchoolPlusService.studentsCalls, 0);
       },
     );
+
+    test('preserves a cached empty roster when refresh fails', () async {
+      iSchoolPlusService.courseListResult = [];
+      await repository.refreshStudentRoster(
+        courseOfferingId: courseOfferingId,
+        courseNumber: '352902',
+      );
+      final cachedAt =
+          (await repository.watchStudentRoster(courseOfferingId).first)
+              .fetchedAt;
+
+      iSchoolPlusService
+        ..courseListResult = null
+        ..studentsError = DioException(
+          requestOptions: RequestOptions(path: '/learn/learn_ranking.php'),
+          type: .connectionError,
+        );
+
+      await expectLater(
+        repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        ),
+        throwsA(isA<DioException>()),
+      );
+      final roster = await repository
+          .watchStudentRoster(courseOfferingId)
+          .first;
+
+      expect(roster.students, isEmpty);
+      expect(roster.fetchedAt, cachedAt);
+    });
+
+    test(
+      'a newer refresh cancels the old request and is the only DB writer',
+      () async {
+        final firstStudents = Completer<List<StudentDto>>();
+        iSchoolPlusService.studentsCompleter = firstStudents;
+
+        final firstRefresh = repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        final firstResult = expectLater(
+          firstRefresh,
+          throwsA(
+            isA<DioException>().having(
+              (error) => error.type == .cancel,
+              'is cancelled',
+              isTrue,
+            ),
+          ),
+        );
+        await iSchoolPlusService.studentsRequested.future;
+
+        iSchoolPlusService
+          ..studentsCompleter = null
+          ..studentsResult = [(id: '111000002', name: '最新同學')];
+        await repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        await firstResult;
+        firstStudents.complete([(id: '111000001', name: '過期同學')]);
+
+        final roster = await repository
+            .watchStudentRoster(courseOfferingId)
+            .first;
+        expect(iSchoolPlusService.cancelTokens.first.isCancelled, isTrue);
+        expect(
+          roster.students.map((student) => student.name),
+          ['最新同學'],
+        );
+      },
+    );
   });
 }
 
 class _TestISchoolPlusService extends MockISchoolPlusService {
   Object? studentsError;
   int studentsCalls = 0;
+  Completer<List<StudentDto>>? studentsCompleter;
+  Completer<void> studentsRequested = Completer<void>();
+  final List<CancelToken> cancelTokens = [];
 
   @override
-  Future<List<StudentDto>> getStudents(ISchoolCourseDto course) async {
+  Future<List<StudentDto>> getStudents(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) async {
     studentsCalls++;
+    if (!studentsRequested.isCompleted) studentsRequested.complete();
+    if (cancelToken case final token?) cancelTokens.add(token);
     if (studentsError case final error?) throw error;
-    return super.getStudents(course);
+    if (studentsCompleter case final completer?) {
+      return Future.any([
+        completer.future,
+        if (cancelToken case final token?)
+          token.whenCancel.then((error) => throw error),
+      ]);
+    }
+    return super.getStudents(course, cancelToken: cancelToken);
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
@@ -7,8 +8,10 @@ import 'package:tattoo/utils/http.dart';
 
 class NtutISchoolPlusService implements ISchoolPlusService {
   static const _requestTimeout = Duration(seconds: 20);
+  static const _availabilityTimeout = Duration(seconds: 5);
 
   late final Dio _iSchoolPlusDio;
+  late final Dio _availabilityDio;
 
   /// The currently selected course, used to avoid redundant server-side
   /// course switches.
@@ -21,17 +24,58 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       ..options.sendTimeout = _requestTimeout
       ..options.receiveTimeout = _requestTimeout
       ..interceptors.insert(0, InvalidCookieFilter()) // Prepend cookie filter
-      ..interceptors.add(_SessionCheckInterceptor())
+      ..interceptors.add(
+        _SessionCheckInterceptor(
+          onSessionExpired: () => _selectedInternalId = null,
+        ),
+      )
       ..transformer = PlainTextTransformer();
+    _availabilityDio = createDio(useCookies: false)
+      ..options.connectTimeout = _availabilityTimeout
+      ..options.sendTimeout = _availabilityTimeout
+      ..options.receiveTimeout = _availabilityTimeout;
   }
 
   @override
-  Future<List<ISchoolCourseDto>> getCourseList() async {
-    final response = await _iSchoolPlusDio.get('mooc_sysbar.php');
+  Future<void> checkAvailability() async {
+    final cancelToken = CancelToken();
+    final timer = Timer(
+      _availabilityTimeout,
+      () => cancelToken.cancel('I-School Plus availability check timed out'),
+    );
+    try {
+      await _availabilityDio.get(
+        'https://istudy.ntut.edu.tw/mooc/index.php',
+        cancelToken: cancelToken,
+        options: Options(responseType: .bytes),
+      );
+    } finally {
+      timer.cancel();
+    }
+  }
+
+  @override
+  Future<List<ISchoolCourseDto>> getCourseList({
+    CancelToken? cancelToken,
+  }) async {
+    // A freshly fetched list reflects the current server session. Force the
+    // next course-scoped request to establish its selection in that session.
+    _selectedInternalId = null;
+    final response = await _iSchoolPlusDio.get(
+      'mooc_sysbar.php',
+      cancelToken: cancelToken,
+    );
 
     final document = parse(response.data);
     final courseSelect = document.getElementById('selcourse');
-    if (courseSelect == null) return [];
+    if (courseSelect == null) {
+      // The server-side selection cannot be trusted after an unexpected page.
+      // This may be an expired HTTP-200 session or an upstream HTML change, so
+      // keep the parse failure distinct from the known 403 session response.
+      throw const FormatException(
+        'I-School Plus course selector is missing',
+      );
+    }
 
     // Options may be inside <optgroup> elements, so use querySelectorAll.
     // Example option: <option value="10099386">1141_智慧財產權_352902</option>
@@ -55,24 +99,36 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     return courses;
   }
 
-  Future<void> _selectCourse(ISchoolCourseDto course) async {
+  Future<void> _selectCourse(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) async {
+    if (cancelToken?.cancelError case final error?) throw error;
     if (course.internalId == _selectedInternalId) return;
 
     await _iSchoolPlusDio.post(
       'goto_course.php',
       data:
           '<manifest><ticket/><course_id>${course.internalId}</course_id><env/></manifest>',
+      cancelToken: cancelToken,
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
 
+    if (cancelToken?.cancelError case final error?) throw error;
     _selectedInternalId = course.internalId;
   }
 
   @override
-  Future<List<StudentDto>> getStudents(ISchoolCourseDto course) async {
-    await _selectCourse(course);
+  Future<List<StudentDto>> getStudents(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) async {
+    await _selectCourse(course, cancelToken: cancelToken);
 
-    final response = await _iSchoolPlusDio.get('learn_ranking.php');
+    final response = await _iSchoolPlusDio.get(
+      'learn_ranking.php',
+      cancelToken: cancelToken,
+    );
 
     // Parse the HTML and extract the table of student rankings
     final document = parse(response.data);
@@ -272,9 +328,14 @@ class NtutISchoolPlusService implements ISchoolPlusService {
 /// [SessionExpiredException] so that [AuthRepository.withAuth] retries with
 /// re-authentication instead of treating it as a network error.
 class _SessionCheckInterceptor extends Interceptor {
+  final void Function() onSessionExpired;
+
+  const _SessionCheckInterceptor({required this.onSessionExpired});
+
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 403) {
+      onSessionExpired();
       throw const SessionExpiredException(
         'ISchoolPlus session expired',
       );

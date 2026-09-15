@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/i_school_plus/ntut_i_school_plus_service.dart';
@@ -11,9 +14,41 @@ void main() {
     late PortalService portalService;
     late ISchoolPlusService iSchoolPlusService;
     late ISchoolCourseDto testCourse;
+    String? availabilitySkipReason;
+
+    void testWithAvailability(
+      String description,
+      Future<void> Function() body,
+    ) {
+      test(description, () async {
+        final skipReason = availabilitySkipReason;
+        if (skipReason != null) {
+          markTestSkipped(skipReason);
+          return;
+        }
+
+        await body();
+      });
+    }
 
     setUpAll(() async {
       TestCredentials.validate();
+
+      final availabilityService = NtutISchoolPlusService();
+      try {
+        await availabilityService.checkAvailability().timeout(
+          const Duration(seconds: 5),
+        );
+      } on TimeoutException {
+        availabilitySkipReason =
+            'I-School Plus is unavailable; skipping integration tests.';
+        return;
+      } on DioException catch (error) {
+        if (error.type == .unknown) rethrow;
+        availabilitySkipReason =
+            'I-School Plus is unavailable; skipping integration tests.';
+        return;
+      }
 
       portalService = NtutPortalService();
       iSchoolPlusService = NtutISchoolPlusService();
@@ -34,6 +69,8 @@ void main() {
     });
 
     setUp(() async {
+      if (availabilitySkipReason != null) return;
+
       portalService = NtutPortalService();
       iSchoolPlusService = NtutISchoolPlusService();
 
@@ -47,7 +84,21 @@ void main() {
     });
 
     group('getCourseList', () {
-      test('should return list of available courses', () async {
+      testWithAvailability(
+        'public availability probe does not replace the SSO session',
+        () async {
+          final coursesFuture = iSchoolPlusService.getCourseList();
+
+          await Future.wait([
+            iSchoolPlusService.checkAvailability(),
+            coursesFuture,
+          ]);
+
+          expect(await coursesFuture, isNotEmpty);
+        },
+      );
+
+      testWithAvailability('should return list of available courses', () async {
         final courses = await iSchoolPlusService.getCourseList();
 
         expect(
@@ -64,7 +115,7 @@ void main() {
     });
 
     group('getStudents', () {
-      test('should return list of enrolled students', () async {
+      testWithAvailability('should return list of enrolled students', () async {
         final students = await iSchoolPlusService.getStudents(testCourse);
 
         expect(
@@ -79,7 +130,7 @@ void main() {
         }
       });
 
-      test('should filter out system accounts', () async {
+      testWithAvailability('should filter out system accounts', () async {
         final students = await iSchoolPlusService.getStudents(testCourse);
 
         final systemAccounts = students.where(
@@ -93,7 +144,7 @@ void main() {
         );
       });
 
-      test('should parse student data correctly', () async {
+      testWithAvailability('should parse student data correctly', () async {
         final students = await iSchoolPlusService.getStudents(testCourse);
 
         final firstStudent = students.pickRandom();
@@ -114,14 +165,14 @@ void main() {
     });
 
     group('getMaterials', () {
-      test('should return list of course materials', () async {
+      testWithAvailability('should return list of course materials', () async {
         await iSchoolPlusService.getMaterials(testCourse);
 
         // Note: Some courses might not have materials
         // Method completes successfully (type guaranteed by return type)
       });
 
-      test('should parse material data correctly', () async {
+      testWithAvailability('should parse material data correctly', () async {
         final materials = await iSchoolPlusService.getMaterials(testCourse);
 
         if (materials.isNotEmpty) {
@@ -140,22 +191,25 @@ void main() {
         }
       });
 
-      test('should exclude folder items without files', () async {
-        final materials = await iSchoolPlusService.getMaterials(testCourse);
+      testWithAvailability(
+        'should exclude folder items without files',
+        () async {
+          final materials = await iSchoolPlusService.getMaterials(testCourse);
 
-        // All materials should have an href (actual files)
-        for (final material in materials) {
-          expect(
-            material.href,
-            isNotNull,
-            reason: 'Material should have an href (not a folder)',
-          );
-        }
-      });
+          // All materials should have an href (actual files)
+          for (final material in materials) {
+            expect(
+              material.href,
+              isNotNull,
+              reason: 'Material should have an href (not a folder)',
+            );
+          }
+        },
+      );
     });
 
     group('getMaterial', () {
-      test('should return download URL for material', () async {
+      testWithAvailability('should return download URL for material', () async {
         final materials = await iSchoolPlusService.getMaterials(testCourse);
 
         // Test download if materials exist
@@ -179,7 +233,7 @@ void main() {
         // If no materials, test passes (valid state)
       });
 
-      test('should handle multiple material types', () async {
+      testWithAvailability('should handle multiple material types', () async {
         final materials = await iSchoolPlusService.getMaterials(testCourse);
 
         // Test up to 2 materials if available
@@ -196,74 +250,85 @@ void main() {
         // If < 2 materials, test passes with fewer iterations
       });
 
-      test('should return valid download information', () async {
-        final materials = await iSchoolPlusService.getMaterials(testCourse);
+      testWithAvailability(
+        'should return valid download information',
+        () async {
+          final materials = await iSchoolPlusService.getMaterials(testCourse);
 
-        // Test download details if materials exist
-        if (materials.isNotEmpty) {
-          final materialInfo = await iSchoolPlusService.getMaterial(
-            materials.pickRandom(),
-          );
-
-          // Download URL should be valid
-          expect(materialInfo.downloadUrl.toString(), isNotEmpty);
-          expect(
-            materialInfo.downloadUrl.scheme,
-            isIn(['http', 'https']),
-            reason: 'Download URL should use HTTP/HTTPS',
-          );
-          expect(
-            materialInfo.downloadUrl.host,
-            contains('ntut.edu.tw'),
-            reason: 'Download URL should be from NTUT domain',
-          );
-
-          // Referer is optional but should be non-empty if present
-          if (materialInfo.referer != null) {
-            expect(materialInfo.referer, isNotEmpty);
-          }
-        }
-
-        // If no materials, test passes (valid state)
-      });
-
-      test('should correctly identify streamable materials', () async {
-        final materials = await iSchoolPlusService.getMaterials(testCourse);
-
-        // Test streamable field for all materials
-        for (final material in materials.take(5)) {
-          final materialInfo = await iSchoolPlusService.getMaterial(material);
-
-          // iStream videos should be marked as streamable
-          if (materialInfo.downloadUrl.host.contains('istream.ntut.edu.tw')) {
-            expect(
-              materialInfo.streamable,
-              isTrue,
-              reason: 'iStream videos should be streamable',
+          // Test download details if materials exist
+          if (materials.isNotEmpty) {
+            final materialInfo = await iSchoolPlusService.getMaterial(
+              materials.pickRandom(),
             );
+
+            // Download URL should be valid
+            expect(materialInfo.downloadUrl.toString(), isNotEmpty);
+            expect(
+              materialInfo.downloadUrl.scheme,
+              isIn(['http', 'https']),
+              reason: 'Download URL should use HTTP/HTTPS',
+            );
+            expect(
+              materialInfo.downloadUrl.host,
+              contains('ntut.edu.tw'),
+              reason: 'Download URL should be from NTUT domain',
+            );
+
+            // Referer is optional but should be non-empty if present
+            if (materialInfo.referer != null) {
+              expect(materialInfo.referer, isNotEmpty);
+            }
           }
 
-          // Non-iStream materials should not be marked as streamable
-          if (!materialInfo.downloadUrl.host.contains('istream.ntut.edu.tw')) {
-            expect(
-              materialInfo.streamable,
-              isFalse,
-              reason: 'Non-video materials should not be streamable',
-            );
+          // If no materials, test passes (valid state)
+        },
+      );
+
+      testWithAvailability(
+        'should correctly identify streamable materials',
+        () async {
+          final materials = await iSchoolPlusService.getMaterials(testCourse);
+
+          // Test streamable field for all materials
+          for (final material in materials.take(5)) {
+            final materialInfo = await iSchoolPlusService.getMaterial(material);
+
+            // iStream videos should be marked as streamable
+            if (materialInfo.downloadUrl.host.contains('istream.ntut.edu.tw')) {
+              expect(
+                materialInfo.streamable,
+                isTrue,
+                reason: 'iStream videos should be streamable',
+              );
+            }
+
+            // Non-iStream materials should not be marked as streamable
+            if (!materialInfo.downloadUrl.host.contains(
+              'istream.ntut.edu.tw',
+            )) {
+              expect(
+                materialInfo.streamable,
+                isFalse,
+                reason: 'Non-video materials should not be streamable',
+              );
+            }
           }
-        }
-      });
+        },
+      );
     });
 
     group('course selection caching', () {
-      test('should cache selected course across multiple calls', () async {
-        await iSchoolPlusService.getStudents(testCourse);
+      testWithAvailability(
+        'should cache selected course across multiple calls',
+        () async {
+          await iSchoolPlusService.getStudents(testCourse);
 
-        // Second call should reuse the cached selection
-        await iSchoolPlusService.getMaterials(testCourse);
-      });
+          // Second call should reuse the cached selection
+          await iSchoolPlusService.getMaterials(testCourse);
+        },
+      );
 
-      test('should handle switching between courses', () async {
+      testWithAvailability('should handle switching between courses', () async {
         final courses = await iSchoolPlusService.getCourseList();
 
         if (courses.length >= 2) {

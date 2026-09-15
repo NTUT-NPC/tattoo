@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 
 /// Mock implementation of [ISchoolPlusService] for repository unit tests
@@ -9,7 +10,13 @@ class MockISchoolPlusService implements ISchoolPlusService {
   MaterialDto? materialResult;
 
   @override
-  Future<List<ISchoolCourseDto>> getCourseList() async {
+  Future<void> checkAvailability() async {}
+
+  @override
+  Future<List<ISchoolCourseDto>> getCourseList({
+    CancelToken? cancelToken,
+  }) async {
+    if (cancelToken?.cancelError case final error?) throw error;
     return courseListResult ??
         [
           (courseNumber: '353181', internalId: '10099612'),
@@ -23,7 +30,11 @@ class MockISchoolPlusService implements ISchoolPlusService {
 
   /// Returns the mock student and the authors of this app.
   @override
-  Future<List<StudentDto>> getStudents(ISchoolCourseDto course) async {
+  Future<List<StudentDto>> getStudents(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) async {
+    if (cancelToken?.cancelError case final error?) throw error;
     return studentsResult ??
         [
           (id: '111592347', name: '王大同'),

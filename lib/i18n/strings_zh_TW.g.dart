@@ -51,6 +51,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$score$zh_TW score = Translations$score$zh_TW.internal(_root);
 	late final Translations$calendar$zh_TW calendar = Translations$calendar$zh_TW.internal(_root);
 	late final Translations$courseTable$zh_TW courseTable = Translations$courseTable$zh_TW.internal(_root);
+	late final Translations$iSchoolPlus$zh_TW iSchoolPlus = Translations$iSchoolPlus$zh_TW.internal(_root);
 	late final Translations$profile$zh_TW profile = Translations$profile$zh_TW.internal(_root);
 	late final Translations$scanner$zh_TW scanner = Translations$scanner$zh_TW.internal(_root);
 	late final Translations$ntutWifi$zh_TW ntutWifi = Translations$ntutWifi$zh_TW.internal(_root);
@@ -398,6 +399,16 @@ class Translations$courseTable$zh_TW {
 		'friday': '星期五',
 		'saturday': '星期六',
 	};
+}
+
+// Path: iSchoolPlus
+class Translations$iSchoolPlus$zh_TW {
+	Translations$iSchoolPlus$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final Translations$iSchoolPlus$network$zh_TW network = Translations$iSchoolPlus$network$zh_TW.internal(_root);
 }
 
 // Path: profile
@@ -1052,6 +1063,36 @@ class Translations$courseTable$actions$zh_TW {
 	String get showGridView => '切換至網格檢視';
 }
 
+// Path: iSchoolPlus.network
+class Translations$iSchoolPlus$network$zh_TW {
+	Translations$iSchoolPlus$network$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: 'i學園功能需要使用學校網路。'
+	String get loadingNetworkHint => 'i學園功能需要使用學校網路。';
+
+	/// zh-TW: '無法連接到i學園服務'
+	String get title => '無法連接到i學園服務';
+
+	/// zh-TW: 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重試此功能。'
+	String get description => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重試此功能。';
+
+	/// zh-TW: '瞭解更多'
+	String get learnMore => '瞭解更多';
+
+	/// zh-TW: '重新整理'
+	String get retry => '重新整理';
+
+	/// zh-TW: '查看VPN連線說明'
+	String get openGuide => '查看VPN連線說明';
+
+	/// zh-TW: '無法開啟VPN連線說明，請稍後再試。'
+	String get openGuideFailed => '無法開啟VPN連線說明，請稍後再試。';
+}
+
 // Path: profile.passwordExpiry
 class Translations$profile$passwordExpiry$zh_TW {
 	Translations$profile$passwordExpiry$zh_TW.internal(this._root);
@@ -1569,32 +1610,14 @@ class Translations$courseTable$detail$roster$zh_TW {
 	/// zh-TW: '無法載入同學名單，請稍後再試。'
 	String get loadFailed => '無法載入同學名單，請稍後再試。';
 
-	/// zh-TW: 'i學園功能需要使用學校網路，'
-	String get loadingNetworkHint => 'i學園功能需要使用學校網路，';
-
-	/// zh-TW: '重新整理'
-	String get refresh => '重新整理';
-
-	/// zh-TW: '需要連接學校網路'
-	String get networkTitle => '需要連接學校網路';
-
-	/// zh-TW: 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。'
-	String get networkDescription => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。';
-
 	/// zh-TW: '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。'
 	String get networkSnackbar => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。';
 
-	/// zh-TW: '瞭解更多'
-	String get learnMore => '瞭解更多';
-
-	/// zh-TW: '查看VPN連線說明'
-	String get openGuide => '查看VPN連線說明';
+	/// zh-TW: '同學名單已更新。'
+	String get updateSuccess => '同學名單已更新。';
 
 	/// zh-TW: '返回同學名單'
 	String get backToRoster => '返回同學名單';
-
-	/// zh-TW: '無法開啟VPN連線說明，請稍後再試。'
-	String get openGuideFailed => '無法開啟VPN連線說明，請稍後再試。';
 }
 
 // Path: profile.dangerZone.items
@@ -1784,15 +1807,9 @@ extension on Translations {
 			'courseTable.detail.roster.name' => '姓名',
 			'courseTable.detail.roster.empty' => '目前沒有同學名單',
 			'courseTable.detail.roster.loadFailed' => '無法載入同學名單，請稍後再試。',
-			'courseTable.detail.roster.loadingNetworkHint' => 'i學園功能需要使用學校網路，',
-			'courseTable.detail.roster.refresh' => '重新整理',
-			'courseTable.detail.roster.networkTitle' => '需要連接學校網路',
-			'courseTable.detail.roster.networkDescription' => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。',
 			'courseTable.detail.roster.networkSnackbar' => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。',
-			'courseTable.detail.roster.learnMore' => '瞭解更多',
-			'courseTable.detail.roster.openGuide' => '查看VPN連線說明',
+			'courseTable.detail.roster.updateSuccess' => '同學名單已更新。',
 			'courseTable.detail.roster.backToRoster' => '返回同學名單',
-			'courseTable.detail.roster.openGuideFailed' => '無法開啟VPN連線說明，請稍後再試。',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
 			'courseTable.actions.showMoreOptions' => '顯示更多選項',
@@ -1813,6 +1830,13 @@ extension on Translations {
 			'courseTable.dayOfWeekLong.thursday' => '星期四',
 			'courseTable.dayOfWeekLong.friday' => '星期五',
 			'courseTable.dayOfWeekLong.saturday' => '星期六',
+			'iSchoolPlus.network.loadingNetworkHint' => 'i學園功能需要使用學校網路。',
+			'iSchoolPlus.network.title' => '無法連接到i學園服務',
+			'iSchoolPlus.network.description' => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重試此功能。',
+			'iSchoolPlus.network.learnMore' => '瞭解更多',
+			'iSchoolPlus.network.retry' => '重新整理',
+			'iSchoolPlus.network.openGuide' => '查看VPN連線說明',
+			'iSchoolPlus.network.openGuideFailed' => '無法開啟VPN連線說明，請稍後再試。',
 			'profile.dataDisclaimer' => '僅供參考，非正式文件',
 			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(days, one: '密碼將在1天後過期', other: '密碼將在${days}天後過期', ), 
 			'profile.passwordExpiry.action' => '更改',
