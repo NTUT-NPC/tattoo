@@ -77,7 +77,7 @@ class ISchoolPlusNetworkGuide extends StatelessWidget {
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: Text(strings.retry.spaced),
+              label: Text(t.general.retry.spaced),
             ),
             const SizedBox(height: 8),
           ],

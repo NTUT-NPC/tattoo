@@ -195,7 +195,6 @@ iSchoolPlus:
     title: Unable to connect to I-School Plus
     description: I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then try this feature again.
     learnMore: Learn More
-    retry: Refresh
     openGuide: View VPN Instructions
     openGuideFailed: Unable to open the VPN instructions. Please try again later.
 profile:

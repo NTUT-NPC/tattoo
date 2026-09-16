@@ -677,7 +677,6 @@ class _Translations$iSchoolPlus$network$en_US extends Translations$iSchoolPlus$n
 	@override String get title => 'Unable to connect to I-School Plus';
 	@override String get description => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then try this feature again.';
 	@override String get learnMore => 'Learn More';
-	@override String get retry => 'Refresh';
 	@override String get openGuide => 'View VPN Instructions';
 	@override String get openGuideFailed => 'Unable to open the VPN instructions. Please try again later.';
 }
@@ -1184,7 +1183,6 @@ extension on TranslationsEnUs {
 			'iSchoolPlus.network.title' => 'Unable to connect to I-School Plus',
 			'iSchoolPlus.network.description' => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then try this feature again.',
 			'iSchoolPlus.network.learnMore' => 'Learn More',
-			'iSchoolPlus.network.retry' => 'Refresh',
 			'iSchoolPlus.network.openGuide' => 'View VPN Instructions',
 			'iSchoolPlus.network.openGuideFailed' => 'Unable to open the VPN instructions. Please try again later.',
 			'profile.dataDisclaimer' => 'Reference only. Not official.',

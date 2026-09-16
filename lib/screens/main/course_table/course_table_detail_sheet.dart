@@ -694,7 +694,7 @@ class _DetailState extends StatelessWidget {
             if (onRetry case final onRetry?)
               TextButton(
                 onPressed: onRetry,
-                child: Text(t.iSchoolPlus.network.retry.spaced),
+                child: Text(t.general.retry.spaced),
               ),
           ],
         ),

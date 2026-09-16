@@ -1083,9 +1083,6 @@ class Translations$iSchoolPlus$network$zh_TW {
 	/// zh-TW: '瞭解更多'
 	String get learnMore => '瞭解更多';
 
-	/// zh-TW: '重新整理'
-	String get retry => '重新整理';
-
 	/// zh-TW: '查看VPN連線說明'
 	String get openGuide => '查看VPN連線說明';
 
@@ -1834,7 +1831,6 @@ extension on Translations {
 			'iSchoolPlus.network.title' => '無法連接到i學園服務',
 			'iSchoolPlus.network.description' => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重試此功能。',
 			'iSchoolPlus.network.learnMore' => '瞭解更多',
-			'iSchoolPlus.network.retry' => '重新整理',
 			'iSchoolPlus.network.openGuide' => '查看VPN連線說明',
 			'iSchoolPlus.network.openGuideFailed' => '無法開啟VPN連線說明，請稍後再試。',
 			'profile.dataDisclaimer' => '僅供參考，非正式文件',
