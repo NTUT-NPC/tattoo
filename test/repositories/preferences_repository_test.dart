@@ -52,10 +52,10 @@ void main() {
       expect(PrefKey.showCourseRoster.type, PrefType.boolean);
       expect(PrefKey.showCourseRoster.defaultValue, true);
 
-      expect(PrefKey.courseRosterGuideUrl.type, PrefType.string);
+      expect(PrefKey.iSchoolPlusNetworkGuideUrl.type, PrefType.string);
       expect(
-        PrefKey.courseRosterGuideUrl.defaultValue,
-        defaultCourseRosterGuideUrl,
+        PrefKey.iSchoolPlusNetworkGuideUrl.defaultValue,
+        defaultISchoolPlusNetworkGuideUrl,
       );
     });
 
@@ -83,6 +83,36 @@ void main() {
         await store.remove(key);
         expect(await store.read(key), isNull);
       }
+    });
+
+    test('migrates a stored roster guide URL to the shared key', () async {
+      final originalInstance = SharedPreferencesAsyncPlatform.instance;
+      addTearDown(() {
+        SharedPreferencesAsyncPlatform.instance = originalInstance;
+      });
+      SharedPreferencesAsyncPlatform.instance =
+          InMemorySharedPreferencesAsync.empty();
+      final prefs = SharedPreferencesAsync();
+      const oldUrl = 'https://example.org/network';
+      await prefs.setString('courseRosterGuideUrl', oldUrl);
+
+      final store = TypedPreferenceStore(prefs);
+      expect(await store.read(PrefKey.iSchoolPlusNetworkGuideUrl), oldUrl);
+      expect(await prefs.getString('courseRosterGuideUrl'), isNull);
+      expect(
+        await prefs.getString(PrefKey.iSchoolPlusNetworkGuideUrl.name),
+        oldUrl,
+      );
+
+      await store.remove(PrefKey.iSchoolPlusNetworkGuideUrl);
+      expect(await store.read(PrefKey.iSchoolPlusNetworkGuideUrl), isNull);
+    });
+
+    test('rejects an invalid network guide URL', () {
+      expect(
+        iSchoolPlusNetworkGuideUri('javascript:alert(1)').toString(),
+        defaultISchoolPlusNetworkGuideUrl,
+      );
     });
   });
 }

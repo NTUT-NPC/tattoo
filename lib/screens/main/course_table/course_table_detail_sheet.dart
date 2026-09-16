@@ -376,8 +376,8 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         );
     });
 
-    final guideUrl = courseRosterGuideUri(
-      ref.pref(PrefKey.courseRosterGuideUrl),
+    final guideUrl = iSchoolPlusNetworkGuideUri(
+      ref.pref(PrefKey.iSchoolPlusNetworkGuideUrl),
     );
     if (_showNetworkGuide) {
       return ISchoolPlusNetworkGuide(
@@ -701,17 +701,6 @@ class _DetailState extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Returns a safe course-roster guide URL, falling back from invalid config.
-Uri courseRosterGuideUri(String configuredUrl) {
-  final configured = Uri.tryParse(configuredUrl);
-  if (configured != null &&
-      (configured.scheme == 'http' || configured.scheme == 'https') &&
-      configured.host.isNotEmpty) {
-    return configured;
-  }
-  return Uri.parse(defaultCourseRosterGuideUrl);
 }
 
 String? _normalizedText(String? value) {

@@ -17,8 +17,20 @@ import 'package:tattoo/utils/shared_preferences.dart';
 
 export 'package:tattoo/utils/pref_type.dart' show PrefType;
 
-const defaultCourseRosterGuideUrl =
+const defaultISchoolPlusNetworkGuideUrl =
     'https://cnc.ntut.edu.tw/p/405-1004-110297.php?Lang=zh-tw';
+const _legacyCourseRosterGuideKey = 'courseRosterGuideUrl';
+
+/// Returns a safe shared iSchool Plus network guide URL.
+Uri iSchoolPlusNetworkGuideUri(String configuredUrl) {
+  final configured = Uri.tryParse(configuredUrl);
+  if (configured != null &&
+      (configured.scheme == 'http' || configured.scheme == 'https') &&
+      configured.host.isNotEmpty) {
+    return configured;
+  }
+  return Uri.parse(defaultISchoolPlusNetworkGuideUrl);
+}
 
 // dart format off
 /// Typed preference keys with defaults.
@@ -74,7 +86,7 @@ enum PrefKey<T> {
   showCourseRoster<bool>(.boolean, true),
 
   /// Link to instructions for connecting to the NTUT network remotely.
-  courseRosterGuideUrl<String>(.string, defaultCourseRosterGuideUrl);
+  iSchoolPlusNetworkGuideUrl<String>(.string, defaultISchoolPlusNetworkGuideUrl);
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;
@@ -146,6 +158,14 @@ class TypedPreferenceStore {
 
   /// Reads the value stored for [key], or `null` if absent.
   Future<T?> read<T>(PrefKey<T> key) async {
+    if (key == PrefKey.iSchoolPlusNetworkGuideUrl &&
+        await _prefs.getString(key.name) == null) {
+      final previous = await _prefs.getString(_legacyCourseRosterGuideKey);
+      if (previous != null) {
+        await _prefs.setString(key.name, previous);
+        await _prefs.remove(_legacyCourseRosterGuideKey);
+      }
+    }
     final value = switch (key.type) {
       .boolean => await _prefs.getBool(key.name),
       .integer => await _prefs.getInt(key.name),
@@ -165,10 +185,18 @@ class TypedPreferenceStore {
       .string => _prefs.setString(key.name, value as String),
       .stringList => _prefs.setStringList(key.name, value as List<String>),
     };
+    if (key == PrefKey.iSchoolPlusNetworkGuideUrl) {
+      await _prefs.remove(_legacyCourseRosterGuideKey);
+    }
   }
 
   /// Removes any value stored for [key].
-  Future<void> remove(PrefKey key) => _prefs.remove(key.name);
+  Future<void> remove(PrefKey key) async {
+    await _prefs.remove(key.name);
+    if (key == PrefKey.iSchoolPlusNetworkGuideUrl) {
+      await _prefs.remove(_legacyCourseRosterGuideKey);
+    }
+  }
 }
 
 /// Provides the [PreferencesRepository] instance.
@@ -260,7 +288,7 @@ class PreferencesRepository {
   Future<ResolvedPreference> resolve(PrefKey key) async {
     final remote = _readRemote(key);
 
-    if (_readForcedSet().contains(key.name)) {
+    if (_isForced(key)) {
       return ResolvedPreference(
         key: key,
         value: remote ?? key.defaultValue as Object,
@@ -292,7 +320,7 @@ class PreferencesRepository {
       'Setting preference "${key.name}" to $value',
       name: 'PreferencesRepository',
     );
-    if (_readForcedSet().contains(key.name)) {
+    if (_isForced(key)) {
       log(
         'Preference "${key.name}" is forced and cannot be overridden',
         name: 'PreferencesRepository',
@@ -323,7 +351,22 @@ class PreferencesRepository {
   /// Reads a key's Remote Config value, or `null` if not remotely set.
   Object? _readRemote(PrefKey key) {
     final result = firebaseService.getRemoteConfigTyped(key.name, key.type);
-    return result.isRemote ? result.value : null;
+    if (result.isRemote) return result.value;
+    if (key == PrefKey.iSchoolPlusNetworkGuideUrl) {
+      final previous = firebaseService.getRemoteConfigTyped(
+        _legacyCourseRosterGuideKey,
+        key.type,
+      );
+      if (previous.isRemote) return previous.value;
+    }
+    return null;
+  }
+
+  bool _isForced(PrefKey key) {
+    final forced = _readForcedSet();
+    return forced.contains(key.name) ||
+        (key == PrefKey.iSchoolPlusNetworkGuideUrl &&
+            forced.contains(_legacyCourseRosterGuideKey));
   }
 
   /// Reads the set of forced preference names from Remote Config.
@@ -442,7 +485,11 @@ class PreferencesRepository {
   Future<void> _fromMap(Map<String, dynamic> map) async {
     await Future.wait([
       for (final key in PrefKey.values)
-        if (map[key.name] case final value?) _store.write(key, value),
+        if ((key == PrefKey.iSchoolPlusNetworkGuideUrl
+                ? map[key.name] ?? map[_legacyCourseRosterGuideKey]
+                : map[key.name])
+            case final value?)
+          _store.write(key, value),
     ]);
   }
 
