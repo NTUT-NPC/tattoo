@@ -46,7 +46,11 @@ class MockISchoolPlusService implements ISchoolPlusService {
   }
 
   @override
-  Future<List<MaterialRefDto>> getMaterials(ISchoolCourseDto course) async {
+  Future<List<MaterialRefDto>> getMaterials(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) async {
+    if (cancelToken?.cancelError case final error?) throw error;
     if (materialsResult case final result?) return result;
 
     final c = course.courseNumber.isNotEmpty
@@ -98,7 +102,11 @@ class MockISchoolPlusService implements ISchoolPlusService {
   }
 
   @override
-  Future<MaterialDto> getMaterial(MaterialRefDto material) async {
+  Future<MaterialDto> getMaterial(
+    MaterialRefDto material, {
+    CancelToken? cancelToken,
+  }) async {
+    if (cancelToken?.cancelError case final error?) throw error;
     return materialResult ??
         (
           downloadUrl: Uri.parse(

@@ -127,7 +127,11 @@ abstract interface class ISchoolPlusService {
   ///
   /// Materials are extracted from the course's SCORM manifest XML.
   /// Folder/directory items without actual files are automatically excluded.
-  Future<List<MaterialRefDto>> getMaterials(ISchoolCourseDto course);
+  /// [cancelToken] cancels course selection and manifest requests when provided.
+  Future<List<MaterialRefDto>> getMaterials(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  });
 
   /// Fetches download information for a specific course material.
   ///
@@ -145,5 +149,9 @@ abstract interface class ISchoolPlusService {
   /// be included as the Referer header when downloading the file.
   ///
   /// Throws an [Exception] if the material cannot be accessed or parsed.
-  Future<MaterialDto> getMaterial(MaterialRefDto material);
+  /// [cancelToken] cancels course selection and download-info requests.
+  Future<MaterialDto> getMaterial(
+    MaterialRefDto material, {
+    CancelToken? cancelToken,
+  });
 }
