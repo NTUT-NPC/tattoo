@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart'
+    show ApplyInterceptor, QueryExecutor, QueryInterceptor;
 import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,9 +22,11 @@ void main() {
     late _TestISchoolPlusService iSchoolPlusService;
     late CourseRepository repository;
     late int courseOfferingId;
+    late _RosterDeleteGate deleteGate;
 
     setUp(() async {
-      database = AppDatabase(NativeDatabase.memory());
+      deleteGate = _RosterDeleteGate();
+      database = AppDatabase(NativeDatabase.memory().interceptWith(deleteGate));
       iSchoolPlusService = _TestISchoolPlusService();
       final portalService = MockPortalService();
       final authRepository = AuthRepository(
@@ -284,7 +288,175 @@ void main() {
         );
       },
     );
+
+    test(
+      'cancellation after network completion prevents a stale DB write',
+      () async {
+        final firstStudents = Completer<List<StudentDto>>();
+        iSchoolPlusService.studentsCompleter = firstStudents;
+        final firstResult = expectLater(
+          repository.refreshStudentRoster(
+            courseOfferingId: courseOfferingId,
+            courseNumber: '352902',
+          ),
+          throwsA(
+            isA<DioException>().having(
+              (e) => e.type,
+              'type',
+              DioExceptionType.cancel,
+            ),
+          ),
+        );
+        await iSchoolPlusService.studentsRequested.future;
+
+        firstStudents.complete([(id: '111000001', name: '舊同學')]);
+        iSchoolPlusService
+          ..studentsCompleter = null
+          ..studentsResult = [(id: '111000002', name: '新同學')];
+        await repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        await firstResult;
+
+        final roster = await repository
+            .watchStudentRoster(courseOfferingId)
+            .first;
+        expect(roster.students.map((student) => student.name), ['新同學']);
+        expect(deleteGate.rosterDeletes, 1);
+      },
+    );
+
+    test(
+      'refreshes for different offerings do not cancel each other',
+      () async {
+        final semester = await database.getOrCreateSemester(114, 1);
+        final secondOfferingId = await database.upsertCourseOffering(
+          semesterId: semester.id,
+          number: '352903',
+          nameZh: '另一門課',
+        );
+        iSchoolPlusService.courseListResult = [
+          (courseNumber: '352902', internalId: '101'),
+          (courseNumber: '352903', internalId: '202'),
+        ];
+        final firstStudents = Completer<List<StudentDto>>();
+        iSchoolPlusService.studentsCompleter = firstStudents;
+        final firstRefresh = repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        await iSchoolPlusService.studentsRequested.future;
+
+        iSchoolPlusService
+          ..studentsCompleter = null
+          ..studentsResult = [(id: '111000002', name: '第二門課同學')];
+        await repository.refreshStudentRoster(
+          courseOfferingId: secondOfferingId,
+          courseNumber: '352903',
+        );
+        firstStudents.complete([(id: '111000001', name: '第一門課同學')]);
+        await firstRefresh;
+
+        expect(iSchoolPlusService.cancelTokens.first.isCancelled, isFalse);
+        expect(
+          (await repository.watchStudentRoster(courseOfferingId).first)
+              .students
+              .single
+              .name,
+          '第一門課同學',
+        );
+        expect(
+          (await repository.watchStudentRoster(secondOfferingId).first)
+              .students
+              .single
+              .name,
+          '第二門課同學',
+        );
+      },
+    );
+
+    test(
+      'cancellation during a transaction rolls back partial roster writes',
+      () async {
+        iSchoolPlusService.studentsResult = [
+          (id: '111000001', name: '快取同學'),
+        ];
+        await repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        final cachedAt =
+            (await repository.watchStudentRoster(courseOfferingId).first)
+                .fetchedAt;
+
+        deleteGate.pauseNextDelete = true;
+        iSchoolPlusService.studentsResult = [
+          (id: '111000002', name: '不應留下'),
+        ];
+        final firstResult = expectLater(
+          repository.refreshStudentRoster(
+            courseOfferingId: courseOfferingId,
+            courseNumber: '352902',
+          ),
+          throwsA(
+            isA<DioException>().having(
+              (e) => e.type,
+              'type',
+              DioExceptionType.cancel,
+            ),
+          ),
+        );
+        await deleteGate.deleted.future;
+
+        iSchoolPlusService.studentsError = DioException(
+          requestOptions: RequestOptions(path: '/learn/learn_ranking.php'),
+          type: .connectionError,
+        );
+        final secondResult = expectLater(
+          repository.refreshStudentRoster(
+            courseOfferingId: courseOfferingId,
+            courseNumber: '352902',
+          ),
+          throwsA(isA<DioException>()),
+        );
+        deleteGate.resume.complete();
+        await firstResult;
+        await secondResult;
+
+        final roster = await repository
+            .watchStudentRoster(courseOfferingId)
+            .first;
+        expect(roster.fetchedAt, cachedAt);
+        expect(roster.students.map((student) => student.name), ['快取同學']);
+      },
+    );
   });
+}
+
+class _RosterDeleteGate extends QueryInterceptor {
+  bool pauseNextDelete = false;
+  int rosterDeletes = 0;
+  final deleted = Completer<void>();
+  final resume = Completer<void>();
+
+  @override
+  Future<int> runDelete(
+    QueryExecutor executor,
+    String statement,
+    List<Object?> args,
+  ) async {
+    final result = await executor.runDelete(statement, args);
+    if (statement.toLowerCase().contains('course_offering_students')) {
+      rosterDeletes++;
+      if (pauseNextDelete) {
+        pauseNextDelete = false;
+        deleted.complete();
+        await resume.future;
+      }
+    }
+    return result;
+  }
 }
 
 class _TestISchoolPlusService extends MockISchoolPlusService {

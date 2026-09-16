@@ -190,7 +190,10 @@ class CourseRepository {
   final AppDatabase _database;
   final AuthRepository _authRepository;
   final FirebaseService _firebaseService;
-  CancelToken? _studentRosterRefreshToken;
+
+  /// Latest refresh per offering; other offerings may queue independently in
+  /// the iSchool Plus Service's selected-course critical section.
+  final Map<int, CancelToken> _studentRosterRefreshTokens = {};
 
   CourseRepository({
     required this._portalService,
@@ -1396,12 +1399,7 @@ class CourseRepository {
     return _iSchoolPlusService.checkAvailability();
   }
 
-  void _cancelStudentRosterRefresh() {
-    _studentRosterRefreshToken?.cancel('Student roster refresh cancelled');
-    _studentRosterRefreshToken = null;
-  }
-
-  void _throwIfStudentRosterRefreshCancelled(CancelToken cancelToken) {
+  void _throwIfCancelled(CancelToken cancelToken) {
     if (cancelToken.cancelError case final error?) throw error;
   }
 
@@ -1413,17 +1411,19 @@ class CourseRepository {
     required int courseOfferingId,
     required String courseNumber,
   }) async {
-    _cancelStudentRosterRefresh();
+    _studentRosterRefreshTokens[courseOfferingId]?.cancel(
+      'Student roster refresh superseded',
+    );
     final cancelToken = CancelToken();
-    _studentRosterRefreshToken = cancelToken;
+    _studentRosterRefreshTokens[courseOfferingId] = cancelToken;
 
     try {
       final studentDtos = await _authRepository.withAuth(() async {
-        _throwIfStudentRosterRefreshCancelled(cancelToken);
+        _throwIfCancelled(cancelToken);
         final courses = await _iSchoolPlusService.getCourseList(
           cancelToken: cancelToken,
         );
-        _throwIfStudentRosterRefreshCancelled(cancelToken);
+        _throwIfCancelled(cancelToken);
         final course = courses.where(
           (course) => course.courseNumber == courseNumber,
         );
@@ -1434,7 +1434,7 @@ class CourseRepository {
         );
       }, sso: [.iSchoolPlusService]);
 
-      _throwIfStudentRosterRefreshCancelled(cancelToken);
+      _throwIfCancelled(cancelToken);
 
       final seenStudentIds = <String>{};
       final students = <({String studentId, String? name})>[];
@@ -1463,19 +1463,19 @@ class CourseRepository {
       }
 
       await _database.transaction(() async {
-        _throwIfStudentRosterRefreshCancelled(cancelToken);
+        _throwIfCancelled(cancelToken);
         await (_database.delete(_database.courseOfferingStudents)..where(
               (row) => row.courseOffering.equals(courseOfferingId),
             ))
             .go();
 
         for (final student in students) {
-          _throwIfStudentRosterRefreshCancelled(cancelToken);
+          _throwIfCancelled(cancelToken);
           final studentId = await _database.upsertStudent(
             studentId: student.studentId,
             name: student.name,
           );
-          _throwIfStudentRosterRefreshCancelled(cancelToken);
+          _throwIfCancelled(cancelToken);
           await _database
               .into(_database.courseOfferingStudents)
               .insert(
@@ -1486,7 +1486,7 @@ class CourseRepository {
               );
         }
 
-        _throwIfStudentRosterRefreshCancelled(cancelToken);
+        _throwIfCancelled(cancelToken);
         await (_database.update(_database.courseOfferings)..where(
               (offering) => offering.id.equals(courseOfferingId),
             ))
@@ -1495,11 +1495,14 @@ class CourseRepository {
                 studentRosterFetchedAt: Value(DateTime.now()),
               ),
             );
-        _throwIfStudentRosterRefreshCancelled(cancelToken);
+        _throwIfCancelled(cancelToken);
       });
     } finally {
-      if (identical(_studentRosterRefreshToken, cancelToken)) {
-        _studentRosterRefreshToken = null;
+      if (identical(
+        _studentRosterRefreshTokens[courseOfferingId],
+        cancelToken,
+      )) {
+        _studentRosterRefreshTokens.remove(courseOfferingId);
       }
     }
   }

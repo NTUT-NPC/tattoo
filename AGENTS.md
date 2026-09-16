@@ -83,6 +83,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - StudentRepository — Academic records, GPA, rankings. Parallel course code resolution via CourseRepository.getCourse().
 - CampusWifiRepository — Platform-specific provisioner configuration and status for NTUT-802.1X campus Wi-Fi. Interacts directly with platform APIs, returning one-shot configuration status rather than using the `watchX()`/`refreshX()` cache pattern.
 - **Method pattern:** `watchX()` returns a `Stream` backed by Drift `.watch()` — emits cached data immediately, then background-fetches if empty or stale (each method has its own hard-coded TTL `const`). Network errors are absorbed (stale data preferred over errors). `refreshX()` is the imperative counterpart for pull-to-refresh — fetches from network, writes to DB, and lets the stream re-emit.
+- **I-School Plus cached refreshes:** Keep each feature's fetch, validation, normalization, and DB transaction in its CourseRepository method. A newer refresh of the same resource cancels the older request; check cancellation after network work and throughout the transaction so stale results cannot commit. Fetch failures leave cached rows and timestamps intact. UI owns refresh feedback and network guidance.
 
 **Demo mode:**
 
@@ -145,6 +146,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 **NullHeaderInterceptor:** `dio_cookie_manager` injects `Cookie: null` when no cookies exist for a domain. NTUT's BigIP ASM flags this as bot behavior (HTTP 403). The interceptor strips null-value Cookie headers before requests are sent.
 
 **InvalidCookieFilter:** iSchool+ returns malformed cookies. Additionally, NativeAdapter (Cronet/URLSession) comma-joins multiple Set-Cookie values into a single header entry. The interceptor splits them before validation so one invalid cookie doesn't discard valid ones.
+
+**I-School Plus selected course:** `goto_course.php` changes mutable server-side session state. The Service serializes each course-scoped operation from course selection through its final dependent HTTP request, including roster and material calls. A cancelled waiter must not enter the operation; a failed or cancelled course switch invalidates the cached selected ID. Keep this protocol synchronization in the Service, not CourseRepository.
 
 **Connection: close:** PortalService uses `Connection: close` header. NTUT portal servers close keep-alive connections after multipart uploads, causing stale socket errors if Dart's HTTP client tries to reuse them.
 
