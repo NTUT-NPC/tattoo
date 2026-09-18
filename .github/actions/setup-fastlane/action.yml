@@ -23,7 +23,7 @@ runs:
     - name: Select Xcode version
       if: ${{ inputs.platform == 'ios' }}
       shell: bash
-      run: sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_27.0.app/Contents/Developer
 
     - name: Setup Ruby
       uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
