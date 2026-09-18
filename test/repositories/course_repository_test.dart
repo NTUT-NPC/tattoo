@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart'
-    show ApplyInterceptor, QueryExecutor, QueryInterceptor;
+    show ApplyInterceptor, QueryExecutor, QueryInterceptor, Value;
 import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -79,6 +79,39 @@ void main() {
         [('111000001', null), ('112000002', '王小明')],
       );
       expect(iSchoolPlusService.studentsCalls, 1);
+    });
+
+    test('uses a 15-minute roster TTL', () async {
+      iSchoolPlusService.studentsResult = [
+        (id: '111000001', name: '同學'),
+      ];
+      await repository.refreshStudentRoster(
+        courseOfferingId: courseOfferingId,
+        courseNumber: '352902',
+      );
+
+      expect(
+        await repository.isStudentRosterFresh(
+          courseOfferingId: courseOfferingId,
+        ),
+        isTrue,
+      );
+
+      await (database.update(
+        database.courseOfferings,
+      )..where((row) => row.id.equals(courseOfferingId))).write(
+        CourseOfferingsCompanion(
+          studentRosterFetchedAt: Value(
+            DateTime.now().subtract(const Duration(minutes: 15)),
+          ),
+        ),
+      );
+      expect(
+        await repository.isStudentRosterFresh(
+          courseOfferingId: courseOfferingId,
+        ),
+        isFalse,
+      );
     });
 
     test('replaces stale relationships after a successful refresh', () async {

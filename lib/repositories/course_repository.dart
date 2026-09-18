@@ -56,6 +56,8 @@ typedef CourseStudentRoster = ({
   DateTime? fetchedAt,
 });
 
+const _studentRosterTtl = Duration(minutes: 15);
+
 /// Data for a single cell in the course table grid.
 typedef CourseTableCellData = ({
   /// [CourseOfferings] primary key, for navigating to detail view.
@@ -1389,6 +1391,22 @@ class CourseRepository {
             .studentRosterFetchedAt,
       );
     });
+  }
+
+  /// Returns whether the cached roster is fresh enough to use without a
+  /// network request.
+  Future<bool> isStudentRosterFresh({
+    required int courseOfferingId,
+  }) async {
+    final offering = await (_database.select(
+      _database.courseOfferings,
+    )..where((row) => row.id.equals(courseOfferingId))).getSingleOrNull();
+    final fetchedAt = offering?.studentRosterFetchedAt;
+    return switch (fetchedAt) {
+      final fetchedAt? =>
+        DateTime.now().difference(fetchedAt) < _studentRosterTtl,
+      null => false,
+    };
   }
 
   /// Verifies that I-School Plus is reachable from the current network.

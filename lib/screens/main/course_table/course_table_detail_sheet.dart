@@ -280,6 +280,12 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
       _showNetworkGuide = true;
       _networkFailureSnackbarShown = false;
     });
+    ref
+        .read(
+          courseStudentRosterRefreshRequestedAtProvider(widget.rosterKey)
+              .notifier,
+        )
+        .request();
     ref.read(iSchoolPlusAvailabilityProvider.notifier).retry();
     ref
       ..invalidate(courseStudentRosterProvider(widget.rosterKey))
@@ -350,7 +356,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         );
         return;
       }
-      if (!next.hasValue) return;
+      if (next.value != true) return;
 
       final availabilityFailed = ref.read(availabilityProvider).hasError;
       final refreshFailedWithCache = _refreshFailedWithCache;

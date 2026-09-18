@@ -45,16 +45,61 @@ final courseStudentRosterProvider = StreamProvider.autoDispose
           .watchStudentRoster(key.courseOfferingId);
     });
 
-/// Refreshes an I-School Plus roster once for the provider's lifecycle.
+/// Records the most recent explicit roster refresh request for each offering.
+///
+/// A retry must bypass the normal TTL, while an ordinary provider rebuild
+/// should continue using a fresh cached roster.
+final courseStudentRosterRefreshRequestedAtProvider = NotifierProvider
+    .autoDispose
+    .family<
+      CourseStudentRosterRefreshRequestedAtNotifier,
+      DateTime?,
+      CourseRosterKey
+    >(CourseStudentRosterRefreshRequestedAtNotifier.new);
+
+class CourseStudentRosterRefreshRequestedAtNotifier
+    extends Notifier<DateTime?> {
+  CourseStudentRosterRefreshRequestedAtNotifier(CourseRosterKey _);
+
+  DateTime? _completedRequest;
+
+  bool get hasPendingRequest => state != _completedRequest;
+
+  // Completion must not rebuild the refresh provider that is publishing success.
+  void complete(DateTime? request) => _completedRequest = request;
+
+  @override
+  DateTime? build() => null;
+
+  void request() => state = DateTime.now();
+}
+
+/// Refreshes an I-School Plus roster when its cache is missing or stale.
 ///
 /// Keeping refresh separate from the cache stream lets the UI retain cached
 /// students while also reacting to a failed background refresh.
 final courseStudentRosterRefreshProvider = FutureProvider.autoDispose
-    .family<void, CourseRosterKey>((ref, key) {
-      return ref
-          .watch(courseRepositoryProvider)
-          .refreshStudentRoster(
+    .family<bool, CourseRosterKey>((ref, key) async {
+      final refreshRequestedAt = ref.watch(
+        courseStudentRosterRefreshRequestedAtProvider(key),
+      );
+      final repository = ref.watch(courseRepositoryProvider);
+      final request = ref.read(
+        courseStudentRosterRefreshRequestedAtProvider(key).notifier,
+      );
+      final isFresh =
+          !request.hasPendingRequest &&
+          await repository.isStudentRosterFresh(
             courseOfferingId: key.courseOfferingId,
-            courseNumber: key.courseNumber,
           );
+      if (!ref.mounted) return false;
+      if (isFresh) return false;
+
+      await repository.refreshStudentRoster(
+        courseOfferingId: key.courseOfferingId,
+        courseNumber: key.courseNumber,
+      );
+      if (!ref.mounted) return false;
+      request.complete(refreshRequestedAt);
+      return true;
     });
