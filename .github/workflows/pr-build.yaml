@@ -1,0 +1,147 @@
+name: PR Build
+
+on: pull_request
+
+concurrency:
+  group: pr-build-${{ github.event.pull_request.number }}
+  cancel-in-progress: ${{ github.event.action == 'synchronize' }}
+
+jobs:
+  prepare:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      build_number: ${{ steps.build-number.outputs.build_number }}
+      artifact_run_id: ${{ github.run_id }}
+      version_suffix: pr.${{ github.event.pull_request.number }}
+      commit_sha: ${{ steps.commit.outputs.short_sha }}
+      commit_message: ${{ github.event.pull_request.title }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Resolve short commit SHA
+        id: commit
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: echo "short_sha=${HEAD_SHA:0:7}" >> "$GITHUB_OUTPUT"
+
+      - name: Manage Build Number
+        id: build-number
+        uses: ./.github/actions/manage-build-number
+        with:
+          github_token: ${{ secrets.BUILD_NUMBER_PAT }}
+          current_build_number: ${{ vars.build_number }}
+
+  build-android:
+    permissions:
+      contents: read
+    needs: [prepare]
+    uses: ./.github/workflows/build-android.yaml
+    with:
+      environment: staging
+      build_number: ${{ needs.prepare.outputs.build_number }}
+      version_suffix: ${{ needs.prepare.outputs.version_suffix }}
+    secrets: inherit
+
+  build-ios:
+    permissions:
+      contents: read
+    needs: [prepare]
+    uses: ./.github/workflows/build-ios.yaml
+    with:
+      environment: staging
+      build_number: ${{ needs.prepare.outputs.build_number }}
+      version_suffix: ${{ needs.prepare.outputs.version_suffix }}
+    secrets: inherit
+
+  resolve-deployments:
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
+    needs: [prepare, build-android, build-ios]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      deploy_android: ${{ steps.flags.outputs.android }}
+      deploy_ios: ${{ steps.flags.outputs.ios }}
+    steps:
+      - name: Resolve current deployment labels
+        id: flags
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          labels=$(
+            gh api \
+              "/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" \
+              --jq '.labels[].name'
+          )
+          android=false
+          ios=false
+
+          if [[ $'\n'"$labels"$'\n' == *$'\ndeploy:android\n'* ]] && \
+             [ "${{ needs.build-android.result }}" = success ]; then
+            android=true
+          fi
+          if [[ $'\n'"$labels"$'\n' == *$'\ndeploy:ios\n'* ]] && \
+             [ "${{ needs.build-ios.result }}" = success ]; then
+            ios=true
+          fi
+
+          {
+            echo "android=$android"
+            echo "ios=$ios"
+          } >> "$GITHUB_OUTPUT"
+
+  deploy:
+    if: >-
+      !cancelled() &&
+      needs.prepare.result == 'success' &&
+      needs.resolve-deployments.result == 'success' &&
+      (needs.resolve-deployments.outputs.deploy_android == 'true' ||
+      needs.resolve-deployments.outputs.deploy_ios == 'true')
+    needs: [prepare, resolve-deployments]
+    uses: ./.github/workflows/pr-deploy.yaml
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    with:
+      artifact_run_id: ${{ needs.prepare.outputs.artifact_run_id }}
+      build_number: ${{ needs.prepare.outputs.build_number }}
+      deploy_android: ${{ needs.resolve-deployments.outputs.deploy_android == 'true' }}
+      deploy_ios: ${{ needs.resolve-deployments.outputs.deploy_ios == 'true' }}
+      commit_sha: ${{ needs.prepare.outputs.commit_sha }}
+      commit_message: ${{ needs.prepare.outputs.commit_message }}
+    secrets: inherit
+
+  comment:
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
+    needs:
+      - prepare
+      - build-android
+      - build-ios
+      - deploy
+    uses: ./.github/workflows/pr-comment.yaml
+    permissions:
+      actions: read
+      pull-requests: write
+    with:
+      build_number: ${{ needs.prepare.outputs.build_number }}
+
+  pr-build:
+    if: >-
+      !cancelled() &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    needs:
+      - build-android
+      - build-ios
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - run: >-
+          test "${{ needs.build-android.result }}" = success &&
+          test "${{ needs.build-ios.result }}" = success

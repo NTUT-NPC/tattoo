@@ -63,6 +63,6 @@ jobs:
       - name: Upload Android artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: android-${{ inputs.environment }}-${{ inputs.build_number }}
+          name: build-android-${{ inputs.environment }}-${{ inputs.build_number }}
           path: build/app/outputs/bundle/${{ inputs.environment }}Release/app-${{ inputs.environment }}-release.aab
           if-no-files-found: error

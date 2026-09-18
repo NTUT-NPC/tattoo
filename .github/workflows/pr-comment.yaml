@@ -1,0 +1,103 @@
+name: PR Comment
+
+on:
+  workflow_call:
+    inputs:
+      build_number:
+        description: Build number represented by the preview comment
+        required: true
+        type: string
+
+jobs:
+  comment:
+    concurrency:
+      group: pr-preview-comment-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      pull-requests: write
+    steps:
+      - name: Find existing comment
+        id: comment
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: <!-- pr-preview-comment -->
+
+      - name: Render preview comment
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          download_receipt() {
+            marker_name=$1
+            destination=$2
+            artifact_id=$(
+              gh api \
+                "/repos/${{ github.repository }}/actions/artifacts?name=$marker_name&per_page=100" \
+                --jq 'first(.artifacts[] | select(.expired == false and .workflow_run.head_sha == "'"$HEAD_SHA"'")) | .id // empty'
+            )
+            if [ -n "$artifact_id" ]; then
+              gh api "/repos/${{ github.repository }}/actions/artifacts/$artifact_id/zip" > "$RUNNER_TEMP/$marker_name.zip"
+              unzip -p "$RUNNER_TEMP/$marker_name.zip" deployment.json > "$destination"
+            fi
+          }
+
+          download_receipt "deployment-android-staging-$BUILD_NUMBER" "$RUNNER_TEMP/android.json"
+          download_receipt "deployment-ios-staging-$BUILD_NUMBER" "$RUNNER_TEMP/ios.json"
+
+          cat > "$RUNNER_TEMP/pr-preview-comment.md" <<EOF
+          <!-- pr-preview-comment -->
+          ## PR Preview Builds (Staging)
+          **Build Number:** $BUILD_NUMBER
+          **Commit:** $HEAD_SHA
+          **Message:** $PR_TITLE
+          EOF
+
+          if [ -f "$RUNNER_TEMP/android.json" ]; then
+            testing_uri=$(jq -r '.testing_uri' "$RUNNER_TEMP/android.json")
+            cat >> "$RUNNER_TEMP/pr-preview-comment.md" <<EOF
+          ### Android (Firebase App Distribution)
+          [Install build $BUILD_NUMBER]($testing_uri)
+          EOF
+          fi
+
+          if [ -f "$RUNNER_TEMP/ios.json" ]; then
+            cat >> "$RUNNER_TEMP/pr-preview-comment.md" <<EOF
+          ### iOS (TestFlight)
+          1. Open the TestFlight app on your iOS device
+          2. Select "Project Tattoo"
+          3. Install build $BUILD_NUMBER
+          EOF
+          fi
+
+      - name: Verify current pull request head
+        id: current
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          current_head=$(
+            gh api \
+              "/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" \
+              --jq '.head.sha'
+          )
+          if [ "$current_head" = "$HEAD_SHA" ]; then
+            echo "matches=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "matches=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping stale preview for $HEAD_SHA; current head is $current_head"
+          fi
+
+      - name: Create or update preview comment
+        if: steps.current.outputs.matches == 'true'
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
+        with:
+          comment-id: ${{ steps.comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: ${{ runner.temp }}/pr-preview-comment.md
+          edit-mode: replace
