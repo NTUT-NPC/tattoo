@@ -73,11 +73,18 @@ git diff -- pubspec.yaml pubspec.lock ios/
 
 - `pubspec.yaml` — bump `environment.sdk` if the new Flutter's bundled Dart minor exceeds the current floor. Find the bundled Dart in the Flutter release notes (<https://docs.flutter.dev/install/archive>) or by reading `bin/cache/dart-sdk/version` after running any `flutter` command at the new version.
 - `pubspec.lock` — `flutter pub get` rewrites this. The `sdks: dart:` line tracks `pubspec.yaml`.
-- `Package.resolved` — the config-only iOS build rewrites the tracked Swift Package Manager resolution. CI's `ios-drift` step runs the same command and is the source of truth. If local Xcode differs from CI's selected version, let CI report drift through its `ios-drift.patch` artifact and apply it:
+- `Package.resolved` — the config-only iOS build rewrites the tracked Swift Package Manager resolution. CI's `ios-drift` step runs the same command and is the source of truth. If local Xcode differs from CI's selected version, let CI report drift through the unarchived `diagnostic-ios-config-drift` artifact and apply its `ios-drift.patch` file:
 
   ```bash
-  gh run download <run-id> -n ios-drift.patch && git apply ios-drift.patch
+  artifact_id=$(
+    gh api "repos/{owner}/{repo}/actions/runs/<run-id>/artifacts" \
+      --jq '.artifacts[] | select(.name == "diagnostic-ios-config-drift") | .id'
+  )
+  gh api "repos/{owner}/{repo}/actions/artifacts/$artifact_id/zip" > ios-drift.patch
+  git apply ios-drift.patch
   ```
+
+  The artifact is uploaded with `archive: false`, so the Actions API's `/zip` endpoint returns the raw patch. `gh run download` cannot extract it.
 
 ## 6. Commit, push, watch CI
 
