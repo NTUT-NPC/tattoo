@@ -9,8 +9,8 @@ import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
-import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
@@ -93,6 +93,7 @@ class ProfileDangerZone extends ConsumerWidget {
     t.profile.dangerZone.items.preferences,
     () async {
       await ref.read(sharedPreferencesProvider).clear();
+      ref.invalidate(preferencesProvider);
     },
   );
 
@@ -115,81 +116,76 @@ class ProfileDangerZone extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final prefs = ref.watch(preferencesRepositoryProvider);
+    if (!ref.pref(.showDangerZone)) {
+      return const SizedBox.shrink();
+    }
 
-    return FutureBuilder<bool>(
-      future: prefs.get(PrefKey.showDangerZone),
-      builder: (context, snapshot) {
-        if (!(snapshot.data ?? false)) return const SizedBox.shrink();
+    final action = ref.watch(dangerZoneActionProvider);
 
-        final action = ref.watch(dangerZoneActionProvider);
-
-        return Column(
-          spacing: 8,
-          children: [
-            SectionHeader(
-              title: t.profile.sections.dangerZone,
-              color: dangerColor,
-            ),
-            OptionEntryTile.icon(
-              icon: Icons.sports_bar_outlined,
-              title: t.profile.dangerZone.goAction(action: action).spaced,
-              color: dangerColor,
-              borderColor: dangerColor,
-              onTap: () => _goAction(action),
-            ),
-            OptionEntryTile.icon(
-              icon: Icons.bug_report_outlined,
-              title: t.profile.dangerZone.nonFlutterCrash.spaced,
-              color: dangerColor,
-              borderColor: dangerColor,
-              onTap: _triggerNonFlutterCrash,
-            ),
-            OptionEntryTile.svg(
-              svgIconAsset: 'assets/windows95.svg',
-              title: t.regedit.title,
-              color: dangerColor,
-              borderColor: dangerColor,
-              onTap: () => context.push(AppRoutes.regedit),
-            ),
-            OptionEntryTile.icon(
-              icon: Icons.cached_outlined,
-              title: t.profile.dangerZone.clearCache,
-              color: dangerColor,
-              borderColor: dangerColor,
-              onTap: () => _clearCache(context, ref),
-            ),
-            OptionEntryTile.icon(
-              icon: Icons.cookie_outlined,
-              title: t.profile.dangerZone.clearCookies.spaced,
-              color: dangerColor,
-              borderColor: dangerColor,
-              onTap: () => _clearCookies(context),
-            ),
-            OptionEntryTile.icon(
-              icon: Icons.settings_backup_restore_outlined,
-              title: t.profile.dangerZone.clearPreferences,
-              color: dangerColor,
-              borderColor: dangerColor,
-              onTap: () => _clearPreferences(context, ref),
-            ),
-            OptionEntryTile.icon(
-              icon: Icons.key_off_outlined,
-              title: t.profile.dangerZone.clearCredentials,
-              color: dangerColor,
-              borderColor: dangerColor,
-              onTap: () => _clearCredentials(context),
-            ),
-            OptionEntryTile.icon(
-              icon: Icons.delete_forever_outlined,
-              title: t.profile.dangerZone.clearUserData,
-              color: dangerColor,
-              borderColor: dangerColor,
-              onTap: () => _clearUserData(context, ref),
-            ),
-          ],
-        );
-      },
+    return Column(
+      spacing: 8,
+      children: [
+        SectionHeader(
+          title: t.profile.sections.dangerZone,
+          color: dangerColor,
+        ),
+        OptionEntryTile.icon(
+          icon: Icons.sports_bar_outlined,
+          title: t.profile.dangerZone.goAction(action: action).spaced,
+          color: dangerColor,
+          borderColor: dangerColor,
+          onTap: () => _goAction(action),
+        ),
+        OptionEntryTile.icon(
+          icon: Icons.bug_report_outlined,
+          title: t.profile.dangerZone.nonFlutterCrash.spaced,
+          color: dangerColor,
+          borderColor: dangerColor,
+          onTap: _triggerNonFlutterCrash,
+        ),
+        OptionEntryTile.svg(
+          svgIconAsset: 'assets/windows95.svg',
+          title: t.regedit.title,
+          color: dangerColor,
+          borderColor: dangerColor,
+          onTap: () => context.push(AppRoutes.regedit),
+        ),
+        OptionEntryTile.icon(
+          icon: Icons.cached_outlined,
+          title: t.profile.dangerZone.clearCache,
+          color: dangerColor,
+          borderColor: dangerColor,
+          onTap: () => _clearCache(context, ref),
+        ),
+        OptionEntryTile.icon(
+          icon: Icons.cookie_outlined,
+          title: t.profile.dangerZone.clearCookies.spaced,
+          color: dangerColor,
+          borderColor: dangerColor,
+          onTap: () => _clearCookies(context),
+        ),
+        OptionEntryTile.icon(
+          icon: Icons.settings_backup_restore_outlined,
+          title: t.profile.dangerZone.clearPreferences,
+          color: dangerColor,
+          borderColor: dangerColor,
+          onTap: () => _clearPreferences(context, ref),
+        ),
+        OptionEntryTile.icon(
+          icon: Icons.key_off_outlined,
+          title: t.profile.dangerZone.clearCredentials,
+          color: dangerColor,
+          borderColor: dangerColor,
+          onTap: () => _clearCredentials(context),
+        ),
+        OptionEntryTile.icon(
+          icon: Icons.delete_forever_outlined,
+          title: t.profile.dangerZone.clearUserData,
+          color: dangerColor,
+          borderColor: dangerColor,
+          onTap: () => _clearUserData(context, ref),
+        ),
+      ],
     );
   }
 }
