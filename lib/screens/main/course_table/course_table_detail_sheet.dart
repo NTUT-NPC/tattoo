@@ -277,7 +277,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
 
   void _retry() {
     setState(() {
-      _showNetworkGuide = true;
+      _showNetworkGuide = false;
       _networkFailureSnackbarShown = false;
     });
     ref
@@ -290,6 +290,12 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     ref
       ..invalidate(courseStudentRosterProvider(widget.rosterKey))
       ..invalidate(courseStudentRosterRefreshProvider(widget.rosterKey));
+  }
+
+  void _openNetworkGuide() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    setState(() => _showNetworkGuide = true);
   }
 
   void _showNetworkSnackbar({
@@ -306,9 +312,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
           persist: false,
           action: SnackBarAction(
             label: actionLabel,
-            onPressed: () {
-              if (mounted) setState(() => _showNetworkGuide = true);
-            },
+            onPressed: _openNetworkGuide,
           ),
         ),
       );
@@ -329,10 +333,13 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
 
     ref.listen(availabilityProvider, (previous, next) {
       if (!_hasNewError(previous, next)) return;
-      if (ref.read(refreshProvider).hasValue) return;
+      final refresh = ref.read(refreshProvider);
+      if (!refresh.isLoading && !refresh.hasError && refresh.value == true) {
+        return;
+      }
 
       final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
-      if (hasCache && !_networkFailureSnackbarShown) {
+      if (hasCache && !_showNetworkGuide && !_networkFailureSnackbarShown) {
         _showNetworkSnackbar(
           message: strings.networkSnackbar,
           actionLabel: networkStrings.learnMore,
@@ -345,7 +352,8 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
         if (hasCache) _refreshFailedWithCache = true;
         if (ref.read(availabilityProvider).hasError ||
-            _networkFailureSnackbarShown) {
+            _networkFailureSnackbarShown ||
+            _showNetworkGuide) {
           return;
         }
         if (!hasCache) return;
@@ -356,7 +364,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         );
         return;
       }
-      if (next.value != true) return;
+      if (next.isLoading || next.hasError || next.value != true) return;
 
       final availabilityFailed = ref.read(availabilityProvider).hasError;
       final refreshFailedWithCache = _refreshFailedWithCache;
@@ -398,16 +406,20 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
 
     final roster = cacheAsync.value;
     final refreshError = refreshAsync.error;
-    if (roster?.fetchedAt == null && availabilityAsync.hasError) {
+    final hasNoCache = roster?.fetchedAt == null;
+    final availabilityFailed = availabilityAsync.hasError;
+    final isLoading =
+        cacheAsync.isLoading ||
+        (hasNoCache && (availabilityAsync.isLoading || refreshAsync.isLoading));
+    if (isLoading && !availabilityFailed) {
+      return _CourseRosterLoading(
+        onLearnMore: _openNetworkGuide,
+      );
+    }
+    if (hasNoCache && availabilityFailed) {
       return ISchoolPlusNetworkGuide(
         guideUrl: guideUrl,
         onRetry: _retry,
-      );
-    }
-    if (cacheAsync.isLoading ||
-        (roster?.fetchedAt == null && refreshAsync.isLoading)) {
-      return _CourseRosterLoading(
-        onLearnMore: () => setState(() => _showNetworkGuide = true),
       );
     }
     if (cacheAsync.hasError) {
@@ -417,7 +429,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         onRetry: _retry,
       );
     }
-    if (roster?.fetchedAt == null && refreshError != null) {
+    if (hasNoCache && refreshError != null) {
       return ISchoolPlusNetworkGuide(
         guideUrl: guideUrl,
         onRetry: _retry,

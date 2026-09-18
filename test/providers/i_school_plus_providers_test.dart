@@ -111,6 +111,10 @@ void main() {
       );
 
       container.read(iSchoolPlusAvailabilityProvider.notifier).retry();
+      expect(
+        container.read(iSchoolPlusAvailabilityProvider).isLoading,
+        isTrue,
+      );
       await expectLater(
         container.read(iSchoolPlusAvailabilityProvider.future),
         throwsA(same(error)),

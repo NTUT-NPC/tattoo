@@ -32,6 +32,9 @@ class ISchoolPlusAvailabilityNotifier extends AsyncNotifier<void> {
   /// Starts a fresh availability probe.
   void retry() {
     ++_requestVersion;
+    // Clear the previous error before invalidation so the new loading state
+    // does not retain it and make the UI show the guide during the retry.
+    state = const AsyncData(null);
     ref.invalidateSelf();
   }
 
