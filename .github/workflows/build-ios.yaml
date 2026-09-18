@@ -19,7 +19,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 30
     concurrency:
       group: >-

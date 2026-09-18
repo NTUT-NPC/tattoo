@@ -36,7 +36,7 @@ The Android SDK cache in `setup-project/action.yml` (currently keyed at `/usr/lo
 
 2. **What the runner image ships** — the Android SDK section of the runner README lists every preinstalled NDK and CMake version:
    - `ubuntu-latest` (currently Ubuntu 24.04): <https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md>
-   - `macos-26`: <https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md>
+   - `xcode-27`: <https://github.com/actions/runner-images/blob/main/images/macos/xcode-27-arm64-Readme.md>
 
 3. **What the project pins** — read `android/app/build.gradle.kts`, `android/build.gradle.kts`, `android/settings.gradle.kts`, and the cache path in `.github/actions/setup-project/action.yml`. Look for `ndkVersion`, `compileSdk`, `minSdk`, `targetSdk`, and `cmake`.
 
