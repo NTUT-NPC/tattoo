@@ -129,7 +129,7 @@ jobs:
       - name: Download Android artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: android-staging-${{ needs.prepare.outputs.build_number }}
+          name: build-android-staging-${{ needs.prepare.outputs.build_number }}
           path: build/app/outputs/bundle/stagingRelease
 
       - name: Materialize Android upload credential
@@ -177,7 +177,7 @@ jobs:
       - name: Download Android artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: android-staging-${{ needs.prepare.outputs.build_number }}
+          name: build-android-staging-${{ needs.prepare.outputs.build_number }}
           path: build/app/outputs/bundle/stagingRelease
 
       - name: Materialize Android upload credential
@@ -225,7 +225,7 @@ jobs:
       - name: Download iOS artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: ios-staging-${{ needs.prepare.outputs.build_number }}
+          name: build-ios-staging-${{ needs.prepare.outputs.build_number }}
           path: .
 
       - name: Upload to TestFlight
@@ -265,7 +265,7 @@ jobs:
       - name: Download iOS artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: ios-staging-${{ needs.prepare.outputs.build_number }}
+          name: build-ios-staging-${{ needs.prepare.outputs.build_number }}
           path: .
 
       - name: Restore upload-symbols permission

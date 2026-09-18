@@ -1,0 +1,328 @@
+name: PR Deploy
+
+on:
+  pull_request:
+    types: [labeled]
+  workflow_call:
+    inputs:
+      artifact_run_id:
+        description: Workflow run containing the build artifacts
+        required: true
+        type: string
+      build_number:
+        description: Build number embedded in the artifact names
+        required: true
+        type: string
+      deploy_android:
+        description: Upload the Android artifact
+        required: true
+        type: boolean
+      deploy_ios:
+        description: Upload the iOS artifact and symbols
+        required: true
+        type: boolean
+      commit_sha:
+        description: Pull request head SHA for release notes
+        required: true
+        type: string
+      commit_message:
+        description: Pull request commit message for release notes
+        required: true
+        type: string
+
+jobs:
+  prepare:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.event.action != 'labeled' ||
+      contains(fromJSON('["deploy:android","deploy:ios"]'), github.event.label.name))
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    outputs:
+      build_number: ${{ steps.artifact.outputs.build_number || inputs.build_number }}
+      artifact_run_id: ${{ steps.artifact.outputs.run_id || inputs.artifact_run_id }}
+      artifact_ready: ${{ github.event.action != 'labeled' || steps.artifact.outputs.ready == 'true' }}
+      deploy_android: ${{ (github.event.action == 'labeled' && github.event.label.name == 'deploy:android') || inputs.deploy_android }}
+      deploy_ios: ${{ (github.event.action == 'labeled' && github.event.label.name == 'deploy:ios') || inputs.deploy_ios }}
+      commit_sha: ${{ steps.commit.outputs.short_sha || inputs.commit_sha }}
+      commit_message: ${{ github.event.pull_request.title || inputs.commit_message }}
+    steps:
+      - name: Resolve short commit SHA
+        if: github.event.action == 'labeled'
+        id: commit
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: echo "short_sha=${HEAD_SHA:0:7}" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve existing build artifact
+        if: github.event.action == 'labeled'
+        id: artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          artifact=$(
+            gh api --paginate \
+              "/repos/${{ github.repository }}/actions/artifacts?per_page=100" \
+              --jq 'first(.artifacts[] | select(.expired == false and .workflow_run.head_sha == "${{ github.event.pull_request.head.sha }}" and (.name | startswith("${{ github.event.label.name == 'deploy:android' && 'build-android-staging-' || 'build-ios-staging-' }}")))) | [.workflow_run.id, .name] | @tsv'
+          )
+          IFS=$'\t' read -r run_id artifact_name <<< "$artifact"
+          if [ -z "$run_id" ] || [ -z "$artifact_name" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          {
+            echo "ready=true"
+            echo "run_id=$run_id"
+            echo "build_number=${artifact_name##*-}"
+          } >> "$GITHUB_OUTPUT"
+
+  upload-android-firebase:
+    if: >-
+      needs.prepare.result == 'success' &&
+      needs.prepare.outputs.artifact_ready == 'true' &&
+      needs.prepare.outputs.deploy_android == 'true'
+    needs: [prepare]
+    concurrency:
+      group: >-
+        pr-deploy-${{ github.event.pull_request.number }}-android-${{
+          needs.prepare.outputs.build_number }}
+      cancel-in-progress: false
+    environment:
+      name: staging
+      deployment: false
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Check Android deployment receipt
+        id: receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          RECEIPT_NAME: deployment-android-staging-${{ needs.prepare.outputs.build_number }}
+        run: |
+          exists=$(
+            gh api \
+              "/repos/${{ github.repository }}/actions/artifacts?name=$RECEIPT_NAME&per_page=100" \
+              --jq 'any(.artifacts[]; .expired == false and .workflow_run.head_sha == "'"$HEAD_SHA"'")'
+          )
+          echo "exists=$exists" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout code
+        if: steps.receipt.outputs.exists != 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Fastlane
+        if: steps.receipt.outputs.exists != 'true'
+        uses: ./.github/actions/setup-fastlane
+        with:
+          platform: android
+
+      - name: Download Android artifact
+        if: steps.receipt.outputs.exists != 'true'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: build-android-staging-${{ needs.prepare.outputs.build_number }}
+          path: build/app/outputs/bundle/stagingRelease
+          run-id: ${{ needs.prepare.outputs.artifact_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Materialize Android upload credential
+        if: steps.receipt.outputs.exists != 'true'
+        env:
+          ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON: ${{ secrets.ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON }}
+        id: credential
+        run: |
+          umask 077
+          printf '%s' "$ANDROID_UPLOAD_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/android-upload-service-account.json"
+          echo "path=$RUNNER_TEMP/android-upload-service-account.json" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to Firebase App Distribution
+        if: steps.receipt.outputs.exists != 'true'
+        env:
+          FIREBASEAPPDISTRO_APP: ${{ vars.FIREBASEAPPDISTRO_APP }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+          COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+        id: upload
+        run: >-
+          bundle exec fastlane android upload_firebase
+          aab:"${{ github.workspace }}/build/app/outputs/bundle/stagingRelease/app-staging-release.aab"
+          service_credentials_file:"${{ steps.credential.outputs.path }}"
+
+      - name: Create Android deployment receipt
+        if: steps.receipt.outputs.exists != 'true'
+        env:
+          BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          TESTING_URI: ${{ steps.upload.outputs.testing_uri }}
+        run: >-
+          jq -n
+          --arg build_number "$BUILD_NUMBER"
+          --arg commit_sha "$HEAD_SHA"
+          --arg testing_uri "$TESTING_URI"
+          '{build_number: $build_number, commit_sha: $commit_sha, testing_uri: $testing_uri}'
+          > "$RUNNER_TEMP/deployment.json"
+
+      - name: Record Android deployment
+        if: steps.receipt.outputs.exists != 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: deployment-android-staging-${{ needs.prepare.outputs.build_number }}
+          path: ${{ runner.temp }}/deployment.json
+          if-no-files-found: error
+
+  upload-ios-testflight:
+    if: >-
+      needs.prepare.result == 'success' &&
+      needs.prepare.outputs.artifact_ready == 'true' &&
+      needs.prepare.outputs.deploy_ios == 'true'
+    needs: [prepare]
+    concurrency:
+      group: >-
+        pr-deploy-${{ github.event.pull_request.number }}-ios-${{
+          needs.prepare.outputs.build_number }}
+      cancel-in-progress: false
+    environment:
+      name: staging
+      deployment: false
+    runs-on: macos-26
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Check iOS deployment receipt
+        id: receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          RECEIPT_NAME: deployment-ios-staging-${{ needs.prepare.outputs.build_number }}
+        run: |
+          exists=$(
+            gh api \
+              "/repos/${{ github.repository }}/actions/artifacts?name=$RECEIPT_NAME&per_page=100" \
+              --jq 'any(.artifacts[]; .expired == false and .workflow_run.head_sha == "'"$HEAD_SHA"'")'
+          )
+          echo "exists=$exists" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout code
+        if: steps.receipt.outputs.exists != 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Fastlane
+        if: steps.receipt.outputs.exists != 'true'
+        uses: ./.github/actions/setup-fastlane
+        with:
+          platform: ios
+
+      - name: Download iOS artifact
+        if: steps.receipt.outputs.exists != 'true'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: build-ios-staging-${{ needs.prepare.outputs.build_number }}
+          path: .
+          run-id: ${{ needs.prepare.outputs.artifact_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Upload to TestFlight
+        if: steps.receipt.outputs.exists != 'true'
+        env:
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+          COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
+        run: >-
+          bundle exec fastlane ios upload_testflight
+          ipa:"${{ github.workspace }}/build/ios/ipa/app-release.ipa"
+          include_public_testers:false
+
+      - name: Create iOS deployment receipt
+        if: steps.receipt.outputs.exists != 'true'
+        env:
+          BUILD_NUMBER: ${{ needs.prepare.outputs.build_number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: >-
+          jq -n
+          --arg build_number "$BUILD_NUMBER"
+          --arg commit_sha "$HEAD_SHA"
+          '{build_number: $build_number, commit_sha: $commit_sha}'
+          > "$RUNNER_TEMP/deployment.json"
+
+      - name: Record iOS deployment
+        if: steps.receipt.outputs.exists != 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: deployment-ios-staging-${{ needs.prepare.outputs.build_number }}
+          path: ${{ runner.temp }}/deployment.json
+          if-no-files-found: error
+
+  upload-ios-symbols:
+    if: >-
+      needs.prepare.result == 'success' &&
+      needs.prepare.outputs.artifact_ready == 'true' &&
+      needs.prepare.outputs.deploy_ios == 'true'
+    needs: [prepare]
+    environment:
+      name: staging
+      deployment: false
+    runs-on: macos-26
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Fastlane
+        uses: ./.github/actions/setup-fastlane
+        with:
+          platform: ios
+
+      - name: Download iOS artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: build-ios-staging-${{ needs.prepare.outputs.build_number }}
+          path: .
+          run-id: ${{ needs.prepare.outputs.artifact_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Restore upload-symbols permission
+        run: chmod +x build/ios/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols
+
+      - name: Upload Crashlytics symbols
+        run: >-
+          bundle exec fastlane ios upload_symbols
+          dsym:"${{ github.workspace }}/build/ios/archive/Runner.xcarchive/dSYMs/Runner.app.dSYM.zip"
+          gsp:"${{ github.workspace }}/ios/Runner/GoogleService-Info-staging.plist"
+          upload_symbols_binary:"${{ github.workspace }}/build/ios/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols"
+
+  comment:
+    if: >-
+      always() &&
+      github.event.action == 'labeled' &&
+      needs.prepare.result == 'success' &&
+      needs.prepare.outputs.artifact_ready == 'true'
+    needs:
+      - prepare
+      - upload-android-firebase
+      - upload-ios-testflight
+      - upload-ios-symbols
+    uses: ./.github/workflows/pr-comment.yaml
+    permissions:
+      actions: read
+      pull-requests: write
+    with:
+      build_number: ${{ needs.prepare.outputs.build_number }}
