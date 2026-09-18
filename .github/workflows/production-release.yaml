@@ -64,8 +64,6 @@ jobs:
 
   build-android:
     needs: [prepare]
-    permissions:
-      contents: read
     uses: ./.github/workflows/build-android.yaml
     with:
       environment: production
@@ -74,8 +72,6 @@ jobs:
 
   build-ios:
     needs: [prepare]
-    permissions:
-      contents: read
     uses: ./.github/workflows/build-ios.yaml
     with:
       environment: production
@@ -254,7 +250,6 @@ jobs:
 
   report:
     permissions:
-      contents: read
       pull-requests: write
     if: always() && needs.prepare.result == 'success'
     needs:
@@ -266,7 +261,7 @@ jobs:
       - upload-ios-symbols
     runs-on: ubuntu-latest
     steps:
-      - name: Write validation report
+      - name: Write release report
         id: results
         env:
           COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
@@ -313,8 +308,8 @@ jobs:
           body-path: pr-comment.md
           edit-mode: replace
 
-      - name: Fail incomplete production validation
+      - name: Fail incomplete production release
         if: steps.results.outputs.failed == 'true'
         run: |
-          echo "::error::One or more production validation jobs failed or were skipped"
+          echo "::error::One or more production release jobs failed or were skipped"
           exit 1
