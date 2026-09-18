@@ -53,7 +53,7 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
                 ? t.profile.dangerZone.barOpen
                 : t.profile.dangerZone.barClosed,
           ),
-          behavior: .floating,
+          behavior: .fixed,
         ),
       );
     }
