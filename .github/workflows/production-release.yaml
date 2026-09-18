@@ -147,7 +147,7 @@ jobs:
     environment:
       name: production
       deployment: false
-    runs-on: macos-26
+    runs-on: xcode-27
     permissions:
       actions: read
       contents: read
@@ -202,7 +202,7 @@ jobs:
     environment:
       name: production
       deployment: false
-    runs-on: macos-26
+    runs-on: xcode-27
     permissions:
       actions: read
       contents: read

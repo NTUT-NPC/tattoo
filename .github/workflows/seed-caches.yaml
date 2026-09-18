@@ -74,7 +74,7 @@ jobs:
           path: /usr/local/lib/android/sdk/cmake/3.22.1
 
   ios:
-    runs-on: macos-26
+    runs-on: xcode-27
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
