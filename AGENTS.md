@@ -83,6 +83,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - StudentRepository — Academic records, GPA, rankings. Parallel course code resolution via CourseRepository.getCourse().
 - CampusWifiRepository — Platform-specific provisioner configuration and status for NTUT-802.1X campus Wi-Fi. Interacts directly with platform APIs, returning one-shot configuration status rather than using the `watchX()`/`refreshX()` cache pattern.
 - **Method pattern:** `watchX()` returns a `Stream` backed by Drift `.watch()` — emits cached data immediately, then background-fetches if empty or stale (each method has its own hard-coded TTL `const`). Network errors are absorbed (stale data preferred over errors). `refreshX()` is the imperative counterpart for pull-to-refresh — fetches from network, writes to DB, and lets the stream re-emit.
+- **I-School Plus cached refreshes:** Keep each feature's fetch, validation, normalization, and DB transaction in its CourseRepository method. A newer refresh of the same resource cancels the older request; check cancellation after network work and throughout the transaction so stale results cannot commit. Fetch failures leave cached rows and timestamps intact. UI owns refresh feedback and network guidance.
+- **Roster cache exception:** `watchStudentRoster()` only observes Drift. A separate screen refresh provider checks the repository's 15-minute TTL and reports network results independently so cached rows remain visible on failure. Explicit retries bypass the TTL until that request succeeds; completion is tracked in memory, not by comparing a high-precision request timestamp with Drift's second-precision cache timestamp. Loading states with retained data are not refresh successes. Only a roster pane's first attempt lets the five-second probe replace the roster with network guidance; after a manual retry the pane waits for the authenticated request itself to fail, because repeating the probe's verdict would hide a retry that was about to succeed. A failed cache read is reported as a load failure before any network guidance, so a local persistence fault is not misread as an off-campus network.
 
 **Demo mode:**
 
@@ -119,6 +121,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - **NTUT services** (Portal, Course, ISchoolPlus, StudentQuery) have `abstract interface class` — mock implementations return canned DTOs for repository unit tests and demo mode
 - **Non-NTUT services** (GitHubService, FirebaseService) do not need mock implementations — they have stable API contracts
 - **No fixtures for live service tests:** Service-layer integration tests stay integration-only against real NTUT servers — inline HTML fixtures would go stale silently, so integration tests are the source of truth for live parsing correctness. Exception: de-identified snapshots promoted from `tmp/html_snapshot/` into `test/fixtures/` (see **HTML snapshot capture** above) back separate HTML-based parser tests, not the live integration tests.
+- **I-School Plus integration tests skip off campus:** I-School Plus only serves campus IP addresses, so CI can never reach it. `test_helpers.dart`'s `iSchoolPlusSkipReason()` runs the public availability probe once in `setUpAll`, and `testWithISchoolPlus` skips each test that needs the service. Any `DioException` or `TimeoutException` from the probe means "unreachable", including `DioExceptionType.unknown`, which is what the native adapters report for a blocked host. Errors that are not network-shaped still fail, because those mean the probe itself is broken.
 
 ## NTUT-Specific Patterns
 
@@ -134,7 +137,9 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **Session Expiry Detection:** NTUT services return HTTP 200 with error pages instead of 401/403 when sessions expire. Per-service Dio interceptors detect known markers (e.g., "應用系統已中斷連線" for StudentQuery, "尚未登錄入口網站" for Course) and throw `SessionExpiredException`. This is a non-DioException so `withAuth` catches it and triggers re-authentication. iSchool+ returns HTTP 403 when unauthenticated, handled via `onError` interceptor.
 
-**SSO Coalescing:** `AuthRepository._ensureSso` uses `Completer`-based coalescing — first caller creates a Completer and fires SSO, concurrent callers await the same future. Prevents redundant SSO calls during parallel repository fetches.
+**SSO Coalescing:** `AuthRepository._ensureSso` uses `Completer`-based coalescing — first caller creates a Completer and fires SSO, concurrent callers await the same future. Prevents redundant SSO calls during parallel repository fetches. It awaits those futures with `Future.wait`, not `Iterable.wait`: the latter reports failures as a `ParallelWaitError`, which `withAuth` cannot tell apart from session expiry and would answer with a pointless re-login.
+
+**I-School Plus SSO deadline:** PortalService bounds the entire iSchool SSO operation, including locale-lock queueing and redirects, to 20 seconds and cancels its HTTP requests on expiry. This releases failed shared SSO work for later retries. The independent, cookie-free public availability probe retains its five-second deadline. Both the probe and the roster refresh disable Riverpod's automatic retry (`retry: (_, _) => null`) — its exponential backoff would keep re-issuing requests to a host campus policy blocks and leave the state loading, so a failure the UI is waiting for never arrives. Its `/mooc/index.php` byte response is not parsed, so it intentionally has no authenticated HTML snapshot preset: the capture CLI's automatic login/SSO would not reproduce the public probe's session isolation.
 
 **Re-auth Coalescing:** `AuthRepository._reauthenticate` uses the same `Completer` pattern — first caller triggers login, concurrent callers await the same future. Prevents redundant login attempts when multiple `withAuth` calls detect session expiry simultaneously.
 
@@ -145,6 +150,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 **NullHeaderInterceptor:** `dio_cookie_manager` injects `Cookie: null` when no cookies exist for a domain. NTUT's BigIP ASM flags this as bot behavior (HTTP 403). The interceptor strips null-value Cookie headers before requests are sent.
 
 **InvalidCookieFilter:** iSchool+ returns malformed cookies. Additionally, NativeAdapter (Cronet/URLSession) comma-joins multiple Set-Cookie values into a single header entry. The interceptor splits them before validation so one invalid cookie doesn't discard valid ones.
+
+**I-School Plus selected course:** `goto_course.php` changes mutable server-side session state. The Service serializes each course-scoped operation from course selection through its final dependent HTTP request, including roster and material calls. A cancelled waiter must not enter the operation; a failed or cancelled course switch invalidates the cached selected ID. Keep this protocol synchronization in the Service, not CourseRepository.
 
 **Connection: close:** PortalService uses `Connection: close` header. NTUT portal servers close keep-alive connections after multipart uploads, causing stale socket errors if Dart's HTTP client tries to reuse them.
 

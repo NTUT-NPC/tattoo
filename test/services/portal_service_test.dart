@@ -8,9 +8,11 @@ import '../test_helpers.dart';
 void main() {
   group('PortalService Integration Tests', () {
     late PortalService portalService;
+    String? iSchoolPlusSkip;
 
-    setUpAll(() {
+    setUpAll(() async {
       TestCredentials.validate();
+      iSchoolPlusSkip = await iSchoolPlusSkipReason();
     });
 
     setUp(() async {
@@ -162,7 +164,7 @@ void main() {
         await portalService.sso(PortalServiceCode.courseService.code);
       });
 
-      test(
+      testWithISchoolPlus(
         'should successfully authenticate with iSchoolPlusService',
         () async {
           await portalService.login(
@@ -173,6 +175,7 @@ void main() {
           // Should not throw
           await portalService.sso(PortalServiceCode.iSchoolPlusService.code);
         },
+        skipReason: () => iSchoolPlusSkip,
       );
 
       test(

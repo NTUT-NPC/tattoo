@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
@@ -7,31 +8,82 @@ import 'package:tattoo/utils/http.dart';
 
 class NtutISchoolPlusService implements ISchoolPlusService {
   static const _requestTimeout = Duration(seconds: 20);
+  static const _availabilityTimeout = Duration(seconds: 5);
 
   late final Dio _iSchoolPlusDio;
+  late final Dio _availabilityDio;
 
   /// The currently selected course, used to avoid redundant server-side
   /// course switches.
   String? _selectedInternalId;
+  Future<void> _courseOperationTail = Future.value();
 
-  NtutISchoolPlusService() {
-    _iSchoolPlusDio = createDio()
+  /// [dio] and [availabilityDio] permit deterministic protocol tests without
+  /// contacting iSchool+.
+  NtutISchoolPlusService({Dio? dio, Dio? availabilityDio}) {
+    _iSchoolPlusDio = (dio ?? createDio())
       ..options.baseUrl = 'https://istudy.ntut.edu.tw/learn/'
       ..options.connectTimeout = _requestTimeout
       ..options.sendTimeout = _requestTimeout
       ..options.receiveTimeout = _requestTimeout
       ..interceptors.insert(0, InvalidCookieFilter()) // Prepend cookie filter
-      ..interceptors.add(_SessionCheckInterceptor())
+      ..interceptors.add(
+        _SessionCheckInterceptor(
+          onSessionExpired: () => _selectedInternalId = null,
+        ),
+      )
       ..transformer = PlainTextTransformer();
+    _availabilityDio = (availabilityDio ?? createDio(useCookies: false))
+      ..options.connectTimeout = _availabilityTimeout
+      ..options.sendTimeout = _availabilityTimeout
+      ..options.receiveTimeout = _availabilityTimeout;
   }
 
   @override
-  Future<List<ISchoolCourseDto>> getCourseList() async {
-    final response = await _iSchoolPlusDio.get('mooc_sysbar.php');
+  Future<void> checkAvailability() async {
+    final cancelToken = CancelToken();
+    final timer = Timer(
+      _availabilityTimeout,
+      () => cancelToken.cancel('I-School Plus availability check timed out'),
+    );
+    try {
+      await _availabilityDio
+          .get(
+            'https://istudy.ntut.edu.tw/mooc/index.php',
+            cancelToken: cancelToken,
+            options: Options(responseType: .bytes),
+          )
+          .timeout(_availabilityTimeout);
+    } finally {
+      timer.cancel();
+      if (!cancelToken.isCancelled) {
+        cancelToken.cancel('I-School Plus availability check completed');
+      }
+    }
+  }
+
+  @override
+  Future<List<ISchoolCourseDto>> getCourseList({
+    CancelToken? cancelToken,
+  }) => _withCourseSession(cancelToken, () async {
+    // A freshly fetched list reflects the current server session. Force the
+    // next course-scoped request to establish its selection in that session.
+    _selectedInternalId = null;
+    final response = await _iSchoolPlusDio.get(
+      'mooc_sysbar.php',
+      cancelToken: cancelToken,
+    );
 
     final document = parse(response.data);
     final courseSelect = document.getElementById('selcourse');
-    if (courseSelect == null) return [];
+    if (courseSelect == null) {
+      // The server-side selection cannot be trusted after an unexpected page.
+      // This may be an expired HTTP-200 session or an upstream HTML change, so
+      // keep the parse failure distinct from the known 403 session response.
+      throw const FormatException(
+        'I-School Plus course selector is missing',
+      );
+    }
 
     // Options may be inside <optgroup> elements, so use querySelectorAll.
     // Example option: <option value="10099386">1141_智慧財產權_352902</option>
@@ -53,26 +105,81 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     }
 
     return courses;
+  });
+
+  /// Serializes every operation that reads or changes the selected course.
+  /// A cancelled waiter may return immediately, but retains its place in the
+  /// queue until earlier work finishes, so it cannot release another waiter
+  /// into an active course-scoped request.
+  Future<T> _withCourseSession<T>(
+    CancelToken? cancelToken,
+    Future<T> Function() operation,
+  ) {
+    final previous = _courseOperationTail;
+    final task = previous.then((_) async {
+      _throwIfCancelled(cancelToken);
+      return operation();
+    });
+    _courseOperationTail = task.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    if (cancelToken == null) return task;
+    return Future.any([
+      task,
+      cancelToken.whenCancel.then((error) => throw error),
+    ]);
   }
 
-  Future<void> _selectCourse(ISchoolCourseDto course) async {
+  Future<T> _withSelectedCourse<T>(
+    ISchoolCourseDto course,
+    CancelToken? cancelToken,
+    Future<T> Function() operation,
+  ) => _withCourseSession(cancelToken, () async {
+    await _selectCourse(course, cancelToken: cancelToken);
+    _throwIfCancelled(cancelToken);
+    return operation();
+  });
+
+  void _throwIfCancelled(CancelToken? cancelToken) {
+    if (cancelToken?.cancelError case final error?) throw error;
+  }
+
+  Future<void> _selectCourse(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) async {
+    _throwIfCancelled(cancelToken);
     if (course.internalId == _selectedInternalId) return;
 
-    await _iSchoolPlusDio.post(
-      'goto_course.php',
-      data:
-          '<manifest><ticket/><course_id>${course.internalId}</course_id><env/></manifest>',
-      options: Options(contentType: Headers.formUrlEncodedContentType),
-    );
-
-    _selectedInternalId = course.internalId;
+    // A failed or cancelled POST may still have reached the server. Neither
+    // the old nor the new selection can be trusted until a later switch.
+    _selectedInternalId = null;
+    try {
+      await _iSchoolPlusDio.post(
+        'goto_course.php',
+        data:
+            '<manifest><ticket/><course_id>${course.internalId}</course_id><env/></manifest>',
+        cancelToken: cancelToken,
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+      );
+      _throwIfCancelled(cancelToken);
+      _selectedInternalId = course.internalId;
+    } catch (_) {
+      _selectedInternalId = null;
+      rethrow;
+    }
   }
 
   @override
-  Future<List<StudentDto>> getStudents(ISchoolCourseDto course) async {
-    await _selectCourse(course);
-
-    final response = await _iSchoolPlusDio.get('learn_ranking.php');
+  Future<List<StudentDto>> getStudents(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) => _withSelectedCourse(course, cancelToken, () async {
+    final response = await _iSchoolPlusDio.get(
+      'learn_ranking.php',
+      cancelToken: cancelToken,
+    );
 
     // Parse the HTML and extract the table of student rankings
     final document = parse(response.data);
@@ -107,14 +214,18 @@ class NtutISchoolPlusService implements ISchoolPlusService {
           (student) => student.id != 'istudyoaa', // Filter out system account
         )
         .toList();
-  }
+  });
 
   @override
-  Future<List<MaterialRefDto>> getMaterials(ISchoolCourseDto course) async {
-    await _selectCourse(course);
-
+  Future<List<MaterialRefDto>> getMaterials(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) => _withSelectedCourse(course, cancelToken, () async {
     // Fetch and parse the SCORM manifest XML for file listings
-    final manifestResponse = await _iSchoolPlusDio.get('path/SCORM_loadCA.php');
+    final manifestResponse = await _iSchoolPlusDio.get(
+      'path/SCORM_loadCA.php',
+      cancelToken: cancelToken,
+    );
     final manifestDocument = parse(manifestResponse.data);
 
     // Extract all <item> elements that have identifierref attribute (actual files)
@@ -139,16 +250,18 @@ class NtutISchoolPlusService implements ISchoolPlusService {
         href: href,
       );
     }).toList();
-  }
+  });
 
   @override
   Future<MaterialDto> getMaterial(
-    MaterialRefDto material,
-  ) async {
-    await _selectCourse(material.course);
-
+    MaterialRefDto material, {
+    CancelToken? cancelToken,
+  }) => _withSelectedCourse(material.course, cancelToken, () async {
     // Step 1: Get launch.php to extract the course ID (cid)
-    final launchResponse = await _iSchoolPlusDio.get('path/launch.php');
+    final launchResponse = await _iSchoolPlusDio.get(
+      'path/launch.php',
+      cancelToken: cancelToken,
+    );
 
     // Extract cid from the JavaScript
     // e.g.: parent.s_catalog.location.replace('/learn/path/manifest.php?cid=...')
@@ -163,6 +276,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     final materialTreeResponse = await _iSchoolPlusDio.get(
       'path/pathtree.php',
       queryParameters: {'cid': cid},
+      cancelToken: cancelToken,
     );
 
     // Extract the read_key token from the HTML form
@@ -189,6 +303,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
         'read_key': fetchResourceToken,
       },
       options: Options(contentType: Headers.formUrlEncodedContentType),
+      cancelToken: cancelToken,
     );
 
     // Case 1: Response is a redirect
@@ -240,7 +355,10 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     // Case 3: Material is a PDF
     if (downloadUri.path.contains('viewPDF.php')) {
       // Fetch and find the value of DEFAULT_URL in JavaScript
-      final viewPdfResponse = await _iSchoolPlusDio.getUri(downloadUri);
+      final viewPdfResponse = await _iSchoolPlusDio.getUri(
+        downloadUri,
+        cancelToken: cancelToken,
+      );
 
       final defaultUrlRegExp = RegExp(r'DEFAULT_URL[ =]+\"(.+)\"');
       final defaultUrlMatch = defaultUrlRegExp.firstMatch(viewPdfResponse.data);
@@ -262,7 +380,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       referer: null,
       streamable: false,
     );
-  }
+  });
 }
 
 /// Detects expired sessions in ISchoolPlus responses.
@@ -272,9 +390,14 @@ class NtutISchoolPlusService implements ISchoolPlusService {
 /// [SessionExpiredException] so that [AuthRepository.withAuth] retries with
 /// re-authentication instead of treating it as a network error.
 class _SessionCheckInterceptor extends Interceptor {
+  final void Function() onSessionExpired;
+
+  const _SessionCheckInterceptor({required this.onSessionExpired});
+
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 403) {
+      onSessionExpired();
       throw const SessionExpiredException(
         'ISchoolPlus session expired',
       );

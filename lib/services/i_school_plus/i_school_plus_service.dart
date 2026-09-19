@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/i_school_plus/mock_i_school_plus_service.dart';
@@ -83,6 +84,10 @@ final iSchoolPlusServiceProvider = Provider<ISchoolPlusService>((ref) {
 ///
 /// Data is parsed from HTML/XML pages as NTUT does not provide a REST API.
 abstract interface class ISchoolPlusService {
+  /// Verifies that the I-School Plus homepage is reachable from the current
+  /// network without requiring an authenticated session.
+  Future<void> checkAvailability();
+
   /// Fetches the list of courses available on iSchool+ for the current user.
   ///
   /// Returns course references that can be passed to [getStudents],
@@ -91,7 +96,8 @@ abstract interface class ISchoolPlusService {
   /// not appear until they are set up on I-School Plus.
   ///
   /// The returned list preserves the order from the I-School Plus sidebar.
-  Future<List<ISchoolCourseDto>> getCourseList();
+  /// [cancelToken] cancels the underlying request when provided.
+  Future<List<ISchoolCourseDto>> getCourseList({CancelToken? cancelToken});
 
   /// Fetches the list of students enrolled in the specified course.
   ///
@@ -103,7 +109,11 @@ abstract interface class ISchoolPlusService {
   /// System accounts (e.g., "istudyoaa") are automatically filtered out.
   ///
   /// Throws an [Exception] if no student data exists.
-  Future<List<StudentDto>> getStudents(ISchoolCourseDto course);
+  /// [cancelToken] cancels course selection and roster requests when provided.
+  Future<List<StudentDto>> getStudents(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  });
 
   /// Fetches the list of course materials for the specified course.
   ///
@@ -117,7 +127,11 @@ abstract interface class ISchoolPlusService {
   ///
   /// Materials are extracted from the course's SCORM manifest XML.
   /// Folder/directory items without actual files are automatically excluded.
-  Future<List<MaterialRefDto>> getMaterials(ISchoolCourseDto course);
+  /// [cancelToken] cancels course selection and manifest requests when provided.
+  Future<List<MaterialRefDto>> getMaterials(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  });
 
   /// Fetches download information for a specific course material.
   ///
@@ -135,5 +149,9 @@ abstract interface class ISchoolPlusService {
   /// be included as the Referer header when downloading the file.
   ///
   /// Throws an [Exception] if the material cannot be accessed or parsed.
-  Future<MaterialDto> getMaterial(MaterialRefDto material);
+  /// [cancelToken] cancels course selection and download-info requests.
+  Future<MaterialDto> getMaterial(
+    MaterialRefDto material, {
+    CancelToken? cancelToken,
+  });
 }
