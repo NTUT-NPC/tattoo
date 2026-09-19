@@ -15,7 +15,9 @@ import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/repositories/language_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/course_table/course_table_export.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
+import 'package:tattoo/services/course_widget_platform.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/update_service.dart';
@@ -52,6 +54,10 @@ Future<void> main() async {
   }
 
   final container = ProviderContainer();
+  final pendingWidgetRoute = await container
+      .read(courseWidgetPlatformProvider)
+      .takePendingRoute();
+  container.read(pendingAppRouteProvider.notifier).set(pendingWidgetRoute);
 
   void showErrorDialog(
     Object error, {
@@ -199,14 +205,18 @@ Future<void> main() async {
   final landingLocation = await resolveLandingLocation(
     preferencesRepository,
   );
+  final authenticatedInitialLocation = user == null
+      ? landingLocation
+      : container.read(pendingAppRouteProvider.notifier).take() ??
+            landingLocation;
   final initialLocation = switch ((user, hadStoredLogin)) {
-    (final User _, _) => landingLocation,
+    (final User _, _) => authenticatedInitialLocation,
     (null, true) => AppRoutes.login,
     (null, false) => AppRoutes.intro,
   };
   final router = createAppRouter(
     initialLocation: initialLocation,
-    landingLocation: landingLocation,
+    landingLocation: authenticatedInitialLocation,
     container: container,
   );
 
@@ -229,24 +239,26 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final lightColorScheme = ColorScheme.fromSeed(seedColor: themeColor);
+    final darkColorScheme = ColorScheme.fromSeed(
+      seedColor: themeColor,
+      brightness: .dark,
+    );
     return MaterialApp.router(
       title: t.general.appTitle,
       scaffoldMessengerKey: rootScaffoldMessengerKey,
       locale: TranslationProvider.of(context).flutterLocale,
       supportedLocales: AppLocaleUtils.supportedLocales,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: themeColor),
-      ),
+      theme: ThemeData(colorScheme: lightColorScheme),
       // TODO: Remove after dependencies stop importing Flutter's design libraries.
-      // ignore: deprecated_member_use
-      builder: (context, child) => MaterialUiCompatibilityBridge(child: child!),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: themeColor,
-          brightness: .dark,
-        ),
+      builder: (context, child) => CourseWidgetRenderHost(
+        lightColorScheme: lightColorScheme,
+        darkColorScheme: darkColorScheme,
+        // ignore: deprecated_member_use
+        child: MaterialUiCompatibilityBridge(child: child!),
       ),
+      darkTheme: ThemeData(colorScheme: darkColorScheme),
       themeMode: switch (ref.pref(PrefKey.themeMode)) {
         'light' => .light,
         'dark' => .dark,
