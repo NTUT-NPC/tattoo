@@ -9,6 +9,7 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/portal/mock_portal_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/mock_student_query_service.dart';
+import 'package:tattoo/utils/http.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -122,6 +123,32 @@ void main() {
     });
 
     test(
+      'a timed-out SSO fails without re-authenticating',
+      () async {
+        await repository.login('111360109', 'password');
+        portalService.loginCalls.clear();
+        portalService.ssoError = DioException.requestCancelled(
+          requestOptions: RequestOptions(path: 'oauth2Server.do'),
+          reason: 'I-School Plus SSO timed out',
+          stackTrace: StackTrace.current,
+        );
+
+        await expectLater(
+          repository.withAuth(
+            () async => 'unreachable',
+            sso: [.iSchoolPlusService],
+          ),
+          throwsA(isA<DioException>()),
+        );
+
+        // Re-authenticating would repeat the twenty-second SSO deadline
+        // before the UI could report the network failure.
+        expect(portalService.loginCalls, isEmpty);
+        expect(portalService.ssoCalls, 1);
+      },
+    );
+
+    test(
       'logout preserves the session when legacy deletion fails',
       () async {
         await repository.login('111360109', 'password');
@@ -156,6 +183,15 @@ class _RecordingPortalService extends MockPortalService {
   final loginCalls = <({String username, String password})>[];
   final changePasswordCalls =
       <({String currentPassword, String newPassword})>[];
+  Object? ssoError;
+  var ssoCalls = 0;
+
+  @override
+  Future<void> sso(String serviceCode) async {
+    ssoCalls++;
+    if (ssoError case final error?) throw error;
+    return super.sso(serviceCode);
+  }
 
   @override
   Future<UserDto> login(String username, String password) async {
