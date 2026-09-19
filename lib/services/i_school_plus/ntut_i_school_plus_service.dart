@@ -13,20 +13,29 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   /// The currently selected course, used to avoid redundant server-side
   /// course switches.
   String? _selectedInternalId;
+  Future<void> _courseOperationTail = Future.value();
 
-  NtutISchoolPlusService() {
-    _iSchoolPlusDio = createDio()
+  /// [dio] permits deterministic protocol tests without contacting iSchool+.
+  NtutISchoolPlusService({Dio? dio}) {
+    _iSchoolPlusDio = (dio ?? createDio())
       ..options.baseUrl = 'https://istudy.ntut.edu.tw/learn/'
       ..options.connectTimeout = _requestTimeout
       ..options.sendTimeout = _requestTimeout
       ..options.receiveTimeout = _requestTimeout
       ..interceptors.insert(0, InvalidCookieFilter()) // Prepend cookie filter
-      ..interceptors.add(_SessionCheckInterceptor())
+      ..interceptors.add(
+        _SessionCheckInterceptor(
+          onSessionExpired: () => _selectedInternalId = null,
+        ),
+      )
       ..transformer = PlainTextTransformer();
   }
 
   @override
   Future<List<ISchoolCourseDto>> getCourseList() async {
+    // A newly fetched list reflects the current server session. Force the next
+    // course-scoped operation to establish its selection in that session.
+    _selectedInternalId = null;
     final response = await _iSchoolPlusDio.get('mooc_sysbar.php');
 
     final document = parse(response.data);
@@ -55,9 +64,28 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     return courses;
   }
 
+  /// Runs course selection and all dependent requests as one critical section.
+  Future<T> _withSelectedCourse<T>(
+    ISchoolCourseDto course,
+    Future<T> Function() operation,
+  ) {
+    final task = _courseOperationTail.then((_) async {
+      await _selectCourse(course);
+      return operation();
+    });
+    _courseOperationTail = task.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return task;
+  }
+
   Future<void> _selectCourse(ISchoolCourseDto course) async {
     if (course.internalId == _selectedInternalId) return;
 
+    // A failed POST may still have reached the server, so neither the old nor
+    // the requested selection is trustworthy until a later successful switch.
+    _selectedInternalId = null;
     await _iSchoolPlusDio.post(
       'goto_course.php',
       data:
@@ -69,9 +97,9 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   }
 
   @override
-  Future<List<StudentDto>> getStudents(ISchoolCourseDto course) async {
-    await _selectCourse(course);
-
+  Future<List<StudentDto>> getStudents(
+    ISchoolCourseDto course,
+  ) => _withSelectedCourse(course, () async {
     final response = await _iSchoolPlusDio.get('learn_ranking.php');
 
     // Parse the HTML and extract the table of student rankings
@@ -107,12 +135,12 @@ class NtutISchoolPlusService implements ISchoolPlusService {
           (student) => student.id != 'istudyoaa', // Filter out system account
         )
         .toList();
-  }
+  });
 
   @override
-  Future<List<MaterialRefDto>> getMaterials(ISchoolCourseDto course) async {
-    await _selectCourse(course);
-
+  Future<List<MaterialRefDto>> getMaterials(
+    ISchoolCourseDto course,
+  ) => _withSelectedCourse(course, () async {
     // Fetch and parse the SCORM manifest XML for file listings
     final manifestResponse = await _iSchoolPlusDio.get('path/SCORM_loadCA.php');
     final manifestDocument = parse(manifestResponse.data);
@@ -139,14 +167,12 @@ class NtutISchoolPlusService implements ISchoolPlusService {
         href: href,
       );
     }).toList();
-  }
+  });
 
   @override
   Future<MaterialDto> getMaterial(
     MaterialRefDto material,
-  ) async {
-    await _selectCourse(material.course);
-
+  ) => _withSelectedCourse(material.course, () async {
     // Step 1: Get launch.php to extract the course ID (cid)
     final launchResponse = await _iSchoolPlusDio.get('path/launch.php');
 
@@ -262,7 +288,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       referer: null,
       streamable: false,
     );
-  }
+  });
 }
 
 /// Detects expired sessions in ISchoolPlus responses.
@@ -272,9 +298,14 @@ class NtutISchoolPlusService implements ISchoolPlusService {
 /// [SessionExpiredException] so that [AuthRepository.withAuth] retries with
 /// re-authentication instead of treating it as a network error.
 class _SessionCheckInterceptor extends Interceptor {
+  final void Function() onSessionExpired;
+
+  const _SessionCheckInterceptor({required this.onSessionExpired});
+
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 403) {
+      onSessionExpired();
       throw const SessionExpiredException(
         'ISchoolPlus session expired',
       );
