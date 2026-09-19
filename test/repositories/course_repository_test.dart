@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,19 +11,22 @@ import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/i_school_plus/mock_i_school_plus_service.dart';
 import 'package:tattoo/services/portal/mock_portal_service.dart';
+import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/mock_student_query_service.dart';
+import 'package:tattoo/utils/http.dart' show SessionExpiredException;
 
 void main() {
   group('CourseRepository student roster', () {
     late AppDatabase database;
     late _TestISchoolPlusService iSchoolPlusService;
+    late MockPortalService portalService;
     late CourseRepository repository;
     late int courseOfferingId;
 
     setUp(() async {
       database = AppDatabase(NativeDatabase.memory());
       iSchoolPlusService = _TestISchoolPlusService();
-      final portalService = MockPortalService();
+      portalService = MockPortalService();
       final authRepository = AuthRepository(
         portalService: portalService,
         studentQueryService: MockStudentQueryService(),
@@ -73,6 +77,30 @@ void main() {
         [('111000001', null), ('112000002', '王小明')],
       );
       expect(iSchoolPlusService.studentsCalls, 1);
+    });
+
+    test('treats missing roster timestamp as stale', () async {
+      expect(await repository.isStudentRosterFresh(courseOfferingId), isFalse);
+    });
+
+    test('uses a 15-minute roster TTL', () async {
+      await repository.refreshStudentRoster(
+        courseOfferingId: courseOfferingId,
+        courseNumber: '352902',
+      );
+      expect(await repository.isStudentRosterFresh(courseOfferingId), isTrue);
+
+      await (database.update(database.courseOfferings)..where(
+            (row) => row.id.equals(courseOfferingId),
+          ))
+          .write(
+            CourseOfferingsCompanion(
+              studentRosterFetchedAt: Value(
+                DateTime.now().subtract(studentRosterTtl),
+              ),
+            ),
+          );
+      expect(await repository.isStudentRosterFresh(courseOfferingId), isFalse);
     });
 
     test('replaces stale relationships after a successful refresh', () async {
@@ -139,6 +167,51 @@ void main() {
     );
 
     test(
+      'preserves cached roster when the course selector is missing',
+      () async {
+        repository = CourseRepository(
+          portalService: portalService,
+          courseService: MockCourseService(),
+          iSchoolPlusService: iSchoolPlusService,
+          database: database,
+          authRepository: _PassthroughAuthRepository(
+            portalService: portalService,
+            database: database,
+          ),
+          firebaseService: const FirebaseService(),
+        );
+        iSchoolPlusService.studentsResult = [
+          (id: '111000001', name: '快取同學'),
+        ];
+        await repository.refreshStudentRoster(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        final cachedAt =
+            (await repository.watchStudentRoster(courseOfferingId).first)
+                .fetchedAt;
+
+        iSchoolPlusService.courseListError = const SessionExpiredException(
+          'ISchoolPlus course selector is missing',
+        );
+
+        await expectLater(
+          repository.refreshStudentRoster(
+            courseOfferingId: courseOfferingId,
+            courseNumber: '352902',
+          ),
+          throwsA(isA<SessionExpiredException>()),
+        );
+        final roster = await repository
+            .watchStudentRoster(courseOfferingId)
+            .first;
+
+        expect(roster.fetchedAt, cachedAt);
+        expect(roster.students.single.name, '快取同學');
+      },
+    );
+
+    test(
       'caches an empty roster when the course is absent from iSchool',
       () async {
         iSchoolPlusService.courseListResult = [];
@@ -153,6 +226,7 @@ void main() {
 
         expect(roster.students, isEmpty);
         expect(roster.fetchedAt, isNotNull);
+        expect(await repository.isStudentRosterFresh(courseOfferingId), isTrue);
         expect(iSchoolPlusService.studentsCalls, 0);
       },
     );
@@ -160,8 +234,15 @@ void main() {
 }
 
 class _TestISchoolPlusService extends MockISchoolPlusService {
+  Object? courseListError;
   Object? studentsError;
   int studentsCalls = 0;
+
+  @override
+  Future<List<ISchoolCourseDto>> getCourseList() async {
+    if (courseListError case final error?) throw error;
+    return super.getCourseList();
+  }
 
   @override
   Future<List<StudentDto>> getStudents(ISchoolCourseDto course) async {
@@ -169,4 +250,24 @@ class _TestISchoolPlusService extends MockISchoolPlusService {
     if (studentsError case final error?) throw error;
     return super.getStudents(course);
   }
+}
+
+class _PassthroughAuthRepository extends AuthRepository {
+  _PassthroughAuthRepository({
+    required MockPortalService portalService,
+    required super.database,
+  }) : super(
+         portalService: portalService,
+         studentQueryService: MockStudentQueryService(),
+         secureStorage: const FlutterSecureStorage(),
+         isDemo: false,
+         onSessionCreated: () {},
+         onSessionDestroyed: ([exception]) {},
+       );
+
+  @override
+  Future<T> withAuth<T>(
+    Future<T> Function() call, {
+    List<PortalServiceCode> sso = const [],
+  }) => call();
 }
