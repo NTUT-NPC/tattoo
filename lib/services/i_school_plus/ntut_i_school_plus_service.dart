@@ -18,8 +18,9 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   String? _selectedInternalId;
   Future<void> _courseOperationTail = Future.value();
 
-  /// [dio] permits deterministic protocol tests without contacting iSchool+.
-  NtutISchoolPlusService({Dio? dio}) {
+  /// [dio] and [availabilityDio] permit deterministic protocol tests without
+  /// contacting iSchool+.
+  NtutISchoolPlusService({Dio? dio, Dio? availabilityDio}) {
     _iSchoolPlusDio = (dio ?? createDio())
       ..options.baseUrl = 'https://istudy.ntut.edu.tw/learn/'
       ..options.connectTimeout = _requestTimeout
@@ -32,7 +33,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
         ),
       )
       ..transformer = PlainTextTransformer();
-    _availabilityDio = createDio(useCookies: false)
+    _availabilityDio = (availabilityDio ?? createDio(useCookies: false))
       ..options.connectTimeout = _availabilityTimeout
       ..options.sendTimeout = _availabilityTimeout
       ..options.receiveTimeout = _availabilityTimeout;
@@ -46,13 +47,18 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       () => cancelToken.cancel('I-School Plus availability check timed out'),
     );
     try {
-      await _availabilityDio.get(
-        'https://istudy.ntut.edu.tw/mooc/index.php',
-        cancelToken: cancelToken,
-        options: Options(responseType: .bytes),
-      );
+      await _availabilityDio
+          .get(
+            'https://istudy.ntut.edu.tw/mooc/index.php',
+            cancelToken: cancelToken,
+            options: Options(responseType: .bytes),
+          )
+          .timeout(_availabilityTimeout);
     } finally {
       timer.cancel();
+      if (!cancelToken.isCancelled) {
+        cancelToken.cancel('I-School Plus availability check completed');
+      }
     }
   }
 
