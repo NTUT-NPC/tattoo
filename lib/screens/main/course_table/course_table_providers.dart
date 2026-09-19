@@ -78,8 +78,12 @@ class CourseStudentRosterRefreshRequestedAtNotifier
 ///
 /// Keeping refresh separate from the cache stream lets the UI retain cached
 /// students while also reacting to a failed background refresh.
+///
+/// Riverpod's automatic retry is disabled so an unreachable I-School Plus
+/// fails once instead of replaying a twenty-second request — and its
+/// re-authentication — behind the network guidance the UI already shows.
 final courseStudentRosterRefreshProvider = FutureProvider.autoDispose
-    .family<bool, CourseRosterKey>((ref, key) async {
+    .family<bool, CourseRosterKey>(retry: (_, _) => null, (ref, key) async {
       final refreshRequestedAt = ref.watch(
         courseStudentRosterRefreshRequestedAtProvider(key),
       );

@@ -127,6 +127,30 @@ void main() {
       expect(iSchoolPlusService.availabilityCalls, 2);
     });
 
+    test('does not probe again on its own after a failure', () async {
+      // An Exception, not an Error: Riverpod only retries the former.
+      iSchoolPlusService.availabilityError = Exception('unavailable');
+      final subscription = container.listen<AsyncValue<void>>(
+        iSchoolPlusAvailabilityProvider,
+        (_, _) {},
+      );
+      await expectLater(
+        container.read(iSchoolPlusAvailabilityProvider.future),
+        throwsA(isA<Exception>()),
+      );
+
+      // Riverpod's automatic retry would re-probe after a backoff delay and
+      // leave the state loading, hiding the failure the UI reports.
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+
+      expect(
+        container.read(iSchoolPlusAvailabilityProvider).isLoading,
+        isFalse,
+      );
+      expect(iSchoolPlusService.availabilityCalls, 1);
+      subscription.close();
+    });
+
     test('ignores a late failure after markAvailable', () async {
       final oldRequest = Completer<void>();
       iSchoolPlusService.availabilityResult = oldRequest.future;

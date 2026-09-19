@@ -6,9 +6,15 @@ import 'package:tattoo/repositories/course_repository.dart';
 /// The availability probe is independent from any authenticated I-School Plus
 /// request, so it can be shared by all I-School Plus features without making
 /// their data providers depend on one another.
+///
+/// Riverpod's automatic retry is disabled because it would keep the state
+/// loading while it re-probes a host that campus policy blocks, hiding the
+/// failure the five-second deadline exists to report. Re-probing is
+/// [ISchoolPlusAvailabilityNotifier.retry]'s explicit decision.
 final iSchoolPlusAvailabilityProvider =
     AsyncNotifierProvider.autoDispose<ISchoolPlusAvailabilityNotifier, void>(
       ISchoolPlusAvailabilityNotifier.new,
+      retry: (_, _) => null,
     );
 
 class ISchoolPlusAvailabilityNotifier extends AsyncNotifier<void> {
