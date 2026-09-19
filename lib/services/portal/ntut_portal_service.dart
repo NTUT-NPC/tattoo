@@ -24,6 +24,7 @@ typedef _PortalApplicationCategoryPageDto = ({
 });
 
 class NtutPortalService implements PortalService {
+  static const _iSchoolSsoTimeout = Duration(seconds: 20);
   static const _chineseLocale = 'zh_TW';
   static const _englishLocale = 'en';
   // The mobile home endpoint is a JSON feed and exposes no locale marker.
@@ -39,9 +40,9 @@ class NtutPortalService implements PortalService {
   Future<void> _portalLocaleOperation = Future.value();
   bool _portalLocaleStateUncertain = false;
 
-  NtutPortalService() {
+  NtutPortalService({Dio? dio}) {
     // Emulate the NTUT iOS app's HTTP client
-    _portalDio = createDio()
+    _portalDio = (dio ?? createDio())
       ..options.baseUrl = 'https://app.ntut.edu.tw/'
       ..options.headers = {
         'User-Agent': 'Direk ios App',
@@ -173,24 +174,48 @@ class NtutPortalService implements PortalService {
   }
 
   @override
-  Future<void> sso(String serviceCode) {
-    return _withPortalLocaleLock(() async {
-      final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
+  Future<void> sso(String serviceCode) async {
+    final isISchool = serviceCode == PortalServiceCode.iSchoolPlusService.code;
+    final cancelToken = isISchool ? CancelToken() : null;
+    final timer = isISchool
+        ? Timer(
+            _iSchoolSsoTimeout,
+            () => cancelToken!.cancel('I-School Plus SSO timed out'),
+          )
+        : null;
+    try {
+      final operation = _withPortalLocaleLock(() async {
+        if (cancelToken?.cancelError case final error?) throw error;
+        final (actionUrl, formData) = await _fetchSsoForm(
+          serviceCode,
+          cancelToken: cancelToken,
+        );
 
-      // Prepend the invalid cookie filter interceptor for i-School Plus SSO
-      if (serviceCode == PortalServiceCode.iSchoolPlusService.code) {
-        _portalDio.interceptors.insert(0, InvalidCookieFilter());
-        _portalDio.transformer = PlainTextTransformer();
-      }
+        // Prepend the invalid cookie filter interceptor for i-School Plus SSO
+        if (isISchool) {
+          _portalDio.interceptors.insert(0, InvalidCookieFilter());
+          _portalDio.transformer = PlainTextTransformer();
+        }
 
-      // Submit the SSO form and follow redirects
-      // Sets the necessary cookies for the target service
-      await _portalDio.post(
-        actionUrl,
-        data: formData,
-        options: Options(contentType: Headers.formUrlEncodedContentType),
-      );
-    });
+        // Submit the SSO form and follow redirects
+        // Sets the necessary cookies for the target service
+        await _portalDio.post(
+          actionUrl,
+          data: formData,
+          cancelToken: cancelToken,
+          options: Options(contentType: Headers.formUrlEncodedContentType),
+        );
+      });
+      // Bound queueing as well as HTTP. A cancelled queued operation keeps
+      // its place in the locale lock but cannot issue a later request.
+      await Future.any([
+        operation,
+        if (cancelToken case final token?)
+          token.whenCancel.then((error) => throw error),
+      ]);
+    } finally {
+      timer?.cancel();
+    }
   }
 
   @override
@@ -232,10 +257,14 @@ class NtutPortalService implements PortalService {
   /// Fetches and parses the SSO form for a given apOu code.
   ///
   /// Returns (actionUrl, formData) for submitting the form.
-  Future<(String, Map<String, dynamic>)> _fetchSsoForm(String apOu) async {
+  Future<(String, Map<String, dynamic>)> _fetchSsoForm(
+    String apOu, {
+    CancelToken? cancelToken,
+  }) async {
     final response = await _portalDio.get(
       'ssoIndex.do',
       queryParameters: {'apOu': apOu},
+      cancelToken: cancelToken,
     );
 
     final document = parse(response.data);
