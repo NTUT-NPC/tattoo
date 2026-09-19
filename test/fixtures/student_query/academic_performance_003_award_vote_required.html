@@ -1,0 +1,67 @@
+<!--
+preset: student_query.academic_performance
+request_url: https://aps-stu.ntut.edu.tw/StuQuery/QryScore.jsp?format=-2
+
+fetchtime: 2026-06-10 22:44:31
+message: Academic performance is blocked until outstanding teaching award voting is complete.
+
+TODO: Add the expected parse result after the HTML-based test code is complete.
+
+-->
+
+
+
+
+
+
+<HTML>
+
+<HEAD>
+  <TITLE>學生查詢專區--學業成績查詢</TITLE>
+  <Script src="https://font.ntut.edu.tw/wfs/js/lib/wfs.js" type="text/javascript"></script>
+  <Script Language=JavaScript>
+    <!-
+    function toQuery(form, code) {
+      form.format.value = code;
+      form.submit();
+    }
+     ->
+  </Script>
+</HEAD>
+
+<BODY bgcolor=#ffffdf background="./image/grey918y.gif" text=#003398>
+  <form name="FormQ" action="" method="post">
+    <font size=5><b>學業成績查詢 (Query Academic Performance)</b></font><br>
+    <input type="hidden" name="format" value="-1">　
+    <input type="button" name="QrySem" value="查詢本學期 (Query this semester)" onClick="toQuery(FormQ, -1);">　
+    <input type="button" name="QryAll" value="查詢歷年記錄(Query historical records)" onClick="toQuery(FormQ, -2);">
+  </form>
+
+  <font color=red>※請先完成 114 學年度 傑出教學獎票選。</font><BR>※Please firstly complete Online Outstanding Teaching Award.※<BR><BR>
+  <br>
+  <H3><img src=./image/or_ball.gif>學生畢業需符合大學部英文畢業門檻，相關畢業標準請至教務處網站查詢。<br>Please connect to Office of Academic Affairs
+    website to inquire guidelines for minimum english proficiency requirements for graduation.</H3>
+
+  <Center>
+    <Font size=4 color=red></Font>
+  </Center>
+
+  <P>備註：</P>
+  <OL>
+    <LI>本資料係由本校教務處、進修部、進修學院及計網中心所共同提供。</LI>
+    <LI>本資料僅供參考，不作其他證明之用，正式資料仍以教務處、進修部、進修學院所登錄之書面資料為準。</LI>
+    <LI>對於上述資料，如有任何疑義，請備妥相關證明文件至各部處成績管理單位查詢。</LI>
+  </OL>
+
+  <P>Remarks :</P>
+  <OL>
+    <LI>The above information is for reference only. Official information is based on Office of Academic Affairs,
+      Office of Continuing Education and Computer and Network Center.</LI>
+    <LI>If have any question for academic performance, please inquire about relevant administration units of
+      the Office of Academic Affairs (day school students) or the Office of Continuing Education (night school students)
+    </LI>
+  </OL>
+
+</BODY>
+
+</HTML>
