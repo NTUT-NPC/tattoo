@@ -275,10 +275,19 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
   var _networkFailureSnackbarShown = false;
   var _refreshFailedWithCache = false;
 
+  /// Whether the user has asked for a retry in this pane.
+  ///
+  /// Only the first attempt lets the five-second probe replace the roster with
+  /// network guidance. Someone who retries has already read that guidance, so
+  /// the pane then waits for the authenticated request to really fail instead
+  /// of rejecting the network again after five seconds.
+  var _retriedManually = false;
+
   void _retry() {
     setState(() {
       _showNetworkGuide = false;
       _networkFailureSnackbarShown = false;
+      _retriedManually = true;
     });
     ref
         .read(
@@ -407,7 +416,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     final roster = cacheAsync.value;
     final refreshError = refreshAsync.error;
     final hasNoCache = roster?.fetchedAt == null;
-    final availabilityFailed = availabilityAsync.hasError;
+    final availabilityFailed = availabilityAsync.hasError && !_retriedManually;
     final isLoading =
         cacheAsync.isLoading ||
         (hasNoCache && (availabilityAsync.isLoading || refreshAsync.isLoading));
