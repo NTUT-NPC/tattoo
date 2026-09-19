@@ -121,6 +121,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - **NTUT services** (Portal, Course, ISchoolPlus, StudentQuery) have `abstract interface class` — mock implementations return canned DTOs for repository unit tests and demo mode
 - **Non-NTUT services** (GitHubService, FirebaseService) do not need mock implementations — they have stable API contracts
 - **No fixtures for live service tests:** Service-layer integration tests stay integration-only against real NTUT servers — inline HTML fixtures would go stale silently, so integration tests are the source of truth for live parsing correctness. Exception: de-identified snapshots promoted from `tmp/html_snapshot/` into `test/fixtures/` (see **HTML snapshot capture** above) back separate HTML-based parser tests, not the live integration tests.
+- **I-School Plus integration tests skip off campus:** I-School Plus only serves campus IP addresses, so CI can never reach it. `test_helpers.dart`'s `iSchoolPlusSkipReason()` runs the public availability probe once in `setUpAll`, and `testWithISchoolPlus` skips each test that needs the service. Any `DioException` or `TimeoutException` from the probe means "unreachable", including `DioExceptionType.unknown`, which is what the native adapters report for a blocked host. Errors that are not network-shaped still fail, because those mean the probe itself is broken.
 
 ## NTUT-Specific Patterns
 

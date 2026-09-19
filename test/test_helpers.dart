@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tattoo/services/i_school_plus/ntut_i_school_plus_service.dart';
 
 /// Test credentials loaded from environment variables.
 ///
@@ -34,6 +37,47 @@ class TestCredentials {
       );
     }
   }
+}
+
+/// Runs the public I-School Plus availability probe and reports why its
+/// integration tests cannot run, or `null` when the service answered.
+///
+/// I-School Plus only serves campus IP addresses, so CI — and any run from
+/// outside the campus network — cannot reach it. An unreachable host is an
+/// expected environment rather than a failure, and the probe's own five-second
+/// deadline bounds the wait. Errors that are not network-shaped still
+/// propagate: those mean the probe itself is broken.
+Future<String?> iSchoolPlusSkipReason() async {
+  try {
+    await NtutISchoolPlusService().checkAvailability();
+    return null;
+  } on TimeoutException {
+    return _iSchoolPlusUnavailable;
+  } on DioException {
+    return _iSchoolPlusUnavailable;
+  }
+}
+
+const _iSchoolPlusUnavailable =
+    'I-School Plus is unreachable from this network; '
+    'skipping its integration tests.';
+
+/// Skips [body] when [iSchoolPlusSkipReason] reported the service unreachable.
+///
+/// [skipReason] is read when the test runs, so a `setUpAll` that probes once
+/// can gate every test in its group.
+void testWithISchoolPlus(
+  String description,
+  Future<void> Function() body, {
+  required String? Function() skipReason,
+}) {
+  test(description, () async {
+    if (skipReason() case final reason?) {
+      markTestSkipped(reason);
+      return;
+    }
+    await body();
+  });
 }
 
 /// Adds a delay between tests to avoid hammering NTUT servers.
