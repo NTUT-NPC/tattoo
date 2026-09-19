@@ -112,6 +112,15 @@ void main() {
     expect(protocol.switches, [_courseA.internalId]);
     expect(protocol.manifestCourse, _courseA.internalId);
   });
+
+  test('missing course selector reports an expired session', () async {
+    protocol.courseListWithoutSelector = true;
+
+    await expectLater(
+      service.getCourseList(),
+      throwsA(isA<SessionExpiredException>()),
+    );
+  });
 }
 
 class _FakeISchoolProtocol extends Interceptor {
@@ -127,6 +136,7 @@ class _FakeISchoolProtocol extends Interceptor {
   bool pauseNextMaterialFetch = false;
   bool failNextSwitch = false;
   bool expireNextRoster = false;
+  bool courseListWithoutSelector = false;
 
   @override
   void onRequest(
@@ -134,6 +144,18 @@ class _FakeISchoolProtocol extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     final path = options.path;
+    if (path.endsWith('mooc_sysbar.php')) {
+      handler.resolve(
+        Response(
+          requestOptions: options,
+          statusCode: 200,
+          data: courseListWithoutSelector
+              ? '<html><body>Portal login required</body></html>'
+              : '<select id="selcourse"></select>',
+        ),
+      );
+      return;
+    }
     if (path.endsWith('goto_course.php')) {
       final id = RegExp(r'<course_id>([^<]+)</course_id>')
           .firstMatch(options.data as String)!
