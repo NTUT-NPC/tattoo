@@ -425,16 +425,16 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         onLearnMore: _openNetworkGuide,
       );
     }
-    if (hasNoCache && availabilityFailed) {
-      return ISchoolPlusNetworkGuide(
-        guideUrl: guideUrl,
-        onRetry: _retry,
-      );
-    }
     if (cacheAsync.hasError) {
       return _DetailState(
         icon: Icons.error_outline,
         message: strings.loadFailed,
+        onRetry: _retry,
+      );
+    }
+    if (hasNoCache && availabilityFailed) {
+      return ISchoolPlusNetworkGuide(
+        guideUrl: guideUrl,
         onRetry: _retry,
       );
     }
