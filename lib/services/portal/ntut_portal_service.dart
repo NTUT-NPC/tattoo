@@ -24,6 +24,10 @@ typedef _PortalApplicationCategoryPageDto = ({
 });
 
 class NtutPortalService implements PortalService {
+  static const _defaultISchoolSsoTimeout = Duration(seconds: 20);
+  static const _redirectStatusCodes = {301, 302, 303, 307, 308};
+  static const _preserveMethodRedirectStatusCodes = {307, 308};
+  static const _maxRedirects = 10;
   static const _chineseLocale = 'zh_TW';
   static const _englishLocale = 'en';
   // The mobile home endpoint is a JSON feed and exposes no locale marker.
@@ -36,12 +40,16 @@ class NtutPortalService implements PortalService {
   );
 
   late final Dio _portalDio;
+  final Duration _iSchoolSsoTimeout;
   Future<void> _portalLocaleOperation = Future.value();
   bool _portalLocaleStateUncertain = false;
 
-  NtutPortalService() {
+  NtutPortalService({
+    Dio? dio,
+    Duration? iSchoolSsoTimeout,
+  }) : _iSchoolSsoTimeout = iSchoolSsoTimeout ?? _defaultISchoolSsoTimeout {
     // Emulate the NTUT iOS app's HTTP client
-    _portalDio = createDio()
+    _portalDio = (dio ?? createDio())
       ..options.baseUrl = 'https://app.ntut.edu.tw/'
       ..options.headers = {
         'User-Agent': 'Direk ios App',
@@ -173,25 +181,129 @@ class NtutPortalService implements PortalService {
   }
 
   @override
-  Future<void> sso(String serviceCode) {
-    return _withPortalLocaleLock(() async {
-      final (actionUrl, formData) = await _fetchSsoForm(serviceCode);
+  Future<void> sso(String serviceCode) async {
+    if (serviceCode != PortalServiceCode.iSchoolPlusService.code) {
+      return _withPortalLocaleLock(() => _performSso(serviceCode));
+    }
 
-      // Prepend the invalid cookie filter interceptor for i-School Plus SSO
-      if (serviceCode == PortalServiceCode.iSchoolPlusService.code) {
-        _portalDio.interceptors.insert(0, InvalidCookieFilter());
-        _portalDio.transformer = PlainTextTransformer();
-      }
+    final cancelToken = CancelToken();
+    final timer = Timer(
+      _iSchoolSsoTimeout,
+      () => cancelToken.cancel('I-School Plus SSO timed out'),
+    );
+    try {
+      final operation = _withPortalLocaleLock(
+        () => _performSso(serviceCode, cancelToken: cancelToken),
+      );
+      await Future.any([
+        operation,
+        cancelToken.whenCancel.then((error) => throw error),
+      ]);
+    } finally {
+      timer.cancel();
+    }
+  }
 
-      // Submit the SSO form and follow redirects
-      // Sets the necessary cookies for the target service
+  /// Runs one SSO operation while honoring an optional request cancellation.
+  ///
+  /// The initial cancellation check prevents an iSchool Plus operation that
+  /// timed out in the locale queue from issuing requests after it gets the
+  /// lock.
+  Future<void> _performSso(
+    String serviceCode, {
+    CancelToken? cancelToken,
+  }) async {
+    if (cancelToken?.cancelError case final error?) throw error;
+    final (actionUrl, formData) = await _fetchSsoForm(
+      serviceCode,
+      cancelToken: cancelToken,
+    );
+
+    // Prepend the invalid cookie filter interceptor for i-School Plus SSO
+    if (serviceCode == PortalServiceCode.iSchoolPlusService.code) {
+      _portalDio.interceptors.insert(0, InvalidCookieFilter());
+      _portalDio.transformer = PlainTextTransformer();
+    }
+
+    // Submit the SSO form and follow redirects. The package redirect
+    // interceptor does not propagate a request CancelToken to redirect GETs,
+    // so iSchool Plus follows them here to keep the whole chain cancellable.
+    if (cancelToken case final token?) {
+      await _submitISchoolSsoForm(
+        actionUrl,
+        formData,
+        cancelToken: token,
+      );
+    } else {
       await _portalDio.post(
         actionUrl,
         data: formData,
         options: Options(contentType: Headers.formUrlEncodedContentType),
       );
-    });
+    }
   }
+
+  /// Submits the iSchool Plus SSO form and follows redirects with one token.
+  Future<void> _submitISchoolSsoForm(
+    String actionUrl,
+    Map<String, dynamic> formData, {
+    required CancelToken cancelToken,
+  }) async {
+    final dio = _portalDio.clone()
+      ..interceptors.removeWhere(
+        (interceptor) => interceptor is RedirectInterceptor,
+      );
+    var response = await dio.post<dynamic>(
+      actionUrl,
+      data: formData,
+      cancelToken: cancelToken,
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        followRedirects: false,
+        validateStatus: _validateSsoStatus,
+      ),
+    );
+
+    var redirectCount = 0;
+    while (_redirectStatusCodes.contains(response.statusCode)) {
+      if (redirectCount >= _maxRedirects) {
+        throw StateError('I-School Plus SSO exceeded $_maxRedirects redirects');
+      }
+      if (cancelToken.cancelError case final error?) throw error;
+
+      final location = response.headers.value('location');
+      if (location == null) {
+        throw StateError('I-School Plus SSO redirect has no location');
+      }
+      final redirectUri = response.requestOptions.uri.resolve(location);
+      final previousRequest = response.requestOptions;
+      if (_preserveMethodRedirectStatusCodes.contains(response.statusCode)) {
+        response = await dio.requestUri<dynamic>(
+          redirectUri,
+          data: previousRequest.data,
+          cancelToken: cancelToken,
+          options: Options(
+            method: previousRequest.method,
+            contentType: previousRequest.contentType,
+            followRedirects: false,
+            validateStatus: _validateSsoStatus,
+          ),
+        );
+      } else {
+        response = await dio.getUri<dynamic>(
+          redirectUri,
+          cancelToken: cancelToken,
+          options: Options(
+            followRedirects: false,
+            validateStatus: _validateSsoStatus,
+          ),
+        );
+      }
+      redirectCount++;
+    }
+  }
+
+  static bool _validateSsoStatus(int? status) => status != null && status < 400;
 
   @override
   Future<Uri> getSsoUrl(String serviceCode) {
@@ -232,10 +344,14 @@ class NtutPortalService implements PortalService {
   /// Fetches and parses the SSO form for a given apOu code.
   ///
   /// Returns (actionUrl, formData) for submitting the form.
-  Future<(String, Map<String, dynamic>)> _fetchSsoForm(String apOu) async {
+  Future<(String, Map<String, dynamic>)> _fetchSsoForm(
+    String apOu, {
+    CancelToken? cancelToken,
+  }) async {
     final response = await _portalDio.get(
       'ssoIndex.do',
       queryParameters: {'apOu': apOu},
+      cancelToken: cancelToken,
     );
 
     final document = parse(response.data);
