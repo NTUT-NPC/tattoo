@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
@@ -7,8 +8,10 @@ import 'package:tattoo/utils/http.dart';
 
 class NtutISchoolPlusService implements ISchoolPlusService {
   static const _requestTimeout = Duration(seconds: 20);
+  static const _availabilityTimeout = Duration(seconds: 5);
 
   late final Dio _iSchoolPlusDio;
+  late final Dio _availabilityDio;
 
   /// The currently selected course, used to avoid redundant server-side
   /// course switches.
@@ -16,7 +19,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   Future<void> _courseOperationTail = Future.value();
 
   /// [dio] permits deterministic protocol tests without contacting iSchool+.
-  NtutISchoolPlusService({Dio? dio}) {
+  NtutISchoolPlusService({Dio? dio, Dio? availabilityDio}) {
     _iSchoolPlusDio = (dio ?? createDio())
       ..options.baseUrl = 'https://istudy.ntut.edu.tw/learn/'
       ..options.connectTimeout = _requestTimeout
@@ -29,6 +32,31 @@ class NtutISchoolPlusService implements ISchoolPlusService {
         ),
       )
       ..transformer = PlainTextTransformer();
+    _availabilityDio = (availabilityDio ?? createDio(useCookies: false))
+      ..options.connectTimeout = _availabilityTimeout
+      ..options.sendTimeout = _availabilityTimeout
+      ..options.receiveTimeout = _availabilityTimeout;
+  }
+
+  @override
+  Future<void> checkAvailability() async {
+    final cancelToken = CancelToken();
+    final timer = Timer(
+      _availabilityTimeout,
+      () => cancelToken.cancel('I-School Plus availability probe timed out'),
+    );
+    try {
+      await Future.any([
+        _availabilityDio.get<void>(
+          'https://istudy.ntut.edu.tw/mooc/index.php',
+          cancelToken: cancelToken,
+          options: Options(responseType: .bytes),
+        ),
+        cancelToken.whenCancel.then((error) => throw error),
+      ]);
+    } finally {
+      timer.cancel();
+    }
   }
 
   @override
@@ -40,7 +68,11 @@ class NtutISchoolPlusService implements ISchoolPlusService {
 
     final document = parse(response.data);
     final courseSelect = document.getElementById('selcourse');
-    if (courseSelect == null) return [];
+    if (courseSelect == null) {
+      throw const SessionExpiredException(
+        'ISchoolPlus course selector is missing',
+      );
+    }
 
     // Options may be inside <optgroup> elements, so use querySelectorAll.
     // Example option: <option value="10099386">1141_智慧財產權_352902</option>
