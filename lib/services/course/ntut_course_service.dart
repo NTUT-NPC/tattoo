@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
+import 'package:meta/meta.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/services/course/course_service.dart';
 import 'package:tattoo/utils/http.dart';
@@ -444,6 +445,11 @@ class NtutCourseService implements CourseService {
   ///
   /// Returns [ScheduleDto]s with `nameEn: null` — English names are merged
   /// separately from the English page.
+  @visibleForTesting
+  List<ScheduleDto> parseZhCourseTableForTest(String html) {
+    return _parseZhCourseTable(html);
+  }
+
   List<ScheduleDto> _parseZhCourseTable(String html) {
     final document = parse(html);
     final tables = document.querySelectorAll('table');
@@ -504,18 +510,28 @@ class NtutCourseService implements CourseService {
         final day = colToDayMap[colIndex];
         if (day == null) continue;
 
-        final anchors = cells[colIndex].querySelectorAll('a');
+        final cell = cells[colIndex];
+        final entries = _parseCourseTableCellEntries(cell);
+        final courseAnchor = entries.firstWhereOrNull(
+          (entry) => entry.page == 'Curr.jsp',
+        );
 
         // Key by course name — works for both regular courses (with <a>
         // links) and special entries like 班週會 (plain text).
-        final courseName = anchors.isNotEmpty
-            ? anchors[0].text.trim()
-            : cells[colIndex].text.trim();
+        final courseName = courseAnchor?.text ?? cell.text.trim();
         if (courseName.isEmpty) continue;
 
-        var classroomRef = anchors.length >= 3
-            ? _parseAnchorRef(anchors.last)
-            : null;
+        ReferenceDto? classroomRef = entries
+            .firstWhereOrNull((entry) => entry.page == 'Croom.jsp')
+            ?.reference;
+
+        if (classroomRef == null) {
+          final lastEntry = entries.lastWhereOrNull((entry) => entry.text != '');
+          if (lastEntry case (page: null, text: final text) when text.isNotEmpty) {
+            classroomRef = (id: null, name: text);
+          }
+        }
+
         // Strip e化教室 marker "(e)" from classroom names
         if (classroomRef?.name case final name?) {
           classroomRef = (
@@ -583,6 +599,49 @@ class NtutCourseService implements CourseService {
         remarks: remarks,
       );
     }).toList();
+  }
+
+  List<({String text, String? page, ReferenceDto? reference})>
+  _parseCourseTableCellEntries(Element cell) {
+    final entries = <({String text, String? page, ReferenceDto? reference})>[];
+
+    void visit(Node node) {
+      switch (node) {
+        case Text():
+          final text = node.text.trim();
+          if (text.isNotEmpty) {
+            entries.add((text: text, page: null, reference: null));
+          }
+        case Element(localName: 'br'):
+          break;
+        case Element(localName: 'a'):
+          final text = node.text.trim();
+          if (text.isEmpty) break;
+          entries.add((
+            text: text,
+            page: _parseHrefPage(node.attributes['href']),
+            reference: _parseAnchorRef(node),
+          ));
+        case Element():
+          for (final child in node.nodes) {
+            visit(child);
+          }
+      }
+    }
+
+    for (final node in cell.nodes) {
+      visit(node);
+    }
+
+    return entries;
+  }
+
+  String? _parseHrefPage(String? href) {
+    if (href == null) return null;
+    final uri = Uri.tryParse(href);
+    if (uri == null) return null;
+    final segments = uri.pathSegments.where((segment) => segment != '.');
+    return segments.lastOrNull;
   }
 
   /// Parses the English course list page for English names.
