@@ -63,9 +63,13 @@ class CourseStudentRosterRefreshRequestedAtNotifier
 
   DateTime? _completedRequest;
 
-  bool get hasPendingRequest => state != _completedRequest;
+  /// Whether [request] is a retry that has not been served yet.
+  ///
+  /// Completion is tracked outside [state] so that recording it cannot rebuild
+  /// the refresh provider that is publishing the success, which means callers
+  /// pass in the request they read rather than reading it back from here.
+  bool isPending(DateTime? request) => request != _completedRequest;
 
-  // Completion must not rebuild the refresh provider that is publishing success.
   void complete(DateTime? request) => _completedRequest = request;
 
   @override
@@ -92,7 +96,7 @@ final courseStudentRosterRefreshProvider = FutureProvider.autoDispose
         courseStudentRosterRefreshRequestedAtProvider(key).notifier,
       );
       final isFresh =
-          !request.hasPendingRequest &&
+          !request.isPending(refreshRequestedAt) &&
           await repository.isStudentRosterFresh(
             courseOfferingId: key.courseOfferingId,
           );
