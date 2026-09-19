@@ -84,6 +84,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - CampusWifiRepository — Platform-specific provisioner configuration and status for NTUT-802.1X campus Wi-Fi. Interacts directly with platform APIs, returning one-shot configuration status rather than using the `watchX()`/`refreshX()` cache pattern.
 - **Method pattern:** `watchX()` returns a `Stream` backed by Drift `.watch()` — emits cached data immediately, then background-fetches if empty or stale (each method has its own hard-coded TTL `const`). Network errors are absorbed (stale data preferred over errors). `refreshX()` is the imperative counterpart for pull-to-refresh — fetches from network, writes to DB, and lets the stream re-emit.
 - **I-School Plus cached refreshes:** Keep each feature's fetch, validation, normalization, and DB transaction in its CourseRepository method. A newer refresh of the same resource cancels the older request; check cancellation after network work and throughout the transaction so stale results cannot commit. Fetch failures leave cached rows and timestamps intact. UI owns refresh feedback and network guidance.
+- **Roster cache exception:** `watchStudentRoster()` only observes Drift. A separate screen refresh provider checks the repository's 15-minute TTL and reports network results independently so cached rows remain visible on failure. Explicit retries bypass the TTL until that request succeeds; completion is tracked in memory, not by comparing a high-precision request timestamp with Drift's second-precision cache timestamp. Loading states with retained data are not refresh successes.
 
 **Demo mode:**
 
@@ -136,6 +137,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 **Session Expiry Detection:** NTUT services return HTTP 200 with error pages instead of 401/403 when sessions expire. Per-service Dio interceptors detect known markers (e.g., "應用系統已中斷連線" for StudentQuery, "尚未登錄入口網站" for Course) and throw `SessionExpiredException`. This is a non-DioException so `withAuth` catches it and triggers re-authentication. iSchool+ returns HTTP 403 when unauthenticated, handled via `onError` interceptor.
 
 **SSO Coalescing:** `AuthRepository._ensureSso` uses `Completer`-based coalescing — first caller creates a Completer and fires SSO, concurrent callers await the same future. Prevents redundant SSO calls during parallel repository fetches.
+
+**I-School Plus SSO deadline:** PortalService bounds the entire iSchool SSO operation, including locale-lock queueing and redirects, to 20 seconds and cancels its HTTP requests on expiry. This releases failed shared SSO work for later retries. The independent, cookie-free public availability probe retains its five-second deadline. Its `/mooc/index.php` byte response is not parsed, so it intentionally has no authenticated HTML snapshot preset: the capture CLI's automatic login/SSO would not reproduce the public probe's session isolation.
 
 **Re-auth Coalescing:** `AuthRepository._reauthenticate` uses the same `Completer` pattern — first caller triggers login, concurrent callers await the same future. Prevents redundant login attempts when multiple `withAuth` calls detect session expiry simultaneously.
 
