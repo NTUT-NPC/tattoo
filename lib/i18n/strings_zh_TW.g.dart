@@ -1607,11 +1607,11 @@ class Translations$courseTable$detail$roster$zh_TW {
 	/// zh-TW: '目前沒有同學名單'
 	String get empty => '目前沒有同學名單';
 
-	/// zh-TW: '無法載入同學名單，請稍後再試。'
-	String get loadFailed => '無法載入同學名單，請稍後再試。';
+	/// zh-TW: '無法載入同學名單。'
+	String get loadFailed => '無法載入同學名單。';
 
-	/// zh-TW: '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。'
-	String get networkSnackbar => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。';
+	/// zh-TW: '正在嘗試更新同學名單。此功能需要連接學校網路。'
+	String get networkSnackbar => '正在嘗試更新同學名單。此功能需要連接學校網路。';
 
 	/// zh-TW: '無法更新同學名單，仍顯示先前的資料。'
 	String get updateFailed => '無法更新同學名單，仍顯示先前的資料。';
@@ -1806,8 +1806,8 @@ extension on Translations {
 			'courseTable.detail.roster.studentId' => '學號',
 			'courseTable.detail.roster.name' => '姓名',
 			'courseTable.detail.roster.empty' => '目前沒有同學名單',
-			'courseTable.detail.roster.loadFailed' => '無法載入同學名單，請稍後再試。',
-			'courseTable.detail.roster.networkSnackbar' => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。',
+			'courseTable.detail.roster.loadFailed' => '無法載入同學名單。',
+			'courseTable.detail.roster.networkSnackbar' => '正在嘗試更新同學名單。此功能需要連接學校網路。',
 			'courseTable.detail.roster.updateFailed' => '無法更新同學名單，仍顯示先前的資料。',
 			'courseTable.detail.roster.backToRoster' => '返回同學名單',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
