@@ -452,22 +452,33 @@ class AuthRepository {
   /// triggers the actual SSO request; subsequent callers await the same
   /// [Completer].
   Future<void> _ensureSso(List<PortalServiceCode> services) async {
-    await services.where((s) => !_ssoCache.contains(s)).map((s) async {
-      if (_ssoInFlight[s] case final existing?) return existing.future;
+    // `Future.wait`, not `Iterable.wait`: the latter reports failures as a
+    // ParallelWaitError, which hides the [DioException] that tells [withAuth]
+    // a network failure is not an expired session.
+    await Future.wait([
+      for (final service in services.where((s) => !_ssoCache.contains(s)))
+        _sso(service),
+    ]);
+  }
 
-      final completer = Completer<void>();
-      _ssoInFlight[s] = completer;
-      try {
-        await _portalService.sso(s.code);
-        _ssoCache.add(s);
-        completer.complete();
-      } catch (e, st) {
-        completer.completeError(e, st);
-      } finally {
-        _ssoInFlight.remove(s);
+  /// Establishes one SSO session, coalescing concurrent callers.
+  Future<void> _sso(PortalServiceCode service) async {
+    if (_ssoInFlight[service] case final existing?) return existing.future;
+
+    final completer = Completer<void>();
+    _ssoInFlight[service] = completer;
+    try {
+      await _portalService.sso(service.code);
+      _ssoCache.add(service);
+      completer.complete();
+    } catch (error, stackTrace) {
+      completer.completeError(error, stackTrace);
+    } finally {
+      if (identical(_ssoInFlight[service], completer)) {
+        _ssoInFlight.remove(service);
       }
-      return completer.future;
-    }).wait;
+    }
+    return completer.future;
   }
 
   /// Gets a browser-openable SSO URL for [serviceCode].

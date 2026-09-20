@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
@@ -9,6 +11,7 @@ import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/portal/mock_portal_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/mock_student_query_service.dart';
+import 'package:tattoo/utils/http.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -121,6 +124,237 @@ void main() {
       expect(preferences.containsKey('UserDataJsonKey'), isFalse);
     });
 
+    group('withAuth SSO', () {
+      test('preserves a single SSO network error', () async {
+        await repository.login('111360109', 'password');
+        portalService.loginCalls.clear();
+        final networkError = DioException.connectionError(
+          requestOptions: RequestOptions(path: 'ssoIndex.do'),
+          reason: 'network unavailable',
+        );
+        portalService.onSso = (_) => Future.error(networkError);
+        var actionCalls = 0;
+
+        await expectLater(
+          repository.withAuth(() async {
+            actionCalls++;
+            return 'unreachable';
+          }, sso: [.iSchoolPlusService]),
+          throwsA(same(networkError)),
+        );
+
+        expect(actionCalls, 0);
+        expect(portalService.loginCalls, isEmpty);
+        expect(portalService.ssoCalls, [
+          PortalServiceCode.iSchoolPlusService.code,
+        ]);
+      });
+
+      test('preserves a network error from parallel SSO', () async {
+        await repository.login('111360109', 'password');
+        portalService.loginCalls.clear();
+        final courseSso = Completer<void>();
+        final iSchoolPlusSso = Completer<void>();
+        final bothStarted = Completer<void>();
+        portalService.onSso = (serviceCode) {
+          if (portalService.ssoCalls.length == 2 && !bothStarted.isCompleted) {
+            bothStarted.complete();
+          }
+          return switch (serviceCode) {
+            final code when code == PortalServiceCode.courseService.code =>
+              courseSso.future,
+            final code when code == PortalServiceCode.iSchoolPlusService.code =>
+              iSchoolPlusSso.future,
+            _ => throw StateError('Unexpected SSO target: $serviceCode'),
+          };
+        };
+        final networkError = DioException.connectionError(
+          requestOptions: RequestOptions(path: 'ssoIndex.do'),
+          reason: 'network unavailable',
+        );
+
+        final result = repository.withAuth(
+          () async => 'unreachable',
+          sso: [.courseService, .iSchoolPlusService],
+        );
+        final expectation = expectLater(result, throwsA(same(networkError)));
+        await bothStarted.future;
+        courseSso.complete();
+        iSchoolPlusSso.completeError(networkError);
+        await expectation;
+
+        expect(portalService.loginCalls, isEmpty);
+        expect(
+          portalService.ssoCalls,
+          unorderedEquals([
+            PortalServiceCode.courseService.code,
+            PortalServiceCode.iSchoolPlusService.code,
+          ]),
+        );
+      });
+
+      test('coalesces concurrent SSO for the same service', () async {
+        await repository.login('111360109', 'password');
+        final ssoStarted = Completer<void>();
+        final finishSso = Completer<void>();
+        portalService.onSso = (_) {
+          ssoStarted.complete();
+          return finishSso.future;
+        };
+
+        final first = repository.withAuth(
+          () async => 'first',
+          sso: [.iSchoolPlusService],
+        );
+        final second = repository.withAuth(
+          () async => 'second',
+          sso: [.iSchoolPlusService],
+        );
+        await ssoStarted.future;
+
+        expect(portalService.ssoCalls, [
+          PortalServiceCode.iSchoolPlusService.code,
+        ]);
+
+        finishSso.complete();
+        expect(await Future.wait([first, second]), ['first', 'second']);
+      });
+
+      test(
+        'keeps a newer SSO in flight after reauthentication clears the old one',
+        () async {
+          await repository.login('111360109', 'password');
+
+          final firstSso = Completer<void>();
+          final secondSso = Completer<void>();
+          final secondSsoStarted = Completer<void>();
+          var ssoAttempt = 0;
+          portalService.onSso = (_) async {
+            ssoAttempt++;
+            switch (ssoAttempt) {
+              case 1:
+                await firstSso.future;
+              case 2:
+                secondSsoStarted.complete();
+                await secondSso.future;
+              default:
+                throw StateError('Unexpected third SSO request');
+            }
+          };
+
+          final firstNetworkError = DioException.connectionError(
+            requestOptions: RequestOptions(path: 'ssoIndex.do'),
+            reason: 'network unavailable',
+          );
+          final first = repository.withAuth(
+            () async => 'unreachable',
+            sso: [.iSchoolPlusService],
+          );
+          final firstExpectation = expectLater(
+            first,
+            throwsA(same(firstNetworkError)),
+          );
+
+          final reauthLoginStarted = Completer<void>();
+          final reauthLoginGate = Completer<void>();
+          portalService.onLogin = (_, _) async {
+            reauthLoginStarted.complete();
+            await reauthLoginGate.future;
+          };
+
+          var reauthCallCount = 0;
+          final reauthCleared = Completer<void>();
+          final reauthActionGate = Completer<void>();
+          final reauthentication = repository.withAuth(() async {
+            if (reauthCallCount++ == 0) {
+              throw const SessionExpiredException('portal session expired');
+            }
+            reauthCleared.complete();
+            await reauthActionGate.future;
+            return 'reauthenticated';
+          });
+
+          await reauthLoginStarted.future;
+          reauthLoginGate.complete();
+          await reauthCleared.future;
+
+          final second = repository.withAuth(
+            () async => 'second',
+            sso: [.iSchoolPlusService],
+          );
+          await secondSsoStarted.future;
+          expect(portalService.ssoCalls, [
+            PortalServiceCode.iSchoolPlusService.code,
+            PortalServiceCode.iSchoolPlusService.code,
+          ]);
+
+          firstSso.completeError(firstNetworkError);
+          await firstExpectation;
+
+          final third = repository.withAuth(
+            () async => 'third',
+            sso: [.iSchoolPlusService],
+          );
+          secondSso.complete();
+
+          expect(await second, 'second');
+          expect(await third, 'third');
+          reauthActionGate.complete();
+          expect(await reauthentication, 'reauthenticated');
+          expect(portalService.ssoCalls, [
+            PortalServiceCode.iSchoolPlusService.code,
+            PortalServiceCode.iSchoolPlusService.code,
+          ]);
+        },
+      );
+
+      test('caches a successful SSO for later calls', () async {
+        await repository.login('111360109', 'password');
+
+        expect(
+          await repository.withAuth(() async => 'first', sso: [.courseService]),
+          'first',
+        );
+        expect(
+          await repository.withAuth(
+            () async => 'second',
+            sso: [.courseService],
+          ),
+          'second',
+        );
+
+        expect(portalService.ssoCalls, [PortalServiceCode.courseService.code]);
+      });
+
+      test('still re-authenticates after an expired SSO session', () async {
+        await repository.login('111360109', 'password');
+        portalService.loginCalls.clear();
+        var ssoAttempts = 0;
+        portalService.onSso = (_) async {
+          ssoAttempts++;
+          if (ssoAttempts == 1) {
+            throw const SessionExpiredException('portal session expired');
+          }
+        };
+
+        expect(
+          await repository.withAuth(
+            () async => 'success',
+            sso: [.courseService],
+          ),
+          'success',
+        );
+
+        expect(portalService.loginCalls, [
+          (username: '111360109', password: 'password'),
+        ]);
+        expect(portalService.ssoCalls, [
+          PortalServiceCode.courseService.code,
+          PortalServiceCode.courseService.code,
+        ]);
+      });
+    });
+
     test(
       'logout preserves the session when legacy deletion fails',
       () async {
@@ -156,10 +390,20 @@ class _RecordingPortalService extends MockPortalService {
   final loginCalls = <({String username, String password})>[];
   final changePasswordCalls =
       <({String currentPassword, String newPassword})>[];
+  final ssoCalls = <String>[];
+  Future<void> Function(String serviceCode)? onSso;
+  Future<void> Function(String username, String password)? onLogin;
+
+  @override
+  Future<void> sso(String serviceCode) async {
+    ssoCalls.add(serviceCode);
+    if (onSso case final callback?) await callback(serviceCode);
+  }
 
   @override
   Future<UserDto> login(String username, String password) async {
     loginCalls.add((username: username, password: password));
+    if (onLogin case final callback?) await callback(username, password);
     return super.login(username, password);
   }
 
