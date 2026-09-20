@@ -132,6 +132,12 @@ typedef CourseTableData = ({
   int totalHours,
 });
 
+/// Latest eligible semester and its fully normalized cached timetable.
+typedef LatestCachedCourseTable = ({
+  Semester semester,
+  CourseTableData courseTable,
+});
+
 typedef _CourseTableOfferingData = ({
   CourseOffering offering,
   Course? course,
@@ -154,6 +160,158 @@ const emptyCourseTableData = (
   totalCredits: 0.0,
   totalHours: 0,
 );
+
+/// Builds [CourseTableData] from scheduled view rows and all offerings for
+/// the semester, computing multi-period spans and layout metadata.
+CourseTableData _buildCourseTableData(
+  List<CourseTableSlot> rows,
+  List<_CourseTableOfferingData> allOfferings,
+) {
+  final scheduled = <({DayOfWeek day, Period period}), CourseTableCellData>{};
+  final offeringsById = {
+    for (final offering in allOfferings) offering.offering.id: offering,
+  };
+
+  for (final row in rows) {
+    final key = (day: row.dayOfWeek, period: row.period);
+    if (scheduled.containsKey(key)) continue;
+
+    final courseName = localized(row.nameZh, row.nameEn);
+    scheduled[key] = (
+      id: row.id,
+      number: row.number,
+      span: 1,
+      crossesNoon: false,
+      courseName: courseName,
+      classroomName: switch ((row.classroomNameZh, row.classroomNameEn)) {
+        (final zh?, final en) => localized(zh, en),
+        _ => null,
+      },
+      teacherNames: offeringsById[row.id]?.teacherNames ?? const [],
+      credits: row.credits ?? 0,
+      hours: row.hours ?? 0,
+    );
+  }
+
+  // Compute spans: for each slot, look ahead at consecutive periods on the
+  // same day. Matching offerings are tracked in a consumed set, and the
+  // starting slot gets the total span. Consumed slots are removed at the end.
+  //
+  // On days without a course in the noon period, courses that span across
+  // noon (e.g. period 4 → 5) are merged. The noon period is skipped (not
+  // counted in span) and crossesNoon is set for UI height calculation.
+  final daysWithNoon = scheduled.keys
+      .where((slot) => slot.period == .nPeriod)
+      .map((slot) => slot.day)
+      .toSet();
+  final consumed = <({DayOfWeek day, Period period})>{};
+  for (final entry in scheduled.entries) {
+    if (consumed.contains(entry.key)) continue;
+    var span = 1;
+    var crossesNoon = false;
+    var skippedNoon = false;
+    var lookIndex = entry.key.period.index + 1;
+
+    while (lookIndex < Period.values.length) {
+      final nextPeriod = Period.values[lookIndex];
+      // Skip noon when this day has no course in the noon period.
+      if (nextPeriod == .nPeriod && !daysWithNoon.contains(entry.key.day)) {
+        skippedNoon = true;
+        lookIndex++;
+        continue;
+      }
+      final nextKey = (day: entry.key.day, period: nextPeriod);
+      if (scheduled[nextKey] case final next? when next.id == entry.value.id) {
+        consumed.add(nextKey);
+        span++;
+        crossesNoon = skippedNoon && entry.key.period.isAM && nextPeriod.isPM;
+        lookIndex++;
+      } else {
+        break;
+      }
+    }
+
+    if (span > 1 || crossesNoon) {
+      scheduled[entry.key] = (
+        id: entry.value.id,
+        number: entry.value.number,
+        span: span,
+        crossesNoon: crossesNoon,
+        courseName: entry.value.courseName,
+        classroomName: entry.value.classroomName,
+        teacherNames: entry.value.teacherNames,
+        credits: entry.value.credits,
+        hours: entry.value.hours,
+      );
+    }
+  }
+
+  scheduled.removeWhere((key, _) => consumed.contains(key));
+
+  // Filter offerings not present in the scheduled map.
+  final scheduledIds = scheduled.values.map((c) => c.id).toSet();
+  final unscheduled = allOfferings
+      .where((row) => !scheduledIds.contains(row.offering.id))
+      .map((row) {
+        final courseName = localized(
+          row.offering.nameZh,
+          row.offering.nameEn ?? row.course?.nameEn,
+        );
+        return (
+          id: row.offering.id,
+          number: row.offering.number,
+          span: 0,
+          crossesNoon: false,
+          courseName: courseName,
+          classroomName: null,
+          teacherNames: row.teacherNames,
+          credits: row.offering.credits ?? row.course?.credits ?? 0.0,
+          hours: row.offering.hours ?? row.course?.hours ?? 0,
+        );
+      })
+      .toList(growable: false);
+
+  // Compute layout metadata from the scheduled map.
+  final allEntryPeriods = scheduled.entries
+      .expand((e) {
+        final noonIndex = Period.nPeriod.index;
+        final start = e.key.period.index;
+        return List.generate(e.value.span, (i) {
+          final raw = start + i;
+          return Period.values[raw >= noonIndex && e.value.crossesNoon
+              ? raw + 1
+              : raw];
+        });
+      })
+      .toList(growable: false);
+
+  // Unique courses by ID for credit/hour aggregation.
+  final seen = <int>{};
+  final uniqueCourses = [
+    ...scheduled.values.where((c) => seen.add(c.id)),
+    ...unscheduled.where((c) => seen.add(c.id)),
+  ];
+
+  return (
+    scheduled: scheduled,
+    unscheduled: unscheduled,
+    hasWeekdayCourse: scheduled.keys.any((s) => s.day.isWeekday),
+    hasSaturdayCourse: scheduled.keys.any((s) => s.day == .saturday),
+    hasSundayCourse: scheduled.keys.any((s) => s.day == .sunday),
+    hasAMCourse: allEntryPeriods.any((p) => p.isAM),
+    hasPMCourse: allEntryPeriods.any((p) => p.isPM),
+    hasNoonCourse: allEntryPeriods.any((p) => p == .nPeriod),
+    hasEveningCourse: allEntryPeriods.any((p) => p.isEvening),
+    earliestPeriod: scheduled.isEmpty
+        ? null
+        : Period.values[scheduled.keys.map((s) => s.period.index).reduce(min)],
+    latestPeriod: allEntryPeriods.isEmpty
+        ? null
+        : allEntryPeriods.reduce((a, b) => a.index > b.index ? a : b),
+    totalCredits: uniqueCourses.fold(0.0, (sum, c) => sum + c.credits),
+    totalHours: uniqueCourses.fold(0, (sum, c) => sum + c.hours),
+  );
+}
 
 /// Provides the [CourseRepository] instance.
 final courseRepositoryProvider = Provider<CourseRepository>((ref) {
@@ -285,6 +443,45 @@ class CourseRepository {
     });
   }
 
+  /// Emits when any table that affects the launcher timetable changes.
+  ///
+  /// Events are invalidation signals only. Consumers must perform a coherent
+  /// cache read after receiving one.
+  Stream<void> watchCourseTableCacheChanges() {
+    return _database
+        .customSelect(
+          'SELECT 1',
+          readsFrom: {
+            _database.semesters,
+            _database.courseOfferings,
+            _database.courses,
+            _database.schedules,
+            _database.classrooms,
+          },
+        )
+        .watch()
+        .map((_) {});
+  }
+
+  /// Reads the newest semester eligible for the course table without network
+  /// access or interactive refresh side effects.
+  Future<LatestCachedCourseTable?> readLatestCachedCourseTable() async {
+    final semester =
+        await (_database.select(_database.semesters)
+              ..where((row) => row.inCourseSemesterList.equals(true))
+              ..orderBy([
+                (row) => OrderingTerm.desc(row.year),
+                (row) => OrderingTerm.desc(row.term),
+              ])
+              ..limit(1))
+            .getSingleOrNull();
+    if (semester == null) return null;
+    return (
+      semester: semester,
+      courseTable: await _readCachedCourseTable(semester.id),
+    );
+  }
+
   /// Watches the course schedule for a semester with automatic background refresh.
   ///
   /// Emits cached data immediately, then triggers a background network fetch
@@ -296,70 +493,10 @@ class CourseRepository {
     const ttl = Duration(days: 3);
 
     final query = _database.select(_database.courseTableSlots)
-      ..where((s) => s.semester.equals(semesterId));
+      ..where((slot) => slot.semester.equals(semesterId));
 
-    await for (final rows in query.watch()) {
-      final allOfferingRows =
-          await ((_database.select(_database.courseOfferings)..where(
-                    (o) =>
-                        o.semester.equals(semesterId) &
-                        o.inCourseTable.equals(true),
-                  ))
-                  .join([
-                    leftOuterJoin(
-                      _database.courses,
-                      _database.courses.code.equalsExp(
-                        _database.courseOfferings.courseCode,
-                      ),
-                    ),
-                    leftOuterJoin(
-                      _database.courseOfferingTeachers,
-                      _database.courseOfferingTeachers.courseOffering.equalsExp(
-                        _database.courseOfferings.id,
-                      ),
-                    ),
-                    leftOuterJoin(
-                      _database.teacherSemesters,
-                      _database.teacherSemesters.id.equalsExp(
-                        _database.courseOfferingTeachers.teacherSemester,
-                      ),
-                    ),
-                    leftOuterJoin(
-                      _database.teachers,
-                      _database.teachers.id.equalsExp(
-                        _database.teacherSemesters.teacher,
-                      ),
-                    ),
-                  ])
-                ..orderBy([
-                  .asc(_database.courseOfferings.id),
-                  .asc(_database.teachers.code),
-                ]))
-              .get();
-      final allOfferings = <int, _CourseTableOfferingData>{};
-      for (final row in allOfferingRows) {
-        final offering = row.readTable(_database.courseOfferings);
-        final course = row.readTableOrNull(_database.courses);
-        final data = allOfferings.putIfAbsent(
-          offering.id,
-          () => (offering: offering, course: course, teacherNames: []),
-        );
-        if (row.readTableOrNull(_database.teachers) case final teacher?) {
-          final name = localized(teacher.nameZh, teacher.nameEn);
-          if (!data.teacherNames.contains(name)) data.teacherNames.add(name);
-        }
-      }
-      final data = _buildCourseTableData(
-        rows,
-        [
-          for (final data in allOfferings.values)
-            (
-              offering: data.offering,
-              course: data.course,
-              teacherNames: data.teacherNames.toList(growable: false),
-            ),
-        ],
-      );
+    await for (final _ in query.watch()) {
+      final data = await _readCachedCourseTable(semesterId);
 
       if (data.scheduled.isEmpty && data.unscheduled.isEmpty) {
         try {
@@ -389,6 +526,73 @@ class CourseRepository {
         }
       }
     }
+  }
+
+  Future<CourseTableData> _readCachedCourseTable(int semesterId) async {
+    final rows = await (_database.select(
+      _database.courseTableSlots,
+    )..where((slot) => slot.semester.equals(semesterId))).get();
+    final allOfferingRows =
+        await ((_database.select(_database.courseOfferings)..where(
+                  (offering) =>
+                      offering.semester.equals(semesterId) &
+                      offering.inCourseTable.equals(true),
+                ))
+                .join([
+                  leftOuterJoin(
+                    _database.courses,
+                    _database.courses.code.equalsExp(
+                      _database.courseOfferings.courseCode,
+                    ),
+                  ),
+                  leftOuterJoin(
+                    _database.courseOfferingTeachers,
+                    _database.courseOfferingTeachers.courseOffering.equalsExp(
+                      _database.courseOfferings.id,
+                    ),
+                  ),
+                  leftOuterJoin(
+                    _database.teacherSemesters,
+                    _database.teacherSemesters.id.equalsExp(
+                      _database.courseOfferingTeachers.teacherSemester,
+                    ),
+                  ),
+                  leftOuterJoin(
+                    _database.teachers,
+                    _database.teachers.id.equalsExp(
+                      _database.teacherSemesters.teacher,
+                    ),
+                  ),
+                ])
+              ..orderBy([
+                .asc(_database.courseOfferings.id),
+                .asc(_database.teachers.code),
+              ]))
+            .get();
+    final allOfferings = <int, _CourseTableOfferingData>{};
+    for (final row in allOfferingRows) {
+      final offering = row.readTable(_database.courseOfferings);
+      final course = row.readTableOrNull(_database.courses);
+      final data = allOfferings.putIfAbsent(
+        offering.id,
+        () => (offering: offering, course: course, teacherNames: []),
+      );
+      if (row.readTableOrNull(_database.teachers) case final teacher?) {
+        final name = localized(teacher.nameZh, teacher.nameEn);
+        if (!data.teacherNames.contains(name)) data.teacherNames.add(name);
+      }
+    }
+    return _buildCourseTableData(
+      rows,
+      [
+        for (final data in allOfferings.values)
+          (
+            offering: data.offering,
+            course: data.course,
+            teacherNames: data.teacherNames.toList(growable: false),
+          ),
+      ],
+    );
   }
 
   /// Fetches fresh course table data from network and writes to DB.
@@ -562,161 +766,6 @@ class CourseRepository {
         ),
       );
     });
-  }
-
-  /// Builds [CourseTableData] from scheduled view rows and all offerings for
-  /// the semester, computing multi-period spans and layout metadata.
-  static CourseTableData _buildCourseTableData(
-    List<CourseTableSlot> rows,
-    List<_CourseTableOfferingData> allOfferings,
-  ) {
-    final scheduled = <({DayOfWeek day, Period period}), CourseTableCellData>{};
-    final offeringsById = {
-      for (final offering in allOfferings) offering.offering.id: offering,
-    };
-
-    for (final row in rows) {
-      final key = (day: row.dayOfWeek, period: row.period);
-      if (scheduled.containsKey(key)) continue;
-
-      final courseName = localized(row.nameZh, row.nameEn);
-      scheduled[key] = (
-        id: row.id,
-        number: row.number,
-        span: 1,
-        crossesNoon: false,
-        courseName: courseName,
-        classroomName: switch ((row.classroomNameZh, row.classroomNameEn)) {
-          (final zh?, final en) => localized(zh, en),
-          _ => null,
-        },
-        teacherNames: offeringsById[row.id]?.teacherNames ?? const [],
-        credits: row.credits ?? 0,
-        hours: row.hours ?? 0,
-      );
-    }
-
-    // Compute spans: for each slot, look ahead at consecutive periods on the
-    // same day. Matching offerings are tracked in a consumed set, and the
-    // starting slot gets the total span. Consumed slots are removed at the end.
-    //
-    // On days without a course in the noon period, courses that span across
-    // noon (e.g. period 4 → 5) are merged. The noon period is skipped (not
-    // counted in span) and crossesNoon is set for UI height calculation.
-    final daysWithNoon = scheduled.keys
-        .where((slot) => slot.period == .nPeriod)
-        .map((slot) => slot.day)
-        .toSet();
-    final consumed = <({DayOfWeek day, Period period})>{};
-    for (final entry in scheduled.entries) {
-      if (consumed.contains(entry.key)) continue;
-      var span = 1;
-      var crossesNoon = false;
-      var skippedNoon = false;
-      var lookIndex = entry.key.period.index + 1;
-
-      while (lookIndex < Period.values.length) {
-        final nextPeriod = Period.values[lookIndex];
-        // Skip noon when this day has no course in the noon period.
-        if (nextPeriod == .nPeriod && !daysWithNoon.contains(entry.key.day)) {
-          skippedNoon = true;
-          lookIndex++;
-          continue;
-        }
-        final nextKey = (day: entry.key.day, period: nextPeriod);
-        if (scheduled[nextKey] case final next?
-            when next.id == entry.value.id) {
-          consumed.add(nextKey);
-          span++;
-          crossesNoon = skippedNoon && entry.key.period.isAM && nextPeriod.isPM;
-          lookIndex++;
-        } else {
-          break;
-        }
-      }
-
-      if (span > 1 || crossesNoon) {
-        scheduled[entry.key] = (
-          id: entry.value.id,
-          number: entry.value.number,
-          span: span,
-          crossesNoon: crossesNoon,
-          courseName: entry.value.courseName,
-          classroomName: entry.value.classroomName,
-          teacherNames: entry.value.teacherNames,
-          credits: entry.value.credits,
-          hours: entry.value.hours,
-        );
-      }
-    }
-
-    scheduled.removeWhere((key, _) => consumed.contains(key));
-
-    // Filter offerings not present in the scheduled map.
-    final scheduledIds = scheduled.values.map((c) => c.id).toSet();
-    final unscheduled = allOfferings
-        .where((row) => !scheduledIds.contains(row.offering.id))
-        .map((row) {
-          final courseName = localized(
-            row.offering.nameZh,
-            row.offering.nameEn ?? row.course?.nameEn,
-          );
-          return (
-            id: row.offering.id,
-            number: row.offering.number,
-            span: 0,
-            crossesNoon: false,
-            courseName: courseName,
-            classroomName: null,
-            teacherNames: row.teacherNames,
-            credits: row.offering.credits ?? row.course?.credits ?? 0.0,
-            hours: row.offering.hours ?? row.course?.hours ?? 0,
-          );
-        })
-        .toList(growable: false);
-
-    // Compute layout metadata from the scheduled map.
-    final allEntryPeriods = scheduled.entries
-        .expand((e) {
-          final noonIndex = Period.nPeriod.index;
-          final start = e.key.period.index;
-          return List.generate(e.value.span, (i) {
-            final raw = start + i;
-            return Period.values[raw >= noonIndex && e.value.crossesNoon
-                ? raw + 1
-                : raw];
-          });
-        })
-        .toList(growable: false);
-
-    // Unique courses by ID for credit/hour aggregation.
-    final seen = <int>{};
-    final uniqueCourses = [
-      ...scheduled.values.where((c) => seen.add(c.id)),
-      ...unscheduled.where((c) => seen.add(c.id)),
-    ];
-
-    return (
-      scheduled: scheduled,
-      unscheduled: unscheduled,
-      hasWeekdayCourse: scheduled.keys.any((s) => s.day.isWeekday),
-      hasSaturdayCourse: scheduled.keys.any((s) => s.day == .saturday),
-      hasSundayCourse: scheduled.keys.any((s) => s.day == .sunday),
-      hasAMCourse: allEntryPeriods.any((p) => p.isAM),
-      hasPMCourse: allEntryPeriods.any((p) => p.isPM),
-      hasNoonCourse: allEntryPeriods.any((p) => p == .nPeriod),
-      hasEveningCourse: allEntryPeriods.any((p) => p.isEvening),
-      earliestPeriod: scheduled.isEmpty
-          ? null
-          : Period.values[scheduled.keys
-                .map((s) => s.period.index)
-                .reduce(min)],
-      latestPeriod: allEntryPeriods.isEmpty
-          ? null
-          : allEntryPeriods.reduce((a, b) => a.index > b.index ? a : b),
-      totalCredits: uniqueCourses.fold(0.0, (sum, c) => sum + c.credits),
-      totalHours: uniqueCourses.fold(0, (sum, c) => sum + c.hours),
-    );
   }
 
   /// Reads [number]'s offering detail (overview + schedule + teachers +

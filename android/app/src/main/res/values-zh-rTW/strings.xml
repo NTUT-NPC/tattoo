@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="course_widget_content_description">課表</string>
+    <string name="course_widget_description">最新快取課表</string>
+    <string name="course_widget_setup_hint">開啟 %1$s 以設定課表小工具</string>
+    <string name="course_widget_setup_hint_initial">開啟應用程式以設定課表小工具</string>
+</resources>

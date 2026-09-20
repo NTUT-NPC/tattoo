@@ -1,6 +1,32 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 
+/// Colors shared by interactive and exported timetable cells.
+typedef CourseTableCellPalette = ({
+  Color container,
+  Color border,
+  Color foreground,
+});
+
+/// Derives the timetable-cell palette from its stable base color.
+CourseTableCellPalette courseTableCellPalette(
+  Color baseColor,
+  Brightness brightness,
+) {
+  final isDark = brightness == Brightness.dark;
+  return (
+    container: HSLColor.fromColor(baseColor)
+        .withLightness(isDark ? 0.7 : 0.9)
+        .withSaturation(isDark ? 0.2 : 0.4)
+        .toColor(),
+    border: HSLColor.fromColor(baseColor)
+        .withLightness(0.3)
+        .withSaturation(isDark ? 0.5 : 0.6)
+        .toColor(),
+    foreground: Colors.grey[900]!,
+  );
+}
+
 const _courseTableColors = [
   Colors.red,
   Colors.blue,

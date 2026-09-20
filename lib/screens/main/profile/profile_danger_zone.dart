@@ -13,6 +13,7 @@ import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/services/course_widget_sync.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/http.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
@@ -68,6 +69,8 @@ class ProfileDangerZone extends ConsumerWidget {
     context,
     t.profile.dangerZone.items.cache,
     () async {
+      final sync = ref.read(courseWidgetSyncControllerProvider);
+      await sync.invalidateAndClear();
       final cacheDir = await getApplicationCacheDirectory();
       if (await cacheDir.exists()) {
         await for (final entity in cacheDir.list()) {
@@ -77,6 +80,8 @@ class ProfileDangerZone extends ConsumerWidget {
       await ref.read(databaseProvider).deleteCachedData();
       // Stream-based providers auto-update via Drift .watch().
       ref.invalidate(userAvatarProvider);
+      await sync.start();
+      await sync.reconcile();
     },
   );
 
@@ -107,10 +112,8 @@ class ProfileDangerZone extends ConsumerWidget {
     context,
     t.profile.dangerZone.items.userData,
     () async {
-      await ref.read(databaseProvider).deleteEverything();
-      await cookieJar.deleteAll();
-      await const FlutterSecureStorage().deleteAll();
-      ref.read(sessionProvider.notifier).destroy();
+      await ref.read(courseWidgetSyncControllerProvider).stopAndClear();
+      await ref.read(authRepositoryProvider).logout();
     },
   );
 

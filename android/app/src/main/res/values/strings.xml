@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="course_widget_content_description">Course table</string>
+    <string name="course_widget_description">Latest cached course table</string>
+    <string name="course_widget_setup_hint">Open %1$s to set up your course table</string>
+    <string name="course_widget_setup_hint_initial">Open the app to set up your course table</string>
+</resources>

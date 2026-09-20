@@ -14,6 +14,7 @@ import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
+import 'package:tattoo/services/course_widget_sync.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
@@ -26,6 +27,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Future<void> _logout(WidgetRef ref) async {
+    await ref.read(courseWidgetSyncControllerProvider).stopAndClear();
     await ref.read(authRepositoryProvider).logout();
   }
 
