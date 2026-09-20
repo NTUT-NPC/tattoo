@@ -1616,6 +1616,9 @@ class Translations$courseTable$detail$roster$zh_TW {
 	/// zh-TW: '無法更新同學名單，仍顯示先前的資料。'
 	String get updateFailed => '無法更新同學名單，仍顯示先前的資料。';
 
+	/// zh-TW: '同學名單已更新。'
+	String get updateSuccess => '同學名單已更新。';
+
 	/// zh-TW: '返回同學名單'
 	String get backToRoster => '返回同學名單';
 }
@@ -1809,6 +1812,7 @@ extension on Translations {
 			'courseTable.detail.roster.loadFailed' => '無法載入同學名單。',
 			'courseTable.detail.roster.networkSnackbar' => '正在嘗試更新同學名單。此功能需要連接學校網路。',
 			'courseTable.detail.roster.updateFailed' => '無法更新同學名單，仍顯示先前的資料。',
+			'courseTable.detail.roster.updateSuccess' => '同學名單已更新。',
 			'courseTable.detail.roster.backToRoster' => '返回同學名單',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
