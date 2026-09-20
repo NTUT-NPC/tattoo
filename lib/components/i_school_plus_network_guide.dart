@@ -65,7 +65,7 @@ class ISchoolPlusNetworkGuide extends StatelessWidget {
           Text(
             strings.description.spaced,
             style: theme.textTheme.bodyLarge,
-            textAlign: .center,
+            textAlign: .justify,
           ),
           if (retryInProgress) ...[
             const SizedBox(height: 12),
