@@ -293,6 +293,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     });
     ref
       ..invalidate(iSchoolPlusAvailabilityProvider)
+      ..invalidate(courseStudentRosterProvider(widget.rosterKey))
       ..invalidate(courseStudentRosterAvailabilityProvider(widget.rosterKey))
       ..invalidate(courseStudentRosterRefreshProvider(widget.rosterKey));
   }
