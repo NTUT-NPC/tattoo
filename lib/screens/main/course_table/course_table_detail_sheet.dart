@@ -1,16 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
+import 'package:tattoo/components/i_school_plus_network_guide.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
+import 'package:tattoo/screens/main/i_school_plus_providers.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/shells/centered_max_width_frame.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
-import 'package:tattoo/utils/launch_url.dart';
 import 'package:tattoo/utils/localized.dart';
 
 Future<void> showCourseTableDetailSheet(
@@ -271,12 +272,52 @@ class _CourseRosterPane extends ConsumerStatefulWidget {
 
 class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
   var _showNetworkGuide = false;
+  var _probeSnackbarShown = false;
+  var _isInitialAttempt = true;
+
+  /// Cache presence before the running refresh can update its fetched time.
+  bool? _refreshStartedWithCache;
 
   void _retry() {
-    setState(() => _showNetworkGuide = false);
+    final refresh = ref.read(
+      courseStudentRosterRefreshProvider(widget.rosterKey),
+    );
+    final availability = ref.read(
+      courseStudentRosterAvailabilityProvider(widget.rosterKey),
+    );
+    if (refresh.isLoading || availability.isLoading) return;
+    setState(() {
+      _showNetworkGuide = false;
+      _probeSnackbarShown = false;
+      _isInitialAttempt = false;
+    });
     ref
+      ..invalidate(iSchoolPlusAvailabilityProvider)
       ..invalidate(courseStudentRosterProvider(widget.rosterKey))
+      ..invalidate(courseStudentRosterAvailabilityProvider(widget.rosterKey))
       ..invalidate(courseStudentRosterRefreshProvider(widget.rosterKey));
+  }
+
+  void _openNetworkGuide() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    setState(() => _showNetworkGuide = true);
+  }
+
+  void _showUpdateSnackbar(String message, String actionLabel) {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message.spaced),
+          persist: false,
+          action: SnackBarAction(
+            label: actionLabel,
+            onPressed: _openNetworkGuide,
+          ),
+        ),
+      );
   }
 
   @override
@@ -285,50 +326,76 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     final refreshProvider = courseStudentRosterRefreshProvider(
       widget.rosterKey,
     );
+    final availabilityProvider = courseStudentRosterAvailabilityProvider(
+      widget.rosterKey,
+    );
     final cacheAsync = ref.watch(cacheProvider);
     final refreshAsync = ref.watch(refreshProvider);
+    final availabilityAsync = ref.watch(availabilityProvider);
     final strings = Translations.of(context).courseTable.detail.roster;
+    final networkStrings = Translations.of(context).iSchoolPlus.network;
+
+    ref.listen(availabilityProvider, (previous, next) {
+      if (!_hasNewError(previous, next)) return;
+      final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
+      final refresh = ref.read(refreshProvider);
+      if (!hasCache || refresh.value == true || _probeSnackbarShown) return;
+      _probeSnackbarShown = true;
+      _showUpdateSnackbar(
+        strings.networkSnackbar,
+        networkStrings.learnMore,
+      );
+    });
 
     ref.listen(refreshProvider, (previous, next) {
-      if (previous?.hasError == true || !next.hasError) return;
-      final cachedStudents =
-          ref.read(cacheProvider).value?.students ?? const [];
-      if (cachedStudents.isEmpty) return;
+      if (_hasNewError(previous, next)) {
+        _refreshStartedWithCache = null;
+        final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
+        if (hasCache) {
+          _showUpdateSnackbar(
+            strings.updateFailed,
+            networkStrings.learnMore,
+          );
+        }
+        return;
+      }
+      if (next.value != true) return;
 
-      final messenger = ScaffoldMessenger.of(context);
-      messenger
+      final refreshedCachedRoster = _refreshStartedWithCache == true;
+      _refreshStartedWithCache = null;
+      if (_showNetworkGuide && mounted) {
+        setState(() => _showNetworkGuide = false);
+      }
+      if (!refreshedCachedRoster || !mounted) return;
+
+      ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text(strings.networkSnackbar.spaced),
+            content: Text(strings.updateSuccess.spaced),
             persist: false,
-            action: SnackBarAction(
-              label: strings.learnMore,
-              onPressed: () {
-                if (mounted) setState(() => _showNetworkGuide = true);
-              },
-            ),
           ),
         );
     });
 
-    final guideUrl = courseRosterGuideUri(
-      ref.pref(PrefKey.courseRosterGuideUrl),
+    final guideUrl = iSchoolPlusNetworkGuideUri(
+      ref.pref(PrefKey.iSchoolPlusNetworkGuideUrl),
     );
-    if (_showNetworkGuide) {
-      return _CourseRosterNetworkGuide(
-        guideUrl: guideUrl,
-        onBack: () => setState(() => _showNetworkGuide = false),
-        onRetry: _retry,
-      );
-    }
-
     final roster = cacheAsync.value;
-    final refreshError = refreshAsync.error;
-    if (cacheAsync.isLoading ||
-        (roster?.fetchedAt == null && refreshAsync.isLoading)) {
+    final hasCache = roster?.fetchedAt != null;
+    if (refreshAsync.isLoading && !cacheAsync.isLoading) {
+      _refreshStartedWithCache ??= hasCache;
+    }
+    final attemptRunning =
+        refreshAsync.isLoading || availabilityAsync.isLoading;
+    final retryEnabled = canRetryCourseStudentRoster(
+      refreshAsync,
+      availabilityAsync,
+    );
+
+    if (cacheAsync.isLoading) {
       return _CourseRosterLoading(
-        onLearnMore: () => setState(() => _showNetworkGuide = true),
+        onLearnMore: _openNetworkGuide,
       );
     }
     if (cacheAsync.hasError) {
@@ -338,20 +405,53 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         onRetry: _retry,
       );
     }
-    if ((roster?.students.isEmpty ?? true) && refreshError != null) {
-      return _CourseRosterNetworkGuide(
-        guideUrl: guideUrl,
-        onRetry: _retry,
-      );
+
+    final presentation = courseRosterPresentation(
+      hasCache: hasCache,
+      showNetworkGuide: _showNetworkGuide,
+      allowEarlyNetworkGuide: _isInitialAttempt,
+      refresh: refreshAsync,
+      availability: availabilityAsync,
+    );
+    switch (presentation) {
+      case .guide:
+        return ISchoolPlusNetworkGuide(
+          guideUrl: guideUrl,
+          onBack: hasCache
+              ? (
+                  label: strings.backToRoster,
+                  onPressed: () => setState(() => _showNetworkGuide = false),
+                )
+              : null,
+          onRetry: _retry,
+          retryEnabled: retryEnabled,
+          retryInProgress: attemptRunning,
+        );
+      case .genericFailure:
+        return _DetailState(
+          icon: Icons.error_outline,
+          message: strings.loadFailed,
+          onRetry: retryEnabled ? _retry : null,
+        );
+      case .loading:
+        return _CourseRosterLoading(onLearnMore: _openNetworkGuide);
+      case .content:
+        if (roster!.students.isEmpty) {
+          return _DetailState(
+            icon: Icons.group_off_outlined,
+            message: strings.empty,
+          );
+        }
+        return _CourseRosterTable(students: roster.students);
     }
-    if (roster == null || roster.students.isEmpty) {
-      return _DetailState(
-        icon: Icons.group_off_outlined,
-        message: strings.empty,
-      );
-    }
-    return _CourseRosterTable(students: roster.students);
   }
+}
+
+bool _hasNewError<T>(AsyncValue<T>? previous, AsyncValue<T> next) {
+  return next.hasError &&
+      (previous?.hasError != true ||
+          !identical(previous?.error, next.error) ||
+          !identical(previous?.stackTrace, next.stackTrace));
 }
 
 class _CourseRosterLoading extends StatelessWidget {
@@ -362,7 +462,7 @@ class _CourseRosterLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final strings = Translations.of(context).courseTable.detail.roster;
+    final strings = Translations.of(context).iSchoolPlus.network;
     final hintStyle = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
@@ -371,13 +471,12 @@ class _CourseRosterLoading extends StatelessWidget {
       child: Center(
         child: Column(
           mainAxisSize: .min,
-          spacing: 8,
+          spacing: 16,
           children: [
             const CircularProgressIndicator(),
             Wrap(
               alignment: .center,
               crossAxisAlignment: .center,
-              spacing: 4,
               children: [
                 Text(strings.loadingNetworkHint.spaced, style: hintStyle),
                 Semantics(
@@ -444,88 +543,6 @@ class _CourseRosterTable extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _CourseRosterNetworkGuide extends StatelessWidget {
-  const _CourseRosterNetworkGuide({
-    required this.guideUrl,
-    this.onBack,
-    this.onRetry,
-  });
-
-  final Uri guideUrl;
-  final VoidCallback? onBack;
-  final VoidCallback? onRetry;
-
-  Future<void> _openGuide(BuildContext context) async {
-    try {
-      await launchUrl(guideUrl);
-    } catch (_) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              t.courseTable.detail.roster.openGuideFailed.spaced,
-            ),
-          ),
-        );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final strings = Translations.of(context).courseTable.detail.roster;
-    return Padding(
-      padding: const .fromLTRB(16, 32, 16, 8),
-      child: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: .stretch,
-        children: [
-          Icon(
-            Icons.vpn_lock_outlined,
-            size: 64,
-            color: theme.colorScheme.primary,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            strings.networkTitle.spaced,
-            style: theme.textTheme.headlineSmall,
-            textAlign: .center,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            strings.networkDescription.spaced,
-            style: theme.textTheme.bodyLarge,
-            textAlign: .center,
-          ),
-          if (onBack case final onBack?) ...[
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: onBack,
-              child: Text(strings.backToRoster.spaced),
-            ),
-          ],
-          const SizedBox(height: 24),
-          if (onRetry case final onRetry?) ...[
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: Text(strings.refresh.spaced),
-            ),
-            const SizedBox(height: 8),
-          ],
-          OutlinedButton.icon(
-            onPressed: () => _openGuide(context),
-            icon: const Icon(Icons.open_in_new),
-            label: Text(strings.openGuide.spaced),
-          ),
-        ],
       ),
     );
   }
@@ -697,24 +714,13 @@ class _DetailState extends StatelessWidget {
             if (onRetry case final onRetry?)
               TextButton(
                 onPressed: onRetry,
-                child: Text(t.courseTable.detail.roster.refresh.spaced),
+                child: Text(t.general.retry.spaced),
               ),
           ],
         ),
       ),
     );
   }
-}
-
-/// Returns a safe course-roster guide URL, falling back from invalid config.
-Uri courseRosterGuideUri(String configuredUrl) {
-  final configured = Uri.tryParse(configuredUrl);
-  if (configured != null &&
-      (configured.scheme == 'http' || configured.scheme == 'https') &&
-      configured.host.isNotEmpty) {
-    return configured;
-  }
-  return Uri.parse(defaultCourseRosterGuideUrl);
 }
 
 String? _normalizedText(String? value) {
