@@ -7,7 +7,6 @@ import android.os.Looper
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import java.io.IOException
 import java.util.concurrent.Executors
 
 class CourseWidgetChannelHandler(context: Context) : MethodChannel.MethodCallHandler {
@@ -86,11 +85,7 @@ class CourseWidgetChannelHandler(context: Context) : MethodChannel.MethodCallHan
             try {
                 val value = operation()
                 mainHandler.post { result.success(value.takeUnless { it === Unit }) }
-            } catch (error: IOException) {
-                mainHandler.post {
-                    result.error("storage_error", error.message, null)
-                }
-            } catch (error: SecurityException) {
+            } catch (error: Exception) {
                 mainHandler.post {
                     result.error("storage_error", error.message, null)
                 }
