@@ -275,6 +275,9 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
   var _probeSnackbarShown = false;
   var _isInitialAttempt = true;
 
+  /// Cache presence before the running refresh can update its fetched time.
+  bool? _refreshStartedWithCache;
+
   void _retry() {
     final refresh = ref.read(
       courseStudentRosterRefreshProvider(widget.rosterKey),
@@ -345,6 +348,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
 
     ref.listen(refreshProvider, (previous, next) {
       if (_hasNewError(previous, next)) {
+        _refreshStartedWithCache = null;
         final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
         if (hasCache) {
           _showUpdateSnackbar(
@@ -354,8 +358,23 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         }
         return;
       }
-      if (next.value != true || !_showNetworkGuide || !mounted) return;
-      setState(() => _showNetworkGuide = false);
+      if (next.value != true) return;
+
+      final refreshedCachedRoster = _refreshStartedWithCache == true;
+      _refreshStartedWithCache = null;
+      if (_showNetworkGuide && mounted) {
+        setState(() => _showNetworkGuide = false);
+      }
+      if (!refreshedCachedRoster || !mounted) return;
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(strings.updateSuccess.spaced),
+            persist: false,
+          ),
+        );
     });
 
     final guideUrl = iSchoolPlusNetworkGuideUri(
@@ -363,6 +382,9 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     );
     final roster = cacheAsync.value;
     final hasCache = roster?.fetchedAt != null;
+    if (refreshAsync.isLoading && !cacheAsync.isLoading) {
+      _refreshStartedWithCache ??= hasCache;
+    }
     final attemptRunning =
         refreshAsync.isLoading || availabilityAsync.isLoading;
     final retryEnabled = canRetryCourseStudentRoster(
