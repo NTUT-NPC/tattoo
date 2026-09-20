@@ -220,6 +220,94 @@ void main() {
         expect(await Future.wait([first, second]), ['first', 'second']);
       });
 
+      test(
+        'keeps a newer SSO in flight after reauthentication clears the old one',
+        () async {
+          await repository.login('111360109', 'password');
+
+          final firstSso = Completer<void>();
+          final secondSso = Completer<void>();
+          final secondSsoStarted = Completer<void>();
+          var ssoAttempt = 0;
+          portalService.onSso = (_) async {
+            ssoAttempt++;
+            switch (ssoAttempt) {
+              case 1:
+                await firstSso.future;
+              case 2:
+                secondSsoStarted.complete();
+                await secondSso.future;
+              default:
+                throw StateError('Unexpected third SSO request');
+            }
+          };
+
+          final firstNetworkError = DioException.connectionError(
+            requestOptions: RequestOptions(path: 'ssoIndex.do'),
+            reason: 'network unavailable',
+          );
+          final first = repository.withAuth(
+            () async => 'unreachable',
+            sso: [.iSchoolPlusService],
+          );
+          final firstExpectation = expectLater(
+            first,
+            throwsA(same(firstNetworkError)),
+          );
+
+          final reauthLoginStarted = Completer<void>();
+          final reauthLoginGate = Completer<void>();
+          portalService.onLogin = (_, _) async {
+            reauthLoginStarted.complete();
+            await reauthLoginGate.future;
+          };
+
+          var reauthCallCount = 0;
+          final reauthCleared = Completer<void>();
+          final reauthActionGate = Completer<void>();
+          final reauthentication = repository.withAuth(() async {
+            if (reauthCallCount++ == 0) {
+              throw const SessionExpiredException('portal session expired');
+            }
+            reauthCleared.complete();
+            await reauthActionGate.future;
+            return 'reauthenticated';
+          });
+
+          await reauthLoginStarted.future;
+          reauthLoginGate.complete();
+          await reauthCleared.future;
+
+          final second = repository.withAuth(
+            () async => 'second',
+            sso: [.iSchoolPlusService],
+          );
+          await secondSsoStarted.future;
+          expect(portalService.ssoCalls, [
+            PortalServiceCode.iSchoolPlusService.code,
+            PortalServiceCode.iSchoolPlusService.code,
+          ]);
+
+          firstSso.completeError(firstNetworkError);
+          await firstExpectation;
+
+          final third = repository.withAuth(
+            () async => 'third',
+            sso: [.iSchoolPlusService],
+          );
+          secondSso.complete();
+
+          expect(await second, 'second');
+          expect(await third, 'third');
+          reauthActionGate.complete();
+          expect(await reauthentication, 'reauthenticated');
+          expect(portalService.ssoCalls, [
+            PortalServiceCode.iSchoolPlusService.code,
+            PortalServiceCode.iSchoolPlusService.code,
+          ]);
+        },
+      );
+
       test('caches a successful SSO for later calls', () async {
         await repository.login('111360109', 'password');
 
@@ -304,6 +392,7 @@ class _RecordingPortalService extends MockPortalService {
       <({String currentPassword, String newPassword})>[];
   final ssoCalls = <String>[];
   Future<void> Function(String serviceCode)? onSso;
+  Future<void> Function(String username, String password)? onLogin;
 
   @override
   Future<void> sso(String serviceCode) async {
@@ -314,6 +403,7 @@ class _RecordingPortalService extends MockPortalService {
   @override
   Future<UserDto> login(String username, String password) async {
     loginCalls.add((username: username, password: password));
+    if (onLogin case final callback?) await callback(username, password);
     return super.login(username, password);
   }
 

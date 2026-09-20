@@ -474,7 +474,9 @@ class AuthRepository {
     } catch (error, stackTrace) {
       completer.completeError(error, stackTrace);
     } finally {
-      _ssoInFlight.remove(service);
+      if (identical(_ssoInFlight[service], completer)) {
+        _ssoInFlight.remove(service);
+      }
     }
     return completer.future;
   }
