@@ -160,6 +160,7 @@ courseTable:
       loadFailed: Unable to load the course roster.
       networkSnackbar: Attempting to update the course roster. This feature requires the NTUT network.
       updateFailed: Unable to update the course roster. Previously cached data is still shown.
+      updateSuccess: Course roster updated.
       backToRoster: Back to Course Roster
   summary:
     credits(plural, param=count):

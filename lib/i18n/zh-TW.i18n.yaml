@@ -160,6 +160,7 @@ courseTable:
       loadFailed: 無法載入同學名單。
       networkSnackbar: 正在嘗試更新同學名單。此功能需要連接學校網路。
       updateFailed: 無法更新同學名單，仍顯示先前的資料。
+      updateSuccess: 同學名單已更新。
       backToRoster: 返回同學名單
   summary:
     credits(plural, param=count):

@@ -989,6 +989,7 @@ class _Translations$courseTable$detail$roster$en_US extends Translations$courseT
 	@override String get loadFailed => 'Unable to load the course roster.';
 	@override String get networkSnackbar => 'Attempting to update the course roster. This feature requires the NTUT network.';
 	@override String get updateFailed => 'Unable to update the course roster. Previously cached data is still shown.';
+	@override String get updateSuccess => 'Course roster updated.';
 	@override String get backToRoster => 'Back to Course Roster';
 }
 
@@ -1159,6 +1160,7 @@ extension on TranslationsEnUs {
 			'courseTable.detail.roster.loadFailed' => 'Unable to load the course roster.',
 			'courseTable.detail.roster.networkSnackbar' => 'Attempting to update the course roster. This feature requires the NTUT network.',
 			'courseTable.detail.roster.updateFailed' => 'Unable to update the course roster. Previously cached data is still shown.',
+			'courseTable.detail.roster.updateSuccess' => 'Course roster updated.',
 			'courseTable.detail.roster.backToRoster' => 'Back to Course Roster',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
