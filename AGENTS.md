@@ -146,6 +146,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **InvalidCookieFilter:** iSchool+ returns malformed cookies. Additionally, NativeAdapter (Cronet/URLSession) comma-joins multiple Set-Cookie values into a single header entry. The interceptor splits them before validation so one invalid cookie doesn't discard valid ones.
 
+**I-School Plus selected course:** `goto_course.php` changes mutable server-side session state. The Service serializes each course-scoped operation from course selection through its final dependent HTTP request, including roster and material calls. A failed course switch or expired session invalidates the cached selected ID. Keep this protocol synchronization in the Service, not CourseRepository.
+
 **Connection: close:** PortalService uses `Connection: close` header. NTUT portal servers close keep-alive connections after multipart uploads, causing stale socket errors if Dart's HTTP client tries to reuse them.
 
 ### NTUT Portal apOu Codes
