@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/repositories/course_repository.dart';
@@ -63,20 +63,24 @@ class CourseWidgetSyncController {
   String? _persistedFingerprint;
   String? _activeFingerprint;
   var _generation = 0;
+  var _lifecycleGeneration = 0;
   var _started = false;
   var _draining = false;
 
   void attachRenderer(CourseWidgetRenderer? renderer) {
+    if (identical(_renderer, renderer)) return;
     _renderer = renderer;
+    _generation++;
+    _pending = null;
   }
 
   /// Starts one cache subscription and loads the native persisted fingerprint.
   Future<void> start() async {
     if (_started) return;
     _started = true;
-    final generation = ++_generation;
+    final lifecycleGeneration = ++_lifecycleGeneration;
     _persistedFingerprint = await _platform.readFingerprint();
-    if (!_started || generation != _generation) return;
+    if (!_started || lifecycleGeneration != _lifecycleGeneration) return;
     _subscription = _watchChanges().listen((_) => _scheduleReconcile());
   }
 
@@ -125,6 +129,7 @@ class CourseWidgetSyncController {
 
   Future<void> _stopAndClear() async {
     _started = false;
+    _lifecycleGeneration++;
     _generation++;
     _debounce?.cancel();
     _debounce = null;
@@ -170,44 +175,46 @@ class CourseWidgetSyncController {
         final pending = _pending;
         if (pending == null) break;
         _pending = null;
+        final renderer = _renderer;
+        if (renderer == null) break;
         _activeFingerprint = pending.fingerprint;
         final source = pending.input;
-        final lightPng = await _renderer!((
-          cache: source.cache,
-          locale: source.presentation.locale,
-          brightness: Brightness.light,
-          colors: source.presentation.lightColors,
-        ));
-        if (!_isLatest(pending)) {
-          _activeFingerprint = null;
-          continue;
-        }
-        final darkPng = await _renderer!((
-          cache: source.cache,
-          locale: source.presentation.locale,
-          brightness: Brightness.dark,
-          colors: source.presentation.darkColors,
-        ));
-        if (!_isLatest(pending)) {
-          _activeFingerprint = null;
-          continue;
-        }
-
-        final commit = _platform.commitBitmaps(
-          lightPng: lightPng,
-          darkPng: darkPng,
-          fingerprint: pending.fingerprint,
-        );
-        _commit = commit;
         try {
-          await commit;
-          if (pending.generation == _generation) {
-            _persistedFingerprint = pending.fingerprint;
+          final lightPng = await renderer((
+            cache: source.cache,
+            locale: source.presentation.locale,
+            brightness: Brightness.light,
+            colors: source.presentation.lightColors,
+          ));
+          if (!_isLatest(pending)) continue;
+
+          final darkPng = await renderer((
+            cache: source.cache,
+            locale: source.presentation.locale,
+            brightness: Brightness.dark,
+            colors: source.presentation.darkColors,
+          ));
+          if (!_isLatest(pending)) continue;
+
+          final commit = _platform.commitBitmaps(
+            lightPng: lightPng,
+            darkPng: darkPng,
+            fingerprint: pending.fingerprint,
+          );
+          _commit = commit;
+          try {
+            await commit;
+            if (pending.generation == _generation) {
+              _persistedFingerprint = pending.fingerprint;
+            }
+          } finally {
+            _commit = null;
           }
+        } catch (error, stackTrace) {
+          debugPrint('Course widget sync failed: $error\n$stackTrace');
         } finally {
-          _commit = null;
+          _activeFingerprint = null;
         }
-        _activeFingerprint = null;
       }
     } finally {
       _activeFingerprint = null;
@@ -254,6 +261,7 @@ String _courseWidgetFingerprint(_CourseWidgetSource input) {
           entry.value.span,
           entry.value.crossesNoon,
           entry.value.courseName,
+          entry.value.number,
           entry.value.classroomName,
           colorByCourseId[entry.value.id]!.toARGB32(),
         ],

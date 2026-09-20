@@ -91,6 +91,21 @@ void main() {
         hasLength(commitCount),
       );
     });
+    test('fallback cell number changes invalidate the bitmap', () async {
+      latest = _cache('', number: 'A');
+      await controller.start();
+      await controller.reconcile();
+      await pumpEventQueue();
+
+      latest = _cache('', number: 'B');
+      await controller.reconcile();
+      await pumpEventQueue();
+
+      expect(
+        platform.operations.where((entry) => entry.startsWith('commit:')),
+        hasLength(2),
+      );
+    });
 
     test('a newer input during rendering discards the old PNG', () async {
       final firstRender = Completer<Uint8List>();
@@ -120,6 +135,61 @@ void main() {
           .toList();
       expect(commits, hasLength(1));
       expect(commits.single, endsWith(':newer:light|newer:dark'));
+    });
+    test('detaching the renderer invalidates an in-flight render', () async {
+      final firstRender = Completer<Uint8List>();
+      controller.attachRenderer((_) => firstRender.future);
+      await controller.start();
+      await controller.reconcile();
+      await pumpEventQueue();
+
+      controller.attachRenderer(null);
+      firstRender.complete(Uint8List.fromList([1, 2, 3]));
+      await pumpEventQueue(times: 10);
+
+      expect(
+        platform.operations.where((entry) => entry.startsWith('commit:')),
+        isEmpty,
+      );
+    });
+
+    test('render failure is contained and a later render succeeds', () async {
+      var shouldFail = true;
+      controller.attachRenderer((input) async {
+        if (shouldFail) {
+          shouldFail = false;
+          throw StateError('render failed');
+        }
+        final variant = input.brightness.name;
+        return Uint8List.fromList(variant.codeUnits);
+      });
+      await controller.start();
+      await controller.reconcile();
+      await pumpEventQueue();
+
+      latest = _cache('recovered');
+      await controller.reconcile();
+      await pumpEventQueue();
+
+      expect(
+        platform.operations.where((entry) => entry.startsWith('commit:')),
+        hasLength(1),
+      );
+    });
+    test('commit failure is contained and a later commit succeeds', () async {
+      platform.commitError = StateError('commit failed');
+      await controller.start();
+      await controller.reconcile();
+      await pumpEventQueue();
+
+      await controller.reconcile();
+      await pumpEventQueue();
+
+      expect(
+        platform.operations.where((entry) => entry.startsWith('commit:')),
+        hasLength(2),
+      );
+      expect(platform.fingerprint, isNotNull);
     });
 
     for (final clearMethod in ['stopAndClear', 'invalidateAndClear']) {
@@ -160,6 +230,33 @@ void main() {
 
       expect(platform.operations.last, 'clear');
     });
+    test('render invalidation cannot cancel startup subscription', () async {
+      platform.readFingerprintGate = Completer<String?>();
+      final started = controller.start();
+      controller.setPresentation((
+        locale: 'zh-TW',
+        lightColors: _presentation.lightColors,
+        darkColors: _presentation.darkColors,
+      ));
+      platform.readFingerprintGate!.complete(null);
+      await started;
+      await Future<void>.delayed(
+        CourseWidgetSyncController.debounceDuration +
+            const Duration(milliseconds: 50),
+      );
+      await pumpEventQueue();
+      renderedVariants.clear();
+
+      latest = _cache('after-start');
+      changes.add(null);
+      await Future<void>.delayed(
+        CourseWidgetSyncController.debounceDuration +
+            const Duration(milliseconds: 50),
+      );
+      await pumpEventQueue();
+
+      expect(renderedVariants, ['after-start:light', 'after-start:dark']);
+    });
   });
 }
 
@@ -172,10 +269,10 @@ final _presentation = (
   ),
 );
 
-LatestCachedCourseTable _cache(String name) {
+LatestCachedCourseTable _cache(String name, {String? number = 'A'}) {
   final cell = (
     id: 10,
-    number: 'A',
+    number: number,
     span: 1,
     crossesNoon: false,
     courseName: name,
@@ -213,6 +310,8 @@ LatestCachedCourseTable _cache(String name) {
 class FakeCourseWidgetPlatform implements CourseWidgetPlatform {
   final operations = <String>[];
   Completer<void>? commitGate;
+  Completer<String?>? readFingerprintGate;
+  Object? commitError;
   String? fingerprint;
   ValueChanged<String>? routeHandler;
 
@@ -232,13 +331,17 @@ class FakeCourseWidgetPlatform implements CourseWidgetPlatform {
     final dark = String.fromCharCodes(darkPng);
     operations.add('commit:$fingerprint:$light|$dark');
     await commitGate?.future;
+    if (commitError case final error?) {
+      commitError = null;
+      throw error;
+    }
     this.fingerprint = fingerprint;
   }
 
   @override
   Future<String?> readFingerprint() async {
     operations.add('read');
-    return fingerprint;
+    return await readFingerprintGate?.future ?? fingerprint;
   }
 
   @override

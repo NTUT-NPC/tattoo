@@ -44,6 +44,8 @@ class _CourseWidgetRenderHostState
   late final CourseWidgetPlatform _platform;
   CourseWidgetSyncController? _controller;
   CourseWidgetRenderInput? _renderInput;
+  Future<void> _sessionTransition = Future.value();
+  var _sessionGeneration = 0;
 
   @override
   void initState() {
@@ -61,15 +63,33 @@ class _CourseWidgetRenderHostState
     );
     _sessionSubscription = ref.listenManual(
       sessionProvider,
-      (_, authenticated) {
-        if (authenticated) {
-          unawaited(_startAfterThemedFrame());
-        } else {
-          unawaited(_controller?.stopAndClear());
-        }
-      },
+      (_, authenticated) => _queueSessionTransition(authenticated),
       fireImmediately: true,
     );
+  }
+
+  void _queueSessionTransition(bool authenticated) {
+    final generation = ++_sessionGeneration;
+    final previous = _sessionTransition;
+    _sessionTransition = () async {
+      await previous;
+      if (!mounted) return;
+      try {
+        if (authenticated) {
+          if (generation != _sessionGeneration || !ref.read(sessionProvider)) {
+            return;
+          }
+          await _startAfterThemedFrame();
+        } else {
+          await _controller?.stopAndClear();
+        }
+      } catch (error, stackTrace) {
+        debugPrint(
+          'Course widget authentication transition failed: '
+          '$error\n$stackTrace',
+        );
+      }
+    }();
   }
 
   void _handleRoute(String route) {
