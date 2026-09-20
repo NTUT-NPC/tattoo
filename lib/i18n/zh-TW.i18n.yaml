@@ -157,8 +157,8 @@ courseTable:
       studentId: 學號
       name: 姓名
       empty: 目前沒有同學名單
-      loadFailed: 無法載入同學名單，請稍後再試。
-      networkSnackbar: 無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。
+      loadFailed: 無法載入同學名單。
+      networkSnackbar: 正在嘗試更新同學名單。此功能需要連接學校網路。
       updateFailed: 無法更新同學名單，仍顯示先前的資料。
       backToRoster: 返回同學名單
   summary:

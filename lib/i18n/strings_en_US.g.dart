@@ -986,8 +986,8 @@ class _Translations$courseTable$detail$roster$en_US extends Translations$courseT
 	@override String get studentId => 'Student ID';
 	@override String get name => 'Name';
 	@override String get empty => 'No classmates are listed for this course';
-	@override String get loadFailed => 'Unable to load the course roster. Please try again later.';
-	@override String get networkSnackbar => 'Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.';
+	@override String get loadFailed => 'Unable to load the course roster.';
+	@override String get networkSnackbar => 'Attempting to update the course roster. This feature requires the NTUT network.';
 	@override String get updateFailed => 'Unable to update the course roster. Previously cached data is still shown.';
 	@override String get backToRoster => 'Back to Course Roster';
 }
@@ -1156,8 +1156,8 @@ extension on TranslationsEnUs {
 			'courseTable.detail.roster.studentId' => 'Student ID',
 			'courseTable.detail.roster.name' => 'Name',
 			'courseTable.detail.roster.empty' => 'No classmates are listed for this course',
-			'courseTable.detail.roster.loadFailed' => 'Unable to load the course roster. Please try again later.',
-			'courseTable.detail.roster.networkSnackbar' => 'Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.',
+			'courseTable.detail.roster.loadFailed' => 'Unable to load the course roster.',
+			'courseTable.detail.roster.networkSnackbar' => 'Attempting to update the course roster. This feature requires the NTUT network.',
 			'courseTable.detail.roster.updateFailed' => 'Unable to update the course roster. Previously cached data is still shown.',
 			'courseTable.detail.roster.backToRoster' => 'Back to Course Roster',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 

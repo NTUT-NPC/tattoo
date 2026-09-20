@@ -157,8 +157,8 @@ courseTable:
       studentId: Student ID
       name: Name
       empty: No classmates are listed for this course
-      loadFailed: Unable to load the course roster. Please try again later.
-      networkSnackbar: Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.
+      loadFailed: Unable to load the course roster.
+      networkSnackbar: Attempting to update the course roster. This feature requires the NTUT network.
       updateFailed: Unable to update the course roster. Previously cached data is still shown.
       backToRoster: Back to Course Roster
   summary:
