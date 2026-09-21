@@ -13,7 +13,7 @@ CourseTableCellPalette courseTableCellPalette(
   Color baseColor,
   Brightness brightness,
 ) {
-  final isDark = brightness == Brightness.dark;
+  final isDark = brightness == .dark;
   return (
     container: HSLColor.fromColor(baseColor)
         .withLightness(isDark ? 0.7 : 0.9)

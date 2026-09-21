@@ -189,7 +189,7 @@ class _CourseWidgetRenderHostState
   @override
   Widget build(BuildContext context) {
     return Stack(
-      clipBehavior: Clip.none,
+      clipBehavior: .none,
       children: [
         widget.child,
         if (_renderInput case final input?) _buildExport(input),
