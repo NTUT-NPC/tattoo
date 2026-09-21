@@ -493,7 +493,7 @@ class CourseRepository {
     const ttl = Duration(days: 3);
 
     final query = _database.select(_database.courseTableSlots)
-      ..where((slot) => slot.semester.equals(semesterId));
+      ..where((s) => s.semester.equals(semesterId));
 
     await for (final _ in query.watch()) {
       final data = await _readCachedCourseTable(semesterId);
