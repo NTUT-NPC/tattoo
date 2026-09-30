@@ -1,0 +1,4741 @@
+{
+  "_meta": {
+    "description": "This file contains a serialized version of schema entities for drift.",
+    "version": "1.3.0"
+  },
+  "options": {
+    "store_date_time_values_as_text": false
+  },
+  "entities": [
+    {
+      "id": 0,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "users",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "fetched_at",
+            "getter_name": "fetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "student_id",
+            "getter_name": "studentId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "UNIQUE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "UNIQUE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name_en",
+            "getter_name": "nameEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "date_of_birth",
+            "getter_name": "dateOfBirth",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "program_zh",
+            "getter_name": "programZh",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "program_en",
+            "getter_name": "programEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "department_zh",
+            "getter_name": "departmentZh",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "department_en",
+            "getter_name": "departmentEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "avatar_filename",
+            "getter_name": "avatarFilename",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "email",
+            "getter_name": "email",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "password_expires_in_days",
+            "getter_name": "passwordExpiresInDays",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "semesters_fetched_at",
+            "getter_name": "semestersFetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "score_data_fetched_at",
+            "getter_name": "scoreDataFetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "calendar_fetched_at",
+            "getter_name": "calendarFetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "application_catalog_fetched_at",
+            "getter_name": "applicationCatalogFetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 1,
+      "references": [
+        0
+      ],
+      "type": "table",
+      "data": {
+        "name": "portal_application_categories",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "user",
+            "getter_name": "user",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES users (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES users (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "users",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "distinguished_name",
+            "getter_name": "distinguishedName",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name_en",
+            "getter_name": "nameEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "position",
+            "getter_name": "position",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "unique_keys": [
+          [
+            "user",
+            "distinguished_name"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "references": [
+        1
+      ],
+      "type": "table",
+      "data": {
+        "name": "portal_applications",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "category",
+            "getter_name": "category",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES portal_application_categories (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES portal_application_categories (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "portal_application_categories",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "code",
+            "getter_name": "code",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name_en",
+            "getter_name": "nameEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "icon_url",
+            "getter_name": "iconUrl",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "position",
+            "getter_name": "position",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "unique_keys": [
+          [
+            "category",
+            "code"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "references": [
+        0
+      ],
+      "type": "table",
+      "data": {
+        "name": "portal_application_favorites",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "user",
+            "getter_name": "user",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES users (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES users (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "users",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "application_code",
+            "getter_name": "applicationCode",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "user",
+          "application_code"
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "students",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "student_id",
+            "getter_name": "studentId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "UNIQUE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "UNIQUE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          },
+          {
+            "name": "name",
+            "getter_name": "name",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 5,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "semesters",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "year",
+            "getter_name": "year",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "term",
+            "getter_name": "term",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "in_course_semester_list",
+            "getter_name": "inCourseSemesterList",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"in_course_semester_list\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"in_course_semester_list\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "in_score_semester_list",
+            "getter_name": "inScoreSemesterList",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"in_score_semester_list\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"in_score_semester_list\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "course_table_fetched_at",
+            "getter_name": "courseTableFetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "unique_keys": [
+          [
+            "year",
+            "term"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "courses",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "fetched_at",
+            "getter_name": "fetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "code",
+            "getter_name": "code",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "UNIQUE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "UNIQUE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          },
+          {
+            "name": "credits",
+            "getter_name": "credits",
+            "moor_type": "double",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "hours",
+            "getter_name": "hours",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name_en",
+            "getter_name": "nameEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "description_zh",
+            "getter_name": "descriptionZh",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "description_en",
+            "getter_name": "descriptionEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 7,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "departments",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "fetched_at",
+            "getter_name": "fetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "code",
+            "getter_name": "code",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "UNIQUE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "UNIQUE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 8,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "teachers",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "code",
+            "getter_name": "code",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "UNIQUE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "UNIQUE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name_en",
+            "getter_name": "nameEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 9,
+      "references": [
+        5
+      ],
+      "type": "table",
+      "data": {
+        "name": "classes",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "fetched_at",
+            "getter_name": "fetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "code",
+            "getter_name": "code",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "semester",
+            "getter_name": "semester",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES semesters (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES semesters (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "semesters",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name_en",
+            "getter_name": "nameEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "unique_keys": [
+          [
+            "code",
+            "semester"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 10,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "classrooms",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "fetched_at",
+            "getter_name": "fetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "code",
+            "getter_name": "code",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "UNIQUE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "UNIQUE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name_en",
+            "getter_name": "nameEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 11,
+      "references": [
+        5
+      ],
+      "type": "table",
+      "data": {
+        "name": "course_offerings",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "fetched_at",
+            "getter_name": "fetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "course_code",
+            "getter_name": "courseCode",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "semester",
+            "getter_name": "semester",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES semesters (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES semesters (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "semesters",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "number",
+            "getter_name": "number",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "defaultConstraints": "UNIQUE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "UNIQUE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name_en",
+            "getter_name": "nameEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "credits",
+            "getter_name": "credits",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "hours",
+            "getter_name": "hours",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "phase",
+            "getter_name": "phase",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "course_type",
+            "getter_name": "courseType",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<CourseType>(CourseType.values)",
+              "dart_type_name": "CourseType"
+            }
+          },
+          {
+            "name": "status",
+            "getter_name": "status",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "language",
+            "getter_name": "language",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "remarks",
+            "getter_name": "remarks",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "in_course_table",
+            "getter_name": "inCourseTable",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"in_course_table\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"in_course_table\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "enrolled",
+            "getter_name": "enrolled",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "withdrawn",
+            "getter_name": "withdrawn",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "student_roster_fetched_at",
+            "getter_name": "studentRosterFetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 12,
+      "references": [
+        8,
+        5,
+        7
+      ],
+      "type": "table",
+      "data": {
+        "name": "teacher_semesters",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "fetched_at",
+            "getter_name": "fetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "teacher",
+            "getter_name": "teacher",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES teachers (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES teachers (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "teachers",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "semester",
+            "getter_name": "semester",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES semesters (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES semesters (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "semesters",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "email",
+            "getter_name": "email",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "department",
+            "getter_name": "department",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES departments (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES departments (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "departments",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "title",
+            "getter_name": "title",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "teaching_hours",
+            "getter_name": "teachingHours",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "office_hours_note",
+            "getter_name": "officeHoursNote",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "unique_keys": [
+          [
+            "teacher",
+            "semester"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 13,
+      "references": [
+        11,
+        12
+      ],
+      "type": "table",
+      "data": {
+        "name": "course_offering_teachers",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "course_offering",
+            "getter_name": "courseOffering",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES course_offerings (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES course_offerings (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "course_offerings",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "teacher_semester",
+            "getter_name": "teacherSemester",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES teacher_semesters (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES teacher_semesters (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "teacher_semesters",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "course_offering",
+          "teacher_semester"
+        ]
+      }
+    },
+    {
+      "id": 14,
+      "references": [
+        11,
+        9
+      ],
+      "type": "table",
+      "data": {
+        "name": "course_offering_classes",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "course_offering",
+            "getter_name": "courseOffering",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES course_offerings (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES course_offerings (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "course_offerings",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "class_entity",
+            "getter_name": "classEntity",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES classes (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES classes (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "classes",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "course_offering",
+          "class_entity"
+        ]
+      }
+    },
+    {
+      "id": 15,
+      "references": [
+        11,
+        4
+      ],
+      "type": "table",
+      "data": {
+        "name": "course_offering_students",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "course_offering",
+            "getter_name": "courseOffering",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES course_offerings (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES course_offerings (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "course_offerings",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "student",
+            "getter_name": "student",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES students (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES students (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "students",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "course_offering",
+          "student"
+        ]
+      }
+    },
+    {
+      "id": 16,
+      "references": [
+        11,
+        10
+      ],
+      "type": "table",
+      "data": {
+        "name": "schedules",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "course_offering",
+            "getter_name": "courseOffering",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES course_offerings (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES course_offerings (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "course_offerings",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "day_of_week",
+            "getter_name": "dayOfWeek",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const EnumIndexConverter<DayOfWeek>(DayOfWeek.values)",
+              "dart_type_name": "DayOfWeek"
+            }
+          },
+          {
+            "name": "period",
+            "getter_name": "period",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const EnumIndexConverter<Period>(Period.values)",
+              "dart_type_name": "Period"
+            }
+          },
+          {
+            "name": "classroom",
+            "getter_name": "classroom",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES classrooms (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES classrooms (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "classrooms",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "unique_keys": [
+          [
+            "course_offering",
+            "day_of_week",
+            "period"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 17,
+      "references": [
+        11,
+        8
+      ],
+      "type": "table",
+      "data": {
+        "name": "syllabuses",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "course_offering",
+            "getter_name": "courseOffering",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES course_offerings (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES course_offerings (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "course_offerings",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "teacher",
+            "getter_name": "teacher",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES teachers (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES teachers (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "teachers",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "language",
+            "getter_name": "language",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<SyllabusLanguage>(SyllabusLanguage.values)",
+              "dart_type_name": "SyllabusLanguage"
+            }
+          },
+          {
+            "name": "updated_at",
+            "getter_name": "updatedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "fetched_at",
+            "getter_name": "fetchedAt",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "unique_keys": [
+          [
+            "course_offering",
+            "teacher",
+            "language"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 18,
+      "references": [
+        17
+      ],
+      "type": "table",
+      "data": {
+        "name": "syllabus_sections",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "syllabus",
+            "getter_name": "syllabus",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES syllabuses (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES syllabuses (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "syllabuses",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "title",
+            "getter_name": "title",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "content",
+            "getter_name": "content",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "position",
+            "getter_name": "position",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "unique_keys": [
+          [
+            "syllabus",
+            "position"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 19,
+      "references": [
+        11
+      ],
+      "type": "table",
+      "data": {
+        "name": "materials",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "course_offering",
+            "getter_name": "courseOffering",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES course_offerings (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES course_offerings (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "course_offerings",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "title",
+            "getter_name": "title",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "href",
+            "getter_name": "href",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "unique_keys": [
+          [
+            "course_offering",
+            "href"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 20,
+      "references": [
+        12
+      ],
+      "type": "table",
+      "data": {
+        "name": "teacher_office_hours",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "teacher_semester",
+            "getter_name": "teacherSemester",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES teacher_semesters (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES teacher_semesters (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "teacher_semesters",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "day_of_week",
+            "getter_name": "dayOfWeek",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const EnumIndexConverter<DayOfWeek>(DayOfWeek.values)",
+              "dart_type_name": "DayOfWeek"
+            }
+          },
+          {
+            "name": "start_hour",
+            "getter_name": "startHour",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "start_minute",
+            "getter_name": "startMinute",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "end_hour",
+            "getter_name": "endHour",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "end_minute",
+            "getter_name": "endMinute",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "unique_keys": [
+          [
+            "teacher_semester",
+            "day_of_week",
+            "start_hour",
+            "start_minute"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 21,
+      "references": [
+        0,
+        5,
+        6,
+        11
+      ],
+      "type": "table",
+      "data": {
+        "name": "scores",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "user",
+            "getter_name": "user",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES users (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES users (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "users",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "semester",
+            "getter_name": "semester",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES semesters (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES semesters (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "semesters",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "course",
+            "getter_name": "course",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES courses (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES courses (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "courses",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "course_offering",
+            "getter_name": "courseOffering",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES course_offerings (id) ON DELETE SET NULL",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES course_offerings (id) ON DELETE SET NULL"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "course_offerings",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "setNull"
+                }
+              }
+            ]
+          },
+          {
+            "name": "score",
+            "getter_name": "score",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "status",
+            "getter_name": "status",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<ScoreStatus>(ScoreStatus.values)",
+              "dart_type_name": "ScoreStatus"
+            }
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 22,
+      "references": [
+        0,
+        5
+      ],
+      "type": "table",
+      "data": {
+        "name": "user_semester_summaries",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "user",
+            "getter_name": "user",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES users (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES users (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "users",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "semester",
+            "getter_name": "semester",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES semesters (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES semesters (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "semesters",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "average",
+            "getter_name": "average",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "conduct",
+            "getter_name": "conduct",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "total_credits",
+            "getter_name": "totalCredits",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "credits_passed",
+            "getter_name": "creditsPassed",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "note",
+            "getter_name": "note",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "gpa",
+            "getter_name": "gpa",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "class_name",
+            "getter_name": "className",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "enrollment_status",
+            "getter_name": "enrollmentStatus",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<EnrollmentStatus>(EnrollmentStatus.values)",
+              "dart_type_name": "EnrollmentStatus"
+            }
+          },
+          {
+            "name": "registered",
+            "getter_name": "registered",
+            "moor_type": "bool",
+            "nullable": true,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"registered\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"registered\" IN (0, 1))"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "graduated",
+            "getter_name": "graduated",
+            "moor_type": "bool",
+            "nullable": true,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"graduated\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"graduated\" IN (0, 1))"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "unique_keys": [
+          [
+            "user",
+            "semester"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 23,
+      "references": [
+        22,
+        12
+      ],
+      "type": "table",
+      "data": {
+        "name": "user_semester_summary_tutors",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "summary",
+            "getter_name": "summary",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES user_semester_summaries (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES user_semester_summaries (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "user_semester_summaries",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "teacher_semester",
+            "getter_name": "teacherSemester",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES teacher_semesters (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES teacher_semesters (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "teacher_semesters",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "summary",
+          "teacher_semester"
+        ]
+      }
+    },
+    {
+      "id": 24,
+      "references": [
+        22
+      ],
+      "type": "table",
+      "data": {
+        "name": "user_semester_summary_cadre_roles",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "summary",
+            "getter_name": "summary",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES user_semester_summaries (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES user_semester_summaries (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "user_semester_summaries",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "role",
+            "getter_name": "role",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "unique_keys": [
+          [
+            "summary",
+            "role"
+          ]
+        ]
+      }
+    },
+    {
+      "id": 25,
+      "references": [
+        22
+      ],
+      "type": "table",
+      "data": {
+        "name": "user_semester_rankings",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "summary",
+            "getter_name": "summary",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES user_semester_summaries (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES user_semester_summaries (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "user_semester_summaries",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "ranking_type",
+            "getter_name": "rankingType",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<RankingType>(RankingType.values)",
+              "dart_type_name": "RankingType"
+            }
+          },
+          {
+            "name": "semester_rank",
+            "getter_name": "semesterRank",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "semester_total",
+            "getter_name": "semesterTotal",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "grand_total_rank",
+            "getter_name": "grandTotalRank",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "grand_total_total",
+            "getter_name": "grandTotalTotal",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "summary",
+          "ranking_type"
+        ]
+      }
+    },
+    {
+      "id": 26,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "calendar_events",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "portal_id",
+            "getter_name": "portalId",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "UNIQUE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "UNIQUE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          },
+          {
+            "name": "start",
+            "getter_name": "start",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "end",
+            "getter_name": "end",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "all_day",
+            "getter_name": "allDay",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"all_day\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"all_day\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "title",
+            "getter_name": "title",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "place",
+            "getter_name": "place",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "content",
+            "getter_name": "content",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "owner_name",
+            "getter_name": "ownerName",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "creator_name",
+            "getter_name": "creatorName",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 27,
+      "references": [
+        11,
+        6
+      ],
+      "type": "view",
+      "data": {
+        "name": "course_offering_overviews",
+        "sql": "CREATE VIEW IF NOT EXISTS \"course_offering_overviews\" (\"id\", \"course_code\", \"semester\", \"number\", \"name_zh\", \"name_en\", \"credits\", \"hours\", \"phase\", \"course_type\", \"status\", \"language\", \"remarks\", \"enrolled\", \"withdrawn\", \"fetched_at\") AS SELECT \"t0\".\"id\" AS \"id\", \"t0\".\"course_code\" AS \"course_code\", \"t0\".\"semester\" AS \"semester\", \"t0\".\"number\" AS \"number\", COALESCE(\"t0\".\"name_zh\", \"t1\".\"name_zh\") AS \"name_zh\", COALESCE(\"t0\".\"name_en\", \"t1\".\"name_en\") AS \"name_en\", COALESCE(\"t0\".\"credits\", \"t1\".\"credits\") AS \"credits\", COALESCE(\"t0\".\"hours\", \"t1\".\"hours\") AS \"hours\", \"t0\".\"phase\" AS \"phase\", \"t0\".\"course_type\" AS \"course_type\", \"t0\".\"status\" AS \"status\", \"t0\".\"language\" AS \"language\", \"t0\".\"remarks\" AS \"remarks\", \"t0\".\"enrolled\" AS \"enrolled\", \"t0\".\"withdrawn\" AS \"withdrawn\", \"t0\".\"fetched_at\" AS \"fetched_at\" FROM \"course_offerings\" \"t0\" LEFT OUTER JOIN \"courses\" \"t1\" ON \"t1\".\"code\" = \"t0\".\"course_code\"",
+        "dart_info_name": "$CourseOfferingOverviewsView",
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.id"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "course_code",
+            "getter_name": "courseCode",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.courseCode"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "semester",
+            "getter_name": "semester",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.semester"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "number",
+            "getter_name": "number",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.number"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "coalesce",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "([courseOfferings.nameZh,courses.nameZh])"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "name_en",
+            "getter_name": "nameEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "coalesce",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "([courseOfferings.nameEn,courses.nameEn])"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "credits",
+            "getter_name": "credits",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "coalesce",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "([courseOfferings.credits,courses.credits])"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "hours",
+            "getter_name": "hours",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "coalesce",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "([courseOfferings.hours,courses.hours])"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "phase",
+            "getter_name": "phase",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.phase"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "course_type",
+            "getter_name": "courseType",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.courseType"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<CourseType>(CourseType.values)",
+              "dart_type_name": "CourseType"
+            }
+          },
+          {
+            "name": "status",
+            "getter_name": "status",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.status"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "language",
+            "getter_name": "language",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.language"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "remarks",
+            "getter_name": "remarks",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.remarks"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "enrolled",
+            "getter_name": "enrolled",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.enrolled"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "withdrawn",
+            "getter_name": "withdrawn",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.withdrawn"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "fetched_at",
+            "getter_name": "fetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.fetchedAt"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 28,
+      "references": [
+        16,
+        11,
+        6,
+        10
+      ],
+      "type": "view",
+      "data": {
+        "name": "course_table_slots",
+        "sql": "CREATE VIEW IF NOT EXISTS \"course_table_slots\" (\"id\", \"number\", \"semester\", \"name_zh\", \"name_en\", \"credits\", \"hours\", \"day_of_week\", \"period\", \"classroom_name_zh\", \"classroom_name_en\") AS SELECT \"t1\".\"id\" AS \"id\", \"t1\".\"number\" AS \"number\", \"t1\".\"semester\" AS \"semester\", COALESCE(\"t1\".\"name_zh\", \"t2\".\"name_zh\") AS \"name_zh\", COALESCE(\"t1\".\"name_en\", \"t2\".\"name_en\") AS \"name_en\", COALESCE(\"t1\".\"credits\", \"t2\".\"credits\") AS \"credits\", COALESCE(\"t1\".\"hours\", \"t2\".\"hours\") AS \"hours\", \"t0\".\"day_of_week\" AS \"day_of_week\", \"t0\".\"period\" AS \"period\", \"t3\".\"name_zh\" AS \"classroom_name_zh\", \"t3\".\"name_en\" AS \"classroom_name_en\" FROM \"schedules\" \"t0\" INNER JOIN \"course_offerings\" \"t1\" ON \"t1\".\"id\" = \"t0\".\"course_offering\" LEFT OUTER JOIN \"courses\" \"t2\" ON \"t2\".\"code\" = \"t1\".\"course_code\" LEFT OUTER JOIN \"classrooms\" \"t3\" ON \"t3\".\"id\" = \"t0\".\"classroom\" WHERE \"t1\".\"in_course_table\" = 1",
+        "dart_info_name": "$CourseTableSlotsView",
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.id"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "number",
+            "getter_name": "number",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.number"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "semester",
+            "getter_name": "semester",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.semester"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "coalesce",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "([courseOfferings.nameZh,courses.nameZh])"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "name_en",
+            "getter_name": "nameEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "coalesce",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "([courseOfferings.nameEn,courses.nameEn])"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "credits",
+            "getter_name": "credits",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "coalesce",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "([courseOfferings.credits,courses.credits])"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "hours",
+            "getter_name": "hours",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "coalesce",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "([courseOfferings.hours,courses.hours])"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "day_of_week",
+            "getter_name": "dayOfWeek",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "schedules.dayOfWeek"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumIndexConverter<DayOfWeek>(DayOfWeek.values)",
+              "dart_type_name": "DayOfWeek"
+            }
+          },
+          {
+            "name": "period",
+            "getter_name": "period",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "schedules.period"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumIndexConverter<Period>(Period.values)",
+              "dart_type_name": "Period"
+            }
+          },
+          {
+            "name": "classroom_name_zh",
+            "getter_name": "classroomNameZh",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "classrooms.nameZh"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "classroom_name_en",
+            "getter_name": "classroomNameEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "classrooms.nameEn"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 29,
+      "references": [
+        21,
+        6,
+        11
+      ],
+      "type": "view",
+      "data": {
+        "name": "score_details",
+        "sql": "CREATE VIEW IF NOT EXISTS \"score_details\" (\"id\", \"user\", \"semester\", \"score\", \"status\", \"code\", \"name_zh\", \"name_en\", \"number\") AS SELECT \"t0\".\"id\" AS \"id\", \"t0\".\"user\" AS \"user\", \"t0\".\"semester\" AS \"semester\", \"t0\".\"score\" AS \"score\", \"t0\".\"status\" AS \"status\", \"t1\".\"code\" AS \"code\", COALESCE(\"t2\".\"name_zh\", \"t1\".\"name_zh\") AS \"name_zh\", COALESCE(\"t2\".\"name_en\", \"t1\".\"name_en\") AS \"name_en\", \"t2\".\"number\" AS \"number\" FROM \"scores\" \"t0\" INNER JOIN \"courses\" \"t1\" ON \"t1\".\"id\" = \"t0\".\"course\" LEFT OUTER JOIN \"course_offerings\" \"t2\" ON \"t2\".\"id\" = \"t0\".\"course_offering\"",
+        "dart_info_name": "$ScoreDetailsView",
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "scores.id"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "user",
+            "getter_name": "user",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "scores.user"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "semester",
+            "getter_name": "semester",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "scores.semester"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "score",
+            "getter_name": "score",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "scores.score"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "status",
+            "getter_name": "status",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "scores.status"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<ScoreStatus>(ScoreStatus.values)",
+              "dart_type_name": "ScoreStatus"
+            }
+          },
+          {
+            "name": "code",
+            "getter_name": "code",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courses.code"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "coalesce",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "([courseOfferings.nameZh,courses.nameZh])"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "name_en",
+            "getter_name": "nameEn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "coalesce",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "([courseOfferings.nameEn,courses.nameEn])"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "number",
+            "getter_name": "number",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "courseOfferings.number"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 30,
+      "references": [
+        22,
+        5
+      ],
+      "type": "view",
+      "data": {
+        "name": "user_academic_summaries",
+        "sql": "CREATE VIEW IF NOT EXISTS \"user_academic_summaries\" (\"id\", \"user\", \"semester\", \"year\", \"term\", \"average\", \"conduct\", \"total_credits\", \"credits_passed\", \"note\", \"gpa\") AS SELECT \"t0\".\"id\" AS \"id\", \"t0\".\"user\" AS \"user\", \"t0\".\"semester\" AS \"semester\", \"t1\".\"year\" AS \"year\", \"t1\".\"term\" AS \"term\", \"t0\".\"average\" AS \"average\", \"t0\".\"conduct\" AS \"conduct\", \"t0\".\"total_credits\" AS \"total_credits\", \"t0\".\"credits_passed\" AS \"credits_passed\", \"t0\".\"note\" AS \"note\", \"t0\".\"gpa\" AS \"gpa\" FROM \"user_semester_summaries\" \"t0\" INNER JOIN \"semesters\" \"t1\" ON \"t1\".\"id\" = \"t0\".\"semester\"",
+        "dart_info_name": "$UserAcademicSummariesView",
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "userSemesterSummaries.id"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "user",
+            "getter_name": "user",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "userSemesterSummaries.user"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "semester",
+            "getter_name": "semester",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "userSemesterSummaries.semester"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "year",
+            "getter_name": "year",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "semesters.year"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "term",
+            "getter_name": "term",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "semesters.term"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "average",
+            "getter_name": "average",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "userSemesterSummaries.average"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "conduct",
+            "getter_name": "conduct",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "userSemesterSummaries.conduct"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "total_credits",
+            "getter_name": "totalCredits",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "userSemesterSummaries.totalCredits"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "credits_passed",
+            "getter_name": "creditsPassed",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "userSemesterSummaries.creditsPassed"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "note",
+            "getter_name": "note",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "userSemesterSummaries.note"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "gpa",
+            "getter_name": "gpa",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "userSemesterSummaries.gpa"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 31,
+      "references": [
+        22,
+        5
+      ],
+      "type": "view",
+      "data": {
+        "name": "user_registrations",
+        "sql": "CREATE VIEW IF NOT EXISTS \"user_registrations\" (\"year\", \"term\", \"class_name\", \"enrollment_status\", \"graduated\") AS SELECT \"t1\".\"year\" AS \"year\", \"t1\".\"term\" AS \"term\", \"t0\".\"class_name\" AS \"class_name\", \"t0\".\"enrollment_status\" AS \"enrollment_status\", \"t0\".\"graduated\" AS \"graduated\" FROM \"user_semester_summaries\" \"t0\" INNER JOIN \"semesters\" \"t1\" ON \"t1\".\"id\" = \"t0\".\"semester\"",
+        "dart_info_name": "$UserRegistrationsView",
+        "columns": [
+          {
+            "name": "year",
+            "getter_name": "year",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "semesters.year"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "term",
+            "getter_name": "term",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "semesters.term"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "class_name",
+            "getter_name": "className",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "userSemesterSummaries.className"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "enrollment_status",
+            "getter_name": "enrollmentStatus",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "userSemesterSummaries.enrollmentStatus"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<EnrollmentStatus>(EnrollmentStatus.values)",
+              "dart_type_name": "EnrollmentStatus"
+            }
+          },
+          {
+            "name": "graduated",
+            "getter_name": "graduated",
+            "moor_type": "bool",
+            "nullable": true,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"graduated\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"graduated\" IN (0, 1))"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "generated_as": {
+                  "dart_expression": {
+                    "elements": [
+                      "userSemesterSummaries.graduated"
+                    ]
+                  },
+                  "stored": false
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 32,
+      "references": [
+        9
+      ],
+      "type": "index",
+      "data": {
+        "on": 9,
+        "name": "class_semester",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "semester",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 33,
+      "references": [
+        11
+      ],
+      "type": "index",
+      "data": {
+        "on": 11,
+        "name": "course_offering_course_code",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "course_code",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 34,
+      "references": [
+        11
+      ],
+      "type": "index",
+      "data": {
+        "on": 11,
+        "name": "course_offering_semester",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "semester",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 35,
+      "references": [
+        16
+      ],
+      "type": "index",
+      "data": {
+        "on": 16,
+        "name": "schedule_course_offering",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "course_offering",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 36,
+      "references": [
+        19
+      ],
+      "type": "index",
+      "data": {
+        "on": 19,
+        "name": "material_course_offering",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "course_offering",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 37,
+      "references": [
+        12
+      ],
+      "type": "index",
+      "data": {
+        "on": 12,
+        "name": "teacher_semester_semester",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "semester",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 38,
+      "references": [
+        20
+      ],
+      "type": "index",
+      "data": {
+        "on": 20,
+        "name": "teacher_office_hour_teacher_semester",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "teacher_semester",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 39,
+      "references": [
+        21
+      ],
+      "type": "index",
+      "data": {
+        "on": 21,
+        "name": "score_user",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "user",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 40,
+      "references": [
+        22
+      ],
+      "type": "index",
+      "data": {
+        "on": 22,
+        "name": "user_semester_summary_user",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "user",
+            "order_by": null
+          }
+        ]
+      }
+    }
+  ],
+  "fixed_sql": [
+    {
+      "name": "users",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"users\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"fetched_at\" INTEGER NULL, \"student_id\" TEXT NOT NULL UNIQUE, \"name_zh\" TEXT NOT NULL, \"name_en\" TEXT NULL, \"date_of_birth\" INTEGER NULL, \"program_zh\" TEXT NULL, \"program_en\" TEXT NULL, \"department_zh\" TEXT NULL, \"department_en\" TEXT NULL, \"avatar_filename\" TEXT NOT NULL, \"email\" TEXT NOT NULL, \"password_expires_in_days\" INTEGER NULL, \"semesters_fetched_at\" INTEGER NULL, \"score_data_fetched_at\" INTEGER NULL, \"calendar_fetched_at\" INTEGER NULL, \"application_catalog_fetched_at\" INTEGER NULL);"
+        }
+      ]
+    },
+    {
+      "name": "portal_application_categories",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"portal_application_categories\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"user\" INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE, \"distinguished_name\" TEXT NOT NULL, \"name_zh\" TEXT NOT NULL, \"name_en\" TEXT NULL, \"position\" INTEGER NOT NULL, UNIQUE (\"user\", \"distinguished_name\"));"
+        }
+      ]
+    },
+    {
+      "name": "portal_applications",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"portal_applications\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"category\" INTEGER NOT NULL REFERENCES portal_application_categories (id) ON DELETE CASCADE, \"code\" TEXT NOT NULL, \"name_zh\" TEXT NOT NULL, \"name_en\" TEXT NULL, \"icon_url\" TEXT NULL, \"position\" INTEGER NOT NULL, UNIQUE (\"category\", \"code\"));"
+        }
+      ]
+    },
+    {
+      "name": "portal_application_favorites",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"portal_application_favorites\" (\"user\" INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE, \"application_code\" TEXT NOT NULL, PRIMARY KEY (\"user\", \"application_code\"));"
+        }
+      ]
+    },
+    {
+      "name": "students",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"students\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"student_id\" TEXT NOT NULL UNIQUE, \"name\" TEXT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "semesters",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"semesters\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"year\" INTEGER NOT NULL, \"term\" INTEGER NOT NULL, \"in_course_semester_list\" INTEGER NOT NULL DEFAULT 0 CHECK (\"in_course_semester_list\" IN (0, 1)), \"in_score_semester_list\" INTEGER NOT NULL DEFAULT 0 CHECK (\"in_score_semester_list\" IN (0, 1)), \"course_table_fetched_at\" INTEGER NULL, UNIQUE (\"year\", \"term\"));"
+        }
+      ]
+    },
+    {
+      "name": "courses",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"courses\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"fetched_at\" INTEGER NULL, \"code\" TEXT NOT NULL UNIQUE, \"credits\" REAL NOT NULL, \"hours\" INTEGER NOT NULL, \"name_zh\" TEXT NOT NULL, \"name_en\" TEXT NULL, \"description_zh\" TEXT NULL, \"description_en\" TEXT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "departments",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"departments\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"fetched_at\" INTEGER NULL, \"code\" TEXT NOT NULL UNIQUE, \"name_zh\" TEXT NOT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "teachers",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"teachers\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"code\" TEXT NOT NULL UNIQUE, \"name_zh\" TEXT NOT NULL, \"name_en\" TEXT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "classes",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"classes\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"fetched_at\" INTEGER NULL, \"code\" TEXT NOT NULL, \"semester\" INTEGER NOT NULL REFERENCES semesters (id), \"name_zh\" TEXT NOT NULL, \"name_en\" TEXT NULL, UNIQUE (\"code\", \"semester\"));"
+        }
+      ]
+    },
+    {
+      "name": "classrooms",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"classrooms\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"fetched_at\" INTEGER NULL, \"code\" TEXT NOT NULL UNIQUE, \"name_zh\" TEXT NOT NULL, \"name_en\" TEXT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "course_offerings",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"course_offerings\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"fetched_at\" INTEGER NULL, \"course_code\" TEXT NULL, \"semester\" INTEGER NOT NULL REFERENCES semesters (id), \"number\" TEXT NULL UNIQUE, \"name_zh\" TEXT NOT NULL, \"name_en\" TEXT NULL, \"credits\" REAL NULL, \"hours\" INTEGER NULL, \"phase\" INTEGER NULL, \"course_type\" TEXT NULL, \"status\" TEXT NULL, \"language\" TEXT NULL, \"remarks\" TEXT NULL, \"in_course_table\" INTEGER NOT NULL DEFAULT 0 CHECK (\"in_course_table\" IN (0, 1)), \"enrolled\" INTEGER NULL, \"withdrawn\" INTEGER NULL, \"student_roster_fetched_at\" INTEGER NULL);"
+        }
+      ]
+    },
+    {
+      "name": "teacher_semesters",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"teacher_semesters\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"fetched_at\" INTEGER NULL, \"teacher\" INTEGER NOT NULL REFERENCES teachers (id), \"semester\" INTEGER NOT NULL REFERENCES semesters (id), \"email\" TEXT NULL, \"department\" INTEGER NULL REFERENCES departments (id), \"title\" TEXT NULL, \"teaching_hours\" REAL NULL, \"office_hours_note\" TEXT NULL, UNIQUE (\"teacher\", \"semester\"));"
+        }
+      ]
+    },
+    {
+      "name": "course_offering_teachers",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"course_offering_teachers\" (\"course_offering\" INTEGER NOT NULL REFERENCES course_offerings (id) ON DELETE CASCADE, \"teacher_semester\" INTEGER NOT NULL REFERENCES teacher_semesters (id), PRIMARY KEY (\"course_offering\", \"teacher_semester\"));"
+        }
+      ]
+    },
+    {
+      "name": "course_offering_classes",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"course_offering_classes\" (\"course_offering\" INTEGER NOT NULL REFERENCES course_offerings (id) ON DELETE CASCADE, \"class_entity\" INTEGER NOT NULL REFERENCES classes (id), PRIMARY KEY (\"course_offering\", \"class_entity\"));"
+        }
+      ]
+    },
+    {
+      "name": "course_offering_students",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"course_offering_students\" (\"course_offering\" INTEGER NOT NULL REFERENCES course_offerings (id) ON DELETE CASCADE, \"student\" INTEGER NOT NULL REFERENCES students (id), PRIMARY KEY (\"course_offering\", \"student\"));"
+        }
+      ]
+    },
+    {
+      "name": "schedules",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"schedules\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"course_offering\" INTEGER NOT NULL REFERENCES course_offerings (id) ON DELETE CASCADE, \"day_of_week\" INTEGER NOT NULL, \"period\" INTEGER NOT NULL, \"classroom\" INTEGER NULL REFERENCES classrooms (id), UNIQUE (\"course_offering\", \"day_of_week\", \"period\"));"
+        }
+      ]
+    },
+    {
+      "name": "syllabuses",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"syllabuses\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"course_offering\" INTEGER NOT NULL REFERENCES course_offerings (id) ON DELETE CASCADE, \"teacher\" INTEGER NOT NULL REFERENCES teachers (id), \"language\" TEXT NOT NULL, \"updated_at\" INTEGER NULL, \"fetched_at\" INTEGER NOT NULL, UNIQUE (\"course_offering\", \"teacher\", \"language\"));"
+        }
+      ]
+    },
+    {
+      "name": "syllabus_sections",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"syllabus_sections\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"syllabus\" INTEGER NOT NULL REFERENCES syllabuses (id) ON DELETE CASCADE, \"title\" TEXT NOT NULL, \"content\" TEXT NULL, \"position\" INTEGER NOT NULL, UNIQUE (\"syllabus\", \"position\"));"
+        }
+      ]
+    },
+    {
+      "name": "materials",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"materials\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"course_offering\" INTEGER NOT NULL REFERENCES course_offerings (id) ON DELETE CASCADE, \"title\" TEXT NULL, \"href\" TEXT NULL, UNIQUE (\"course_offering\", \"href\"));"
+        }
+      ]
+    },
+    {
+      "name": "teacher_office_hours",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"teacher_office_hours\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"teacher_semester\" INTEGER NOT NULL REFERENCES teacher_semesters (id), \"day_of_week\" INTEGER NOT NULL, \"start_hour\" INTEGER NOT NULL, \"start_minute\" INTEGER NOT NULL, \"end_hour\" INTEGER NOT NULL, \"end_minute\" INTEGER NOT NULL, UNIQUE (\"teacher_semester\", \"day_of_week\", \"start_hour\", \"start_minute\"));"
+        }
+      ]
+    },
+    {
+      "name": "scores",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"scores\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"user\" INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE, \"semester\" INTEGER NOT NULL REFERENCES semesters (id), \"course\" INTEGER NOT NULL REFERENCES courses (id), \"course_offering\" INTEGER NULL REFERENCES course_offerings (id) ON DELETE SET NULL, \"score\" INTEGER NULL, \"status\" TEXT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "user_semester_summaries",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"user_semester_summaries\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"user\" INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE, \"semester\" INTEGER NOT NULL REFERENCES semesters (id), \"average\" REAL NULL, \"conduct\" REAL NULL, \"total_credits\" REAL NULL, \"credits_passed\" REAL NULL, \"note\" TEXT NULL, \"gpa\" REAL NULL, \"class_name\" TEXT NULL, \"enrollment_status\" TEXT NULL, \"registered\" INTEGER NULL CHECK (\"registered\" IN (0, 1)), \"graduated\" INTEGER NULL CHECK (\"graduated\" IN (0, 1)), UNIQUE (\"user\", \"semester\"));"
+        }
+      ]
+    },
+    {
+      "name": "user_semester_summary_tutors",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"user_semester_summary_tutors\" (\"summary\" INTEGER NOT NULL REFERENCES user_semester_summaries (id) ON DELETE CASCADE, \"teacher_semester\" INTEGER NOT NULL REFERENCES teacher_semesters (id), PRIMARY KEY (\"summary\", \"teacher_semester\"));"
+        }
+      ]
+    },
+    {
+      "name": "user_semester_summary_cadre_roles",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"user_semester_summary_cadre_roles\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"summary\" INTEGER NOT NULL REFERENCES user_semester_summaries (id) ON DELETE CASCADE, \"role\" TEXT NOT NULL, UNIQUE (\"summary\", \"role\"));"
+        }
+      ]
+    },
+    {
+      "name": "user_semester_rankings",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"user_semester_rankings\" (\"summary\" INTEGER NOT NULL REFERENCES user_semester_summaries (id) ON DELETE CASCADE, \"ranking_type\" TEXT NOT NULL, \"semester_rank\" INTEGER NOT NULL, \"semester_total\" INTEGER NOT NULL, \"grand_total_rank\" INTEGER NOT NULL, \"grand_total_total\" INTEGER NOT NULL, PRIMARY KEY (\"summary\", \"ranking_type\"));"
+        }
+      ]
+    },
+    {
+      "name": "calendar_events",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"calendar_events\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"portal_id\" INTEGER NOT NULL UNIQUE, \"start\" INTEGER NOT NULL, \"end\" INTEGER NOT NULL, \"all_day\" INTEGER NOT NULL DEFAULT 0 CHECK (\"all_day\" IN (0, 1)), \"title\" TEXT NULL, \"place\" TEXT NULL, \"content\" TEXT NULL, \"owner_name\" TEXT NULL, \"creator_name\" TEXT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "course_offering_overviews",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE VIEW IF NOT EXISTS \"course_offering_overviews\" (\"id\", \"course_code\", \"semester\", \"number\", \"name_zh\", \"name_en\", \"credits\", \"hours\", \"phase\", \"course_type\", \"status\", \"language\", \"remarks\", \"enrolled\", \"withdrawn\", \"fetched_at\") AS SELECT \"t0\".\"id\" AS \"id\", \"t0\".\"course_code\" AS \"course_code\", \"t0\".\"semester\" AS \"semester\", \"t0\".\"number\" AS \"number\", COALESCE(\"t0\".\"name_zh\", \"t1\".\"name_zh\") AS \"name_zh\", COALESCE(\"t0\".\"name_en\", \"t1\".\"name_en\") AS \"name_en\", COALESCE(\"t0\".\"credits\", \"t1\".\"credits\") AS \"credits\", COALESCE(\"t0\".\"hours\", \"t1\".\"hours\") AS \"hours\", \"t0\".\"phase\" AS \"phase\", \"t0\".\"course_type\" AS \"course_type\", \"t0\".\"status\" AS \"status\", \"t0\".\"language\" AS \"language\", \"t0\".\"remarks\" AS \"remarks\", \"t0\".\"enrolled\" AS \"enrolled\", \"t0\".\"withdrawn\" AS \"withdrawn\", \"t0\".\"fetched_at\" AS \"fetched_at\" FROM \"course_offerings\" \"t0\" LEFT OUTER JOIN \"courses\" \"t1\" ON \"t1\".\"code\" = \"t0\".\"course_code\""
+        }
+      ]
+    },
+    {
+      "name": "course_table_slots",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE VIEW IF NOT EXISTS \"course_table_slots\" (\"id\", \"number\", \"semester\", \"name_zh\", \"name_en\", \"credits\", \"hours\", \"day_of_week\", \"period\", \"classroom_name_zh\", \"classroom_name_en\") AS SELECT \"t1\".\"id\" AS \"id\", \"t1\".\"number\" AS \"number\", \"t1\".\"semester\" AS \"semester\", COALESCE(\"t1\".\"name_zh\", \"t2\".\"name_zh\") AS \"name_zh\", COALESCE(\"t1\".\"name_en\", \"t2\".\"name_en\") AS \"name_en\", COALESCE(\"t1\".\"credits\", \"t2\".\"credits\") AS \"credits\", COALESCE(\"t1\".\"hours\", \"t2\".\"hours\") AS \"hours\", \"t0\".\"day_of_week\" AS \"day_of_week\", \"t0\".\"period\" AS \"period\", \"t3\".\"name_zh\" AS \"classroom_name_zh\", \"t3\".\"name_en\" AS \"classroom_name_en\" FROM \"schedules\" \"t0\" INNER JOIN \"course_offerings\" \"t1\" ON \"t1\".\"id\" = \"t0\".\"course_offering\" LEFT OUTER JOIN \"courses\" \"t2\" ON \"t2\".\"code\" = \"t1\".\"course_code\" LEFT OUTER JOIN \"classrooms\" \"t3\" ON \"t3\".\"id\" = \"t0\".\"classroom\" WHERE \"t1\".\"in_course_table\" = 1"
+        }
+      ]
+    },
+    {
+      "name": "score_details",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE VIEW IF NOT EXISTS \"score_details\" (\"id\", \"user\", \"semester\", \"score\", \"status\", \"code\", \"name_zh\", \"name_en\", \"number\") AS SELECT \"t0\".\"id\" AS \"id\", \"t0\".\"user\" AS \"user\", \"t0\".\"semester\" AS \"semester\", \"t0\".\"score\" AS \"score\", \"t0\".\"status\" AS \"status\", \"t1\".\"code\" AS \"code\", COALESCE(\"t2\".\"name_zh\", \"t1\".\"name_zh\") AS \"name_zh\", COALESCE(\"t2\".\"name_en\", \"t1\".\"name_en\") AS \"name_en\", \"t2\".\"number\" AS \"number\" FROM \"scores\" \"t0\" INNER JOIN \"courses\" \"t1\" ON \"t1\".\"id\" = \"t0\".\"course\" LEFT OUTER JOIN \"course_offerings\" \"t2\" ON \"t2\".\"id\" = \"t0\".\"course_offering\""
+        }
+      ]
+    },
+    {
+      "name": "user_academic_summaries",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE VIEW IF NOT EXISTS \"user_academic_summaries\" (\"id\", \"user\", \"semester\", \"year\", \"term\", \"average\", \"conduct\", \"total_credits\", \"credits_passed\", \"note\", \"gpa\") AS SELECT \"t0\".\"id\" AS \"id\", \"t0\".\"user\" AS \"user\", \"t0\".\"semester\" AS \"semester\", \"t1\".\"year\" AS \"year\", \"t1\".\"term\" AS \"term\", \"t0\".\"average\" AS \"average\", \"t0\".\"conduct\" AS \"conduct\", \"t0\".\"total_credits\" AS \"total_credits\", \"t0\".\"credits_passed\" AS \"credits_passed\", \"t0\".\"note\" AS \"note\", \"t0\".\"gpa\" AS \"gpa\" FROM \"user_semester_summaries\" \"t0\" INNER JOIN \"semesters\" \"t1\" ON \"t1\".\"id\" = \"t0\".\"semester\""
+        }
+      ]
+    },
+    {
+      "name": "user_registrations",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE VIEW IF NOT EXISTS \"user_registrations\" (\"year\", \"term\", \"class_name\", \"enrollment_status\", \"graduated\") AS SELECT \"t1\".\"year\" AS \"year\", \"t1\".\"term\" AS \"term\", \"t0\".\"class_name\" AS \"class_name\", \"t0\".\"enrollment_status\" AS \"enrollment_status\", \"t0\".\"graduated\" AS \"graduated\" FROM \"user_semester_summaries\" \"t0\" INNER JOIN \"semesters\" \"t1\" ON \"t1\".\"id\" = \"t0\".\"semester\""
+        }
+      ]
+    },
+    {
+      "name": "class_semester",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX class_semester ON classes (semester)"
+        }
+      ]
+    },
+    {
+      "name": "course_offering_course_code",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX course_offering_course_code ON course_offerings (course_code)"
+        }
+      ]
+    },
+    {
+      "name": "course_offering_semester",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX course_offering_semester ON course_offerings (semester)"
+        }
+      ]
+    },
+    {
+      "name": "schedule_course_offering",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX schedule_course_offering ON schedules (course_offering)"
+        }
+      ]
+    },
+    {
+      "name": "material_course_offering",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX material_course_offering ON materials (course_offering)"
+        }
+      ]
+    },
+    {
+      "name": "teacher_semester_semester",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX teacher_semester_semester ON teacher_semesters (semester)"
+        }
+      ]
+    },
+    {
+      "name": "teacher_office_hour_teacher_semester",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX teacher_office_hour_teacher_semester ON teacher_office_hours (teacher_semester)"
+        }
+      ]
+    },
+    {
+      "name": "score_user",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX score_user ON scores (user)"
+        }
+      ]
+    },
+    {
+      "name": "user_semester_summary_user",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX user_semester_summary_user ON user_semester_summaries (user)"
+        }
+      ]
+    }
+  ]
+}
