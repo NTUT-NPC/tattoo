@@ -8,7 +8,6 @@ import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
@@ -110,12 +109,6 @@ class ProfileDangerZone extends ConsumerWidget {
     () => const FlutterSecureStorage().deleteAll(),
   );
 
-  Future<void> _clearUserData(BuildContext context, WidgetRef ref) => _clear(
-    context,
-    t.profile.dangerZone.items.userData,
-    () => ref.read(authRepositoryProvider).logout(),
-  );
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (!ref.pref(.showDangerZone)) {
@@ -179,13 +172,6 @@ class ProfileDangerZone extends ConsumerWidget {
           color: dangerColor,
           borderColor: dangerColor,
           onTap: () => _clearCredentials(context),
-        ),
-        OptionEntryTile.icon(
-          icon: Icons.delete_forever_outlined,
-          title: t.profile.dangerZone.clearUserData,
-          color: dangerColor,
-          borderColor: dangerColor,
-          onTap: () => _clearUserData(context, ref),
         ),
       ],
     );
