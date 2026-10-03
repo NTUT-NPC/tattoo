@@ -69,8 +69,10 @@ class ProfileDangerZone extends ConsumerWidget {
     context,
     t.profile.dangerZone.items.cache,
     () async {
-      final sync = ref.read(courseWidgetSyncControllerProvider);
-      await sync.invalidateAndClear();
+      final courseWidgetSyncController = ref.read(
+        courseWidgetSyncControllerProvider,
+      );
+      await courseWidgetSyncController.invalidateAndClear();
       final cacheDir = await getApplicationCacheDirectory();
       if (await cacheDir.exists()) {
         await for (final entity in cacheDir.list()) {
@@ -80,8 +82,8 @@ class ProfileDangerZone extends ConsumerWidget {
       await ref.read(databaseProvider).deleteCachedData();
       // Stream-based providers auto-update via Drift .watch().
       ref.invalidate(userAvatarProvider);
-      await sync.start();
-      await sync.reconcile();
+      await courseWidgetSyncController.start();
+      await courseWidgetSyncController.reconcile();
     },
   );
 
