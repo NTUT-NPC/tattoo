@@ -44,10 +44,8 @@ class NtutPortalService implements PortalService {
   Future<void> _portalLocaleOperation = Future.value();
   bool _portalLocaleStateUncertain = false;
 
-  NtutPortalService({
-    Dio? dio,
-    Duration? iSchoolSsoTimeout,
-  }) : _iSchoolSsoTimeout = iSchoolSsoTimeout ?? _defaultISchoolSsoTimeout {
+  NtutPortalService({Dio? dio, Duration? iSchoolSsoTimeout})
+    : _iSchoolSsoTimeout = iSchoolSsoTimeout ?? _defaultISchoolSsoTimeout {
     // Emulate the NTUT iOS app's HTTP client
     _portalDio = (dio ?? createDio())
       ..options.baseUrl = 'https://app.ntut.edu.tw/'
@@ -75,16 +73,13 @@ class NtutPortalService implements PortalService {
     if (!body['success']) {
       final String? errorMsg = body['errorMsg'];
       final bool resetPwd = body['resetPwd'] ?? false;
-      throw LoginException(
-        switch (errorMsg) {
-          final msg? when msg.contains('密碼錯誤') => .wrongCredentials,
-          final msg? when msg.contains('已被鎖住') => .accountLocked,
-          final msg? when msg.contains('密碼已過期') && resetPwd => .passwordExpired,
-          final msg? when msg.contains('驗證手機') => .mobileVerificationRequired,
-          _ => .unknown,
-        },
-        message: errorMsg?.isNotEmpty == true ? errorMsg : null,
-      );
+      throw LoginException(switch (errorMsg) {
+        final msg? when msg.contains('密碼錯誤') => .wrongCredentials,
+        final msg? when msg.contains('已被鎖住') => .accountLocked,
+        final msg? when msg.contains('密碼已過期') && resetPwd => .passwordExpired,
+        final msg? when msg.contains('驗證手機') => .mobileVerificationRequired,
+        _ => .unknown,
+      }, message: errorMsg?.isNotEmpty == true ? errorMsg : null);
     }
 
     final String? passwordExpiredRemind = body['passwordExpiredRemind'];
@@ -229,11 +224,7 @@ class NtutPortalService implements PortalService {
     // interceptor does not propagate a request CancelToken to redirect GETs,
     // so iSchool Plus follows them here to keep the whole chain cancellable.
     if (cancelToken case final token?) {
-      await _submitISchoolSsoForm(
-        actionUrl,
-        formData,
-        cancelToken: token,
-      );
+      await _submitISchoolSsoForm(actionUrl, formData, cancelToken: token);
     } else {
       await _portalDio.post(
         actionUrl,
@@ -512,9 +503,7 @@ class NtutPortalService implements PortalService {
         ),
       };
     }
-    throw const FormatException(
-      'NTUT Portal academic category was not found.',
-    );
+    throw const FormatException('NTUT Portal academic category was not found.');
   }
 
   Future<List<_PortalApplicationCategoryPageDto>>
@@ -523,9 +512,7 @@ class NtutPortalService implements PortalService {
     if (categoryDocument case final cached?) {
       document = cached;
     } else {
-      final response = await _getApplicationPage(
-        queryParameters: {'init': ''},
-      );
+      final response = await _getApplicationPage(queryParameters: {'init': ''});
       document = _parseApplicationPage(response.data!);
     }
     final categories = _parseApplicationCategories(document);
@@ -563,9 +550,7 @@ class NtutPortalService implements PortalService {
     final body = response.data?.trim() ?? '';
     _throwIfPortalSessionExpired(body);
     if (body != locale) {
-      throw FormatException(
-        'NTUT Portal did not confirm locale $locale.',
-      );
+      throw FormatException('NTUT Portal did not confirm locale $locale.');
     }
 
     final reload = await _portalDio.get<String>(
@@ -647,20 +632,14 @@ class NtutPortalService implements PortalService {
     if (!visitedFolders.add(distinguishedName)) return const [];
 
     final response = await _getApplicationPage(
-      queryParameters: {
-        'apView': 'apMap',
-        'apDn': distinguishedName,
-      },
+      queryParameters: {'apView': 'apMap', 'apDn': distinguishedName},
     );
     final document = _parseApplicationPage(response.data!);
     final applications = <_PortalApplicationPageDto>[];
     final seenCodes = <String>{};
 
     for (final item in document.querySelectorAll('.apt-icon')) {
-      final application = _parseApplication(
-        item,
-        response.requestOptions.uri,
-      );
+      final application = _parseApplication(item, response.requestOptions.uri);
       if (application != null) {
         if (seenCodes.add(application.code)) applications.add(application);
         continue;
@@ -680,10 +659,7 @@ class NtutPortalService implements PortalService {
     return applications;
   }
 
-  _PortalApplicationPageDto? _parseApplication(
-    Element item,
-    Uri responseUri,
-  ) {
+  _PortalApplicationPageDto? _parseApplication(Element item, Uri responseUri) {
     Element? link;
     for (final candidate in item.querySelectorAll('a[href]')) {
       final href = candidate.attributes['href'];
@@ -766,15 +742,10 @@ class NtutPortalService implements PortalService {
     );
   }
 
-  ({String distinguishedName, String name})? _parseFolderCall(
-    String? script,
-  ) {
+  ({String distinguishedName, String name})? _parseFolderCall(String? script) {
     if (script == null) return null;
     final match = _folderCallPattern.firstMatch(script);
     if (match == null) return null;
-    return (
-      distinguishedName: match.group(1)!,
-      name: match.group(2)!,
-    );
+    return (distinguishedName: match.group(1)!, name: match.group(2)!);
   }
 }

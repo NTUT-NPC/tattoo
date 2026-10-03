@@ -146,10 +146,7 @@ void main() {
           hasCache: false,
           showNetworkGuide: false,
           allowEarlyNetworkGuide: false,
-          refresh: const AsyncError<bool>(
-            'refresh failed',
-            StackTrace.empty,
-          ),
+          refresh: const AsyncError<bool>('refresh failed', StackTrace.empty),
           availability: const AsyncError<void>(
             'probe failed',
             StackTrace.empty,
@@ -165,10 +162,7 @@ void main() {
           hasCache: false,
           showNetworkGuide: false,
           allowEarlyNetworkGuide: true,
-          refresh: const AsyncError<bool>(
-            'refresh failed',
-            StackTrace.empty,
-          ),
+          refresh: const AsyncError<bool>('refresh failed', StackTrace.empty),
           availability: const AsyncLoading<void>(),
         ),
         CourseRosterPresentation.loading,
@@ -181,10 +175,7 @@ void main() {
           hasCache: false,
           showNetworkGuide: false,
           allowEarlyNetworkGuide: true,
-          refresh: const AsyncError<bool>(
-            'refresh failed',
-            StackTrace.empty,
-          ),
+          refresh: const AsyncError<bool>('refresh failed', StackTrace.empty),
           availability: const AsyncData<void>(null),
         ),
         CourseRosterPresentation.genericFailure,
@@ -297,9 +288,7 @@ void main() {
         await container.read(courseStudentRosterRefreshProvider(key).future),
         isFalse,
       );
-      await container.read(
-        courseStudentRosterAvailabilityProvider(key).future,
-      );
+      await container.read(courseStudentRosterAvailabilityProvider(key).future);
 
       expect(service.courseListCalls, 0);
       expect(service.studentsCalls, 0);
@@ -311,16 +300,15 @@ void main() {
         courseOfferingId: key.courseOfferingId,
         courseNumber: key.courseNumber,
       );
-      await (database.update(database.courseOfferings)..where(
-            (row) => row.id.equals(key.courseOfferingId),
-          ))
-          .write(
-            CourseOfferingsCompanion(
-              studentRosterFetchedAt: Value(
-                DateTime.now().subtract(studentRosterTtl),
-              ),
-            ),
-          );
+      await (database.update(
+        database.courseOfferings,
+      )..where((row) => row.id.equals(key.courseOfferingId))).write(
+        CourseOfferingsCompanion(
+          studentRosterFetchedAt: Value(
+            DateTime.now().subtract(studentRosterTtl),
+          ),
+        ),
+      );
       service.resetCalls();
 
       final refreshFuture = container.read(

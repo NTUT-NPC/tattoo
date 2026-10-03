@@ -61,11 +61,7 @@ class MockISchoolPlusService implements ISchoolPlusService {
         title: '[錄] 09131025',
         href: 'nr8-YzItjO1YRyoQbiPCmGhHXJuk4z',
       ),
-      (
-        course: c,
-        title: 'Blockly_Maze',
-        href: 'hC-BrNCI2-Ho25bmCleEcQ,,',
-      ),
+      (course: c, title: 'Blockly_Maze', href: 'hC-BrNCI2-Ho25bmCleEcQ,,'),
       (
         course: c,
         title: 'Chap 01-認識 Python-richwang',

@@ -560,14 +560,11 @@ class AuthRepository {
       return Completer<void>().future;
     }
 
-    final (profile, records) = await withAuth(
-      () async {
-        final profileFuture = _studentQueryService.getStudentProfile();
-        final recordsFuture = _studentQueryService.getRegistrationRecords();
-        return (profileFuture, recordsFuture).wait;
-      },
-      sso: [.studentQueryService],
-    );
+    final (profile, records) = await withAuth(() async {
+      final profileFuture = _studentQueryService.getStudentProfile();
+      final recordsFuture = _studentQueryService.getRegistrationRecords();
+      return (profileFuture, recordsFuture).wait;
+    }, sso: [.studentQueryService]);
 
     await _database.transaction(() async {
       await (_database.update(
@@ -775,9 +772,7 @@ class AuthRepository {
   /// registration data or after cache clear).
   Stream<UserRegistration?> watchActiveRegistration() {
     return (_database.select(_database.userRegistrations)
-          ..where(
-            (r) => r.enrollmentStatus.equalsValue(.learning),
-          )
+          ..where((r) => r.enrollmentStatus.equalsValue(.learning))
           ..orderBy([
             (r) => OrderingTerm.desc(r.year),
             (r) => OrderingTerm.desc(r.term),

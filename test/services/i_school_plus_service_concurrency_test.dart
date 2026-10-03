@@ -14,9 +14,7 @@ void main() {
 
   setUp(() {
     protocol = _FakeISchoolProtocol();
-    service = NtutISchoolPlusService(
-      dio: Dio()..interceptors.add(protocol),
-    );
+    service = NtutISchoolPlusService(dio: Dio()..interceptors.add(protocol));
   });
 
   test('concurrent roster operations do not mix selected courses', () async {

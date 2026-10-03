@@ -168,10 +168,7 @@ class LogInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final requestLog = _requestLog(err.requestOptions);
-    final errorLog = [
-      err.type.name,
-      ?err.response?.statusCode,
-    ].join(' ');
+    final errorLog = [err.type.name, ?err.response?.statusCode].join(' ');
 
     final message = '$requestLog => $errorLog';
     log(message, name: 'HTTP');

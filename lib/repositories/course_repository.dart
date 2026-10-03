@@ -38,10 +38,7 @@ typedef CourseOfferingDetail = ({
 });
 
 /// A submitted syllabus and its ordered dynamic content sections.
-typedef SyllabusDetail = ({
-  Syllabus metadata,
-  List<SyllabusSection> sections,
-});
+typedef SyllabusDetail = ({Syllabus metadata, List<SyllabusSection> sections});
 
 /// A submitted syllabus paired with its authoring teacher.
 typedef TeacherSyllabusDetail = ({
@@ -50,10 +47,7 @@ typedef TeacherSyllabusDetail = ({
 });
 
 /// Cached I-School Plus roster for a course offering.
-typedef CourseStudentRoster = ({
-  List<Student> students,
-  DateTime? fetchedAt,
-});
+typedef CourseStudentRoster = ({List<Student> students, DateTime? fetchedAt});
 
 const studentRosterTtl = Duration(minutes: 15);
 
@@ -281,9 +275,8 @@ class CourseRepository {
             );
       }
 
-      await (_database.update(_database.users)).write(
-        UsersCompanion(semestersFetchedAt: Value(DateTime.now())),
-      );
+      await (_database.update(_database.users))
+          .write(UsersCompanion(semestersFetchedAt: Value(DateTime.now())));
     });
   }
 
@@ -351,17 +344,14 @@ class CourseRepository {
           if (!data.teacherNames.contains(name)) data.teacherNames.add(name);
         }
       }
-      final data = _buildCourseTableData(
-        rows,
-        [
-          for (final data in allOfferings.values)
-            (
-              offering: data.offering,
-              course: data.course,
-              teacherNames: data.teacherNames.toList(growable: false),
-            ),
-        ],
-      );
+      final data = _buildCourseTableData(rows, [
+        for (final data in allOfferings.values)
+          (
+            offering: data.offering,
+            course: data.course,
+            teacherNames: data.teacherNames.toList(growable: false),
+          ),
+      ]);
 
       if (data.scheduled.isEmpty && data.unscheduled.isEmpty) {
         try {
@@ -430,10 +420,9 @@ class CourseRepository {
           .go();
 
       // Delete all special entries (null number) — they're re-inserted below.
-      await (_database.delete(_database.courseOfferings)..where(
-            (o) => o.semester.equals(semester.id) & o.number.isNull(),
-          ))
-          .go();
+      await (_database.delete(
+        _database.courseOfferings,
+      )..where((o) => o.semester.equals(semester.id) & o.number.isNull())).go();
 
       for (final dto in dtos) {
         final courseCode = dto.course?.id;
@@ -559,9 +548,7 @@ class CourseRepository {
       await (_database.update(
         _database.semesters,
       )..where((s) => s.id.equals(semester.id))).write(
-        SemestersCompanion(
-          courseTableFetchedAt: Value(DateTime.now()),
-        ),
+        SemestersCompanion(courseTableFetchedAt: Value(DateTime.now())),
       );
     });
   }
@@ -802,11 +789,7 @@ class CourseRepository {
         for (final slot
             in schedule.schedule ??
                 const <
-                  ({
-                    DayOfWeek day,
-                    Period period,
-                    ReferenceDto? classroom,
-                  })
+                  ({DayOfWeek day, Period period, ReferenceDto? classroom})
                 >[])
           (
             day: slot.day,
@@ -872,20 +855,14 @@ class CourseRepository {
     final query =
         _database.select(syllabuses).join([
             innerJoin(teachers, teachers.id.equalsExp(syllabuses.teacher)),
-            leftOuterJoin(
-              sections,
-              sections.syllabus.equalsExp(syllabuses.id),
-            ),
+            leftOuterJoin(sections, sections.syllabus.equalsExp(syllabuses.id)),
           ])
           ..where(
             syllabuses.courseOffering.equals(offering.id) &
                 syllabuses.teacher.isIn(teacherIds) &
                 syllabuses.language.equalsValue(language),
           )
-          ..orderBy([
-            .asc(teachers.code),
-            .asc(sections.position),
-          ]);
+          ..orderBy([.asc(teachers.code), .asc(sections.position)]);
 
     var attemptedRefresh = false;
     await for (final rows in query.watch()) {
@@ -940,11 +917,7 @@ class CourseRepository {
     final grouped =
         <
           int,
-          ({
-            Syllabus metadata,
-            Teacher teacher,
-            List<SyllabusSection> sections,
-          })
+          ({Syllabus metadata, Teacher teacher, List<SyllabusSection> sections})
         >{};
 
     for (final row in rows) {
@@ -1048,9 +1021,9 @@ class CourseRepository {
                   ],
                 ),
               );
-          await (_database.delete(_database.syllabusSections)..where(
-                (section) => section.syllabus.equals(storedSyllabus.id),
-              ))
+          await (_database.delete(
+                _database.syllabusSections,
+              )..where((section) => section.syllabus.equals(storedSyllabus.id)))
               .go();
           continue;
         }
@@ -1078,10 +1051,9 @@ class CourseRepository {
               ),
             );
 
-        await (_database.delete(_database.syllabusSections)..where(
-              (section) => section.syllabus.equals(storedSyllabus.id),
-            ))
-            .go();
+        await (_database.delete(
+          _database.syllabusSections,
+        )..where((section) => section.syllabus.equals(storedSyllabus.id))).go();
         await _database.batch((batch) {
           batch.insertAll(_database.syllabusSections, [
             for (final (position, section) in syllabus.sections.indexed)
@@ -1094,11 +1066,9 @@ class CourseRepository {
           ]);
         });
 
-        await (_database.update(
-          _database.teacherSemesters,
-        )..where((stored) => stored.id.equals(teacherSemester.id))).write(
-          TeacherSemestersCompanion(email: Value(syllabus.email)),
-        );
+        await (_database.update(_database.teacherSemesters)
+              ..where((stored) => stored.id.equals(teacherSemester.id)))
+            .write(TeacherSemestersCompanion(email: Value(syllabus.email)));
       }
 
       final firstSubmitted = results
@@ -1130,13 +1100,7 @@ class CourseRepository {
   Future<
     ({
       CourseOffering offering,
-      List<
-        ({
-          Teacher teacher,
-          TeacherSemester teacherSemester,
-        })
-      >
-      teachers,
+      List<({Teacher teacher, TeacherSemester teacherSemester})> teachers,
     })?
   >
   _readSyllabusContext(String number) async {
@@ -1152,9 +1116,7 @@ class CourseRepository {
             ),
             leftOuterJoin(
               teacherSemesters,
-              teacherSemesters.id.equalsExp(
-                offeringTeachers.teacherSemester,
-              ),
+              teacherSemesters.id.equalsExp(offeringTeachers.teacherSemester),
             ),
             leftOuterJoin(
               teachers,
@@ -1220,24 +1182,20 @@ class CourseRepository {
 
   Future<List<({String code, String nameZh, String? nameEn})>>
   _readOfferingTeachers(int id) async {
-    final rows =
-        await (_database.select(_database.courseOfferingTeachers).join([
-              innerJoin(
-                _database.teacherSemesters,
-                _database.teacherSemesters.id.equalsExp(
-                  _database.courseOfferingTeachers.teacherSemester,
-                ),
-              ),
-              innerJoin(
-                _database.teachers,
-                _database.teachers.id.equalsExp(
-                  _database.teacherSemesters.teacher,
-                ),
-              ),
-            ])..where(
-              _database.courseOfferingTeachers.courseOffering.equals(id),
-            ))
-            .get();
+    final rows = await (_database.select(_database.courseOfferingTeachers).join(
+      [
+        innerJoin(
+          _database.teacherSemesters,
+          _database.teacherSemesters.id.equalsExp(
+            _database.courseOfferingTeachers.teacherSemester,
+          ),
+        ),
+        innerJoin(
+          _database.teachers,
+          _database.teachers.id.equalsExp(_database.teacherSemesters.teacher),
+        ),
+      ],
+    )..where(_database.courseOfferingTeachers.courseOffering.equals(id))).get();
     return [
       for (final row in rows)
         (
@@ -1442,10 +1400,9 @@ class CourseRepository {
     }
 
     await _database.transaction(() async {
-      await (_database.delete(_database.courseOfferingStudents)..where(
-            (row) => row.courseOffering.equals(courseOfferingId),
-          ))
-          .go();
+      await (_database.delete(
+        _database.courseOfferingStudents,
+      )..where((row) => row.courseOffering.equals(courseOfferingId))).go();
 
       for (final student in students) {
         final studentId = await _database.upsertStudent(
@@ -1462,14 +1419,11 @@ class CourseRepository {
             );
       }
 
-      await (_database.update(_database.courseOfferings)..where(
-            (offering) => offering.id.equals(courseOfferingId),
-          ))
-          .write(
-            CourseOfferingsCompanion(
-              studentRosterFetchedAt: Value(DateTime.now()),
-            ),
-          );
+      await (_database.update(
+        _database.courseOfferings,
+      )..where((offering) => offering.id.equals(courseOfferingId))).write(
+        CourseOfferingsCompanion(studentRosterFetchedAt: Value(DateTime.now())),
+      );
     });
   }
 }

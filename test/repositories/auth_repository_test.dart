@@ -47,14 +47,12 @@ void main() {
               previousUsername,
               previousPassword,
             }) async {
-              refreshCalls.add(
-                (
-                  username: username,
-                  password: password,
-                  previousUsername: previousUsername,
-                  previousPassword: previousPassword,
-                ),
-              );
+              refreshCalls.add((
+                username: username,
+                password: password,
+                previousUsername: previousUsername,
+                previousPassword: previousPassword,
+              ));
             },
       );
     });
@@ -101,14 +99,14 @@ void main() {
             previousPassword: 'old-password',
           ),
         ]);
-        expect(
-          await repository.getStoredCredentials(),
-          (username: '111360109', password: 'new-password'),
-        );
-        expect(
-          portalService.loginCalls.last,
-          (username: '111360109', password: 'new-password'),
-        );
+        expect(await repository.getStoredCredentials(), (
+          username: '111360109',
+          password: 'new-password',
+        ));
+        expect(portalService.loginCalls.last, (
+          username: '111360109',
+          password: 'new-password',
+        ));
       },
     );
 
@@ -355,27 +353,23 @@ void main() {
       });
     });
 
-    test(
-      'logout preserves the session when legacy deletion fails',
-      () async {
-        await repository.login('111360109', 'password');
-        SharedPreferencesStorePlatform.instance =
-            _FailingRemovePreferencesStore({
-              'flutter.UserDataJsonKey':
-                  '{"account":"111360109","password":"password","info":null}',
-            });
-        SharedPreferences.resetStatic();
+    test('logout preserves the session when legacy deletion fails', () async {
+      await repository.login('111360109', 'password');
+      SharedPreferencesStorePlatform.instance = _FailingRemovePreferencesStore({
+        'flutter.UserDataJsonKey':
+            '{"account":"111360109","password":"password","info":null}',
+      });
+      SharedPreferences.resetStatic();
 
-        await expectLater(repository.logout(), throwsStateError);
+      await expectLater(repository.logout(), throwsStateError);
 
-        expect(
-          await database.select(database.users).getSingleOrNull(),
-          isNotNull,
-        );
-        expect(secureStorage['username'], '111360109');
-        expect(secureStorage['password'], 'password');
-      },
-    );
+      expect(
+        await database.select(database.users).getSingleOrNull(),
+        isNotNull,
+      );
+      expect(secureStorage['username'], '111360109');
+      expect(secureStorage['password'], 'password');
+    });
   });
 }
 
@@ -413,9 +407,10 @@ class _RecordingPortalService extends MockPortalService {
     String? currentPassword,
     bool isExpired = false,
   }) async {
-    changePasswordCalls.add(
-      (currentPassword: currentPassword ?? '', newPassword: newPassword),
-    );
+    changePasswordCalls.add((
+      currentPassword: currentPassword ?? '',
+      newPassword: newPassword,
+    ));
   }
 }
 

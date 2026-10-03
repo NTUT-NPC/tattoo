@@ -90,16 +90,15 @@ void main() {
       );
       expect(await repository.isStudentRosterFresh(courseOfferingId), isTrue);
 
-      await (database.update(database.courseOfferings)..where(
-            (row) => row.id.equals(courseOfferingId),
-          ))
-          .write(
-            CourseOfferingsCompanion(
-              studentRosterFetchedAt: Value(
-                DateTime.now().subtract(studentRosterTtl),
-              ),
-            ),
-          );
+      await (database.update(
+        database.courseOfferings,
+      )..where((row) => row.id.equals(courseOfferingId))).write(
+        CourseOfferingsCompanion(
+          studentRosterFetchedAt: Value(
+            DateTime.now().subtract(studentRosterTtl),
+          ),
+        ),
+      );
       expect(await repository.isStudentRosterFresh(courseOfferingId), isFalse);
     });
 
@@ -134,9 +133,7 @@ void main() {
     test(
       'preserves cached students when refresh has a network error',
       () async {
-        iSchoolPlusService.studentsResult = [
-          (id: '111000001', name: '快取同學'),
-        ];
+        iSchoolPlusService.studentsResult = [(id: '111000001', name: '快取同學')];
         await repository.refreshStudentRoster(
           courseOfferingId: courseOfferingId,
           courseNumber: '352902',
@@ -180,9 +177,7 @@ void main() {
           ),
           firebaseService: const FirebaseService(),
         );
-        iSchoolPlusService.studentsResult = [
-          (id: '111000001', name: '快取同學'),
-        ];
+        iSchoolPlusService.studentsResult = [(id: '111000001', name: '快取同學')];
         await repository.refreshStudentRoster(
           courseOfferingId: courseOfferingId,
           courseNumber: '352902',

@@ -33,9 +33,7 @@ class ISchoolPlusNetworkGuide extends StatelessWidget {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          SnackBar(
-            content: Text(t.iSchoolPlus.network.openGuideFailed.spaced),
-          ),
+          SnackBar(content: Text(t.iSchoolPlus.network.openGuideFailed.spaced)),
         );
     }
   }

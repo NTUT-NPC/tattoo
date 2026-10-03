@@ -33,9 +33,7 @@ void main() {
       );
 
     await expectLater(
-      NtutISchoolPlusService(
-        availabilityDio: dio,
-      ).checkAvailability(),
+      NtutISchoolPlusService(availabilityDio: dio).checkAvailability(),
       throwsA(same(error)),
     );
   });
@@ -56,9 +54,7 @@ void main() {
       final stopwatch = Stopwatch()..start();
 
       await expectLater(
-        NtutISchoolPlusService(
-          availabilityDio: dio,
-        ).checkAvailability(),
+        NtutISchoolPlusService(availabilityDio: dio).checkAvailability(),
         throwsA(
           isA<DioException>().having(
             (DioException e) => e.type,

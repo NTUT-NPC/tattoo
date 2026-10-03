@@ -198,10 +198,7 @@ void main() {
           final materialInfo = await iSchoolPlusService.getMaterial(material);
 
           expect(materialInfo.downloadUrl.toString(), isNotEmpty);
-          expect(
-            materialInfo.downloadUrl.scheme,
-            isIn(['http', 'https']),
-          );
+          expect(materialInfo.downloadUrl.scheme, isIn(['http', 'https']));
         }
 
         // If < 2 materials, test passes with fewer iterations

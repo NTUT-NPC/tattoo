@@ -87,9 +87,8 @@ class _CourseDetailContent extends ConsumerWidget {
         t.general.unknown;
     final teachers = detail.teachers
         .map(
-          (teacher) => _normalizedText(
-            localized(teacher.nameZh, teacher.nameEn),
-          ),
+          (teacher) =>
+              _normalizedText(localized(teacher.nameZh, teacher.nameEn)),
         )
         .nonNulls
         .join('、');
@@ -124,9 +123,7 @@ class _CourseDetailContent extends ConsumerWidget {
       null => null,
     };
     final syllabus = switch (syllabusAsync) {
-      AsyncData(value: final syllabuses) => _SyllabusTabs(
-        details: syllabuses,
-      ),
+      AsyncData(value: final syllabuses) => _SyllabusTabs(details: syllabuses),
       AsyncError(:final error) => _DetailState(
         icon: Icons.error_outline,
         message: 'Error: $error',
@@ -243,10 +240,7 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
         ),
         Offstage(
           offstage: _controller.index != 0,
-          child: Padding(
-            padding: const .only(top: 8),
-            child: widget.syllabus,
-          ),
+          child: Padding(padding: const .only(top: 8), child: widget.syllabus),
         ),
         if (_rosterVisited)
           Offstage(
@@ -341,10 +335,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
       final refresh = ref.read(refreshProvider);
       if (!hasCache || refresh.value == true || _probeSnackbarShown) return;
       _probeSnackbarShown = true;
-      _showUpdateSnackbar(
-        strings.networkSnackbar,
-        networkStrings.learnMore,
-      );
+      _showUpdateSnackbar(strings.networkSnackbar, networkStrings.learnMore);
     });
 
     ref.listen(refreshProvider, (previous, next) {
@@ -352,10 +343,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         _refreshStartedWithCache = null;
         final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
         if (hasCache) {
-          _showUpdateSnackbar(
-            strings.updateFailed,
-            networkStrings.learnMore,
-          );
+          _showUpdateSnackbar(strings.updateFailed, networkStrings.learnMore);
         }
         return;
       }
@@ -371,10 +359,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          SnackBar(
-            content: Text(strings.updateSuccess.spaced),
-            persist: false,
-          ),
+          SnackBar(content: Text(strings.updateSuccess.spaced), persist: false),
         );
     });
 
@@ -394,9 +379,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     );
 
     if (cacheAsync.isLoading) {
-      return _CourseRosterLoading(
-        onLearnMore: _openNetworkGuide,
-      );
+      return _CourseRosterLoading(onLearnMore: _openNetworkGuide);
     }
     if (cacheAsync.hasError) {
       return _DetailState(
@@ -665,10 +648,7 @@ class _SyllabusSections extends StatelessWidget {
               for (final (index, section)
                   in detail.syllabus.sections.indexed) ...[
                 if (index > 0) const Divider(height: 24),
-                Text(
-                  section.title.spaced,
-                  style: theme.textTheme.titleMedium,
-                ),
+                Text(section.title.spaced, style: theme.textTheme.titleMedium),
                 if (_normalizedText(section.content) case final content?)
                   Padding(
                     padding: const .only(top: 6),
@@ -684,11 +664,7 @@ class _SyllabusSections extends StatelessWidget {
 }
 
 class _DetailState extends StatelessWidget {
-  const _DetailState({
-    required this.icon,
-    required this.message,
-    this.onRetry,
-  });
+  const _DetailState({required this.icon, required this.message, this.onRetry});
 
   final IconData icon;
   final String message;

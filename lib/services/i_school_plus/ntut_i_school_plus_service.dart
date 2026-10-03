@@ -158,10 +158,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
           final id = parts[0];
           final name = parts[1].replaceAll(')', '').trim();
 
-          return (
-            id: id.isEmpty ? null : id,
-            name: name.isEmpty ? null : name,
-          );
+          return (id: id.isEmpty ? null : id, name: name.isEmpty ? null : name);
         })
         .where(
           (student) => student.id != 'istudyoaa', // Filter out system account
@@ -170,36 +167,33 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   });
 
   @override
-  Future<List<MaterialRefDto>> getMaterials(
-    ISchoolCourseDto course,
-  ) => _withSelectedCourse(course, () async {
-    // Fetch and parse the SCORM manifest XML for file listings
-    final manifestResponse = await _iSchoolPlusDio.get('path/SCORM_loadCA.php');
-    final manifestDocument = parse(manifestResponse.data);
+  Future<List<MaterialRefDto>> getMaterials(ISchoolCourseDto course) =>
+      _withSelectedCourse(course, () async {
+        // Fetch and parse the SCORM manifest XML for file listings
+        final manifestResponse = await _iSchoolPlusDio.get(
+          'path/SCORM_loadCA.php',
+        );
+        final manifestDocument = parse(manifestResponse.data);
 
-    // Extract all <item> elements that have identifierref attribute (actual files)
-    // Items without identifierref are folders/directories and are excluded
-    final items = manifestDocument.querySelectorAll('item[identifierref]');
+        // Extract all <item> elements that have identifierref attribute (actual files)
+        // Items without identifierref are folders/directories and are excluded
+        final items = manifestDocument.querySelectorAll('item[identifierref]');
 
-    return items.map((item) {
-      final titleElement = item.querySelector('title');
-      final title = titleElement?.text.split('\t').first.trim();
+        return items.map((item) {
+          final titleElement = item.querySelector('title');
+          final title = titleElement?.text.split('\t').first.trim();
 
-      // Find the corresponding <resource> element
-      final identifierRef = item.attributes['identifierref']!;
-      final resource = manifestDocument.querySelector(
-        'resource[identifier="$identifierRef"]',
-      );
+          // Find the corresponding <resource> element
+          final identifierRef = item.attributes['identifierref']!;
+          final resource = manifestDocument.querySelector(
+            'resource[identifier="$identifierRef"]',
+          );
 
-      final href = resource?.attributes['href'];
+          final href = resource?.attributes['href'];
 
-      return (
-        course: course,
-        title: title,
-        href: href,
-      );
-    }).toList();
-  });
+          return (course: course, title: title, href: href);
+        }).toList();
+      });
 
   @override
   Future<MaterialDto> getMaterial(
@@ -288,11 +282,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     if (downloadUri.host.contains("istream.ntut.edu.tw")) {
       // iStream videos can be streamed directly or downloaded
       // Testing confirmed no referer required
-      return (
-        downloadUrl: downloadUri,
-        referer: null,
-        streamable: true,
-      );
+      return (downloadUrl: downloadUri, referer: null, streamable: true);
     }
 
     // Case 3: Material is a PDF
@@ -315,11 +305,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     }
 
     // Case 4: Material is a standard downloadable file
-    return (
-      downloadUrl: downloadUri,
-      referer: null,
-      streamable: false,
-    );
+    return (downloadUrl: downloadUri, referer: null, streamable: false);
   });
 }
 
@@ -338,9 +324,7 @@ class _SessionCheckInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 403) {
       onSessionExpired();
-      throw const SessionExpiredException(
-        'ISchoolPlus session expired',
-      );
+      throw const SessionExpiredException('ISchoolPlus session expired');
     }
     handler.next(err);
   }
