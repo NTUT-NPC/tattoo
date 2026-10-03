@@ -162,8 +162,11 @@ class _CourseWidgetRenderHostState
     final logicalSize = CourseTableExport.logicalSizeFor(
       input.cache.courseTable,
     );
-    return Transform.translate(
-      offset: Offset(-logicalSize.width - 1, 0),
+    return Positioned(
+      left: -logicalSize.width - 1,
+      top: 0,
+      width: logicalSize.width,
+      height: logicalSize.height,
       child: IgnorePointer(
         child: ExcludeSemantics(
           child: TickerMode(
@@ -172,11 +175,8 @@ class _CourseWidgetRenderHostState
               data: ThemeData(colorScheme: input.colors),
               child: RepaintBoundary(
                 key: _boundaryKey,
-                child: SizedBox.fromSize(
-                  size: logicalSize,
-                  child: CourseTableExport(
-                    courseTable: input.cache.courseTable,
-                  ),
+                child: CourseTableExport(
+                  courseTable: input.cache.courseTable,
                 ),
               ),
             ),
