@@ -251,19 +251,19 @@ class MyApp extends ConsumerWidget {
       supportedLocales: AppLocaleUtils.supportedLocales,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       theme: ThemeData(colorScheme: lightColorScheme),
-      // TODO: Remove after dependencies stop importing Flutter's design libraries.
-      builder: (context, child) => CourseWidgetRenderHost(
-        lightColorScheme: lightColorScheme,
-        darkColorScheme: darkColorScheme,
-        // ignore: deprecated_member_use
-        child: MaterialUiCompatibilityBridge(child: child!),
-      ),
       darkTheme: ThemeData(colorScheme: darkColorScheme),
       themeMode: switch (ref.pref(PrefKey.themeMode)) {
         'light' => .light,
         'dark' => .dark,
         _ => .system,
       },
+      builder: (context, child) => CourseWidgetRenderHost(
+        lightColorScheme: lightColorScheme,
+        darkColorScheme: darkColorScheme,
+        // TODO: Remove after dependencies stop importing Flutter's design libraries.
+        // ignore: deprecated_member_use
+        child: MaterialUiCompatibilityBridge(child: child!),
+      ),
       routerConfig: router,
     );
   }
