@@ -14,14 +14,120 @@ import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart'
 import 'package:tattoo/screens/main/course_table/course_table_entrance_animation.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
-/// Internal value type that describes the currently visible grid scope.
-///
-/// It groups the weekday columns and period rows calculated from
-/// [CourseTableData], so layout and rendering can share the same range.
-typedef _GridRange = ({
+/// Weekday columns and period rows visible for one course-table snapshot.
+typedef CourseTableGridRange = ({
   List<DayOfWeek> visibleDaysOfWeek,
   List<Period> visiblePeriods,
 });
+
+CourseTableGridRange courseTableGridRange(CourseTableData courseTableData) {
+  final weekdays = DayOfWeek.values
+      .where((day) => day.isWeekday)
+      .toList(growable: false);
+  final defaultPeriods = Period.values
+      .where(
+        (period) => period.isAM || period == .nPeriod || period.isPM,
+      )
+      .toList(growable: false);
+
+  if (courseTableData.scheduled.isEmpty &&
+      courseTableData.unscheduled.isEmpty) {
+    return (visibleDaysOfWeek: weekdays, visiblePeriods: defaultPeriods);
+  }
+
+  final visibleDays = switch ((
+    courseTableData.hasWeekdayCourse,
+    courseTableData.hasSaturdayCourse,
+    courseTableData.hasSundayCourse,
+  )) {
+    (true, true, true) => [...weekdays, DayOfWeek.saturday, DayOfWeek.sunday],
+    (true, true, false) => [...weekdays, DayOfWeek.saturday],
+    (true, false, true) => [...weekdays, DayOfWeek.sunday],
+    (true, false, false) => [...weekdays],
+    (false, true, true) => [DayOfWeek.saturday, DayOfWeek.sunday],
+    (false, true, false) => [DayOfWeek.saturday],
+    (false, false, true) => [DayOfWeek.sunday],
+    (false, false, false) => <DayOfWeek>[],
+  };
+  final visiblePeriods = <Period>[];
+
+  void addPeriod(Period period) {
+    if (!visiblePeriods.contains(period)) {
+      visiblePeriods.add(period);
+    }
+  }
+
+  void addPeriods(Iterable<Period> periods) {
+    for (final period in periods) {
+      addPeriod(period);
+    }
+  }
+
+  switch ((
+    courseTableData.hasAMCourse,
+    courseTableData.hasNoonCourse,
+    courseTableData.hasPMCourse,
+  )) {
+    case (false, false, false):
+      break;
+    case (true, false, false):
+      addPeriods(Period.values.where((period) => period.isAM));
+      break;
+    case (false, true, false):
+      addPeriod(.nPeriod);
+      break;
+    case (false, false, true):
+      addPeriods(Period.values.where((period) => period.isPM));
+      break;
+    case (true, true, false):
+      addPeriods(Period.values.where((period) => period.isAM));
+      addPeriod(.nPeriod);
+      break;
+    case (false, true, true):
+      addPeriod(.nPeriod);
+      addPeriods(Period.values.where((period) => period.isPM));
+      break;
+    case (true, false, true):
+      addPeriods(Period.values.where((period) => period.isAM || period.isPM));
+      break;
+    case (true, true, true):
+      addPeriods(Period.values.where((period) => period.isAM));
+      addPeriod(.nPeriod);
+      addPeriods(Period.values.where((period) => period.isPM));
+      break;
+  }
+
+  final isEveningOnly =
+      !courseTableData.hasAMCourse &&
+      !courseTableData.hasPMCourse &&
+      courseTableData.hasEveningCourse;
+
+  switch ((
+    courseTableData.hasEveningCourse,
+    isEveningOnly,
+    courseTableData.latestPeriod,
+  )) {
+    case (false, _, _):
+      break;
+    case (true, true, _):
+      addPeriods(Period.values.where((period) => period.isEvening));
+      break;
+    case (true, false, Period lastPeriod):
+      addPeriods(
+        Period.values
+            .skip(visiblePeriods.last.index + 1)
+            .take(lastPeriod.index - visiblePeriods.last.index),
+      );
+      break;
+    case (true, false, null):
+      break;
+  }
+
+  return (
+    visibleDaysOfWeek: visibleDays.isEmpty ? weekdays : visibleDays,
+    visiblePeriods: visiblePeriods.isEmpty ? defaultPeriods : visiblePeriods,
+  );
+}
 
 class CourseTableGrid extends StatelessWidget {
   CourseTableGrid({
@@ -48,7 +154,9 @@ class CourseTableGrid extends StatelessWidget {
   static const double _tableHeaderHeight = 25;
   static const double _stubWidth = 20;
   static const double _gridLineThickness = 1;
-  late final _GridRange _gridRange = _visibleGridRange();
+  late final CourseTableGridRange _gridRange = courseTableGridRange(
+    courseTableData,
+  );
   List<DayOfWeek> get _visibleDaysOfWeek => _gridRange.visibleDaysOfWeek;
   List<Period> get _visiblePeriods => _gridRange.visiblePeriods;
 
@@ -181,112 +289,6 @@ class CourseTableGrid extends StatelessWidget {
       ),
       null => scrollView,
     };
-  }
-
-  _GridRange _visibleGridRange() {
-    final weekdays = DayOfWeek.values
-        .where((day) => day.isWeekday)
-        .toList(growable: false);
-    final defaultPeriods = Period.values
-        .where(
-          (period) => period.isAM || period == .nPeriod || period.isPM,
-        )
-        .toList(growable: false);
-
-    if (_isEmpty) {
-      return (visibleDaysOfWeek: weekdays, visiblePeriods: defaultPeriods);
-    }
-
-    final visibleDays = switch ((
-      courseTableData.hasWeekdayCourse,
-      courseTableData.hasSaturdayCourse,
-      courseTableData.hasSundayCourse,
-    )) {
-      (true, true, true) => [...weekdays, DayOfWeek.saturday, DayOfWeek.sunday],
-      (true, true, false) => [...weekdays, DayOfWeek.saturday],
-      (true, false, true) => [...weekdays, DayOfWeek.sunday],
-      (true, false, false) => [...weekdays],
-      (false, true, true) => [DayOfWeek.saturday, DayOfWeek.sunday],
-      (false, true, false) => [DayOfWeek.saturday],
-      (false, false, true) => [DayOfWeek.sunday],
-      (false, false, false) => <DayOfWeek>[],
-    };
-    final visiblePeriods = <Period>[];
-
-    void addPeriod(Period period) {
-      if (!visiblePeriods.contains(period)) {
-        visiblePeriods.add(period);
-      }
-    }
-
-    void addPeriods(Iterable<Period> periods) {
-      for (final period in periods) {
-        addPeriod(period);
-      }
-    }
-
-    switch ((
-      courseTableData.hasAMCourse,
-      courseTableData.hasNoonCourse,
-      courseTableData.hasPMCourse,
-    )) {
-      case (false, false, false):
-        break;
-      case (true, false, false):
-        addPeriods(Period.values.where((period) => period.isAM));
-        break;
-      case (false, true, false):
-        addPeriod(.nPeriod);
-        break;
-      case (false, false, true):
-        addPeriods(Period.values.where((period) => period.isPM));
-        break;
-      case (true, true, false):
-        addPeriods(Period.values.where((period) => period.isAM));
-        addPeriod(.nPeriod);
-        break;
-      case (false, true, true):
-        addPeriod(.nPeriod);
-        addPeriods(Period.values.where((period) => period.isPM));
-        break;
-      case (true, false, true):
-      case (true, true, true):
-        addPeriods(Period.values.where((period) => period.isAM));
-        addPeriod(.nPeriod);
-        addPeriods(Period.values.where((period) => period.isPM));
-        break;
-    }
-
-    final isEveningOnly =
-        !courseTableData.hasAMCourse &&
-        !courseTableData.hasPMCourse &&
-        courseTableData.hasEveningCourse;
-
-    switch ((
-      courseTableData.hasEveningCourse,
-      isEveningOnly,
-      courseTableData.latestPeriod,
-    )) {
-      case (false, _, _):
-        break;
-      case (true, true, _):
-        addPeriods(Period.values.where((period) => period.isEvening));
-        break;
-      case (true, false, Period lastPeriod):
-        addPeriods(
-          Period.values
-              .skip(visiblePeriods.last.index + 1)
-              .take(lastPeriod.index - visiblePeriods.last.index),
-        );
-        break;
-      case (true, false, null):
-        break;
-    }
-
-    return (
-      visibleDaysOfWeek: visibleDays.isEmpty ? weekdays : visibleDays,
-      visiblePeriods: visiblePeriods.isEmpty ? defaultPeriods : visiblePeriods,
-    );
   }
 
   Widget _buildHeader(List<DayOfWeek> visibleDaysOfWeek) {

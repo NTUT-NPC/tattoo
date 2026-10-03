@@ -66,7 +66,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
     if (success && mounted) {
       if (widget.isExpired) {
-        final landingLocation = await resolveLandingLocation(
+        final landingLocation = await resolvePostAuthenticationLocation(
+          ProviderScope.containerOf(context),
           ref.read(preferencesRepositoryProvider),
         );
         if (mounted) context.go(landingLocation);

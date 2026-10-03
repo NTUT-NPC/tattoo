@@ -243,7 +243,6 @@ profile:
     clearCookies: Clear Cookies
     clearPreferences: Clear Preferences
     clearCredentials: Clear Credentials
-    clearUserData: Clear User Data
     cleared: ${item} cleared
     clearFailed: Failed to clear ${item}
     items:
@@ -251,7 +250,6 @@ profile:
       cookies: Cookies
       preferences: Preferences
       credentials: Credentials
-      userData: User data
 scanner:
   title: QR Code Login
   scanInstruction: Place the QR code in the box

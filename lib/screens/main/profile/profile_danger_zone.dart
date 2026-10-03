@@ -8,11 +8,11 @@ import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/services/course_widget_sync.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/http.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
@@ -68,6 +68,10 @@ class ProfileDangerZone extends ConsumerWidget {
     context,
     t.profile.dangerZone.items.cache,
     () async {
+      final courseWidgetSyncController = ref.read(
+        courseWidgetSyncControllerProvider,
+      );
+      await courseWidgetSyncController.invalidateAndClear();
       final cacheDir = await getApplicationCacheDirectory();
       if (await cacheDir.exists()) {
         await for (final entity in cacheDir.list()) {
@@ -77,6 +81,8 @@ class ProfileDangerZone extends ConsumerWidget {
       await ref.read(databaseProvider).deleteCachedData();
       // Stream-based providers auto-update via Drift .watch().
       ref.invalidate(userAvatarProvider);
+      await courseWidgetSyncController.start();
+      await courseWidgetSyncController.reconcile();
     },
   );
 
@@ -101,17 +107,6 @@ class ProfileDangerZone extends ConsumerWidget {
     context,
     t.profile.dangerZone.items.credentials,
     () => const FlutterSecureStorage().deleteAll(),
-  );
-
-  Future<void> _clearUserData(BuildContext context, WidgetRef ref) => _clear(
-    context,
-    t.profile.dangerZone.items.userData,
-    () async {
-      await ref.read(databaseProvider).deleteEverything();
-      await cookieJar.deleteAll();
-      await const FlutterSecureStorage().deleteAll();
-      ref.read(sessionProvider.notifier).destroy();
-    },
   );
 
   @override
@@ -177,13 +172,6 @@ class ProfileDangerZone extends ConsumerWidget {
           color: dangerColor,
           borderColor: dangerColor,
           onTap: () => _clearCredentials(context),
-        ),
-        OptionEntryTile.icon(
-          icon: Icons.delete_forever_outlined,
-          title: t.profile.dangerZone.clearUserData,
-          color: dangerColor,
-          borderColor: dangerColor,
-          onTap: () => _clearUserData(context, ref),
         ),
       ],
     );

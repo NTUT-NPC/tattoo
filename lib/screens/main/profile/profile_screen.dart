@@ -25,10 +25,6 @@ class ProfileScreen extends ConsumerWidget {
     await ref.read(authRepositoryProvider).refreshUser();
   }
 
-  Future<void> _logout(WidgetRef ref) async {
-    await ref.read(authRepositoryProvider).logout();
-  }
-
   Future<XFile?> _pickAvatarImage() {
     // Use OS picker to select a single image without broad media access.
     return _imagePicker.pickImage(
@@ -133,7 +129,7 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile.icon(
         icon: Icons.logout,
         title: t.profile.options.logout,
-        onTap: () => _logout(ref),
+        onTap: () => ref.read(authRepositoryProvider).logout(),
       ),
       const ProfileDangerZone(),
     ];

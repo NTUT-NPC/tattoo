@@ -243,7 +243,6 @@ profile:
     clearCookies: 清除Cookies
     clearPreferences: 清除偏好設定
     clearCredentials: 清除登入憑證
-    clearUserData: 清除使用者資料
     cleared: 已清除${item}
     clearFailed: 清除${item}失敗
     items:
@@ -251,7 +250,6 @@ profile:
       cookies: Cookies
       preferences: 偏好設定
       credentials: 登入憑證
-      userData: 使用者資料
 scanner:
   title: 掃碼登入
   scanInstruction: 請將二維碼放入框內

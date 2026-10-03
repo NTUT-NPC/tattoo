@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/services/campus_wifi/campus_wifi_platform.dart';
+import 'package:tattoo/services/course_widget_sync.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
 import 'package:tattoo/services/student_query/student_query_service.dart';
@@ -87,13 +88,15 @@ final loginExceptionProvider =
     );
 
 /// Provides the [AuthRepository] instance.
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
+final Provider<AuthRepository> authRepositoryProvider = Provider((ref) {
   return AuthRepository(
     portalService: ref.watch(portalServiceProvider),
     studentQueryService: ref.watch(studentQueryServiceProvider),
     database: ref.watch(databaseProvider),
     secureStorage: _secureStorage,
     isDemo: ref.watch(isDemoProvider),
+    clearCourseWidget: () =>
+        ref.read(courseWidgetSyncControllerProvider).stopAndClear(),
     onSessionCreated: () {
       ref.read(sessionProvider.notifier).create();
     },
@@ -140,6 +143,7 @@ class AuthRepository {
   final FlutterSecureStorage _secureStorage;
   final bool _isDemo;
   final void Function() _onSessionCreated;
+  final Future<void> Function() _clearCourseWidget;
   final void Function([LoginException?]) _onSessionDestroyed;
   final Future<void> Function({
     required String username,
@@ -168,6 +172,7 @@ class AuthRepository {
     required this._database,
     required this._secureStorage,
     required this._isDemo,
+    required this._clearCourseWidget,
     required this._onSessionCreated,
     required this._onSessionDestroyed,
     this._onCredentialsUpdated,
@@ -338,6 +343,7 @@ class AuthRepository {
 
   /// Logs out and clears all local user data and stored credentials.
   Future<void> logout() async {
+    await _clearCourseWidget();
     // Delete credentials before the user row so a failed persistent deletion
     // cannot leave legacy credentials able to recreate a completed logout.
     await _clearCredentials();
