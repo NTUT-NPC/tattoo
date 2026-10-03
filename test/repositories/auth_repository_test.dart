@@ -19,6 +19,8 @@ void main() {
     late _RecordingPortalService portalService;
     late List<_CredentialRefreshCall> refreshCalls;
     late AuthRepository repository;
+    late int courseWidgetClearCalls;
+    late Object? courseWidgetClearError;
 
     setUp(() {
       SharedPreferences.setMockInitialValues({});
@@ -29,12 +31,18 @@ void main() {
       database = AppDatabase(NativeDatabase.memory());
       portalService = _RecordingPortalService();
       refreshCalls = [];
+      courseWidgetClearCalls = 0;
+      courseWidgetClearError = null;
       repository = AuthRepository(
         portalService: portalService,
         studentQueryService: MockStudentQueryService(),
         database: database,
         secureStorage: const FlutterSecureStorage(),
         isDemo: false,
+        clearCourseWidget: () async {
+          courseWidgetClearCalls++;
+          if (courseWidgetClearError case final error?) throw error;
+        },
         onSessionCreated: _noop,
         onSessionDestroyed: _noopDestroyed,
         onCredentialsUpdated:
@@ -119,6 +127,22 @@ void main() {
       await repository.login('111360109', 'new-password');
 
       expect(preferences.containsKey('UserDataJsonKey'), isFalse);
+    });
+
+    test('logout clears the course widget before local data', () async {
+      await repository.login('111360109', 'password');
+      final error = StateError('course widget clear failed');
+      courseWidgetClearError = error;
+
+      await expectLater(repository.logout(), throwsA(same(error)));
+
+      expect(courseWidgetClearCalls, 1);
+      expect(
+        await database.select(database.users).getSingleOrNull(),
+        isNotNull,
+      );
+      expect(secureStorage['username'], '111360109');
+      expect(secureStorage['password'], 'password');
     });
 
     test(

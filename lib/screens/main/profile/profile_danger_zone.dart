@@ -111,10 +111,7 @@ class ProfileDangerZone extends ConsumerWidget {
   Future<void> _clearUserData(BuildContext context, WidgetRef ref) => _clear(
     context,
     t.profile.dangerZone.items.userData,
-    () async {
-      await ref.read(courseWidgetSyncControllerProvider).stopAndClear();
-      await ref.read(authRepositoryProvider).logout();
-    },
+    () => ref.read(authRepositoryProvider).logout(),
   );
 
   @override

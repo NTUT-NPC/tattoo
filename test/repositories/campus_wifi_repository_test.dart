@@ -270,6 +270,7 @@ class _FakeAuthRepository extends AuthRepository {
          database: _database,
          secureStorage: const FlutterSecureStorage(),
          isDemo: false,
+         clearCourseWidget: _noopAsync,
          onSessionCreated: _noop,
          onSessionDestroyed: _noopDestroyed,
        );
@@ -372,6 +373,8 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
 }
 
 void _noop() {}
+
+Future<void> _noopAsync() async {}
 
 void _noopDestroyed([_]) {}
 

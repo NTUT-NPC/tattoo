@@ -14,7 +14,6 @@ import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
-import 'package:tattoo/services/course_widget_sync.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
@@ -24,11 +23,6 @@ class ProfileScreen extends ConsumerWidget {
 
   Future<void> _refresh(WidgetRef ref) async {
     await ref.read(authRepositoryProvider).refreshUser();
-  }
-
-  Future<void> _logout(WidgetRef ref) async {
-    await ref.read(courseWidgetSyncControllerProvider).stopAndClear();
-    await ref.read(authRepositoryProvider).logout();
   }
 
   Future<XFile?> _pickAvatarImage() {
@@ -135,7 +129,7 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile.icon(
         icon: Icons.logout,
         title: t.profile.options.logout,
-        onTap: () => _logout(ref),
+        onTap: () => ref.read(authRepositoryProvider).logout(),
       ),
       const ProfileDangerZone(),
     ];
