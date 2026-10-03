@@ -157,16 +157,11 @@ courseTable:
       studentId: Student ID
       name: Name
       empty: No classmates are listed for this course
-      loadFailed: Unable to load the course roster. Please try again later.
-      loadingNetworkHint: I-School Plus requires the NTUT network.
-      refresh: Refresh
-      networkTitle: Connect to the NTUT network
-      networkDescription: I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then reopen the course roster.
-      networkSnackbar: Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.
-      learnMore: Learn More
-      openGuide: View VPN Instructions
+      loadFailed: Unable to load the course roster.
+      networkSnackbar: Attempting to update the course roster. This feature requires the NTUT network.
+      updateFailed: Unable to update the course roster. Previously cached data is still shown.
+      updateSuccess: Course roster updated.
       backToRoster: Back to Course Roster
-      openGuideFailed: Unable to open the VPN instructions. Please try again later.
   summary:
     credits(plural, param=count):
       one: ${count} credit
@@ -195,6 +190,15 @@ courseTable:
     thursday: Thursday
     friday: Friday
     saturday: Saturday
+iSchoolPlus:
+  network:
+    loadingNetworkHint: I-School Plus requires the NTUT network.
+    title: Unable to connect to I-School Plus
+    description: I-School Plus is restricted by NTUT security policy. Connect through campus Wi-Fi or VPN, then try this feature again.
+    stillTrying: The connection attempt is still running. Retry will be available when it finishes.
+    learnMore: Learn More
+    openGuide: View VPN Instructions
+    openGuideFailed: Unable to open the VPN instructions. Please try again later.
 profile:
   dataDisclaimer: Reference only. Not official.
   passwordExpiry:

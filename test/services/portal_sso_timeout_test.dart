@@ -88,9 +88,7 @@ void main() {
                     requestOptions: options,
                     statusCode: 302,
                     headers: Headers.fromMap({
-                      'location': [
-                        'https://ischool.ntut.edu.tw/login',
-                      ],
+                      'location': ['https://ischool.ntut.edu.tw/login'],
                     }),
                   ),
                 );

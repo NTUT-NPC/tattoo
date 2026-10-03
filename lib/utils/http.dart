@@ -168,10 +168,7 @@ class LogInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final requestLog = _requestLog(err.requestOptions);
-    final errorLog = [
-      err.type.name,
-      ?err.response?.statusCode,
-    ].join(' ');
+    final errorLog = [err.type.name, ?err.response?.statusCode].join(' ');
 
     final message = '$requestLog => $errorLog';
     log(message, name: 'HTTP');
@@ -220,8 +217,10 @@ class NullHeaderInterceptor extends Interceptor {
 /// has a TLS DPI that RSTs connections whose ClientHello fingerprint isn't on
 /// its allowlist; dart:io's BoringSSL fails, but Cronet and URLSession pass.
 ///
-/// Cookies are shared across all clients via the global [cookieJar].
-Dio createDio() {
+/// Cookies are shared across clients via the global [cookieJar] by default.
+/// Set [useCookies] to false for public requests that must remain isolated from
+/// authenticated session state.
+Dio createDio({bool useCookies = true}) {
   final dio = Dio()
     ..options = BaseOptions(
       validateStatus: (status) => status != null && status < 400,
@@ -237,7 +236,7 @@ Dio createDio() {
   }
 
   dio.interceptors.addAll([
-    CookieManager(cookieJar), // Store cookies
+    if (useCookies) CookieManager(cookieJar), // Store cookies
     NullHeaderInterceptor(), // Strip Cookie: null from dio_cookie_manager
     ClientIdentifierInterceptor(), // Identify app on campus Wi-Fi
     HttpsInterceptor(), // Enforce HTTPS

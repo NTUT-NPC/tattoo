@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
@@ -7,8 +8,10 @@ import 'package:tattoo/utils/http.dart';
 
 class NtutISchoolPlusService implements ISchoolPlusService {
   static const _requestTimeout = Duration(seconds: 20);
+  static const _availabilityTimeout = Duration(seconds: 5);
 
   late final Dio _iSchoolPlusDio;
+  late final Dio _availabilityDio;
 
   /// The currently selected course, used to avoid redundant server-side
   /// course switches.
@@ -16,7 +19,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   Future<void> _courseOperationTail = Future.value();
 
   /// [dio] permits deterministic protocol tests without contacting iSchool+.
-  NtutISchoolPlusService({Dio? dio}) {
+  NtutISchoolPlusService({Dio? dio, Dio? availabilityDio}) {
     _iSchoolPlusDio = (dio ?? createDio())
       ..options.baseUrl = 'https://istudy.ntut.edu.tw/learn/'
       ..options.connectTimeout = _requestTimeout
@@ -29,6 +32,31 @@ class NtutISchoolPlusService implements ISchoolPlusService {
         ),
       )
       ..transformer = PlainTextTransformer();
+    _availabilityDio = (availabilityDio ?? createDio(useCookies: false))
+      ..options.connectTimeout = _availabilityTimeout
+      ..options.sendTimeout = _availabilityTimeout
+      ..options.receiveTimeout = _availabilityTimeout;
+  }
+
+  @override
+  Future<void> checkAvailability() async {
+    final cancelToken = CancelToken();
+    final timer = Timer(
+      _availabilityTimeout,
+      () => cancelToken.cancel('I-School Plus availability probe timed out'),
+    );
+    try {
+      await Future.any([
+        _availabilityDio.get<void>(
+          'https://istudy.ntut.edu.tw/mooc/index.php',
+          cancelToken: cancelToken,
+          options: Options(responseType: .bytes),
+        ),
+        cancelToken.whenCancel.then((error) => throw error),
+      ]);
+    } finally {
+      timer.cancel();
+    }
   }
 
   @override
@@ -40,7 +68,11 @@ class NtutISchoolPlusService implements ISchoolPlusService {
 
     final document = parse(response.data);
     final courseSelect = document.getElementById('selcourse');
-    if (courseSelect == null) return [];
+    if (courseSelect == null) {
+      throw const SessionExpiredException(
+        'ISchoolPlus course selector is missing',
+      );
+    }
 
     // Options may be inside <optgroup> elements, so use querySelectorAll.
     // Example option: <option value="10099386">1141_智慧財產權_352902</option>
@@ -126,10 +158,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
           final id = parts[0];
           final name = parts[1].replaceAll(')', '').trim();
 
-          return (
-            id: id.isEmpty ? null : id,
-            name: name.isEmpty ? null : name,
-          );
+          return (id: id.isEmpty ? null : id, name: name.isEmpty ? null : name);
         })
         .where(
           (student) => student.id != 'istudyoaa', // Filter out system account
@@ -138,36 +167,33 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   });
 
   @override
-  Future<List<MaterialRefDto>> getMaterials(
-    ISchoolCourseDto course,
-  ) => _withSelectedCourse(course, () async {
-    // Fetch and parse the SCORM manifest XML for file listings
-    final manifestResponse = await _iSchoolPlusDio.get('path/SCORM_loadCA.php');
-    final manifestDocument = parse(manifestResponse.data);
+  Future<List<MaterialRefDto>> getMaterials(ISchoolCourseDto course) =>
+      _withSelectedCourse(course, () async {
+        // Fetch and parse the SCORM manifest XML for file listings
+        final manifestResponse = await _iSchoolPlusDio.get(
+          'path/SCORM_loadCA.php',
+        );
+        final manifestDocument = parse(manifestResponse.data);
 
-    // Extract all <item> elements that have identifierref attribute (actual files)
-    // Items without identifierref are folders/directories and are excluded
-    final items = manifestDocument.querySelectorAll('item[identifierref]');
+        // Extract all <item> elements that have identifierref attribute (actual files)
+        // Items without identifierref are folders/directories and are excluded
+        final items = manifestDocument.querySelectorAll('item[identifierref]');
 
-    return items.map((item) {
-      final titleElement = item.querySelector('title');
-      final title = titleElement?.text.split('\t').first.trim();
+        return items.map((item) {
+          final titleElement = item.querySelector('title');
+          final title = titleElement?.text.split('\t').first.trim();
 
-      // Find the corresponding <resource> element
-      final identifierRef = item.attributes['identifierref']!;
-      final resource = manifestDocument.querySelector(
-        'resource[identifier="$identifierRef"]',
-      );
+          // Find the corresponding <resource> element
+          final identifierRef = item.attributes['identifierref']!;
+          final resource = manifestDocument.querySelector(
+            'resource[identifier="$identifierRef"]',
+          );
 
-      final href = resource?.attributes['href'];
+          final href = resource?.attributes['href'];
 
-      return (
-        course: course,
-        title: title,
-        href: href,
-      );
-    }).toList();
-  });
+          return (course: course, title: title, href: href);
+        }).toList();
+      });
 
   @override
   Future<MaterialDto> getMaterial(
@@ -256,11 +282,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     if (downloadUri.host.contains("istream.ntut.edu.tw")) {
       // iStream videos can be streamed directly or downloaded
       // Testing confirmed no referer required
-      return (
-        downloadUrl: downloadUri,
-        referer: null,
-        streamable: true,
-      );
+      return (downloadUrl: downloadUri, referer: null, streamable: true);
     }
 
     // Case 3: Material is a PDF
@@ -283,11 +305,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     }
 
     // Case 4: Material is a standard downloadable file
-    return (
-      downloadUrl: downloadUri,
-      referer: null,
-      streamable: false,
-    );
+    return (downloadUrl: downloadUri, referer: null, streamable: false);
   });
 }
 
@@ -306,9 +324,7 @@ class _SessionCheckInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 403) {
       onSessionExpired();
-      throw const SessionExpiredException(
-        'ISchoolPlus session expired',
-      );
+      throw const SessionExpiredException('ISchoolPlus session expired');
     }
     handler.next(err);
   }
