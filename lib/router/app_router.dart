@@ -6,6 +6,7 @@ import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/calendar/calendar_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/main/home/home_screen.dart';
+import 'package:tattoo/screens/main/home/link_set_screen.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
 import 'package:tattoo/screens/main/kiosk_login/kiosk_login_qr_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
@@ -48,6 +49,7 @@ abstract class AppRoutes {
   static const regedit = '/regedit';
   static const changePassword = '/change-password';
   static const update = '/update';
+  static const linkSet = '/link-set';
 }
 
 /// Resolves the landing route used after authentication.
@@ -138,7 +140,11 @@ GoRouter createAppRouter({
     ),
     GoRoute(
       path: AppRoutes.intro,
-      builder: (context, state) => const IntroScreen(),
+      builder: (context, state) => _framed(const IntroScreen()),
+    ),
+    GoRoute(
+      path: AppRoutes.linkSet,
+      builder: (context, state) => _framed(const LinkSetScreen()),
     ),
     GoRoute(
       path: AppRoutes.login,

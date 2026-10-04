@@ -110,6 +110,11 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
         onTap: () =>
             launchUrl(.parse(t.home.npcClub.url), inExternalApplication: true),
       ),
+      OptionEntryTile.icon(
+        icon: Icons.link,
+        title: t.$wip('Link Set'),
+        onTap: () => context.push(AppRoutes.linkSet),
+      ),
       if (ref.pref(PrefKey.showVoteButton))
         OptionEntryTile.icon(
           icon: Icons.how_to_vote_outlined,
