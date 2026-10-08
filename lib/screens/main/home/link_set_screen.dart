@@ -8,6 +8,7 @@ class LinkSetScreen extends StatelessWidget {
     required this.title,
     required this.description,
     required this.links,
+    this.urlOverrides = const {},
     this.logo,
     this.icon,
     super.key,
@@ -18,6 +19,12 @@ class LinkSetScreen extends StatelessWidget {
   final Widget? logo;
   final IconData? icon;
   final List<({String id, String title, String? url, IconData? icon})> links;
+
+  /// URL overrides keyed by link ID, e.g. from `parseLinkUrlOverrides`.
+  ///
+  /// A listed ID replaces that link's `url` (`null` hides it); unlisted IDs
+  /// keep their own `url`.
+  final Map<String, String?> urlOverrides;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +39,7 @@ class LinkSetScreen extends StatelessWidget {
             spacing: 8,
             children: [
               for (final link in links)
-                if (link.url?.trim() case final url? when url.isNotEmpty)
+                if (_urlOf(link)?.trim() case final url? when url.isNotEmpty)
                   OptionEntryTile.icon(
                     icon: link.icon ?? Icons.link,
                     title: link.title,
@@ -49,4 +56,8 @@ class LinkSetScreen extends StatelessWidget {
       ),
     );
   }
+
+  String? _urlOf(
+    ({String id, String title, String? url, IconData? icon}) link,
+  ) => urlOverrides.containsKey(link.id) ? urlOverrides[link.id] : link.url;
 }
