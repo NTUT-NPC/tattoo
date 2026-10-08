@@ -1,13 +1,17 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/home/link_set_screen.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
+import 'package:tattoo/utils/link_url_overrides.dart';
 
-class StudentUnionScreen extends StatelessWidget {
+class StudentUnionScreen extends ConsumerWidget {
   const StudentUnionScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => LinkSetScreen(
+  Widget build(BuildContext context, WidgetRef ref) => LinkSetScreen(
     logo: SvgPicture.asset('assets/student_union_simple.svg'),
     title: t.$wip('學生會專區'),
     description: t.$wip('學生權益相關連結'),
@@ -37,5 +41,8 @@ class StudentUnionScreen extends StatelessWidget {
         url: null,
       ),
     ],
+    urlOverrides: parseLinkUrlOverrides(
+      ref.pref(PrefKey.studentUnionLinks),
+    ),
   );
 }

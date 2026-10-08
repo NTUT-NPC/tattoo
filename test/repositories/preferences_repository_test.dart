@@ -57,6 +57,9 @@ void main() {
         PrefKey.courseRosterGuideUrl.defaultValue,
         defaultCourseRosterGuideUrl,
       );
+
+      expect(PrefKey.studentUnionLinks.type, PrefType.string);
+      expect(PrefKey.studentUnionLinks.defaultValue, '[]');
     });
 
     test('can be written and read from TypedPreferenceStore', () async {

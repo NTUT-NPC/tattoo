@@ -74,7 +74,12 @@ enum PrefKey<T> {
   showCourseRoster<bool>(.boolean, true),
 
   /// Link to instructions for connecting to the NTUT network remotely.
-  courseRosterGuideUrl<String>(.string, defaultCourseRosterGuideUrl);
+  courseRosterGuideUrl<String>(.string, defaultCourseRosterGuideUrl),
+
+  /// Student union link URL overrides as a JSON array of `{id, url}` objects.
+  ///
+  /// See `parseLinkUrlOverrides` for the format.
+  studentUnionLinks<String>(.string, '[]');
 
   const PrefKey(this.type, this.defaultValue);
   final PrefType type;
