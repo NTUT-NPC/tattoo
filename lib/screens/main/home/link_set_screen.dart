@@ -1,24 +1,48 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/shells/showcase_shell.dart';
+import 'package:tattoo/utils/launch_url.dart';
 
 class LinkSetScreen extends StatelessWidget {
-  const LinkSetScreen({super.key});
+  const LinkSetScreen({
+    required this.title,
+    required this.description,
+    required this.links,
+    this.logo,
+    this.icon,
+    super.key,
+  }) : assert(logo == null || icon == null);
+
+  final String title;
+  final String description;
+  final Widget? logo;
+  final IconData? icon;
+  final List<({String id, String title, String? url, IconData? icon})> links;
 
   @override
   Widget build(BuildContext context) {
-    final title = t.$wip('Link Set');
-
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: SafeArea(
         child: ShowcaseShell(
-          icon: const Icon(Icons.link, size: 64),
+          icon: logo ?? Icon(icon ?? Icons.link),
           title: title,
-          subtitle: t.$wip('External links'),
+          subtitle: description,
           body: Column(
             spacing: 8,
-            children: [Text(t.$wip('No links to display yet'))],
+            children: [
+              for (final link in links)
+                if (link.url?.trim() case final url? when url.isNotEmpty)
+                  OptionEntryTile.icon(
+                    icon: link.icon ?? Icons.link,
+                    title: link.title,
+                    actionIcon: .exitToApp,
+                    onTap: () => launchUrl(
+                      Uri.parse(url),
+                      inExternalApplication: true,
+                    ),
+                  ),
+            ],
           ),
           footer: const SizedBox.shrink(),
         ),
