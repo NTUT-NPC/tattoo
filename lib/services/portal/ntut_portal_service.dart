@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
@@ -25,8 +26,17 @@ typedef _PortalApplicationCategoryPageDto = ({
 
 class NtutPortalService implements PortalService {
   static const _defaultISchoolSsoTimeout = Duration(seconds: 20);
-  static const _redirectStatusCodes = {301, 302, 303, 307, 308};
-  static const _preserveMethodRedirectStatusCodes = {307, 308};
+  static const _redirectStatusCodes = {
+    HttpStatus.movedPermanently,
+    HttpStatus.found,
+    HttpStatus.seeOther,
+    HttpStatus.temporaryRedirect,
+    HttpStatus.permanentRedirect,
+  };
+  static const _preserveMethodRedirectStatusCodes = {
+    HttpStatus.temporaryRedirect,
+    HttpStatus.permanentRedirect,
+  };
   static const _maxRedirects = 10;
   static const _chineseLocale = 'zh_TW';
   static const _englishLocale = 'en';
