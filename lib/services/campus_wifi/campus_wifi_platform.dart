@@ -10,8 +10,10 @@ import 'package:tattoo/utils/shared_preferences.dart';
 const _campusWifiChannel = MethodChannel('club.ntut.tattoo/campus_wifi');
 const ntut8021xAutoReprovisionPreferenceKey = 'ntut8021xAutoReprovisionEnabled';
 
-bool get _isAndroidPlatform =>
-    !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+bool get _isMobilePlatform =>
+    !kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS);
 
 void _logCampusWifi(String message) {
   log(message, name: 'CampusWifi');
@@ -26,6 +28,7 @@ typedef CampusWifiCapabilitiesDto = ({
   bool canOpenWifiPanel,
   bool canProvisionNtut8021xSuggestion,
   bool canProvisionNtut8021xCompat,
+  bool canProvisionNtut8021xDirect,
   String suggestionPermissionState,
 });
 
@@ -87,7 +90,7 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
 
   @override
   Future<CampusWifiCapabilitiesDto> getCapabilities() async {
-    return _invokeOnAndroid(
+    return _invokeOnMobile(
       fallback: (
         isSupported: false,
         androidSdkInt: null,
@@ -95,6 +98,7 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
         canOpenWifiPanel: false,
         canProvisionNtut8021xSuggestion: false,
         canProvisionNtut8021xCompat: false,
+        canProvisionNtut8021xDirect: false,
         suggestionPermissionState: 'unknown',
       ),
       invoke: () async {
@@ -102,9 +106,9 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
           'getCapabilities',
         );
         return (
-          isSupported: true,
+          isSupported: result.readBool('isSupported') ?? result != null,
           androidSdkInt: result.readInt('sdkInt'),
-          canOpenWifiSettings: result.readBool('canOpenWifiSettings') ?? true,
+          canOpenWifiSettings: result.readBool('canOpenWifiSettings') ?? false,
           canOpenWifiPanel: result.readBool('canOpenWifiPanel') ?? false,
           canProvisionNtut8021xSuggestion:
               result.readBool('canProvisionNtut8021xSuggestion') ??
@@ -112,6 +116,8 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
               false,
           canProvisionNtut8021xCompat:
               result.readBool('canProvisionNtut8021xCompat') ?? false,
+          canProvisionNtut8021xDirect:
+              result.readBool('canProvisionNtut8021xDirect') ?? false,
           suggestionPermissionState:
               result.readString('suggestionPermissionState') ?? 'unknown',
         );
@@ -165,9 +171,9 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
     required String method,
     required Map<String, Object?> arguments,
   }) async {
-    return _invokeOnAndroid(
+    return _invokeOnMobile(
       fallback: (
-        status: 'unsupportedPlatform',
+        status: _isMobilePlatform ? 'failed' : 'unsupportedPlatform',
         androidSdkInt: null,
         usedHiddenCaPath: false,
         wifiEnabled: null,
@@ -202,17 +208,17 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
   }
 
   Future<bool> _invokeBooleanMethod(String method) async {
-    return _invokeOnAndroid(
+    return _invokeOnMobile(
       fallback: false,
       invoke: () async => await _channel.invokeMethod<bool>(method) ?? false,
     );
   }
 
-  Future<T> _invokeOnAndroid<T>({
+  Future<T> _invokeOnMobile<T>({
     required T fallback,
     required Future<T> Function() invoke,
   }) async {
-    if (!_isAndroidPlatform) return fallback;
+    if (!_isMobilePlatform) return fallback;
 
     try {
       return await invoke();
@@ -283,13 +289,15 @@ class Ntut8021xAutoReprovision {
     }
 
     if (storedState.lastProvisioningMode ==
-        Ntut8021xStoredProvisioningMode.compat) {
+            Ntut8021xStoredProvisioningMode.compat ||
+        storedState.lastProvisioningMode ==
+            Ntut8021xStoredProvisioningMode.direct) {
       await _stateStore.setPendingCompatPrompt(
         reason: Ntut8021xStoredPendingPromptReason.credentialChanged,
         immediate: true,
       );
       _logCampusWifi(
-        'Queued NTUT-802.1X compat prompt because last provisioning used compat mode',
+        'Queued NTUT-802.1X update prompt because provisioning requires consent',
       );
       return;
     }

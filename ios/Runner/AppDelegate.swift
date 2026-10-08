@@ -13,6 +13,10 @@ import UIKit
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
 
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "CampusWifiChannel") {
+      CampusWifiChannel.register(with: registrar)
+    }
+
     guard let registrar = engineBridge.pluginRegistry.registrar(
       forPlugin: "SystemSettingsChannel"
     ) else {

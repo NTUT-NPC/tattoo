@@ -16,6 +16,7 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A1B2C3D4E5F6071800000001 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071800000002 /* SceneDelegate.swift */; };
+		A1B2C3D4E5F6071800000003 /* CampusWifiChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071800000004 /* CampusWifiChannel.swift */; };
 		BF7D061D2F5E154B00AFD197 /* AppIcon-production.icon in Resources */ = {isa = PBXBuildFile; fileRef = BF7D061C2F5E154B00AFD197 /* AppIcon-production.icon */; };
 		CB856815BC7EE0866F70337B /* AppIcon-staging.icon in Resources */ = {isa = PBXBuildFile; fileRef = F2BD15EECAB9A8B1517B1275 /* AppIcon-staging.icon */; };
 /* End PBXBuildFile section */
@@ -61,6 +62,8 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1B2C3D4E5F6071800000002 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071800000004 /* CampusWifiChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampusWifiChannel.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6071800000005 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		BF7D061C2F5E154B00AFD197 /* AppIcon-production.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = "AppIcon-production.icon"; sourceTree = "<group>"; };
 		F2BD15EECAB9A8B1517B1275 /* AppIcon-staging.icon */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.iconcomposer.icon; path = "AppIcon-staging.icon"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -133,6 +136,8 @@
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
+				A1B2C3D4E5F6071800000004 /* CampusWifiChannel.swift */,
+				A1B2C3D4E5F6071800000005 /* Runner.entitlements */,
 				A1B2C3D4E5F6071800000002 /* SceneDelegate.swift */,
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
@@ -203,6 +208,11 @@
 					97C146ED1CF9000F007C117D = {
 						CreatedOnToolsVersion = 7.3.1;
 						LastSwiftMigration = 1100;
+						SystemCapabilities = {
+							com.apple.HotspotConfiguration = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -319,6 +329,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
+				A1B2C3D4E5F6071800000003 /* CampusWifiChannel.swift in Sources */,
 				A1B2C3D4E5F6071800000001 /* SceneDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 			);
@@ -470,6 +481,7 @@
 				APP_DISPLAY_NAME = TAT;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-production";
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				ENABLE_BITCODE = NO;
 				FIREBASE_CONFIG_PATH = "$(SRCROOT)/Runner/GoogleService-Info-production.plist";
@@ -494,6 +506,7 @@
 				APP_DISPLAY_NAME = TAT;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-production";
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				ENABLE_BITCODE = NO;
 				FIREBASE_CONFIG_PATH = "$(SRCROOT)/Runner/GoogleService-Info-production.plist";
@@ -586,6 +599,7 @@
 				APP_DISPLAY_NAME = Tattoo;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-staging";
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				ENABLE_BITCODE = NO;
 				FIREBASE_CONFIG_PATH = "$(SRCROOT)/Runner/GoogleService-Info-staging.plist";
@@ -610,6 +624,7 @@
 				APP_DISPLAY_NAME = Tattoo;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-staging";
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				ENABLE_BITCODE = NO;
 				FIREBASE_CONFIG_PATH = "$(SRCROOT)/Runner/GoogleService-Info-staging.plist";
@@ -635,6 +650,7 @@
 				APP_DISPLAY_NAME = Tattoo;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-staging";
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				ENABLE_BITCODE = NO;
 				FIREBASE_CONFIG_PATH = "$(SRCROOT)/Runner/GoogleService-Info-staging.plist";
@@ -659,6 +675,7 @@
 				APP_DISPLAY_NAME = TAT;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-production";
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				ENABLE_BITCODE = NO;
 				FIREBASE_CONFIG_PATH = "$(SRCROOT)/Runner/GoogleService-Info-production.plist";
