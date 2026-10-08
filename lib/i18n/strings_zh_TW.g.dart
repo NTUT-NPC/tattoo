@@ -498,8 +498,8 @@ class Translations$ntutWifi$zh_TW {
 	/// zh-TW: 'Android API ${sdkInt}'
 	String androidVersion({required Object sdkInt}) => 'Android API ${sdkInt}';
 
-	/// zh-TW: '這個功能目前僅支援Android裝置。'
-	String get unsupportedPlatform => '這個功能目前僅支援Android裝置。';
+	/// zh-TW: '這個功能支援Android及iOS裝置。'
+	String get unsupportedPlatform => '這個功能支援Android及iOS裝置。';
 
 	/// zh-TW: '請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。'
 	String get notLoggedIn => '請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。';
@@ -540,6 +540,7 @@ class Translations$ntutWifi$zh_TW {
 	/// zh-TW: 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。'
 	String get legacyManualOnly => 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。';
 
+	late final Translations$ntutWifi$ios$zh_TW ios = Translations$ntutWifi$ios$zh_TW.internal(_root);
 	late final Translations$ntutWifi$sections$zh_TW sections = Translations$ntutWifi$sections$zh_TW.internal(_root);
 	late final Translations$ntutWifi$actions$zh_TW actions = Translations$ntutWifi$actions$zh_TW.internal(_root);
 	late final Translations$ntutWifi$fields$zh_TW fields = Translations$ntutWifi$fields$zh_TW.internal(_root);
@@ -1241,6 +1242,45 @@ class Translations$scanner$guide$zh_TW {
 	String get button => '我知道了';
 }
 
+// Path: ntutWifi.ios
+class Translations$ntutWifi$ios$zh_TW {
+	Translations$ntutWifi$ios$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '使用已儲存的校園入口帳密連接NTUT-802.1X。請開啟Wi-Fi並允許iOS系統提示。'
+	String get intro => '使用已儲存的校園入口帳密連接NTUT-802.1X。請開啟Wi-Fi並允許iOS系統提示。';
+
+	/// zh-TW: '連接NTUT-802.1X'
+	String get connect => '連接NTUT-802.1X';
+
+	/// zh-TW: '使用PEAP及ntut.edu.tw的系統信任憑證，由校園伺服器協商內層驗證，iOS控制允許與連線。'
+	String get certificatesHint => '使用PEAP及ntut.edu.tw的系統信任憑證，由校園伺服器協商內層驗證，iOS控制允許與連線。';
+
+	/// zh-TW: '自動設定Wi-Fi需要實體iPhone或iPad，模擬器不支援此功能。'
+	String get deviceRequired => '自動設定Wi-Fi需要實體iPhone或iPad，模擬器不支援此功能。';
+
+	/// zh-TW: 'iOS已接受NTUT-802.1X設定，但不代表已連線。請在校園內至「設定」>「Wi-Fi」確認。'
+	String get configured => 'iOS已接受NTUT-802.1X設定，但不代表已連線。請在校園內至「設定」>「Wi-Fi」確認。';
+
+	/// zh-TW: '已取消Wi-Fi請求，稍後可在此頁重試。'
+	String get cancelled => '已取消Wi-Fi請求，稍後可在此頁重試。';
+
+	/// zh-TW: 'iOS回報目前已連接NTUT-802.1X，但不代表新密碼已儲存，請至「設定」>「Wi-Fi」確認。'
+	String get alreadyAssociated => 'iOS回報目前已連接NTUT-802.1X，但不代表新密碼已儲存，請至「設定」>「Wi-Fi」確認。';
+
+	/// zh-TW: '入口帳密已變更，請再次連接以更新已儲存的NTUT-802.1X設定。'
+	String get updateRequired => '入口帳密已變更，請再次連接以更新已儲存的NTUT-802.1X設定。';
+
+	/// zh-TW: '1. 開啟「設定」App，再選擇「Wi-Fi」。iOS不允許TAT直接開啟此頁。'
+	String get openSettings => '1. 開啟「設定」App，再選擇「Wi-Fi」。iOS不允許TAT直接開啟此頁。';
+
+	/// zh-TW: '3. 輸入上方顯示的帳號與密碼，僅信任校園驗證伺服器的憑證。'
+	String get enterCredentials => '3. 輸入上方顯示的帳號與密碼，僅信任校園驗證伺服器的憑證。';
+}
+
 // Path: ntutWifi.sections
 class Translations$ntutWifi$sections$zh_TW {
 	Translations$ntutWifi$sections$zh_TW.internal(this._root);
@@ -1414,8 +1454,8 @@ class Translations$ntutWifi$compatPrompt$zh_TW {
 	/// zh-TW: '稍後'
 	String get later => '稍後';
 
-	/// zh-TW: '你先前使用相容模式儲存了 NTUT-802.1X。現在入口帳密已變更，需要重新更新系統 Wi‑Fi。'
-	String get credentialChanged => '你先前使用相容模式儲存了 NTUT-802.1X。現在入口帳密已變更，需要重新更新系統 Wi‑Fi。';
+	/// zh-TW: '入口帳密已變更，請更新先前儲存的NTUT-802.1X系統Wi-Fi設定。'
+	String get credentialChanged => '入口帳密已變更，請更新先前儲存的NTUT-802.1X系統Wi-Fi設定。';
 
 	/// zh-TW: '系統無法自動更新 NTUT-802.1X，是否現在改用相容模式完成更新？'
 	String get suggestionFallbackRequired => '系統無法自動更新 NTUT-802.1X，是否現在改用相容模式完成更新？';
@@ -1890,7 +1930,7 @@ extension on Translations {
 			'ntutWifi.intro' => '使用已登入的校園入口帳號密碼，自動加入NTUT-802.1X並讓Android後續自動嘗試連線。',
 			'ntutWifi.accountHint' => '帳號直接使用學號或員編，不要加上@ntut.edu.tw。',
 			'ntutWifi.androidVersion' => ({required Object sdkInt}) => 'Android API ${sdkInt}',
-			'ntutWifi.unsupportedPlatform' => '這個功能目前僅支援Android裝置。',
+			'ntutWifi.unsupportedPlatform' => '這個功能支援Android及iOS裝置。',
 			'ntutWifi.notLoggedIn' => '請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。',
 			'ntutWifi.credentialsMissing' => '找不到已保存的入口網站密碼。若要複製密碼，請先重新登入TAT。',
 			'ntutWifi.olderAndroidWarning' => '此助手依Android 12以上介面設計，較舊版本的欄位名稱可能略有不同。',
@@ -1904,6 +1944,16 @@ extension on Translations {
 			'ntutWifi.suggestionFallbackRequired' => 'suggestion 自動更新失敗，請改用相容模式將最新 NTUT-802.1X 設定寫入系統。',
 			'ntutWifi.android10PermissionRejected' => 'Android 10 已拒絕這個 App 的 Wi‑Fi suggestion 權限，請依下方教學手動連線。',
 			'ntutWifi.legacyManualOnly' => 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。',
+			'ntutWifi.ios.intro' => '使用已儲存的校園入口帳密連接NTUT-802.1X。請開啟Wi-Fi並允許iOS系統提示。',
+			'ntutWifi.ios.connect' => '連接NTUT-802.1X',
+			'ntutWifi.ios.certificatesHint' => '使用PEAP及ntut.edu.tw的系統信任憑證，由校園伺服器協商內層驗證，iOS控制允許與連線。',
+			'ntutWifi.ios.deviceRequired' => '自動設定Wi-Fi需要實體iPhone或iPad，模擬器不支援此功能。',
+			'ntutWifi.ios.configured' => 'iOS已接受NTUT-802.1X設定，但不代表已連線。請在校園內至「設定」>「Wi-Fi」確認。',
+			'ntutWifi.ios.cancelled' => '已取消Wi-Fi請求，稍後可在此頁重試。',
+			'ntutWifi.ios.alreadyAssociated' => 'iOS回報目前已連接NTUT-802.1X，但不代表新密碼已儲存，請至「設定」>「Wi-Fi」確認。',
+			'ntutWifi.ios.updateRequired' => '入口帳密已變更，請再次連接以更新已儲存的NTUT-802.1X設定。',
+			'ntutWifi.ios.openSettings' => '1. 開啟「設定」App，再選擇「Wi-Fi」。iOS不允許TAT直接開啟此頁。',
+			'ntutWifi.ios.enterCredentials' => '3. 輸入上方顯示的帳號與密碼，僅信任校園驗證伺服器的憑證。',
 			'ntutWifi.sections.quickActions' => '快速操作',
 			'ntutWifi.sections.recommendedSettings' => '建議設定',
 			'ntutWifi.sections.fallback' => '手動Fallback',
@@ -1941,7 +1991,7 @@ extension on Translations {
 			'ntutWifi.compatPrompt.title' => '更新 NTUT-802.1X',
 			'ntutWifi.compatPrompt.updateNow' => '立即更新',
 			'ntutWifi.compatPrompt.later' => '稍後',
-			'ntutWifi.compatPrompt.credentialChanged' => '你先前使用相容模式儲存了 NTUT-802.1X。現在入口帳密已變更，需要重新更新系統 Wi‑Fi。',
+			'ntutWifi.compatPrompt.credentialChanged' => '入口帳密已變更，請更新先前儲存的NTUT-802.1X系統Wi-Fi設定。',
 			'ntutWifi.compatPrompt.suggestionFallbackRequired' => '系統無法自動更新 NTUT-802.1X，是否現在改用相容模式完成更新？',
 			'kioskLogin.qrCode' => '登入QR code',
 			'kioskLogin.refresh' => '重新產生',

@@ -2,7 +2,7 @@ import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
 
-enum Ntut8021xStoredProvisioningMode { none, suggestion, compat }
+enum Ntut8021xStoredProvisioningMode { none, suggestion, compat, direct }
 
 enum Ntut8021xStoredPendingPromptReason {
   credentialChanged,

@@ -135,7 +135,8 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
           title: t.nav.calendar,
           onTap: () => context.push(AppRoutes.calendar),
         ),
-      if (Theme.of(context).platform == TargetPlatform.android &&
+      if ((Theme.of(context).platform == TargetPlatform.android ||
+              Theme.of(context).platform == TargetPlatform.iOS) &&
           ref.pref(PrefKey.showWifiButton))
         OptionEntryTile.icon(
           icon: Icons.wifi,
