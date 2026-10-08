@@ -110,10 +110,11 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
         onTap: () =>
             launchUrl(.parse(t.home.npcClub.url), inExternalApplication: true),
       ),
-      OptionEntryTile.icon(
-        icon: Icons.link,
-        title: t.$wip('Link Set'),
-        onTap: () => context.push(AppRoutes.linkSet),
+      OptionEntryTile.svg(
+        svgIconAsset: "assets/student_union_simple.svg",
+        title: t.$wip('學生會專區'),
+        description: t.$wip('學生權益相關連結'),
+        onTap: () => context.push(AppRoutes.studentUnion),
       ),
       if (ref.pref(PrefKey.showVoteButton))
         OptionEntryTile.icon(
