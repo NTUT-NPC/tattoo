@@ -231,7 +231,9 @@ class NtutPortalService implements PortalService {
 
     // Prepend the invalid cookie filter interceptor for i-School Plus SSO
     if (serviceCode == PortalServiceCode.iSchoolPlusService.code) {
-      _portalDio.interceptors.insert(0, InvalidCookieFilter());
+      if (!_portalDio.interceptors.any((i) => i is InvalidCookieFilter)) {
+        _portalDio.interceptors.insert(0, InvalidCookieFilter());
+      }
       _portalDio.transformer = PlainTextTransformer();
     }
 

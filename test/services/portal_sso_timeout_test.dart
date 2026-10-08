@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
+import 'package:tattoo/utils/http.dart';
 
 void main() {
   const shortDeadline = Duration(milliseconds: 500);
@@ -259,6 +259,18 @@ void main() {
         'oauth2Server.do',
       ]);
       expect(requests.every((request) => request.cancelToken != null), isTrue);
+    }, timeout: testTimeout);
+
+    test('reuses the cookie filter across repeated SSO calls', () async {
+      final dio = Dio()
+        ..httpClientAdapter = _SsoRedirectAdapter(statusCode: 302);
+      final service = NtutPortalService(dio: dio);
+
+      await service.sso(PortalServiceCode.iSchoolPlusService.code);
+      await service.sso(PortalServiceCode.iSchoolPlusService.code);
+
+      expect(dio.interceptors.whereType<InvalidCookieFilter>(), hasLength(1));
+      expect(dio.interceptors.first, isA<InvalidCookieFilter>());
     }, timeout: testTimeout);
 
     test('follows an adapter-backed 302 as GET', () async {
