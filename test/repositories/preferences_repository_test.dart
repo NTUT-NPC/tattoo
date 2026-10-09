@@ -31,9 +31,6 @@ void main() {
       expect(PrefKey.showCourseSchedule.type, PrefType.boolean);
       expect(PrefKey.showCourseSchedule.defaultValue, true);
 
-      expect(PrefKey.showVoteButton.type, PrefType.boolean);
-      expect(PrefKey.showVoteButton.defaultValue, false);
-
       expect(PrefKey.showScannerButton.type, PrefType.boolean);
       expect(PrefKey.showScannerButton.defaultValue, true);
 

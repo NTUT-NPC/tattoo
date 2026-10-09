@@ -52,9 +52,6 @@ enum PrefKey<T> {
   /// Whether the next course schedule carousel is shown on the home screen.
   showCourseSchedule<bool>(.boolean, true),
 
-  /// Whether the vote / kiosk login button is shown on the home screen.
-  showVoteButton<bool>(.boolean, false),
-
   /// Whether the iStudy QR scanner button is shown on the home screen.
   showScannerButton<bool>(.boolean, true),
 
