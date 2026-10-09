@@ -32,7 +32,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - `lib/models/` - Shared domain enums and types
 - `lib/repositories/` - Repository class + constructor provider (DI wiring)
 - `lib/router/` - go_router config (`app_router.dart`)
-- `lib/screens/` - Screen widgets organized by feature: `welcome/` (intro, login) and `main/` (home, course_table, score, calendar, portal, scanner, kiosk_login, profile). 4-tab `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation. Each tab owns its own `Scaffold`.
+- `lib/screens/` - Screen widgets organized by feature: `welcome/` (intro, login) and `main/` (home, course_table, score, calendar, portal, map, scanner, kiosk_login, profile). 4-tab `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation. Each tab owns its own `Scaffold`.
 - `lib/services/` - Clients that talk to external systems (NTUT HTTP services, Firebase, etc.) and `demo_mode.dart`
 - `lib/shells/` - Layout shells (AnimatedShellContainer for tab transitions, ShowcaseShell for onboarding, CenteredMaxWidthFrame and AdaptiveNavigationScaffold for the 580 logical-pixel adaptive breakpoint)
 - `lib/utils/` - HTTP utilities (cookie jar, interceptors, native adapter), localization, avatar payload, the `PrefType` SharedPreferences value-type enum, link URL override parsing

@@ -39,6 +39,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	TranslationsEnUs $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsEnUs(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _Translations$campusMap$en_US campusMap = _Translations$campusMap$en_US._(_root);
 	@override late final _Translations$preferences$en_US preferences = _Translations$preferences$en_US._(_root);
 	@override late final _Translations$general$en_US general = _Translations$general$en_US._(_root);
 	@override late final _Translations$errors$en_US errors = _Translations$errors$en_US._(_root);
@@ -61,6 +62,25 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$forceUpdate$en_US forceUpdate = _Translations$forceUpdate$en_US._(_root);
 	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
 	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
+}
+
+// Path: campusMap
+class _Translations$campusMap$en_US extends Translations$campusMap$zh_TW {
+	_Translations$campusMap$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Campus Map';
+	@override String get homeDescription => 'Find buildings, floors, and classrooms';
+	@override String get search => 'Search';
+	@override String get searchHint => 'Classroom name or number (e.g. A1T101)';
+	@override String searchResults({required Object count}) => 'Found ${count} spaces';
+	@override String get noResults => 'No matching classrooms or spaces. Try another name or number.';
+	@override String get searchFailed => 'Search failed. Check your connection and try again.';
+	@override String get locationUnavailable => 'This space has no available location data.';
+	@override String get loadFailed => 'Map data could not be loaded. Check your connection and try again.';
+	@override String get refresh => 'Refresh map data';
 }
 
 // Path: preferences
@@ -1008,6 +1028,16 @@ class _Translations$changePassword$errors$server$en_US extends Translations$chan
 extension on TranslationsEnUs {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'campusMap.title' => 'Campus Map',
+			'campusMap.homeDescription' => 'Find buildings, floors, and classrooms',
+			'campusMap.search' => 'Search',
+			'campusMap.searchHint' => 'Classroom name or number (e.g. A1T101)',
+			'campusMap.searchResults' => ({required Object count}) => 'Found ${count} spaces',
+			'campusMap.noResults' => 'No matching classrooms or spaces. Try another name or number.',
+			'campusMap.searchFailed' => 'Search failed. Check your connection and try again.',
+			'campusMap.locationUnavailable' => 'This space has no available location data.',
+			'campusMap.loadFailed' => 'Map data could not be loaded. Check your connection and try again.',
+			'campusMap.refresh' => 'Refresh map data',
 			'preferences.startWithCourseTable.title' => 'Start with Course Table',
 			'preferences.darkMode' => 'Dark Mode',
 			'preferences.themeMode.system' => 'Default',

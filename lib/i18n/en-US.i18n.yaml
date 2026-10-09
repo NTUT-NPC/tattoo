@@ -1,3 +1,14 @@
+campusMap:
+  title: Campus Map
+  homeDescription: Find buildings, floors, and classrooms
+  search: Search
+  searchHint: Classroom name or number (e.g. A1T101)
+  searchResults: Found $count spaces
+  noResults: No matching classrooms or spaces. Try another name or number.
+  searchFailed: Search failed. Check your connection and try again.
+  locationUnavailable: This space has no available location data.
+  loadFailed: Map data could not be loaded. Check your connection and try again.
+  refresh: Refresh map data
 preferences:
   startWithCourseTable:
     title: Start with Course Table

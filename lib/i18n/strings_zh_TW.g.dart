@@ -40,6 +40,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
+	late final Translations$campusMap$zh_TW campusMap = Translations$campusMap$zh_TW.internal(_root);
 	late final Translations$preferences$zh_TW preferences = Translations$preferences$zh_TW.internal(_root);
 	late final Translations$general$zh_TW general = Translations$general$zh_TW.internal(_root);
 	late final Translations$errors$zh_TW errors = Translations$errors$zh_TW.internal(_root);
@@ -62,6 +63,45 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$forceUpdate$zh_TW forceUpdate = Translations$forceUpdate$zh_TW.internal(_root);
 	late final Translations$regedit$zh_TW regedit = Translations$regedit$zh_TW.internal(_root);
 	late final Translations$changePassword$zh_TW changePassword = Translations$changePassword$zh_TW.internal(_root);
+}
+
+// Path: campusMap
+class Translations$campusMap$zh_TW {
+	Translations$campusMap$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '校園地圖'
+	String get title => '校園地圖';
+
+	/// zh-TW: '查找建築物、樓層與教室位置'
+	String get homeDescription => '查找建築物、樓層與教室位置';
+
+	/// zh-TW: '搜尋'
+	String get search => '搜尋';
+
+	/// zh-TW: '教室名稱或編號（如A1T101）'
+	String get searchHint => '教室名稱或編號（如A1T101）';
+
+	/// zh-TW: '找到$count個空間'
+	String searchResults({required Object count}) => '找到${count}個空間';
+
+	/// zh-TW: '找不到符合的教室或空間，請試試其他名稱或編號。'
+	String get noResults => '找不到符合的教室或空間，請試試其他名稱或編號。';
+
+	/// zh-TW: '無法完成搜尋，請檢查網路後重試。'
+	String get searchFailed => '無法完成搜尋，請檢查網路後重試。';
+
+	/// zh-TW: '目前沒有此空間的位置資料。'
+	String get locationUnavailable => '目前沒有此空間的位置資料。';
+
+	/// zh-TW: '無法載入地圖資料，請檢查網路後重試。'
+	String get loadFailed => '無法載入地圖資料，請檢查網路後重試。';
+
+	/// zh-TW: '更新地圖資料'
+	String get refresh => '更新地圖資料';
 }
 
 // Path: preferences
@@ -1656,6 +1696,16 @@ class Translations$changePassword$errors$server$zh_TW {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'campusMap.title' => '校園地圖',
+			'campusMap.homeDescription' => '查找建築物、樓層與教室位置',
+			'campusMap.search' => '搜尋',
+			'campusMap.searchHint' => '教室名稱或編號（如A1T101）',
+			'campusMap.searchResults' => ({required Object count}) => '找到${count}個空間',
+			'campusMap.noResults' => '找不到符合的教室或空間，請試試其他名稱或編號。',
+			'campusMap.searchFailed' => '無法完成搜尋，請檢查網路後重試。',
+			'campusMap.locationUnavailable' => '目前沒有此空間的位置資料。',
+			'campusMap.loadFailed' => '無法載入地圖資料，請檢查網路後重試。',
+			'campusMap.refresh' => '更新地圖資料',
 			'preferences.startWithCourseTable.title' => '啟動時開啟課表',
 			'preferences.darkMode' => '深色模式',
 			'preferences.themeMode.system' => '預設',

@@ -82,6 +82,12 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final options = [
+      OptionEntryTile.icon(
+        icon: Icons.map_outlined,
+        title: t.campusMap.title,
+        description: t.campusMap.homeDescription,
+        onTap: () => context.push(AppRoutes.campusMap),
+      ),
       if (ref.pref(PrefKey.showScannerButton))
         OptionEntryTile.icon(
           icon: Icons.qr_code_scanner,

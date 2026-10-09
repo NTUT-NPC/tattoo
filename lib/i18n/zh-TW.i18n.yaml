@@ -1,3 +1,14 @@
+campusMap:
+  title: 校園地圖
+  homeDescription: 查找建築物、樓層與教室位置
+  search: 搜尋
+  searchHint: 教室名稱或編號（如A1T101）
+  searchResults: 找到$count個空間
+  noResults: 找不到符合的教室或空間，請試試其他名稱或編號。
+  searchFailed: 無法完成搜尋，請檢查網路後重試。
+  locationUnavailable: 目前沒有此空間的位置資料。
+  loadFailed: 無法載入地圖資料，請檢查網路後重試。
+  refresh: 更新地圖資料
 preferences:
   startWithCourseTable:
     title: 啟動時開啟課表

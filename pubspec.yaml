@@ -51,6 +51,7 @@ dependencies:
   material_ui: ^1.1.0
   flutter_map: ^8.3.2
   latlong2: ^0.10.1
+  http: ^1.6.0
   xml: ^7.0.1
 
 # darwin <=0.3.2 declares iOS 12.0 but uses iOS-13+ CryptoKit, breaking the SPM
