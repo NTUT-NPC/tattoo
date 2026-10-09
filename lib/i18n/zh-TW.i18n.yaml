@@ -1,3 +1,46 @@
+campusMap:
+  title: 校園地圖
+  selectBuilding: 選擇建築物
+  search: 搜尋
+  searchHint: 教室名稱或編號（如A1T101）
+  searchResults: 找到$count個空間
+  noResults: 找不到符合的教室或空間，請試試其他名稱或編號。
+  searchFailed: 無法完成搜尋，請檢查網路後重試。
+  locationUnavailable: 目前沒有此空間的位置資料。
+  loadFailed: 無法載入地圖資料，請檢查網路後重試。
+  refresh: 更新地圖資料
+  # Keys are original GeoServer building codes (e.g. A6T, HR).
+  buildingNames(map):
+    A1T: 第一教學大樓
+    A2T: 第二教學大樓
+    A3T: 第三教學大樓
+    A4T: 第四教學大樓
+    A5T: 生物科技館暨校友會館
+    A6T: 第六教學大樓
+    AC: 一大川堂
+    AD: 行政大樓
+    AM: 先鋒國際研發大樓
+    B1D: 學生第一宿舍
+    B2D: 學生第二宿舍
+    CB: 綜合科館
+    CE: 土木館
+    CH: 化學館
+    CK: 學生活動中心
+    CM: 化工館
+    DB: 設計館
+    EL: 億光大樓
+    GB: 共同科館
+    GH: 光華館
+    GR: 生態小屋
+    HR: 宏裕科技大樓
+    LB: 圖書館
+    LY: 隆玉科技大樓
+    ME: 分子館
+    MR: 材資館
+    RB: 紅樓
+    SE: 忠孝東路警衛室
+    SS: 新生南路警衛室
+    SY: 國父百年紀念館
 preferences:
   startWithCourseTable:
     title: 啟動時開啟課表

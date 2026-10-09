@@ -40,6 +40,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
+	late final Translations$campusMap$zh_TW campusMap = Translations$campusMap$zh_TW.internal(_root);
 	late final Translations$preferences$zh_TW preferences = Translations$preferences$zh_TW.internal(_root);
 	late final Translations$general$zh_TW general = Translations$general$zh_TW.internal(_root);
 	late final Translations$errors$zh_TW errors = Translations$errors$zh_TW.internal(_root);
@@ -62,6 +63,78 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$forceUpdate$zh_TW forceUpdate = Translations$forceUpdate$zh_TW.internal(_root);
 	late final Translations$regedit$zh_TW regedit = Translations$regedit$zh_TW.internal(_root);
 	late final Translations$changePassword$zh_TW changePassword = Translations$changePassword$zh_TW.internal(_root);
+}
+
+// Path: campusMap
+class Translations$campusMap$zh_TW {
+	Translations$campusMap$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '校園地圖'
+	String get title => '校園地圖';
+
+	/// zh-TW: '選擇建築物'
+	String get selectBuilding => '選擇建築物';
+
+	/// zh-TW: '搜尋'
+	String get search => '搜尋';
+
+	/// zh-TW: '教室名稱或編號（如A1T101）'
+	String get searchHint => '教室名稱或編號（如A1T101）';
+
+	/// zh-TW: '找到$count個空間'
+	String searchResults({required Object count}) => '找到${count}個空間';
+
+	/// zh-TW: '找不到符合的教室或空間，請試試其他名稱或編號。'
+	String get noResults => '找不到符合的教室或空間，請試試其他名稱或編號。';
+
+	/// zh-TW: '無法完成搜尋，請檢查網路後重試。'
+	String get searchFailed => '無法完成搜尋，請檢查網路後重試。';
+
+	/// zh-TW: '目前沒有此空間的位置資料。'
+	String get locationUnavailable => '目前沒有此空間的位置資料。';
+
+	/// zh-TW: '無法載入地圖資料，請檢查網路後重試。'
+	String get loadFailed => '無法載入地圖資料，請檢查網路後重試。';
+
+	/// zh-TW: '更新地圖資料'
+	String get refresh => '更新地圖資料';
+
+	Map<String, String> get buildingNames => {
+		'A1T': '第一教學大樓',
+		'A2T': '第二教學大樓',
+		'A3T': '第三教學大樓',
+		'A4T': '第四教學大樓',
+		'A5T': '生物科技館暨校友會館',
+		'A6T': '第六教學大樓',
+		'AC': '一大川堂',
+		'AD': '行政大樓',
+		'AM': '先鋒國際研發大樓',
+		'B1D': '學生第一宿舍',
+		'B2D': '學生第二宿舍',
+		'CB': '綜合科館',
+		'CE': '土木館',
+		'CH': '化學館',
+		'CK': '學生活動中心',
+		'CM': '化工館',
+		'DB': '設計館',
+		'EL': '億光大樓',
+		'GB': '共同科館',
+		'GH': '光華館',
+		'GR': '生態小屋',
+		'HR': '宏裕科技大樓',
+		'LB': '圖書館',
+		'LY': '隆玉科技大樓',
+		'ME': '分子館',
+		'MR': '材資館',
+		'RB': '紅樓',
+		'SE': '忠孝東路警衛室',
+		'SS': '新生南路警衛室',
+		'SY': '國父百年紀念館',
+	};
 }
 
 // Path: preferences
@@ -1656,6 +1729,46 @@ class Translations$changePassword$errors$server$zh_TW {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'campusMap.title' => '校園地圖',
+			'campusMap.selectBuilding' => '選擇建築物',
+			'campusMap.search' => '搜尋',
+			'campusMap.searchHint' => '教室名稱或編號（如A1T101）',
+			'campusMap.searchResults' => ({required Object count}) => '找到${count}個空間',
+			'campusMap.noResults' => '找不到符合的教室或空間，請試試其他名稱或編號。',
+			'campusMap.searchFailed' => '無法完成搜尋，請檢查網路後重試。',
+			'campusMap.locationUnavailable' => '目前沒有此空間的位置資料。',
+			'campusMap.loadFailed' => '無法載入地圖資料，請檢查網路後重試。',
+			'campusMap.refresh' => '更新地圖資料',
+			'campusMap.buildingNames.A1T' => '第一教學大樓',
+			'campusMap.buildingNames.A2T' => '第二教學大樓',
+			'campusMap.buildingNames.A3T' => '第三教學大樓',
+			'campusMap.buildingNames.A4T' => '第四教學大樓',
+			'campusMap.buildingNames.A5T' => '生物科技館暨校友會館',
+			'campusMap.buildingNames.A6T' => '第六教學大樓',
+			'campusMap.buildingNames.AC' => '一大川堂',
+			'campusMap.buildingNames.AD' => '行政大樓',
+			'campusMap.buildingNames.AM' => '先鋒國際研發大樓',
+			'campusMap.buildingNames.B1D' => '學生第一宿舍',
+			'campusMap.buildingNames.B2D' => '學生第二宿舍',
+			'campusMap.buildingNames.CB' => '綜合科館',
+			'campusMap.buildingNames.CE' => '土木館',
+			'campusMap.buildingNames.CH' => '化學館',
+			'campusMap.buildingNames.CK' => '學生活動中心',
+			'campusMap.buildingNames.CM' => '化工館',
+			'campusMap.buildingNames.DB' => '設計館',
+			'campusMap.buildingNames.EL' => '億光大樓',
+			'campusMap.buildingNames.GB' => '共同科館',
+			'campusMap.buildingNames.GH' => '光華館',
+			'campusMap.buildingNames.GR' => '生態小屋',
+			'campusMap.buildingNames.HR' => '宏裕科技大樓',
+			'campusMap.buildingNames.LB' => '圖書館',
+			'campusMap.buildingNames.LY' => '隆玉科技大樓',
+			'campusMap.buildingNames.ME' => '分子館',
+			'campusMap.buildingNames.MR' => '材資館',
+			'campusMap.buildingNames.RB' => '紅樓',
+			'campusMap.buildingNames.SE' => '忠孝東路警衛室',
+			'campusMap.buildingNames.SS' => '新生南路警衛室',
+			'campusMap.buildingNames.SY' => '國父百年紀念館',
 			'preferences.startWithCourseTable.title' => '啟動時開啟課表',
 			'preferences.darkMode' => '深色模式',
 			'preferences.themeMode.system' => '預設',

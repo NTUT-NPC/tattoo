@@ -39,6 +39,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	TranslationsEnUs $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsEnUs(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _Translations$campusMap$en_US campusMap = _Translations$campusMap$en_US._(_root);
 	@override late final _Translations$preferences$en_US preferences = _Translations$preferences$en_US._(_root);
 	@override late final _Translations$general$en_US general = _Translations$general$en_US._(_root);
 	@override late final _Translations$errors$en_US errors = _Translations$errors$en_US._(_root);
@@ -61,6 +62,57 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$forceUpdate$en_US forceUpdate = _Translations$forceUpdate$en_US._(_root);
 	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
 	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
+}
+
+// Path: campusMap
+class _Translations$campusMap$en_US extends Translations$campusMap$zh_TW {
+	_Translations$campusMap$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Campus Map';
+	@override String get selectBuilding => 'Select a building';
+	@override String get search => 'Search';
+	@override String get searchHint => 'Classroom name or number (e.g. A1T101)';
+	@override String searchResults({required Object count}) => 'Found ${count} spaces';
+	@override String get noResults => 'No matching classrooms or spaces. Try another name or number.';
+	@override String get searchFailed => 'Search failed. Check your connection and try again.';
+	@override String get locationUnavailable => 'This space has no available location data.';
+	@override String get loadFailed => 'Map data could not be loaded. Check your connection and try again.';
+	@override String get refresh => 'Refresh map data';
+	@override Map<String, String> get buildingNames => {
+		'A1T': 'First Academic Building',
+		'A2T': 'Second Academic Building',
+		'A3T': 'Third Academic Building',
+		'A4T': 'Fourth Academic Building',
+		'A5T': 'Biotechnology and Alumni Association Building',
+		'A6T': 'Sixth Academic Building',
+		'AC': 'Yi Da Hall',
+		'AD': 'Administration Building',
+		'AM': 'Pioneer International R&D Building',
+		'B1D': 'Student Dormitory 1',
+		'B2D': 'Student Dormitory 2',
+		'CB': 'Integrated Technology Complex',
+		'CE': 'Civil Engineering Building',
+		'CH': 'Chemistry Building',
+		'CK': 'Student Activity Center',
+		'CM': 'Chemical Engineering Building',
+		'DB': 'Design Building',
+		'EL': 'Everlight Building',
+		'GB': 'General Studies Building',
+		'GH': 'Guanghua Building',
+		'GR': 'Ecology Cabin',
+		'HR': 'Hong-Yue Technology Research Building',
+		'LB': 'Library',
+		'LY': 'Lung-Yu Technology Building',
+		'ME': 'Molecular Science and Engineering Building',
+		'MR': 'Materials and Mineral Resources Engineering Building',
+		'RB': 'Red House',
+		'SE': 'Zhongxiao East Road Guardhouse',
+		'SS': 'Xinsheng South Road Guardhouse',
+		'SY': 'Sun Yat-Sen Memorial Hall',
+	};
 }
 
 // Path: preferences
@@ -1008,6 +1060,46 @@ class _Translations$changePassword$errors$server$en_US extends Translations$chan
 extension on TranslationsEnUs {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'campusMap.title' => 'Campus Map',
+			'campusMap.selectBuilding' => 'Select a building',
+			'campusMap.search' => 'Search',
+			'campusMap.searchHint' => 'Classroom name or number (e.g. A1T101)',
+			'campusMap.searchResults' => ({required Object count}) => 'Found ${count} spaces',
+			'campusMap.noResults' => 'No matching classrooms or spaces. Try another name or number.',
+			'campusMap.searchFailed' => 'Search failed. Check your connection and try again.',
+			'campusMap.locationUnavailable' => 'This space has no available location data.',
+			'campusMap.loadFailed' => 'Map data could not be loaded. Check your connection and try again.',
+			'campusMap.refresh' => 'Refresh map data',
+			'campusMap.buildingNames.A1T' => 'First Academic Building',
+			'campusMap.buildingNames.A2T' => 'Second Academic Building',
+			'campusMap.buildingNames.A3T' => 'Third Academic Building',
+			'campusMap.buildingNames.A4T' => 'Fourth Academic Building',
+			'campusMap.buildingNames.A5T' => 'Biotechnology and Alumni Association Building',
+			'campusMap.buildingNames.A6T' => 'Sixth Academic Building',
+			'campusMap.buildingNames.AC' => 'Yi Da Hall',
+			'campusMap.buildingNames.AD' => 'Administration Building',
+			'campusMap.buildingNames.AM' => 'Pioneer International R&D Building',
+			'campusMap.buildingNames.B1D' => 'Student Dormitory 1',
+			'campusMap.buildingNames.B2D' => 'Student Dormitory 2',
+			'campusMap.buildingNames.CB' => 'Integrated Technology Complex',
+			'campusMap.buildingNames.CE' => 'Civil Engineering Building',
+			'campusMap.buildingNames.CH' => 'Chemistry Building',
+			'campusMap.buildingNames.CK' => 'Student Activity Center',
+			'campusMap.buildingNames.CM' => 'Chemical Engineering Building',
+			'campusMap.buildingNames.DB' => 'Design Building',
+			'campusMap.buildingNames.EL' => 'Everlight Building',
+			'campusMap.buildingNames.GB' => 'General Studies Building',
+			'campusMap.buildingNames.GH' => 'Guanghua Building',
+			'campusMap.buildingNames.GR' => 'Ecology Cabin',
+			'campusMap.buildingNames.HR' => 'Hong-Yue Technology Research Building',
+			'campusMap.buildingNames.LB' => 'Library',
+			'campusMap.buildingNames.LY' => 'Lung-Yu Technology Building',
+			'campusMap.buildingNames.ME' => 'Molecular Science and Engineering Building',
+			'campusMap.buildingNames.MR' => 'Materials and Mineral Resources Engineering Building',
+			'campusMap.buildingNames.RB' => 'Red House',
+			'campusMap.buildingNames.SE' => 'Zhongxiao East Road Guardhouse',
+			'campusMap.buildingNames.SS' => 'Xinsheng South Road Guardhouse',
+			'campusMap.buildingNames.SY' => 'Sun Yat-Sen Memorial Hall',
 			'preferences.startWithCourseTable.title' => 'Start with Course Table',
 			'preferences.darkMode' => 'Dark Mode',
 			'preferences.themeMode.system' => 'Default',

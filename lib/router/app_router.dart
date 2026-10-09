@@ -8,6 +8,7 @@ import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/main/home/home_screen.dart';
 import 'package:tattoo/screens/main/home/student_union_screen.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
+import 'package:tattoo/screens/main/map/campus_map_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
 import 'package:tattoo/screens/main/profile/ntut_wifi_screen.dart';
@@ -35,6 +36,7 @@ abstract class AppRoutes {
   static const score = '/score';
   static const portal = '/portal';
   static const calendar = '/calendar';
+  static const campusMap = '/campus-map';
   static const profile = '/profile';
   static const preferences = '/preferences';
   static const language = '/preferences/language';
@@ -48,6 +50,15 @@ abstract class AppRoutes {
   static const changePassword = '/change-password';
   static const update = '/update';
   static const studentUnion = '/student-union';
+
+  /// Builds a map location that searches a classroom name or number on opening.
+  ///
+  /// For example, `context.push(AppRoutes.campusMapForRoom('A1T101'))` locates
+  /// the room immediately if its normalized name or number has a unique match.
+  static String campusMapForRoom(String classroom) => Uri(
+    path: campusMap,
+    queryParameters: {'room': classroom},
+  ).toString();
 }
 
 /// Resolves the landing route used after authentication.
@@ -201,6 +212,12 @@ GoRouter createAppRouter({
     GoRoute(
       path: AppRoutes.ntutWifi,
       builder: (context, state) => const NtutWifiScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.campusMap,
+      builder: (context, state) => CampusMapScreen(
+        initialQuery: state.uri.queryParameters['room'],
+      ),
     ),
     StatefulShellRoute(
       builder: (context, state, navigationShell) =>

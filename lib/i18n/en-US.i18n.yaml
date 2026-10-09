@@ -1,3 +1,46 @@
+campusMap:
+  title: Campus Map
+  selectBuilding: Select a building
+  search: Search
+  searchHint: Classroom name or number (e.g. A1T101)
+  searchResults: Found $count spaces
+  noResults: No matching classrooms or spaces. Try another name or number.
+  searchFailed: Search failed. Check your connection and try again.
+  locationUnavailable: This space has no available location data.
+  loadFailed: Map data could not be loaded. Check your connection and try again.
+  refresh: Refresh map data
+  # Keys are original GeoServer building codes (e.g. A6T, HR).
+  buildingNames(map):
+    A1T: First Academic Building
+    A2T: Second Academic Building
+    A3T: Third Academic Building
+    A4T: Fourth Academic Building
+    A5T: Biotechnology and Alumni Association Building
+    A6T: Sixth Academic Building
+    AC: Yi Da Hall
+    AD: Administration Building
+    AM: Pioneer International R&D Building
+    B1D: Student Dormitory 1
+    B2D: Student Dormitory 2
+    CB: Integrated Technology Complex
+    CE: Civil Engineering Building
+    CH: Chemistry Building
+    CK: Student Activity Center
+    CM: Chemical Engineering Building
+    DB: Design Building
+    EL: Everlight Building
+    GB: General Studies Building
+    GH: Guanghua Building
+    GR: Ecology Cabin
+    HR: Hong-Yue Technology Research Building
+    LB: Library
+    LY: Lung-Yu Technology Building
+    ME: Molecular Science and Engineering Building
+    MR: Materials and Mineral Resources Engineering Building
+    RB: Red House
+    SE: Zhongxiao East Road Guardhouse
+    SS: Xinsheng South Road Guardhouse
+    SY: Sun Yat-Sen Memorial Hall
 preferences:
   startWithCourseTable:
     title: Start with Course Table
