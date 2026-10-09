@@ -2,7 +2,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/models/campus_map.dart';
-import 'package:tattoo/screens/main/map/campus_map_labels.dart';
+import 'package:tattoo/screens/main/map/campus_map_room_labels.dart';
 import 'package:tattoo/screens/main/map/campus_map_tile_provider.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
@@ -130,16 +130,13 @@ class _CampusMapViewportState extends State<CampusMapViewport> {
                     border: room.id == widget.selectedRoomId
                         ? colors.tertiary
                         : colors.outlineVariant,
-                    label:
-                        (room.number.isEmpty
-                                ? campusMapRoomName(room)
-                                : room.number)
-                            .spaced,
+                    label: '',
                     labelColor: colors.onSurface,
                   ),
             ],
           ),
         ),
+        CampusMapRoomLabels(rooms: widget.rooms),
       ],
     );
   }
