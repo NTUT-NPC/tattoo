@@ -397,7 +397,10 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
                 (list) => (
                   fetchedAt: list.fetchedAt,
                   isEmpty: list.materials.isEmpty,
-                  content: CourseMaterialsList(materials: list.materials),
+                  content: CourseMaterialsList(
+                    materials: list.materials,
+                    onLearnMore: _openNetworkGuide,
+                  ),
                 ),
               )
         : ref

@@ -30,7 +30,10 @@ Future<void> _showList(
       child: MaterialApp(
         home: Scaffold(
           body: SingleChildScrollView(
-            child: CourseMaterialsList(materials: materials),
+            child: CourseMaterialsList(
+              materials: materials,
+              onLearnMore: () {},
+            ),
           ),
         ),
       ),
@@ -55,7 +58,10 @@ void main() {
       await tester.tap(find.text('Lecture'));
       await tester.pumpAndSettle();
       expect(repository.calls, 1);
-      expect(find.text(t.courseTable.detail.materials.saved), findsOneWidget);
+      expect(
+        find.text(t.courseTable.detail.materials.saved.other),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     },
   );

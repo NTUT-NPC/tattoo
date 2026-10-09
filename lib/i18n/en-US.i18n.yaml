@@ -163,16 +163,18 @@ courseTable:
       empty: No course materials available
       loadFailed: Unable to load course materials.
       networkSnackbar: Trying to update course materials. This feature requires the campus network.
-      updateFailed: Unable to update course materials. Showing previously saved data.
+      updateFailed: Unable to update course materials. This feature requires the campus network.
       updateSuccess: Course materials updated.
       backToMaterials: Back to course materials
-      streamUnavailable: Recordings cannot be downloaded
+      streamUnavailable: Course recordings cannot be downloaded due to system limitations.
       download: Download
       downloading: Downloading…
       saving: Choose a save location…
       cancel: Cancel
-      saved: Course material saved.
-      downloadFailed: Unable to download or save this material. Please try again later.
+      saved:
+        ios: Saved to the Files app.
+        other: Course material saved.
+      downloadFailed: Unable to download or save this material. This feature requires the campus network.
       unnamed: Untitled material
   summary:
     credits(plural, param=count):

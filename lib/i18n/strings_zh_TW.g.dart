@@ -1618,8 +1618,8 @@ class Translations$courseTable$detail$materials$zh_TW {
 	/// zh-TW: '正在嘗試更新教材清單。此功能需要連接學校網路。'
 	String get networkSnackbar => '正在嘗試更新教材清單。此功能需要連接學校網路。';
 
-	/// zh-TW: '無法更新教材清單，仍顯示先前的資料。'
-	String get updateFailed => '無法更新教材清單，仍顯示先前的資料。';
+	/// zh-TW: '無法更新教材清單，此功能需要連接學校網路。'
+	String get updateFailed => '無法更新教材清單，此功能需要連接學校網路。';
 
 	/// zh-TW: '教材清單已更新。'
 	String get updateSuccess => '教材清單已更新。';
@@ -1627,8 +1627,8 @@ class Translations$courseTable$detail$materials$zh_TW {
 	/// zh-TW: '返回教材清單'
 	String get backToMaterials => '返回教材清單';
 
-	/// zh-TW: '無法下載錄影'
-	String get streamUnavailable => '無法下載錄影';
+	/// zh-TW: '因系統限制，無法下載課程錄影。'
+	String get streamUnavailable => '因系統限制，無法下載課程錄影。';
 
 	/// zh-TW: '下載'
 	String get download => '下載';
@@ -1642,11 +1642,10 @@ class Translations$courseTable$detail$materials$zh_TW {
 	/// zh-TW: '取消'
 	String get cancel => '取消';
 
-	/// zh-TW: '教材已儲存。'
-	String get saved => '教材已儲存。';
+	late final Translations$courseTable$detail$materials$saved$zh_TW saved = Translations$courseTable$detail$materials$saved$zh_TW.internal(_root);
 
-	/// zh-TW: '無法下載或儲存教材，請稍後重試。'
-	String get downloadFailed => '無法下載或儲存教材，請稍後重試。';
+	/// zh-TW: '無法下載或儲存教材。此功能需要使用學校網路。'
+	String get downloadFailed => '無法下載或儲存教材。此功能需要使用學校網路。';
 
 	/// zh-TW: '未命名教材'
 	String get unnamed => '未命名教材';
@@ -1701,6 +1700,21 @@ class Translations$changePassword$errors$server$zh_TW {
 
 	/// zh-TW: '密碼須包含英文大小寫字母、數字及符號'
 	String get complexity => '密碼須包含英文大小寫字母、數字及符號';
+}
+
+// Path: courseTable.detail.materials.saved
+class Translations$courseTable$detail$materials$saved$zh_TW {
+	Translations$courseTable$detail$materials$saved$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '已儲存至「檔案」App。'
+	String get ios => '已儲存至「檔案」App。';
+
+	/// zh-TW: '教材已儲存。'
+	String get other => '教材已儲存。';
 }
 
 /// The flat map containing all translations for locale <zh-TW>.
@@ -1845,16 +1859,17 @@ extension on Translations {
 			'courseTable.detail.materials.empty' => '目前沒有教材',
 			'courseTable.detail.materials.loadFailed' => '無法載入教材清單。',
 			'courseTable.detail.materials.networkSnackbar' => '正在嘗試更新教材清單。此功能需要連接學校網路。',
-			'courseTable.detail.materials.updateFailed' => '無法更新教材清單，仍顯示先前的資料。',
+			'courseTable.detail.materials.updateFailed' => '無法更新教材清單，此功能需要連接學校網路。',
 			'courseTable.detail.materials.updateSuccess' => '教材清單已更新。',
 			'courseTable.detail.materials.backToMaterials' => '返回教材清單',
-			'courseTable.detail.materials.streamUnavailable' => '無法下載錄影',
+			'courseTable.detail.materials.streamUnavailable' => '因系統限制，無法下載課程錄影。',
 			'courseTable.detail.materials.download' => '下載',
 			'courseTable.detail.materials.downloading' => '正在下載…',
 			'courseTable.detail.materials.saving' => '選擇儲存位置…',
 			'courseTable.detail.materials.cancel' => '取消',
-			'courseTable.detail.materials.saved' => '教材已儲存。',
-			'courseTable.detail.materials.downloadFailed' => '無法下載或儲存教材，請稍後重試。',
+			'courseTable.detail.materials.saved.ios' => '已儲存至「檔案」App。',
+			'courseTable.detail.materials.saved.other' => '教材已儲存。',
+			'courseTable.detail.materials.downloadFailed' => '無法下載或儲存教材。此功能需要使用學校網路。',
 			'courseTable.detail.materials.unnamed' => '未命名教材',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
