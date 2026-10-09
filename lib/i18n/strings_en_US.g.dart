@@ -73,6 +73,7 @@ class _Translations$campusMap$en_US extends Translations$campusMap$zh_TW {
 	// Translations
 	@override String get title => 'Campus Map';
 	@override String get homeDescription => 'Find buildings, floors, and classrooms';
+	@override String get selectBuilding => 'Select a building';
 	@override String get search => 'Search';
 	@override String get searchHint => 'Classroom name or number (e.g. A1T101)';
 	@override String searchResults({required Object count}) => 'Found ${count} spaces';
@@ -1030,6 +1031,7 @@ extension on TranslationsEnUs {
 		return switch (path) {
 			'campusMap.title' => 'Campus Map',
 			'campusMap.homeDescription' => 'Find buildings, floors, and classrooms',
+			'campusMap.selectBuilding' => 'Select a building',
 			'campusMap.search' => 'Search',
 			'campusMap.searchHint' => 'Classroom name or number (e.g. A1T101)',
 			'campusMap.searchResults' => ({required Object count}) => 'Found ${count} spaces',

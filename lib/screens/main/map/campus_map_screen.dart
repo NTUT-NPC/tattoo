@@ -8,12 +8,14 @@ import 'package:tattoo/components/floating_action_bar.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/campus_map.dart';
 import 'package:tattoo/repositories/campus_map_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/map/campus_map_floor_selector.dart';
 import 'package:tattoo/screens/main/map/campus_map_geometry.dart';
 import 'package:tattoo/screens/main/map/campus_map_providers.dart';
 import 'package:tattoo/screens/main/map/campus_map_search_dialog.dart';
 import 'package:tattoo/screens/main/map/campus_map_search_results.dart';
 import 'package:tattoo/screens/main/map/campus_map_viewport.dart';
+import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 /// A campus overview with building-scoped indoor browsing and room search.
@@ -323,6 +325,21 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
         tooltip: t.campusMap.search,
         onTap: _openSearch,
       ),
+      if (ref.pref(PrefKey.showCampusMapBuildingSelector))
+        FloatingActionBarMenuButton<CampusMapBuilding>(
+          icon: Icons.apartment_outlined,
+          tooltip: t.campusMap.selectBuilding,
+          enabled: buildings.isNotEmpty,
+          items: [
+            for (final item in buildings)
+              CheckedPopupMenuItem(
+                value: item,
+                checked: item.code == _buildingCode,
+                child: Text(item.name.spaced),
+              ),
+          ],
+          onSelected: _selectBuilding,
+        ),
     ];
     return Scaffold(
       appBar: AppBar(

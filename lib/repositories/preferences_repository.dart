@@ -80,6 +80,9 @@ enum PrefKey<T> {
   /// Whether the I-School Plus student roster is shown in course details.
   showCourseRoster<bool>(.boolean, true),
 
+  /// Whether the campus map action bar offers a building selection menu.
+  showCampusMapBuildingSelector<bool>(.boolean, false),
+
   /// Link to instructions for connecting to the NTUT network remotely.
   iSchoolPlusNetworkGuideUrl<String>(.string, defaultISchoolPlusNetworkGuideUrl),
 

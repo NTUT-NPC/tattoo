@@ -79,6 +79,9 @@ class Translations$campusMap$zh_TW {
 	/// zh-TW: '查找建築物、樓層與教室位置'
 	String get homeDescription => '查找建築物、樓層與教室位置';
 
+	/// zh-TW: '選擇建築物'
+	String get selectBuilding => '選擇建築物';
+
 	/// zh-TW: '搜尋'
 	String get search => '搜尋';
 
@@ -1698,6 +1701,7 @@ extension on Translations {
 		return switch (path) {
 			'campusMap.title' => '校園地圖',
 			'campusMap.homeDescription' => '查找建築物、樓層與教室位置',
+			'campusMap.selectBuilding' => '選擇建築物',
 			'campusMap.search' => '搜尋',
 			'campusMap.searchHint' => '教室名稱或編號（如A1T101）',
 			'campusMap.searchResults' => ({required Object count}) => '找到${count}個空間',

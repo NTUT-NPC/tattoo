@@ -1,6 +1,7 @@
 campusMap:
   title: 校園地圖
   homeDescription: 查找建築物、樓層與教室位置
+  selectBuilding: 選擇建築物
   search: 搜尋
   searchHint: 教室名稱或編號（如A1T101）
   searchResults: 找到$count個空間
