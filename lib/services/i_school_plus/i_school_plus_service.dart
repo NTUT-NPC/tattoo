@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' show CancelToken, ProgressCallback;
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/i_school_plus/mock_i_school_plus_service.dart';
@@ -57,6 +58,9 @@ typedef MaterialDto = ({
   /// Whether this material can be streamed (e.g., video/audio recordings).
   bool streamable,
 });
+
+/// A material downloaded to a temporary file, ready for export.
+typedef MaterialFileDto = ({String path, String fileName});
 
 /// Provides the singleton [ISchoolPlusService] instance.
 final iSchoolPlusServiceProvider = Provider<ISchoolPlusService>((ref) {
@@ -140,4 +144,17 @@ abstract interface class ISchoolPlusService {
   ///
   /// Throws an [Exception] if the material cannot be accessed or parsed.
   Future<MaterialDto> getMaterial(MaterialRefDto material);
+
+  /// Resolves fresh access information and downloads a file into [directory].
+  ///
+  /// Keeps course selection locked until the transfer and partial-file cleanup
+  /// finish. Preserves the required Referer and authentication cookies.
+  /// Throws [UnsupportedError] for iStream resources. The caller owns cleanup
+  /// of successfully downloaded files.
+  Future<MaterialFileDto> downloadMaterial(
+    MaterialRefDto material,
+    String directory, {
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  });
 }

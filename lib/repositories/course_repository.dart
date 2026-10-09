@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:dio/dio.dart' show CancelToken, ProgressCallback;
 import 'package:drift/drift.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
@@ -10,6 +11,7 @@ import 'package:tattoo/models/classroom.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/course/course_service.dart';
+import 'package:tattoo/services/file_save_service.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
@@ -57,6 +59,7 @@ typedef CourseStudentRoster = ({
 
 const studentRosterTtl = Duration(minutes: 15);
 
+/// Cached material references and the timestamp of the last successful fetch.
 typedef CourseMaterialList = ({
   List<CourseMaterial> materials,
   DateTime? fetchedAt,
@@ -173,6 +176,7 @@ final courseRepositoryProvider = Provider<CourseRepository>((ref) {
     database: ref.watch(databaseProvider),
     authRepository: ref.watch(authRepositoryProvider),
     firebaseService: firebaseService,
+    fileSaveService: ref.watch(fileSaveServiceProvider),
   );
 });
 
@@ -197,6 +201,7 @@ class CourseRepository {
   final AppDatabase _database;
   final AuthRepository _authRepository;
   final FirebaseService _firebaseService;
+  final FileSaveService _fileSaveService;
 
   CourseRepository({
     required this._portalService,
@@ -205,7 +210,8 @@ class CourseRepository {
     required this._database,
     required this._authRepository,
     required this._firebaseService,
-  });
+    FileSaveService? fileSaveService,
+  }) : _fileSaveService = fileSaveService ?? FileSaveService();
 
   /// Watches available semesters for the authenticated student.
   ///
@@ -1334,6 +1340,7 @@ class CourseRepository {
     )..where((c) => c.id.equals(courseId))).getSingle();
   }
 
+  /// Watches material references in manifest order, including cached empty lists.
   Stream<CourseMaterialList> watchMaterials(int courseOfferingId) {
     final query =
         _database.select(_database.courseOfferings).join([
@@ -1361,6 +1368,7 @@ class CourseRepository {
     );
   }
 
+  /// Checks whether the material list was fetched within [courseMaterialsTtl].
   Future<bool> areMaterialsFresh(int courseOfferingId) async {
     final offering = await (_database.select(
       _database.courseOfferings,
@@ -1370,6 +1378,7 @@ class CourseRepository {
         DateTime.now().difference(fetchedAt) < courseMaterialsTtl;
   }
 
+  /// Replaces the cached material list after a successful authenticated fetch.
   Future<void> refreshMaterials({
     required int courseOfferingId,
     required String courseNumber,
@@ -1416,6 +1425,7 @@ class CourseRepository {
     });
   }
 
+  /// Resolves current access information and caches only the material type.
   Future<MaterialDto> getMaterialDownload(CourseMaterial material) async {
     final reference = await _materialReference(material);
     final access = await _authRepository.withAuth(
@@ -1426,6 +1436,29 @@ class CourseRepository {
           ..where((row) => row.id.equals(material.id)))
         .write(MaterialsCompanion(streamable: Value(access.streamable)));
     return access;
+  }
+
+  /// Downloads and exports a material, returning `false` when cancelled.
+  Future<bool> saveMaterial(
+    CourseMaterial material, {
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+    void Function()? onSaving,
+  }) async {
+    final reference = await _materialReference(material);
+    return _fileSaveService.saveDownloadedFile((directory) async {
+      final file = await _authRepository.withAuth(
+        () => _iSchoolPlusService.downloadMaterial(
+          reference,
+          directory,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+        ),
+        sso: [.iSchoolPlusService],
+      );
+      if (cancelToken?.isCancelled != true) onSaving?.call();
+      return file;
+    }, canSave: () => cancelToken?.isCancelled != true);
   }
 
   Future<MaterialRefDto> _materialReference(CourseMaterial material) async {

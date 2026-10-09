@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,9 +17,129 @@ void main() {
   setUp(() {
     protocol = _FakeISchoolProtocol();
     service = NtutISchoolPlusService(
-      dio: Dio()..interceptors.add(protocol),
+      dio: Dio(
+        BaseOptions(validateStatus: (status) => status != null && status < 400),
+      )..interceptors.add(protocol),
     );
   });
+
+  test(
+    'file transfer keeps course selection locked and sends PDF referer',
+    () async {
+      final directory = await Directory.systemTemp.createTemp('material-test-');
+      addTearDown(() => directory.delete(recursive: true));
+      protocol.resourceUrl = 'viewPDF.php?id=token';
+      protocol.fileBody = StreamController<Uint8List>();
+      final token = CancelToken();
+      final download = service.downloadMaterial(
+        (course: _courseA, title: 'Lecture', href: 'resource'),
+        directory.path,
+        cancelToken: token,
+      );
+      await protocol.fileRequested.future;
+      final roster = service.getStudents(_courseB);
+      await pumpEventQueue();
+      expect(protocol.switches, [_courseA.internalId]);
+      expect(
+        protocol.fileOptions!.headers[HttpHeaders.refererHeader],
+        'https://istudy.ntut.edu.tw/learn/path/viewPDF.php?id=token',
+      );
+      expect(protocol.fileOptions!.cancelToken, same(token));
+      protocol.fileBody!.add(Uint8List.fromList([1, 2, 3, 4]));
+      await protocol.fileBody!.close();
+      final file = await download;
+      expect(file.fileName, 'notes.pdf');
+      expect(await File(file.path).readAsBytes(), [1, 2, 3, 4]);
+      await roster;
+      expect(protocol.switches, [_courseA.internalId, _courseB.internalId]);
+    },
+  );
+
+  test('iStream redirects remain streams and are never downloaded', () async {
+    final directory = await Directory.systemTemp.createTemp('material-test-');
+    addTearDown(() => directory.delete(recursive: true));
+    protocol.redirectResource = true;
+    final material = (course: _courseA, title: 'Stream', href: 'resource');
+    expect((await service.getMaterial(material)).streamable, isTrue);
+    await expectLater(
+      service.downloadMaterial(material, directory.path),
+      throwsUnsupportedError,
+    );
+    expect(await directory.list().isEmpty, isTrue);
+    expect(protocol.fileOptions, isNull);
+  });
+
+  test(
+    'file redirects to iStream stop before saving or fetching the stream',
+    () async {
+      final directory = await Directory.systemTemp.createTemp('material-test-');
+      addTearDown(() => directory.delete(recursive: true));
+      protocol.resourceUrl = 'files/notes.pdf';
+      protocol.fileRedirect = 'https://istream.ntut.edu.tw/video.mp4';
+      await expectLater(
+        service.downloadMaterial((
+          course: _courseA,
+          title: 'Notes',
+          href: 'resource',
+        ), directory.path),
+        throwsUnsupportedError,
+      );
+      expect(await directory.list().isEmpty, isTrue);
+      expect(protocol.fileOptions!.extra['followRedirects'], isFalse);
+    },
+  );
+
+  test(
+    'relative preview redirects retain query and download directory',
+    () async {
+      protocol.redirectResource = true;
+      protocol.resourceUrl = 'preview.php?id=token';
+      final access = await service.getMaterial((
+        course: _courseA,
+        title: 'File',
+        href: 'resource',
+      ));
+      expect(
+        access.downloadUrl.toString(),
+        'https://istudy.ntut.edu.tw/learn/path/download.php?id=token',
+      );
+    },
+  );
+
+  test(
+    'cancelling a file transfer deletes partial data and releases queue',
+    () async {
+      final directory = await Directory.systemTemp.createTemp('material-test-');
+      addTearDown(() => directory.delete(recursive: true));
+      protocol.resourceUrl = 'files/notes.pdf';
+      protocol.fileBody = StreamController<Uint8List>();
+      final token = CancelToken();
+      final download = service.downloadMaterial(
+        (course: _courseA, title: 'Lecture', href: 'resource'),
+        directory.path,
+        cancelToken: token,
+      );
+      final failure = expectLater(
+        download,
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.type,
+            'type',
+            DioExceptionType.cancel,
+          ),
+        ),
+      );
+      await protocol.fileRequested.future;
+      protocol.fileBody!.add(Uint8List.fromList([1, 2]));
+      await pumpEventQueue();
+      token.cancel();
+      await failure;
+      await protocol.fileBody!.close();
+      expect(await directory.list().isEmpty, isTrue);
+      await service.getStudents(_courseB);
+      expect(protocol.selectedCourse, _courseB.internalId);
+    },
+  );
 
   test('concurrent roster operations do not mix selected courses', () async {
     protocol.pauseNextRoster = true;
@@ -129,6 +251,12 @@ class _FakeISchoolProtocol extends Interceptor {
   final materialFetchRequested = Completer<void>();
   final releaseMaterialFetch = Completer<void>();
   final switches = <String>[];
+  String resourceUrl = 'https://istream.ntut.edu.tw/video.mp4';
+  bool redirectResource = false;
+  final fileRequested = Completer<void>();
+  StreamController<Uint8List>? fileBody;
+  RequestOptions? fileOptions;
+  String? fileRedirect;
   String? selectedCourse;
   String? manifestCourse;
   String? materialFetchCourse;
@@ -244,10 +372,65 @@ class _FakeISchoolProtocol extends Interceptor {
       handler.resolve(
         Response(
           requestOptions: options,
-          statusCode: 200,
+          statusCode: redirectResource ? 302 : 200,
+          headers: Headers.fromMap({
+            if (redirectResource) HttpHeaders.locationHeader: [resourceUrl],
+          }),
           data:
               '<script>location.replace('
-              '"https://istream.ntut.edu.tw/video.mp4");</script>',
+              '"$resourceUrl");</script>',
+        ),
+      );
+      return;
+    }
+    if (path.contains('viewPDF.php')) {
+      handler.resolve(
+        Response(
+          requestOptions: options,
+          statusCode: 200,
+          data: 'var DEFAULT_URL = "files/notes.pdf";',
+        ),
+      );
+      return;
+    }
+    if (path.endsWith('notes.pdf')) {
+      fileOptions = options;
+      fileRequested.complete();
+      if (fileRedirect case final location?) {
+        handler.resolve(
+          Response(
+            requestOptions: options,
+            statusCode: 302,
+            headers: Headers.fromMap({
+              'location': [location],
+            }),
+            data: ResponseBody.fromString(
+              '',
+              302,
+              headers: {
+                'location': [location],
+              },
+            ),
+          ),
+        );
+        return;
+      }
+      handler.resolve(
+        Response(
+          requestOptions: options,
+          statusCode: 200,
+          headers: Headers.fromMap({
+            'content-disposition': [
+              'attachment; filename="notes.pdf"',
+            ],
+          }),
+          data: ResponseBody(
+            fileBody!.stream,
+            200,
+            headers: {
+              'content-disposition': ['attachment; filename="notes.pdf"'],
+            },
+          ),
         ),
       );
       return;

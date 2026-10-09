@@ -64,6 +64,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - CourseService — 課程系統 (`aa_0010-oauth`). Course catalog, schedules, teacher profiles, syllabi. All HTML-parsed.
 - ISchoolPlusService — 北科i學園PLUS (`ischool_plus_oauth`). Course rosters and materials.
 - StudentQueryService — 學生查詢專區 (`sa_003_oauth`). Academic records, GPA, rankings, registration history.
+- FileSaveService — Downloads are staged in a unique temporary directory, then exported through the same `flutter_file_dialog` native save dialog on Android and iOS. Cancellation and failures remove the temporary directory. CourseRepository coordinates authenticated material downloads and export; iStream resources are listed but cannot be downloaded or played.
 - GitHubService — fetches repo contributors, filters bots
 - FirebaseService — Unified wrapper for Firebase Analytics, Crashlytics, and Remote Config. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`). `getRemoteConfigTyped(key, PrefType)` casts a Remote Config value to the caller's declared type (no sniffing), returning `(value: null, isRemote: false)` when disabled or not remotely set.
 - CampusWifiPlatform — Method-channel client wrapper that exposes Android-only system Wi-Fi APIs (suggestions and settings) to the Dart application via the `campusWifiPlatformProvider` Riverpod provider and structured method-channel DTOs (`CampusWifiCapabilitiesDto`, `Ntut8021xProvisioningDto`).
@@ -158,4 +159,4 @@ These apOu codes are the SSO target identifiers used by PortalService to obtain 
 
 ## Backlog
 
-Open work is tracked in [GitHub Issues](https://github.com/NTUT-NPC/tattoo/issues). Key areas: remaining NTUT service methods (ISchoolPlus announcements, StudentQuery extensions), repository layer gaps (materials, rosters), and file download infrastructure.
+Open work is tracked in [GitHub Issues](https://github.com/NTUT-NPC/tattoo/issues). Key areas: remaining NTUT service methods (ISchoolPlus announcements, StudentQuery extensions), repository layer gaps (materials, rosters), and further file download infrastructure.
