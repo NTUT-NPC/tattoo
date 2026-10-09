@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/i_school_plus_providers.dart';
+import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 
 /// Provides the detailed data for a single course offering, keyed by its
 /// course number (課號).
@@ -102,45 +103,75 @@ final courseMaterialsProvider = StreamProvider.autoDispose
 final courseMaterialsRefreshProvider = FutureProvider.autoDispose
     .family<CourseISchoolRefreshResult, CourseISchoolKey>(
       retry: (_, _) => null,
-      (
-        ref,
-        key,
-      ) async {
-        final keepAlive = ref.keepAlive();
-        try {
-          final repository = ref.watch(courseRepositoryProvider);
-          final hadCacheAtStart =
-              (await repository.watchMaterials(key.courseOfferingId).first)
-                  .fetchedAt !=
-              null;
-          if (await repository.areMaterialsFresh(key.courseOfferingId)) {
-            return (refreshed: false, hadCacheAtStart: hadCacheAtStart);
-          }
-          await repository.refreshMaterials(
-            courseOfferingId: key.courseOfferingId,
-            courseNumber: key.courseNumber,
-          );
-          return (refreshed: true, hadCacheAtStart: hadCacheAtStart);
-        } finally {
-          keepAlive.close();
-        }
-      },
+      (ref, key) => _refreshMaterials(ref, key, force: false),
     );
 
+final courseMaterialsManualRefreshProvider = FutureProvider.autoDispose
+    .family<CourseISchoolRefreshResult, CourseISchoolKey>(
+      retry: (_, _) => null,
+      (ref, key) => _refreshMaterials(ref, key, force: true),
+    );
+
+Future<CourseISchoolRefreshResult> _refreshMaterials(
+  Ref ref,
+  CourseISchoolKey key, {
+  required bool force,
+}) async {
+  final keepAlive = ref.keepAlive();
+  try {
+    final repository = ref.watch(courseRepositoryProvider);
+    final hadCacheAtStart =
+        (await repository.watchMaterials(key.courseOfferingId).first)
+            .fetchedAt !=
+        null;
+    if (!force && await repository.areMaterialsFresh(key.courseOfferingId)) {
+      return (refreshed: false, hadCacheAtStart: hadCacheAtStart);
+    }
+    await repository.refreshMaterials(
+      courseOfferingId: key.courseOfferingId,
+      courseNumber: key.courseNumber,
+    );
+    return (refreshed: true, hadCacheAtStart: hadCacheAtStart);
+  } finally {
+    keepAlive.close();
+  }
+}
+
 final courseMaterialsAvailabilityProvider = FutureProvider.autoDispose
-    .family<void, CourseISchoolKey>(retry: (_, _) => null, (ref, key) async {
-      final keepAlive = ref.keepAlive();
-      try {
-        if (await ref
+    .family<void, CourseISchoolKey>(
+      retry: (_, _) => null,
+      (ref, key) => _checkMaterialsAvailability(ref, key, force: false),
+    );
+
+final courseMaterialsManualAvailabilityProvider = FutureProvider.autoDispose
+    .family<void, CourseISchoolKey>(
+      retry: (_, _) => null,
+      (ref, key) => _checkMaterialsAvailability(ref, key, force: true),
+    );
+
+Future<void> _checkMaterialsAvailability(
+  Ref ref,
+  CourseISchoolKey key, {
+  required bool force,
+}) async {
+  final keepAlive = ref.keepAlive();
+  try {
+    if (!force &&
+        await ref
             .watch(courseRepositoryProvider)
             .areMaterialsFresh(key.courseOfferingId)) {
-          return;
-        }
-        await ref.watch(iSchoolPlusAvailabilityProvider.future);
-      } finally {
-        keepAlive.close();
-      }
-    });
+      return;
+    }
+    if (force) {
+      // A manual materials attempt must not restart a mounted roster probe.
+      await ref.watch(iSchoolPlusServiceProvider).checkAvailability();
+    } else {
+      await ref.watch(iSchoolPlusAvailabilityProvider.future);
+    }
+  } finally {
+    keepAlive.close();
+  }
+}
 
 /// Retry is safe only after both halves of the current attempt have settled.
 bool canRetryCourseISchool<T>(

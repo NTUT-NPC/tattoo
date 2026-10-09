@@ -323,16 +323,49 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
   var _showNetworkGuide = false;
   var _probeSnackbarShown = false;
   var _isInitialAttempt = true;
+  // Keep the last attempt's outcome available to the guide and retry UI.
+  // A new detail pane starts with the automatic, TTL-aware providers again.
+  var _manualMaterialsRefresh = false;
+
+  FutureProvider<CourseISchoolRefreshResult> get _materialsRefreshProvider =>
+      _manualMaterialsRefresh
+      ? courseMaterialsManualRefreshProvider(widget.iSchoolKey)
+      : courseMaterialsRefreshProvider(widget.iSchoolKey);
+
+  FutureProvider<void> get _materialsAvailabilityProvider =>
+      _manualMaterialsRefresh
+      ? courseMaterialsManualAvailabilityProvider(widget.iSchoolKey)
+      : courseMaterialsAvailabilityProvider(widget.iSchoolKey);
+
+  void _refreshMaterials() {
+    if (ref.read(_materialsRefreshProvider).isLoading ||
+        ref.read(_materialsAvailabilityProvider).isLoading) {
+      return;
+    }
+    setState(() {
+      _manualMaterialsRefresh = true;
+      _showNetworkGuide = false;
+      _probeSnackbarShown = false;
+      _isInitialAttempt = false;
+    });
+    ref
+      ..invalidate(courseMaterialsManualAvailabilityProvider(widget.iSchoolKey))
+      ..invalidate(courseMaterialsManualRefreshProvider(widget.iSchoolKey));
+  }
 
   void _retry() {
+    if (widget.isMaterials) {
+      _refreshMaterials();
+      return;
+    }
     final refresh = ref.read(
       widget.isMaterials
-          ? courseMaterialsRefreshProvider(widget.iSchoolKey)
+          ? _materialsRefreshProvider
           : courseStudentRosterRefreshProvider(widget.iSchoolKey),
     );
     final availability = ref.read(
       widget.isMaterials
-          ? courseMaterialsAvailabilityProvider(widget.iSchoolKey)
+          ? _materialsAvailabilityProvider
           : courseStudentRosterAvailabilityProvider(widget.iSchoolKey),
     );
     if (refresh.isLoading || availability.isLoading) return;
@@ -350,12 +383,12 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
       )
       ..invalidate(
         widget.isMaterials
-            ? courseMaterialsAvailabilityProvider(widget.iSchoolKey)
+            ? _materialsAvailabilityProvider
             : courseStudentRosterAvailabilityProvider(widget.iSchoolKey),
       )
       ..invalidate(
         widget.isMaterials
-            ? courseMaterialsRefreshProvider(widget.iSchoolKey)
+            ? _materialsRefreshProvider
             : courseStudentRosterRefreshProvider(widget.iSchoolKey),
       );
   }
@@ -384,11 +417,45 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
 
   @override
   Widget build(BuildContext context) {
+    final content = _buildContent(context);
+    if (!widget.isMaterials) return content;
+    final refreshing =
+        ref.watch(_materialsRefreshProvider).isLoading ||
+        ref.watch(_materialsAvailabilityProvider).isLoading;
+    return Column(
+      mainAxisSize: .min,
+      children: [
+        content,
+        Padding(
+          padding: const .fromLTRB(8, 8, 8, 16),
+          child: OutlinedButton.icon(
+            onPressed: refreshing ? null : _refreshMaterials,
+            icon: SizedBox.square(
+              dimension: 24,
+              child: refreshing
+                  ? const CircularProgressIndicator(strokeWidth: 2)
+                  : const Icon(Icons.refresh),
+            ),
+            label: Text(
+              Translations.of(context)
+                  .courseTable
+                  .detail
+                  .materials
+                  .refresh
+                  .spaced,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
     final refreshProvider = widget.isMaterials
-        ? courseMaterialsRefreshProvider(widget.iSchoolKey)
+        ? _materialsRefreshProvider
         : courseStudentRosterRefreshProvider(widget.iSchoolKey);
     final availabilityProvider = widget.isMaterials
-        ? courseMaterialsAvailabilityProvider(widget.iSchoolKey)
+        ? _materialsAvailabilityProvider
         : courseStudentRosterAvailabilityProvider(widget.iSchoolKey);
     final cacheAsync = widget.isMaterials
         ? ref
@@ -477,6 +544,7 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
         }
         return;
       }
+      if (widget.isMaterials && (next.isLoading || next.hasError)) return;
       final result = next.value;
       if (result == null || !result.refreshed) return;
       if (_showNetworkGuide && mounted) {
@@ -523,7 +591,12 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
       hasCache: hasCache,
       showNetworkGuide: _showNetworkGuide,
       allowEarlyNetworkGuide: _isInitialAttempt,
-      refresh: refreshAsync.whenData((result) => result.refreshed),
+      refresh: refreshAsync.whenData(
+        (result) =>
+            result.refreshed &&
+            (!widget.isMaterials ||
+                (!refreshAsync.isLoading && !refreshAsync.hasError)),
+      ),
       availability: availabilityAsync,
     );
     switch (presentation) {

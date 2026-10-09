@@ -160,6 +160,7 @@ courseTable:
       updateSuccess: 同學名單已更新。
       backToRoster: 返回同學名單
     materials:
+      refresh: 重新整理
       empty: 目前沒有教材
       loadFailed: 無法載入教材清單。
       networkSnackbar: 正在嘗試更新教材清單。此功能需要連接學校網路。

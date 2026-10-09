@@ -980,6 +980,7 @@ class _Translations$courseTable$detail$materials$en_US extends Translations$cour
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get refresh => 'Refresh';
 	@override String get empty => 'No course materials available';
 	@override String get loadFailed => 'Unable to load course materials.';
 	@override String get networkSnackbar => 'Trying to update course materials. This feature requires the campus network.';
@@ -1175,6 +1176,7 @@ extension on TranslationsEnUs {
 			'courseTable.detail.roster.updateFailed' => 'Unable to update the course roster. Previously cached data is still shown.',
 			'courseTable.detail.roster.updateSuccess' => 'Course roster updated.',
 			'courseTable.detail.roster.backToRoster' => 'Back to Course Roster',
+			'courseTable.detail.materials.refresh' => 'Refresh',
 			'courseTable.detail.materials.empty' => 'No course materials available',
 			'courseTable.detail.materials.loadFailed' => 'Unable to load course materials.',
 			'courseTable.detail.materials.networkSnackbar' => 'Trying to update course materials. This feature requires the campus network.',
