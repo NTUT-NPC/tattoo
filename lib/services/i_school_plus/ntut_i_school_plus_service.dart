@@ -182,8 +182,26 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     ISchoolCourseDto course,
   ) => _withSelectedCourse(course, () async {
     // Fetch and parse the SCORM manifest XML for file listings
-    final manifestResponse = await _iSchoolPlusDio.get('path/SCORM_loadCA.php');
+    final manifestResponse = await _iSchoolPlusDio.get(
+      'path/SCORM_loadCA.php',
+      // Without the material page Referer, the server returns an HTML browser
+      // challenge with status 200 instead of the SCORM manifest.
+      options: Options(
+        headers: {
+          HttpHeaders.refererHeader:
+              'https://istudy.ntut.edu.tw/learn/path/launch.php',
+        },
+      ),
+    );
     final manifestDocument = parse(manifestResponse.data);
+    if (manifestDocument.querySelector('manifest') == null) {
+      throw DioException(
+        requestOptions: manifestResponse.requestOptions,
+        response: manifestResponse,
+        type: .badResponse,
+        message: 'I-School Plus returned an invalid material manifest',
+      );
+    }
 
     // Extract all <item> elements that have identifierref attribute (actual files)
     // Items without identifierref are folders/directories and are excluded

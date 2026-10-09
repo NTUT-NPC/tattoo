@@ -243,6 +243,36 @@ void main() {
       throwsA(isA<SessionExpiredException>()),
     );
   });
+
+  test(
+    'material manifest requests include the material page Referer',
+    () async {
+      await service.getMaterials(_courseA);
+      expect(
+        protocol.manifestOptions!.headers[HttpHeaders.refererHeader],
+        'https://istudy.ntut.edu.tw/learn/path/launch.php',
+      );
+    },
+  );
+
+  test(
+    'an HTML challenge cannot be treated as an empty material list',
+    () async {
+      protocol.invalidManifest = true;
+      await expectLater(
+        service.getMaterials(_courseA),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.type,
+            'type',
+            DioExceptionType.badResponse,
+          ),
+        ),
+      );
+      protocol.invalidManifest = false;
+      expect(await service.getMaterials(_courseA), isEmpty);
+    },
+  );
 }
 
 class _FakeISchoolProtocol extends Interceptor {
@@ -265,6 +295,8 @@ class _FakeISchoolProtocol extends Interceptor {
   bool failNextSwitch = false;
   bool expireNextRoster = false;
   bool courseListWithoutSelector = false;
+  bool invalidManifest = false;
+  RequestOptions? manifestOptions;
 
   @override
   void onRequest(
@@ -333,9 +365,16 @@ class _FakeISchoolProtocol extends Interceptor {
       return;
     }
     if (path.endsWith('path/SCORM_loadCA.php')) {
+      manifestOptions = options;
       manifestCourse = selectedCourse;
       handler.resolve(
-        Response(requestOptions: options, data: '<manifest/>', statusCode: 200),
+        Response(
+          requestOptions: options,
+          data: invalidManifest
+              ? '<html><script src="/TSPD/challenge"></script></html>'
+              : '<manifest/>',
+          statusCode: 200,
+        ),
       );
       return;
     }

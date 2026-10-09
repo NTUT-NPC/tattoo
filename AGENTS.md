@@ -149,6 +149,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **I-School Plus selected course:** `goto_course.php` changes mutable server-side session state. The Service serializes each course-scoped operation from course selection through its final dependent HTTP request, including roster and material calls. A failed course switch or expired session invalidates the cached selected ID. Keep this protocol synchronization in the Service, not CourseRepository.
 
+**I-School Plus material manifest:** `path/SCORM_loadCA.php` requires the material page Referer (`https://istudy.ntut.edu.tw/learn/path/launch.php`); without it the server may return an HTML browser challenge with HTTP 200. Validate the manifest element before treating the response as a successful, possibly empty material list.
+
 **Connection: close:** PortalService uses `Connection: close` header. NTUT portal servers close keep-alive connections after multipart uploads, causing stale socket errors if Dart's HTTP client tries to reuse them.
 
 ### NTUT Portal apOu Codes

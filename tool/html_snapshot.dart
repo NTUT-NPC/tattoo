@@ -471,6 +471,7 @@ class SnapshotContext {
       options: Options(
         method: request.method,
         contentType: request.contentType,
+        headers: request.headers,
       ),
     );
   }
@@ -636,6 +637,7 @@ class SnapshotRequest {
   final Map<String, dynamic>? query;
   final Object? data;
   final String? contentType;
+  final Map<String, String>? headers;
   final List<String> fileParts;
   final List<SnapshotRequest> beforeRequests;
 
@@ -647,6 +649,7 @@ class SnapshotRequest {
     this.query,
     this.data,
     this.contentType,
+    this.headers,
     this.fileParts = const [],
     this.beforeRequests = const [],
   });
