@@ -24,6 +24,11 @@
       "enabled": false
     },
     {
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["ruby/setup-ruby"],
+      "pinDigests": false
+    },
+    {
       "matchManagers": ["pub"],
       "groupName": "Flutter dependencies",
       "groupSlug": "pub",

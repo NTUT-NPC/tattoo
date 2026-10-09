@@ -63,7 +63,7 @@ runs:
 
     - name: Setup Ruby
       if: ${{ inputs.platform == 'ios' }}
-      uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+      uses: ruby/setup-ruby@v1
       with:
         bundler-cache: true
       env:
