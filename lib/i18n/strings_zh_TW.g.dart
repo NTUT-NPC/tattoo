@@ -1609,6 +1609,9 @@ class Translations$courseTable$detail$materials$zh_TW {
 
 	// Translations
 
+	/// zh-TW: '重新整理'
+	String get refresh => '重新整理';
+
 	/// zh-TW: '目前沒有教材'
 	String get empty => '目前沒有教材';
 
@@ -1856,6 +1859,7 @@ extension on Translations {
 			'courseTable.detail.roster.updateFailed' => '無法更新同學名單，仍顯示先前的資料。',
 			'courseTable.detail.roster.updateSuccess' => '同學名單已更新。',
 			'courseTable.detail.roster.backToRoster' => '返回同學名單',
+			'courseTable.detail.materials.refresh' => '重新整理',
 			'courseTable.detail.materials.empty' => '目前沒有教材',
 			'courseTable.detail.materials.loadFailed' => '無法載入教材清單。',
 			'courseTable.detail.materials.networkSnackbar' => '正在嘗試更新教材清單。此功能需要連接學校網路。',

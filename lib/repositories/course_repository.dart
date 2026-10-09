@@ -65,7 +65,7 @@ typedef CourseMaterialList = ({
   List<CourseMaterial> materials,
   DateTime? fetchedAt,
 });
-const courseMaterialsTtl = Duration(minutes: 15);
+const courseMaterialsTtl = Duration(minutes: 2);
 
 /// Data for a single cell in the course table grid.
 typedef CourseTableCellData = ({

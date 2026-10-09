@@ -160,6 +160,7 @@ courseTable:
       updateSuccess: Course roster updated.
       backToRoster: Back to Course Roster
     materials:
+      refresh: Refresh
       empty: No course materials available
       loadFailed: Unable to load course materials.
       networkSnackbar: Trying to update course materials. This feature requires the campus network.

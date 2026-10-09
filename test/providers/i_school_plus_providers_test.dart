@@ -299,6 +299,76 @@ void main() {
       expect(service.materialsCalls, 0);
       expect(service.availabilityCalls, 0);
     });
+    test('materials older than two minutes refresh automatically', () async {
+      await repository.refreshMaterials(
+        courseOfferingId: key.courseOfferingId,
+        courseNumber: key.courseNumber,
+      );
+      await (database.update(
+        database.courseOfferings,
+      )..where((r) => r.id.equals(key.courseOfferingId))).write(
+        CourseOfferingsCompanion(
+          materialsFetchedAt: Value(
+            DateTime.now().subtract(const Duration(minutes: 3)),
+          ),
+        ),
+      );
+      service.resetCalls();
+      final refresh = container.read(
+        courseMaterialsRefreshProvider(key).future,
+      );
+      await container.read(courseMaterialsAvailabilityProvider(key).future);
+      expect(await refresh, (refreshed: true, hadCacheAtStart: true));
+      expect(service.materialsCalls, 1);
+      expect(service.availabilityCalls, 1);
+    });
+
+    test('manual materials refresh bypasses a fresh cache', () async {
+      await repository.refreshMaterials(
+        courseOfferingId: key.courseOfferingId,
+        courseNumber: key.courseNumber,
+      );
+      service.resetCalls();
+      expect(await repository.areMaterialsFresh(key.courseOfferingId), isTrue);
+      final refresh = container.read(
+        courseMaterialsManualRefreshProvider(key).future,
+      );
+      await container.read(
+        courseMaterialsManualAvailabilityProvider(key).future,
+      );
+      expect(await refresh, (refreshed: true, hadCacheAtStart: true));
+      expect(service.materialsCalls, 1);
+      expect(service.availabilityCalls, 1);
+      expect(service.studentsCalls, 0);
+    });
+
+    test(
+      'manual materials probe leaves the mounted roster probe alone',
+      () async {
+        final rosterProbe = courseStudentRosterAvailabilityProvider(key);
+        var rosterProbeEvents = 0;
+        final subscription = container.listen(
+          rosterProbe,
+          (_, _) => rosterProbeEvents++,
+        );
+        await container.read(rosterProbe.future);
+        final settledEvents = rosterProbeEvents;
+        service.availabilityError = Exception('manual probe failed');
+
+        await expectLater(
+          container.read(courseMaterialsManualAvailabilityProvider(key).future),
+          throwsA(isA<Exception>()),
+        );
+        await container.pump();
+
+        expect(service.availabilityCalls, 2);
+        expect(rosterProbeEvents, settledEvents);
+        expect(container.read(rosterProbe).hasError, isFalse);
+        expect(service.studentsCalls, 0);
+        subscription.close();
+      },
+    );
+
     test(
       'reopening materials during refresh does not start another request',
       () async {
