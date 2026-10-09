@@ -84,28 +84,5 @@ void main() {
         expect(await store.read(key), isNull);
       }
     });
-
-    test('migrates the released roster guide preference key', () async {
-      final originalInstance = SharedPreferencesAsyncPlatform.instance;
-      addTearDown(() {
-        SharedPreferencesAsyncPlatform.instance = originalInstance;
-      });
-      SharedPreferencesAsyncPlatform.instance =
-          InMemorySharedPreferencesAsync.withData({
-            'courseRosterGuideUrl': 'https://example.com/guide',
-          });
-      final preferences = SharedPreferencesAsync();
-      final store = TypedPreferenceStore(preferences);
-
-      expect(
-        await store.read(PrefKey.iSchoolPlusNetworkGuideUrl),
-        'https://example.com/guide',
-      );
-      expect(await preferences.getString('courseRosterGuideUrl'), isNull);
-      expect(
-        await preferences.getString('iSchoolPlusNetworkGuideUrl'),
-        'https://example.com/guide',
-      );
-    });
   });
 }
