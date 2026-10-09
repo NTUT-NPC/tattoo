@@ -612,6 +612,7 @@ class _Translations$courseTable$detail$en_US extends Translations$courseTable$de
 	// Translations
 	@override late final _Translations$courseTable$detail$tabs$en_US tabs = _Translations$courseTable$detail$tabs$en_US._(_root);
 	@override late final _Translations$courseTable$detail$roster$en_US roster = _Translations$courseTable$detail$roster$en_US._(_root);
+	@override late final _Translations$courseTable$detail$materials$en_US materials = _Translations$courseTable$detail$materials$en_US._(_root);
 }
 
 // Path: courseTable.summary
@@ -950,6 +951,7 @@ class _Translations$courseTable$detail$tabs$en_US extends Translations$courseTab
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get materials => 'Materials';
 	@override String get roster => 'Course Roster';
 	@override String get syllabus => 'Syllabus';
 }
@@ -969,6 +971,30 @@ class _Translations$courseTable$detail$roster$en_US extends Translations$courseT
 	@override String get updateFailed => 'Unable to update the course roster. Previously cached data is still shown.';
 	@override String get updateSuccess => 'Course roster updated.';
 	@override String get backToRoster => 'Back to Course Roster';
+}
+
+// Path: courseTable.detail.materials
+class _Translations$courseTable$detail$materials$en_US extends Translations$courseTable$detail$materials$zh_TW {
+	_Translations$courseTable$detail$materials$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get refresh => 'Refresh';
+	@override String get empty => 'No course materials available';
+	@override String get loadFailed => 'Unable to load course materials.';
+	@override String get networkSnackbar => 'Trying to update course materials. This feature requires the campus network.';
+	@override String get updateFailed => 'Unable to update course materials. This feature requires the campus network.';
+	@override String get updateSuccess => 'Course materials updated.';
+	@override String get backToMaterials => 'Back to course materials';
+	@override String get streamUnavailable => 'Course recordings cannot be downloaded due to system limitations.';
+	@override String get download => 'Download';
+	@override String get downloading => 'Downloading…';
+	@override String get saving => 'Choose a save location…';
+	@override String get cancel => 'Cancel';
+	@override late final _Translations$courseTable$detail$materials$saved$en_US saved = _Translations$courseTable$detail$materials$saved$en_US._(_root);
+	@override String get downloadFailed => 'Unable to download or save this material. This feature requires the campus network.';
+	@override String get unnamed => 'Untitled material';
 }
 
 // Path: profile.dangerZone.items
@@ -998,6 +1024,17 @@ class _Translations$changePassword$errors$server$en_US extends Translations$chan
 	@override String get sameAsUsername => 'Password cannot be the same as your student ID';
 	@override String get length => 'Password length must be between 8 and 14 characters';
 	@override String get complexity => 'Password must contain uppercase, lowercase, numbers, and symbols';
+}
+
+// Path: courseTable.detail.materials.saved
+class _Translations$courseTable$detail$materials$saved$en_US extends Translations$courseTable$detail$materials$saved$zh_TW {
+	_Translations$courseTable$detail$materials$saved$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get ios => 'Saved to the Files app.';
+	@override String get other => 'Course material saved.';
 }
 
 /// The flat map containing all translations for locale <en-US>.
@@ -1128,6 +1165,7 @@ extension on TranslationsEnUs {
 			'calendar.today' => 'Today',
 			'courseTable.notFound' => 'Course table not found',
 			'courseTable.unscheduled' => 'Unscheduled Courses',
+			'courseTable.detail.tabs.materials' => 'Materials',
 			'courseTable.detail.tabs.roster' => 'Course Roster',
 			'courseTable.detail.tabs.syllabus' => 'Syllabus',
 			'courseTable.detail.roster.studentId' => 'Student ID',
@@ -1138,6 +1176,22 @@ extension on TranslationsEnUs {
 			'courseTable.detail.roster.updateFailed' => 'Unable to update the course roster. Previously cached data is still shown.',
 			'courseTable.detail.roster.updateSuccess' => 'Course roster updated.',
 			'courseTable.detail.roster.backToRoster' => 'Back to Course Roster',
+			'courseTable.detail.materials.refresh' => 'Refresh',
+			'courseTable.detail.materials.empty' => 'No course materials available',
+			'courseTable.detail.materials.loadFailed' => 'Unable to load course materials.',
+			'courseTable.detail.materials.networkSnackbar' => 'Trying to update course materials. This feature requires the campus network.',
+			'courseTable.detail.materials.updateFailed' => 'Unable to update course materials. This feature requires the campus network.',
+			'courseTable.detail.materials.updateSuccess' => 'Course materials updated.',
+			'courseTable.detail.materials.backToMaterials' => 'Back to course materials',
+			'courseTable.detail.materials.streamUnavailable' => 'Course recordings cannot be downloaded due to system limitations.',
+			'courseTable.detail.materials.download' => 'Download',
+			'courseTable.detail.materials.downloading' => 'Downloading…',
+			'courseTable.detail.materials.saving' => 'Choose a save location…',
+			'courseTable.detail.materials.cancel' => 'Cancel',
+			'courseTable.detail.materials.saved.ios' => 'Saved to the Files app.',
+			'courseTable.detail.materials.saved.other' => 'Course material saved.',
+			'courseTable.detail.materials.downloadFailed' => 'Unable to download or save this material. This feature requires the campus network.',
+			'courseTable.detail.materials.unnamed' => 'Untitled material',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',

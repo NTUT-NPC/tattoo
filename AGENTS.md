@@ -64,6 +64,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - CourseService — 課程系統 (`aa_0010-oauth`). Course catalog, schedules, teacher profiles, syllabi. All HTML-parsed.
 - ISchoolPlusService — 北科i學園PLUS (`ischool_plus_oauth`). Course rosters and materials.
 - StudentQueryService — 學生查詢專區 (`sa_003_oauth`). Academic records, GPA, rankings, registration history.
+- FileSaveService — Downloads are staged in a unique temporary directory, then exported through the same `flutter_file_dialog` native save dialog on Android and iOS. Cancellation and failures remove the temporary directory. CourseRepository coordinates authenticated material downloads and export. The material list shows titles and download actions, shares the detail sheet's outer scroll, and resolves access only after a row is tapped; tapping an iStream recording displays an unavailable-download message.
 - GitHubService — fetches repo contributors, filters bots
 - FirebaseService — Unified wrapper for Firebase Analytics, Crashlytics, and Remote Config. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`). `getRemoteConfigTyped(key, PrefType)` casts a Remote Config value to the caller's declared type (no sniffing), returning `(value: null, isRemote: false)` when disabled or not remotely set.
 - CampusWifiPlatform — Method-channel client wrapper that exposes Android-only system Wi-Fi APIs (suggestions and settings) to the Dart application via the `campusWifiPlatformProvider` Riverpod provider and structured method-channel DTOs (`CampusWifiCapabilitiesDto`, `Ntut8021xProvisioningDto`).
@@ -78,7 +79,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 - AuthRepository — User identity, session, profile. Lazy auth via `withAuth<T>()` with SSO and re-auth coalescing (Completer pattern). Session persistence via flutter_secure_storage. When the database user row is missing, startup revalidates secure credentials and then old TAT's `UserDataJsonKey` payload to rebuild it. Successful legacy migration and logout remove the plaintext payload; transient network failures retain credentials and open login. Never-completing future on auth failure is harmless because session-scoped providers are already being disposed.
 - PreferencesRepository — Typed `PrefKey<T>` enum resolved through a source stack (forced > local override > Remote Config > declared default). Feature flags are unified here: Remote Config is a control layer over `PrefKey`, not a separate system. App-scoped; cloud sync embeds only the user's explicitly-set values in the avatar payload, and runs only while logged in.
-- CourseRepository — Course catalog, schedules, and offering details. Normalizes bilingual names from multiple sources (catalog vs offering). Layout computation for course table grid (multi-period spans, noon-crossing, unscheduled courses).
+- CourseRepository — Course catalog, schedules, and offering details. Normalizes bilingual names from multiple sources (catalog vs offering). Layout computation for course table grid (multi-period spans, noon-crossing, unscheduled courses). Caches iSchool+ rosters and material references with separate per-offering timestamps. Material lists have a two-minute TTL; their bottom refresh button bypasses the TTL while retaining cached content during the request. Material access URLs are resolved on demand and never persisted; only the stream/file classification is cached.
 - CalendarRepository — Academic calendar events from NTUT portal. Sliding window caching keyed to enrolled semesters.
 - StudentRepository — Academic records, GPA, rankings. Parallel course code resolution via CourseRepository.getCourse().
 - CampusWifiRepository — Platform-specific provisioner configuration and status for NTUT-802.1X campus Wi-Fi. Interacts directly with platform APIs, returning one-shot configuration status rather than using the `watchX()`/`refreshX()` cache pattern.
@@ -148,6 +149,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **I-School Plus selected course:** `goto_course.php` changes mutable server-side session state. The Service serializes each course-scoped operation from course selection through its final dependent HTTP request, including roster and material calls. A failed course switch or expired session invalidates the cached selected ID. Keep this protocol synchronization in the Service, not CourseRepository.
 
+**I-School Plus material manifest:** `path/SCORM_loadCA.php` requires the material page Referer (`https://istudy.ntut.edu.tw/learn/path/launch.php`); without it the server may return an HTML browser challenge with HTTP 200. Validate the manifest element before treating the response as a successful, possibly empty material list. Resource hrefs can expire after session changes; when resource resolution fails, retry once with the current manifest only if the material title matches exactly one item. Never guess between duplicate titles. Export filenames use the material title while retaining the attachment's extension.
+
 **Connection: close:** PortalService uses `Connection: close` header. NTUT portal servers close keep-alive connections after multipart uploads, causing stale socket errors if Dart's HTTP client tries to reuse them.
 
 ### NTUT Portal apOu Codes
@@ -158,4 +161,4 @@ These apOu codes are the SSO target identifiers used by PortalService to obtain 
 
 ## Backlog
 
-Open work is tracked in [GitHub Issues](https://github.com/NTUT-NPC/tattoo/issues). Key areas: remaining NTUT service methods (ISchoolPlus announcements, StudentQuery extensions), repository layer gaps (materials, rosters), and file download infrastructure.
+Open work is tracked in [GitHub Issues](https://github.com/NTUT-NPC/tattoo/issues). Key areas: remaining NTUT service methods (ISchoolPlus announcements, StudentQuery extensions) and file download infrastructure beyond course materials.

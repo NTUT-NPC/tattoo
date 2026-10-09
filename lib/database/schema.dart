@@ -491,6 +491,8 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
 
   /// Last time the I-School Plus student roster was refreshed successfully.
   late final studentRosterFetchedAt = dateTime().nullable()();
+
+  late final materialsFetchedAt = dateTime().nullable()();
 }
 
 // Junction tables and dependent tables
@@ -835,6 +837,10 @@ class Materials extends Table with AutoIncrementId {
   /// This is an encoded identifier from the SCORM manifest.
   /// This value is used internally by I-School Plus to locate the resource.
   late final href = text().nullable()();
+
+  late final iSchoolCourseId = text().nullable()();
+
+  late final streamable = boolean().nullable()();
 
   @override
   List<Set<Column>> get uniqueKeys => [
