@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -7,6 +9,7 @@ import 'package:tattoo/database/database.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/services/course/mock_course_service.dart';
+import 'package:tattoo/services/file_save_service.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/services/i_school_plus/mock_i_school_plus_service.dart';
@@ -43,6 +46,10 @@ void main() {
         database: database,
         authRepository: authRepository,
         firebaseService: const FirebaseService(),
+        fileSaveService: FileSaveService(
+          temporaryDirectory: () async => Directory.systemTemp,
+          saveFile: (_, _) async => "saved",
+        ),
       );
 
       final semester = await database.getOrCreateSemester(114, 1);
@@ -172,6 +179,41 @@ void main() {
         );
       },
     );
+
+    for (final error in [
+      UnsupportedError('iStream'),
+      const FileSystemException('Disk full'),
+    ]) {
+      test(
+        'local download error $error does not trigger reauthentication',
+        () async {
+          await repository.refreshMaterials(
+            courseOfferingId: courseOfferingId,
+            courseNumber: '352902',
+          );
+          final material =
+              (await repository.watchMaterials(courseOfferingId).first)
+                  .materials
+                  .first;
+          iSchoolPlusService.downloadError = error;
+          await expectLater(
+            repository
+                .saveMaterial(material)
+                .timeout(const Duration(seconds: 2)),
+            throwsA(same(error)),
+          );
+          if (error is UnsupportedError) {
+            expect(
+              (await repository.watchMaterials(courseOfferingId).first)
+                  .materials
+                  .first
+                  .streamable,
+              isTrue,
+            );
+          }
+        },
+      );
+    }
 
     test('refreshes and watches a normalized roster', () async {
       iSchoolPlusService.studentsResult = [
@@ -356,6 +398,23 @@ class _TestISchoolPlusService extends MockISchoolPlusService {
   Object? studentsError;
   int studentsCalls = 0;
   Object? materialsError;
+  Object? downloadError;
+  @override
+  Future<MaterialFileDto> downloadMaterial(
+    MaterialRefDto material,
+    String directory, {
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    if (downloadError case final error?) throw error;
+    return super.downloadMaterial(
+      material,
+      directory,
+      cancelToken: cancelToken,
+      onReceiveProgress: onReceiveProgress,
+    );
+  }
+
   @override
   Future<List<MaterialRefDto>> getMaterials(ISchoolCourseDto course) async {
     if (materialsError case final error?) throw error;

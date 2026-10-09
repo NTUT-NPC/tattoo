@@ -1,6 +1,7 @@
 // ignore_for_file: unused_field
 
 import 'dart:async';
+import 'dart:io' show FileSystemException;
 import 'dart:math';
 
 import 'package:dio/dio.dart' show CancelToken, ProgressCallback;
@@ -1447,17 +1448,36 @@ class CourseRepository {
   }) async {
     final reference = await _materialReference(material);
     return _fileSaveService.saveDownloadedFile((directory) async {
-      final file = await _authRepository.withAuth(
-        () => _iSchoolPlusService.downloadMaterial(
-          reference,
-          directory,
-          cancelToken: cancelToken,
-          onReceiveProgress: onReceiveProgress,
-        ),
-        sso: [.iSchoolPlusService],
-      );
+      Object? localError;
+      StackTrace? localStackTrace;
+      final file = await _authRepository.withAuth<MaterialFileDto?>(() async {
+        try {
+          return await _iSchoolPlusService.downloadMaterial(
+            reference,
+            directory,
+            cancelToken: cancelToken,
+            onReceiveProgress: onReceiveProgress,
+          );
+        } on UnsupportedError catch (error, stackTrace) {
+          localError = error;
+          localStackTrace = stackTrace;
+          return null;
+        } on FileSystemException catch (error, stackTrace) {
+          localError = error;
+          localStackTrace = stackTrace;
+          return null;
+        }
+      }, sso: [.iSchoolPlusService]);
+      if (localError case final error?) {
+        if (error is UnsupportedError) {
+          await (_database.update(_database.materials)
+                ..where((row) => row.id.equals(material.id)))
+              .write(const MaterialsCompanion(streamable: Value(true)));
+        }
+        Error.throwWithStackTrace(error, localStackTrace!);
+      }
       if (cancelToken?.isCancelled != true) onSaving?.call();
-      return file;
+      return file!;
     }, canSave: () => cancelToken?.isCancelled != true);
   }
 
