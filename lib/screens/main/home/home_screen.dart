@@ -15,7 +15,6 @@ import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/course_schedule.dart';
-import 'package:tattoo/utils/launch_url.dart';
 
 class MainHomeScreen extends ConsumerStatefulWidget {
   const MainHomeScreen({super.key});
@@ -83,46 +82,6 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final options = [
-      OptionEntryTile.svg(
-        svgIconAsset: "assets/tat_icon.svg",
-        actionIcon: .exitToApp,
-        title: t.home.projectTattoo.title.spaced,
-        description: t.home.projectTattoo.description,
-        onTap: () => launchUrl(
-          .parse(t.home.projectTattoo.url),
-          inExternalApplication: true,
-        ),
-      ),
-      OptionEntryTile.icon(
-        icon: Icons.explore_outlined,
-        actionIcon: .exitToApp,
-        title: t.home.ideation.title.spaced,
-        description: t.home.ideation.description,
-        onTap: () => launchUrl(
-          .parse(t.home.ideation.url),
-        ),
-      ),
-      OptionEntryTile.svg(
-        svgIconAsset: "assets/npc_logo.svg",
-        actionIcon: .exitToApp,
-        title: t.home.npcClub.title,
-        description: t.home.npcClub.description,
-        onTap: () =>
-            launchUrl(.parse(t.home.npcClub.url), inExternalApplication: true),
-      ),
-      OptionEntryTile.svg(
-        svgIconAsset: "assets/student_union_simple.svg",
-        title: t.studentUnion.title,
-        description: t.studentUnion.description,
-        onTap: () => context.push(AppRoutes.studentUnion),
-      ),
-      if (ref.pref(PrefKey.showVoteButton))
-        OptionEntryTile.icon(
-          icon: Icons.how_to_vote_outlined,
-          title: t.nav.vote,
-          description: t.home.vote.description.spaced,
-          onTap: () => context.push(AppRoutes.kioskLoginQr),
-        ),
       if (ref.pref(PrefKey.showScannerButton))
         OptionEntryTile.icon(
           icon: Icons.qr_code_scanner,
@@ -132,13 +91,13 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
       if (ref.pref(PrefKey.showPortalButton))
         OptionEntryTile.icon(
           icon: Icons.switch_access_shortcut_outlined,
-          title: t.nav.portal,
+          title: t.nav.portal.spaced,
           onTap: () => context.push(AppRoutes.portal),
         ),
       if (ref.pref(PrefKey.showCalendarButton))
         OptionEntryTile.icon(
           icon: Icons.calendar_month,
-          title: t.nav.calendar,
+          title: t.nav.calendar.spaced,
           onTap: () => context.push(AppRoutes.calendar),
         ),
       if (Theme.of(context).platform == TargetPlatform.android &&
@@ -148,6 +107,18 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
           title: t.home.campusWifi.spaced,
           onTap: () => context.push(AppRoutes.ntutWifi),
         ),
+      OptionEntryTile.svg(
+        svgIconAsset: "assets/student_union_simple.svg",
+        title: t.studentUnion.title.spaced,
+        description: t.studentUnion.description,
+        onTap: () => context.push(AppRoutes.studentUnion),
+      ),
+      OptionEntryTile.svg(
+        svgIconAsset: "assets/tat_icon.svg",
+        title: t.home.about.title.spaced,
+        description: t.home.about.description.spaced,
+        onTap: () => context.push(AppRoutes.about),
+      ),
     ];
 
     return Scaffold(
