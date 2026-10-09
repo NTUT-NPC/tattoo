@@ -13,30 +13,30 @@ class StudentUnionScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => LinkSetScreen(
     logo: SvgPicture.asset('assets/student_union_simple.svg'),
-    title: t.$wip('學生會專區'),
-    description: t.$wip('學生權益相關連結'),
+    title: t.studentUnion.title,
+    description: t.studentUnion.description,
     links: [
       (
         id: 'campus_affairs_feedback',
-        title: t.$wip('校園事務轉達單'),
+        title: t.studentUnion.campusAffairsFeedback,
         icon: null,
         url: 'https://docs.google.com/forms/d/e/1FAIpQLSee6Vp1wFUWUzZEs-ov1ZtSacQdJ97BC2LF3EOhQr5mPhiBeA/viewform',
       ),
       (
         id: 'student_rights_case_tracker',
-        title: t.$wip('學權部案件追蹤系統'),
+        title: t.studentUnion.studentRightsCaseTracker,
         icon: null,
         url: 'https://script.google.com/macros/s/AKfycbznygYbYThagK-qaBHgItduEiDU8MijkQDlPeMmUbexBAIF27YTaDTDCNUvkO_-_ddrQA/exec',
       ),
       (
         id: 'student_council_meeting_documents',
-        title: t.$wip('學生議會會議文件'),
+        title: t.studentUnion.studentCouncilMeetingDocuments,
         icon: null,
         url: null,
       ),
       (
         id: 'upcoming_school_policies',
-        title: t.$wip('學校預計推出政策'),
+        title: t.studentUnion.upcomingSchoolPolicies,
         icon: null,
         url: null,
       ),

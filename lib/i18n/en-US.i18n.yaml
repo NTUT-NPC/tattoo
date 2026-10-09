@@ -114,6 +114,13 @@ home:
   campusWifi: Connect to Campus Wi-Fi
   vote:
     description: Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.
+studentUnion:
+  title: Student Union
+  description: Student rights and campus resources
+  campusAffairsFeedback: Campus Affairs Feedback Form
+  studentRightsCaseTracker: Student Rights Case Tracker
+  studentCouncilMeetingDocuments: Student Council Meeting Documents
+  upcomingSchoolPolicies: Upcoming School Policies
 score:
   loadFailed: Failed to load scores
   refreshFailed: Failed to refresh scores

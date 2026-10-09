@@ -112,8 +112,8 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
       ),
       OptionEntryTile.svg(
         svgIconAsset: "assets/student_union_simple.svg",
-        title: t.$wip('學生會專區'),
-        description: t.$wip('學生權益相關連結'),
+        title: t.studentUnion.title,
+        description: t.studentUnion.description,
         onTap: () => context.push(AppRoutes.studentUnion),
       ),
       if (ref.pref(PrefKey.showVoteButton))

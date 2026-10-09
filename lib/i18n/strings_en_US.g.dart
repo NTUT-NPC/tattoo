@@ -47,6 +47,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$nav$en_US nav = _Translations$nav$en_US._(_root);
 	@override late final _Translations$portal$en_US portal = _Translations$portal$en_US._(_root);
 	@override late final _Translations$home$en_US home = _Translations$home$en_US._(_root);
+	@override late final _Translations$studentUnion$en_US studentUnion = _Translations$studentUnion$en_US._(_root);
 	@override late final _Translations$score$en_US score = _Translations$score$en_US._(_root);
 	@override late final _Translations$calendar$en_US calendar = _Translations$calendar$en_US._(_root);
 	@override late final _Translations$courseTable$en_US courseTable = _Translations$courseTable$en_US._(_root);
@@ -204,6 +205,21 @@ class _Translations$home$en_US extends Translations$home$zh_TW {
 	@override late final _Translations$home$npcClub$en_US npcClub = _Translations$home$npcClub$en_US._(_root);
 	@override String get campusWifi => 'Connect to Campus Wi-Fi';
 	@override late final _Translations$home$vote$en_US vote = _Translations$home$vote$en_US._(_root);
+}
+
+// Path: studentUnion
+class _Translations$studentUnion$en_US extends Translations$studentUnion$zh_TW {
+	_Translations$studentUnion$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Student Union';
+	@override String get description => 'Student rights and campus resources';
+	@override String get campusAffairsFeedback => 'Campus Affairs Feedback Form';
+	@override String get studentRightsCaseTracker => 'Student Rights Case Tracker';
+	@override String get studentCouncilMeetingDocuments => 'Student Council Meeting Documents';
+	@override String get upcomingSchoolPolicies => 'Upcoming School Policies';
 }
 
 // Path: score
@@ -1102,6 +1118,12 @@ extension on TranslationsEnUs {
 			'home.npcClub.url' => 'https://ntut.club',
 			'home.campusWifi' => 'Connect to Campus Wi-Fi',
 			'home.vote.description' => 'Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.',
+			'studentUnion.title' => 'Student Union',
+			'studentUnion.description' => 'Student rights and campus resources',
+			'studentUnion.campusAffairsFeedback' => 'Campus Affairs Feedback Form',
+			'studentUnion.studentRightsCaseTracker' => 'Student Rights Case Tracker',
+			'studentUnion.studentCouncilMeetingDocuments' => 'Student Council Meeting Documents',
+			'studentUnion.upcomingSchoolPolicies' => 'Upcoming School Policies',
 			'score.loadFailed' => 'Failed to load scores',
 			'score.refreshFailed' => 'Failed to refresh scores',
 			'score.noRecords' => 'No score records found',

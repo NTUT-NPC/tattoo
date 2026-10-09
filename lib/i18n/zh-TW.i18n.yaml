@@ -114,6 +114,13 @@ home:
   campusWifi: 連接校園Wi-Fi
   vote:
     description: 學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！
+studentUnion:
+  title: 學生會專區
+  description: 學生權益相關連結
+  campusAffairsFeedback: 校園事務轉達單
+  studentRightsCaseTracker: 學權部案件追蹤系統
+  studentCouncilMeetingDocuments: 學生議會會議文件
+  upcomingSchoolPolicies: 學校預計推出政策
 score:
   loadFailed: 成績載入失敗
   refreshFailed: 成績更新失敗
