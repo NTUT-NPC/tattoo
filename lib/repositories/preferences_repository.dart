@@ -80,6 +80,9 @@ enum PrefKey<T> {
   /// Whether the I-School Plus student roster is shown in course details.
   showCourseRoster<bool>(.boolean, true),
 
+  /// Whether I-School Plus materials are shown in course details.
+  showCourseMaterials<bool>(.boolean, true),
+
   /// Link to instructions for connecting to the NTUT network remotely.
   iSchoolPlusNetworkGuideUrl<String>(.string, defaultISchoolPlusNetworkGuideUrl),
 

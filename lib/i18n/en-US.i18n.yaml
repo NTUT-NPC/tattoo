@@ -147,6 +147,7 @@ courseTable:
   unscheduled: Unscheduled Courses
   detail:
     tabs:
+      materials: Materials
       roster: Course Roster
       syllabus: Syllabus
     roster:
@@ -158,6 +159,26 @@ courseTable:
       updateFailed: Unable to update the course roster. Previously cached data is still shown.
       updateSuccess: Course roster updated.
       backToRoster: Back to Course Roster
+    materials:
+      empty: No course materials available
+      loadFailed: Unable to load course materials.
+      networkSnackbar: Trying to update course materials. This feature requires the campus network.
+      updateFailed: Unable to update course materials. Showing previously saved data.
+      updateSuccess: Course materials updated.
+      backToMaterials: Back to course materials
+      file: File
+      stream: Stream
+      streamUnavailable: Streaming playback and download are not supported yet
+      resolving: Checking material type…
+      resolveFailed: Unable to identify material type
+      retry: Retry
+      download: Download
+      downloading: Downloading…
+      saving: Choose a save location…
+      cancel: Cancel
+      saved: Course material saved.
+      downloadFailed: Unable to download or save this material. Please try again later.
+      unnamed: Untitled material
   summary:
     credits(plural, param=count):
       one: ${count} credit

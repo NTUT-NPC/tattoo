@@ -147,6 +147,7 @@ courseTable:
   unscheduled: 未安排時間的課程
   detail:
     tabs:
+      materials: 教材清單
       roster: 同學名單
       syllabus: 課程大綱
     roster:
@@ -158,6 +159,26 @@ courseTable:
       updateFailed: 無法更新同學名單，仍顯示先前的資料。
       updateSuccess: 同學名單已更新。
       backToRoster: 返回同學名單
+    materials:
+      empty: 目前沒有教材
+      loadFailed: 無法載入教材清單。
+      networkSnackbar: 正在嘗試更新教材清單。此功能需要連接學校網路。
+      updateFailed: 無法更新教材清單，仍顯示先前的資料。
+      updateSuccess: 教材清單已更新。
+      backToMaterials: 返回教材清單
+      file: 檔案
+      stream: 串流
+      streamUnavailable: 尚未支援串流播放或下載
+      resolving: 正在確認教材類型…
+      resolveFailed: 無法確認教材類型
+      retry: 重試
+      download: 下載
+      downloading: 正在下載…
+      saving: 選擇儲存位置…
+      cancel: 取消
+      saved: 教材已儲存。
+      downloadFailed: 無法下載或儲存教材，請稍後重試。
+      unnamed: 未命名教材
   summary:
     credits(plural, param=count):
       one: ${count}學分
