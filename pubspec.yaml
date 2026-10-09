@@ -78,7 +78,6 @@ flutter:
   assets:
     - assets/
     - assets/fonts/
-    - assets/certificates/
   fonts:
     - family: NotoSansTC
       fonts:

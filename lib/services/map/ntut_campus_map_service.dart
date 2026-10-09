@@ -3,50 +3,42 @@ import 'dart:math';
 
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:tattoo/services/map/campus_map_parser.dart';
 import 'package:tattoo/services/map/campus_map_service.dart';
 import 'package:tattoo/utils/http.dart';
 import 'package:xml/xml.dart';
 
-/// The NTUT GeoServer WFS client with validated HTTPS and background parsing.
+/// The NTUT GeoServer WFS client.
 class NtutCampusMapService implements CampusMapService {
   /// Creates a client, optionally using an injected [dio] for protocol tests.
   ///
-  /// The caller owns an injected client. The default client uses native TLS on
-  /// mobile, as other NTUT services do. Desktop Dart TLS is supplied with the
-  /// missing TWCA intermediate; hostname and certificate validation stay on.
+  /// The caller owns an injected client. The default client uses Dart's TLS
+  /// stack on every platform and accepts an invalid certificate only for the
+  /// GeoServer host, whose server-side TLS setup is unreliable (it omits the
+  /// intermediate certificate from its chain). Other hosts are still validated.
   NtutCampusMapService({Dio? dio})
-    : _dio = dio ?? createDio(),
+    : _dio = dio ?? _createDio(),
       _ownsDio = dio == null;
 
   final Dio _dio;
   final bool _ownsDio;
-  Future<void>? _configuration;
 
   static const _endpoint = 'https://geoserver.oga.ntut.edu.tw/ows';
+  static const _endpointHost = 'geoserver.oga.ntut.edu.tw';
 
-  Future<void> _configure() => _configuration ??= () async {
-    if (!_ownsDio) return;
-    _dio.options.connectTimeout = const Duration(seconds: 15);
-    _dio.options.receiveTimeout = const Duration(seconds: 30);
-    if (!Platform.isAndroid && !Platform.isIOS) {
-      final certificate = await rootBundle.load(
-        'assets/certificates/twca_ssl_2023.pem',
-      );
-      final context = SecurityContext(withTrustedRoots: true)
-        ..setTrustedCertificatesBytes(certificate.buffer.asUint8List());
-      _dio.httpClientAdapter = IOHttpClientAdapter(
-        createHttpClient: () => HttpClient(context: context),
-      );
-    }
-  }();
+  static Dio _createDio() => createDio()
+    ..options.connectTimeout = const Duration(seconds: 15)
+    ..options.receiveTimeout = const Duration(seconds: 30)
+    ..httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: () =>
+          HttpClient()
+            ..badCertificateCallback = (_, host, _) => host == _endpointHost,
+    );
 
   Future<String> _request(
     String request, [
     Map<String, String>? parameters,
   ]) async {
-    await _configure();
     final response = await _dio.get<String>(
       _endpoint,
       queryParameters: {
