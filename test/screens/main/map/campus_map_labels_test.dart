@@ -44,6 +44,18 @@ void main() {
     }
   });
 
+  test('developer building menu preserves original names and annotates mapped values', () async {
+    expect(
+      campusMapBuildingMenuLabel('宏裕科技研究大樓'),
+      '宏裕科技研究大樓（宏裕科技大樓）',
+    );
+    expect(campusMapBuildingMenuLabel('圖書館'), '圖書館（圖書館）');
+    expect(campusMapBuildingMenuLabel('尚未翻譯的大樓'), '尚未翻譯的大樓');
+    await LocaleSettings.setLocale(AppLocale.enUs);
+    expect(campusMapBuildingMenuLabel('圖書館'), '圖書館（Library）');
+    expect(campusMapBuildingMenuLabel('尚未翻譯的大樓'), '尚未翻譯的大樓');
+  });
+
   test('room names use server translations and preserve Chinese when English is absent', () async {
     await LocaleSettings.setLocale(AppLocale.enUs);
     const room = CampusMapRoom(

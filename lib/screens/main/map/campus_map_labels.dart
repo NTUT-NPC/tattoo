@@ -9,6 +9,15 @@ import 'package:tattoo/utils/localized.dart';
 String campusMapBuildingName(String name) =>
     t.campusMap.buildingNames[name] ?? name;
 
+/// Formats a developer menu entry with its original [name] and mapped value.
+///
+/// A mapped value is annotated even when it equals [name], so the developer
+/// can distinguish an explicit translation from an original-name fallback.
+String campusMapBuildingMenuLabel(String name) {
+  final translation = t.campusMap.buildingNames[name];
+  return translation == null ? name : '$name（$translation）';
+}
+
 /// Chooses the localized space name, treating blank server fields as missing.
 String campusMapRoomName(CampusMapRoom room) => localized(
   room.nameZh.isEmpty ? null : room.nameZh,
