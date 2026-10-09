@@ -48,7 +48,7 @@ void main() {
       protocol.fileBody!.add(Uint8List.fromList([1, 2, 3, 4]));
       await protocol.fileBody!.close();
       final file = await download;
-      expect(file.fileName, 'notes.pdf');
+      expect(file.fileName, 'Lecture.pdf');
       expect(await File(file.path).readAsBytes(), [1, 2, 3, 4]);
       await roster;
       expect(protocol.switches, [_courseA.internalId, _courseB.internalId]);
@@ -256,6 +256,57 @@ void main() {
   );
 
   test(
+    'current launch pages expose the course access ID as a variable',
+    () async {
+      protocol.inlineCourseId = true;
+      expect(
+        (await service.getMaterial((
+          course: _courseA,
+          title: 'Video',
+          href: 'resource',
+        ))).streamable,
+        isTrue,
+      );
+    },
+  );
+
+  test('cached resource codes are renewed after the session changes', () async {
+    protocol.rotateResource = true;
+    final access = await service.getMaterial((
+      course: _courseA,
+      title: 'Lecture',
+      href: 'stale',
+    ));
+    expect(access.streamable, isTrue);
+    expect(protocol.requestedHrefs, ['@stale', '@resource']);
+    expect(protocol.switches, [_courseA.internalId]);
+  });
+
+  test('ambiguous titles never download a different resource', () async {
+    protocol.rotateResource = true;
+    protocol.duplicateMaterialTitle = true;
+    await expectLater(
+      service.getMaterial((course: _courseA, title: 'Lecture', href: 'stale')),
+      throwsA(isA<DioException>()),
+    );
+    expect(protocol.requestedHrefs, ['@stale']);
+  });
+
+  test('an invalid launch page reports a response error', () async {
+    protocol.invalidLaunch = true;
+    await expectLater(
+      service.getMaterial((course: _courseA, title: 'File', href: 'resource')),
+      throwsA(
+        isA<DioException>().having(
+          (e) => e.type,
+          'type',
+          DioExceptionType.badResponse,
+        ),
+      ),
+    );
+  });
+
+  test(
     'an HTML challenge cannot be treated as an empty material list',
     () async {
       protocol.invalidManifest = true;
@@ -296,6 +347,11 @@ class _FakeISchoolProtocol extends Interceptor {
   bool expireNextRoster = false;
   bool courseListWithoutSelector = false;
   bool invalidManifest = false;
+  bool inlineCourseId = false;
+  bool invalidLaunch = false;
+  bool rotateResource = false;
+  bool duplicateMaterialTitle = false;
+  final requestedHrefs = <String>[];
   RequestOptions? manifestOptions;
 
   @override
@@ -372,6 +428,11 @@ class _FakeISchoolProtocol extends Interceptor {
           requestOptions: options,
           data: invalidManifest
               ? '<html><script src="/TSPD/challenge"></script></html>'
+              : rotateResource
+              ? '<manifest><item identifierref="one"><title>Lecture</title></item>'
+                    '<resource identifier="one" href="resource"/>'
+                    '${duplicateMaterialTitle ? '<item identifierref="two"><title>Lecture</title></item><resource identifier="two" href="other"/>' : ''}'
+                    '</manifest>'
               : '<manifest/>',
           statusCode: 200,
         ),
@@ -383,7 +444,11 @@ class _FakeISchoolProtocol extends Interceptor {
         Response(
           requestOptions: options,
           statusCode: 200,
-          data: "location.replace('/learn/path/manifest.php?cid=course')",
+          data: invalidLaunch
+              ? '<html>Unavailable</html>'
+              : inlineCourseId
+              ? 'var cid = "course";'
+              : "location.replace('/learn/path/manifest.php?cid=course')",
         ),
       );
       return;
@@ -402,6 +467,18 @@ class _FakeISchoolProtocol extends Interceptor {
       return;
     }
     if (path.endsWith('path/SCORM_fetchResource.php')) {
+      final href = (options.data as Map)['href'] as String;
+      requestedHrefs.add(href);
+      if (rotateResource && href == '@stale') {
+        handler.resolve(
+          Response(
+            requestOptions: options,
+            statusCode: 200,
+            data: '<html>Expired material reference</html>',
+          ),
+        );
+        return;
+      }
       materialFetchCourse = selectedCourse;
       if (pauseNextMaterialFetch) {
         pauseNextMaterialFetch = false;
