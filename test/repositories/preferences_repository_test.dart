@@ -49,10 +49,10 @@ void main() {
       expect(PrefKey.showCourseRoster.type, PrefType.boolean);
       expect(PrefKey.showCourseRoster.defaultValue, true);
 
-      expect(PrefKey.courseRosterGuideUrl.type, PrefType.string);
+      expect(PrefKey.iSchoolPlusNetworkGuideUrl.type, PrefType.string);
       expect(
-        PrefKey.courseRosterGuideUrl.defaultValue,
-        defaultCourseRosterGuideUrl,
+        PrefKey.iSchoolPlusNetworkGuideUrl.defaultValue,
+        defaultISchoolPlusNetworkGuideUrl,
       );
 
       expect(PrefKey.studentUnionLinks.type, PrefType.string);

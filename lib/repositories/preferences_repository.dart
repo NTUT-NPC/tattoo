@@ -17,8 +17,18 @@ import 'package:tattoo/utils/shared_preferences.dart';
 
 export 'package:tattoo/utils/pref_type.dart' show PrefType;
 
-const defaultCourseRosterGuideUrl =
+const defaultISchoolPlusNetworkGuideUrl =
     'https://cnc.ntut.edu.tw/p/405-1004-110297.php?Lang=zh-tw';
+
+Uri iSchoolPlusNetworkGuideUri(String configuredUrl) {
+  final configured = Uri.tryParse(configuredUrl);
+  if (configured != null &&
+      (configured.scheme == 'http' || configured.scheme == 'https') &&
+      configured.host.isNotEmpty) {
+    return configured;
+  }
+  return Uri.parse(defaultISchoolPlusNetworkGuideUrl);
+}
 
 // dart format off
 /// Typed preference keys with defaults.
@@ -71,7 +81,7 @@ enum PrefKey<T> {
   showCourseRoster<bool>(.boolean, true),
 
   /// Link to instructions for connecting to the NTUT network remotely.
-  courseRosterGuideUrl<String>(.string, defaultCourseRosterGuideUrl),
+  iSchoolPlusNetworkGuideUrl<String>(.string, defaultISchoolPlusNetworkGuideUrl),
 
   /// Student union link URL overrides as a JSON array of `{id, url}` objects.
   ///
@@ -170,7 +180,9 @@ class TypedPreferenceStore {
   }
 
   /// Removes any value stored for [key].
-  Future<void> remove(PrefKey key) => _prefs.remove(key.name);
+  Future<void> remove(PrefKey key) async {
+    await _prefs.remove(key.name);
+  }
 }
 
 /// Provides the [PreferencesRepository] instance.
@@ -262,7 +274,7 @@ class PreferencesRepository {
   Future<ResolvedPreference> resolve(PrefKey key) async {
     final remote = _readRemote(key);
 
-    if (_readForcedSet().contains(key.name)) {
+    if (_isForced(key)) {
       return ResolvedPreference(
         key: key,
         value: remote ?? key.defaultValue as Object,
@@ -294,7 +306,7 @@ class PreferencesRepository {
       'Setting preference "${key.name}" to $value',
       name: 'PreferencesRepository',
     );
-    if (_readForcedSet().contains(key.name)) {
+    if (_isForced(key)) {
       log(
         'Preference "${key.name}" is forced and cannot be overridden',
         name: 'PreferencesRepository',
@@ -325,7 +337,13 @@ class PreferencesRepository {
   /// Reads a key's Remote Config value, or `null` if not remotely set.
   Object? _readRemote(PrefKey key) {
     final result = firebaseService.getRemoteConfigTyped(key.name, key.type);
-    return result.isRemote ? result.value : null;
+    if (result.isRemote) return result.value;
+    return null;
+  }
+
+  bool _isForced(PrefKey key) {
+    final forced = _readForcedSet();
+    return forced.contains(key.name);
   }
 
   /// Reads the set of forced preference names from Remote Config.
