@@ -11,6 +11,7 @@ import 'package:tattoo/repositories/campus_map_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/map/campus_map_floor_selector.dart';
 import 'package:tattoo/screens/main/map/campus_map_geometry.dart';
+import 'package:tattoo/screens/main/map/campus_map_labels.dart';
 import 'package:tattoo/screens/main/map/campus_map_providers.dart';
 import 'package:tattoo/screens/main/map/campus_map_search_dialog.dart';
 import 'package:tattoo/screens/main/map/campus_map_search_results.dart';
@@ -155,7 +156,10 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
     setState(() => _busy = true);
     try {
       final repository = ref.read(campusMapRepositoryProvider);
-      final matches = await repository.searchRooms(query);
+      final matches = await repository.searchRooms(
+        query,
+        buildingNames: t.campusMap.buildingNames,
+      );
       if (!mounted || operation != _operation) return;
       if (matches.isEmpty) {
         _showMessage(t.campusMap.noResults);
@@ -335,7 +339,7 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
               CheckedPopupMenuItem(
                 value: item,
                 checked: item.code == _buildingCode,
-                child: Text(item.name.spaced),
+                child: Text(campusMapBuildingName(item.name).spaced),
               ),
           ],
           onSelected: _selectBuilding,
@@ -343,7 +347,11 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
     ];
     return Scaffold(
       appBar: AppBar(
-        title: Text(indoor ? building.name.spaced : t.campusMap.title),
+        title: Text(
+          indoor
+              ? campusMapBuildingName(building.name).spaced
+              : t.campusMap.title,
+        ),
         actions: [
           IconButton(
             tooltip: t.campusMap.refresh,

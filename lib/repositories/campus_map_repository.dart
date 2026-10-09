@@ -342,7 +342,12 @@ class CampusMapRepository {
   /// Existing complete data remains usable offline. Without a complete index,
   /// network failure propagates so a partial match cannot cause a wrong unique
   /// navigation. Exact matches take precedence over substring matches.
-  Future<List<CampusMapRoom>> searchRooms(String query) async {
+  /// [buildingNames] optionally supplies display names as additional search
+  /// aliases. Original server names remain searchable and are returned intact.
+  Future<List<CampusMapRoom>> searchRooms(
+    String query, {
+    Map<String, String> buildingNames = const {},
+  }) async {
     final normalized = normalizeCampusMapQuery(query);
     if (normalized.isEmpty) return [];
     var stamp = (await _sync())?.indexFetchedAt;
@@ -400,6 +405,11 @@ class CampusMapRepository {
         '${room.buildingCode}${room.number}',
         '${room.buildingName}${room.number}',
         '${room.buildingName}${room.nameZh}',
+        if (buildingNames[room.buildingName] case final displayName?) ...[
+          '$displayName${room.number}',
+          '$displayName${room.nameZh}',
+          '$displayName${room.nameEn}',
+        ],
       ].where((value) => value.isNotEmpty).map(normalizeCampusMapQuery);
       if (candidates.contains(normalized)) {
         exact.add(room);

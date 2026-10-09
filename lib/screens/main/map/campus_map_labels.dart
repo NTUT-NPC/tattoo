@@ -1,5 +1,13 @@
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/campus_map.dart';
 import 'package:tattoo/utils/localized.dart';
+
+/// Translates a server building name, falling back to the unmodified [name].
+///
+/// The locale YAMLs own the map under `campusMap.buildingNames`; its keys are
+/// original first-floor `build_name` values. Room names use server data instead.
+String campusMapBuildingName(String name) =>
+    t.campusMap.buildingNames[name] ?? name;
 
 /// Chooses the localized space name, treating blank server fields as missing.
 String campusMapRoomName(CampusMapRoom room) => localized(

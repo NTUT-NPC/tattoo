@@ -89,7 +89,7 @@ void main() {
           (building) => building.code == 'HR',
         );
         expect(sixth.name, '第六教學大樓');
-        expect(hongYu.name, '宏裕科技大樓');
+        expect(hongYu.name, '宏裕科技研究大樓');
         expect(sixth.floors.single.layerName, 'gis_room:A6T_1F');
         expect(hongYu.floors.single.layerName, 'gis_room:HR_1F');
         expect(
@@ -124,7 +124,7 @@ void main() {
     );
 
     test(
-      'corrected building names also apply to search and room location',
+      'original and localized building names both locate the same room',
       () async {
         service.buildings = [_outline('A6T', '宏裕科技大樓/第六教學大樓')];
         service.layers = [
@@ -142,13 +142,30 @@ void main() {
 
         repository = _repository(service, database, () => clock, bundled: true);
 
-        final hongYu = (await repository.searchRooms('宏裕科技大樓101')).single;
+        final hongYu = (await repository.searchRooms('宏裕科技研究大樓101')).single;
         final sixth = (await repository.searchRooms('第六教學大樓101')).single;
         expect(hongYu.buildingCode, 'HR');
-        expect(hongYu.buildingName, '宏裕科技大樓');
+        expect(hongYu.buildingName, '宏裕科技研究大樓');
         expect(sixth.buildingCode, 'A6T');
         expect(sixth.buildingName, '第六教學大樓');
-        expect((await repository.locateRoom(hongYu))!.buildingName, '宏裕科技大樓');
+        expect((await repository.locateRoom(hongYu))!.buildingName, '宏裕科技研究大樓');
+        const displayNames = {
+          '宏裕科技研究大樓': 'Hong-Yue Technology Research Building',
+        };
+        expect(
+          (await repository.searchRooms(
+            'Hong-Yue Technology Research Building101',
+            buildingNames: displayNames,
+          )).single.id,
+          hongYu.id,
+        );
+        expect(
+          (await repository.searchRooms(
+            '宏裕科技研究大樓101',
+            buildingNames: displayNames,
+          )).single.id,
+          hongYu.id,
+        );
         expect(service.roomCalls, ['gis_room:HR_1F']);
       },
     );

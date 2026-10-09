@@ -32,7 +32,8 @@ class CampusMapSearchResults extends StatelessWidget {
                   leading: const Icon(Icons.room_outlined),
                   title: Text(campusMapRoomTitle(room).spaced),
                   subtitle: Text(
-                    '${room.buildingName} · ${room.floor.code}'.spaced,
+                    '${campusMapBuildingName(room.buildingName)} · ${room.floor.code}'
+                        .spaced,
                   ),
                   onTap: () => Navigator.of(context).pop(room),
                 );

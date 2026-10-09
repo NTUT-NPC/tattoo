@@ -2,6 +2,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/models/campus_map.dart';
+import 'package:tattoo/screens/main/map/campus_map_labels.dart';
 import 'package:tattoo/screens/main/map/campus_map_room_labels.dart';
 import 'package:tattoo/screens/main/map/campus_map_tile_provider.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
@@ -106,7 +107,7 @@ class _CampusMapViewportState extends State<CampusMapViewport> {
                     // Prepared components are ordered largest first. Label the
                     // main footprint once, rather than each detached stairway.
                     label: identical(polygon, building.polygons.first)
-                        ? building.name.spaced
+                        ? campusMapBuildingName(building.name).spaced
                         : '',
                     labelColor: colors.onSurface,
                   ),
