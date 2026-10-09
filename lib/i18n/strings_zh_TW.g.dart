@@ -1627,12 +1627,6 @@ class Translations$courseTable$detail$materials$zh_TW {
 	/// zh-TW: '返回教材清單'
 	String get backToMaterials => '返回教材清單';
 
-	/// zh-TW: '檔案'
-	String get file => '檔案';
-
-	/// zh-TW: '串流'
-	String get stream => '串流';
-
 	/// zh-TW: '無法下載錄影'
 	String get streamUnavailable => '無法下載錄影';
 
@@ -1854,8 +1848,6 @@ extension on Translations {
 			'courseTable.detail.materials.updateFailed' => '無法更新教材清單，仍顯示先前的資料。',
 			'courseTable.detail.materials.updateSuccess' => '教材清單已更新。',
 			'courseTable.detail.materials.backToMaterials' => '返回教材清單',
-			'courseTable.detail.materials.file' => '檔案',
-			'courseTable.detail.materials.stream' => '串流',
 			'courseTable.detail.materials.streamUnavailable' => '無法下載錄影',
 			'courseTable.detail.materials.download' => '下載',
 			'courseTable.detail.materials.downloading' => '正在下載…',

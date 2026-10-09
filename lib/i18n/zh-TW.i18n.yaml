@@ -166,8 +166,6 @@ courseTable:
       updateFailed: 無法更新教材清單，仍顯示先前的資料。
       updateSuccess: 教材清單已更新。
       backToMaterials: 返回教材清單
-      file: 檔案
-      stream: 串流
       streamUnavailable: 無法下載錄影
       download: 下載
       downloading: 正在下載…

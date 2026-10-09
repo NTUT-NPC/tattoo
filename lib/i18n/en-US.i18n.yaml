@@ -166,8 +166,6 @@ courseTable:
       updateFailed: Unable to update course materials. Showing previously saved data.
       updateSuccess: Course materials updated.
       backToMaterials: Back to course materials
-      file: File
-      stream: Stream
       streamUnavailable: Recordings cannot be downloaded
       download: Download
       downloading: Downloading…

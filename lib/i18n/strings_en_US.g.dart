@@ -986,8 +986,6 @@ class _Translations$courseTable$detail$materials$en_US extends Translations$cour
 	@override String get updateFailed => 'Unable to update course materials. Showing previously saved data.';
 	@override String get updateSuccess => 'Course materials updated.';
 	@override String get backToMaterials => 'Back to course materials';
-	@override String get file => 'File';
-	@override String get stream => 'Stream';
 	@override String get streamUnavailable => 'Recordings cannot be downloaded';
 	@override String get download => 'Download';
 	@override String get downloading => 'Downloading…';
@@ -1172,8 +1170,6 @@ extension on TranslationsEnUs {
 			'courseTable.detail.materials.updateFailed' => 'Unable to update course materials. Showing previously saved data.',
 			'courseTable.detail.materials.updateSuccess' => 'Course materials updated.',
 			'courseTable.detail.materials.backToMaterials' => 'Back to course materials',
-			'courseTable.detail.materials.file' => 'File',
-			'courseTable.detail.materials.stream' => 'Stream',
 			'courseTable.detail.materials.streamUnavailable' => 'Recordings cannot be downloaded',
 			'courseTable.detail.materials.download' => 'Download',
 			'courseTable.detail.materials.downloading' => 'Downloading…',
