@@ -2,20 +2,17 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/campus_map.dart';
 import 'package:tattoo/utils/localized.dart';
 
-/// Translates a server building name, falling back to the unmodified [name].
+/// Translates a GeoServer building [code], falling back to [fallbackName].
 ///
 /// The locale YAMLs own the map under `campusMap.buildingNames`; its keys are
-/// original first-floor `build_name` values. Room names use server data instead.
-String campusMapBuildingName(String name) =>
-    t.campusMap.buildingNames[name] ?? name;
+/// building codes such as `A6T` and `HR`. Room names use server data instead.
+String campusMapBuildingName(String code, {required String fallbackName}) =>
+    t.campusMap.buildingNames[code] ?? fallbackName;
 
-/// Formats a developer menu entry with its original [name] and mapped value.
-///
-/// A mapped value is annotated even when it equals [name], so the developer
-/// can distinguish an explicit translation from an original-name fallback.
-String campusMapBuildingMenuLabel(String name) {
-  final translation = t.campusMap.buildingNames[name];
-  return translation == null ? name : '$name（$translation）';
+/// Formats a developer menu entry as the original [code] and mapped name.
+String campusMapBuildingMenuLabel(String code) {
+  final translation = t.campusMap.buildingNames[code];
+  return translation == null ? code : '$code: $translation';
 }
 
 /// Chooses the localized space name, treating blank server fields as missing.

@@ -342,7 +342,7 @@ class CampusMapRepository {
   /// Existing complete data remains usable offline. Without a complete index,
   /// network failure propagates so a partial match cannot cause a wrong unique
   /// navigation. Exact matches take precedence over substring matches.
-  /// [buildingNames] optionally supplies display names as additional search
+  /// [buildingNames] optionally maps building codes to additional display-name
   /// aliases. Original server names remain searchable and are returned intact.
   Future<List<CampusMapRoom>> searchRooms(
     String query, {
@@ -405,7 +405,7 @@ class CampusMapRepository {
         '${room.buildingCode}${room.number}',
         '${room.buildingName}${room.number}',
         '${room.buildingName}${room.nameZh}',
-        if (buildingNames[room.buildingName] case final displayName?) ...[
+        if (buildingNames[room.buildingCode] case final displayName?) ...[
           '$displayName${room.number}',
           '$displayName${room.nameZh}',
           '$displayName${room.nameEn}',

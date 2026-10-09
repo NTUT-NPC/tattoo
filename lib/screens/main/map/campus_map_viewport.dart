@@ -107,7 +107,10 @@ class _CampusMapViewportState extends State<CampusMapViewport> {
                     // Prepared components are ordered largest first. Label the
                     // main footprint once, rather than each detached stairway.
                     label: identical(polygon, building.polygons.first)
-                        ? campusMapBuildingName(building.name).spaced
+                        ? campusMapBuildingName(
+                            building.code,
+                            fallbackName: building.name,
+                          ).spaced
                         : '',
                     labelColor: colors.onSurface,
                   ),

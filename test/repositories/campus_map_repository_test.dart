@@ -150,7 +150,7 @@ void main() {
         expect(sixth.buildingName, '第六教學大樓');
         expect((await repository.locateRoom(hongYu))!.buildingName, '宏裕科技研究大樓');
         const displayNames = {
-          '宏裕科技研究大樓': 'Hong-Yue Technology Research Building',
+          'HR': 'Hong-Yue Technology Research Building',
         };
         expect(
           (await repository.searchRooms(

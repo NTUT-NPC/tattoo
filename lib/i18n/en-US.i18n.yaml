@@ -10,38 +10,38 @@ campusMap:
   locationUnavailable: This space has no available location data.
   loadFailed: Map data could not be loaded. Check your connection and try again.
   refresh: Refresh map data
-  # Keys are original first-floor build_name values from GeoServer.
+  # Keys are original GeoServer building codes (e.g. A6T, HR).
   buildingNames(map):
-    第一教學大樓: First Academic Building
-    第二教學大樓: Second Academic Building
-    第三教學大樓: Third Academic Building
-    第四教學大樓: Fourth Academic Building
-    生物科技館暨校友會館: Biotechnology and Alumni Association Building
-    第六教學大樓: Sixth Academic Building
-    一大川堂: Yi Da Hall
-    行政大樓: Administration Building
-    先鋒國際研發大樓: Pioneer International R&D Building
-    學生第一宿舍: Student Dormitory 1
-    學生第二宿舍: Student Dormitory 2
-    綜合科館: Integrated Technology Complex
-    土木館: Civil Engineering Building
-    化學館: Chemistry Building
-    學生活動中心: Student Activity Center
-    化工館: Chemical Engineering Building
-    設計館: Design Building
-    億光大樓: Everlight Building
-    共同科館: General Studies Building
-    光華館: Guanghua Building
-    生態小屋: Ecology Cabin
-    宏裕科技研究大樓: Hong-Yue Technology Research Building
-    圖書館: Library
-    隆玉科技大樓: Lung-Yu Technology Building
-    分子館: Molecular Science and Engineering Building
-    材資館: Materials and Mineral Resources Engineering Building
-    紅樓: Red House
-    忠孝東路警衛室: Zhongxiao East Road Guardhouse
-    新生南路警衛室: Xinsheng South Road Guardhouse
-    國父百年紀念館: Sun Yat-Sen Memorial Hall
+    A1T: First Academic Building
+    A2T: Second Academic Building
+    A3T: Third Academic Building
+    A4T: Fourth Academic Building
+    A5T: Biotechnology and Alumni Association Building
+    A6T: Sixth Academic Building
+    AC: Yi Da Hall
+    AD: Administration Building
+    AM: Pioneer International R&D Building
+    B1D: Student Dormitory 1
+    B2D: Student Dormitory 2
+    CB: Integrated Technology Complex
+    CE: Civil Engineering Building
+    CH: Chemistry Building
+    CK: Student Activity Center
+    CM: Chemical Engineering Building
+    DB: Design Building
+    EL: Everlight Building
+    GB: General Studies Building
+    GH: Guanghua Building
+    GR: Ecology Cabin
+    HR: Hong-Yue Technology Research Building
+    LB: Library
+    LY: Lung-Yu Technology Building
+    ME: Molecular Science and Engineering Building
+    MR: Materials and Mineral Resources Engineering Building
+    RB: Red House
+    SE: Zhongxiao East Road Guardhouse
+    SS: Xinsheng South Road Guardhouse
+    SY: Sun Yat-Sen Memorial Hall
 preferences:
   startWithCourseTable:
     title: Start with Course Table

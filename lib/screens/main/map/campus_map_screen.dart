@@ -339,7 +339,7 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
               CheckedPopupMenuItem(
                 value: item,
                 checked: item.code == _buildingCode,
-                child: Text(campusMapBuildingMenuLabel(item.name).spaced),
+                child: Text(campusMapBuildingMenuLabel(item.code).spaced),
               ),
           ],
           onSelected: _selectBuilding,
@@ -349,7 +349,10 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
       appBar: AppBar(
         title: Text(
           indoor
-              ? campusMapBuildingName(building.name).spaced
+              ? campusMapBuildingName(
+                  building.code,
+                  fallbackName: building.name,
+                ).spaced
               : t.campusMap.title,
         ),
         actions: [

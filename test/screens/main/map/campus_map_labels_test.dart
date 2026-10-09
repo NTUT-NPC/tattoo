@@ -8,13 +8,11 @@ void main() {
   setUp(() async => await LocaleSettings.setLocale(AppLocale.zhTw));
   tearDown(() async => await LocaleSettings.setLocale(AppLocale.zhTw));
 
-  test('building translation keys match the original first-floor names in both locales', () async {
-    final names = campusMapFirstFloorOutlines.values
-        .map((outline) => outline.name)
-        .toSet();
+  test('building translation keys match the original building codes in both locales', () async {
+    final codes = campusMapFirstFloorOutlines.keys.toSet();
     for (final locale in AppLocale.values) {
       await LocaleSettings.setLocale(locale);
-      expect(t.campusMap.buildingNames.keys.toSet(), names);
+      expect(t.campusMap.buildingNames.keys.toSet(), codes);
       expect(
         t.campusMap.buildingNames.values.every((name) => name.isNotEmpty),
         isTrue,
@@ -25,36 +23,43 @@ void main() {
   test(
     'building names follow locale changes without changing their source keys',
     () async {
-      const original = '宏裕科技研究大樓';
-      expect(campusMapBuildingName(original), '宏裕科技大樓');
+      const code = 'HR';
+      const fallback = 'Server name that may change';
+      expect(campusMapBuildingName(code, fallbackName: fallback), '宏裕科技大樓');
       await LocaleSettings.setLocale(AppLocale.enUs);
       expect(
-        campusMapBuildingName(original),
+        campusMapBuildingName(code, fallbackName: fallback),
         'Hong-Yue Technology Research Building',
       );
       await LocaleSettings.setLocale(AppLocale.zhTw);
-      expect(campusMapBuildingName(original), '宏裕科技大樓');
+      expect(campusMapBuildingName(code, fallbackName: fallback), '宏裕科技大樓');
     },
   );
 
   test('unmapped building names fall back to the original value', () async {
     for (final locale in AppLocale.values) {
       await LocaleSettings.setLocale(locale);
-      expect(campusMapBuildingName('尚未翻譯的大樓'), '尚未翻譯的大樓');
+      expect(
+        campusMapBuildingName('ZZ', fallbackName: '尚未翻譯的大樓'),
+        '尚未翻譯的大樓',
+      );
     }
   });
 
-  test('developer building menu preserves original names and annotates mapped values', () async {
-    expect(
-      campusMapBuildingMenuLabel('宏裕科技研究大樓'),
-      '宏裕科技研究大樓（宏裕科技大樓）',
-    );
-    expect(campusMapBuildingMenuLabel('圖書館'), '圖書館（圖書館）');
-    expect(campusMapBuildingMenuLabel('尚未翻譯的大樓'), '尚未翻譯的大樓');
-    await LocaleSettings.setLocale(AppLocale.enUs);
-    expect(campusMapBuildingMenuLabel('圖書館'), '圖書館（Library）');
-    expect(campusMapBuildingMenuLabel('尚未翻譯的大樓'), '尚未翻譯的大樓');
-  });
+  test(
+    'developer building menu shows original codes followed by mapped names',
+    () async {
+      expect(
+        campusMapBuildingMenuLabel('A6T'),
+        'A6T: 第六教學大樓',
+      );
+      expect(campusMapBuildingMenuLabel('HR'), 'HR: 宏裕科技大樓');
+      expect(campusMapBuildingMenuLabel('ZZ'), 'ZZ');
+      await LocaleSettings.setLocale(AppLocale.enUs);
+      expect(campusMapBuildingMenuLabel('LB'), 'LB: Library');
+      expect(campusMapBuildingMenuLabel('ZZ'), 'ZZ');
+    },
+  );
 
   test('room names use server translations and preserve Chinese when English is absent', () async {
     await LocaleSettings.setLocale(AppLocale.enUs);
@@ -67,7 +72,7 @@ void main() {
       nameEn: '',
       number: '101',
     );
-    expect(campusMapBuildingName('圖書館'), 'Library');
+    expect(campusMapBuildingName('LB', fallbackName: '圖書館'), 'Library');
     expect(campusMapRoomName(room), '圖書館');
     expect(campusMapRoomTitle(room), '101 · 圖書館');
     const translatedRoom = CampusMapRoom(

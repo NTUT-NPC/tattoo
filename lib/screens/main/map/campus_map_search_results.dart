@@ -28,12 +28,15 @@ class CampusMapSearchResults extends StatelessWidget {
               itemCount: rooms.length,
               itemBuilder: (context, index) {
                 final room = rooms[index];
+                final buildingName = campusMapBuildingName(
+                  room.buildingCode,
+                  fallbackName: room.buildingName,
+                );
                 return ListTile(
                   leading: const Icon(Icons.room_outlined),
                   title: Text(campusMapRoomTitle(room).spaced),
                   subtitle: Text(
-                    '${campusMapBuildingName(room.buildingName)} · ${room.floor.code}'
-                        .spaced,
+                    '$buildingName · ${room.floor.code}'.spaced,
                   ),
                   onTap: () => Navigator.of(context).pop(room),
                 );
