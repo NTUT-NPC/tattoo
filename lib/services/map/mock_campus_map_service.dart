@@ -8,7 +8,7 @@ class MockCampusMapService implements CampusMapService {
       id: 'demo-building',
       code: 'A1T',
       name: '第一教學大樓',
-      polygons: _rectangle(121.5336, 25.0432, 0.0005, 0.0003),
+      polygons: _rectangle(121.53365, 25.04325, 0.0002, 0.00015),
     ),
   ];
 

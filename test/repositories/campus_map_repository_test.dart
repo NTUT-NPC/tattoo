@@ -6,6 +6,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/campus_map.dart';
+import 'package:tattoo/repositories/campus_map_first_floor_outlines.dart';
 import 'package:tattoo/repositories/campus_map_repository.dart';
 import 'package:tattoo/screens/main/map/campus_map_geometry.dart';
 import 'package:tattoo/services/map/campus_map_service.dart';
@@ -79,7 +80,7 @@ void main() {
         final calls = service.buildingCalls;
 
         // Simulate reopening with a fresh catalog cached by an older app.
-        repository = _repository(service, database, () => clock);
+        repository = _repository(service, database, () => clock, bundled: true);
         final buildings = await repository.watchBuildings().first;
         final sixth = buildings.singleWhere(
           (building) => building.code == 'A6T',
@@ -93,7 +94,7 @@ void main() {
         expect(hongYu.floors.single.layerName, 'gis_room:HR_1F');
         expect(
           buildings.singleWhere((building) => building.code == 'A1T').polygons,
-          isEmpty,
+          isNotEmpty,
         );
 
         List<String> hits(CampusMapPoint point) => [
@@ -139,6 +140,8 @@ void main() {
         ];
         await repository.refreshBuildings();
 
+        repository = _repository(service, database, () => clock, bundled: true);
+
         final hongYu = (await repository.searchRooms('宏裕科技大樓101')).single;
         final sixth = (await repository.searchRooms('第六教學大樓101')).single;
         expect(hongYu.buildingCode, 'HR');
@@ -147,6 +150,63 @@ void main() {
         expect(sixth.buildingName, '第六教學大樓');
         expect((await repository.locateRoom(hongYu))!.buildingName, '宏裕科技大樓');
         expect(service.roomCalls, ['gis_room:HR_1F']);
+      },
+    );
+
+    test(
+      'all first-floor outlines replace cached combined or uncoded outlines',
+      () async {
+        final codes = ['AC', 'AD', 'B2D', 'GR', 'LY', 'LB', 'B1D'];
+        service.buildings = [
+          _outline('gis_building_geom.13', '迴廊'),
+          _outline('gis_building_geom.17', 'Wrong outline'),
+          _outline('LB', '圖書館/行政大樓'),
+          _outline('B1D', '學生宿舍'),
+          _outline('PK', 'Parking'),
+        ];
+        service.layers = [
+          for (final code in codes)
+            (name: 'gis_room:${code}_1F', buildingCode: code, floor: '1F'),
+          (name: 'gis_room:PK_B1', buildingCode: 'PK', floor: 'B1'),
+        ];
+        service.index = [_room('gis_room:PK_B1', 'P001', withGeometry: false)];
+        await repository.refreshBuildings();
+        final source = await database.select(database.campusMapBuildings).get();
+        repository = _repository(service, database, () => clock, bundled: true);
+
+        final buildings = await repository.watchBuildings().first;
+        expect(
+          buildings.map((building) => building.code),
+          unorderedEquals(codes),
+        );
+        for (final building in buildings) {
+          expect(building.polygons, isNotEmpty, reason: building.code);
+          expect(
+            building.name,
+            campusMapFirstFloorOutlines[building.code]!.name,
+          );
+        }
+        expect((await repository.searchRooms('P001')), isEmpty);
+        expect(service.roomCalls, isEmpty);
+        expect(
+          await database.select(database.campusMapBuildings).get(),
+          source,
+        );
+      },
+    );
+
+    test(
+      'a known building without an advertised first floor is omitted',
+      () async {
+        service.buildings = [_outline('A1T', 'Alpha Hall')];
+        service.layers = [
+          (name: _layerA2, buildingCode: 'A1T', floor: '2F'),
+        ];
+        await repository.refreshBuildings();
+        repository = _repository(service, database, () => clock, bundled: true);
+
+        expect(await repository.watchBuildings().first, isEmpty);
+        expect(service.roomCalls, isEmpty);
       },
     );
 
@@ -552,8 +612,14 @@ void main() {
 CampusMapRepository _repository(
   CampusMapService service,
   AppDatabase database,
-  DateTime Function() now,
-) => CampusMapRepository(service: service, database: database, now: now);
+  DateTime Function() now, {
+  bool bundled = false,
+}) => CampusMapRepository(
+  service: service,
+  database: database,
+  now: now,
+  firstFloorOutlines: bundled ? campusMapFirstFloorOutlines : null,
+);
 
 Future<CampusMapFloorData> _floorData(
   CampusMapRepository repository,

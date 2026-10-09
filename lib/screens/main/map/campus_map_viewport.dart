@@ -103,7 +103,11 @@ class _CampusMapViewportState extends State<CampusMapViewport> {
                         ? colors.primaryContainer
                         : colors.surfaceContainerHighest,
                     border: colors.outline,
-                    label: building.name.spaced,
+                    // Prepared components are ordered largest first. Label the
+                    // main footprint once, rather than each detached stairway.
+                    label: identical(polygon, building.polygons.first)
+                        ? building.name.spaced
+                        : '',
                     labelColor: colors.onSurface,
                   ),
             ],

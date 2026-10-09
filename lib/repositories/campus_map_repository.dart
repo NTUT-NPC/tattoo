@@ -6,7 +6,7 @@ import 'package:drift/native.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/campus_map.dart';
-import 'package:tattoo/repositories/campus_map_building_overrides.dart';
+import 'package:tattoo/repositories/campus_map_first_floor_outlines.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/map/campus_map_service.dart';
 
@@ -20,6 +20,7 @@ final campusMapRepositoryProvider = Provider<CampusMapRepository>((ref) {
   return CampusMapRepository(
     service: ref.watch(campusMapServiceProvider),
     database: database,
+    firstFloorOutlines: isDemo ? null : campusMapFirstFloorOutlines,
   );
 });
 
@@ -30,16 +31,21 @@ final campusMapRepositoryProvider = Provider<CampusMapRepository>((ref) {
 /// previously downloaded polygons. All dataset changes commit atomically.
 class CampusMapRepository {
   /// Creates a repository with framework-independent [service] and [database].
+  ///
+  /// [firstFloorOutlines] supplies prepared first-floor geometry and names.
+  /// Passing `null` uses service-provided outlines for synthetic demo catalogs.
   CampusMapRepository({
     required this._service,
     required AppDatabase database,
     DateTime Function()? now,
+    this._firstFloorOutlines = campusMapFirstFloorOutlines,
   }) : _db = database,
        _now = now ?? DateTime.now;
 
   final CampusMapService _service;
   final AppDatabase _db;
   final DateTime Function() _now;
+  final Map<String, ({String name, String geometry})>? _firstFloorOutlines;
   final Map<String, Future<void>> _inFlight = {};
   final Map<String, int> _floorRevisions = {};
   static const _namespace = 'campus';
@@ -54,8 +60,8 @@ class CampusMapRepository {
   /// Cached data emits immediately. A missing or 14-day-old catalog refreshes
   /// once per subscription; failures retain stale data or emit an empty catalog
   /// for the screen's retry state.
-  /// A6T and HR use bundled first-floor outline corrections, including when
-  /// reading a catalog cached before these corrections were introduced.
+  /// Bundled first-floor outlines replace upstream outlines, including existing
+  /// caches. Buildings without usable first-floor outlines are omitted.
   Stream<List<CampusMapBuilding>> watchBuildings() async* {
     var attempted = false;
     final query = _db.select(_db.campusMapBuildings).join([
@@ -90,18 +96,20 @@ class CampusMapRepository {
       }
       yield [
         for (final building in buildings.values)
-          CampusMapBuilding(
-            code: building.code,
-            name:
-                campusMapBuildingOverrides[building.code]?.name ??
-                building.name,
-            polygons: decodeCampusMapGeometry(
-              campusMapBuildingOverrides[building.code]?.geometry ??
-                  building.geometry,
+          if ((_firstFloorOutlines == null ||
+                  _firstFloorOutlines.containsKey(building.code)) &&
+              (floors[building.code]?.any((floor) => floor.code == '1F') ??
+                  false))
+            CampusMapBuilding(
+              code: building.code,
+              name: _firstFloorOutlines?[building.code]?.name ?? building.name,
+              polygons: decodeCampusMapGeometry(
+                _firstFloorOutlines?[building.code]?.geometry ??
+                    building.geometry,
+              ),
+              floors: (floors[building.code] ?? [])
+                ..sort((a, b) => a.order.compareTo(b.order)),
             ),
-            floors: (floors[building.code] ?? [])
-              ..sort((a, b) => a.order.compareTo(b.order)),
-          ),
       ]..sort((a, b) => a.name.compareTo(b.name));
       if (!attempted &&
           (stamp == null || _now().difference(stamp) >= _cacheTtl)) {
@@ -317,8 +325,7 @@ class CampusMapRepository {
     return CampusMapRoom(
       id: room.id,
       buildingCode: building.code,
-      buildingName:
-          campusMapBuildingOverrides[building.code]?.name ?? building.name,
+      buildingName: _firstFloorOutlines?[building.code]?.name ?? building.name,
       floor: CampusMapFloor(layerName: floor.layerName, code: floor.code),
       nameZh: room.nameZh,
       nameEn: room.nameEn,
@@ -366,6 +373,9 @@ class CampusMapRepository {
         innerJoin(floors, floors.layerName.equalsExp(table.layerName)),
         innerJoin(buildings, buildings.code.equalsExp(floors.building)),
       ]);
+    if (_firstFloorOutlines case final outlines?) {
+      searchQuery.where(floors.building.isIn(outlines.keys));
+    }
     final exact = <CampusMapRoom>[];
     final partial = <CampusMapRoom>[];
     for (final row in await searchQuery.get()) {
@@ -373,7 +383,7 @@ class CampusMapRepository {
         id: row.read(table.id)!,
         buildingCode: row.read(floors.building)!,
         buildingName:
-            campusMapBuildingOverrides[row.read(floors.building)!]?.name ??
+            _firstFloorOutlines?[row.read(floors.building)!]?.name ??
             row.read(buildings.name)!,
         floor: CampusMapFloor(
           layerName: row.read(table.layerName)!,
