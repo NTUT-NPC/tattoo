@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:html/parser.dart';
+import 'package:path/path.dart' as p;
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 import 'package:tattoo/utils/http.dart';
+import 'package:tattoo/utils/material_file_name.dart';
 
 class NtutISchoolPlusService implements ISchoolPlusService {
   static const _requestTimeout = Duration(seconds: 20);
@@ -99,10 +101,12 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   /// Runs course selection and all dependent requests as one critical section.
   Future<T> _withSelectedCourse<T>(
     ISchoolCourseDto course,
-    Future<T> Function() operation,
-  ) {
+    Future<T> Function() operation, {
+    CancelToken? cancelToken,
+  }) {
     final task = _courseOperationTail.then((_) async {
-      await _selectCourse(course);
+      if (cancelToken?.cancelError case final error?) throw error;
+      await _selectCourse(course, cancelToken: cancelToken);
       return operation();
     });
     _courseOperationTail = task.then<void>(
@@ -112,7 +116,10 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     return task;
   }
 
-  Future<void> _selectCourse(ISchoolCourseDto course) async {
+  Future<void> _selectCourse(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) async {
     if (course.internalId == _selectedInternalId) return;
 
     // A failed POST may still have reached the server, so neither the old nor
@@ -120,6 +127,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     _selectedInternalId = null;
     await _iSchoolPlusDio.post(
       'goto_course.php',
+      cancelToken: cancelToken,
       data:
           '<manifest><ticket/><course_id>${course.internalId}</course_id><env/></manifest>',
       options: Options(contentType: Headers.formUrlEncodedContentType),
@@ -204,9 +212,18 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   @override
   Future<MaterialDto> getMaterial(
     MaterialRefDto material,
-  ) => _withSelectedCourse(material.course, () async {
+  ) => _withSelectedCourse(material.course, () => _getMaterial(material));
+
+  Future<MaterialDto> _getMaterial(
+    MaterialRefDto material, {
+    CancelToken? cancelToken,
+  }) async {
+    if (cancelToken?.cancelError case final error?) throw error;
     // Step 1: Get launch.php to extract the course ID (cid)
-    final launchResponse = await _iSchoolPlusDio.get('path/launch.php');
+    final launchResponse = await _iSchoolPlusDio.get(
+      'path/launch.php',
+      cancelToken: cancelToken,
+    );
 
     // Extract cid from the JavaScript
     // e.g.: parent.s_catalog.location.replace('/learn/path/manifest.php?cid=...')
@@ -221,6 +238,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     final materialTreeResponse = await _iSchoolPlusDio.get(
       'path/pathtree.php',
       queryParameters: {'cid': cid},
+      cancelToken: cancelToken,
     );
 
     // Extract the read_key token from the HTML form
@@ -241,6 +259,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
 
     final resourceResponse = await dioWithoutRedirects.post(
       'path/SCORM_fetchResource.php',
+      cancelToken: cancelToken,
       data: {
         'href': '@${material.href!}',
         'course_id': cid,
@@ -258,13 +277,19 @@ class NtutISchoolPlusService implements ISchoolPlusService {
         throw Exception('Redirect location header is missing.');
       }
 
-      final previewUri = Uri.tryParse(location);
-      if (previewUri == null) {
+      final locationUri = Uri.tryParse(location);
+      if (locationUri == null) {
         throw Exception('Invalid redirect URI: $location');
       }
 
+      final previewUri = resourceResponse.realUri.resolveUri(locationUri);
+      if (_isStream(previewUri)) {
+        return (downloadUrl: previewUri, referer: null, streamable: true);
+      }
       return (
-        downloadUrl: previewUri.replace(path: "download.php"),
+        downloadUrl: previewUri
+            .resolve('download.php')
+            .replace(query: previewUri.query),
         referer: null,
         streamable: false,
       );
@@ -285,7 +310,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     final downloadUri = Uri.parse(baseUrl).resolve(quoteMatch.group(2)!);
 
     // Case 2: Material is a course recording
-    if (downloadUri.host.contains("istream.ntut.edu.tw")) {
+    if (_isStream(downloadUri)) {
       // iStream videos can be streamed directly or downloaded
       // Testing confirmed no referer required
       return (
@@ -298,7 +323,10 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     // Case 3: Material is a PDF
     if (downloadUri.path.contains('viewPDF.php')) {
       // Fetch and find the value of DEFAULT_URL in JavaScript
-      final viewPdfResponse = await _iSchoolPlusDio.getUri(downloadUri);
+      final viewPdfResponse = await _iSchoolPlusDio.getUri(
+        downloadUri,
+        cancelToken: cancelToken,
+      );
 
       final defaultUrlRegExp = RegExp(r'DEFAULT_URL[ =]+\"(.+)\"');
       final defaultUrlMatch = defaultUrlRegExp.firstMatch(viewPdfResponse.data);
@@ -320,7 +348,95 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       referer: null,
       streamable: false,
     );
-  });
+  }
+
+  bool _isStream(Uri uri) => uri.host.toLowerCase() == 'istream.ntut.edu.tw';
+
+  @override
+  Future<MaterialFileDto> downloadMaterial(
+    MaterialRefDto material,
+    String directory, {
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  }) => _withSelectedCourse(material.course, () async {
+    if (cancelToken?.cancelError case final error?) throw error;
+    final access = await _getMaterial(material, cancelToken: cancelToken);
+    if (access.streamable || _isStream(access.downloadUrl)) {
+      throw UnsupportedError('iStream downloads are not supported');
+    }
+    if (!['http', 'https'].contains(access.downloadUrl.scheme) ||
+        access.downloadUrl.host.isEmpty) {
+      throw StateError('Material download URL must be HTTP(S)');
+    }
+    var uri = access.downloadUrl;
+    for (var redirects = 0; redirects <= 10; redirects++) {
+      if (_isStream(uri)) {
+        throw UnsupportedError('iStream downloads are not supported');
+      }
+      if (!['http', 'https'].contains(uri.scheme) || uri.host.isEmpty) {
+        throw StateError('Material download URL must be HTTP(S)');
+      }
+      final response = await _iSchoolPlusDio.getUri<ResponseBody>(
+        uri,
+        cancelToken: cancelToken,
+        options: Options(
+          responseType: .stream,
+          validateStatus: (status) =>
+              status != null &&
+              ((status >= 200 && status < 300) ||
+                  [301, 302, 303, 307, 308].contains(status)),
+          followRedirects: false,
+          extra: {RedirectInterceptor.followRedirects: false},
+          receiveTimeout: const Duration(minutes: 2),
+          headers: {HttpHeaders.refererHeader: ?access.referer},
+        ),
+      );
+      final body = response.data!;
+      if ([301, 302, 303, 307, 308].contains(response.statusCode)) {
+        await body.stream.listen((_) {}).cancel();
+        final location = response.headers.value(HttpHeaders.locationHeader);
+        if (location == null || redirects == 10) {
+          throw StateError('Invalid material redirect');
+        }
+        uri = response.realUri.resolve(location);
+        continue;
+      }
+      final fileName = materialFileName(
+        disposition: response.headers.value('content-disposition'),
+        title: material.title,
+        contentType: response.headers.value(HttpHeaders.contentTypeHeader),
+      );
+      final file = File(p.join(directory, fileName));
+      final iterator = StreamIterator(body.stream);
+      cancelToken?.whenCancel.then((_) => iterator.cancel());
+      RandomAccessFile? output;
+      var completed = false;
+      try {
+        output = await file.open(mode: FileMode.write);
+        var received = 0;
+        final total =
+            int.tryParse(
+              response.headers.value(HttpHeaders.contentLengthHeader) ?? '',
+            ) ??
+            -1;
+        while (await iterator.moveNext()) {
+          if (cancelToken?.cancelError case final error?) throw error;
+          final bytes = iterator.current;
+          await output.writeFrom(bytes);
+          received += bytes.length;
+          onReceiveProgress?.call(received, total);
+        }
+        if (cancelToken?.cancelError case final error?) throw error;
+        completed = true;
+        return (path: file.path, fileName: fileName);
+      } finally {
+        await iterator.cancel();
+        await output?.close();
+        if (!completed && await file.exists()) await file.delete();
+      }
+    }
+    throw StateError('Too many material redirects');
+  }, cancelToken: cancelToken);
 }
 
 /// Detects expired sessions in ISchoolPlus responses.
