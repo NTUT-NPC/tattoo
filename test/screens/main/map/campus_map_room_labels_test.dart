@@ -16,6 +16,80 @@ import 'package:tattoo/screens/main/map/campus_map_room_labels.dart';
 // last tests paint the label widget onto a recording canvas to check zoom
 // behavior, which would otherwise only be visible by eye on a device.
 void main() {
+  testWidgets('unnamed spaces can be painted without a NaN offset', (
+    tester,
+  ) async {
+    final layout = layoutCampusMapRoomLabel(
+      rings: [
+        _ring(const [Offset.zero, Offset(2, 0), Offset(2, 2), Offset(0, 2)]),
+      ],
+      number: '',
+      name: '',
+      color: const Color(0xff222222),
+    );
+    addTearDown(layout.textPainter.dispose);
+    expect(layout.textPainter.text!.toPlainText(), isEmpty);
+    expect(layout.textPainter.width.isFinite, isTrue);
+    expect(layout.textPainter.height.isFinite, isTrue);
+    final recorder = ui.PictureRecorder();
+    layout.textPainter.paint(
+      ui.Canvas(recorder),
+      Offset(-layout.textPainter.width / 2, -layout.textPainter.height / 2),
+    );
+    recorder.endRecording().dispose();
+  });
+
+  testWidgets('unnamed spaces do not interrupt other room labels', (
+    tester,
+  ) async {
+    final controller = MapController();
+    final rooms = [_longRoom(), _longRoom(name: '', number: '')];
+    await tester.pumpWidget(_labelMap(controller, rooms));
+    expect(tester.takeException(), isNull);
+    final paragraph = _recordLabel(tester).paragraph;
+    for (final zoom in [19.63, 20.27, 21.0]) {
+      controller.move(const LatLng(25, 121.5), zoom);
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(_recordLabel(tester).paragraph, same(paragraph));
+    }
+    await tester.pumpWidget(const SizedBox.shrink());
+    controller.dispose();
+  });
+
+  testWidgets('tiny room labels have finite dimensions and paint safely', (
+    tester,
+  ) async {
+    for (final width in [0.0, 0.001, 0.01, 0.1, 1.0, 4.0, 10.0, 30.0]) {
+      final layout = layoutCampusMapRoomLabel(
+        rings: [
+          _ring([
+            Offset.zero,
+            Offset(width, 0),
+            Offset(width, width / 4),
+            Offset(0, width / 4),
+          ]),
+        ],
+        number: '101-1',
+        name: 'Small space',
+        color: const Color(0xff222222),
+      );
+      addTearDown(layout.textPainter.dispose);
+      expect(layout.textPainter.width.isFinite, isTrue, reason: 'width $width');
+      expect(
+        layout.textPainter.height.isFinite,
+        isTrue,
+        reason: 'width $width',
+      );
+      final recorder = ui.PictureRecorder();
+      layout.textPainter.paint(
+        ui.Canvas(recorder),
+        Offset(-layout.textPainter.width / 2, -layout.textPainter.height / 2),
+      );
+      recorder.endRecording().dispose();
+    }
+  });
+
   testWidgets('small rectangular room centers a label with number and name', (
     tester,
   ) async {
@@ -308,7 +382,7 @@ void _expectTextBoundsInside(Rect bounds, ui.Path room) {
   }
 }
 
-CampusMapRoom _longRoom({String? name}) {
+CampusMapRoom _longRoom({String? name, String number = 'A-123'}) {
   const center = LatLng(25, 121.5);
   const halfWidth = 0.00013;
   const halfHeight = 0.000025;
@@ -339,7 +413,7 @@ CampusMapRoom _longRoom({String? name}) {
     floor: const CampusMapFloor(layerName: 'gis_room:A1T_1F', code: '1F'),
     nameZh: name ?? '這是一個非常長的教室名稱用來測試縮放時穩定換行效果',
     nameEn: name ?? '這是一個非常長的教室名稱用來測試縮放時穩定換行效果',
-    number: 'A-123',
+    number: number,
     polygons: [polygon],
   );
 }

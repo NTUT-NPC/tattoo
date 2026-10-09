@@ -123,6 +123,9 @@ CampusMapRoomLabelLayout layoutCampusMapRoomLabel({
       if (number.isNotEmpty && !name.contains(number)) number,
       if (wrapped.isNotEmpty) wrapped,
     ].join('\n');
+    // An empty centered paragraph can produce a NaN paint offset in Flutter.
+    // Unnamed map features still have geometry, but need no text layout.
+    if (text.isEmpty) return emptyPainter();
     return TextPainter(
       text: TextSpan(
         text: text.spaced,
@@ -317,6 +320,7 @@ class _RoomLabelsPainter extends CustomPainter {
             textScaler: scaler,
           ),
         );
+        if (layout.textPainter.size.isEmpty) continue;
         final roomBounds = layout.clipPath.getBounds();
         final screenBounds = Rect.fromPoints(
           roomBounds.topLeft * scale + translation,

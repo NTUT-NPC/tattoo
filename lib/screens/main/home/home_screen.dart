@@ -85,7 +85,6 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
       OptionEntryTile.icon(
         icon: Icons.map_outlined,
         title: t.campusMap.title,
-        description: t.campusMap.homeDescription,
         onTap: () => context.push(AppRoutes.campusMap),
       ),
       if (ref.pref(PrefKey.showScannerButton))

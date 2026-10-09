@@ -76,9 +76,6 @@ class Translations$campusMap$zh_TW {
 	/// zh-TW: '校園地圖'
 	String get title => '校園地圖';
 
-	/// zh-TW: '查找建築物、樓層與教室位置'
-	String get homeDescription => '查找建築物、樓層與教室位置';
-
 	/// zh-TW: '選擇建築物'
 	String get selectBuilding => '選擇建築物';
 
@@ -1733,7 +1730,6 @@ extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
 			'campusMap.title' => '校園地圖',
-			'campusMap.homeDescription' => '查找建築物、樓層與教室位置',
 			'campusMap.selectBuilding' => '選擇建築物',
 			'campusMap.search' => '搜尋',
 			'campusMap.searchHint' => '教室名稱或編號（如A1T101）',
