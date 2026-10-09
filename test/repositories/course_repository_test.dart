@@ -55,6 +55,124 @@ void main() {
 
     tearDown(() => database.close());
 
+    test(
+      'materials preserve manifest order and filter missing/duplicate refs',
+      () async {
+        const course = (courseNumber: '352902', internalId: '10099386');
+        iSchoolPlusService.materialsResult = [
+          (course: course, title: ' First ', href: ' b '),
+          (course: course, title: 'Second', href: 'a'),
+          (course: course, title: 'Duplicate', href: 'b'),
+          (course: course, title: 'Folder', href: null),
+        ];
+        await repository.refreshMaterials(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        final cache = await repository.watchMaterials(courseOfferingId).first;
+        expect(cache.materials.map((m) => (m.title, m.href)), [
+          ('First', 'b'),
+          ('Second', 'a'),
+        ]);
+        expect(cache.materials.first.iSchoolCourseId, '10099386');
+        expect(cache.fetchedAt, isNotNull);
+        expect(await repository.areMaterialsFresh(courseOfferingId), isTrue);
+        await (database.update(database.courseOfferings)).write(
+          CourseOfferingsCompanion(
+            materialsFetchedAt: Value(
+              DateTime.now().subtract(courseMaterialsTtl),
+            ),
+          ),
+        );
+        expect(await repository.areMaterialsFresh(courseOfferingId), isFalse);
+      },
+    );
+
+    test('material refresh failure preserves list and timestamp', () async {
+      await repository.refreshMaterials(
+        courseOfferingId: courseOfferingId,
+        courseNumber: '352902',
+      );
+      final cache = await repository.watchMaterials(courseOfferingId).first;
+      iSchoolPlusService.materialsError = DioException(
+        requestOptions: RequestOptions(path: 'materials'),
+        type: .connectionError,
+      );
+      await expectLater(
+        repository.refreshMaterials(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        ),
+        throwsA(isA<DioException>()),
+      );
+      final after = await repository.watchMaterials(courseOfferingId).first;
+      expect(after.fetchedAt, cache.fetchedAt);
+      expect(after.materials, cache.materials);
+    });
+
+    test(
+      'successful empty materials are cached and replace the previous list',
+      () async {
+        expect(await repository.areMaterialsFresh(courseOfferingId), isFalse);
+        await repository.refreshMaterials(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        iSchoolPlusService.materialsResult = [];
+        await repository.refreshMaterials(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        final cache = await repository.watchMaterials(courseOfferingId).first;
+        expect(cache.materials, isEmpty);
+        expect(cache.fetchedAt, isNotNull);
+        expect(await repository.areMaterialsFresh(courseOfferingId), isTrue);
+      },
+    );
+
+    test('missing iSchool course caches an empty material list', () async {
+      iSchoolPlusService.courseListResult = [];
+      await repository.refreshMaterials(
+        courseOfferingId: courseOfferingId,
+        courseNumber: '352902',
+      );
+      expect(
+        (await repository.watchMaterials(courseOfferingId).first).materials,
+        isEmpty,
+      );
+      expect(await repository.areMaterialsFresh(courseOfferingId), isTrue);
+    });
+
+    test(
+      'material access stores classification without caching access URLs',
+      () async {
+        await repository.refreshMaterials(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        final material =
+            (await repository.watchMaterials(courseOfferingId).first)
+                .materials
+                .first;
+        iSchoolPlusService.materialResult = (
+          downloadUrl: Uri.parse('https://istream.ntut.edu.tw/video'),
+          referer: null,
+          streamable: true,
+        );
+        expect(
+          (await repository.getMaterialDownload(material)).streamable,
+          isTrue,
+        );
+        expect(
+          (await repository.watchMaterials(courseOfferingId).first)
+              .materials
+              .first
+              .streamable,
+          isTrue,
+        );
+      },
+    );
+
     test('refreshes and watches a normalized roster', () async {
       iSchoolPlusService.studentsResult = [
         (id: ' 112000002 ', name: '  王小明  '),
@@ -237,6 +355,12 @@ class _TestISchoolPlusService extends MockISchoolPlusService {
   Object? courseListError;
   Object? studentsError;
   int studentsCalls = 0;
+  Object? materialsError;
+  @override
+  Future<List<MaterialRefDto>> getMaterials(ISchoolCourseDto course) async {
+    if (materialsError case final error?) throw error;
+    return super.getMaterials(course);
+  }
 
   @override
   Future<List<ISchoolCourseDto>> getCourseList() async {
