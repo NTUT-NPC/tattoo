@@ -252,6 +252,10 @@ final _presetList = <SnapshotPreset>[
     buildRequest: _ischoolCoursePage(
       'path/SCORM_loadCA.php',
       extension: 'xml',
+      headers: {
+        HttpHeaders.refererHeader:
+            'https://istudy.ntut.edu.tw/learn/path/launch.php',
+      },
     ),
   ),
 ];
@@ -498,6 +502,7 @@ Future<SnapshotRequest> _syllabus(
 SnapshotRequestBuilder _ischoolCoursePage(
   String path, {
   String extension = 'html',
+  Map<String, String>? headers,
 }) {
   return (context, args) async {
     final course = await _resolveISchoolCourse(context, args);
@@ -505,6 +510,7 @@ SnapshotRequestBuilder _ischoolCoursePage(
       service: .ischool,
       path: path,
       extension: extension,
+      headers: headers,
       fileParts: [
         'c${course.courseNumber}',
         'i${course.internalId}',
