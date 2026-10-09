@@ -278,7 +278,7 @@ void main() {
       final refreshFuture = container.read(refresh.future);
       final availabilityFuture = container.read(availability.future);
 
-      expect(await refreshFuture, isTrue);
+      expect(await refreshFuture, (refreshed: true, hadCacheAtStart: false));
       await availabilityFuture;
 
       expect(service.studentsCalls, 1);
@@ -295,7 +295,7 @@ void main() {
 
       expect(
         await container.read(courseStudentRosterRefreshProvider(key).future),
-        isFalse,
+        (refreshed: false, hadCacheAtStart: true),
       );
       await container.read(
         courseStudentRosterAvailabilityProvider(key).future,
@@ -329,7 +329,7 @@ void main() {
       final availabilityFuture = container.read(
         courseStudentRosterAvailabilityProvider(key).future,
       );
-      expect(await refreshFuture, isTrue);
+      expect(await refreshFuture, (refreshed: true, hadCacheAtStart: true));
       await availabilityFuture;
 
       expect(service.studentsCalls, 1);
