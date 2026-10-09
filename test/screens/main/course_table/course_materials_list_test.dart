@@ -48,6 +48,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(repository.calls, 0);
       expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(tester.widget<ListTile>(find.byType(ListTile)).subtitle, isNull);
+      expect(tester.widget<ListTile>(find.byType(ListTile)).leading, isNull);
       expect(find.byType(ListView), findsNothing);
       expect(find.byType(Scrollable), findsOneWidget);
       await tester.tap(find.text('Lecture'));
@@ -68,6 +70,8 @@ void main() {
     await tester.tap(find.text('Lecture'));
     await tester.pumpAndSettle();
     expect(repository.calls, 0);
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pumpAndSettle();
     expect(
       find.text(t.courseTable.detail.materials.streamUnavailable),
       findsOneWidget,
@@ -84,6 +88,8 @@ void main() {
       await tester.tap(find.text('Lecture'));
       await tester.pumpAndSettle();
       expect(repository.calls, 1);
+      await tester.pump(const Duration(seconds: 6));
+      await tester.pumpAndSettle();
       expect(
         find.text(t.courseTable.detail.materials.streamUnavailable),
         findsOneWidget,

@@ -43,12 +43,13 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
   CancelToken? _cancelToken;
   double? _progress;
   var _saving = false;
+  String? _errorMessage;
 
   Future<void> _download() async {
     if (_cancelToken != null) return;
     final strings = Translations.of(context).courseTable.detail.materials;
     if (widget.material.streamable == true) {
-      _showMessage(strings.streamUnavailable);
+      setState(() => _errorMessage = strings.streamUnavailable);
       return;
     }
     final token = CancelToken();
@@ -56,6 +57,7 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
       _cancelToken = token;
       _progress = null;
       _saving = false;
+      _errorMessage = null;
     });
     try {
       final saved = await ref
@@ -75,8 +77,8 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
       if (saved && mounted) _showMessage(strings.saved);
     } catch (error) {
       if (mounted && !token.isCancelled) {
-        _showMessage(
-          error is UnsupportedError
+        setState(
+          () => _errorMessage = error is UnsupportedError
               ? strings.streamUnavailable
               : strings.downloadFailed,
         );
@@ -106,16 +108,10 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
   @override
   Widget build(BuildContext context) {
     final strings = Translations.of(context).courseTable.detail.materials;
-    final streamable = widget.material.streamable;
     final downloading = _cancelToken != null;
     final title = widget.material.title;
     return ListTile(
       onTap: downloading ? null : _download,
-      leading: Icon(
-        streamable == true
-            ? Icons.video_library_outlined
-            : Icons.insert_drive_file_outlined,
-      ),
       title: Text(
         (title == null || title.isEmpty ? strings.unnamed : title).spaced,
       ),
@@ -128,13 +124,11 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
                 if (!_saving) LinearProgressIndicator(value: _progress),
               ],
             )
+          : _errorMessage == null
+          ? null
           : Text(
-              (streamable == true
-                      ? strings.stream
-                      : streamable == false
-                      ? strings.file
-                      : strings.download)
-                  .spaced,
+              _errorMessage!.spaced,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
       trailing: downloading
           ? IconButton(
