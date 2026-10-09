@@ -180,10 +180,16 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   @override
   Future<List<MaterialRefDto>> getMaterials(
     ISchoolCourseDto course,
-  ) => _withSelectedCourse(course, () async {
+  ) => _withSelectedCourse(course, () => _getMaterials(course));
+
+  Future<List<MaterialRefDto>> _getMaterials(
+    ISchoolCourseDto course, {
+    CancelToken? cancelToken,
+  }) async {
     // Fetch and parse the SCORM manifest XML for file listings
     final manifestResponse = await _iSchoolPlusDio.get(
       'path/SCORM_loadCA.php',
+      cancelToken: cancelToken,
       // Without the material page Referer, the server returns an HTML browser
       // challenge with status 200 instead of the SCORM manifest.
       options: Options(
@@ -225,7 +231,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
         href: href,
       );
     }).toList();
-  });
+  }
 
   @override
   Future<MaterialDto> getMaterial(
@@ -235,6 +241,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
   Future<MaterialDto> _getMaterial(
     MaterialRefDto material, {
     CancelToken? cancelToken,
+    bool retryStaleReference = true,
   }) async {
     if (cancelToken?.cancelError case final error?) throw error;
     // Step 1: Get launch.php to extract the course ID (cid)
@@ -243,13 +250,22 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       cancelToken: cancelToken,
     );
 
-    // Extract cid from the JavaScript
-    // e.g.: parent.s_catalog.location.replace('/learn/path/manifest.php?cid=...')
-    final cidMatch = RegExp(r"cid=([^']+)").firstMatch(launchResponse.data);
-    if (cidMatch == null) {
-      throw Exception('Could not extract course ID from launch page.');
+    // Both the current inline `var cid = '...'` and the older frame redirect
+    // expose the access ID used by the material tree and resource form.
+    final launchBody = launchResponse.data as String;
+    final cid =
+        RegExp(r'''\bcid\s*=\s*(['"])([^'"]+)\1''')
+            .firstMatch(launchBody)
+            ?.group(2) ??
+        RegExp(r'''[?&]cid=([^'"&\s]+)''').firstMatch(launchBody)?.group(1);
+    if (cid == null) {
+      throw DioException(
+        requestOptions: launchResponse.requestOptions,
+        response: launchResponse,
+        type: .badResponse,
+        message: 'Could not extract course ID from launch page',
+      );
     }
-    final cid = cidMatch.group(1)!;
 
     // Step 2: Get resource token from the course material tree endpoint
     // It contains a form with a token needed to fetch downloadable resources
@@ -320,7 +336,34 @@ class NtutISchoolPlusService implements ISchoolPlusService {
     final quoteRegExp = RegExp(r'''(['"])([^'"]+)\1''');
     final quoteMatch = quoteRegExp.firstMatch(resourceResponse.data);
     if (quoteMatch == null || quoteMatch.groupCount < 2) {
-      throw Exception('Could not extract download URI from response.');
+      // Resource hrefs change after re-authentication. Resolve a uniquely named
+      // cached item against the current manifest without reopening the session.
+      if (retryStaleReference && material.title?.trim().isNotEmpty == true) {
+        final current = await _getMaterials(
+          material.course,
+          cancelToken: cancelToken,
+        );
+        final matching = current
+            .where(
+              (item) =>
+                  item.title?.trim() == material.title?.trim() &&
+                  item.href?.isNotEmpty == true,
+            )
+            .toList();
+        if (matching.length == 1 && matching.single.href != material.href) {
+          return _getMaterial(
+            matching.single,
+            cancelToken: cancelToken,
+            retryStaleReference: false,
+          );
+        }
+      }
+      throw DioException(
+        requestOptions: resourceResponse.requestOptions,
+        response: resourceResponse,
+        type: .badResponse,
+        message: 'Could not resolve the current material resource',
+      );
     }
 
     // URI can be relative, so resolve against base URL

@@ -258,6 +258,13 @@ final _presetList = <SnapshotPreset>[
       },
     ),
   ),
+  SnapshotPreset(
+    name: 'ischool.material_launch',
+    service: .ischool,
+    description: 'iSchool+ material launch page and access ID. Optional: --course-internal-id --course-number.',
+    includeInAll: true,
+    buildRequest: _ischoolCoursePage('path/launch.php'),
+  ),
 ];
 
 final _presets = {for (final preset in _presetList) preset.name: preset};
