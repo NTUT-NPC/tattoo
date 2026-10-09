@@ -71,7 +71,9 @@ jobs:
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           key: ${{ steps.setup.outputs.android-sdk-cache-primary-key }}
-          path: /usr/local/lib/android/sdk/cmake/3.22.1
+          path: |
+            /usr/local/lib/android/sdk/cmake/3.22.1
+            /usr/local/lib/android/sdk/ndk/28.2.13676358
 
   ios:
     runs-on: xcode-27
