@@ -37,6 +37,10 @@ final syllabusProvider = StreamProvider.autoDispose
     });
 
 typedef CourseRosterKey = ({int courseOfferingId, String courseNumber});
+typedef CourseRosterRefreshResult = ({
+  bool refreshed,
+  bool hadCacheAtStart,
+});
 
 /// Watches the locally cached I-School Plus roster for one course offering.
 final courseStudentRosterProvider = StreamProvider.autoDispose
@@ -51,22 +55,29 @@ final courseStudentRosterProvider = StreamProvider.autoDispose
 /// Keeping refresh separate from the cache stream lets the UI retain cached
 /// students while also reacting to a failed background refresh.
 final courseStudentRosterRefreshProvider = FutureProvider.autoDispose
-    .family<bool, CourseRosterKey>(retry: (_, _) => null, (ref, key) async {
-      final keepAlive = ref.keepAlive();
-      try {
-        final repository = ref.watch(courseRepositoryProvider);
-        if (await repository.isStudentRosterFresh(key.courseOfferingId)) {
-          return false;
+    .family<CourseRosterRefreshResult, CourseRosterKey>(
+      retry: (_, _) => null,
+      (ref, key) async {
+        final keepAlive = ref.keepAlive();
+        try {
+          final repository = ref.watch(courseRepositoryProvider);
+          final hadCacheAtStart =
+              (await repository.watchStudentRoster(key.courseOfferingId).first)
+                  .fetchedAt !=
+              null;
+          if (await repository.isStudentRosterFresh(key.courseOfferingId)) {
+            return (refreshed: false, hadCacheAtStart: hadCacheAtStart);
+          }
+          await repository.refreshStudentRoster(
+            courseOfferingId: key.courseOfferingId,
+            courseNumber: key.courseNumber,
+          );
+          return (refreshed: true, hadCacheAtStart: hadCacheAtStart);
+        } finally {
+          keepAlive.close();
         }
-        await repository.refreshStudentRoster(
-          courseOfferingId: key.courseOfferingId,
-          courseNumber: key.courseNumber,
-        );
-        return true;
-      } finally {
-        keepAlive.close();
-      }
-    });
+      },
+    );
 
 /// Runs the public probe in parallel with a stale or missing roster refresh.
 final courseStudentRosterAvailabilityProvider = FutureProvider.autoDispose
@@ -82,8 +93,8 @@ final courseStudentRosterAvailabilityProvider = FutureProvider.autoDispose
     });
 
 /// Retry is safe only after both halves of the current attempt have settled.
-bool canRetryCourseStudentRoster(
-  AsyncValue<bool> refresh,
+bool canRetryCourseStudentRoster<T>(
+  AsyncValue<T> refresh,
   AsyncValue<void> availability,
 ) => refresh.hasError && !refresh.isLoading && !availability.isLoading;
 

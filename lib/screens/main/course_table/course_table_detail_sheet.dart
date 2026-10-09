@@ -275,9 +275,6 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
   var _probeSnackbarShown = false;
   var _isInitialAttempt = true;
 
-  /// Cache presence before the running refresh can update its fetched time.
-  bool? _refreshStartedWithCache;
-
   void _retry() {
     final refresh = ref.read(
       courseStudentRosterRefreshProvider(widget.rosterKey),
@@ -339,7 +336,11 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
       if (!_hasNewError(previous, next)) return;
       final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
       final refresh = ref.read(refreshProvider);
-      if (!hasCache || refresh.value == true || _probeSnackbarShown) return;
+      if (!hasCache ||
+          refresh.value?.refreshed == true ||
+          _probeSnackbarShown) {
+        return;
+      }
       _probeSnackbarShown = true;
       _showUpdateSnackbar(
         strings.networkSnackbar,
@@ -349,7 +350,6 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
 
     ref.listen(refreshProvider, (previous, next) {
       if (_hasNewError(previous, next)) {
-        _refreshStartedWithCache = null;
         final hasCache = ref.read(cacheProvider).value?.fetchedAt != null;
         if (hasCache) {
           _showUpdateSnackbar(
@@ -359,14 +359,12 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
         }
         return;
       }
-      if (next.value != true) return;
-
-      final refreshedCachedRoster = _refreshStartedWithCache == true;
-      _refreshStartedWithCache = null;
+      final result = next.value;
+      if (result == null || !result.refreshed) return;
       if (_showNetworkGuide && mounted) {
         setState(() => _showNetworkGuide = false);
       }
-      if (!refreshedCachedRoster || !mounted) return;
+      if (!result.hadCacheAtStart || !mounted) return;
 
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
@@ -383,9 +381,6 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
     );
     final roster = cacheAsync.value;
     final hasCache = roster?.fetchedAt != null;
-    if (refreshAsync.isLoading && !cacheAsync.isLoading) {
-      _refreshStartedWithCache ??= hasCache;
-    }
     final attemptRunning =
         refreshAsync.isLoading || availabilityAsync.isLoading;
     final retryEnabled = canRetryCourseStudentRoster(
@@ -410,7 +405,7 @@ class _CourseRosterPaneState extends ConsumerState<_CourseRosterPane> {
       hasCache: hasCache,
       showNetworkGuide: _showNetworkGuide,
       allowEarlyNetworkGuide: _isInitialAttempt,
-      refresh: refreshAsync,
+      refresh: refreshAsync.whenData((result) => result.refreshed),
       availability: availabilityAsync,
     );
     switch (presentation) {
