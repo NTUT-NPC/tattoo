@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/screens/main/i_school_plus_providers.dart';
@@ -138,19 +137,6 @@ final courseMaterialsAvailabilityProvider = FutureProvider.autoDispose
           return;
         }
         await ref.watch(iSchoolPlusAvailabilityProvider.future);
-      } finally {
-        keepAlive.close();
-      }
-    });
-
-final courseMaterialTypeProvider = FutureProvider.autoDispose
-    .family<bool, CourseMaterial>(retry: (_, _) => null, (ref, material) async {
-      final keepAlive = ref.keepAlive();
-      try {
-        return (await ref
-                .watch(courseRepositoryProvider)
-                .getMaterialDownload(material))
-            .streamable;
       } finally {
         keepAlive.close();
       }

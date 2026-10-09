@@ -1,12 +1,9 @@
-import 'dart:math';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/course_repository.dart';
-import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 class CourseMaterialsList extends StatelessWidget {
@@ -24,15 +21,12 @@ class CourseMaterialsList extends StatelessWidget {
     ),
     color: Theme.of(context).colorScheme.surfaceContainer,
     clipBehavior: .antiAlias,
-    child: SizedBox(
-      height: min(420, MediaQuery.sizeOf(context).height * 0.45),
-      child: ListView.builder(
-        itemCount: materials.length,
-        itemBuilder: (context, index) => _MaterialTile(
-          key: ValueKey(materials[index].id),
-          material: materials[index],
-        ),
-      ),
+    child: Column(
+      mainAxisSize: .min,
+      children: [
+        for (final material in materials)
+          _MaterialTile(key: ValueKey(material.id), material: material),
+      ],
     ),
   );
 }
@@ -45,25 +39,24 @@ class _MaterialTile extends ConsumerStatefulWidget {
   ConsumerState<_MaterialTile> createState() => _MaterialTileState();
 }
 
-class _MaterialTileState extends ConsumerState<_MaterialTile>
-    with AutomaticKeepAliveClientMixin {
+class _MaterialTileState extends ConsumerState<_MaterialTile> {
   CancelToken? _cancelToken;
   double? _progress;
   var _saving = false;
 
-  @override
-  bool get wantKeepAlive => _cancelToken != null;
-
   Future<void> _download() async {
     if (_cancelToken != null) return;
+    final strings = Translations.of(context).courseTable.detail.materials;
+    if (widget.material.streamable == true) {
+      _showMessage(strings.streamUnavailable);
+      return;
+    }
     final token = CancelToken();
     setState(() {
       _cancelToken = token;
       _progress = null;
       _saving = false;
     });
-    updateKeepAlive();
-    final strings = Translations.of(context).courseTable.detail.materials;
     try {
       final saved = await ref
           .read(courseRepositoryProvider)
@@ -95,7 +88,6 @@ class _MaterialTileState extends ConsumerState<_MaterialTile>
           _saving = false;
           _progress = null;
         });
-        updateKeepAlive();
       }
     }
   }
@@ -113,18 +105,12 @@ class _MaterialTileState extends ConsumerState<_MaterialTile>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     final strings = Translations.of(context).courseTable.detail.materials;
-    final typeProvider = courseMaterialTypeProvider(widget.material);
-    final type = switch (widget.material.streamable) {
-      final streamable? => AsyncData(streamable),
-      null => ref.watch(typeProvider),
-    };
-    final streamable = type.value;
+    final streamable = widget.material.streamable;
     final downloading = _cancelToken != null;
     final title = widget.material.title;
     return ListTile(
-      isThreeLine: streamable == true,
+      onTap: downloading ? null : _download,
       leading: Icon(
         streamable == true
             ? Icons.video_library_outlined
@@ -144,12 +130,10 @@ class _MaterialTileState extends ConsumerState<_MaterialTile>
             )
           : Text(
               (streamable == true
-                      ? '${strings.stream} · ${strings.streamUnavailable}'
+                      ? strings.stream
                       : streamable == false
                       ? strings.file
-                      : type.hasError
-                      ? strings.resolveFailed
-                      : strings.resolving)
+                      : strings.download)
                   .spaced,
             ),
       trailing: downloading
@@ -162,25 +146,11 @@ class _MaterialTileState extends ConsumerState<_MaterialTile>
                     ),
               icon: const Icon(Icons.close),
             )
-          : streamable == false
-          ? IconButton(
+          : IconButton(
               tooltip: strings.download.spaced,
               onPressed: _download,
               icon: const Icon(Icons.download_outlined),
-            )
-          : type.hasError
-          ? IconButton(
-              tooltip: strings.retry.spaced,
-              onPressed: () => ref.invalidate(typeProvider),
-              icon: const Icon(Icons.refresh),
-            )
-          : streamable == null
-          ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : null,
+            ),
     );
   }
 }
