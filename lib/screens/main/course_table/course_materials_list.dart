@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/database/database.dart';
@@ -7,9 +8,14 @@ import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 class CourseMaterialsList extends StatelessWidget {
-  const CourseMaterialsList({super.key, required this.materials});
+  const CourseMaterialsList({
+    super.key,
+    required this.materials,
+    required this.onLearnMore,
+  });
 
   final List<CourseMaterial> materials;
+  final VoidCallback onLearnMore;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -25,15 +31,24 @@ class CourseMaterialsList extends StatelessWidget {
       mainAxisSize: .min,
       children: [
         for (final material in materials)
-          _MaterialTile(key: ValueKey(material.id), material: material),
+          _MaterialTile(
+            key: ValueKey(material.id),
+            material: material,
+            onLearnMore: onLearnMore,
+          ),
       ],
     ),
   );
 }
 
 class _MaterialTile extends ConsumerStatefulWidget {
-  const _MaterialTile({super.key, required this.material});
+  const _MaterialTile({
+    super.key,
+    required this.material,
+    required this.onLearnMore,
+  });
   final CourseMaterial material;
+  final VoidCallback onLearnMore;
 
   @override
   ConsumerState<_MaterialTile> createState() => _MaterialTileState();
@@ -60,6 +75,7 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
       _errorMessage = null;
     });
     String? errorMessage;
+    var guide = false;
     try {
       final saved = await ref
           .read(courseRepositoryProvider)
@@ -75,12 +91,19 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
               if (mounted && !token.isCancelled) setState(() => _saving = true);
             },
           );
-      if (saved && mounted) _showMessage(strings.saved);
+      if (saved && mounted) {
+        _showMessage(
+          defaultTargetPlatform == TargetPlatform.iOS
+              ? strings.saved.ios
+              : strings.saved.other,
+        );
+      }
     } catch (error) {
       if (mounted && !token.isCancelled) {
-        errorMessage = error is UnsupportedError
-            ? strings.streamUnavailable
-            : strings.downloadFailed;
+        guide = error is! UnsupportedError;
+        errorMessage = guide
+            ? strings.downloadFailed
+            : strings.streamUnavailable;
       }
     } finally {
       if (mounted) {
@@ -92,18 +115,35 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
       }
     }
     if (errorMessage case final message? when mounted) {
-      _showError(message);
+      _showError(message, withGuide: guide);
     }
   }
 
-  void _showError(String message) {
+  void _showError(String message, {bool withGuide = false}) {
     setState(() => _errorMessage = message);
-    _showMessage(message);
+    _showMessage(message, withGuide: withGuide);
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message.spaced)));
+  void _showMessage(String message, {bool withGuide = false}) {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message.spaced),
+          action: withGuide
+              ? SnackBarAction(
+                  label: Translations.of(
+                    context,
+                  ).iSchoolPlus.network.learnMore.spaced,
+                  onPressed: () {
+                    messenger.hideCurrentSnackBar();
+                    widget.onLearnMore();
+                  },
+                )
+              : null,
+        ),
+      );
   }
 
   @override

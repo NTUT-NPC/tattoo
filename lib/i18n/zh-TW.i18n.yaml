@@ -163,16 +163,18 @@ courseTable:
       empty: 目前沒有教材
       loadFailed: 無法載入教材清單。
       networkSnackbar: 正在嘗試更新教材清單。此功能需要連接學校網路。
-      updateFailed: 無法更新教材清單，仍顯示先前的資料。
+      updateFailed: 無法更新教材清單，此功能需要連接學校網路。
       updateSuccess: 教材清單已更新。
       backToMaterials: 返回教材清單
-      streamUnavailable: 無法下載錄影
+      streamUnavailable: 因系統限制，無法下載課程錄影。
       download: 下載
       downloading: 正在下載…
       saving: 選擇儲存位置…
       cancel: 取消
-      saved: 教材已儲存。
-      downloadFailed: 無法下載或儲存教材，請稍後重試。
+      saved:
+        ios: 已儲存至「檔案」App。
+        other: 教材已儲存。
+      downloadFailed: 無法下載或儲存教材。此功能需要使用學校網路。
       unnamed: 未命名教材
   summary:
     credits(plural, param=count):
