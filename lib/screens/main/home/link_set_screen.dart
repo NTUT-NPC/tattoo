@@ -39,16 +39,19 @@ class LinkSetScreen extends StatelessWidget {
             spacing: 8,
             children: [
               for (final link in links)
-                if (_urlOf(link)?.trim() case final url? when url.isNotEmpty)
-                  OptionEntryTile.icon(
-                    icon: link.icon ?? Icons.link,
-                    title: link.title,
-                    actionIcon: .exitToApp,
-                    onTap: () => launchUrl(
-                      Uri.parse(url),
-                      inExternalApplication: true,
+                if (_urlOf(link)?.trim() case final raw? when raw.isNotEmpty)
+                  if (Uri.tryParse(raw) case final url?
+                      when (url.scheme == 'http' || url.scheme == 'https') &&
+                          url.host.isNotEmpty)
+                    OptionEntryTile.icon(
+                      icon: link.icon ?? Icons.link,
+                      title: link.title,
+                      actionIcon: .exitToApp,
+                      onTap: () => launchUrl(
+                        url,
+                        inExternalApplication: true,
+                      ),
                     ),
-                  ),
             ],
           ),
           footer: const SizedBox.shrink(),
