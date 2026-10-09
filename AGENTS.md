@@ -159,4 +159,4 @@ These apOu codes are the SSO target identifiers used by PortalService to obtain 
 
 ## Backlog
 
-Open work is tracked in [GitHub Issues](https://github.com/NTUT-NPC/tattoo/issues). Key areas: remaining NTUT service methods (ISchoolPlus announcements, StudentQuery extensions), repository layer gaps (materials, rosters), and further file download infrastructure.
+Open work is tracked in [GitHub Issues](https://github.com/NTUT-NPC/tattoo/issues). Key areas: remaining NTUT service methods (ISchoolPlus announcements, StudentQuery extensions) and file download infrastructure beyond course materials.

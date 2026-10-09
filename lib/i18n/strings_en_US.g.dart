@@ -612,6 +612,7 @@ class _Translations$courseTable$detail$en_US extends Translations$courseTable$de
 	// Translations
 	@override late final _Translations$courseTable$detail$tabs$en_US tabs = _Translations$courseTable$detail$tabs$en_US._(_root);
 	@override late final _Translations$courseTable$detail$roster$en_US roster = _Translations$courseTable$detail$roster$en_US._(_root);
+	@override late final _Translations$courseTable$detail$materials$en_US materials = _Translations$courseTable$detail$materials$en_US._(_root);
 }
 
 // Path: courseTable.summary
@@ -950,6 +951,7 @@ class _Translations$courseTable$detail$tabs$en_US extends Translations$courseTab
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get materials => 'Materials';
 	@override String get roster => 'Course Roster';
 	@override String get syllabus => 'Syllabus';
 }
@@ -969,6 +971,34 @@ class _Translations$courseTable$detail$roster$en_US extends Translations$courseT
 	@override String get updateFailed => 'Unable to update the course roster. Previously cached data is still shown.';
 	@override String get updateSuccess => 'Course roster updated.';
 	@override String get backToRoster => 'Back to Course Roster';
+}
+
+// Path: courseTable.detail.materials
+class _Translations$courseTable$detail$materials$en_US extends Translations$courseTable$detail$materials$zh_TW {
+	_Translations$courseTable$detail$materials$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get empty => 'No course materials available';
+	@override String get loadFailed => 'Unable to load course materials.';
+	@override String get networkSnackbar => 'Trying to update course materials. This feature requires the campus network.';
+	@override String get updateFailed => 'Unable to update course materials. Showing previously saved data.';
+	@override String get updateSuccess => 'Course materials updated.';
+	@override String get backToMaterials => 'Back to course materials';
+	@override String get file => 'File';
+	@override String get stream => 'Stream';
+	@override String get streamUnavailable => 'Streaming playback and download are not supported yet';
+	@override String get resolving => 'Checking material type…';
+	@override String get resolveFailed => 'Unable to identify material type';
+	@override String get retry => 'Retry';
+	@override String get download => 'Download';
+	@override String get downloading => 'Downloading…';
+	@override String get saving => 'Choose a save location…';
+	@override String get cancel => 'Cancel';
+	@override String get saved => 'Course material saved.';
+	@override String get downloadFailed => 'Unable to download or save this material. Please try again later.';
+	@override String get unnamed => 'Untitled material';
 }
 
 // Path: profile.dangerZone.items
@@ -1128,6 +1158,7 @@ extension on TranslationsEnUs {
 			'calendar.today' => 'Today',
 			'courseTable.notFound' => 'Course table not found',
 			'courseTable.unscheduled' => 'Unscheduled Courses',
+			'courseTable.detail.tabs.materials' => 'Materials',
 			'courseTable.detail.tabs.roster' => 'Course Roster',
 			'courseTable.detail.tabs.syllabus' => 'Syllabus',
 			'courseTable.detail.roster.studentId' => 'Student ID',
@@ -1138,6 +1169,25 @@ extension on TranslationsEnUs {
 			'courseTable.detail.roster.updateFailed' => 'Unable to update the course roster. Previously cached data is still shown.',
 			'courseTable.detail.roster.updateSuccess' => 'Course roster updated.',
 			'courseTable.detail.roster.backToRoster' => 'Back to Course Roster',
+			'courseTable.detail.materials.empty' => 'No course materials available',
+			'courseTable.detail.materials.loadFailed' => 'Unable to load course materials.',
+			'courseTable.detail.materials.networkSnackbar' => 'Trying to update course materials. This feature requires the campus network.',
+			'courseTable.detail.materials.updateFailed' => 'Unable to update course materials. Showing previously saved data.',
+			'courseTable.detail.materials.updateSuccess' => 'Course materials updated.',
+			'courseTable.detail.materials.backToMaterials' => 'Back to course materials',
+			'courseTable.detail.materials.file' => 'File',
+			'courseTable.detail.materials.stream' => 'Stream',
+			'courseTable.detail.materials.streamUnavailable' => 'Streaming playback and download are not supported yet',
+			'courseTable.detail.materials.resolving' => 'Checking material type…',
+			'courseTable.detail.materials.resolveFailed' => 'Unable to identify material type',
+			'courseTable.detail.materials.retry' => 'Retry',
+			'courseTable.detail.materials.download' => 'Download',
+			'courseTable.detail.materials.downloading' => 'Downloading…',
+			'courseTable.detail.materials.saving' => 'Choose a save location…',
+			'courseTable.detail.materials.cancel' => 'Cancel',
+			'courseTable.detail.materials.saved' => 'Course material saved.',
+			'courseTable.detail.materials.downloadFailed' => 'Unable to download or save this material. Please try again later.',
+			'courseTable.detail.materials.unnamed' => 'Untitled material',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',

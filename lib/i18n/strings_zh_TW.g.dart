@@ -993,6 +993,7 @@ class Translations$courseTable$detail$zh_TW {
 	// Translations
 	late final Translations$courseTable$detail$tabs$zh_TW tabs = Translations$courseTable$detail$tabs$zh_TW.internal(_root);
 	late final Translations$courseTable$detail$roster$zh_TW roster = Translations$courseTable$detail$roster$zh_TW.internal(_root);
+	late final Translations$courseTable$detail$materials$zh_TW materials = Translations$courseTable$detail$materials$zh_TW.internal(_root);
 }
 
 // Path: courseTable.summary
@@ -1557,6 +1558,9 @@ class Translations$courseTable$detail$tabs$zh_TW {
 
 	// Translations
 
+	/// zh-TW: '教材清單'
+	String get materials => '教材清單';
+
 	/// zh-TW: '同學名單'
 	String get roster => '同學名單';
 
@@ -1595,6 +1599,72 @@ class Translations$courseTable$detail$roster$zh_TW {
 
 	/// zh-TW: '返回同學名單'
 	String get backToRoster => '返回同學名單';
+}
+
+// Path: courseTable.detail.materials
+class Translations$courseTable$detail$materials$zh_TW {
+	Translations$courseTable$detail$materials$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '目前沒有教材'
+	String get empty => '目前沒有教材';
+
+	/// zh-TW: '無法載入教材清單。'
+	String get loadFailed => '無法載入教材清單。';
+
+	/// zh-TW: '正在嘗試更新教材清單。此功能需要連接學校網路。'
+	String get networkSnackbar => '正在嘗試更新教材清單。此功能需要連接學校網路。';
+
+	/// zh-TW: '無法更新教材清單，仍顯示先前的資料。'
+	String get updateFailed => '無法更新教材清單，仍顯示先前的資料。';
+
+	/// zh-TW: '教材清單已更新。'
+	String get updateSuccess => '教材清單已更新。';
+
+	/// zh-TW: '返回教材清單'
+	String get backToMaterials => '返回教材清單';
+
+	/// zh-TW: '檔案'
+	String get file => '檔案';
+
+	/// zh-TW: '串流'
+	String get stream => '串流';
+
+	/// zh-TW: '尚未支援串流播放或下載'
+	String get streamUnavailable => '尚未支援串流播放或下載';
+
+	/// zh-TW: '正在確認教材類型…'
+	String get resolving => '正在確認教材類型…';
+
+	/// zh-TW: '無法確認教材類型'
+	String get resolveFailed => '無法確認教材類型';
+
+	/// zh-TW: '重試'
+	String get retry => '重試';
+
+	/// zh-TW: '下載'
+	String get download => '下載';
+
+	/// zh-TW: '正在下載…'
+	String get downloading => '正在下載…';
+
+	/// zh-TW: '選擇儲存位置…'
+	String get saving => '選擇儲存位置…';
+
+	/// zh-TW: '取消'
+	String get cancel => '取消';
+
+	/// zh-TW: '教材已儲存。'
+	String get saved => '教材已儲存。';
+
+	/// zh-TW: '無法下載或儲存教材，請稍後重試。'
+	String get downloadFailed => '無法下載或儲存教材，請稍後重試。';
+
+	/// zh-TW: '未命名教材'
+	String get unnamed => '未命名教材';
 }
 
 // Path: profile.dangerZone.items
@@ -1776,6 +1846,7 @@ extension on Translations {
 			'calendar.today' => '今天',
 			'courseTable.notFound' => '找不到課表',
 			'courseTable.unscheduled' => '未安排時間的課程',
+			'courseTable.detail.tabs.materials' => '教材清單',
 			'courseTable.detail.tabs.roster' => '同學名單',
 			'courseTable.detail.tabs.syllabus' => '課程大綱',
 			'courseTable.detail.roster.studentId' => '學號',
@@ -1786,6 +1857,25 @@ extension on Translations {
 			'courseTable.detail.roster.updateFailed' => '無法更新同學名單，仍顯示先前的資料。',
 			'courseTable.detail.roster.updateSuccess' => '同學名單已更新。',
 			'courseTable.detail.roster.backToRoster' => '返回同學名單',
+			'courseTable.detail.materials.empty' => '目前沒有教材',
+			'courseTable.detail.materials.loadFailed' => '無法載入教材清單。',
+			'courseTable.detail.materials.networkSnackbar' => '正在嘗試更新教材清單。此功能需要連接學校網路。',
+			'courseTable.detail.materials.updateFailed' => '無法更新教材清單，仍顯示先前的資料。',
+			'courseTable.detail.materials.updateSuccess' => '教材清單已更新。',
+			'courseTable.detail.materials.backToMaterials' => '返回教材清單',
+			'courseTable.detail.materials.file' => '檔案',
+			'courseTable.detail.materials.stream' => '串流',
+			'courseTable.detail.materials.streamUnavailable' => '尚未支援串流播放或下載',
+			'courseTable.detail.materials.resolving' => '正在確認教材類型…',
+			'courseTable.detail.materials.resolveFailed' => '無法確認教材類型',
+			'courseTable.detail.materials.retry' => '重試',
+			'courseTable.detail.materials.download' => '下載',
+			'courseTable.detail.materials.downloading' => '正在下載…',
+			'courseTable.detail.materials.saving' => '選擇儲存位置…',
+			'courseTable.detail.materials.cancel' => '取消',
+			'courseTable.detail.materials.saved' => '教材已儲存。',
+			'courseTable.detail.materials.downloadFailed' => '無法下載或儲存教材，請稍後重試。',
+			'courseTable.detail.materials.unnamed' => '未命名教材',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
 			'courseTable.actions.showMoreOptions' => '顯示更多選項',
