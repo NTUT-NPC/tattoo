@@ -136,4 +136,87 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets(
+    'download failure can open the guide after a successful refresh',
+    (
+      tester,
+    ) async {
+      const key = (courseOfferingId: 1, courseNumber: '352902');
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            preferenceValueProvider.overrideWith(
+              (ref, key) =>
+                  key == PrefKey.showCourseRoster ? false : key.defaultValue,
+            ),
+            courseRepositoryProvider.overrideWithValue(
+              _FailingDownloadRepository(),
+            ),
+            courseOfferingProvider('352902')
+                .overrideWith((ref) async => detail),
+            syllabusProvider.overrideWith((ref, key) => Stream.value([])),
+            courseMaterialsProvider(key).overrideWith(
+              (ref) => Stream.value((
+                materials: const [
+                  CourseMaterial(
+                    id: 1,
+                    courseOffering: 1,
+                    title: 'Lecture',
+                    href: 'file',
+                    iSchoolCourseId: '101',
+                    streamable: false,
+                  ),
+                ],
+                fetchedAt: DateTime(2026),
+              )),
+            ),
+            courseMaterialsRefreshProvider(key).overrideWith(
+              (ref) async => (refreshed: true, hadCacheAtStart: true),
+            ),
+            courseMaterialsAvailabilityProvider(key)
+                .overrideWith((ref) async {}),
+          ],
+          child: TranslationProvider(
+            child: const MaterialApp(
+              home: Scaffold(body: CourseTableDetailSheet(number: '352902')),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.courseTable.detail.tabs.materials));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Lecture'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(t.courseTable.detail.materials.downloadFailed),
+        findsOneWidget,
+      );
+      await tester.tap(find.text(t.iSchoolPlus.network.learnMore));
+      await tester.pumpAndSettle();
+      expect(find.byType(ISchoolPlusNetworkGuide), findsOneWidget);
+      await tester.tap(
+        find.text(t.courseTable.detail.materials.backToMaterials),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Lecture'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+}
+
+class _FailingDownloadRepository extends Fake implements CourseRepository {
+  @override
+  Future<bool> saveMaterial(
+    CourseMaterial material, {
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+    void Function()? onSaving,
+  }) async {
+    throw DioException(
+      requestOptions: RequestOptions(path: 'material-download'),
+      type: .connectionError,
+    );
+  }
 }

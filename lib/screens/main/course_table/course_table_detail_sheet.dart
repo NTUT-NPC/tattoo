@@ -587,18 +587,20 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
       );
     }
 
-    final presentation = courseISchoolPresentation(
-      hasCache: hasCache,
-      showNetworkGuide: _showNetworkGuide,
-      allowEarlyNetworkGuide: _isInitialAttempt,
-      refresh: refreshAsync.whenData(
-        (result) =>
-            result.refreshed &&
-            (!widget.isMaterials ||
-                (!refreshAsync.isLoading && !refreshAsync.hasError)),
-      ),
-      availability: availabilityAsync,
-    );
+    final presentation = widget.isMaterials && _showNetworkGuide
+        ? CourseISchoolPresentation.guide
+        : courseISchoolPresentation(
+            hasCache: hasCache,
+            showNetworkGuide: _showNetworkGuide,
+            allowEarlyNetworkGuide: _isInitialAttempt,
+            refresh: refreshAsync.whenData(
+              (result) =>
+                  result.refreshed &&
+                  (!widget.isMaterials ||
+                      (!refreshAsync.isLoading && !refreshAsync.hasError)),
+            ),
+            availability: availabilityAsync,
+          );
     switch (presentation) {
       case .guide:
         return ISchoolPlusNetworkGuide(
