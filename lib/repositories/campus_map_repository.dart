@@ -6,6 +6,7 @@ import 'package:drift/native.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/campus_map.dart';
+import 'package:tattoo/repositories/campus_map_building_overrides.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/map/campus_map_service.dart';
 
@@ -53,6 +54,8 @@ class CampusMapRepository {
   /// Cached data emits immediately. A missing or 14-day-old catalog refreshes
   /// once per subscription; failures retain stale data or emit an empty catalog
   /// for the screen's retry state.
+  /// A6T and HR use bundled first-floor outline corrections, including when
+  /// reading a catalog cached before these corrections were introduced.
   Stream<List<CampusMapBuilding>> watchBuildings() async* {
     var attempted = false;
     final query = _db.select(_db.campusMapBuildings).join([
@@ -89,8 +92,13 @@ class CampusMapRepository {
         for (final building in buildings.values)
           CampusMapBuilding(
             code: building.code,
-            name: building.name,
-            polygons: decodeCampusMapGeometry(building.geometry),
+            name:
+                campusMapBuildingOverrides[building.code]?.name ??
+                building.name,
+            polygons: decodeCampusMapGeometry(
+              campusMapBuildingOverrides[building.code]?.geometry ??
+                  building.geometry,
+            ),
             floors: (floors[building.code] ?? [])
               ..sort((a, b) => a.order.compareTo(b.order)),
           ),
@@ -309,7 +317,8 @@ class CampusMapRepository {
     return CampusMapRoom(
       id: room.id,
       buildingCode: building.code,
-      buildingName: building.name,
+      buildingName:
+          campusMapBuildingOverrides[building.code]?.name ?? building.name,
       floor: CampusMapFloor(layerName: floor.layerName, code: floor.code),
       nameZh: room.nameZh,
       nameEn: room.nameEn,
@@ -363,7 +372,9 @@ class CampusMapRepository {
       final room = CampusMapRoom(
         id: row.read(table.id)!,
         buildingCode: row.read(floors.building)!,
-        buildingName: row.read(buildings.name)!,
+        buildingName:
+            campusMapBuildingOverrides[row.read(floors.building)!]?.name ??
+            row.read(buildings.name)!,
         floor: CampusMapFloor(
           layerName: row.read(table.layerName)!,
           code: row.read(floors.code)!,

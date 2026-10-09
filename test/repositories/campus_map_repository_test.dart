@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/campus_map.dart';
 import 'package:tattoo/repositories/campus_map_repository.dart';
+import 'package:tattoo/screens/main/map/campus_map_geometry.dart';
 import 'package:tattoo/services/map/campus_map_service.dart';
 
 const _layerA = 'gis_room:A1T_1F';
@@ -57,6 +58,97 @@ void main() {
         '101',
       );
     });
+
+    test(
+      'cached A6T and missing HR outlines resolve to distinct first-floor footprints',
+      () async {
+        final combined = (
+          id: 'combined',
+          code: 'A6T',
+          name: '宏裕科技大樓/第六教學大樓',
+          polygons: _geometry(121.5336, 25.0436),
+        );
+        service.buildings = [combined, _outline('A1T', 'Alpha Hall')];
+        service.layers = [
+          (name: 'gis_room:A6T_1F', buildingCode: 'A6T', floor: '1F'),
+          (name: 'gis_room:HR_1F', buildingCode: 'HR', floor: '1F'),
+          (name: _layerA, buildingCode: 'A1T', floor: '1F'),
+        ];
+        await repository.refreshBuildings();
+        final source = await database.select(database.campusMapBuildings).get();
+        final calls = service.buildingCalls;
+
+        // Simulate reopening with a fresh catalog cached by an older app.
+        repository = _repository(service, database, () => clock);
+        final buildings = await repository.watchBuildings().first;
+        final sixth = buildings.singleWhere(
+          (building) => building.code == 'A6T',
+        );
+        final hongYu = buildings.singleWhere(
+          (building) => building.code == 'HR',
+        );
+        expect(sixth.name, '第六教學大樓');
+        expect(hongYu.name, '宏裕科技大樓');
+        expect(sixth.floors.single.layerName, 'gis_room:A6T_1F');
+        expect(hongYu.floors.single.layerName, 'gis_room:HR_1F');
+        expect(
+          buildings.singleWhere((building) => building.code == 'A1T').polygons,
+          isEmpty,
+        );
+
+        List<String> hits(CampusMapPoint point) => [
+          for (final building in buildings)
+            if (building.polygons.any(
+              (polygon) => campusMapContainsPoint(polygon, point),
+            ))
+              building.code,
+        ];
+
+        expect(hits((longitude: 121.5339, latitude: 25.0441)), ['HR']);
+        // A point where the two upstream first-floor geometries overlap.
+        expect(
+          hits((longitude: 121.53393870, latitude: 25.04392151)),
+          ['HR'],
+        );
+        expect(hits((longitude: 121.53376, latitude: 25.04385)), ['A6T']);
+        expect(hits((longitude: 121.53406, latitude: 25.04377)), ['A6T']);
+        expect(hits((longitude: 121.5343, latitude: 25.0441)), isEmpty);
+        expect(service.buildingCalls, calls);
+        expect(service.roomCalls, isEmpty);
+        expect(
+          await database.select(database.campusMapBuildings).get(),
+          source,
+        );
+      },
+    );
+
+    test(
+      'corrected building names also apply to search and room location',
+      () async {
+        service.buildings = [_outline('A6T', '宏裕科技大樓/第六教學大樓')];
+        service.layers = [
+          (name: 'gis_room:A6T_1F', buildingCode: 'A6T', floor: '1F'),
+          (name: 'gis_room:HR_1F', buildingCode: 'HR', floor: '1F'),
+        ];
+        service.index = [
+          _room('gis_room:A6T_1F', '101', withGeometry: false),
+          _room('gis_room:HR_1F', '101', withGeometry: false),
+        ];
+        service.roomsByLayer['gis_room:HR_1F'] = [
+          _room('gis_room:HR_1F', '101'),
+        ];
+        await repository.refreshBuildings();
+
+        final hongYu = (await repository.searchRooms('宏裕科技大樓101')).single;
+        final sixth = (await repository.searchRooms('第六教學大樓101')).single;
+        expect(hongYu.buildingCode, 'HR');
+        expect(hongYu.buildingName, '宏裕科技大樓');
+        expect(sixth.buildingCode, 'A6T');
+        expect(sixth.buildingName, '第六教學大樓');
+        expect((await repository.locateRoom(hongYu))!.buildingName, '宏裕科技大樓');
+        expect(service.roomCalls, ['gis_room:HR_1F']);
+      },
+    );
 
     test('caches a successful empty floor as fetched', () async {
       await repository.refreshBuildings();
