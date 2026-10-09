@@ -168,10 +168,7 @@ courseTable:
       backToMaterials: Back to course materials
       file: File
       stream: Stream
-      streamUnavailable: Streaming playback and download are not supported yet
-      resolving: Checking material type…
-      resolveFailed: Unable to identify material type
-      retry: Retry
+      streamUnavailable: Recordings cannot be downloaded
       download: Download
       downloading: Downloading…
       saving: Choose a save location…

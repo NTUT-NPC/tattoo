@@ -988,10 +988,7 @@ class _Translations$courseTable$detail$materials$en_US extends Translations$cour
 	@override String get backToMaterials => 'Back to course materials';
 	@override String get file => 'File';
 	@override String get stream => 'Stream';
-	@override String get streamUnavailable => 'Streaming playback and download are not supported yet';
-	@override String get resolving => 'Checking material type…';
-	@override String get resolveFailed => 'Unable to identify material type';
-	@override String get retry => 'Retry';
+	@override String get streamUnavailable => 'Recordings cannot be downloaded';
 	@override String get download => 'Download';
 	@override String get downloading => 'Downloading…';
 	@override String get saving => 'Choose a save location…';
@@ -1177,10 +1174,7 @@ extension on TranslationsEnUs {
 			'courseTable.detail.materials.backToMaterials' => 'Back to course materials',
 			'courseTable.detail.materials.file' => 'File',
 			'courseTable.detail.materials.stream' => 'Stream',
-			'courseTable.detail.materials.streamUnavailable' => 'Streaming playback and download are not supported yet',
-			'courseTable.detail.materials.resolving' => 'Checking material type…',
-			'courseTable.detail.materials.resolveFailed' => 'Unable to identify material type',
-			'courseTable.detail.materials.retry' => 'Retry',
+			'courseTable.detail.materials.streamUnavailable' => 'Recordings cannot be downloaded',
 			'courseTable.detail.materials.download' => 'Download',
 			'courseTable.detail.materials.downloading' => 'Downloading…',
 			'courseTable.detail.materials.saving' => 'Choose a save location…',

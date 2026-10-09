@@ -168,10 +168,7 @@ courseTable:
       backToMaterials: 返回教材清單
       file: 檔案
       stream: 串流
-      streamUnavailable: 尚未支援串流播放或下載
-      resolving: 正在確認教材類型…
-      resolveFailed: 無法確認教材類型
-      retry: 重試
+      streamUnavailable: 無法下載錄影
       download: 下載
       downloading: 正在下載…
       saving: 選擇儲存位置…

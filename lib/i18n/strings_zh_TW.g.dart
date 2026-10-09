@@ -1633,17 +1633,8 @@ class Translations$courseTable$detail$materials$zh_TW {
 	/// zh-TW: '串流'
 	String get stream => '串流';
 
-	/// zh-TW: '尚未支援串流播放或下載'
-	String get streamUnavailable => '尚未支援串流播放或下載';
-
-	/// zh-TW: '正在確認教材類型…'
-	String get resolving => '正在確認教材類型…';
-
-	/// zh-TW: '無法確認教材類型'
-	String get resolveFailed => '無法確認教材類型';
-
-	/// zh-TW: '重試'
-	String get retry => '重試';
+	/// zh-TW: '無法下載錄影'
+	String get streamUnavailable => '無法下載錄影';
 
 	/// zh-TW: '下載'
 	String get download => '下載';
@@ -1865,10 +1856,7 @@ extension on Translations {
 			'courseTable.detail.materials.backToMaterials' => '返回教材清單',
 			'courseTable.detail.materials.file' => '檔案',
 			'courseTable.detail.materials.stream' => '串流',
-			'courseTable.detail.materials.streamUnavailable' => '尚未支援串流播放或下載',
-			'courseTable.detail.materials.resolving' => '正在確認教材類型…',
-			'courseTable.detail.materials.resolveFailed' => '無法確認教材類型',
-			'courseTable.detail.materials.retry' => '重試',
+			'courseTable.detail.materials.streamUnavailable' => '無法下載錄影',
 			'courseTable.detail.materials.download' => '下載',
 			'courseTable.detail.materials.downloading' => '正在下載…',
 			'courseTable.detail.materials.saving' => '選擇儲存位置…',
