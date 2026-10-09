@@ -873,3 +873,91 @@ class CalendarEvents extends Table with AutoIncrementId {
   /// Creator name (e.g., "教務處").
   late final creatorName = text().nullable()();
 }
+
+/// Building outlines and names from the public campus map catalog.
+@DataClassName('MapBuildingRecord')
+class CampusMapBuildings extends Table {
+  /// The building code, or feature ID for an uncoded outline.
+  late final code = text()();
+
+  /// The server's display name; unnamed entries use their code.
+  late final name = text()();
+
+  /// Polygon rings for this building only, serialized as WGS84 coordinates.
+  late final geometry = text()();
+
+  @override
+  Set<Column> get primaryKey => {code};
+}
+
+/// Published indoor layers, keyed by their actual building and floor.
+@DataClassName('MapFloorRecord')
+@TableIndex(name: 'campus_map_floor_building', columns: {#building})
+class CampusMapFloors extends Table {
+  /// The fully qualified WFS layer name.
+  late final layerName = text()();
+
+  /// The owning building code.
+  late final building = text().references(
+    CampusMapBuildings,
+    #code,
+    onDelete: .cascade,
+  )();
+
+  /// The original floor suffix, including distinct mezzanine and roof levels.
+  late final code = text()();
+
+  /// When this floor's geometry was last fetched, including empty floors.
+  late final fetchedAt = dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {layerName};
+}
+
+/// Searchable spaces with geometry populated only for requested floors.
+@DataClassName('MapRoomRecord')
+@TableIndex(name: 'campus_map_room_layer', columns: {#layerName})
+class CampusMapRooms extends Table {
+  /// The layer-qualified GeoServer feature ID.
+  late final id = text()();
+
+  /// The space's published indoor layer.
+  late final layerName = text().references(
+    CampusMapFloors,
+    #layerName,
+    onDelete: .cascade,
+  )();
+
+  /// The space's Chinese name.
+  late final nameZh = text()();
+
+  /// The space's English name.
+  late final nameEn = text()();
+
+  /// The classroom or space number.
+  late final number = text()();
+
+  /// The polygons for this room, absent until its floor is requested.
+  late final geometry = text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Completeness timestamps for the public catalog and metadata-only index.
+///
+/// These datasets are app-scoped and have no owning user or semester row.
+@DataClassName('MapSyncRecord')
+class CampusMapSyncs extends Table {
+  /// The dataset namespace, separating public NTUT data from demo data.
+  late final namespace = text()();
+
+  /// When the building and layer catalogs were successfully synchronized.
+  late final catalogFetchedAt = dateTime().nullable()();
+
+  /// When the entire metadata-only room index was successfully synchronized.
+  late final indexFetchedAt = dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {namespace};
+}

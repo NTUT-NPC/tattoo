@@ -65,6 +65,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - ISchoolPlusService — 北科i學園PLUS (`ischool_plus_oauth`). Course rosters and materials.
 - StudentQueryService — 學生查詢專區 (`sa_003_oauth`). Academic records, GPA, rankings, registration history.
 - GitHubService — fetches repo contributors, filters bots
+- CampusMapService — Public GeoServer WFS for building outlines, indoor floor layers, room geometry, and a metadata-only room search index. Needs no portal session and has a local demo implementation. Mobile uses native TLS; desktop supplies the missing TWCA intermediate from `assets/certificates/` while retaining certificate validation.
 - FirebaseService — Unified wrapper for Firebase Analytics, Crashlytics, and Remote Config. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`). `getRemoteConfigTyped(key, PrefType)` casts a Remote Config value to the caller's declared type (no sniffing), returning `(value: null, isRemote: false)` when disabled or not remotely set.
 - CampusWifiPlatform — Method-channel client wrapper that exposes Android-only system Wi-Fi APIs (suggestions and settings) to the Dart application via the `campusWifiPlatformProvider` Riverpod provider and structured method-channel DTOs (`CampusWifiCapabilitiesDto`, `Ntut8021xProvisioningDto`).
 - Ntut8021xStateStore — Securely stores device-local provisioning state (modes, credential fingerprint, pending compat prompts) using SharedPreferences, exposed via the `ntut8021xStateStoreProvider`.
@@ -111,6 +112,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 | Layer | Test type | Mock strategy | Runs in CI |
 | --- | --- | --- | --- |
 | NTUT services | Integration (real server) | None — tests hit real NTUT | Only with credentials |
+| Campus map service | Parser/protocol unit tests + public integration | Synthetic GeoJSON/XML and injected HTTP adapter | Unit tests always; integration opt-in |
 | Repositories | Unit | Mock NTUT service interfaces (return canned DTOs) | Always |
 | Utils | Unit | None needed (pure functions) | Always |
 | Database views | Unit (in-memory SQLite) | None needed (Drift test utilities) | Always |
@@ -118,6 +120,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 - **NTUT services** (Portal, Course, ISchoolPlus, StudentQuery) have `abstract interface class` — mock implementations return canned DTOs for repository unit tests and demo mode
 - **Non-NTUT services** (GitHubService, FirebaseService) do not need mock implementations — they have stable API contracts
+- **Campus map integration:** `flutter test --dart-define=TEST_CAMPUS_MAP=true test/services/map/campus_map_service_integration_test.dart` hits the live public GeoServer without portal credentials. It is skipped by default.
 - **No fixtures for live service tests:** Service-layer integration tests stay integration-only against real NTUT servers — inline HTML fixtures would go stale silently, so integration tests are the source of truth for live parsing correctness. Exception: de-identified snapshots promoted from `tmp/html_snapshot/` into `test/fixtures/` (see **HTML snapshot capture** above) back separate HTML-based parser tests, not the live integration tests.
 
 ## NTUT-Specific Patterns

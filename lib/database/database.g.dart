@@ -12252,6 +12252,1315 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
   }
 }
 
+class $CampusMapBuildingsTable extends CampusMapBuildings
+    with TableInfo<$CampusMapBuildingsTable, MapBuildingRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CampusMapBuildingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _geometryMeta = const VerificationMeta(
+    'geometry',
+  );
+  @override
+  late final GeneratedColumn<String> geometry = GeneratedColumn<String>(
+    'geometry',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [code, name, geometry];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'campus_map_buildings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MapBuildingRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('code')) {
+      context.handle(
+        _codeMeta,
+        code.isAcceptableOrUnknown(data['code']!, _codeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('geometry')) {
+      context.handle(
+        _geometryMeta,
+        geometry.isAcceptableOrUnknown(data['geometry']!, _geometryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_geometryMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {code};
+  @override
+  MapBuildingRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MapBuildingRecord(
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      geometry: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}geometry'],
+      )!,
+    );
+  }
+
+  @override
+  $CampusMapBuildingsTable createAlias(String alias) {
+    return $CampusMapBuildingsTable(attachedDatabase, alias);
+  }
+}
+
+class MapBuildingRecord extends DataClass
+    implements Insertable<MapBuildingRecord> {
+  /// The building code, or feature ID for an uncoded outline.
+  final String code;
+
+  /// The server's display name; unnamed entries use their code.
+  final String name;
+
+  /// Polygon rings for this building only, serialized as WGS84 coordinates.
+  final String geometry;
+  const MapBuildingRecord({
+    required this.code,
+    required this.name,
+    required this.geometry,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['code'] = Variable<String>(code);
+    map['name'] = Variable<String>(name);
+    map['geometry'] = Variable<String>(geometry);
+    return map;
+  }
+
+  CampusMapBuildingsCompanion toCompanion(bool nullToAbsent) {
+    return CampusMapBuildingsCompanion(
+      code: Value(code),
+      name: Value(name),
+      geometry: Value(geometry),
+    );
+  }
+
+  factory MapBuildingRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MapBuildingRecord(
+      code: serializer.fromJson<String>(json['code']),
+      name: serializer.fromJson<String>(json['name']),
+      geometry: serializer.fromJson<String>(json['geometry']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'code': serializer.toJson<String>(code),
+      'name': serializer.toJson<String>(name),
+      'geometry': serializer.toJson<String>(geometry),
+    };
+  }
+
+  MapBuildingRecord copyWith({String? code, String? name, String? geometry}) =>
+      MapBuildingRecord(
+        code: code ?? this.code,
+        name: name ?? this.name,
+        geometry: geometry ?? this.geometry,
+      );
+  MapBuildingRecord copyWithCompanion(CampusMapBuildingsCompanion data) {
+    return MapBuildingRecord(
+      code: data.code.present ? data.code.value : this.code,
+      name: data.name.present ? data.name.value : this.name,
+      geometry: data.geometry.present ? data.geometry.value : this.geometry,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MapBuildingRecord(')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('geometry: $geometry')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(code, name, geometry);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MapBuildingRecord &&
+          other.code == this.code &&
+          other.name == this.name &&
+          other.geometry == this.geometry);
+}
+
+class CampusMapBuildingsCompanion extends UpdateCompanion<MapBuildingRecord> {
+  final Value<String> code;
+  final Value<String> name;
+  final Value<String> geometry;
+  final Value<int> rowid;
+  const CampusMapBuildingsCompanion({
+    this.code = const Value.absent(),
+    this.name = const Value.absent(),
+    this.geometry = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CampusMapBuildingsCompanion.insert({
+    required String code,
+    required String name,
+    required String geometry,
+    this.rowid = const Value.absent(),
+  }) : code = Value(code),
+       name = Value(name),
+       geometry = Value(geometry);
+  static Insertable<MapBuildingRecord> custom({
+    Expression<String>? code,
+    Expression<String>? name,
+    Expression<String>? geometry,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (code != null) 'code': code,
+      if (name != null) 'name': name,
+      if (geometry != null) 'geometry': geometry,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CampusMapBuildingsCompanion copyWith({
+    Value<String>? code,
+    Value<String>? name,
+    Value<String>? geometry,
+    Value<int>? rowid,
+  }) {
+    return CampusMapBuildingsCompanion(
+      code: code ?? this.code,
+      name: name ?? this.name,
+      geometry: geometry ?? this.geometry,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (geometry.present) {
+      map['geometry'] = Variable<String>(geometry.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CampusMapBuildingsCompanion(')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('geometry: $geometry, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CampusMapFloorsTable extends CampusMapFloors
+    with TableInfo<$CampusMapFloorsTable, MapFloorRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CampusMapFloorsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _layerNameMeta = const VerificationMeta(
+    'layerName',
+  );
+  @override
+  late final GeneratedColumn<String> layerName = GeneratedColumn<String>(
+    'layer_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _buildingMeta = const VerificationMeta(
+    'building',
+  );
+  @override
+  late final GeneratedColumn<String> building = GeneratedColumn<String>(
+    'building',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES campus_map_buildings (code) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [layerName, building, code, fetchedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'campus_map_floors';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MapFloorRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('layer_name')) {
+      context.handle(
+        _layerNameMeta,
+        layerName.isAcceptableOrUnknown(data['layer_name']!, _layerNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_layerNameMeta);
+    }
+    if (data.containsKey('building')) {
+      context.handle(
+        _buildingMeta,
+        building.isAcceptableOrUnknown(data['building']!, _buildingMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_buildingMeta);
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+        _codeMeta,
+        code.isAcceptableOrUnknown(data['code']!, _codeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {layerName};
+  @override
+  MapFloorRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MapFloorRecord(
+      layerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}layer_name'],
+      )!,
+      building: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}building'],
+      )!,
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      ),
+    );
+  }
+
+  @override
+  $CampusMapFloorsTable createAlias(String alias) {
+    return $CampusMapFloorsTable(attachedDatabase, alias);
+  }
+}
+
+class MapFloorRecord extends DataClass implements Insertable<MapFloorRecord> {
+  /// The fully qualified WFS layer name.
+  final String layerName;
+
+  /// The owning building code.
+  final String building;
+
+  /// The original floor suffix, including distinct mezzanine and roof levels.
+  final String code;
+
+  /// When this floor's geometry was last fetched, including empty floors.
+  final DateTime? fetchedAt;
+  const MapFloorRecord({
+    required this.layerName,
+    required this.building,
+    required this.code,
+    this.fetchedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['layer_name'] = Variable<String>(layerName);
+    map['building'] = Variable<String>(building);
+    map['code'] = Variable<String>(code);
+    if (!nullToAbsent || fetchedAt != null) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    }
+    return map;
+  }
+
+  CampusMapFloorsCompanion toCompanion(bool nullToAbsent) {
+    return CampusMapFloorsCompanion(
+      layerName: Value(layerName),
+      building: Value(building),
+      code: Value(code),
+      fetchedAt: fetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fetchedAt),
+    );
+  }
+
+  factory MapFloorRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MapFloorRecord(
+      layerName: serializer.fromJson<String>(json['layerName']),
+      building: serializer.fromJson<String>(json['building']),
+      code: serializer.fromJson<String>(json['code']),
+      fetchedAt: serializer.fromJson<DateTime?>(json['fetchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'layerName': serializer.toJson<String>(layerName),
+      'building': serializer.toJson<String>(building),
+      'code': serializer.toJson<String>(code),
+      'fetchedAt': serializer.toJson<DateTime?>(fetchedAt),
+    };
+  }
+
+  MapFloorRecord copyWith({
+    String? layerName,
+    String? building,
+    String? code,
+    Value<DateTime?> fetchedAt = const Value.absent(),
+  }) => MapFloorRecord(
+    layerName: layerName ?? this.layerName,
+    building: building ?? this.building,
+    code: code ?? this.code,
+    fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
+  );
+  MapFloorRecord copyWithCompanion(CampusMapFloorsCompanion data) {
+    return MapFloorRecord(
+      layerName: data.layerName.present ? data.layerName.value : this.layerName,
+      building: data.building.present ? data.building.value : this.building,
+      code: data.code.present ? data.code.value : this.code,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MapFloorRecord(')
+          ..write('layerName: $layerName, ')
+          ..write('building: $building, ')
+          ..write('code: $code, ')
+          ..write('fetchedAt: $fetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(layerName, building, code, fetchedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MapFloorRecord &&
+          other.layerName == this.layerName &&
+          other.building == this.building &&
+          other.code == this.code &&
+          other.fetchedAt == this.fetchedAt);
+}
+
+class CampusMapFloorsCompanion extends UpdateCompanion<MapFloorRecord> {
+  final Value<String> layerName;
+  final Value<String> building;
+  final Value<String> code;
+  final Value<DateTime?> fetchedAt;
+  final Value<int> rowid;
+  const CampusMapFloorsCompanion({
+    this.layerName = const Value.absent(),
+    this.building = const Value.absent(),
+    this.code = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CampusMapFloorsCompanion.insert({
+    required String layerName,
+    required String building,
+    required String code,
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : layerName = Value(layerName),
+       building = Value(building),
+       code = Value(code);
+  static Insertable<MapFloorRecord> custom({
+    Expression<String>? layerName,
+    Expression<String>? building,
+    Expression<String>? code,
+    Expression<DateTime>? fetchedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (layerName != null) 'layer_name': layerName,
+      if (building != null) 'building': building,
+      if (code != null) 'code': code,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CampusMapFloorsCompanion copyWith({
+    Value<String>? layerName,
+    Value<String>? building,
+    Value<String>? code,
+    Value<DateTime?>? fetchedAt,
+    Value<int>? rowid,
+  }) {
+    return CampusMapFloorsCompanion(
+      layerName: layerName ?? this.layerName,
+      building: building ?? this.building,
+      code: code ?? this.code,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (layerName.present) {
+      map['layer_name'] = Variable<String>(layerName.value);
+    }
+    if (building.present) {
+      map['building'] = Variable<String>(building.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CampusMapFloorsCompanion(')
+          ..write('layerName: $layerName, ')
+          ..write('building: $building, ')
+          ..write('code: $code, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CampusMapRoomsTable extends CampusMapRooms
+    with TableInfo<$CampusMapRoomsTable, MapRoomRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CampusMapRoomsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _layerNameMeta = const VerificationMeta(
+    'layerName',
+  );
+  @override
+  late final GeneratedColumn<String> layerName = GeneratedColumn<String>(
+    'layer_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES campus_map_floors (layer_name) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _nameZhMeta = const VerificationMeta('nameZh');
+  @override
+  late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
+    'name_zh',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameEnMeta = const VerificationMeta('nameEn');
+  @override
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _numberMeta = const VerificationMeta('number');
+  @override
+  late final GeneratedColumn<String> number = GeneratedColumn<String>(
+    'number',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _geometryMeta = const VerificationMeta(
+    'geometry',
+  );
+  @override
+  late final GeneratedColumn<String> geometry = GeneratedColumn<String>(
+    'geometry',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    layerName,
+    nameZh,
+    nameEn,
+    number,
+    geometry,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'campus_map_rooms';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MapRoomRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('layer_name')) {
+      context.handle(
+        _layerNameMeta,
+        layerName.isAcceptableOrUnknown(data['layer_name']!, _layerNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_layerNameMeta);
+    }
+    if (data.containsKey('name_zh')) {
+      context.handle(
+        _nameZhMeta,
+        nameZh.isAcceptableOrUnknown(data['name_zh']!, _nameZhMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameZhMeta);
+    }
+    if (data.containsKey('name_en')) {
+      context.handle(
+        _nameEnMeta,
+        nameEn.isAcceptableOrUnknown(data['name_en']!, _nameEnMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameEnMeta);
+    }
+    if (data.containsKey('number')) {
+      context.handle(
+        _numberMeta,
+        number.isAcceptableOrUnknown(data['number']!, _numberMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_numberMeta);
+    }
+    if (data.containsKey('geometry')) {
+      context.handle(
+        _geometryMeta,
+        geometry.isAcceptableOrUnknown(data['geometry']!, _geometryMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MapRoomRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MapRoomRecord(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      layerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}layer_name'],
+      )!,
+      nameZh: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_zh'],
+      )!,
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      )!,
+      number: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}number'],
+      )!,
+      geometry: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}geometry'],
+      ),
+    );
+  }
+
+  @override
+  $CampusMapRoomsTable createAlias(String alias) {
+    return $CampusMapRoomsTable(attachedDatabase, alias);
+  }
+}
+
+class MapRoomRecord extends DataClass implements Insertable<MapRoomRecord> {
+  /// The layer-qualified GeoServer feature ID.
+  final String id;
+
+  /// The space's published indoor layer.
+  final String layerName;
+
+  /// The space's Chinese name.
+  final String nameZh;
+
+  /// The space's English name.
+  final String nameEn;
+
+  /// The classroom or space number.
+  final String number;
+
+  /// The polygons for this room, absent until its floor is requested.
+  final String? geometry;
+  const MapRoomRecord({
+    required this.id,
+    required this.layerName,
+    required this.nameZh,
+    required this.nameEn,
+    required this.number,
+    this.geometry,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['layer_name'] = Variable<String>(layerName);
+    map['name_zh'] = Variable<String>(nameZh);
+    map['name_en'] = Variable<String>(nameEn);
+    map['number'] = Variable<String>(number);
+    if (!nullToAbsent || geometry != null) {
+      map['geometry'] = Variable<String>(geometry);
+    }
+    return map;
+  }
+
+  CampusMapRoomsCompanion toCompanion(bool nullToAbsent) {
+    return CampusMapRoomsCompanion(
+      id: Value(id),
+      layerName: Value(layerName),
+      nameZh: Value(nameZh),
+      nameEn: Value(nameEn),
+      number: Value(number),
+      geometry: geometry == null && nullToAbsent
+          ? const Value.absent()
+          : Value(geometry),
+    );
+  }
+
+  factory MapRoomRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MapRoomRecord(
+      id: serializer.fromJson<String>(json['id']),
+      layerName: serializer.fromJson<String>(json['layerName']),
+      nameZh: serializer.fromJson<String>(json['nameZh']),
+      nameEn: serializer.fromJson<String>(json['nameEn']),
+      number: serializer.fromJson<String>(json['number']),
+      geometry: serializer.fromJson<String?>(json['geometry']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'layerName': serializer.toJson<String>(layerName),
+      'nameZh': serializer.toJson<String>(nameZh),
+      'nameEn': serializer.toJson<String>(nameEn),
+      'number': serializer.toJson<String>(number),
+      'geometry': serializer.toJson<String?>(geometry),
+    };
+  }
+
+  MapRoomRecord copyWith({
+    String? id,
+    String? layerName,
+    String? nameZh,
+    String? nameEn,
+    String? number,
+    Value<String?> geometry = const Value.absent(),
+  }) => MapRoomRecord(
+    id: id ?? this.id,
+    layerName: layerName ?? this.layerName,
+    nameZh: nameZh ?? this.nameZh,
+    nameEn: nameEn ?? this.nameEn,
+    number: number ?? this.number,
+    geometry: geometry.present ? geometry.value : this.geometry,
+  );
+  MapRoomRecord copyWithCompanion(CampusMapRoomsCompanion data) {
+    return MapRoomRecord(
+      id: data.id.present ? data.id.value : this.id,
+      layerName: data.layerName.present ? data.layerName.value : this.layerName,
+      nameZh: data.nameZh.present ? data.nameZh.value : this.nameZh,
+      nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
+      number: data.number.present ? data.number.value : this.number,
+      geometry: data.geometry.present ? data.geometry.value : this.geometry,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MapRoomRecord(')
+          ..write('id: $id, ')
+          ..write('layerName: $layerName, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('number: $number, ')
+          ..write('geometry: $geometry')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, layerName, nameZh, nameEn, number, geometry);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MapRoomRecord &&
+          other.id == this.id &&
+          other.layerName == this.layerName &&
+          other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn &&
+          other.number == this.number &&
+          other.geometry == this.geometry);
+}
+
+class CampusMapRoomsCompanion extends UpdateCompanion<MapRoomRecord> {
+  final Value<String> id;
+  final Value<String> layerName;
+  final Value<String> nameZh;
+  final Value<String> nameEn;
+  final Value<String> number;
+  final Value<String?> geometry;
+  final Value<int> rowid;
+  const CampusMapRoomsCompanion({
+    this.id = const Value.absent(),
+    this.layerName = const Value.absent(),
+    this.nameZh = const Value.absent(),
+    this.nameEn = const Value.absent(),
+    this.number = const Value.absent(),
+    this.geometry = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CampusMapRoomsCompanion.insert({
+    required String id,
+    required String layerName,
+    required String nameZh,
+    required String nameEn,
+    required String number,
+    this.geometry = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       layerName = Value(layerName),
+       nameZh = Value(nameZh),
+       nameEn = Value(nameEn),
+       number = Value(number);
+  static Insertable<MapRoomRecord> custom({
+    Expression<String>? id,
+    Expression<String>? layerName,
+    Expression<String>? nameZh,
+    Expression<String>? nameEn,
+    Expression<String>? number,
+    Expression<String>? geometry,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (layerName != null) 'layer_name': layerName,
+      if (nameZh != null) 'name_zh': nameZh,
+      if (nameEn != null) 'name_en': nameEn,
+      if (number != null) 'number': number,
+      if (geometry != null) 'geometry': geometry,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CampusMapRoomsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? layerName,
+    Value<String>? nameZh,
+    Value<String>? nameEn,
+    Value<String>? number,
+    Value<String?>? geometry,
+    Value<int>? rowid,
+  }) {
+    return CampusMapRoomsCompanion(
+      id: id ?? this.id,
+      layerName: layerName ?? this.layerName,
+      nameZh: nameZh ?? this.nameZh,
+      nameEn: nameEn ?? this.nameEn,
+      number: number ?? this.number,
+      geometry: geometry ?? this.geometry,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (layerName.present) {
+      map['layer_name'] = Variable<String>(layerName.value);
+    }
+    if (nameZh.present) {
+      map['name_zh'] = Variable<String>(nameZh.value);
+    }
+    if (nameEn.present) {
+      map['name_en'] = Variable<String>(nameEn.value);
+    }
+    if (number.present) {
+      map['number'] = Variable<String>(number.value);
+    }
+    if (geometry.present) {
+      map['geometry'] = Variable<String>(geometry.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CampusMapRoomsCompanion(')
+          ..write('id: $id, ')
+          ..write('layerName: $layerName, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('number: $number, ')
+          ..write('geometry: $geometry, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CampusMapSyncsTable extends CampusMapSyncs
+    with TableInfo<$CampusMapSyncsTable, MapSyncRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CampusMapSyncsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _namespaceMeta = const VerificationMeta(
+    'namespace',
+  );
+  @override
+  late final GeneratedColumn<String> namespace = GeneratedColumn<String>(
+    'namespace',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _catalogFetchedAtMeta = const VerificationMeta(
+    'catalogFetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> catalogFetchedAt =
+      GeneratedColumn<DateTime>(
+        'catalog_fetched_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _indexFetchedAtMeta = const VerificationMeta(
+    'indexFetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> indexFetchedAt =
+      GeneratedColumn<DateTime>(
+        'index_fetched_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    namespace,
+    catalogFetchedAt,
+    indexFetchedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'campus_map_syncs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MapSyncRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('namespace')) {
+      context.handle(
+        _namespaceMeta,
+        namespace.isAcceptableOrUnknown(data['namespace']!, _namespaceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_namespaceMeta);
+    }
+    if (data.containsKey('catalog_fetched_at')) {
+      context.handle(
+        _catalogFetchedAtMeta,
+        catalogFetchedAt.isAcceptableOrUnknown(
+          data['catalog_fetched_at']!,
+          _catalogFetchedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('index_fetched_at')) {
+      context.handle(
+        _indexFetchedAtMeta,
+        indexFetchedAt.isAcceptableOrUnknown(
+          data['index_fetched_at']!,
+          _indexFetchedAtMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {namespace};
+  @override
+  MapSyncRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MapSyncRecord(
+      namespace: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}namespace'],
+      )!,
+      catalogFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}catalog_fetched_at'],
+      ),
+      indexFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}index_fetched_at'],
+      ),
+    );
+  }
+
+  @override
+  $CampusMapSyncsTable createAlias(String alias) {
+    return $CampusMapSyncsTable(attachedDatabase, alias);
+  }
+}
+
+class MapSyncRecord extends DataClass implements Insertable<MapSyncRecord> {
+  /// The dataset namespace, separating public NTUT data from demo data.
+  final String namespace;
+
+  /// When the building and layer catalogs were successfully synchronized.
+  final DateTime? catalogFetchedAt;
+
+  /// When the entire metadata-only room index was successfully synchronized.
+  final DateTime? indexFetchedAt;
+  const MapSyncRecord({
+    required this.namespace,
+    this.catalogFetchedAt,
+    this.indexFetchedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['namespace'] = Variable<String>(namespace);
+    if (!nullToAbsent || catalogFetchedAt != null) {
+      map['catalog_fetched_at'] = Variable<DateTime>(catalogFetchedAt);
+    }
+    if (!nullToAbsent || indexFetchedAt != null) {
+      map['index_fetched_at'] = Variable<DateTime>(indexFetchedAt);
+    }
+    return map;
+  }
+
+  CampusMapSyncsCompanion toCompanion(bool nullToAbsent) {
+    return CampusMapSyncsCompanion(
+      namespace: Value(namespace),
+      catalogFetchedAt: catalogFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(catalogFetchedAt),
+      indexFetchedAt: indexFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(indexFetchedAt),
+    );
+  }
+
+  factory MapSyncRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MapSyncRecord(
+      namespace: serializer.fromJson<String>(json['namespace']),
+      catalogFetchedAt: serializer.fromJson<DateTime?>(
+        json['catalogFetchedAt'],
+      ),
+      indexFetchedAt: serializer.fromJson<DateTime?>(json['indexFetchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'namespace': serializer.toJson<String>(namespace),
+      'catalogFetchedAt': serializer.toJson<DateTime?>(catalogFetchedAt),
+      'indexFetchedAt': serializer.toJson<DateTime?>(indexFetchedAt),
+    };
+  }
+
+  MapSyncRecord copyWith({
+    String? namespace,
+    Value<DateTime?> catalogFetchedAt = const Value.absent(),
+    Value<DateTime?> indexFetchedAt = const Value.absent(),
+  }) => MapSyncRecord(
+    namespace: namespace ?? this.namespace,
+    catalogFetchedAt: catalogFetchedAt.present
+        ? catalogFetchedAt.value
+        : this.catalogFetchedAt,
+    indexFetchedAt: indexFetchedAt.present
+        ? indexFetchedAt.value
+        : this.indexFetchedAt,
+  );
+  MapSyncRecord copyWithCompanion(CampusMapSyncsCompanion data) {
+    return MapSyncRecord(
+      namespace: data.namespace.present ? data.namespace.value : this.namespace,
+      catalogFetchedAt: data.catalogFetchedAt.present
+          ? data.catalogFetchedAt.value
+          : this.catalogFetchedAt,
+      indexFetchedAt: data.indexFetchedAt.present
+          ? data.indexFetchedAt.value
+          : this.indexFetchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MapSyncRecord(')
+          ..write('namespace: $namespace, ')
+          ..write('catalogFetchedAt: $catalogFetchedAt, ')
+          ..write('indexFetchedAt: $indexFetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(namespace, catalogFetchedAt, indexFetchedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MapSyncRecord &&
+          other.namespace == this.namespace &&
+          other.catalogFetchedAt == this.catalogFetchedAt &&
+          other.indexFetchedAt == this.indexFetchedAt);
+}
+
+class CampusMapSyncsCompanion extends UpdateCompanion<MapSyncRecord> {
+  final Value<String> namespace;
+  final Value<DateTime?> catalogFetchedAt;
+  final Value<DateTime?> indexFetchedAt;
+  final Value<int> rowid;
+  const CampusMapSyncsCompanion({
+    this.namespace = const Value.absent(),
+    this.catalogFetchedAt = const Value.absent(),
+    this.indexFetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CampusMapSyncsCompanion.insert({
+    required String namespace,
+    this.catalogFetchedAt = const Value.absent(),
+    this.indexFetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : namespace = Value(namespace);
+  static Insertable<MapSyncRecord> custom({
+    Expression<String>? namespace,
+    Expression<DateTime>? catalogFetchedAt,
+    Expression<DateTime>? indexFetchedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (namespace != null) 'namespace': namespace,
+      if (catalogFetchedAt != null) 'catalog_fetched_at': catalogFetchedAt,
+      if (indexFetchedAt != null) 'index_fetched_at': indexFetchedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CampusMapSyncsCompanion copyWith({
+    Value<String>? namespace,
+    Value<DateTime?>? catalogFetchedAt,
+    Value<DateTime?>? indexFetchedAt,
+    Value<int>? rowid,
+  }) {
+    return CampusMapSyncsCompanion(
+      namespace: namespace ?? this.namespace,
+      catalogFetchedAt: catalogFetchedAt ?? this.catalogFetchedAt,
+      indexFetchedAt: indexFetchedAt ?? this.indexFetchedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (namespace.present) {
+      map['namespace'] = Variable<String>(namespace.value);
+    }
+    if (catalogFetchedAt.present) {
+      map['catalog_fetched_at'] = Variable<DateTime>(catalogFetchedAt.value);
+    }
+    if (indexFetchedAt.present) {
+      map['index_fetched_at'] = Variable<DateTime>(indexFetchedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CampusMapSyncsCompanion(')
+          ..write('namespace: $namespace, ')
+          ..write('catalogFetchedAt: $catalogFetchedAt, ')
+          ..write('indexFetchedAt: $indexFetchedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class CourseOfferingOverview extends DataClass {
   final int id;
   final String? courseCode;
@@ -13916,6 +15225,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $UserSemesterRankingsTable userSemesterRankings =
       $UserSemesterRankingsTable(this);
   late final $CalendarEventsTable calendarEvents = $CalendarEventsTable(this);
+  late final $CampusMapBuildingsTable campusMapBuildings =
+      $CampusMapBuildingsTable(this);
+  late final $CampusMapFloorsTable campusMapFloors = $CampusMapFloorsTable(
+    this,
+  );
+  late final $CampusMapRoomsTable campusMapRooms = $CampusMapRoomsTable(this);
+  late final $CampusMapSyncsTable campusMapSyncs = $CampusMapSyncsTable(this);
   late final $CourseOfferingOverviewsView courseOfferingOverviews =
       $CourseOfferingOverviewsView(this);
   late final $CourseTableSlotsView courseTableSlots = $CourseTableSlotsView(
@@ -13963,6 +15279,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'user_semester_summary_user',
     'CREATE INDEX user_semester_summary_user ON user_semester_summaries (user)',
   );
+  late final Index campusMapFloorBuilding = Index(
+    'campus_map_floor_building',
+    'CREATE INDEX campus_map_floor_building ON campus_map_floors (building)',
+  );
+  late final Index campusMapRoomLayer = Index(
+    'campus_map_room_layer',
+    'CREATE INDEX campus_map_room_layer ON campus_map_rooms (layer_name)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -13995,6 +15319,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userSemesterSummaryCadreRoles,
     userSemesterRankings,
     calendarEvents,
+    campusMapBuildings,
+    campusMapFloors,
+    campusMapRooms,
+    campusMapSyncs,
     courseOfferingOverviews,
     courseTableSlots,
     scoreDetails,
@@ -14009,6 +15337,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     teacherOfficeHourTeacherSemester,
     scoreUser,
     userSemesterSummaryUser,
+    campusMapFloorBuilding,
+    campusMapRoomLayer,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -14138,6 +15468,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('user_semester_rankings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'campus_map_buildings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('campus_map_floors', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'campus_map_floors',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('campus_map_rooms', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -26839,6 +28183,1197 @@ typedef $$CalendarEventsTableProcessedTableManager =
       CalendarEvent,
       PrefetchHooks Function()
     >;
+typedef $$CampusMapBuildingsTableCreateCompanionBuilder =
+    CampusMapBuildingsCompanion Function({
+      required String code,
+      required String name,
+      required String geometry,
+      Value<int> rowid,
+    });
+typedef $$CampusMapBuildingsTableUpdateCompanionBuilder =
+    CampusMapBuildingsCompanion Function({
+      Value<String> code,
+      Value<String> name,
+      Value<String> geometry,
+      Value<int> rowid,
+    });
+
+final class $$CampusMapBuildingsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CampusMapBuildingsTable,
+          MapBuildingRecord
+        > {
+  $$CampusMapBuildingsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$CampusMapFloorsTable, List<MapFloorRecord>>
+  _campusMapFloorsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.campusMapFloors,
+    aliasName: 'campus_map_buildings__code__campus_map_floors__building',
+  );
+
+  $$CampusMapFloorsTableProcessedTableManager get campusMapFloorsRefs {
+    final manager = $$CampusMapFloorsTableTableManager(
+      $_db,
+      $_db.campusMapFloors,
+    ).filter((f) => f.building.code.sqlEquals($_itemColumn<String>('code')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _campusMapFloorsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$CampusMapBuildingsTableFilterComposer
+    extends Composer<_$AppDatabase, $CampusMapBuildingsTable> {
+  $$CampusMapBuildingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get geometry => $composableBuilder(
+    column: $table.geometry,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> campusMapFloorsRefs(
+    Expression<bool> Function($$CampusMapFloorsTableFilterComposer f) f,
+  ) {
+    final $$CampusMapFloorsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.code,
+      referencedTable: $db.campusMapFloors,
+      getReferencedColumn: (t) => t.building,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CampusMapFloorsTableFilterComposer(
+            $db: $db,
+            $table: $db.campusMapFloors,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$CampusMapBuildingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CampusMapBuildingsTable> {
+  $$CampusMapBuildingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get geometry => $composableBuilder(
+    column: $table.geometry,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CampusMapBuildingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CampusMapBuildingsTable> {
+  $$CampusMapBuildingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get geometry =>
+      $composableBuilder(column: $table.geometry, builder: (column) => column);
+
+  Expression<T> campusMapFloorsRefs<T extends Object>(
+    Expression<T> Function($$CampusMapFloorsTableAnnotationComposer a) f,
+  ) {
+    final $$CampusMapFloorsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.code,
+      referencedTable: $db.campusMapFloors,
+      getReferencedColumn: (t) => t.building,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CampusMapFloorsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.campusMapFloors,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$CampusMapBuildingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CampusMapBuildingsTable,
+          MapBuildingRecord,
+          $$CampusMapBuildingsTableFilterComposer,
+          $$CampusMapBuildingsTableOrderingComposer,
+          $$CampusMapBuildingsTableAnnotationComposer,
+          $$CampusMapBuildingsTableCreateCompanionBuilder,
+          $$CampusMapBuildingsTableUpdateCompanionBuilder,
+          (MapBuildingRecord, $$CampusMapBuildingsTableReferences),
+          MapBuildingRecord,
+          PrefetchHooks Function({bool campusMapFloorsRefs})
+        > {
+  $$CampusMapBuildingsTableTableManager(
+    _$AppDatabase db,
+    $CampusMapBuildingsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CampusMapBuildingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CampusMapBuildingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CampusMapBuildingsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> code = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> geometry = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CampusMapBuildingsCompanion(
+                code: code,
+                name: name,
+                geometry: geometry,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String code,
+                required String name,
+                required String geometry,
+                Value<int> rowid = const Value.absent(),
+              }) => CampusMapBuildingsCompanion.insert(
+                code: code,
+                name: name,
+                geometry: geometry,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CampusMapBuildingsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({campusMapFloorsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (campusMapFloorsRefs) db.campusMapFloors,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (campusMapFloorsRefs)
+                    await $_getPrefetchedData<
+                      MapBuildingRecord,
+                      $CampusMapBuildingsTable,
+                      MapFloorRecord
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CampusMapBuildingsTableReferences
+                          ._campusMapFloorsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$CampusMapBuildingsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).campusMapFloorsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.building == item.code),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CampusMapBuildingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CampusMapBuildingsTable,
+      MapBuildingRecord,
+      $$CampusMapBuildingsTableFilterComposer,
+      $$CampusMapBuildingsTableOrderingComposer,
+      $$CampusMapBuildingsTableAnnotationComposer,
+      $$CampusMapBuildingsTableCreateCompanionBuilder,
+      $$CampusMapBuildingsTableUpdateCompanionBuilder,
+      (MapBuildingRecord, $$CampusMapBuildingsTableReferences),
+      MapBuildingRecord,
+      PrefetchHooks Function({bool campusMapFloorsRefs})
+    >;
+typedef $$CampusMapFloorsTableCreateCompanionBuilder =
+    CampusMapFloorsCompanion Function({
+      required String layerName,
+      required String building,
+      required String code,
+      Value<DateTime?> fetchedAt,
+      Value<int> rowid,
+    });
+typedef $$CampusMapFloorsTableUpdateCompanionBuilder =
+    CampusMapFloorsCompanion Function({
+      Value<String> layerName,
+      Value<String> building,
+      Value<String> code,
+      Value<DateTime?> fetchedAt,
+      Value<int> rowid,
+    });
+
+final class $$CampusMapFloorsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $CampusMapFloorsTable, MapFloorRecord> {
+  $$CampusMapFloorsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CampusMapBuildingsTable _buildingTable(_$AppDatabase db) => db
+      .campusMapBuildings
+      .createAlias('campus_map_floors__building__campus_map_buildings__code');
+
+  $$CampusMapBuildingsTableProcessedTableManager get building {
+    final $_column = $_itemColumn<String>('building')!;
+
+    final manager = $$CampusMapBuildingsTableTableManager(
+      $_db,
+      $_db.campusMapBuildings,
+    ).filter((f) => f.code.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_buildingTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$CampusMapRoomsTable, List<MapRoomRecord>>
+  _campusMapRoomsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.campusMapRooms,
+    aliasName: 'campus_map_floors__layer_name__campus_map_rooms__layer_name',
+  );
+
+  $$CampusMapRoomsTableProcessedTableManager get campusMapRoomsRefs {
+    final manager = $$CampusMapRoomsTableTableManager($_db, $_db.campusMapRooms)
+        .filter(
+          (f) => f.layerName.layerName.sqlEquals(
+            $_itemColumn<String>('layer_name')!,
+          ),
+        );
+
+    final cache = $_typedResult.readTableOrNull(_campusMapRoomsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$CampusMapFloorsTableFilterComposer
+    extends Composer<_$AppDatabase, $CampusMapFloorsTable> {
+  $$CampusMapFloorsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get layerName => $composableBuilder(
+    column: $table.layerName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CampusMapBuildingsTableFilterComposer get building {
+    final $$CampusMapBuildingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.building,
+      referencedTable: $db.campusMapBuildings,
+      getReferencedColumn: (t) => t.code,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CampusMapBuildingsTableFilterComposer(
+            $db: $db,
+            $table: $db.campusMapBuildings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> campusMapRoomsRefs(
+    Expression<bool> Function($$CampusMapRoomsTableFilterComposer f) f,
+  ) {
+    final $$CampusMapRoomsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.layerName,
+      referencedTable: $db.campusMapRooms,
+      getReferencedColumn: (t) => t.layerName,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CampusMapRoomsTableFilterComposer(
+            $db: $db,
+            $table: $db.campusMapRooms,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$CampusMapFloorsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CampusMapFloorsTable> {
+  $$CampusMapFloorsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get layerName => $composableBuilder(
+    column: $table.layerName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CampusMapBuildingsTableOrderingComposer get building {
+    final $$CampusMapBuildingsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.building,
+      referencedTable: $db.campusMapBuildings,
+      getReferencedColumn: (t) => t.code,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CampusMapBuildingsTableOrderingComposer(
+            $db: $db,
+            $table: $db.campusMapBuildings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CampusMapFloorsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CampusMapFloorsTable> {
+  $$CampusMapFloorsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get layerName =>
+      $composableBuilder(column: $table.layerName, builder: (column) => column);
+
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  $$CampusMapBuildingsTableAnnotationComposer get building {
+    final $$CampusMapBuildingsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.building,
+          referencedTable: $db.campusMapBuildings,
+          getReferencedColumn: (t) => t.code,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CampusMapBuildingsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.campusMapBuildings,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  Expression<T> campusMapRoomsRefs<T extends Object>(
+    Expression<T> Function($$CampusMapRoomsTableAnnotationComposer a) f,
+  ) {
+    final $$CampusMapRoomsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.layerName,
+      referencedTable: $db.campusMapRooms,
+      getReferencedColumn: (t) => t.layerName,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CampusMapRoomsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.campusMapRooms,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$CampusMapFloorsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CampusMapFloorsTable,
+          MapFloorRecord,
+          $$CampusMapFloorsTableFilterComposer,
+          $$CampusMapFloorsTableOrderingComposer,
+          $$CampusMapFloorsTableAnnotationComposer,
+          $$CampusMapFloorsTableCreateCompanionBuilder,
+          $$CampusMapFloorsTableUpdateCompanionBuilder,
+          (MapFloorRecord, $$CampusMapFloorsTableReferences),
+          MapFloorRecord,
+          PrefetchHooks Function({bool building, bool campusMapRoomsRefs})
+        > {
+  $$CampusMapFloorsTableTableManager(
+    _$AppDatabase db,
+    $CampusMapFloorsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CampusMapFloorsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CampusMapFloorsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CampusMapFloorsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> layerName = const Value.absent(),
+                Value<String> building = const Value.absent(),
+                Value<String> code = const Value.absent(),
+                Value<DateTime?> fetchedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CampusMapFloorsCompanion(
+                layerName: layerName,
+                building: building,
+                code: code,
+                fetchedAt: fetchedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String layerName,
+                required String building,
+                required String code,
+                Value<DateTime?> fetchedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CampusMapFloorsCompanion.insert(
+                layerName: layerName,
+                building: building,
+                code: code,
+                fetchedAt: fetchedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CampusMapFloorsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({building = false, campusMapRoomsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (campusMapRoomsRefs) db.campusMapRooms,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (building) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.building,
+                            referencedTable: $$CampusMapFloorsTableReferences
+                                ._buildingTable(db),
+                            referencedColumn: $$CampusMapFloorsTableReferences
+                                ._buildingTable(db)
+                                .code,
+                          ) as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (campusMapRoomsRefs)
+                        await $_getPrefetchedData<
+                          MapFloorRecord,
+                          $CampusMapFloorsTable,
+                          MapRoomRecord
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CampusMapFloorsTableReferences
+                              ._campusMapRoomsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CampusMapFloorsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).campusMapRoomsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.layerName == item.layerName,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$CampusMapFloorsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CampusMapFloorsTable,
+      MapFloorRecord,
+      $$CampusMapFloorsTableFilterComposer,
+      $$CampusMapFloorsTableOrderingComposer,
+      $$CampusMapFloorsTableAnnotationComposer,
+      $$CampusMapFloorsTableCreateCompanionBuilder,
+      $$CampusMapFloorsTableUpdateCompanionBuilder,
+      (MapFloorRecord, $$CampusMapFloorsTableReferences),
+      MapFloorRecord,
+      PrefetchHooks Function({bool building, bool campusMapRoomsRefs})
+    >;
+typedef $$CampusMapRoomsTableCreateCompanionBuilder =
+    CampusMapRoomsCompanion Function({
+      required String id,
+      required String layerName,
+      required String nameZh,
+      required String nameEn,
+      required String number,
+      Value<String?> geometry,
+      Value<int> rowid,
+    });
+typedef $$CampusMapRoomsTableUpdateCompanionBuilder =
+    CampusMapRoomsCompanion Function({
+      Value<String> id,
+      Value<String> layerName,
+      Value<String> nameZh,
+      Value<String> nameEn,
+      Value<String> number,
+      Value<String?> geometry,
+      Value<int> rowid,
+    });
+
+final class $$CampusMapRoomsTableReferences
+    extends BaseReferences<_$AppDatabase, $CampusMapRoomsTable, MapRoomRecord> {
+  $$CampusMapRoomsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CampusMapFloorsTable _layerNameTable(_$AppDatabase db) =>
+      db.campusMapFloors.createAlias(
+        'campus_map_rooms__layer_name__campus_map_floors__layer_name',
+      );
+
+  $$CampusMapFloorsTableProcessedTableManager get layerName {
+    final $_column = $_itemColumn<String>('layer_name')!;
+
+    final manager = $$CampusMapFloorsTableTableManager(
+      $_db,
+      $_db.campusMapFloors,
+    ).filter((f) => f.layerName.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_layerNameTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CampusMapRoomsTableFilterComposer
+    extends Composer<_$AppDatabase, $CampusMapRoomsTable> {
+  $$CampusMapRoomsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameZh => $composableBuilder(
+    column: $table.nameZh,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get number => $composableBuilder(
+    column: $table.number,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get geometry => $composableBuilder(
+    column: $table.geometry,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CampusMapFloorsTableFilterComposer get layerName {
+    final $$CampusMapFloorsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.layerName,
+      referencedTable: $db.campusMapFloors,
+      getReferencedColumn: (t) => t.layerName,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CampusMapFloorsTableFilterComposer(
+            $db: $db,
+            $table: $db.campusMapFloors,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CampusMapRoomsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CampusMapRoomsTable> {
+  $$CampusMapRoomsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameZh => $composableBuilder(
+    column: $table.nameZh,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameEn => $composableBuilder(
+    column: $table.nameEn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get number => $composableBuilder(
+    column: $table.number,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get geometry => $composableBuilder(
+    column: $table.geometry,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CampusMapFloorsTableOrderingComposer get layerName {
+    final $$CampusMapFloorsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.layerName,
+      referencedTable: $db.campusMapFloors,
+      getReferencedColumn: (t) => t.layerName,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CampusMapFloorsTableOrderingComposer(
+            $db: $db,
+            $table: $db.campusMapFloors,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CampusMapRoomsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CampusMapRoomsTable> {
+  $$CampusMapRoomsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get nameZh =>
+      $composableBuilder(column: $table.nameZh, builder: (column) => column);
+
+  GeneratedColumn<String> get nameEn =>
+      $composableBuilder(column: $table.nameEn, builder: (column) => column);
+
+  GeneratedColumn<String> get number =>
+      $composableBuilder(column: $table.number, builder: (column) => column);
+
+  GeneratedColumn<String> get geometry =>
+      $composableBuilder(column: $table.geometry, builder: (column) => column);
+
+  $$CampusMapFloorsTableAnnotationComposer get layerName {
+    final $$CampusMapFloorsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.layerName,
+      referencedTable: $db.campusMapFloors,
+      getReferencedColumn: (t) => t.layerName,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CampusMapFloorsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.campusMapFloors,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CampusMapRoomsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CampusMapRoomsTable,
+          MapRoomRecord,
+          $$CampusMapRoomsTableFilterComposer,
+          $$CampusMapRoomsTableOrderingComposer,
+          $$CampusMapRoomsTableAnnotationComposer,
+          $$CampusMapRoomsTableCreateCompanionBuilder,
+          $$CampusMapRoomsTableUpdateCompanionBuilder,
+          (MapRoomRecord, $$CampusMapRoomsTableReferences),
+          MapRoomRecord,
+          PrefetchHooks Function({bool layerName})
+        > {
+  $$CampusMapRoomsTableTableManager(
+    _$AppDatabase db,
+    $CampusMapRoomsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CampusMapRoomsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CampusMapRoomsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CampusMapRoomsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> layerName = const Value.absent(),
+                Value<String> nameZh = const Value.absent(),
+                Value<String> nameEn = const Value.absent(),
+                Value<String> number = const Value.absent(),
+                Value<String?> geometry = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CampusMapRoomsCompanion(
+                id: id,
+                layerName: layerName,
+                nameZh: nameZh,
+                nameEn: nameEn,
+                number: number,
+                geometry: geometry,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String layerName,
+                required String nameZh,
+                required String nameEn,
+                required String number,
+                Value<String?> geometry = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CampusMapRoomsCompanion.insert(
+                id: id,
+                layerName: layerName,
+                nameZh: nameZh,
+                nameEn: nameEn,
+                number: number,
+                geometry: geometry,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CampusMapRoomsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({layerName = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (layerName) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.layerName,
+                        referencedTable: $$CampusMapRoomsTableReferences
+                            ._layerNameTable(db),
+                        referencedColumn: $$CampusMapRoomsTableReferences
+                            ._layerNameTable(db)
+                            .layerName,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CampusMapRoomsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CampusMapRoomsTable,
+      MapRoomRecord,
+      $$CampusMapRoomsTableFilterComposer,
+      $$CampusMapRoomsTableOrderingComposer,
+      $$CampusMapRoomsTableAnnotationComposer,
+      $$CampusMapRoomsTableCreateCompanionBuilder,
+      $$CampusMapRoomsTableUpdateCompanionBuilder,
+      (MapRoomRecord, $$CampusMapRoomsTableReferences),
+      MapRoomRecord,
+      PrefetchHooks Function({bool layerName})
+    >;
+typedef $$CampusMapSyncsTableCreateCompanionBuilder =
+    CampusMapSyncsCompanion Function({
+      required String namespace,
+      Value<DateTime?> catalogFetchedAt,
+      Value<DateTime?> indexFetchedAt,
+      Value<int> rowid,
+    });
+typedef $$CampusMapSyncsTableUpdateCompanionBuilder =
+    CampusMapSyncsCompanion Function({
+      Value<String> namespace,
+      Value<DateTime?> catalogFetchedAt,
+      Value<DateTime?> indexFetchedAt,
+      Value<int> rowid,
+    });
+
+class $$CampusMapSyncsTableFilterComposer
+    extends Composer<_$AppDatabase, $CampusMapSyncsTable> {
+  $$CampusMapSyncsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get namespace => $composableBuilder(
+    column: $table.namespace,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get catalogFetchedAt => $composableBuilder(
+    column: $table.catalogFetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get indexFetchedAt => $composableBuilder(
+    column: $table.indexFetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CampusMapSyncsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CampusMapSyncsTable> {
+  $$CampusMapSyncsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get namespace => $composableBuilder(
+    column: $table.namespace,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get catalogFetchedAt => $composableBuilder(
+    column: $table.catalogFetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get indexFetchedAt => $composableBuilder(
+    column: $table.indexFetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CampusMapSyncsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CampusMapSyncsTable> {
+  $$CampusMapSyncsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get namespace =>
+      $composableBuilder(column: $table.namespace, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get catalogFetchedAt => $composableBuilder(
+    column: $table.catalogFetchedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get indexFetchedAt => $composableBuilder(
+    column: $table.indexFetchedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$CampusMapSyncsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CampusMapSyncsTable,
+          MapSyncRecord,
+          $$CampusMapSyncsTableFilterComposer,
+          $$CampusMapSyncsTableOrderingComposer,
+          $$CampusMapSyncsTableAnnotationComposer,
+          $$CampusMapSyncsTableCreateCompanionBuilder,
+          $$CampusMapSyncsTableUpdateCompanionBuilder,
+          (
+            MapSyncRecord,
+            BaseReferences<_$AppDatabase, $CampusMapSyncsTable, MapSyncRecord>,
+          ),
+          MapSyncRecord,
+          PrefetchHooks Function()
+        > {
+  $$CampusMapSyncsTableTableManager(
+    _$AppDatabase db,
+    $CampusMapSyncsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CampusMapSyncsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CampusMapSyncsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CampusMapSyncsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> namespace = const Value.absent(),
+                Value<DateTime?> catalogFetchedAt = const Value.absent(),
+                Value<DateTime?> indexFetchedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CampusMapSyncsCompanion(
+                namespace: namespace,
+                catalogFetchedAt: catalogFetchedAt,
+                indexFetchedAt: indexFetchedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String namespace,
+                Value<DateTime?> catalogFetchedAt = const Value.absent(),
+                Value<DateTime?> indexFetchedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CampusMapSyncsCompanion.insert(
+                namespace: namespace,
+                catalogFetchedAt: catalogFetchedAt,
+                indexFetchedAt: indexFetchedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CampusMapSyncsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CampusMapSyncsTable,
+      MapSyncRecord,
+      $$CampusMapSyncsTableFilterComposer,
+      $$CampusMapSyncsTableOrderingComposer,
+      $$CampusMapSyncsTableAnnotationComposer,
+      $$CampusMapSyncsTableCreateCompanionBuilder,
+      $$CampusMapSyncsTableUpdateCompanionBuilder,
+      (
+        MapSyncRecord,
+        BaseReferences<_$AppDatabase, $CampusMapSyncsTable, MapSyncRecord>,
+      ),
+      MapSyncRecord,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -26918,4 +29453,12 @@ class $AppDatabaseManager {
       $$UserSemesterRankingsTableTableManager(_db, _db.userSemesterRankings);
   $$CalendarEventsTableTableManager get calendarEvents =>
       $$CalendarEventsTableTableManager(_db, _db.calendarEvents);
+  $$CampusMapBuildingsTableTableManager get campusMapBuildings =>
+      $$CampusMapBuildingsTableTableManager(_db, _db.campusMapBuildings);
+  $$CampusMapFloorsTableTableManager get campusMapFloors =>
+      $$CampusMapFloorsTableTableManager(_db, _db.campusMapFloors);
+  $$CampusMapRoomsTableTableManager get campusMapRooms =>
+      $$CampusMapRoomsTableTableManager(_db, _db.campusMapRooms);
+  $$CampusMapSyncsTableTableManager get campusMapSyncs =>
+      $$CampusMapSyncsTableTableManager(_db, _db.campusMapSyncs);
 }
