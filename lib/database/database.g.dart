@@ -5101,6 +5101,17 @@ class $CourseOfferingsTable extends CourseOfferings
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _materialsFetchedAtMeta =
+      const VerificationMeta('materialsFetchedAt');
+  @override
+  late final GeneratedColumn<DateTime> materialsFetchedAt =
+      GeneratedColumn<DateTime>(
+        'materials_fetched_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -5121,6 +5132,7 @@ class $CourseOfferingsTable extends CourseOfferings
     enrolled,
     withdrawn,
     studentRosterFetchedAt,
+    materialsFetchedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5243,6 +5255,15 @@ class $CourseOfferingsTable extends CourseOfferings
         ),
       );
     }
+    if (data.containsKey('materials_fetched_at')) {
+      context.handle(
+        _materialsFetchedAtMeta,
+        materialsFetchedAt.isAcceptableOrUnknown(
+          data['materials_fetched_at']!,
+          _materialsFetchedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -5325,6 +5346,10 @@ class $CourseOfferingsTable extends CourseOfferings
       studentRosterFetchedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}student_roster_fetched_at'],
+      ),
+      materialsFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}materials_fetched_at'],
       ),
     );
   }
@@ -5439,6 +5464,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
 
   /// Last time the I-School Plus student roster was refreshed successfully.
   final DateTime? studentRosterFetchedAt;
+  final DateTime? materialsFetchedAt;
   const CourseOffering({
     required this.id,
     this.fetchedAt,
@@ -5458,6 +5484,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     this.enrolled,
     this.withdrawn,
     this.studentRosterFetchedAt,
+    this.materialsFetchedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5512,6 +5539,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
         studentRosterFetchedAt,
       );
     }
+    if (!nullToAbsent || materialsFetchedAt != null) {
+      map['materials_fetched_at'] = Variable<DateTime>(materialsFetchedAt);
+    }
     return map;
   }
 
@@ -5563,6 +5593,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       studentRosterFetchedAt: studentRosterFetchedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(studentRosterFetchedAt),
+      materialsFetchedAt: materialsFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(materialsFetchedAt),
     );
   }
 
@@ -5594,6 +5627,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       studentRosterFetchedAt: serializer.fromJson<DateTime?>(
         json['studentRosterFetchedAt'],
       ),
+      materialsFetchedAt: serializer.fromJson<DateTime?>(
+        json['materialsFetchedAt'],
+      ),
     );
   }
   @override
@@ -5622,6 +5658,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       'studentRosterFetchedAt': serializer.toJson<DateTime?>(
         studentRosterFetchedAt,
       ),
+      'materialsFetchedAt': serializer.toJson<DateTime?>(materialsFetchedAt),
     };
   }
 
@@ -5644,6 +5681,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     Value<int?> enrolled = const Value.absent(),
     Value<int?> withdrawn = const Value.absent(),
     Value<DateTime?> studentRosterFetchedAt = const Value.absent(),
+    Value<DateTime?> materialsFetchedAt = const Value.absent(),
   }) => CourseOffering(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
@@ -5665,6 +5703,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     studentRosterFetchedAt: studentRosterFetchedAt.present
         ? studentRosterFetchedAt.value
         : this.studentRosterFetchedAt,
+    materialsFetchedAt: materialsFetchedAt.present
+        ? materialsFetchedAt.value
+        : this.materialsFetchedAt,
   );
   CourseOffering copyWithCompanion(CourseOfferingsCompanion data) {
     return CourseOffering(
@@ -5694,6 +5735,9 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
       studentRosterFetchedAt: data.studentRosterFetchedAt.present
           ? data.studentRosterFetchedAt.value
           : this.studentRosterFetchedAt,
+      materialsFetchedAt: data.materialsFetchedAt.present
+          ? data.materialsFetchedAt.value
+          : this.materialsFetchedAt,
     );
   }
 
@@ -5717,7 +5761,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           ..write('inCourseTable: $inCourseTable, ')
           ..write('enrolled: $enrolled, ')
           ..write('withdrawn: $withdrawn, ')
-          ..write('studentRosterFetchedAt: $studentRosterFetchedAt')
+          ..write('studentRosterFetchedAt: $studentRosterFetchedAt, ')
+          ..write('materialsFetchedAt: $materialsFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -5742,6 +5787,7 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
     enrolled,
     withdrawn,
     studentRosterFetchedAt,
+    materialsFetchedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -5764,7 +5810,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
           other.inCourseTable == this.inCourseTable &&
           other.enrolled == this.enrolled &&
           other.withdrawn == this.withdrawn &&
-          other.studentRosterFetchedAt == this.studentRosterFetchedAt);
+          other.studentRosterFetchedAt == this.studentRosterFetchedAt &&
+          other.materialsFetchedAt == this.materialsFetchedAt);
 }
 
 class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
@@ -5786,6 +5833,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
   final Value<int?> enrolled;
   final Value<int?> withdrawn;
   final Value<DateTime?> studentRosterFetchedAt;
+  final Value<DateTime?> materialsFetchedAt;
   const CourseOfferingsCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
@@ -5805,6 +5853,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.enrolled = const Value.absent(),
     this.withdrawn = const Value.absent(),
     this.studentRosterFetchedAt = const Value.absent(),
+    this.materialsFetchedAt = const Value.absent(),
   });
   CourseOfferingsCompanion.insert({
     this.id = const Value.absent(),
@@ -5825,6 +5874,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     this.enrolled = const Value.absent(),
     this.withdrawn = const Value.absent(),
     this.studentRosterFetchedAt = const Value.absent(),
+    this.materialsFetchedAt = const Value.absent(),
   }) : semester = Value(semester),
        nameZh = Value(nameZh);
   static Insertable<CourseOffering> custom({
@@ -5846,6 +5896,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Expression<int>? enrolled,
     Expression<int>? withdrawn,
     Expression<DateTime>? studentRosterFetchedAt,
+    Expression<DateTime>? materialsFetchedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -5867,6 +5918,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       if (withdrawn != null) 'withdrawn': withdrawn,
       if (studentRosterFetchedAt != null)
         'student_roster_fetched_at': studentRosterFetchedAt,
+      if (materialsFetchedAt != null)
+        'materials_fetched_at': materialsFetchedAt,
     });
   }
 
@@ -5889,6 +5942,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
     Value<int?>? enrolled,
     Value<int?>? withdrawn,
     Value<DateTime?>? studentRosterFetchedAt,
+    Value<DateTime?>? materialsFetchedAt,
   }) {
     return CourseOfferingsCompanion(
       id: id ?? this.id,
@@ -5910,6 +5964,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
       withdrawn: withdrawn ?? this.withdrawn,
       studentRosterFetchedAt:
           studentRosterFetchedAt ?? this.studentRosterFetchedAt,
+      materialsFetchedAt: materialsFetchedAt ?? this.materialsFetchedAt,
     );
   }
 
@@ -5974,6 +6029,11 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
         studentRosterFetchedAt.value,
       );
     }
+    if (materialsFetchedAt.present) {
+      map['materials_fetched_at'] = Variable<DateTime>(
+        materialsFetchedAt.value,
+      );
+    }
     return map;
   }
 
@@ -5997,7 +6057,8 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOffering> {
           ..write('inCourseTable: $inCourseTable, ')
           ..write('enrolled: $enrolled, ')
           ..write('withdrawn: $withdrawn, ')
-          ..write('studentRosterFetchedAt: $studentRosterFetchedAt')
+          ..write('studentRosterFetchedAt: $studentRosterFetchedAt, ')
+          ..write('materialsFetchedAt: $materialsFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -8582,8 +8643,40 @@ class $MaterialsTable extends Materials
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _iSchoolCourseIdMeta = const VerificationMeta(
+    'iSchoolCourseId',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, courseOffering, title, href];
+  late final GeneratedColumn<String> iSchoolCourseId = GeneratedColumn<String>(
+    'i_school_course_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _streamableMeta = const VerificationMeta(
+    'streamable',
+  );
+  @override
+  late final GeneratedColumn<bool> streamable = GeneratedColumn<bool>(
+    'streamable',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("streamable" IN (0, 1))',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    courseOffering,
+    title,
+    href,
+    iSchoolCourseId,
+    streamable,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -8622,6 +8715,21 @@ class $MaterialsTable extends Materials
         href.isAcceptableOrUnknown(data['href']!, _hrefMeta),
       );
     }
+    if (data.containsKey('i_school_course_id')) {
+      context.handle(
+        _iSchoolCourseIdMeta,
+        iSchoolCourseId.isAcceptableOrUnknown(
+          data['i_school_course_id']!,
+          _iSchoolCourseIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('streamable')) {
+      context.handle(
+        _streamableMeta,
+        streamable.isAcceptableOrUnknown(data['streamable']!, _streamableMeta),
+      );
+    }
     return context;
   }
 
@@ -8651,6 +8759,14 @@ class $MaterialsTable extends Materials
         DriftSqlType.string,
         data['${effectivePrefix}href'],
       ),
+      iSchoolCourseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}i_school_course_id'],
+      ),
+      streamable: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}streamable'],
+      ),
     );
   }
 
@@ -8675,11 +8791,15 @@ class CourseMaterial extends DataClass implements Insertable<CourseMaterial> {
   /// This is an encoded identifier from the SCORM manifest.
   /// This value is used internally by I-School Plus to locate the resource.
   final String? href;
+  final String? iSchoolCourseId;
+  final bool? streamable;
   const CourseMaterial({
     required this.id,
     required this.courseOffering,
     this.title,
     this.href,
+    this.iSchoolCourseId,
+    this.streamable,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -8692,6 +8812,12 @@ class CourseMaterial extends DataClass implements Insertable<CourseMaterial> {
     if (!nullToAbsent || href != null) {
       map['href'] = Variable<String>(href);
     }
+    if (!nullToAbsent || iSchoolCourseId != null) {
+      map['i_school_course_id'] = Variable<String>(iSchoolCourseId);
+    }
+    if (!nullToAbsent || streamable != null) {
+      map['streamable'] = Variable<bool>(streamable);
+    }
     return map;
   }
 
@@ -8703,6 +8829,12 @@ class CourseMaterial extends DataClass implements Insertable<CourseMaterial> {
           ? const Value.absent()
           : Value(title),
       href: href == null && nullToAbsent ? const Value.absent() : Value(href),
+      iSchoolCourseId: iSchoolCourseId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iSchoolCourseId),
+      streamable: streamable == null && nullToAbsent
+          ? const Value.absent()
+          : Value(streamable),
     );
   }
 
@@ -8716,6 +8848,8 @@ class CourseMaterial extends DataClass implements Insertable<CourseMaterial> {
       courseOffering: serializer.fromJson<int>(json['courseOffering']),
       title: serializer.fromJson<String?>(json['title']),
       href: serializer.fromJson<String?>(json['href']),
+      iSchoolCourseId: serializer.fromJson<String?>(json['iSchoolCourseId']),
+      streamable: serializer.fromJson<bool?>(json['streamable']),
     );
   }
   @override
@@ -8726,6 +8860,8 @@ class CourseMaterial extends DataClass implements Insertable<CourseMaterial> {
       'courseOffering': serializer.toJson<int>(courseOffering),
       'title': serializer.toJson<String?>(title),
       'href': serializer.toJson<String?>(href),
+      'iSchoolCourseId': serializer.toJson<String?>(iSchoolCourseId),
+      'streamable': serializer.toJson<bool?>(streamable),
     };
   }
 
@@ -8734,11 +8870,17 @@ class CourseMaterial extends DataClass implements Insertable<CourseMaterial> {
     int? courseOffering,
     Value<String?> title = const Value.absent(),
     Value<String?> href = const Value.absent(),
+    Value<String?> iSchoolCourseId = const Value.absent(),
+    Value<bool?> streamable = const Value.absent(),
   }) => CourseMaterial(
     id: id ?? this.id,
     courseOffering: courseOffering ?? this.courseOffering,
     title: title.present ? title.value : this.title,
     href: href.present ? href.value : this.href,
+    iSchoolCourseId: iSchoolCourseId.present
+        ? iSchoolCourseId.value
+        : this.iSchoolCourseId,
+    streamable: streamable.present ? streamable.value : this.streamable,
   );
   CourseMaterial copyWithCompanion(MaterialsCompanion data) {
     return CourseMaterial(
@@ -8748,6 +8890,12 @@ class CourseMaterial extends DataClass implements Insertable<CourseMaterial> {
           : this.courseOffering,
       title: data.title.present ? data.title.value : this.title,
       href: data.href.present ? data.href.value : this.href,
+      iSchoolCourseId: data.iSchoolCourseId.present
+          ? data.iSchoolCourseId.value
+          : this.iSchoolCourseId,
+      streamable: data.streamable.present
+          ? data.streamable.value
+          : this.streamable,
     );
   }
 
@@ -8757,13 +8905,16 @@ class CourseMaterial extends DataClass implements Insertable<CourseMaterial> {
           ..write('id: $id, ')
           ..write('courseOffering: $courseOffering, ')
           ..write('title: $title, ')
-          ..write('href: $href')
+          ..write('href: $href, ')
+          ..write('iSchoolCourseId: $iSchoolCourseId, ')
+          ..write('streamable: $streamable')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, courseOffering, title, href);
+  int get hashCode =>
+      Object.hash(id, courseOffering, title, href, iSchoolCourseId, streamable);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8771,7 +8922,9 @@ class CourseMaterial extends DataClass implements Insertable<CourseMaterial> {
           other.id == this.id &&
           other.courseOffering == this.courseOffering &&
           other.title == this.title &&
-          other.href == this.href);
+          other.href == this.href &&
+          other.iSchoolCourseId == this.iSchoolCourseId &&
+          other.streamable == this.streamable);
 }
 
 class MaterialsCompanion extends UpdateCompanion<CourseMaterial> {
@@ -8779,29 +8932,39 @@ class MaterialsCompanion extends UpdateCompanion<CourseMaterial> {
   final Value<int> courseOffering;
   final Value<String?> title;
   final Value<String?> href;
+  final Value<String?> iSchoolCourseId;
+  final Value<bool?> streamable;
   const MaterialsCompanion({
     this.id = const Value.absent(),
     this.courseOffering = const Value.absent(),
     this.title = const Value.absent(),
     this.href = const Value.absent(),
+    this.iSchoolCourseId = const Value.absent(),
+    this.streamable = const Value.absent(),
   });
   MaterialsCompanion.insert({
     this.id = const Value.absent(),
     required int courseOffering,
     this.title = const Value.absent(),
     this.href = const Value.absent(),
+    this.iSchoolCourseId = const Value.absent(),
+    this.streamable = const Value.absent(),
   }) : courseOffering = Value(courseOffering);
   static Insertable<CourseMaterial> custom({
     Expression<int>? id,
     Expression<int>? courseOffering,
     Expression<String>? title,
     Expression<String>? href,
+    Expression<String>? iSchoolCourseId,
+    Expression<bool>? streamable,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (courseOffering != null) 'course_offering': courseOffering,
       if (title != null) 'title': title,
       if (href != null) 'href': href,
+      if (iSchoolCourseId != null) 'i_school_course_id': iSchoolCourseId,
+      if (streamable != null) 'streamable': streamable,
     });
   }
 
@@ -8810,12 +8973,16 @@ class MaterialsCompanion extends UpdateCompanion<CourseMaterial> {
     Value<int>? courseOffering,
     Value<String?>? title,
     Value<String?>? href,
+    Value<String?>? iSchoolCourseId,
+    Value<bool?>? streamable,
   }) {
     return MaterialsCompanion(
       id: id ?? this.id,
       courseOffering: courseOffering ?? this.courseOffering,
       title: title ?? this.title,
       href: href ?? this.href,
+      iSchoolCourseId: iSchoolCourseId ?? this.iSchoolCourseId,
+      streamable: streamable ?? this.streamable,
     );
   }
 
@@ -8834,6 +9001,12 @@ class MaterialsCompanion extends UpdateCompanion<CourseMaterial> {
     if (href.present) {
       map['href'] = Variable<String>(href.value);
     }
+    if (iSchoolCourseId.present) {
+      map['i_school_course_id'] = Variable<String>(iSchoolCourseId.value);
+    }
+    if (streamable.present) {
+      map['streamable'] = Variable<bool>(streamable.value);
+    }
     return map;
   }
 
@@ -8843,7 +9016,9 @@ class MaterialsCompanion extends UpdateCompanion<CourseMaterial> {
           ..write('id: $id, ')
           ..write('courseOffering: $courseOffering, ')
           ..write('title: $title, ')
-          ..write('href: $href')
+          ..write('href: $href, ')
+          ..write('iSchoolCourseId: $iSchoolCourseId, ')
+          ..write('streamable: $streamable')
           ..write(')'))
         .toString();
   }
@@ -18848,6 +19023,7 @@ typedef $$CourseOfferingsTableCreateCompanionBuilder =
       Value<int?> enrolled,
       Value<int?> withdrawn,
       Value<DateTime?> studentRosterFetchedAt,
+      Value<DateTime?> materialsFetchedAt,
     });
 typedef $$CourseOfferingsTableUpdateCompanionBuilder =
     CourseOfferingsCompanion Function({
@@ -18869,6 +19045,7 @@ typedef $$CourseOfferingsTableUpdateCompanionBuilder =
       Value<int?> enrolled,
       Value<int?> withdrawn,
       Value<DateTime?> studentRosterFetchedAt,
+      Value<DateTime?> materialsFetchedAt,
     });
 
 final class $$CourseOfferingsTableReferences
@@ -19141,6 +19318,11 @@ class $$CourseOfferingsTableFilterComposer
 
   ColumnFilters<DateTime> get studentRosterFetchedAt => $composableBuilder(
     column: $table.studentRosterFetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get materialsFetchedAt => $composableBuilder(
+    column: $table.materialsFetchedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -19440,6 +19622,11 @@ class $$CourseOfferingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get materialsFetchedAt => $composableBuilder(
+    column: $table.materialsFetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$SemestersTableOrderingComposer get semester {
     final $$SemestersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -19530,6 +19717,11 @@ class $$CourseOfferingsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get studentRosterFetchedAt => $composableBuilder(
     column: $table.studentRosterFetchedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get materialsFetchedAt => $composableBuilder(
+    column: $table.materialsFetchedAt,
     builder: (column) => column,
   );
 
@@ -19792,6 +19984,7 @@ class $$CourseOfferingsTableTableManager
                 Value<int?> enrolled = const Value.absent(),
                 Value<int?> withdrawn = const Value.absent(),
                 Value<DateTime?> studentRosterFetchedAt = const Value.absent(),
+                Value<DateTime?> materialsFetchedAt = const Value.absent(),
               }) => CourseOfferingsCompanion(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -19811,6 +20004,7 @@ class $$CourseOfferingsTableTableManager
                 enrolled: enrolled,
                 withdrawn: withdrawn,
                 studentRosterFetchedAt: studentRosterFetchedAt,
+                materialsFetchedAt: materialsFetchedAt,
               ),
           createCompanionCallback:
               ({
@@ -19832,6 +20026,7 @@ class $$CourseOfferingsTableTableManager
                 Value<int?> enrolled = const Value.absent(),
                 Value<int?> withdrawn = const Value.absent(),
                 Value<DateTime?> studentRosterFetchedAt = const Value.absent(),
+                Value<DateTime?> materialsFetchedAt = const Value.absent(),
               }) => CourseOfferingsCompanion.insert(
                 id: id,
                 fetchedAt: fetchedAt,
@@ -19851,6 +20046,7 @@ class $$CourseOfferingsTableTableManager
                 enrolled: enrolled,
                 withdrawn: withdrawn,
                 studentRosterFetchedAt: studentRosterFetchedAt,
+                materialsFetchedAt: materialsFetchedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -23319,12 +23515,16 @@ typedef $$MaterialsTableCreateCompanionBuilder = MaterialsCompanion Function({
   required int courseOffering,
   Value<String?> title,
   Value<String?> href,
+  Value<String?> iSchoolCourseId,
+  Value<bool?> streamable,
 });
 typedef $$MaterialsTableUpdateCompanionBuilder = MaterialsCompanion Function({
   Value<int> id,
   Value<int> courseOffering,
   Value<String?> title,
   Value<String?> href,
+  Value<String?> iSchoolCourseId,
+  Value<bool?> streamable,
 });
 
 final class $$MaterialsTableReferences
@@ -23371,6 +23571,16 @@ class $$MaterialsTableFilterComposer
 
   ColumnFilters<String> get href => $composableBuilder(
     column: $table.href,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get iSchoolCourseId => $composableBuilder(
+    column: $table.iSchoolCourseId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get streamable => $composableBuilder(
+    column: $table.streamable,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -23422,6 +23632,16 @@ class $$MaterialsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get iSchoolCourseId => $composableBuilder(
+    column: $table.iSchoolCourseId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get streamable => $composableBuilder(
+    column: $table.streamable,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CourseOfferingsTableOrderingComposer get courseOffering {
     final $$CourseOfferingsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -23463,6 +23683,16 @@ class $$MaterialsTableAnnotationComposer
 
   GeneratedColumn<String> get href =>
       $composableBuilder(column: $table.href, builder: (column) => column);
+
+  GeneratedColumn<String> get iSchoolCourseId => $composableBuilder(
+    column: $table.iSchoolCourseId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get streamable => $composableBuilder(
+    column: $table.streamable,
+    builder: (column) => column,
+  );
 
   $$CourseOfferingsTableAnnotationComposer get courseOffering {
     final $$CourseOfferingsTableAnnotationComposer composer = $composerBuilder(
@@ -23520,11 +23750,15 @@ class $$MaterialsTableTableManager
                 Value<int> courseOffering = const Value.absent(),
                 Value<String?> title = const Value.absent(),
                 Value<String?> href = const Value.absent(),
+                Value<String?> iSchoolCourseId = const Value.absent(),
+                Value<bool?> streamable = const Value.absent(),
               }) => MaterialsCompanion(
                 id: id,
                 courseOffering: courseOffering,
                 title: title,
                 href: href,
+                iSchoolCourseId: iSchoolCourseId,
+                streamable: streamable,
               ),
           createCompanionCallback:
               ({
@@ -23532,11 +23766,15 @@ class $$MaterialsTableTableManager
                 required int courseOffering,
                 Value<String?> title = const Value.absent(),
                 Value<String?> href = const Value.absent(),
+                Value<String?> iSchoolCourseId = const Value.absent(),
+                Value<bool?> streamable = const Value.absent(),
               }) => MaterialsCompanion.insert(
                 id: id,
                 courseOffering: courseOffering,
                 title: title,
                 href: href,
+                iSchoolCourseId: iSchoolCourseId,
+                streamable: streamable,
               ),
           withReferenceMapper: (p0) => p0
               .map(

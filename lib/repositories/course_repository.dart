@@ -57,6 +57,12 @@ typedef CourseStudentRoster = ({
 
 const studentRosterTtl = Duration(minutes: 15);
 
+typedef CourseMaterialList = ({
+  List<CourseMaterial> materials,
+  DateTime? fetchedAt,
+});
+const courseMaterialsTtl = Duration(minutes: 15);
+
 /// Data for a single cell in the course table grid.
 typedef CourseTableCellData = ({
   /// [CourseOfferings] primary key, for navigating to detail view.
@@ -1328,24 +1334,118 @@ class CourseRepository {
     )..where((c) => c.id.equals(courseId))).getSingle();
   }
 
-  /// Gets course materials (files, recordings, etc.) from I-School Plus.
-  ///
-  /// Throws [Exception] on network failure.
-  Future<List<CourseMaterial>> getMaterials(
-    CourseOffering courseOffering,
-  ) async {
-    throw UnimplementedError();
+  Stream<CourseMaterialList> watchMaterials(int courseOfferingId) {
+    final query =
+        _database.select(_database.courseOfferings).join([
+            leftOuterJoin(
+              _database.materials,
+              _database.materials.courseOffering.equalsExp(
+                _database.courseOfferings.id,
+              ),
+            ),
+          ])
+          ..where(_database.courseOfferings.id.equals(courseOfferingId))
+          ..orderBy([OrderingTerm.asc(_database.materials.id)]);
+    return query.watch().map(
+      (rows) => (
+        materials: rows
+            .map((row) => row.readTableOrNull(_database.materials))
+            .nonNulls
+            .toList(growable: false),
+        fetchedAt: rows.isEmpty
+            ? null
+            : rows.first
+                  .readTable(_database.courseOfferings)
+                  .materialsFetchedAt,
+      ),
+    );
   }
 
-  /// Gets the download URL for a material.
-  ///
-  /// The returned `MaterialDto.referer` must be included as a Referer header
-  /// when downloading, if non-null.
-  ///
-  /// Throws [Exception] on network failure.
-  /// Throws [UnimplementedError] for course recordings (not yet supported).
+  Future<bool> areMaterialsFresh(int courseOfferingId) async {
+    final offering = await (_database.select(
+      _database.courseOfferings,
+    )..where((row) => row.id.equals(courseOfferingId))).getSingleOrNull();
+    final fetchedAt = offering?.materialsFetchedAt;
+    return fetchedAt != null &&
+        DateTime.now().difference(fetchedAt) < courseMaterialsTtl;
+  }
+
+  Future<void> refreshMaterials({
+    required int courseOfferingId,
+    required String courseNumber,
+  }) async {
+    final dtos = await _authRepository.withAuth(() async {
+      final courses = await _iSchoolPlusService.getCourseList();
+      final course = courses.where(
+        (course) => course.courseNumber == courseNumber,
+      );
+      if (course.isEmpty) return const <MaterialRefDto>[];
+      return _iSchoolPlusService.getMaterials(course.first);
+    }, sso: [.iSchoolPlusService]);
+
+    final seen = <String>{};
+    final valid = dtos
+        .where(
+          (dto) => switch (dto.href?.trim()) {
+            final href? when href.isNotEmpty => seen.add(href),
+            _ => false,
+          },
+        )
+        .toList();
+    await _database.transaction(() async {
+      await (_database.delete(
+        _database.materials,
+      )..where((row) => row.courseOffering.equals(courseOfferingId))).go();
+      for (final dto in valid) {
+        await _database
+            .into(_database.materials)
+            .insert(
+              MaterialsCompanion.insert(
+                courseOffering: courseOfferingId,
+                title: Value(dto.title?.trim()),
+                href: Value(dto.href!.trim()),
+                iSchoolCourseId: Value(dto.course.internalId),
+              ),
+            );
+      }
+      await (_database.update(
+        _database.courseOfferings,
+      )..where((row) => row.id.equals(courseOfferingId))).write(
+        CourseOfferingsCompanion(materialsFetchedAt: Value(DateTime.now())),
+      );
+    });
+  }
+
   Future<MaterialDto> getMaterialDownload(CourseMaterial material) async {
-    throw UnimplementedError();
+    final reference = await _materialReference(material);
+    final access = await _authRepository.withAuth(
+      () => _iSchoolPlusService.getMaterial(reference),
+      sso: [.iSchoolPlusService],
+    );
+    await (_database.update(_database.materials)
+          ..where((row) => row.id.equals(material.id)))
+        .write(MaterialsCompanion(streamable: Value(access.streamable)));
+    return access;
+  }
+
+  Future<MaterialRefDto> _materialReference(CourseMaterial material) async {
+    final offering = await (_database.select(
+      _database.courseOfferings,
+    )..where((row) => row.id.equals(material.courseOffering))).getSingle();
+    if (material.href == null ||
+        material.href!.isEmpty ||
+        material.iSchoolCourseId == null ||
+        offering.number == null) {
+      throw StateError('Material has no iSchool+ resource reference');
+    }
+    return (
+      course: (
+        courseNumber: offering.number!,
+        internalId: material.iSchoolCourseId!,
+      ),
+      title: material.title,
+      href: material.href,
+    );
   }
 
   /// Watches the cached I-School Plus student roster for [courseOfferingId].
