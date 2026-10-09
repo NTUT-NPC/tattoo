@@ -6,8 +6,8 @@ import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/calendar/calendar_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/main/home/home_screen.dart';
+import 'package:tattoo/screens/main/home/student_union_screen.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
-import 'package:tattoo/screens/main/kiosk_login/kiosk_login_qr_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
 import 'package:tattoo/screens/main/profile/ntut_wifi_screen.dart';
@@ -43,11 +43,11 @@ abstract class AppRoutes {
   static const login = '/login';
   static const about = '/about';
   static const scanner = '/scanner';
-  static const kioskLoginQr = '/kiosk-login-qr';
   static const ntutWifi = '/ntut-8021x';
   static const regedit = '/regedit';
   static const changePassword = '/change-password';
   static const update = '/update';
+  static const studentUnion = '/student-union';
 }
 
 /// Resolves the landing route used after authentication.
@@ -138,7 +138,11 @@ GoRouter createAppRouter({
     ),
     GoRoute(
       path: AppRoutes.intro,
-      builder: (context, state) => const IntroScreen(),
+      builder: (context, state) => _framed(const IntroScreen()),
+    ),
+    GoRoute(
+      path: AppRoutes.studentUnion,
+      builder: (context, state) => _framed(const StudentUnionScreen()),
     ),
     GoRoute(
       path: AppRoutes.login,
@@ -193,10 +197,6 @@ GoRouter createAppRouter({
     GoRoute(
       path: AppRoutes.calendar,
       builder: (context, state) => _framed(const CalendarScreen()),
-    ),
-    GoRoute(
-      path: AppRoutes.kioskLoginQr,
-      builder: (context, state) => _framed(const KioskLoginQrScreen()),
     ),
     GoRoute(
       path: AppRoutes.ntutWifi,

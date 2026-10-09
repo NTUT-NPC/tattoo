@@ -99,21 +99,17 @@ home:
     ongoing: Ongoing
     imminent: Starting soon
     next: Next course
-  projectTattoo:
-    title: About Project Tattoo
-    description: Learn more or invite your friends to join the testing program.
-    url: https://ntut.app
-  ideation:
-    title: Our TAT is under construction
-    description: We're collecting ideas for the Home page. Share your proposal with us.
-    url: https://forms.gle/LdQdMfvAfUYyGE4k8
-  npcClub:
-    title: NTUT Programming Club
-    description: If you have ideas or want to contribute, feel free to reach out anytime.
-    url: https://ntut.club
   campusWifi: Connect to Campus Wi-Fi
-  vote:
-    description: Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.
+  about:
+    title: About TAT
+    description: Learn about Project Tattoo and support its development team
+studentUnion:
+  title: Student Union
+  description: Student rights and campus resources
+  campusAffairsFeedback: Campus Affairs Feedback Form
+  studentRightsCaseTracker: Student Rights Case Tracker
+  studentCouncilMeetingDocuments: Student Council Meeting Documents
+  upcomingSchoolPolicies: Upcoming School Policies
 score:
   loadFailed: Failed to load scores
   refreshFailed: Failed to refresh scores

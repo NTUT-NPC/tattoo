@@ -99,21 +99,17 @@ home:
     ongoing: 進行中
     imminent: 即將開始
     next: 下一堂課
-  projectTattoo:
-    title: 關於Project Tattoo
-    description: 查看更多資訊或邀請你的朋友加入測試計畫。
-    url: https://ntut.app
-  ideation:
-    title: 屬於我們的TAT正在打造中
-    description: 我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！
-    url: https://forms.gle/LdQdMfvAfUYyGE4k8
-  npcClub:
-    title: 北科程式設計研究社
-    description: 有任何想法或是想加入開發，隨時歡迎聯絡我們！
-    url: https://ntut.club
   campusWifi: 連接校園Wi-Fi
-  vote:
-    description: 學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！
+  about:
+    title: 關於TAT
+    description: 了解Project Tattoo，並支持開發團隊
+studentUnion:
+  title: 學生會專區
+  description: 學生權益相關連結
+  campusAffairsFeedback: 校園事務轉達單
+  studentRightsCaseTracker: 學權部案件追蹤系統
+  studentCouncilMeetingDocuments: 學生議會會議文件
+  upcomingSchoolPolicies: 學校預計推出政策
 score:
   loadFailed: 成績載入失敗
   refreshFailed: 成績更新失敗

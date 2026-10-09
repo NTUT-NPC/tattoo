@@ -8,7 +8,7 @@ import 'package:material_ui/material_ui.dart';
 /// Example:
 /// ```dart
 /// ShowcaseShell(
-///   icon: const Icon(Icons.school_outlined, size: 64),
+///   icon: const Icon(Icons.school_outlined),
 ///   title: 'Tattoo',
 ///   subtitle: 'NTUT Course Assistant',
 ///   body: const Text('Feature list goes here'),
@@ -71,7 +71,13 @@ class ShowcaseShell extends StatelessWidget {
                   Column(
                     spacing: 4,
                     children: [
-                      icon,
+                      SizedBox(
+                        height: verticalPadding,
+                        child: IconTheme.merge(
+                          data: IconThemeData(size: verticalPadding),
+                          child: icon,
+                        ),
+                      ),
                       Text(
                         title,
                         style: theme.textTheme.headlineLarge?.copyWith(
