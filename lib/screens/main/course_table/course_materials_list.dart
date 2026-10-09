@@ -49,7 +49,7 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
     if (_cancelToken != null) return;
     final strings = Translations.of(context).courseTable.detail.materials;
     if (widget.material.streamable == true) {
-      setState(() => _errorMessage = strings.streamUnavailable);
+      _showError(strings.streamUnavailable);
       return;
     }
     final token = CancelToken();
@@ -59,6 +59,7 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
       _saving = false;
       _errorMessage = null;
     });
+    String? errorMessage;
     try {
       final saved = await ref
           .read(courseRepositoryProvider)
@@ -77,11 +78,9 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
       if (saved && mounted) _showMessage(strings.saved);
     } catch (error) {
       if (mounted && !token.isCancelled) {
-        setState(
-          () => _errorMessage = error is UnsupportedError
-              ? strings.streamUnavailable
-              : strings.downloadFailed,
-        );
+        errorMessage = error is UnsupportedError
+            ? strings.streamUnavailable
+            : strings.downloadFailed;
       }
     } finally {
       if (mounted) {
@@ -92,6 +91,14 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
         });
       }
     }
+    if (errorMessage case final message? when mounted) {
+      _showError(message);
+    }
+  }
+
+  void _showError(String message) {
+    setState(() => _errorMessage = message);
+    _showMessage(message);
   }
 
   void _showMessage(String message) {
@@ -115,36 +122,48 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
       title: Text(
         (title == null || title.isEmpty ? strings.unnamed : title).spaced,
       ),
-      subtitle: downloading
-          ? Column(
-              crossAxisAlignment: .start,
-              mainAxisSize: .min,
-              children: [
-                Text((_saving ? strings.saving : strings.downloading).spaced),
-                if (!_saving) LinearProgressIndicator(value: _progress),
-              ],
-            )
-          : _errorMessage == null
-          ? null
-          : Text(
-              _errorMessage!.spaced,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-      trailing: downloading
-          ? IconButton(
-              tooltip: strings.cancel.spaced,
-              onPressed: _saving
-                  ? null
-                  : () => _cancelToken?.cancel(
-                      'User cancelled material download',
+      trailing: SizedBox.square(
+        dimension: 48,
+        child: downloading
+            ? Semantics(
+                liveRegion: true,
+                label: (_saving ? strings.saving : strings.downloading).spaced,
+                child: Stack(
+                  alignment: .center,
+                  children: [
+                    SizedBox.square(
+                      dimension: 32,
+                      child: CircularProgressIndicator(
+                        value: _saving ? null : _progress,
+                        strokeWidth: 2,
+                      ),
                     ),
-              icon: const Icon(Icons.close),
-            )
-          : IconButton(
-              tooltip: strings.download.spaced,
-              onPressed: _download,
-              icon: const Icon(Icons.download_outlined),
-            ),
+                    IconButton(
+                      tooltip:
+                          (_saving ? strings.saving : strings.cancel).spaced,
+                      onPressed: _saving
+                          ? null
+                          : () => _cancelToken?.cancel(
+                              'User cancelled material download',
+                            ),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+              )
+            : IconButton(
+                tooltip: (_errorMessage ?? strings.download).spaced,
+                onPressed: _download,
+                icon: Icon(
+                  _errorMessage == null
+                      ? Icons.download_outlined
+                      : Icons.error_outline,
+                  color: _errorMessage == null
+                      ? null
+                      : Theme.of(context).colorScheme.error,
+                ),
+              ),
+      ),
     );
   }
 }
