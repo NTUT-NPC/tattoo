@@ -14877,8 +14877,10 @@ class $$UsersTableTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) =>
-                    (e.readTable(table), $$UsersTableReferences(db, table, e)),
+                (e) => (
+                  e.readTable<$UsersTable, User>(table),
+                  $$UsersTableReferences(db, table, e),
+                ),
               )
               .toList(),
           prefetchHooksCallback:
@@ -15368,7 +15370,10 @@ class $$PortalApplicationCategoriesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<
+                    $PortalApplicationCategoriesTable,
+                    PortalApplicationCategory
+                  >(table),
                   $$PortalApplicationCategoriesTableReferences(db, table, e),
                 ),
               )
@@ -15762,7 +15767,9 @@ class $$PortalApplicationsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$PortalApplicationsTable, PortalApplication>(
+                    table,
+                  ),
                   $$PortalApplicationsTableReferences(db, table, e),
                 ),
               )
@@ -16045,7 +16052,10 @@ class $$PortalApplicationFavoritesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<
+                    $PortalApplicationFavoritesTable,
+                    PortalApplicationFavorite
+                  >(table),
                   $$PortalApplicationFavoritesTableReferences(db, table, e),
                 ),
               )
@@ -16315,7 +16325,7 @@ class $$StudentsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$StudentsTable, Student>(table),
                   $$StudentsTableReferences(db, table, e),
                 ),
               )
@@ -16926,7 +16936,7 @@ class $$SemestersTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$SemestersTable, Semester>(table),
                   $$SemestersTableReferences(db, table, e),
                 ),
               )
@@ -17405,7 +17415,7 @@ class $$CoursesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$CoursesTable, Course>(table),
                   $$CoursesTableReferences(db, table, e),
                 ),
               )
@@ -17675,7 +17685,7 @@ class $$DepartmentsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$DepartmentsTable, Department>(table),
                   $$DepartmentsTableReferences(db, table, e),
                 ),
               )
@@ -18024,7 +18034,7 @@ class $$TeachersTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$TeachersTable, Teacher>(table),
                   $$TeachersTableReferences(db, table, e),
                 ),
               )
@@ -18448,7 +18458,7 @@ class $$ClassesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$ClassesTable, ClassesData>(table),
                   $$ClassesTableReferences(db, table, e),
                 ),
               )
@@ -18775,7 +18785,7 @@ class $$ClassroomsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$ClassroomsTable, Classroom>(table),
                   $$ClassroomsTableReferences(db, table, e),
                 ),
               )
@@ -19855,7 +19865,7 @@ class $$CourseOfferingsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$CourseOfferingsTable, CourseOffering>(table),
                   $$CourseOfferingsTableReferences(db, table, e),
                 ),
               )
@@ -20811,7 +20821,7 @@ class $$TeacherSemestersTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$TeacherSemestersTable, TeacherSemester>(table),
                   $$TeacherSemestersTableReferences(db, table, e),
                 ),
               )
@@ -21272,7 +21282,10 @@ class $$CourseOfferingTeachersTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<
+                    $CourseOfferingTeachersTable,
+                    CourseOfferingTeacher
+                  >(table),
                   $$CourseOfferingTeachersTableReferences(db, table, e),
                 ),
               )
@@ -21641,7 +21654,10 @@ class $$CourseOfferingClassesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<
+                    $CourseOfferingClassesTable,
+                    CourseOfferingClassesData
+                  >(table),
                   $$CourseOfferingClassesTableReferences(db, table, e),
                 ),
               )
@@ -22010,7 +22026,10 @@ class $$CourseOfferingStudentsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<
+                    $CourseOfferingStudentsTable,
+                    CourseOfferingStudent
+                  >(table),
                   $$CourseOfferingStudentsTableReferences(db, table, e),
                 ),
               )
@@ -22406,7 +22425,7 @@ class $$SchedulesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$SchedulesTable, Schedule>(table),
                   $$SchedulesTableReferences(db, table, e),
                 ),
               )
@@ -22892,7 +22911,7 @@ class $$SyllabusesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$SyllabusesTable, Syllabus>(table),
                   $$SyllabusesTableReferences(db, table, e),
                 ),
               )
@@ -23252,7 +23271,7 @@ class $$SyllabusSectionsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$SyllabusSectionsTable, SyllabusSection>(table),
                   $$SyllabusSectionsTableReferences(db, table, e),
                 ),
               )
@@ -23541,7 +23560,7 @@ class $$MaterialsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$MaterialsTable, CourseMaterial>(table),
                   $$MaterialsTableReferences(db, table, e),
                 ),
               )
@@ -23907,7 +23926,9 @@ class $$TeacherOfficeHoursTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$TeacherOfficeHoursTable, TeacherOfficeHour>(
+                    table,
+                  ),
                   $$TeacherOfficeHoursTableReferences(db, table, e),
                 ),
               )
@@ -24477,8 +24498,10 @@ class $$ScoresTableTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) =>
-                    (e.readTable(table), $$ScoresTableReferences(db, table, e)),
+                (e) => (
+                  e.readTable<$ScoresTable, Score>(table),
+                  $$ScoresTableReferences(db, table, e),
+                ),
               )
               .toList(),
           prefetchHooksCallback:
@@ -25334,7 +25357,9 @@ class $$UserSemesterSummariesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$UserSemesterSummariesTable, UserSemesterSummary>(
+                    table,
+                  ),
                   $$UserSemesterSummariesTableReferences(db, table, e),
                 ),
               )
@@ -25796,7 +25821,10 @@ class $$UserSemesterSummaryTutorsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<
+                    $UserSemesterSummaryTutorsTable,
+                    UserSemesterSummaryTutor
+                  >(table),
                   $$UserSemesterSummaryTutorsTableReferences(db, table, e),
                 ),
               )
@@ -26111,7 +26139,10 @@ class $$UserSemesterSummaryCadreRolesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<
+                    $UserSemesterSummaryCadreRolesTable,
+                    UserSemesterSummaryCadreRole
+                  >(table),
                   $$UserSemesterSummaryCadreRolesTableReferences(db, table, e),
                 ),
               )
@@ -26484,7 +26515,9 @@ class $$UserSemesterRankingsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$UserSemesterRankingsTable, UserSemesterRanking>(
+                    table,
+                  ),
                   $$UserSemesterRankingsTableReferences(db, table, e),
                 ),
               )
@@ -26815,7 +26848,16 @@ class $$CalendarEventsTableTableManager
                 creatorName: creatorName,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$CalendarEventsTable, CalendarEvent>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $CalendarEventsTable,
+                    CalendarEvent
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
