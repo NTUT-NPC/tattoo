@@ -348,7 +348,7 @@ class _Translations$ntutWifi$en_US extends Translations$ntutWifi$zh_TW {
 	@override String get intro => 'Use your saved NTUT portal credentials to add NTUT-802.1X so Android can auto-connect later.';
 	@override String get accountHint => 'Use your student or staff ID directly. Do not append @ntut.edu.tw.';
 	@override String androidVersion({required Object sdkInt}) => 'Android API ${sdkInt}';
-	@override String get unsupportedPlatform => 'This feature is currently available only on Android.';
+	@override String get unsupportedPlatform => 'This feature is available on Android and iOS devices.';
 	@override String get notLoggedIn => 'Sign in to your NTUT portal account first so the assistant can fill in the NTUT-802.1X identity and password.';
 	@override String get credentialsMissing => 'The saved portal password is missing. Sign in to TAT again if you need to copy the password.';
 	@override String get olderAndroidWarning => 'This assistant follows the Android 12+ UI. Field labels may look different on older versions.';
@@ -362,6 +362,7 @@ class _Translations$ntutWifi$en_US extends Translations$ntutWifi$zh_TW {
 	@override String get suggestionFallbackRequired => 'Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.';
 	@override String get android10PermissionRejected => 'Android 10 has rejected this app\'s Wi-Fi suggestion permission. Follow the manual instructions below instead.';
 	@override String get legacyManualOnly => 'Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.';
+	@override late final _Translations$ntutWifi$ios$en_US ios = _Translations$ntutWifi$ios$en_US._(_root);
 	@override late final _Translations$ntutWifi$sections$en_US sections = _Translations$ntutWifi$sections$en_US._(_root);
 	@override late final _Translations$ntutWifi$actions$en_US actions = _Translations$ntutWifi$actions$en_US._(_root);
 	@override late final _Translations$ntutWifi$fields$en_US fields = _Translations$ntutWifi$fields$en_US._(_root);
@@ -767,6 +768,25 @@ class _Translations$scanner$guide$en_US extends Translations$scanner$guide$zh_TW
 	@override String get button => 'Got it';
 }
 
+// Path: ntutWifi.ios
+class _Translations$ntutWifi$ios$en_US extends Translations$ntutWifi$ios$zh_TW {
+	_Translations$ntutWifi$ios$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get intro => 'Use your saved NTUT portal credentials to join NTUT-802.1X. Turn on Wi-Fi and approve the iOS system prompt.';
+	@override String get connect => 'Connect to NTUT-802.1X';
+	@override String get certificatesHint => 'Uses PEAP and system-trusted certificates for ntut.edu.tw. The campus server negotiates inner authentication; iOS controls approval and connection.';
+	@override String get deviceRequired => 'Automatic Wi-Fi configuration requires a physical iPhone or iPad; it is not available in the simulator.';
+	@override String get configured => 'iOS accepted the NTUT-802.1X configuration. This does not confirm a connection; check Settings > Wi-Fi while on campus.';
+	@override String get cancelled => 'The Wi-Fi request was cancelled. You can try again from this page.';
+	@override String get alreadyAssociated => 'iOS reports that you are already connected to NTUT-802.1X. This does not confirm that a changed password was saved; check the network in Settings > Wi-Fi.';
+	@override String get updateRequired => 'Your portal credentials changed. Connect again to update the saved NTUT-802.1X configuration.';
+	@override String get openSettings => '1. Open the Settings app, then Wi-Fi. iOS does not let TAT open this page directly.';
+	@override String get enterCredentials => '3. Enter the identity and password shown above. Only trust the campus authentication server\'s certificate.';
+}
+
 // Path: ntutWifi.sections
 class _Translations$ntutWifi$sections$en_US extends Translations$ntutWifi$sections$zh_TW {
 	_Translations$ntutWifi$sections$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -865,7 +885,7 @@ class _Translations$ntutWifi$compatPrompt$en_US extends Translations$ntutWifi$co
 	@override String get title => 'Update NTUT-802.1X';
 	@override String get updateNow => 'Update now';
 	@override String get later => 'Later';
-	@override String get credentialChanged => 'NTUT-802.1X was previously saved through compat mode. Your portal credentials changed, so the system Wi-Fi profile needs to be updated.';
+	@override String get credentialChanged => 'Your portal credentials changed. Update the previously saved NTUT-802.1X system Wi-Fi configuration.';
 	@override String get suggestionFallbackRequired => 'Automatic NTUT-802.1X refresh failed. Do you want to switch to compat mode and update it now?';
 }
 
@@ -1242,7 +1262,7 @@ extension on TranslationsEnUs {
 			'ntutWifi.intro' => 'Use your saved NTUT portal credentials to add NTUT-802.1X so Android can auto-connect later.',
 			'ntutWifi.accountHint' => 'Use your student or staff ID directly. Do not append @ntut.edu.tw.',
 			'ntutWifi.androidVersion' => ({required Object sdkInt}) => 'Android API ${sdkInt}',
-			'ntutWifi.unsupportedPlatform' => 'This feature is currently available only on Android.',
+			'ntutWifi.unsupportedPlatform' => 'This feature is available on Android and iOS devices.',
 			'ntutWifi.notLoggedIn' => 'Sign in to your NTUT portal account first so the assistant can fill in the NTUT-802.1X identity and password.',
 			'ntutWifi.credentialsMissing' => 'The saved portal password is missing. Sign in to TAT again if you need to copy the password.',
 			'ntutWifi.olderAndroidWarning' => 'This assistant follows the Android 12+ UI. Field labels may look different on older versions.',
@@ -1256,6 +1276,16 @@ extension on TranslationsEnUs {
 			'ntutWifi.suggestionFallbackRequired' => 'Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.',
 			'ntutWifi.android10PermissionRejected' => 'Android 10 has rejected this app\'s Wi-Fi suggestion permission. Follow the manual instructions below instead.',
 			'ntutWifi.legacyManualOnly' => 'Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.',
+			'ntutWifi.ios.intro' => 'Use your saved NTUT portal credentials to join NTUT-802.1X. Turn on Wi-Fi and approve the iOS system prompt.',
+			'ntutWifi.ios.connect' => 'Connect to NTUT-802.1X',
+			'ntutWifi.ios.certificatesHint' => 'Uses PEAP and system-trusted certificates for ntut.edu.tw. The campus server negotiates inner authentication; iOS controls approval and connection.',
+			'ntutWifi.ios.deviceRequired' => 'Automatic Wi-Fi configuration requires a physical iPhone or iPad; it is not available in the simulator.',
+			'ntutWifi.ios.configured' => 'iOS accepted the NTUT-802.1X configuration. This does not confirm a connection; check Settings > Wi-Fi while on campus.',
+			'ntutWifi.ios.cancelled' => 'The Wi-Fi request was cancelled. You can try again from this page.',
+			'ntutWifi.ios.alreadyAssociated' => 'iOS reports that you are already connected to NTUT-802.1X. This does not confirm that a changed password was saved; check the network in Settings > Wi-Fi.',
+			'ntutWifi.ios.updateRequired' => 'Your portal credentials changed. Connect again to update the saved NTUT-802.1X configuration.',
+			'ntutWifi.ios.openSettings' => '1. Open the Settings app, then Wi-Fi. iOS does not let TAT open this page directly.',
+			'ntutWifi.ios.enterCredentials' => '3. Enter the identity and password shown above. Only trust the campus authentication server\'s certificate.',
 			'ntutWifi.sections.quickActions' => 'Quick Actions',
 			'ntutWifi.sections.recommendedSettings' => 'Recommended Settings',
 			'ntutWifi.sections.fallback' => 'Manual Fallback',
@@ -1293,7 +1323,7 @@ extension on TranslationsEnUs {
 			'ntutWifi.compatPrompt.title' => 'Update NTUT-802.1X',
 			'ntutWifi.compatPrompt.updateNow' => 'Update now',
 			'ntutWifi.compatPrompt.later' => 'Later',
-			'ntutWifi.compatPrompt.credentialChanged' => 'NTUT-802.1X was previously saved through compat mode. Your portal credentials changed, so the system Wi-Fi profile needs to be updated.',
+			'ntutWifi.compatPrompt.credentialChanged' => 'Your portal credentials changed. Update the previously saved NTUT-802.1X system Wi-Fi configuration.',
 			'ntutWifi.compatPrompt.suggestionFallbackRequired' => 'Automatic NTUT-802.1X refresh failed. Do you want to switch to compat mode and update it now?',
 			'kioskLogin.qrCode' => 'login QR code',
 			'kioskLogin.refresh' => 'Regenerate',
