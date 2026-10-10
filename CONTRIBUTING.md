@@ -60,6 +60,7 @@ Dart 3 idioms not yet covered by linter rules (see [#288](https://github.com/NTU
 
 ## Git and GitHub Workflows
 
+- Generated files are collapsed on GitHub and their textual diffs are suppressed by default via `.gitattributes` to save agent context. Use `git diff --text` when you need to inspect their changes.
 - Updating a branch with the base branch: prefer rebase, but use merge if the branch contains commits by other contributors (rebase rewrites authorship) or if there are conflicts.
 - AI review comments should be addressed and resolved by the PR author.
 - Human review comments should be resolved by the reviewer.
