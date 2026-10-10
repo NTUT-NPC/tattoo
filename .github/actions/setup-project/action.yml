@@ -38,6 +38,7 @@ runs:
   using: composite
   steps:
     - name: Install mise
+      id: mise
       uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
       with:
         install_args: >
@@ -50,16 +51,13 @@ runs:
         cache_save: ${{ inputs.save-caches }}
 
     - name: Verify Flutter version
-      id: flutter-version
-      if: ${{ inputs.platform == 'android' }}
+      if: ${{ inputs.platform == 'android' && steps.mise.outputs.flutter != '3.47.7' }}
       shell: bash
+      env:
+        FLUTTER_VERSION: ${{ steps.mise.outputs.flutter }}
       run: |
-        FLUTTER_VERSION=$(mise current flutter)
-        if [ "$FLUTTER_VERSION" != "3.47.7" ]; then
-          echo "::error::Flutter version has changed to $FLUTTER_VERSION. Please update cache paths accordingly."
-          exit 1
-        fi
-        echo "flutter_version=$FLUTTER_VERSION" >> $GITHUB_OUTPUT
+        echo "::error::Flutter version has changed to $FLUTTER_VERSION. Please update cache paths accordingly."
+        exit 1
 
     - name: Setup Ruby
       if: ${{ inputs.platform == 'ios' }}
@@ -99,7 +97,7 @@ runs:
       if: ${{ inputs.platform == 'android' }}
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
-        key: ${{ runner.os }}-android-sdk-${{ steps.flutter-version.outputs.flutter_version }}
+        key: ${{ runner.os }}-android-sdk-${{ steps.mise.outputs.flutter }}
         # Update paths when updating Flutter version
         path: |
           /usr/local/lib/android/sdk/cmake/3.22.1
