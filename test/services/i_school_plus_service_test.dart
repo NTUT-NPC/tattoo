@@ -47,6 +47,17 @@ void main() {
     });
 
     group('getCourseList', () {
+      test('public probe does not replace the authenticated session', () async {
+        final coursesFuture = iSchoolPlusService.getCourseList();
+
+        await Future.wait([
+          iSchoolPlusService.checkAvailability(),
+          coursesFuture,
+        ]);
+
+        expect(await coursesFuture, isNotEmpty);
+      });
+
       test('should return list of available courses', () async {
         final courses = await iSchoolPlusService.getCourseList();
 

@@ -35,7 +35,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - `lib/screens/` - Screen widgets organized by feature: `welcome/` (intro, login) and `main/` (home, course_table, score, calendar, portal, scanner, kiosk_login, profile). 4-tab `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation. Each tab owns its own `Scaffold`.
 - `lib/services/` - Clients that talk to external systems (NTUT HTTP services, Firebase, etc.) and `demo_mode.dart`
 - `lib/shells/` - Layout shells (AnimatedShellContainer for tab transitions, ShowcaseShell for onboarding, CenteredMaxWidthFrame and AdaptiveNavigationScaffold for the 580 logical-pixel adaptive breakpoint)
-- `lib/utils/` - HTTP utilities (cookie jar, interceptors, native adapter), localization, avatar payload, the `PrefType` SharedPreferences value-type enum
+- `lib/utils/` - HTTP utilities (cookie jar, interceptors, native adapter), localization, avatar payload, the `PrefType` SharedPreferences value-type enum, link URL override parsing
 - `tool/` - Dart CLI tools (credentials management, HTML/XML snapshot capture, portal endpoints scraper)
 
 **Provider placement:**
@@ -91,7 +91,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 ## Database
 
-**Migrations:** No migration strategy until first release. Schema changes are made directly — the database is recreated on each install during development.
+**Migrations:** Use `dart run drift_dev make-migrations` to record schema history. For each migration, first change the table or view, then increment `AppDatabase.schemaVersion` exactly once, and only afterward run the command to record the updated schema. Commit the generated migration files with the schema change.
 
 **Cache Timestamps:** For data that doesn't have its own `fetchedAt` column, add a nullable `{feature}FetchedAt` column on the parent row's table (e.g., `Semesters.courseTableFetchedAt` for per-semester course table cache). For data with no natural parent row (e.g., the semester list itself), use a column on the `Users` table.
 
@@ -146,6 +146,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 **NullHeaderInterceptor:** `dio_cookie_manager` injects `Cookie: null` when no cookies exist for a domain. NTUT's BigIP ASM flags this as bot behavior (HTTP 403). The interceptor strips null-value Cookie headers before requests are sent.
 
 **InvalidCookieFilter:** iSchool+ returns malformed cookies. Additionally, NativeAdapter (Cronet/URLSession) comma-joins multiple Set-Cookie values into a single header entry. The interceptor splits them before validation so one invalid cookie doesn't discard valid ones.
+
+**I-School Plus selected course:** `goto_course.php` changes mutable server-side session state. The Service serializes each course-scoped operation from course selection through its final dependent HTTP request, including roster and material calls. A failed course switch or expired session invalidates the cached selected ID. Keep this protocol synchronization in the Service, not CourseRepository.
 
 **Connection: close:** PortalService uses `Connection: close` header. NTUT portal servers close keep-alive connections after multipart uploads, causing stale socket errors if Dart's HTTP client tries to reuse them.
 

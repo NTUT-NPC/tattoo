@@ -1,6 +1,11 @@
-# Skip generated files from diffs
-*.g.dart -diff
-*.lock -diff
+# Collapse generated files on GitHub and suppress their textual diffs
+*.g.dart linguist-generated -diff
+*.steps.dart linguist-generated -diff
+lib/database/migrations/** linguist-generated -diff
+lib/firebase_options_*.dart linguist-generated -diff
+test/**/generated/** linguist-generated -diff
+fastlane/README.md linguist-generated -diff
+*.lock linguist-generated -diff
 
-# Forece text files to use LF line endings
+# Force text files to use LF line endings
 * text=auto eol=lf

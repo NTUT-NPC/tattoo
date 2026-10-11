@@ -2,13 +2,13 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:best-practices",
-    ":maintainLockFilesDisabled",
-    "schedule:monthly"
+    ":maintainLockFilesDisabled"
   ],
   "timezone": "Asia/Taipei",
+  "schedule": ["* * 2 * *"],
   "prHourlyLimit": 0,
   "constraints": {
-    "flutter": "3.47.2"
+    "flutter": "3.47.7"
   },
   "bundler": {
     "managerFilePatterns": ["/(^|/)Pluginfile$/"]
@@ -22,6 +22,11 @@
       "matchManagers": ["mise"],
       "matchDepNames": ["java"],
       "enabled": false
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["ruby/setup-ruby"],
+      "pinDigests": false
     },
     {
       "matchManagers": ["pub"],
@@ -54,6 +59,11 @@
       "matchDepNames": ["flutter"],
       "groupName": "Flutter SDK",
       "groupSlug": "flutter"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "groupName": null,
+      "groupSlug": null
     }
   ]
 }

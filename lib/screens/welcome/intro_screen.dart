@@ -18,14 +18,10 @@ class _IntroScreenState extends State<IntroScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final screenHeight = MediaQuery.of(context).size.height;
-    final verticalPadding = screenHeight * 0.1;
-
     final title = t.general.appTitle;
 
     final icon = SvgPicture.asset(
       'assets/tat_icon.svg',
-      height: verticalPadding,
       colorFilter: switch (theme.brightness) {
         .dark => .mode(
           theme.colorScheme.onSurfaceVariant,

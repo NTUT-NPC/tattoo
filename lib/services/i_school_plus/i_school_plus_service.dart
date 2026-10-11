@@ -83,6 +83,10 @@ final iSchoolPlusServiceProvider = Provider<ISchoolPlusService>((ref) {
 ///
 /// Data is parsed from HTML/XML pages as NTUT does not provide a REST API.
 abstract interface class ISchoolPlusService {
+  /// Checks whether the public I-School Plus homepage is reachable without
+  /// using an authenticated session.
+  Future<void> checkAvailability();
+
   /// Fetches the list of courses available on iSchool+ for the current user.
   ///
   /// Returns course references that can be passed to [getStudents],

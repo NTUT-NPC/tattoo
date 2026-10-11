@@ -99,21 +99,17 @@ home:
     ongoing: 進行中
     imminent: 即將開始
     next: 下一堂課
-  projectTattoo:
-    title: 關於Project Tattoo
-    description: 查看更多資訊或邀請你的朋友加入測試計畫。
-    url: https://ntut.app
-  ideation:
-    title: 屬於我們的TAT正在打造中
-    description: 我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！
-    url: https://forms.gle/LdQdMfvAfUYyGE4k8
-  npcClub:
-    title: 北科程式設計研究社
-    description: 有任何想法或是想加入開發，隨時歡迎聯絡我們！
-    url: https://ntut.club
   campusWifi: 連接校園Wi-Fi
-  vote:
-    description: 學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！
+  about:
+    title: 關於TAT
+    description: 了解Project Tattoo，並支持開發團隊
+studentUnion:
+  title: 學生會專區
+  description: 學生權益相關連結
+  campusAffairsFeedback: 校園事務轉達單
+  studentRightsCaseTracker: 學權部案件追蹤系統
+  studentCouncilMeetingDocuments: 學生議會會議文件
+  upcomingSchoolPolicies: 學校預計推出政策
 score:
   loadFailed: 成績載入失敗
   refreshFailed: 成績更新失敗
@@ -157,16 +153,11 @@ courseTable:
       studentId: 學號
       name: 姓名
       empty: 目前沒有同學名單
-      loadFailed: 無法載入同學名單，請稍後再試。
-      loadingNetworkHint: i學園功能需要使用學校網路，
-      refresh: 重新整理
-      networkTitle: 需要連接學校網路
-      networkDescription: i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。
-      networkSnackbar: 無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。
-      learnMore: 瞭解更多
-      openGuide: 查看VPN連線說明
+      loadFailed: 無法載入同學名單。
+      networkSnackbar: 正在嘗試更新同學名單。此功能需要連接學校網路。
+      updateFailed: 無法更新同學名單，仍顯示先前的資料。
+      updateSuccess: 同學名單已更新。
       backToRoster: 返回同學名單
-      openGuideFailed: 無法開啟VPN連線說明，請稍後再試。
   summary:
     credits(plural, param=count):
       one: ${count}學分
@@ -195,6 +186,15 @@ courseTable:
     thursday: 星期四
     friday: 星期五
     saturday: 星期六
+iSchoolPlus:
+  network:
+    loadingNetworkHint: i學園功能需要使用學校網路。
+    title: 無法連接到i學園服務
+    description: i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重試此功能。
+    stillTrying: 仍在嘗試連線，完成後即可重試。
+    learnMore: 瞭解更多
+    openGuide: 查看VPN連線說明
+    openGuideFailed: 無法開啟VPN連線說明，請稍後再試。
 profile:
   dataDisclaimer: 僅供參考，非正式文件
   passwordExpiry:

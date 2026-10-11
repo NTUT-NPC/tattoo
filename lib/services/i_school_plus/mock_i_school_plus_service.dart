@@ -9,6 +9,9 @@ class MockISchoolPlusService implements ISchoolPlusService {
   MaterialDto? materialResult;
 
   @override
+  Future<void> checkAvailability() async {}
+
+  @override
   Future<List<ISchoolCourseDto>> getCourseList() async {
     return courseListResult ??
         [

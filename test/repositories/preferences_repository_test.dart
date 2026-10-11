@@ -31,9 +31,6 @@ void main() {
       expect(PrefKey.showCourseSchedule.type, PrefType.boolean);
       expect(PrefKey.showCourseSchedule.defaultValue, true);
 
-      expect(PrefKey.showVoteButton.type, PrefType.boolean);
-      expect(PrefKey.showVoteButton.defaultValue, false);
-
       expect(PrefKey.showScannerButton.type, PrefType.boolean);
       expect(PrefKey.showScannerButton.defaultValue, true);
 
@@ -52,11 +49,14 @@ void main() {
       expect(PrefKey.showCourseRoster.type, PrefType.boolean);
       expect(PrefKey.showCourseRoster.defaultValue, true);
 
-      expect(PrefKey.courseRosterGuideUrl.type, PrefType.string);
+      expect(PrefKey.iSchoolPlusNetworkGuideUrl.type, PrefType.string);
       expect(
-        PrefKey.courseRosterGuideUrl.defaultValue,
-        defaultCourseRosterGuideUrl,
+        PrefKey.iSchoolPlusNetworkGuideUrl.defaultValue,
+        defaultISchoolPlusNetworkGuideUrl,
       );
+
+      expect(PrefKey.studentUnionLinks.type, PrefType.string);
+      expect(PrefKey.studentUnionLinks.defaultValue, '[]');
     });
 
     test('can be written and read from TypedPreferenceStore', () async {

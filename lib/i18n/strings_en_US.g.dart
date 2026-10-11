@@ -16,22 +16,22 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsEnUs({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.enUs,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <en-US>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final TranslationsEnUs _root = this; // ignore: unused_field
 
@@ -47,9 +47,11 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$nav$en_US nav = _Translations$nav$en_US._(_root);
 	@override late final _Translations$portal$en_US portal = _Translations$portal$en_US._(_root);
 	@override late final _Translations$home$en_US home = _Translations$home$en_US._(_root);
+	@override late final _Translations$studentUnion$en_US studentUnion = _Translations$studentUnion$en_US._(_root);
 	@override late final _Translations$score$en_US score = _Translations$score$en_US._(_root);
 	@override late final _Translations$calendar$en_US calendar = _Translations$calendar$en_US._(_root);
 	@override late final _Translations$courseTable$en_US courseTable = _Translations$courseTable$en_US._(_root);
+	@override late final _Translations$iSchoolPlus$en_US iSchoolPlus = _Translations$iSchoolPlus$en_US._(_root);
 	@override late final _Translations$profile$en_US profile = _Translations$profile$en_US._(_root);
 	@override late final _Translations$scanner$en_US scanner = _Translations$scanner$en_US._(_root);
 	@override late final _Translations$ntutWifi$en_US ntutWifi = _Translations$ntutWifi$en_US._(_root);
@@ -199,11 +201,23 @@ class _Translations$home$en_US extends Translations$home$zh_TW {
 	@override String get yesterday => 'Yesterday';
 	@override String weekday({required Object day}) => '${day}';
 	@override late final _Translations$home$courseStatus$en_US courseStatus = _Translations$home$courseStatus$en_US._(_root);
-	@override late final _Translations$home$projectTattoo$en_US projectTattoo = _Translations$home$projectTattoo$en_US._(_root);
-	@override late final _Translations$home$ideation$en_US ideation = _Translations$home$ideation$en_US._(_root);
-	@override late final _Translations$home$npcClub$en_US npcClub = _Translations$home$npcClub$en_US._(_root);
 	@override String get campusWifi => 'Connect to Campus Wi-Fi';
-	@override late final _Translations$home$vote$en_US vote = _Translations$home$vote$en_US._(_root);
+	@override late final _Translations$home$about$en_US about = _Translations$home$about$en_US._(_root);
+}
+
+// Path: studentUnion
+class _Translations$studentUnion$en_US extends Translations$studentUnion$zh_TW {
+	_Translations$studentUnion$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Student Union';
+	@override String get description => 'Student rights and campus resources';
+	@override String get campusAffairsFeedback => 'Campus Affairs Feedback Form';
+	@override String get studentRightsCaseTracker => 'Student Rights Case Tracker';
+	@override String get studentCouncilMeetingDocuments => 'Student Council Meeting Documents';
+	@override String get upcomingSchoolPolicies => 'Upcoming School Policies';
 }
 
 // Path: score
@@ -264,6 +278,16 @@ class _Translations$courseTable$en_US extends Translations$courseTable$zh_TW {
 		'friday': 'Friday',
 		'saturday': 'Saturday',
 	};
+}
+
+// Path: iSchoolPlus
+class _Translations$iSchoolPlus$en_US extends Translations$iSchoolPlus$zh_TW {
+	_Translations$iSchoolPlus$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$iSchoolPlus$network$en_US network = _Translations$iSchoolPlus$network$en_US._(_root);
 }
 
 // Path: profile
@@ -524,50 +548,15 @@ class _Translations$home$courseStatus$en_US extends Translations$home$courseStat
 	@override String get next => 'Next course';
 }
 
-// Path: home.projectTattoo
-class _Translations$home$projectTattoo$en_US extends Translations$home$projectTattoo$zh_TW {
-	_Translations$home$projectTattoo$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+// Path: home.about
+class _Translations$home$about$en_US extends Translations$home$about$zh_TW {
+	_Translations$home$about$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'About Project Tattoo';
-	@override String get description => 'Learn more or invite your friends to join the testing program.';
-	@override String get url => 'https://ntut.app';
-}
-
-// Path: home.ideation
-class _Translations$home$ideation$en_US extends Translations$home$ideation$zh_TW {
-	_Translations$home$ideation$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'Our TAT is under construction';
-	@override String get description => 'We\'re collecting ideas for the Home page. Share your proposal with us.';
-	@override String get url => 'https://forms.gle/LdQdMfvAfUYyGE4k8';
-}
-
-// Path: home.npcClub
-class _Translations$home$npcClub$en_US extends Translations$home$npcClub$zh_TW {
-	_Translations$home$npcClub$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'NTUT Programming Club';
-	@override String get description => 'If you have ideas or want to contribute, feel free to reach out anytime.';
-	@override String get url => 'https://ntut.club';
-}
-
-// Path: home.vote
-class _Translations$home$vote$en_US extends Translations$home$vote$zh_TW {
-	_Translations$home$vote$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override String get description => 'Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.';
+	@override String get title => 'About TAT';
+	@override String get description => 'Learn about Project Tattoo and support its development team';
 }
 
 // Path: score.summary
@@ -653,6 +642,22 @@ class _Translations$courseTable$actions$en_US extends Translations$courseTable$a
 	@override String get displayOptions => 'Display options';
 	@override String get showWeeklyView => 'Switch to weekly view';
 	@override String get showGridView => 'Switch to grid view';
+}
+
+// Path: iSchoolPlus.network
+class _Translations$iSchoolPlus$network$en_US extends Translations$iSchoolPlus$network$zh_TW {
+	_Translations$iSchoolPlus$network$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get loadingNetworkHint => 'I-School Plus requires the NTUT network.';
+	@override String get title => 'Unable to connect to I-School Plus';
+	@override String get description => 'I-School Plus is restricted by NTUT security policy. Connect through campus Wi-Fi or VPN, then try this feature again.';
+	@override String get stillTrying => 'The connection attempt is still running. Retry will be available when it finishes.';
+	@override String get learnMore => 'Learn More';
+	@override String get openGuide => 'View VPN Instructions';
+	@override String get openGuideFailed => 'Unable to open the VPN instructions. Please try again later.';
 }
 
 // Path: profile.passwordExpiry
@@ -958,16 +963,11 @@ class _Translations$courseTable$detail$roster$en_US extends Translations$courseT
 	@override String get studentId => 'Student ID';
 	@override String get name => 'Name';
 	@override String get empty => 'No classmates are listed for this course';
-	@override String get loadFailed => 'Unable to load the course roster. Please try again later.';
-	@override String get loadingNetworkHint => 'I-School Plus requires the NTUT network.';
-	@override String get refresh => 'Refresh';
-	@override String get networkTitle => 'Connect to the NTUT network';
-	@override String get networkDescription => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then reopen the course roster.';
-	@override String get networkSnackbar => 'Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.';
-	@override String get learnMore => 'Learn More';
-	@override String get openGuide => 'View VPN Instructions';
+	@override String get loadFailed => 'Unable to load the course roster.';
+	@override String get networkSnackbar => 'Attempting to update the course roster. This feature requires the NTUT network.';
+	@override String get updateFailed => 'Unable to update the course roster. Previously cached data is still shown.';
+	@override String get updateSuccess => 'Course roster updated.';
 	@override String get backToRoster => 'Back to Course Roster';
-	@override String get openGuideFailed => 'Unable to open the VPN instructions. Please try again later.';
 }
 
 // Path: profile.dangerZone.items
@@ -1089,17 +1089,15 @@ extension on TranslationsEnUs {
 			'home.courseStatus.ongoing' => 'Ongoing',
 			'home.courseStatus.imminent' => 'Starting soon',
 			'home.courseStatus.next' => 'Next course',
-			'home.projectTattoo.title' => 'About Project Tattoo',
-			'home.projectTattoo.description' => 'Learn more or invite your friends to join the testing program.',
-			'home.projectTattoo.url' => 'https://ntut.app',
-			'home.ideation.title' => 'Our TAT is under construction',
-			'home.ideation.description' => 'We\'re collecting ideas for the Home page. Share your proposal with us.',
-			'home.ideation.url' => 'https://forms.gle/LdQdMfvAfUYyGE4k8',
-			'home.npcClub.title' => 'NTUT Programming Club',
-			'home.npcClub.description' => 'If you have ideas or want to contribute, feel free to reach out anytime.',
-			'home.npcClub.url' => 'https://ntut.club',
 			'home.campusWifi' => 'Connect to Campus Wi-Fi',
-			'home.vote.description' => 'Student four-in-one democratic election voting is open. Come vote at Yida Corridor before 4:00 PM on 5/15.',
+			'home.about.title' => 'About TAT',
+			'home.about.description' => 'Learn about Project Tattoo and support its development team',
+			'studentUnion.title' => 'Student Union',
+			'studentUnion.description' => 'Student rights and campus resources',
+			'studentUnion.campusAffairsFeedback' => 'Campus Affairs Feedback Form',
+			'studentUnion.studentRightsCaseTracker' => 'Student Rights Case Tracker',
+			'studentUnion.studentCouncilMeetingDocuments' => 'Student Council Meeting Documents',
+			'studentUnion.upcomingSchoolPolicies' => 'Upcoming School Policies',
 			'score.loadFailed' => 'Failed to load scores',
 			'score.refreshFailed' => 'Failed to refresh scores',
 			'score.noRecords' => 'No score records found',
@@ -1133,16 +1131,11 @@ extension on TranslationsEnUs {
 			'courseTable.detail.roster.studentId' => 'Student ID',
 			'courseTable.detail.roster.name' => 'Name',
 			'courseTable.detail.roster.empty' => 'No classmates are listed for this course',
-			'courseTable.detail.roster.loadFailed' => 'Unable to load the course roster. Please try again later.',
-			'courseTable.detail.roster.loadingNetworkHint' => 'I-School Plus requires the NTUT network.',
-			'courseTable.detail.roster.refresh' => 'Refresh',
-			'courseTable.detail.roster.networkTitle' => 'Connect to the NTUT network',
-			'courseTable.detail.roster.networkDescription' => 'I-School Plus is restricted by NTUT security policy. Connect through the campus Wi-Fi or VPN, then reopen the course roster.',
-			'courseTable.detail.roster.networkSnackbar' => 'Unable to update the course roster. This feature requires the NTUT network, such as campus Wi-Fi or VPN.',
-			'courseTable.detail.roster.learnMore' => 'Learn More',
-			'courseTable.detail.roster.openGuide' => 'View VPN Instructions',
+			'courseTable.detail.roster.loadFailed' => 'Unable to load the course roster.',
+			'courseTable.detail.roster.networkSnackbar' => 'Attempting to update the course roster. This feature requires the NTUT network.',
+			'courseTable.detail.roster.updateFailed' => 'Unable to update the course roster. Previously cached data is still shown.',
+			'courseTable.detail.roster.updateSuccess' => 'Course roster updated.',
 			'courseTable.detail.roster.backToRoster' => 'Back to Course Roster',
-			'courseTable.detail.roster.openGuideFailed' => 'Unable to open the VPN instructions. Please try again later.',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} credit', other: '${count} credits', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} hour', other: '${count} hours', ), 
 			'courseTable.actions.showMoreOptions' => 'Show more options',
@@ -1163,6 +1156,13 @@ extension on TranslationsEnUs {
 			'courseTable.dayOfWeekLong.thursday' => 'Thursday',
 			'courseTable.dayOfWeekLong.friday' => 'Friday',
 			'courseTable.dayOfWeekLong.saturday' => 'Saturday',
+			'iSchoolPlus.network.loadingNetworkHint' => 'I-School Plus requires the NTUT network.',
+			'iSchoolPlus.network.title' => 'Unable to connect to I-School Plus',
+			'iSchoolPlus.network.description' => 'I-School Plus is restricted by NTUT security policy. Connect through campus Wi-Fi or VPN, then try this feature again.',
+			'iSchoolPlus.network.stillTrying' => 'The connection attempt is still running. Retry will be available when it finishes.',
+			'iSchoolPlus.network.learnMore' => 'Learn More',
+			'iSchoolPlus.network.openGuide' => 'View VPN Instructions',
+			'iSchoolPlus.network.openGuideFailed' => 'Unable to open the VPN instructions. Please try again later.',
 			'profile.dataDisclaimer' => 'Reference only. Not official.',
 			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(days, one: 'Password expires in 1 day', other: 'Password expires in ${days} days', ), 
 			'profile.passwordExpiry.action' => 'Change',

@@ -20,20 +20,21 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	Translations({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: AppLocale.zhTw,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ) {
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <zh-TW>.
-	@override final TranslationMetadata<AppLocale, Translations> $meta;
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
 
 	/// Access flat map
-	dynamic operator[](String key) => $meta.getTranslation(key);
+	dynamic operator[](String key) => _meta.getTranslation(key);
 
 	late final Translations _root = this; // ignore: unused_field
 
@@ -48,9 +49,11 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$nav$zh_TW nav = Translations$nav$zh_TW.internal(_root);
 	late final Translations$portal$zh_TW portal = Translations$portal$zh_TW.internal(_root);
 	late final Translations$home$zh_TW home = Translations$home$zh_TW.internal(_root);
+	late final Translations$studentUnion$zh_TW studentUnion = Translations$studentUnion$zh_TW.internal(_root);
 	late final Translations$score$zh_TW score = Translations$score$zh_TW.internal(_root);
 	late final Translations$calendar$zh_TW calendar = Translations$calendar$zh_TW.internal(_root);
 	late final Translations$courseTable$zh_TW courseTable = Translations$courseTable$zh_TW.internal(_root);
+	late final Translations$iSchoolPlus$zh_TW iSchoolPlus = Translations$iSchoolPlus$zh_TW.internal(_root);
 	late final Translations$profile$zh_TW profile = Translations$profile$zh_TW.internal(_root);
 	late final Translations$scanner$zh_TW scanner = Translations$scanner$zh_TW.internal(_root);
 	late final Translations$ntutWifi$zh_TW ntutWifi = Translations$ntutWifi$zh_TW.internal(_root);
@@ -310,14 +313,38 @@ class Translations$home$zh_TW {
 	String weekday({required Object day}) => '週${day}';
 
 	late final Translations$home$courseStatus$zh_TW courseStatus = Translations$home$courseStatus$zh_TW.internal(_root);
-	late final Translations$home$projectTattoo$zh_TW projectTattoo = Translations$home$projectTattoo$zh_TW.internal(_root);
-	late final Translations$home$ideation$zh_TW ideation = Translations$home$ideation$zh_TW.internal(_root);
-	late final Translations$home$npcClub$zh_TW npcClub = Translations$home$npcClub$zh_TW.internal(_root);
 
 	/// zh-TW: '連接校園Wi-Fi'
 	String get campusWifi => '連接校園Wi-Fi';
 
-	late final Translations$home$vote$zh_TW vote = Translations$home$vote$zh_TW.internal(_root);
+	late final Translations$home$about$zh_TW about = Translations$home$about$zh_TW.internal(_root);
+}
+
+// Path: studentUnion
+class Translations$studentUnion$zh_TW {
+	Translations$studentUnion$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '學生會專區'
+	String get title => '學生會專區';
+
+	/// zh-TW: '學生權益相關連結'
+	String get description => '學生權益相關連結';
+
+	/// zh-TW: '校園事務轉達單'
+	String get campusAffairsFeedback => '校園事務轉達單';
+
+	/// zh-TW: '學權部案件追蹤系統'
+	String get studentRightsCaseTracker => '學權部案件追蹤系統';
+
+	/// zh-TW: '學生議會會議文件'
+	String get studentCouncilMeetingDocuments => '學生議會會議文件';
+
+	/// zh-TW: '學校預計推出政策'
+	String get upcomingSchoolPolicies => '學校預計推出政策';
 }
 
 // Path: score
@@ -398,6 +425,16 @@ class Translations$courseTable$zh_TW {
 		'friday': '星期五',
 		'saturday': '星期六',
 	};
+}
+
+// Path: iSchoolPlus
+class Translations$iSchoolPlus$zh_TW {
+	Translations$iSchoolPlus$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final Translations$iSchoolPlus$network$zh_TW network = Translations$iSchoolPlus$network$zh_TW.internal(_root);
 }
 
 // Path: profile
@@ -856,70 +893,19 @@ class Translations$home$courseStatus$zh_TW {
 	String get next => '下一堂課';
 }
 
-// Path: home.projectTattoo
-class Translations$home$projectTattoo$zh_TW {
-	Translations$home$projectTattoo$zh_TW.internal(this._root);
+// Path: home.about
+class Translations$home$about$zh_TW {
+	Translations$home$about$zh_TW.internal(this._root);
 
 	final Translations _root; // ignore: unused_field
 
 	// Translations
 
-	/// zh-TW: '關於Project Tattoo'
-	String get title => '關於Project Tattoo';
+	/// zh-TW: '關於TAT'
+	String get title => '關於TAT';
 
-	/// zh-TW: '查看更多資訊或邀請你的朋友加入測試計畫。'
-	String get description => '查看更多資訊或邀請你的朋友加入測試計畫。';
-
-	/// zh-TW: 'https://ntut.app'
-	String get url => 'https://ntut.app';
-}
-
-// Path: home.ideation
-class Translations$home$ideation$zh_TW {
-	Translations$home$ideation$zh_TW.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '屬於我們的TAT正在打造中'
-	String get title => '屬於我們的TAT正在打造中';
-
-	/// zh-TW: '我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！'
-	String get description => '我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！';
-
-	/// zh-TW: 'https://forms.gle/LdQdMfvAfUYyGE4k8'
-	String get url => 'https://forms.gle/LdQdMfvAfUYyGE4k8';
-}
-
-// Path: home.npcClub
-class Translations$home$npcClub$zh_TW {
-	Translations$home$npcClub$zh_TW.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '北科程式設計研究社'
-	String get title => '北科程式設計研究社';
-
-	/// zh-TW: '有任何想法或是想加入開發，隨時歡迎聯絡我們！'
-	String get description => '有任何想法或是想加入開發，隨時歡迎聯絡我們！';
-
-	/// zh-TW: 'https://ntut.club'
-	String get url => 'https://ntut.club';
-}
-
-// Path: home.vote
-class Translations$home$vote$zh_TW {
-	Translations$home$vote$zh_TW.internal(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-
-	/// zh-TW: '學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！'
-	String get description => '學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！';
+	/// zh-TW: '了解Project Tattoo，並支持開發團隊'
+	String get description => '了解Project Tattoo，並支持開發團隊';
 }
 
 // Path: score.summary
@@ -1050,6 +1036,36 @@ class Translations$courseTable$actions$zh_TW {
 
 	/// zh-TW: '切換至網格檢視'
 	String get showGridView => '切換至網格檢視';
+}
+
+// Path: iSchoolPlus.network
+class Translations$iSchoolPlus$network$zh_TW {
+	Translations$iSchoolPlus$network$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: 'i學園功能需要使用學校網路。'
+	String get loadingNetworkHint => 'i學園功能需要使用學校網路。';
+
+	/// zh-TW: '無法連接到i學園服務'
+	String get title => '無法連接到i學園服務';
+
+	/// zh-TW: 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重試此功能。'
+	String get description => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重試此功能。';
+
+	/// zh-TW: '仍在嘗試連線，完成後即可重試。'
+	String get stillTrying => '仍在嘗試連線，完成後即可重試。';
+
+	/// zh-TW: '瞭解更多'
+	String get learnMore => '瞭解更多';
+
+	/// zh-TW: '查看VPN連線說明'
+	String get openGuide => '查看VPN連線說明';
+
+	/// zh-TW: '無法開啟VPN連線說明，請稍後再試。'
+	String get openGuideFailed => '無法開啟VPN連線說明，請稍後再試。';
 }
 
 // Path: profile.passwordExpiry
@@ -1563,35 +1579,20 @@ class Translations$courseTable$detail$roster$zh_TW {
 	/// zh-TW: '目前沒有同學名單'
 	String get empty => '目前沒有同學名單';
 
-	/// zh-TW: '無法載入同學名單，請稍後再試。'
-	String get loadFailed => '無法載入同學名單，請稍後再試。';
+	/// zh-TW: '無法載入同學名單。'
+	String get loadFailed => '無法載入同學名單。';
 
-	/// zh-TW: 'i學園功能需要使用學校網路，'
-	String get loadingNetworkHint => 'i學園功能需要使用學校網路，';
+	/// zh-TW: '正在嘗試更新同學名單。此功能需要連接學校網路。'
+	String get networkSnackbar => '正在嘗試更新同學名單。此功能需要連接學校網路。';
 
-	/// zh-TW: '重新整理'
-	String get refresh => '重新整理';
+	/// zh-TW: '無法更新同學名單，仍顯示先前的資料。'
+	String get updateFailed => '無法更新同學名單，仍顯示先前的資料。';
 
-	/// zh-TW: '需要連接學校網路'
-	String get networkTitle => '需要連接學校網路';
-
-	/// zh-TW: 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。'
-	String get networkDescription => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。';
-
-	/// zh-TW: '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。'
-	String get networkSnackbar => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。';
-
-	/// zh-TW: '瞭解更多'
-	String get learnMore => '瞭解更多';
-
-	/// zh-TW: '查看VPN連線說明'
-	String get openGuide => '查看VPN連線說明';
+	/// zh-TW: '同學名單已更新。'
+	String get updateSuccess => '同學名單已更新。';
 
 	/// zh-TW: '返回同學名單'
 	String get backToRoster => '返回同學名單';
-
-	/// zh-TW: '無法開啟VPN連線說明，請稍後再試。'
-	String get openGuideFailed => '無法開啟VPN連線說明，請稍後再試。';
 }
 
 // Path: profile.dangerZone.items
@@ -1733,17 +1734,15 @@ extension on Translations {
 			'home.courseStatus.ongoing' => '進行中',
 			'home.courseStatus.imminent' => '即將開始',
 			'home.courseStatus.next' => '下一堂課',
-			'home.projectTattoo.title' => '關於Project Tattoo',
-			'home.projectTattoo.description' => '查看更多資訊或邀請你的朋友加入測試計畫。',
-			'home.projectTattoo.url' => 'https://ntut.app',
-			'home.ideation.title' => '屬於我們的TAT正在打造中',
-			'home.ideation.description' => '我們正在募集關於「首頁」的想法，歡迎把你的提案分享給我們！',
-			'home.ideation.url' => 'https://forms.gle/LdQdMfvAfUYyGE4k8',
-			'home.npcClub.title' => '北科程式設計研究社',
-			'home.npcClub.description' => '有任何想法或是想加入開發，隨時歡迎聯絡我們！',
-			'home.npcClub.url' => 'https://ntut.club',
 			'home.campusWifi' => '連接校園Wi-Fi',
-			'home.vote.description' => '學生四合一民主選舉活動，5/15下午四點前來一大川堂投票吧！',
+			'home.about.title' => '關於TAT',
+			'home.about.description' => '了解Project Tattoo，並支持開發團隊',
+			'studentUnion.title' => '學生會專區',
+			'studentUnion.description' => '學生權益相關連結',
+			'studentUnion.campusAffairsFeedback' => '校園事務轉達單',
+			'studentUnion.studentRightsCaseTracker' => '學權部案件追蹤系統',
+			'studentUnion.studentCouncilMeetingDocuments' => '學生議會會議文件',
+			'studentUnion.upcomingSchoolPolicies' => '學校預計推出政策',
 			'score.loadFailed' => '成績載入失敗',
 			'score.refreshFailed' => '成績更新失敗',
 			'score.noRecords' => '目前沒有任何成績紀錄',
@@ -1777,16 +1776,11 @@ extension on Translations {
 			'courseTable.detail.roster.studentId' => '學號',
 			'courseTable.detail.roster.name' => '姓名',
 			'courseTable.detail.roster.empty' => '目前沒有同學名單',
-			'courseTable.detail.roster.loadFailed' => '無法載入同學名單，請稍後再試。',
-			'courseTable.detail.roster.loadingNetworkHint' => 'i學園功能需要使用學校網路，',
-			'courseTable.detail.roster.refresh' => '重新整理',
-			'courseTable.detail.roster.networkTitle' => '需要連接學校網路',
-			'courseTable.detail.roster.networkDescription' => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重新開啟同學名單。',
-			'courseTable.detail.roster.networkSnackbar' => '無法更新同學名單。此功能需要連接學校網路，例如校園Wi-Fi或VPN。',
-			'courseTable.detail.roster.learnMore' => '瞭解更多',
-			'courseTable.detail.roster.openGuide' => '查看VPN連線說明',
+			'courseTable.detail.roster.loadFailed' => '無法載入同學名單。',
+			'courseTable.detail.roster.networkSnackbar' => '正在嘗試更新同學名單。此功能需要連接學校網路。',
+			'courseTable.detail.roster.updateFailed' => '無法更新同學名單，仍顯示先前的資料。',
+			'courseTable.detail.roster.updateSuccess' => '同學名單已更新。',
 			'courseTable.detail.roster.backToRoster' => '返回同學名單',
-			'courseTable.detail.roster.openGuideFailed' => '無法開啟VPN連線說明，請稍後再試。',
 			'courseTable.summary.credits' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}學分', other: '${count}學分', ), 
 			'courseTable.summary.hours' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, one: '${count}小時', other: '${count}小時', ), 
 			'courseTable.actions.showMoreOptions' => '顯示更多選項',
@@ -1807,6 +1801,13 @@ extension on Translations {
 			'courseTable.dayOfWeekLong.thursday' => '星期四',
 			'courseTable.dayOfWeekLong.friday' => '星期五',
 			'courseTable.dayOfWeekLong.saturday' => '星期六',
+			'iSchoolPlus.network.loadingNetworkHint' => 'i學園功能需要使用學校網路。',
+			'iSchoolPlus.network.title' => '無法連接到i學園服務',
+			'iSchoolPlus.network.description' => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重試此功能。',
+			'iSchoolPlus.network.stillTrying' => '仍在嘗試連線，完成後即可重試。',
+			'iSchoolPlus.network.learnMore' => '瞭解更多',
+			'iSchoolPlus.network.openGuide' => '查看VPN連線說明',
+			'iSchoolPlus.network.openGuideFailed' => '無法開啟VPN連線說明，請稍後再試。',
 			'profile.dataDisclaimer' => '僅供參考，非正式文件',
 			'profile.passwordExpiry.warning' => ({required num days}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(days, one: '密碼將在1天後過期', other: '密碼將在${days}天後過期', ), 
 			'profile.passwordExpiry.action' => '更改',
