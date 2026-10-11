@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,11 +11,11 @@ import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/router/app_router.dart';
+import 'package:tattoo/screens/main/course_table/course_table_cell.dart';
 import 'package:tattoo/screens/main/course_table/course_table_colors.dart';
 import 'package:tattoo/screens/main/course_table/course_table_grid.dart';
 import 'package:tattoo/services/course_widget_platform.dart';
 import 'package:tattoo/services/course_widget_sync.dart';
-import 'package:tattoo/utils/auto_spacing.dart';
 
 /// Keeps the fixed export surface painted outside the visible application
 /// viewport and services serialized bitmap requests from the sync controller.
@@ -199,6 +198,9 @@ class _CourseWidgetRenderHostState
 }
 
 /// Timetable surface whose aspect ratio follows its visible days and periods.
+///
+/// Shared [CourseTableCell] widgets are laid out at a supported size and scaled
+/// into the fixed export geometry without changing the interactive table.
 class CourseTableExport extends StatelessWidget {
   const CourseTableExport({
     required this.courseTable,
@@ -212,6 +214,9 @@ class CourseTableExport extends StatelessWidget {
   static const _periodStubWidth = 18.0;
   static const _dayColumnWidth = 44.8;
   static const _periodRowHeight = 32.0;
+
+  // Lay out the shared cell above its minimum height before scaling it down.
+  static const _cellLayoutScale = 56.0 / (_periodRowHeight - 2);
 
   /// Preserves stable cell geometry while omitting unused rows and columns.
   static Size logicalSizeFor(CourseTableData courseTable) {
@@ -291,7 +296,6 @@ class CourseTableExport extends StatelessWidget {
                             rowHeight: rowHeight,
                             dayWidth: dayWidth,
                             baseColor: colorByCourseId[entry.value.id]!,
-                            brightness: theme.brightness,
                           ),
                       if (courseTable.scheduled.isEmpty)
                         Positioned(
@@ -326,60 +330,27 @@ class CourseTableExport extends StatelessWidget {
     required double rowHeight,
     required double dayWidth,
     required Color baseColor,
-    required Brightness brightness,
   }) {
     final cell = entry.value;
     final dayIndex = days.indexOf(entry.key.day);
     final periodIndex = periods.indexOf(entry.key.period);
-    final palette = courseTableCellPalette(baseColor, brightness);
-    final courseTitle = cell.courseName.isNotEmpty
-        ? cell.courseName
-        : cell.number ?? '';
     final representedRows = cell.span + (cell.crossesNoon ? 1 : 0);
+    final cellWidth = dayWidth - 2;
+    final cellHeight = representedRows * rowHeight - 2;
 
     return Positioned(
       left: _periodStubWidth + dayIndex * dayWidth + 1,
       top: periodIndex * rowHeight + 1,
-      width: dayWidth - 2,
-      height: representedRows * rowHeight - 2,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
-        decoration: BoxDecoration(
-          color: palette.container,
-          border: Border.all(color: palette.border, width: 1),
-          borderRadius: BorderRadius.circular(3),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AutoSizeText(
-              courseTitle.spaced,
-              style: TextStyle(
-                color: palette.foreground,
-                fontSize: 8,
-                fontWeight: FontWeight.w700,
-                height: 1,
-              ),
-              minFontSize: 6,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-            if (cell.classroomName case final classroom?
-                when classroom.isNotEmpty)
-              AutoSizeText(
-                classroom.spaced,
-                style: TextStyle(
-                  color: palette.foreground,
-                  fontSize: 7,
-                  height: 1,
-                ),
-                minFontSize: 6,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
-          ],
+      width: cellWidth,
+      height: cellHeight,
+      child: FittedBox(
+        child: SizedBox(
+          width: cellWidth * _cellLayoutScale,
+          height: cellHeight * _cellLayoutScale,
+          child: CourseTableCell(
+            courseTableCellData: cell,
+            cellColor: baseColor,
+          ),
         ),
       ),
     );
