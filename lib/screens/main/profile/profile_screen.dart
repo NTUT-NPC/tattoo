@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +16,7 @@ import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
@@ -60,6 +63,21 @@ class ProfileScreen extends ConsumerWidget {
       DioException() => t.errors.connectionFailed,
       _ => t.profile.avatar.uploadFailed,
     };
+  }
+
+  Future<void> _logout(BuildContext context, WidgetRef ref) async {
+    try {
+      await ref.read(authRepositoryProvider).logout();
+    } catch (error, stackTrace) {
+      log('Logout failed: $error', name: 'ProfileScreen');
+      firebaseService.crashlytics?.recordError(
+        error,
+        stackTrace,
+        fatal: false,
+      );
+      if (!context.mounted) return;
+      _showMessage(context, t.profile.logoutFailed);
+    }
   }
 
   void _showMessage(BuildContext context, String message) {
@@ -129,7 +147,7 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile.icon(
         icon: Icons.logout,
         title: t.profile.options.logout,
-        onTap: () => ref.read(authRepositoryProvider).logout(),
+        onTap: () => _logout(context, ref),
       ),
       const ProfileDangerZone(),
     ];

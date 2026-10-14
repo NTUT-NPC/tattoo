@@ -342,14 +342,29 @@ class AuthRepository {
   }
 
   /// Logs out and clears all local user data and stored credentials.
+  ///
+  /// Widget, credential, and user-row cleanup failures propagate with the
+  /// session still active, since a restart would otherwise expose or restore
+  /// the account. Cookie and avatar cache cleanup is best-effort.
   Future<void> logout() async {
     await _clearCourseWidget();
     // Delete credentials before the user row so a failed persistent deletion
     // cannot leave legacy credentials able to recreate a completed logout.
     await _clearCredentials();
     await _database.deleteEverything();
-    await cookieJar.deleteAll();
-    await _clearAvatarCache();
+    try {
+      await cookieJar.deleteAll();
+    } catch (error) {
+      log('Failed to clear cookies on logout: $error', name: 'AuthRepository');
+    }
+    try {
+      await _clearAvatarCache();
+    } catch (error) {
+      log(
+        'Failed to clear avatar cache on logout: $error',
+        name: 'AuthRepository',
+      );
+    }
     _ssoCache.clear();
     _ssoInFlight.clear();
     _onSessionDestroyed();

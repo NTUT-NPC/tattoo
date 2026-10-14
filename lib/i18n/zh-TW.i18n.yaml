@@ -215,6 +215,7 @@ profile:
     npcClub: 北科程式設計研究社
     preferences: 偏好設定
     logout: 登出帳號
+  logoutFailed: 登出失敗，請再試一次
   avatar:
     uploading: 正在更新個人圖片…
     uploadSuccess: 個人圖片已更新

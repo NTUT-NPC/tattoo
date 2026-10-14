@@ -301,6 +301,7 @@ class _Translations$profile$en_US extends Translations$profile$zh_TW {
 	@override late final _Translations$profile$passwordExpiry$en_US passwordExpiry = _Translations$profile$passwordExpiry$en_US._(_root);
 	@override late final _Translations$profile$sections$en_US sections = _Translations$profile$sections$en_US._(_root);
 	@override late final _Translations$profile$options$en_US options = _Translations$profile$options$en_US._(_root);
+	@override String get logoutFailed => 'Failed to sign out. Please try again.';
 	@override late final _Translations$profile$avatar$en_US avatar = _Translations$profile$avatar$en_US._(_root);
 	@override late final _Translations$profile$dangerZone$en_US dangerZone = _Translations$profile$dangerZone$en_US._(_root);
 }
@@ -1179,6 +1180,7 @@ extension on TranslationsEnUs {
 			'profile.options.npcClub' => 'NTUT Programming Club',
 			'profile.options.preferences' => 'Preferences',
 			'profile.options.logout' => 'Sign Out',
+			'profile.logoutFailed' => 'Failed to sign out. Please try again.',
 			'profile.avatar.uploading' => 'Updating avatar…',
 			'profile.avatar.uploadSuccess' => 'Avatar updated',
 			'profile.avatar.tooLarge' => 'Image exceeds the 20 MB size limit',
