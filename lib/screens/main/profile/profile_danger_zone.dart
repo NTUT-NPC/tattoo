@@ -73,17 +73,20 @@ class ProfileDangerZone extends ConsumerWidget {
         courseWidgetSyncControllerProvider,
       );
       await courseWidgetSyncController.invalidateAndClear();
-      final cacheDir = await getApplicationCacheDirectory();
-      if (await cacheDir.exists()) {
-        await for (final entity in cacheDir.list()) {
-          await entity.delete(recursive: true);
+      try {
+        final cacheDir = await getApplicationCacheDirectory();
+        if (await cacheDir.exists()) {
+          await for (final entity in cacheDir.list()) {
+            await entity.delete(recursive: true);
+          }
         }
+        await ref.read(databaseProvider).deleteCachedData();
+        // Stream-based providers auto-update via Drift .watch().
+        ref.invalidate(userAvatarProvider);
+      } finally {
+        await courseWidgetSyncController.start();
+        await courseWidgetSyncController.reconcile();
       }
-      await ref.read(databaseProvider).deleteCachedData();
-      // Stream-based providers auto-update via Drift .watch().
-      ref.invalidate(userAvatarProvider);
-      await courseWidgetSyncController.start();
-      await courseWidgetSyncController.reconcile();
     },
   );
 
@@ -114,6 +117,7 @@ class ProfileDangerZone extends ConsumerWidget {
     context,
     t.profile.dangerZone.items.userData,
     () async {
+      await ref.read(courseWidgetSyncControllerProvider).stopAndClear();
       await ref.read(databaseProvider).deleteEverything();
       await cookieJar.deleteAll();
       await const FlutterSecureStorage().deleteAll();
