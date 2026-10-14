@@ -207,8 +207,7 @@ Future<void> main() async {
   );
   final authenticatedInitialLocation = user == null
       ? landingLocation
-      : container.read(pendingAppRouteProvider.notifier).take() ??
-            landingLocation;
+      : container.read(pendingAppRouteProvider) ?? landingLocation;
   final initialLocation = switch ((user, hadStoredLogin)) {
     (final User _, _) => authenticatedInitialLocation,
     (null, true) => AppRoutes.login,

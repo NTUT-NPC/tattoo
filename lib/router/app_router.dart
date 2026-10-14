@@ -97,7 +97,7 @@ Future<String> resolvePostAuthenticationLocation(
   ProviderContainer container,
   PreferencesRepository preferencesRepository,
 ) async {
-  return container.read(pendingAppRouteProvider.notifier).take() ??
+  return container.read(pendingAppRouteProvider) ??
       await resolveLandingLocation(preferencesRepository);
 }
 
