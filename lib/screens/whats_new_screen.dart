@@ -33,7 +33,7 @@ class _WhatsNewScreenState extends State<WhatsNewScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final title = t.whatsNew.title;
+    final title = t.whatsNew.title.spaced;
 
     final icon = SvgPicture.asset(
       'assets/tat_icon.svg',
@@ -110,7 +110,7 @@ class _WhatsNewScreenState extends State<WhatsNewScreen> {
                       onPressed: () => context.pop(),
                       child: Padding(
                         padding: const .all(6.0),
-                        child: Text(t.whatsNew.gotIt),
+                        child: Text(t.whatsNew.gotIt.spaced),
                       ),
                     ),
                   ),

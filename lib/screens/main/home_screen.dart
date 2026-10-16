@@ -144,7 +144,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         }
       },
       action: SnackBarAction(
-        label: t.whatsNew.view,
+        label: t.whatsNew.view.spaced,
         onPressed: () async {
           await preferences.set(PrefKey.lastSeenWhatsNewVersion, version);
           if (mounted) context.push(AppRoutes.whatsNew);
