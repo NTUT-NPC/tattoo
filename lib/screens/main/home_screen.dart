@@ -109,12 +109,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final preferences = ref.read(preferencesRepositoryProvider);
     final version = await getCurrentSemVer();
     final seen = await preferences.get(PrefKey.lastSeenWhatsNewVersion);
-    if (seen.isNotEmpty) {
-      try {
-        if (!isVersionOlder(seen, version)) return;
-      } on FormatException {
-        // Invalid stored versions do not prevent showing the current release.
-      }
+    if (seen.isEmpty) {
+      // Establish a baseline without prompting on first initialization.
+      await preferences.set(PrefKey.lastSeenWhatsNewVersion, version);
+      return;
+    }
+    try {
+      if (!isVersionOlder(seen, version)) return;
+    } on FormatException {
+      // Invalid stored versions do not prevent showing the current release.
     }
     final prompted = await preferences.get(PrefKey.lastPromptedWhatsNewVersion);
     var count = await preferences.get(PrefKey.whatsNewPromptCount);
