@@ -85,6 +85,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - CampusWifiRepository — Platform-specific provisioner configuration and status for NTUT-802.1X campus Wi-Fi. Interacts directly with platform APIs, returning one-shot configuration status rather than using the `watchX()`/`refreshX()` cache pattern.
 - **Method pattern:** `watchX()` returns a `Stream` backed by Drift `.watch()` — emits cached data immediately, then background-fetches if empty or stale (each method has its own hard-coded TTL `const`). Network errors are absorbed (stale data preferred over errors). `refreshX()` is the imperative counterpart for pull-to-refresh — fetches from network, writes to DB, and lets the stream re-emit.
 
+**Version notifications:** The navigation HomeScreen coordinates update and What's New prompts, with updates taking priority. Maintain only the current release's localized feature list in `whats_new_screen.dart`; optional `TargetPlatform` sets restrict feature visibility.
+
 **Demo mode:**
 
 `isDemoProvider` (`Notifier<bool>`) toggles demo mode at runtime. Enabled when logging in with `demoUsername` ('111592347' — structurally invalid NTUT ID, any password accepted). When active, all four NTUT service providers return mock implementations with realistic per-semester data. Demo mode deliberately skips secure storage — session persists via DB user row check instead.
