@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -7,9 +8,11 @@ import 'package:tattoo/components/option_entry_tile.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/services/github_service.dart';
+import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
@@ -67,6 +70,16 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
     final theme = Theme.of(context);
 
     final relatedLinks = [
+      OptionEntryTile.icon(
+        icon: Icons.new_releases_outlined,
+        title: t.whatsNew.title.spaced,
+        onTap: () async {
+          final prefs = ref.read(preferencesRepositoryProvider);
+          final version = await getCurrentSemVer();
+          await prefs.set(PrefKey.lastSeenWhatsNewVersion, version);
+          if (context.mounted) context.push(AppRoutes.whatsNew);
+        },
+      ),
       OptionEntryTile.icon(
         icon: Icons.code,
         title: 'GitHub',
