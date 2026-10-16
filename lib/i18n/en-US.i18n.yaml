@@ -1,3 +1,23 @@
+newFeatures:
+  androidWidget:
+    title: Home screen widget
+    description: Add your latest timetable to your home screen for easy access anytime.
+  campusMap:
+    title: Campus map
+    description: View campus buildings and floor plans, and search for classrooms or teachers by name.
+  materialDownload:
+    title: Course material downloads
+    description: Browse and download iSchool course materials from the course details.
+  ntutSu:
+    title: Student Union
+    description: Find links to student rights resources and get help from the Student Union with everyday campus issues.
+
+whatsNew:
+  title: What's New
+  announcement: TAT has new features
+  view: View
+  gotIt: Got it
+
 preferences:
   startWithCourseTable:
     title: Start with Course Table
@@ -413,19 +433,3 @@ changePassword:
       sameAsUsername: Password cannot be the same as your student ID
       length: Password length must be between 8 and 14 characters
       complexity: Password must contain uppercase, lowercase, numbers, and symbols
-
-whatsNew:
-  title: What's New
-  announcement: TAT has new features
-  view: View
-  gotIt: Got it
-  features:
-    courseTable:
-      title: Your schedule at a glance
-      description: Check class times, classrooms, and your next class to plan your day.
-    scores:
-      title: Keep track of your grades
-      description: View semester grades and academic performance to follow your progress.
-    widget:
-      title: Home screen timetable widget
-      description: Add your timetable to your Android home screen to check classes without opening the app.

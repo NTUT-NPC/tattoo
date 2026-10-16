@@ -144,20 +144,25 @@ class WhatsNewFeature {
 List<WhatsNewFeature> currentWhatsNewFeatures() =>
     [
           WhatsNewFeature(
-            icon: Icons.calendar_month,
-            title: t.whatsNew.features.courseTable.title,
-            description: t.whatsNew.features.courseTable.description,
-          ),
-          WhatsNewFeature(
-            icon: Icons.bar_chart,
-            title: t.whatsNew.features.scores.title,
-            description: t.whatsNew.features.scores.description,
-          ),
-          WhatsNewFeature(
             icon: Icons.widgets_outlined,
-            title: t.whatsNew.features.widget.title,
-            description: t.whatsNew.features.widget.description,
+            title: t.newFeatures.androidWidget.title,
+            description: t.newFeatures.androidWidget.description,
             availablePlatforms: const {.android},
+          ),
+          WhatsNewFeature(
+            icon: Icons.map_outlined,
+            title: t.newFeatures.campusMap.title,
+            description: t.newFeatures.campusMap.description,
+          ),
+          WhatsNewFeature(
+            icon: Icons.download_outlined,
+            title: t.newFeatures.materialDownload.title,
+            description: t.newFeatures.materialDownload.description,
+          ),
+          WhatsNewFeature(
+            icon: Icons.groups_outlined,
+            title: t.newFeatures.ntutSu.title,
+            description: t.newFeatures.ntutSu.description,
           ),
         ]
         .where(

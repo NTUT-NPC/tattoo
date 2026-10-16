@@ -1,3 +1,23 @@
+newFeatures:
+  androidWidget:
+    title: 桌面小工具
+    description: 可將最新課表新增到桌面上，方便隨時查看。
+  campusMap:
+    title: 校園地圖
+    description: 可查看校園建築物地圖與各樓層平面圖，並可搜尋教室位置或教師名字。
+  materialDownload:
+    title: 課程教材下載
+    description: 在課程詳細資料內，現在可瀏覽並下載i學園上的課程教材。
+  ntutSu:
+    title: 學生會專區
+    description: 提供學生權益相關連結，與學生會一起陪你解決校園大小事。
+
+whatsNew:
+  title: 新功能
+  announcement: TAT有新功能
+  view: 檢視
+  gotIt: 知道了
+
 preferences:
   startWithCourseTable:
     title: 啟動時開啟課表
@@ -413,19 +433,3 @@ changePassword:
       sameAsUsername: 密碼不可與學號相同
       length: 密碼長度須介於8至14個字元之間
       complexity: 密碼須包含英文大小寫字母、數字及符號
-
-whatsNew:
-  title: 新功能
-  announcement: TAT有新功能
-  view: 檢視
-  gotIt: 知道了
-  features:
-    courseTable:
-      title: 隨時掌握課表
-      description: 查看課程時間、教室及下一堂課，輕鬆安排校園生活。
-    scores:
-      title: 成績一目瞭然
-      description: 查詢各學期成績與學業表現，掌握學習進度。
-    widget:
-      title: 桌面課表小工具
-      description: 將課表加入Android主畫面，不必開啟App也能查看課程。

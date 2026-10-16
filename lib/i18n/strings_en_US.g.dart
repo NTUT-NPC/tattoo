@@ -39,6 +39,8 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	TranslationsEnUs $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsEnUs(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _Translations$newFeatures$en_US newFeatures = _Translations$newFeatures$en_US._(_root);
+	@override late final _Translations$whatsNew$en_US whatsNew = _Translations$whatsNew$en_US._(_root);
 	@override late final _Translations$preferences$en_US preferences = _Translations$preferences$en_US._(_root);
 	@override late final _Translations$general$en_US general = _Translations$general$en_US._(_root);
 	@override late final _Translations$errors$en_US errors = _Translations$errors$en_US._(_root);
@@ -61,7 +63,32 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$forceUpdate$en_US forceUpdate = _Translations$forceUpdate$en_US._(_root);
 	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
 	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
-	@override late final _Translations$whatsNew$en_US whatsNew = _Translations$whatsNew$en_US._(_root);
+}
+
+// Path: newFeatures
+class _Translations$newFeatures$en_US extends Translations$newFeatures$zh_TW {
+	_Translations$newFeatures$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$newFeatures$androidWidget$en_US androidWidget = _Translations$newFeatures$androidWidget$en_US._(_root);
+	@override late final _Translations$newFeatures$campusMap$en_US campusMap = _Translations$newFeatures$campusMap$en_US._(_root);
+	@override late final _Translations$newFeatures$materialDownload$en_US materialDownload = _Translations$newFeatures$materialDownload$en_US._(_root);
+	@override late final _Translations$newFeatures$ntutSu$en_US ntutSu = _Translations$newFeatures$ntutSu$en_US._(_root);
+}
+
+// Path: whatsNew
+class _Translations$whatsNew$en_US extends Translations$whatsNew$zh_TW {
+	_Translations$whatsNew$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'What\'s New';
+	@override String get announcement => 'TAT has new features';
+	@override String get view => 'View';
+	@override String get gotIt => 'Got it';
 }
 
 // Path: preferences
@@ -469,18 +496,48 @@ class _Translations$changePassword$en_US extends Translations$changePassword$zh_
 	@override late final _Translations$changePassword$errors$en_US errors = _Translations$changePassword$errors$en_US._(_root);
 }
 
-// Path: whatsNew
-class _Translations$whatsNew$en_US extends Translations$whatsNew$zh_TW {
-	_Translations$whatsNew$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+// Path: newFeatures.androidWidget
+class _Translations$newFeatures$androidWidget$en_US extends Translations$newFeatures$androidWidget$zh_TW {
+	_Translations$newFeatures$androidWidget$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
 
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'What\'s New';
-	@override String get announcement => 'TAT has new features';
-	@override String get view => 'View';
-	@override String get gotIt => 'Got it';
-	@override late final _Translations$whatsNew$features$en_US features = _Translations$whatsNew$features$en_US._(_root);
+	@override String get title => 'Home screen widget';
+	@override String get description => 'Add your latest timetable to your home screen for easy access anytime.';
+}
+
+// Path: newFeatures.campusMap
+class _Translations$newFeatures$campusMap$en_US extends Translations$newFeatures$campusMap$zh_TW {
+	_Translations$newFeatures$campusMap$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Campus map';
+	@override String get description => 'View campus buildings and floor plans, and search for classrooms or teachers by name.';
+}
+
+// Path: newFeatures.materialDownload
+class _Translations$newFeatures$materialDownload$en_US extends Translations$newFeatures$materialDownload$zh_TW {
+	_Translations$newFeatures$materialDownload$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Course material downloads';
+	@override String get description => 'Browse and download iSchool course materials from the course details.';
+}
+
+// Path: newFeatures.ntutSu
+class _Translations$newFeatures$ntutSu$en_US extends Translations$newFeatures$ntutSu$zh_TW {
+	_Translations$newFeatures$ntutSu$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Student Union';
+	@override String get description => 'Find links to student rights resources and get help from the Student Union with everyday campus issues.';
 }
 
 // Path: preferences.startWithCourseTable
@@ -913,18 +970,6 @@ class _Translations$changePassword$errors$en_US extends Translations$changePassw
 	@override late final _Translations$changePassword$errors$server$en_US server = _Translations$changePassword$errors$server$en_US._(_root);
 }
 
-// Path: whatsNew.features
-class _Translations$whatsNew$features$en_US extends Translations$whatsNew$features$zh_TW {
-	_Translations$whatsNew$features$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override late final _Translations$whatsNew$features$courseTable$en_US courseTable = _Translations$whatsNew$features$courseTable$en_US._(_root);
-	@override late final _Translations$whatsNew$features$scores$en_US scores = _Translations$whatsNew$features$scores$en_US._(_root);
-	@override late final _Translations$whatsNew$features$widget$en_US widget = _Translations$whatsNew$features$widget$en_US._(_root);
-}
-
 // Path: intro.features.courseTable
 class _Translations$intro$features$courseTable$en_US extends Translations$intro$features$courseTable$zh_TW {
 	_Translations$intro$features$courseTable$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -1027,39 +1072,6 @@ class _Translations$changePassword$errors$server$en_US extends Translations$chan
 	@override String get complexity => 'Password must contain uppercase, lowercase, numbers, and symbols';
 }
 
-// Path: whatsNew.features.courseTable
-class _Translations$whatsNew$features$courseTable$en_US extends Translations$whatsNew$features$courseTable$zh_TW {
-	_Translations$whatsNew$features$courseTable$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'Your schedule at a glance';
-	@override String get description => 'Check class times, classrooms, and your next class to plan your day.';
-}
-
-// Path: whatsNew.features.scores
-class _Translations$whatsNew$features$scores$en_US extends Translations$whatsNew$features$scores$zh_TW {
-	_Translations$whatsNew$features$scores$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'Keep track of your grades';
-	@override String get description => 'View semester grades and academic performance to follow your progress.';
-}
-
-// Path: whatsNew.features.widget
-class _Translations$whatsNew$features$widget$en_US extends Translations$whatsNew$features$widget$zh_TW {
-	_Translations$whatsNew$features$widget$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
-
-	final TranslationsEnUs _root; // ignore: unused_field
-
-	// Translations
-	@override String get title => 'Home screen timetable widget';
-	@override String get description => 'Add your timetable to your Android home screen to check classes without opening the app.';
-}
-
 /// The flat map containing all translations for locale <en-US>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -1068,6 +1080,18 @@ class _Translations$whatsNew$features$widget$en_US extends Translations$whatsNew
 extension on TranslationsEnUs {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'newFeatures.androidWidget.title' => 'Home screen widget',
+			'newFeatures.androidWidget.description' => 'Add your latest timetable to your home screen for easy access anytime.',
+			'newFeatures.campusMap.title' => 'Campus map',
+			'newFeatures.campusMap.description' => 'View campus buildings and floor plans, and search for classrooms or teachers by name.',
+			'newFeatures.materialDownload.title' => 'Course material downloads',
+			'newFeatures.materialDownload.description' => 'Browse and download iSchool course materials from the course details.',
+			'newFeatures.ntutSu.title' => 'Student Union',
+			'newFeatures.ntutSu.description' => 'Find links to student rights resources and get help from the Student Union with everyday campus issues.',
+			'whatsNew.title' => 'What\'s New',
+			'whatsNew.announcement' => 'TAT has new features',
+			'whatsNew.view' => 'View',
+			'whatsNew.gotIt' => 'Got it',
 			'preferences.startWithCourseTable.title' => 'Start with Course Table',
 			'preferences.darkMode' => 'Dark Mode',
 			'preferences.themeMode.system' => 'Default',
@@ -1412,16 +1436,6 @@ extension on TranslationsEnUs {
 			'changePassword.errors.server.sameAsUsername' => 'Password cannot be the same as your student ID',
 			'changePassword.errors.server.length' => 'Password length must be between 8 and 14 characters',
 			'changePassword.errors.server.complexity' => 'Password must contain uppercase, lowercase, numbers, and symbols',
-			'whatsNew.title' => 'What\'s New',
-			'whatsNew.announcement' => 'TAT has new features',
-			'whatsNew.view' => 'View',
-			'whatsNew.gotIt' => 'Got it',
-			'whatsNew.features.courseTable.title' => 'Your schedule at a glance',
-			'whatsNew.features.courseTable.description' => 'Check class times, classrooms, and your next class to plan your day.',
-			'whatsNew.features.scores.title' => 'Keep track of your grades',
-			'whatsNew.features.scores.description' => 'View semester grades and academic performance to follow your progress.',
-			'whatsNew.features.widget.title' => 'Home screen timetable widget',
-			'whatsNew.features.widget.description' => 'Add your timetable to your Android home screen to check classes without opening the app.',
 			_ => null,
 		};
 	}
