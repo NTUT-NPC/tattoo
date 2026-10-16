@@ -102,8 +102,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return;
     }
 
-    final launchState = ref.read(updateConfigProvider.notifier);
-    if (launchState.whatsNewPrompted || currentWhatsNewFeatures().isEmpty) {
+    if (ref.read(whatsNewPromptedProvider) ||
+        currentWhatsNewFeatures().isEmpty) {
       return;
     }
     final preferences = ref.read(preferencesRepositoryProvider);
@@ -126,13 +126,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       await preferences.set(PrefKey.lastPromptedWhatsNewVersion, version);
       count = 0;
     }
-    if (!mounted || count >= 5 || launchState.whatsNewPrompted) return;
+    if (!mounted || count >= 5 || ref.read(whatsNewPromptedProvider)) return;
     // Re-check after storage awaits so an update always takes priority.
     if (ref.read(updateConfigProvider) != null) {
       _scheduleVersionNotification();
       return;
     }
-    launchState.whatsNewPrompted = true;
+    ref.read(whatsNewPromptedProvider.notifier).markPrompted();
     _showVersionSnackbar(
       config: null,
       content: Text(t.whatsNew.announcement.spaced),

@@ -106,9 +106,6 @@ Future<VersionConfig?> checkForUpdate() async {
 /// - `config.isForcedUpdate == false` → home screen shows a dismissible
 ///   optional-update banner without blocking the user.
 class UpdateConfigNotifier extends Notifier<VersionConfig?> {
-  /// Prevents repeated new-feature prompts across HomeScreen re-entry this launch.
-  bool whatsNewPrompted = false;
-
   @override
   VersionConfig? build() => null;
 
@@ -118,6 +115,19 @@ class UpdateConfigNotifier extends Notifier<VersionConfig?> {
 final updateConfigProvider =
     NotifierProvider<UpdateConfigNotifier, VersionConfig?>(
       UpdateConfigNotifier.new,
+    );
+
+/// Tracks whether the current app launch has shown the What's New prompt.
+class WhatsNewPromptedNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void markPrompted() => state = true;
+}
+
+final whatsNewPromptedProvider =
+    NotifierProvider<WhatsNewPromptedNotifier, bool>(
+      WhatsNewPromptedNotifier.new,
     );
 
 /// Session-scoped flag: `true` once the user dismisses the optional update
