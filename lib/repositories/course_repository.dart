@@ -363,7 +363,7 @@ class CourseRepository {
         ],
       );
 
-      if (data.scheduled.isEmpty && data.unscheduled.isEmpty) {
+      if (allOfferings.isEmpty) {
         try {
           await refreshCourseTable(semesterId: semesterId);
         } catch (_) {
@@ -574,10 +574,12 @@ class CourseRepository {
   ) {
     final scheduled = <({DayOfWeek day, Period period}), CourseTableCellData>{};
     final offeringsById = {
-      for (final offering in allOfferings) offering.offering.id: offering,
+      for (final offering in allOfferings)
+        if (offering.offering.status != '撤選') offering.offering.id: offering,
     };
 
     for (final row in rows) {
+      if (!offeringsById.containsKey(row.id)) continue;
       final key = (day: row.dayOfWeek, period: row.period);
       if (scheduled.containsKey(key)) continue;
 
@@ -656,7 +658,7 @@ class CourseRepository {
 
     // Filter offerings not present in the scheduled map.
     final scheduledIds = scheduled.values.map((c) => c.id).toSet();
-    final unscheduled = allOfferings
+    final unscheduled = offeringsById.values
         .where((row) => !scheduledIds.contains(row.offering.id))
         .map((row) {
           final courseName = localized(
