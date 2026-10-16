@@ -87,6 +87,7 @@ const _publicRoutes = {
   AppRoutes.intro,
   AppRoutes.login,
   AppRoutes.about,
+  AppRoutes.whatsNew,
   AppRoutes.changePassword,
   AppRoutes.update,
 };
