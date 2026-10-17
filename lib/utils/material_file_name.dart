@@ -10,26 +10,26 @@ String materialFileName({
   String? contentType,
 }) {
   String? serverName;
-  if (disposition != null) {
+  if (disposition case final disposition?) {
     try {
       final parameters = HeaderValue.parse(disposition).parameters;
+      serverName = parameters['filename'];
       final encoded = parameters['filename*'];
-      if (encoded != null) {
+      if (encoded case final encoded?) {
         final parts = encoded.split("'");
         if (parts.length == 3 && parts.first.toLowerCase() == 'utf-8') {
           serverName = Uri.decodeComponent(parts[2]);
         }
       }
-      serverName ??= parameters['filename'];
     } on FormatException {
-      // Fall back to the material title when the server sends a malformed header.
+      // Retain filename when filename* is malformed; otherwise use the title.
     } on ArgumentError {
       // RFC 5987 filename encoding may itself be malformed.
     }
   }
-  if (serverName != null) {
+  if (serverName case final attachmentName?) {
     serverName = p.posix
-        .basename(p.windows.basename(serverName))
+        .basename(p.windows.basename(attachmentName))
         .replaceAll(RegExp(r'''^['"]|['"]$'''), '');
   }
   final materialTitle = title?.trim();
@@ -48,7 +48,12 @@ String materialFileName({
       ? p.extension(name)
       : switch (contentType?.split(';').first.trim().toLowerCase()) {
           'application/pdf' => '.pdf',
-          'application/zip' => '.zip',
+          'application/zip' || 'application/x-zip-compressed' => '.zip',
+          'application/vnd.rar' ||
+          'application/x-rar' ||
+          'application/x-rar-compressed' => '.rar',
+          'application/x-7z-compressed' => '.7z',
+          'application/gzip' || 'application/x-gzip' => '.gz',
           'application/msword' => '.doc',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document' =>
             '.docx',

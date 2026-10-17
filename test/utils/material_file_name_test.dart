@@ -44,6 +44,42 @@ void main() {
     );
     expect(materialFileName(title: 'CON.txt'), '_CON.txt');
   });
+  test('retains filename when the encoded attachment name is malformed', () {
+    expect(
+      materialFileName(
+        disposition: "attachment; filename=123456.rar; filename*=UTF-8''%zz",
+        title: 'Solution Manual',
+      ),
+      'Solution Manual.rar',
+    );
+  });
+  test('infers archive extensions without using numbered attachment names', () {
+    for (final (contentType, extension) in [
+      ('application/vnd.rar', '.rar'),
+      ('application/x-rar', '.rar'),
+      ('application/x-rar-compressed', '.rar'),
+      ('application/x-7z-compressed', '.7z'),
+      ('application/x-zip-compressed', '.zip'),
+      ('application/gzip', '.gz'),
+      ('application/x-gzip', '.gz'),
+    ]) {
+      expect(
+        materialFileName(
+          disposition: 'attachment; filename=123456',
+          title: 'Solution Manual',
+          contentType: '$contentType; charset=binary',
+        ),
+        'Solution Manual$extension',
+      );
+    }
+    expect(
+      materialFileName(
+        title: 'Solution Manual',
+        contentType: 'application/octet-stream',
+      ),
+      'Solution Manual',
+    );
+  });
   test('infers missing extension and preserves existing filenames', () {
     expect(
       materialFileName(
