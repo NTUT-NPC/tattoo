@@ -64,6 +64,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - CourseService — 課程系統 (`aa_0010-oauth`). Course catalog, schedules, teacher profiles, syllabi. All HTML-parsed.
 - ISchoolPlusService — 北科i學園PLUS (`ischool_plus_oauth`). Course rosters and materials.
 - StudentQueryService — 學生查詢專區 (`sa_003_oauth`). Academic records, GPA, rankings, registration history.
+- FileSaveService — Exports course material downloads through native save dialogs.
 - GitHubService — fetches repo contributors, filters bots
 - FirebaseService — Unified wrapper for Firebase Analytics, Crashlytics, and Remote Config. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`). `getRemoteConfigTyped(key, PrefType)` casts a Remote Config value to the caller's declared type (no sniffing), returning `(value: null, isRemote: false)` when disabled or not remotely set.
 - CampusWifiPlatform — Method-channel client wrapper that exposes Android-only system Wi-Fi APIs (suggestions and settings) to the Dart application via the `campusWifiPlatformProvider` Riverpod provider and structured method-channel DTOs (`CampusWifiCapabilitiesDto`, `Ntut8021xProvisioningDto`).
@@ -78,7 +79,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 - AuthRepository — User identity, session, profile. Lazy auth via `withAuth<T>()` with SSO and re-auth coalescing (Completer pattern). Session persistence via flutter_secure_storage. When the database user row is missing, startup revalidates secure credentials and then old TAT's `UserDataJsonKey` payload to rebuild it. Successful legacy migration and logout remove the plaintext payload; transient network failures retain credentials and open login. Never-completing future on auth failure is harmless because session-scoped providers are already being disposed.
 - PreferencesRepository — Typed `PrefKey<T>` enum resolved through a source stack (forced > local override > Remote Config > declared default). Feature flags are unified here: Remote Config is a control layer over `PrefKey`, not a separate system. App-scoped; cloud sync embeds only the user's explicitly-set values in the avatar payload, and runs only while logged in.
-- CourseRepository — Course catalog, schedules, and offering details. Normalizes bilingual names from multiple sources (catalog vs offering). Layout computation for course table grid (multi-period spans, noon-crossing, unscheduled courses).
+- CourseRepository — Course catalog, schedules, offering details, and course materials. Normalizes bilingual names from multiple sources (catalog vs offering). Layout computation for course table grid (multi-period spans, noon-crossing, unscheduled courses).
 - Course table output excludes withdrawn offerings; the database retains their full data and status.
 - CalendarRepository — Academic calendar events from NTUT portal. Sliding window caching keyed to enrolled semesters.
 - StudentRepository — Academic records, GPA, rankings. Parallel course code resolution via CourseRepository.getCourse().
@@ -159,4 +160,4 @@ These apOu codes are the SSO target identifiers used by PortalService to obtain 
 
 ## Backlog
 
-Open work is tracked in [GitHub Issues](https://github.com/NTUT-NPC/tattoo/issues). Key areas: remaining NTUT service methods (ISchoolPlus announcements, StudentQuery extensions), repository layer gaps (materials, rosters), and file download infrastructure.
+Open work is tracked in [GitHub Issues](https://github.com/NTUT-NPC/tattoo/issues). Key areas: remaining NTUT service methods (ISchoolPlus announcements, StudentQuery extensions) and file download infrastructure beyond course materials.

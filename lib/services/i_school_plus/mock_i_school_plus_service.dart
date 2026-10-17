@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:path/path.dart' as p;
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 
 /// Mock implementation of [ISchoolPlusService] for repository unit tests
@@ -97,7 +101,28 @@ class MockISchoolPlusService implements ISchoolPlusService {
             'https://istudy.ntut.edu.tw/learn/path/download.php?id=mock',
           ),
           referer: null,
-          streamable: false,
+          streamable: material.title?.startsWith('[錄]') == true,
         );
+  }
+
+  @override
+  Future<MaterialFileDto> downloadMaterial(
+    MaterialRefDto material,
+    String directory, {
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    if (cancelToken?.cancelError case final error?) throw error;
+    if ((await getMaterial(material)).streamable) {
+      throw UnsupportedError('iStream downloads are not supported');
+    }
+    const fileName = 'demo-material.txt';
+    final file = File(p.join(directory, fileName));
+    await file.writeAsString(
+      'Tattoo demo course material\n${material.title ?? "Material"}\n',
+    );
+    final length = await file.length();
+    onReceiveProgress?.call(length, length);
+    return (path: file.path, fileName: fileName);
   }
 }

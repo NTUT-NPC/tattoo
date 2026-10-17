@@ -60,7 +60,7 @@ void main() {
   group('course roster retry invariant', () {
     test('stays disabled while refresh is loading', () {
       expect(
-        canRetryCourseStudentRoster(
+        canRetryCourseISchool(
           const AsyncLoading<bool>(),
           const AsyncError<void>('probe failed', StackTrace.empty),
         ),
@@ -70,7 +70,7 @@ void main() {
 
     test('stays disabled while probe is loading', () {
       expect(
-        canRetryCourseStudentRoster(
+        canRetryCourseISchool(
           const AsyncError<bool>('refresh failed', StackTrace.empty),
           const AsyncLoading<void>(),
         ),
@@ -80,14 +80,14 @@ void main() {
 
     test('enables after refresh failure and probe settlement', () {
       expect(
-        canRetryCourseStudentRoster(
+        canRetryCourseISchool(
           const AsyncError<bool>('refresh failed', StackTrace.empty),
           const AsyncData<void>(null),
         ),
         isTrue,
       );
       expect(
-        canRetryCourseStudentRoster(
+        canRetryCourseISchool(
           const AsyncError<bool>('refresh failed', StackTrace.empty),
           const AsyncError<void>('probe failed', StackTrace.empty),
         ),
@@ -97,7 +97,7 @@ void main() {
 
     test('does not offer retry after a successful refresh', () {
       expect(
-        canRetryCourseStudentRoster(
+        canRetryCourseISchool(
           const AsyncData<bool>(true),
           const AsyncError<void>('late probe failure', StackTrace.empty),
         ),
@@ -107,7 +107,7 @@ void main() {
 
     test('probe failure shows guide while refresh is still running', () {
       expect(
-        courseRosterPresentation(
+        courseISchoolPresentation(
           hasCache: false,
           showNetworkGuide: false,
           allowEarlyNetworkGuide: true,
@@ -117,7 +117,7 @@ void main() {
             StackTrace.empty,
           ),
         ),
-        CourseRosterPresentation.guide,
+        CourseISchoolPresentation.guide,
       );
     });
 
@@ -125,7 +125,7 @@ void main() {
       'manual retry waits for authenticated refresh after probe failure',
       () {
         expect(
-          courseRosterPresentation(
+          courseISchoolPresentation(
             hasCache: false,
             showNetworkGuide: false,
             allowEarlyNetworkGuide: false,
@@ -135,14 +135,14 @@ void main() {
               StackTrace.empty,
             ),
           ),
-          CourseRosterPresentation.loading,
+          CourseISchoolPresentation.loading,
         );
       },
     );
 
     test('manual retry shows guide after both failures settle', () {
       expect(
-        courseRosterPresentation(
+        courseISchoolPresentation(
           hasCache: false,
           showNetworkGuide: false,
           allowEarlyNetworkGuide: false,
@@ -155,13 +155,13 @@ void main() {
             StackTrace.empty,
           ),
         ),
-        CourseRosterPresentation.guide,
+        CourseISchoolPresentation.guide,
       );
     });
 
     test('refresh failure waits for the probe to settle', () {
       expect(
-        courseRosterPresentation(
+        courseISchoolPresentation(
           hasCache: false,
           showNetworkGuide: false,
           allowEarlyNetworkGuide: true,
@@ -171,13 +171,13 @@ void main() {
           ),
           availability: const AsyncLoading<void>(),
         ),
-        CourseRosterPresentation.loading,
+        CourseISchoolPresentation.loading,
       );
     });
 
     test('probe success plus refresh failure is a generic failure', () {
       expect(
-        courseRosterPresentation(
+        courseISchoolPresentation(
           hasCache: false,
           showNetworkGuide: false,
           allowEarlyNetworkGuide: true,
@@ -187,13 +187,13 @@ void main() {
           ),
           availability: const AsyncData<void>(null),
         ),
-        CourseRosterPresentation.genericFailure,
+        CourseISchoolPresentation.genericFailure,
       );
     });
 
     test('a failed probe never replaces cached roster content', () {
       expect(
-        courseRosterPresentation(
+        courseISchoolPresentation(
           hasCache: true,
           showNetworkGuide: false,
           allowEarlyNetworkGuide: true,
@@ -203,13 +203,13 @@ void main() {
             StackTrace.empty,
           ),
         ),
-        CourseRosterPresentation.content,
+        CourseISchoolPresentation.content,
       );
     });
 
     test('successful authenticated refresh wins over failed probe', () {
       expect(
-        courseRosterPresentation(
+        courseISchoolPresentation(
           hasCache: true,
           showNetworkGuide: true,
           allowEarlyNetworkGuide: true,
@@ -219,7 +219,7 @@ void main() {
             StackTrace.empty,
           ),
         ),
-        CourseRosterPresentation.content,
+        CourseISchoolPresentation.content,
       );
     });
   });
@@ -229,7 +229,7 @@ void main() {
     late _TestISchoolPlusService service;
     late CourseRepository repository;
     late ProviderContainer container;
-    late CourseRosterKey key;
+    late CourseISchoolKey key;
 
     setUp(() async {
       database = AppDatabase(NativeDatabase.memory());
@@ -272,6 +272,122 @@ void main() {
       await database.close();
     });
 
+    test('materials missing cache refreshes and probes', () async {
+      final refresh = container.read(
+        courseMaterialsRefreshProvider(key).future,
+      );
+      final availability = container.read(
+        courseMaterialsAvailabilityProvider(key).future,
+      );
+      expect(await refresh, (refreshed: true, hadCacheAtStart: false));
+      await availability;
+      expect(service.materialsCalls, 1);
+      expect(service.availabilityCalls, 1);
+    });
+    test('materials fresh empty cache skips both refresh and probe', () async {
+      service.materialsResult = [];
+      await repository.refreshMaterials(
+        courseOfferingId: key.courseOfferingId,
+        courseNumber: key.courseNumber,
+      );
+      service.resetCalls();
+      expect(await container.read(courseMaterialsRefreshProvider(key).future), (
+        refreshed: false,
+        hadCacheAtStart: true,
+      ));
+      await container.read(courseMaterialsAvailabilityProvider(key).future);
+      expect(service.materialsCalls, 0);
+      expect(service.availabilityCalls, 0);
+    });
+    test('materials older than two minutes refresh automatically', () async {
+      await repository.refreshMaterials(
+        courseOfferingId: key.courseOfferingId,
+        courseNumber: key.courseNumber,
+      );
+      await (database.update(
+        database.courseOfferings,
+      )..where((r) => r.id.equals(key.courseOfferingId))).write(
+        CourseOfferingsCompanion(
+          materialsFetchedAt: Value(
+            DateTime.now().subtract(const Duration(minutes: 3)),
+          ),
+        ),
+      );
+      service.resetCalls();
+      final refresh = container.read(
+        courseMaterialsRefreshProvider(key).future,
+      );
+      await container.read(courseMaterialsAvailabilityProvider(key).future);
+      expect(await refresh, (refreshed: true, hadCacheAtStart: true));
+      expect(service.materialsCalls, 1);
+      expect(service.availabilityCalls, 1);
+    });
+
+    test('manual materials refresh bypasses a fresh cache', () async {
+      await repository.refreshMaterials(
+        courseOfferingId: key.courseOfferingId,
+        courseNumber: key.courseNumber,
+      );
+      service.resetCalls();
+      expect(await repository.areMaterialsFresh(key.courseOfferingId), isTrue);
+      final refresh = container.read(
+        courseMaterialsManualRefreshProvider(key).future,
+      );
+      await container.read(
+        courseMaterialsManualAvailabilityProvider(key).future,
+      );
+      expect(await refresh, (refreshed: true, hadCacheAtStart: true));
+      expect(service.materialsCalls, 1);
+      expect(service.availabilityCalls, 1);
+      expect(service.studentsCalls, 0);
+    });
+
+    test(
+      'manual materials probe leaves the mounted roster probe alone',
+      () async {
+        final rosterProbe = courseStudentRosterAvailabilityProvider(key);
+        var rosterProbeEvents = 0;
+        final subscription = container.listen(
+          rosterProbe,
+          (_, _) => rosterProbeEvents++,
+        );
+        await container.read(rosterProbe.future);
+        final settledEvents = rosterProbeEvents;
+        service.availabilityError = Exception('manual probe failed');
+
+        await expectLater(
+          container.read(courseMaterialsManualAvailabilityProvider(key).future),
+          throwsA(isA<Exception>()),
+        );
+        await container.pump();
+
+        expect(service.availabilityCalls, 2);
+        expect(rosterProbeEvents, settledEvents);
+        expect(container.read(rosterProbe).hasError, isFalse);
+        expect(service.studentsCalls, 0);
+        subscription.close();
+      },
+    );
+
+    test(
+      'reopening materials during refresh does not start another request',
+      () async {
+        final pending = Completer<List<MaterialRefDto>>();
+        service.materialsFuture = pending.future;
+        final provider = courseMaterialsRefreshProvider(key);
+        final firstSubscription = container.listen(provider, (_, _) {});
+        final first = container.read(provider.future);
+        await service.materialsStarted.future;
+        firstSubscription.close();
+        await container.pump();
+        final secondSubscription = container.listen(provider, (_, _) {});
+        final second = container.read(provider.future);
+        expect(service.materialsCalls, 1);
+        pending.complete([]);
+        await Future.wait([first, second]);
+        secondSubscription.close();
+      },
+    );
     test('missing cache starts refresh and public probe', () async {
       final refresh = courseStudentRosterRefreshProvider(key);
       final availability = courseStudentRosterAvailabilityProvider(key);
@@ -363,6 +479,16 @@ class _TestISchoolPlusService extends MockISchoolPlusService {
   var availabilityCalls = 0;
   var courseListCalls = 0;
   var studentsCalls = 0;
+  var materialsCalls = 0;
+  Future<List<MaterialRefDto>>? materialsFuture;
+  final materialsStarted = Completer<void>();
+  @override
+  Future<List<MaterialRefDto>> getMaterials(ISchoolCourseDto course) async {
+    materialsCalls++;
+    if (!materialsStarted.isCompleted) materialsStarted.complete();
+    return materialsFuture ?? super.getMaterials(course);
+  }
+
   var activeStudents = 0;
   var maxActiveStudents = 0;
   Future<List<StudentDto>>? studentsResultFuture;
@@ -372,6 +498,7 @@ class _TestISchoolPlusService extends MockISchoolPlusService {
     availabilityCalls = 0;
     courseListCalls = 0;
     studentsCalls = 0;
+    materialsCalls = 0;
   }
 
   @override
