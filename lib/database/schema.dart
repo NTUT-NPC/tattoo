@@ -492,6 +492,7 @@ class CourseOfferings extends Table with AutoIncrementId, Fetchable {
   /// Last time the I-School Plus student roster was refreshed successfully.
   late final studentRosterFetchedAt = dateTime().nullable()();
 
+  /// Last time course materials were refreshed successfully.
   late final materialsFetchedAt = dateTime().nullable()();
 }
 
@@ -838,8 +839,10 @@ class Materials extends Table with AutoIncrementId {
   /// This value is used internally by I-School Plus to locate the resource.
   late final href = text().nullable()();
 
+  /// I-School Plus course identifier used to resolve this material.
   late final iSchoolCourseId = text().nullable()();
 
+  /// Whether this material links to a stream instead of a downloadable file.
   late final streamable = boolean().nullable()();
 
   @override
