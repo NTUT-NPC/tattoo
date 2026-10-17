@@ -462,12 +462,12 @@ class NtutISchoolPlusService implements ISchoolPlusService {
         uri = response.realUri.resolve(location);
         continue;
       }
-      final fileName = materialFileName(
+      var fileName = materialFileName(
         disposition: response.headers.value('content-disposition'),
         title: material.title,
         contentType: response.headers.value(HttpHeaders.contentTypeHeader),
       );
-      final file = File(p.join(directory, fileName));
+      var file = File(p.join(directory, fileName));
       final iterator = StreamIterator(body.stream);
       cancelToken?.whenCancel.then((_) => iterator.cancel());
       RandomAccessFile? output;
@@ -475,6 +475,8 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       try {
         output = await file.open(mode: .write);
         var received = 0;
+        // Keep only the signature, even when it spans multiple stream chunks.
+        final leadingBytes = <int>[];
         final total =
             int.tryParse(
               response.headers.value(HttpHeaders.contentLengthHeader) ?? '',
@@ -483,9 +485,25 @@ class NtutISchoolPlusService implements ISchoolPlusService {
         while (await iterator.moveNext()) {
           if (cancelToken?.cancelError case final error?) throw error;
           final bytes = iterator.current;
+          if (leadingBytes.length < 8) {
+            leadingBytes.addAll(bytes.take(8 - leadingBytes.length));
+          }
           await output.writeFrom(bytes);
           received += bytes.length;
           onReceiveProgress?.call(received, total);
+        }
+        if (cancelToken?.cancelError case final error?) throw error;
+        await output.close();
+        output = null;
+        final resolvedName = materialFileName(
+          disposition: response.headers.value('content-disposition'),
+          title: material.title,
+          contentType: response.headers.value(HttpHeaders.contentTypeHeader),
+          leadingBytes: leadingBytes,
+        );
+        if (resolvedName != fileName) {
+          file = await file.rename(p.join(directory, resolvedName));
+          fileName = resolvedName;
         }
         if (cancelToken?.cancelError case final error?) throw error;
         completed = true;
