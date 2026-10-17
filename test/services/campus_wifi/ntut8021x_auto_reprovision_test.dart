@@ -136,6 +136,7 @@ void main() {
             canOpenWifiPanel: true,
             canProvisionNtut8021xSuggestion: true,
             canProvisionNtut8021xCompat: true,
+            canProvisionNtut8021xDirect: false,
             suggestionPermissionState: 'allowed',
           ),
           provisioningResult: const (
@@ -177,6 +178,40 @@ void main() {
         expect(state.pendingImmediatePrompt, isTrue);
       },
     );
+
+    test(
+      'iOS credential changes require consent instead of silent apply',
+      () async {
+        final platform = _FakeCampusWifiPlatform();
+        final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
+        final autoReprovision = Ntut8021xAutoReprovision(
+          prefs: SharedPreferencesAsync(),
+          platform: platform,
+          stateStore: stateStore,
+        );
+        await autoReprovision.enable();
+        await stateStore.markProvisioned(mode: .direct);
+
+        await autoReprovision.reprovisionIfEnabled(
+          identity: '111360109',
+          password: 'new-password',
+          previousIdentity: '111360109',
+          previousPassword: 'old-password',
+        );
+
+        expect(platform.provisionCallCount, 0);
+        final state = await stateStore.read();
+        expect(
+          state.lastProvisioningMode,
+          Ntut8021xStoredProvisioningMode.direct,
+        );
+        expect(
+          state.pendingCompatPromptReason,
+          Ntut8021xStoredPendingPromptReason.credentialChanged,
+        );
+        expect(state.pendingImmediatePrompt, isTrue);
+      },
+    );
   });
 }
 
@@ -189,6 +224,7 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
       canOpenWifiPanel: true,
       canProvisionNtut8021xSuggestion: true,
       canProvisionNtut8021xCompat: true,
+      canProvisionNtut8021xDirect: false,
       suggestionPermissionState: 'allowed',
     ),
     this.provisioningResult = const (

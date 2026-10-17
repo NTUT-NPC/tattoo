@@ -28,10 +28,13 @@ enum Ntut8021xPendingPromptReason {
 
 typedef Ntut8021xPendingCompatPromptReason = Ntut8021xPendingPromptReason;
 
-enum Ntut8021xProvisioningMode { suggestion, compat, none }
+enum Ntut8021xProvisioningMode { suggestion, compat, direct, none }
 
 enum Ntut8021xProvisioningStatus {
   success,
+  configured,
+  cancelled,
+  alreadyAssociated,
   successPendingWifi,
   approvalPending,
   approvalRejected,
@@ -57,6 +60,7 @@ class CampusWifiCapabilities {
     required this.canOpenWifiPanel,
     required this.canProvisionNtut8021xSuggestion,
     required this.canProvisionNtut8021xCompat,
+    required this.canProvisionNtut8021xDirect,
     required this.suggestionPermissionState,
   });
 
@@ -68,6 +72,7 @@ class CampusWifiCapabilities {
         canOpenWifiPanel: false,
         canProvisionNtut8021xSuggestion: false,
         canProvisionNtut8021xCompat: false,
+        canProvisionNtut8021xDirect: false,
         suggestionPermissionState: CampusWifiSuggestionPermissionState.unknown,
       );
 
@@ -77,6 +82,7 @@ class CampusWifiCapabilities {
   final bool canOpenWifiPanel;
   final bool canProvisionNtut8021xSuggestion;
   final bool canProvisionNtut8021xCompat;
+  final bool canProvisionNtut8021xDirect;
   final CampusWifiSuggestionPermissionState suggestionPermissionState;
 
   bool get isAndroid10 => androidSdkInt == 29;
@@ -85,14 +91,19 @@ class CampusWifiCapabilities {
 
   bool get isAndroid12OrNewer => (androidSdkInt ?? 0) >= 31;
 
-  bool get isLegacyAndroidManualOnly => (androidSdkInt ?? 0) < 29;
+  bool get isLegacyAndroidManualOnly => switch (androidSdkInt) {
+    final sdk? => sdk < 29,
+    null => false,
+  };
 
   bool get isSuggestionPermissionDisallowed =>
       suggestionPermissionState ==
       CampusWifiSuggestionPermissionState.disallowed;
 
   bool get canProvisionNtut8021x =>
-      canProvisionNtut8021xSuggestion || canProvisionNtut8021xCompat;
+      canProvisionNtut8021xSuggestion ||
+      canProvisionNtut8021xCompat ||
+      canProvisionNtut8021xDirect;
 }
 
 class Ntut8021xAssistantData {
@@ -132,7 +143,8 @@ class Ntut8021xAssistantData {
   bool get canProvisionAutomatically =>
       status == Ntut8021xAssistantStatus.ready &&
       screenMode == Ntut8021xScreenMode.normal &&
-      capabilities.canProvisionNtut8021xSuggestion;
+      (capabilities.canProvisionNtut8021xSuggestion ||
+          capabilities.canProvisionNtut8021xDirect);
 
   bool get canRetryWithCompat =>
       status == Ntut8021xAssistantStatus.ready &&
@@ -208,6 +220,7 @@ class Ntut8021xProvisioningResult {
 
   bool get isSuccess =>
       status == Ntut8021xProvisioningStatus.success ||
+      status == Ntut8021xProvisioningStatus.configured ||
       status == Ntut8021xProvisioningStatus.successPendingWifi ||
       status == Ntut8021xProvisioningStatus.compatSuccess;
 }
@@ -303,6 +316,10 @@ class CampusWifiRepository {
       return const Ntut8021xProvisioningResult.unsupported();
     }
 
+    if (data.capabilities.canProvisionNtut8021xDirect) {
+      return saveNtut8021xToSystem();
+    }
+
     final provisioning = await _platform.provisionNtut8021x(
       identity: data.identity!,
       password: data.password!,
@@ -373,8 +390,9 @@ class CampusWifiRepository {
     final resolvedPassword = password ?? data.password;
     if (resolvedIdentity == null ||
         resolvedPassword == null ||
-        !data.capabilities.canProvisionNtut8021xCompat ||
-        !data.capabilities.isAndroid11OrNewer) {
+        !(data.capabilities.canProvisionNtut8021xDirect ||
+            (data.capabilities.canProvisionNtut8021xCompat &&
+                data.capabilities.isAndroid11OrNewer))) {
       return const Ntut8021xProvisioningResult.unsupported();
     }
 
@@ -384,8 +402,20 @@ class CampusWifiRepository {
     );
     final compatResult = _provisioningResultFromDto(
       provisioning,
-      defaultMode: Ntut8021xProvisioningMode.compat,
+      defaultMode: data.capabilities.canProvisionNtut8021xDirect
+          ? Ntut8021xProvisioningMode.direct
+          : Ntut8021xProvisioningMode.compat,
     );
+
+    if (data.capabilities.canProvisionNtut8021xDirect) {
+      if (compatResult.status == Ntut8021xProvisioningStatus.configured) {
+        await _autoReprovision.enable();
+        await _stateStore.markProvisioned(
+          mode: Ntut8021xStoredProvisioningMode.direct,
+        );
+      }
+      return compatResult;
+    }
 
     if (compatResult.status == Ntut8021xProvisioningStatus.compatSuccess) {
       await _autoReprovision.enable();
@@ -420,6 +450,7 @@ class CampusWifiRepository {
       canProvisionNtut8021xSuggestion:
           capabilities.canProvisionNtut8021xSuggestion,
       canProvisionNtut8021xCompat: capabilities.canProvisionNtut8021xCompat,
+      canProvisionNtut8021xDirect: capabilities.canProvisionNtut8021xDirect,
       suggestionPermissionState: _suggestionPermissionStateFromWire(
         capabilities.suggestionPermissionState,
       ),
@@ -436,6 +467,10 @@ class CampusWifiRepository {
     }
 
     if (status != Ntut8021xAssistantStatus.ready) {
+      return Ntut8021xScreenMode.normal;
+    }
+
+    if (capabilities.canProvisionNtut8021xDirect) {
       return Ntut8021xScreenMode.normal;
     }
 
@@ -568,6 +603,9 @@ class CampusWifiRepository {
   Ntut8021xProvisioningStatus _provisioningStatusFromWire(String status) {
     return switch (status) {
       'success' => Ntut8021xProvisioningStatus.success,
+      'configured' => Ntut8021xProvisioningStatus.configured,
+      'cancelled' => Ntut8021xProvisioningStatus.cancelled,
+      'alreadyAssociated' => Ntut8021xProvisioningStatus.alreadyAssociated,
       'successPendingWifi' => Ntut8021xProvisioningStatus.successPendingWifi,
       'approvalPending' => Ntut8021xProvisioningStatus.approvalPending,
       'approvalRejected' => Ntut8021xProvisioningStatus.approvalRejected,
@@ -623,6 +661,8 @@ class CampusWifiRepository {
         Ntut8021xProvisioningMode.suggestion,
       Ntut8021xStoredProvisioningMode.compat =>
         Ntut8021xProvisioningMode.compat,
+      Ntut8021xStoredProvisioningMode.direct =>
+        Ntut8021xProvisioningMode.direct,
       Ntut8021xStoredProvisioningMode.none => Ntut8021xProvisioningMode.none,
     };
   }
