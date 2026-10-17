@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/i_school_plus/i_school_plus_service.dart';
 
-final fileSaveServiceProvider = Provider<FileSaveService>(
-  (ref) => FileSaveService(),
-);
+final fileSaveServiceProvider = Provider<FileSaveService>((ref) {
+  ref.watch(sessionProvider);
+  return FileSaveService();
+});
 
 /// Exports temporary downloads through the Android and iOS save dialogs.
 class FileSaveService {
