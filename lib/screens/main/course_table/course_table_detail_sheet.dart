@@ -283,6 +283,7 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
         ),
         if (_rosterVisited)
           Offstage(
+            key: const ValueKey<_CourseDetailTab>(.roster),
             offstage: _tabs[_controller.index] != .roster,
             child: Padding(
               padding: const .only(top: 8),
@@ -294,6 +295,7 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
           ),
         if (_materialsVisited)
           Offstage(
+            key: const ValueKey<_CourseDetailTab>(.materials),
             offstage: _tabs[_controller.index] != .materials,
             child: Padding(
               padding: const .only(top: 8),
