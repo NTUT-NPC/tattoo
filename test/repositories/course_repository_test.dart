@@ -180,6 +180,47 @@ void main() {
       },
     );
 
+    test(
+      'material classification survives refresh and stale row IDs',
+      () async {
+        await repository.refreshMaterials(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        final material =
+            (await repository.watchMaterials(courseOfferingId).first)
+                .materials
+                .first;
+        await repository.refreshMaterials(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        iSchoolPlusService.downloadError = UnsupportedError('iStream');
+        await expectLater(
+          repository.saveMaterial(material),
+          throwsUnsupportedError,
+        );
+        final refreshed =
+            (await repository.watchMaterials(courseOfferingId).first)
+                .materials
+                .first;
+        expect(refreshed.id, isNot(material.id));
+        expect(refreshed.streamable, isTrue);
+
+        await repository.refreshMaterials(
+          courseOfferingId: courseOfferingId,
+          courseNumber: '352902',
+        );
+        expect(
+          (await repository.watchMaterials(courseOfferingId).first)
+              .materials
+              .first
+              .streamable,
+          isTrue,
+        );
+      },
+    );
+
     for (final error in [
       UnsupportedError('iStream'),
       const FileSystemException('Disk full'),

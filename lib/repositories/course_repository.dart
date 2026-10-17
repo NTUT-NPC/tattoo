@@ -1445,9 +1445,7 @@ class CourseRepository {
       () => _iSchoolPlusService.getMaterial(reference),
       sso: [.iSchoolPlusService],
     );
-    await (_database.update(_database.materials)
-          ..where((row) => row.id.equals(material.id)))
-        .write(MaterialsCompanion(streamable: Value(access.streamable)));
+    await _storeMaterialClassification(material, access.streamable);
     return access;
   }
 
@@ -1482,15 +1480,26 @@ class CourseRepository {
       }, sso: [.iSchoolPlusService]);
       if (localError case final error?) {
         if (error is UnsupportedError) {
-          await (_database.update(_database.materials)
-                ..where((row) => row.id.equals(material.id)))
-              .write(const MaterialsCompanion(streamable: Value(true)));
+          await _storeMaterialClassification(material, true);
         }
         Error.throwWithStackTrace(error, localStackTrace!);
       }
       if (cancelToken?.isCancelled != true) onSaving?.call();
       return file!;
     }, canSave: () => cancelToken?.isCancelled != true);
+  }
+
+  Future<void> _storeMaterialClassification(
+    CourseMaterial material,
+    bool streamable,
+  ) async {
+    await (_database.update(_database.materials)..where(
+          (row) =>
+              row.courseOffering.equals(material.courseOffering) &
+              row.iSchoolCourseId.equalsNullable(material.iSchoolCourseId) &
+              row.href.equalsNullable(material.href),
+        ))
+        .write(MaterialsCompanion(streamable: Value(streamable)));
   }
 
   Future<MaterialRefDto> _materialReference(CourseMaterial material) async {

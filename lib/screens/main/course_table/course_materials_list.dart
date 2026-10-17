@@ -32,7 +32,11 @@ class CourseMaterialsList extends StatelessWidget {
       children: [
         for (final material in materials)
           _MaterialTile(
-            key: ValueKey(material.id),
+            key: ValueKey((
+              material.courseOffering,
+              material.iSchoolCourseId,
+              material.href ?? material.id,
+            )),
             material: material,
             onLearnMore: onLearnMore,
           ),

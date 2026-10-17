@@ -121,7 +121,11 @@ void main() {
           'multiple lines without moving while a download is in progress.pdf';
       await _showList(tester, repository, [
         _file.copyWith(title: const Value(title)),
-        _file.copyWith(id: 2, title: const Value('Other')),
+        _file.copyWith(
+          id: 2,
+          title: const Value('Other'),
+          href: const Value('other'),
+        ),
       ]);
       final row = find.widgetWithText(ListTile, title);
       final nextRow = find.widgetWithText(ListTile, 'Other');
@@ -151,11 +155,54 @@ void main() {
     },
   );
 
+  testWidgets('refreshing row IDs preserves an active download', (
+    tester,
+  ) async {
+    final repository = _Repository()..pending = Completer<bool>();
+    await _showList(tester, repository, [_file]);
+    await tester.tap(find.text('Lecture'));
+    await tester.pump();
+    final token = repository.token!;
+
+    await _showList(tester, repository, [_file.copyWith(id: 42)]);
+    await tester.pump();
+    expect(token.isCancelled, isFalse);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(repository.calls, 1);
+
+    repository.pending!.complete(true);
+    await tester.pumpAndSettle();
+    expect(
+      find.text(t.courseTable.detail.materials.saved.other),
+      findsOneWidget,
+    );
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('removing a resource still cancels its download', (tester) async {
+    final repository = _Repository()..pending = Completer<bool>();
+    await _showList(tester, repository, [_file]);
+    await tester.tap(find.text('Lecture'));
+    await tester.pump();
+    final token = repository.token!;
+
+    await _showList(tester, repository, []);
+    expect(token.isCancelled, isTrue);
+    repository.pending!.complete(false);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('download errors do not move the material rows', (tester) async {
     final repository = _Repository()..error = UnsupportedError('Stream');
     await _showList(tester, repository, [
       _file.copyWith(streamable: const Value(null)),
-      _file.copyWith(id: 2, title: const Value('Other')),
+      _file.copyWith(
+        id: 2,
+        title: const Value('Other'),
+        href: const Value('other'),
+      ),
     ]);
     final row = find.widgetWithText(ListTile, 'Lecture');
     final nextRow = find.widgetWithText(ListTile, 'Other');
@@ -183,6 +230,7 @@ class _Repository extends Fake implements CourseRepository {
   Completer<bool>? pending;
   ProgressCallback? progress;
   void Function()? saving;
+  CancelToken? token;
 
   @override
   Future<bool> saveMaterial(
@@ -192,6 +240,7 @@ class _Repository extends Fake implements CourseRepository {
     void Function()? onSaving,
   }) async {
     calls++;
+    token = cancelToken;
     progress = onReceiveProgress;
     saving = onSaving;
     if (error case final value?) throw value;
