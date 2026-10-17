@@ -5464,6 +5464,8 @@ class CourseOffering extends DataClass implements Insertable<CourseOffering> {
 
   /// Last time the I-School Plus student roster was refreshed successfully.
   final DateTime? studentRosterFetchedAt;
+
+  /// Last time course materials were refreshed successfully.
   final DateTime? materialsFetchedAt;
   const CourseOffering({
     required this.id,
@@ -8791,7 +8793,11 @@ class CourseMaterial extends DataClass implements Insertable<CourseMaterial> {
   /// This is an encoded identifier from the SCORM manifest.
   /// This value is used internally by I-School Plus to locate the resource.
   final String? href;
+
+  /// I-School Plus course identifier used to resolve this material.
   final String? iSchoolCourseId;
+
+  /// Whether this material links to a stream instead of a downloadable file.
   final bool? streamable;
   const CourseMaterial({
     required this.id,
