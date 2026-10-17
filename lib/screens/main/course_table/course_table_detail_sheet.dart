@@ -286,7 +286,10 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
             offstage: _tabs[_controller.index] != .roster,
             child: Padding(
               padding: const .only(top: 8),
-              child: _CourseISchoolPane(iSchoolKey: widget.iSchoolKey),
+              child: _CourseISchoolPane(
+                iSchoolKey: widget.iSchoolKey,
+                type: .roster,
+              ),
             ),
           ),
         if (_materialsVisited)
@@ -296,7 +299,7 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
               padding: const .only(top: 8),
               child: _CourseISchoolPane(
                 iSchoolKey: widget.iSchoolKey,
-                isMaterials: true,
+                type: .materials,
               ),
             ),
           ),
@@ -305,13 +308,15 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
   }
 }
 
+enum _CourseISchoolPaneType { roster, materials }
+
 class _CourseISchoolPane extends ConsumerStatefulWidget {
   const _CourseISchoolPane({
     required this.iSchoolKey,
-    this.isMaterials = false,
+    required this.type,
   });
 
-  final bool isMaterials;
+  final _CourseISchoolPaneType type;
 
   final CourseISchoolKey iSchoolKey;
 
@@ -354,19 +359,15 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
   }
 
   void _retry() {
-    if (widget.isMaterials) {
+    if (widget.type == .materials) {
       _refreshMaterials();
       return;
     }
     final refresh = ref.read(
-      widget.isMaterials
-          ? _materialsRefreshProvider
-          : courseStudentRosterRefreshProvider(widget.iSchoolKey),
+      courseStudentRosterRefreshProvider(widget.iSchoolKey),
     );
     final availability = ref.read(
-      widget.isMaterials
-          ? _materialsAvailabilityProvider
-          : courseStudentRosterAvailabilityProvider(widget.iSchoolKey),
+      courseStudentRosterAvailabilityProvider(widget.iSchoolKey),
     );
     if (refresh.isLoading || availability.isLoading) return;
     setState(() {
@@ -377,19 +378,13 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
     ref
       ..invalidate(iSchoolPlusAvailabilityProvider)
       ..invalidate(
-        widget.isMaterials
-            ? courseMaterialsProvider(widget.iSchoolKey)
-            : courseStudentRosterProvider(widget.iSchoolKey),
+        courseStudentRosterProvider(widget.iSchoolKey),
       )
       ..invalidate(
-        widget.isMaterials
-            ? _materialsAvailabilityProvider
-            : courseStudentRosterAvailabilityProvider(widget.iSchoolKey),
+        courseStudentRosterAvailabilityProvider(widget.iSchoolKey),
       )
       ..invalidate(
-        widget.isMaterials
-            ? _materialsRefreshProvider
-            : courseStudentRosterRefreshProvider(widget.iSchoolKey),
+        courseStudentRosterRefreshProvider(widget.iSchoolKey),
       );
   }
 
@@ -418,7 +413,7 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
   @override
   Widget build(BuildContext context) {
     final content = _buildContent(context);
-    if (!widget.isMaterials) return content;
+    if (widget.type != .materials) return content;
     final refreshing =
         ref.watch(_materialsRefreshProvider).isLoading ||
         ref.watch(_materialsAvailabilityProvider).isLoading;
@@ -451,13 +446,13 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
   }
 
   Widget _buildContent(BuildContext context) {
-    final refreshProvider = widget.isMaterials
+    final refreshProvider = widget.type == .materials
         ? _materialsRefreshProvider
         : courseStudentRosterRefreshProvider(widget.iSchoolKey);
-    final availabilityProvider = widget.isMaterials
+    final availabilityProvider = widget.type == .materials
         ? _materialsAvailabilityProvider
         : courseStudentRosterAvailabilityProvider(widget.iSchoolKey);
-    final cacheAsync = widget.isMaterials
+    final cacheAsync = widget.type == .materials
         ? ref
               .watch(courseMaterialsProvider(widget.iSchoolKey))
               .whenData(
@@ -480,7 +475,7 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
                       _CourseRosterTable(students: roster.students) as Widget,
                 ),
               );
-    bool hasCacheNow() => widget.isMaterials
+    bool hasCacheNow() => widget.type == .materials
         ? ref
                   .read(courseMaterialsProvider(widget.iSchoolKey))
                   .value
@@ -498,7 +493,7 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
         .courseTable
         .detail
         .materials;
-    final strings = widget.isMaterials
+    final strings = widget.type == .materials
         ? (
             empty: materialStrings.empty,
             loadFailed: materialStrings.loadFailed,
@@ -544,7 +539,9 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
         }
         return;
       }
-      if (widget.isMaterials && (next.isLoading || next.hasError)) return;
+      if (widget.type == .materials && (next.isLoading || next.hasError)) {
+        return;
+      }
       final result = next.value;
       if (result == null || !result.refreshed) return;
       if (_showNetworkGuide && mounted) {
@@ -587,7 +584,7 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
       );
     }
 
-    final presentation = widget.isMaterials && _showNetworkGuide
+    final presentation = widget.type == .materials && _showNetworkGuide
         ? CourseISchoolPresentation.guide
         : courseISchoolPresentation(
             hasCache: hasCache,
@@ -596,7 +593,7 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
             refresh: refreshAsync.whenData(
               (result) =>
                   result.refreshed &&
-                  (!widget.isMaterials ||
+                  (widget.type != .materials ||
                       (!refreshAsync.isLoading && !refreshAsync.hasError)),
             ),
             availability: availabilityAsync,
@@ -626,7 +623,7 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
       case .content:
         if (roster!.isEmpty) {
           return _DetailState(
-            icon: widget.isMaterials
+            icon: widget.type == .materials
                 ? Icons.folder_off_outlined
                 : Icons.group_off_outlined,
             message: strings.empty,
