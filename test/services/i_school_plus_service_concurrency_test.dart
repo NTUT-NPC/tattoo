@@ -17,9 +17,9 @@ void main() {
   setUp(() {
     protocol = _FakeISchoolProtocol();
     service = NtutISchoolPlusService(
-      dio: Dio(
-        BaseOptions(validateStatus: (status) => status != null && status < 400),
-      )..interceptors.add(protocol),
+      dio: Dio()
+        ..options.validateStatus = (status) => status != null && status < 400
+        ..interceptors.add(protocol),
     );
   });
 
