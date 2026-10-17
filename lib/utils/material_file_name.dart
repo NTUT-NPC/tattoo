@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
@@ -66,7 +67,29 @@ String materialFileName({
       !name.toLowerCase().endsWith(extension.toLowerCase())) {
     name += extension;
   }
-  if (name.length > 180) name = '${name.substring(0, 160)}$extension';
+  const maxBytes = 240;
+  if (utf8.encode(name).length > maxBytes) {
+    final hasExtension =
+        extension.isNotEmpty &&
+        name.toLowerCase().endsWith(extension.toLowerCase());
+    final suffix = hasExtension
+        ? name.substring(name.length - extension.length)
+        : '';
+    final base = hasExtension
+        ? name.substring(0, name.length - extension.length)
+        : name;
+    final byteBudget = maxBytes - utf8.encode(suffix).length;
+    final truncated = StringBuffer();
+    var usedBytes = 0;
+    for (final rune in base.runes) {
+      final character = String.fromCharCode(rune);
+      final characterBytes = utf8.encode(character).length;
+      if (usedBytes + characterBytes > byteBudget) break;
+      truncated.write(character);
+      usedBytes += characterBytes;
+    }
+    name = '$truncated$suffix';
+  }
   if (RegExp(
     r'^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$',
     caseSensitive: false,
