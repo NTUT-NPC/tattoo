@@ -93,7 +93,7 @@ class _MaterialTileState extends ConsumerState<_MaterialTile> {
           );
       if (saved && mounted) {
         _showMessage(
-          defaultTargetPlatform == TargetPlatform.iOS
+          defaultTargetPlatform == .iOS
               ? strings.saved.ios
               : strings.saved.other,
         );

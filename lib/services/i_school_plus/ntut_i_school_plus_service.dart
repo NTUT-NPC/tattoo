@@ -473,7 +473,7 @@ class NtutISchoolPlusService implements ISchoolPlusService {
       RandomAccessFile? output;
       var completed = false;
       try {
-        output = await file.open(mode: FileMode.write);
+        output = await file.open(mode: .write);
         var received = 0;
         final total =
             int.tryParse(
