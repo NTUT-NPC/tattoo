@@ -451,6 +451,10 @@ class Translations$profile$zh_TW {
 	late final Translations$profile$passwordExpiry$zh_TW passwordExpiry = Translations$profile$passwordExpiry$zh_TW.internal(_root);
 	late final Translations$profile$sections$zh_TW sections = Translations$profile$sections$zh_TW.internal(_root);
 	late final Translations$profile$options$zh_TW options = Translations$profile$options$zh_TW.internal(_root);
+
+	/// zh-TW: '登出失敗，請再試一次'
+	String get logoutFailed => '登出失敗，請再試一次';
+
 	late final Translations$profile$avatar$zh_TW avatar = Translations$profile$avatar$zh_TW.internal(_root);
 	late final Translations$profile$dangerZone$zh_TW dangerZone = Translations$profile$dangerZone$zh_TW.internal(_root);
 }
@@ -1828,6 +1832,7 @@ extension on Translations {
 			'profile.options.npcClub' => '北科程式設計研究社',
 			'profile.options.preferences' => '偏好設定',
 			'profile.options.logout' => '登出帳號',
+			'profile.logoutFailed' => '登出失敗，請再試一次',
 			'profile.avatar.uploading' => '正在更新個人圖片…',
 			'profile.avatar.uploadSuccess' => '個人圖片已更新',
 			'profile.avatar.tooLarge' => '圖片大小超過20 MB限制',

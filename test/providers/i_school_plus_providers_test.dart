@@ -241,6 +241,7 @@ void main() {
         database: database,
         secureStorage: const FlutterSecureStorage(),
         isDemo: false,
+        clearCourseWidget: () async {},
         onSessionCreated: () {},
         onSessionDestroyed: ([exception]) {},
       );

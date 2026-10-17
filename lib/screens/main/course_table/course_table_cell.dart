@@ -5,6 +5,7 @@ import 'package:tattoo/components/app_skeleton.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/screens/main/course_table/course_table_colors.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 /// A single course block shown in the course table grid.
@@ -39,26 +40,12 @@ class CourseTableCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final containerColor =
-        HSLColor.fromColor(
-              cellColor,
-            )
-            .withLightness(isDark ? 0.7 : 0.9)
-            .withSaturation(isDark ? 0.2 : 0.4)
-            .toColor();
-
-    final borderColor =
-        HSLColor.fromColor(
-              cellColor,
-            )
-            .withLightness(isDark ? 0.3 : 0.3)
-            .withSaturation(isDark ? 0.5 : 0.6)
-            .toColor();
-
+    final palette = courseTableCellPalette(
+      cellColor,
+      Theme.of(context).brightness,
+    );
     final borderStyle = Border.all(
-      color: borderColor,
+      color: palette.border,
       width: 1.5,
     );
     final borderRadius = BorderRadius.circular(8);
@@ -67,9 +54,9 @@ class CourseTableCell extends StatelessWidget {
         ? courseTableCellData.courseName
         : courseTableCellData.number ?? '';
     final classroomName = courseTableCellData.classroomName;
-    final fontColor = Colors.grey[900];
-    final splashColor = borderColor.withValues(alpha: 0.22);
-    final highlightColor = borderColor.withValues(alpha: 0.14);
+    final fontColor = palette.foreground;
+    final splashColor = palette.border.withValues(alpha: 0.22);
+    final highlightColor = palette.border.withValues(alpha: 0.14);
 
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: .noScaling),
@@ -77,7 +64,7 @@ class CourseTableCell extends StatelessWidget {
         color: Colors.transparent,
         child: Ink(
           decoration: BoxDecoration(
-            color: containerColor,
+            color: palette.container,
             borderRadius: borderRadius,
             border: borderStyle,
           ),

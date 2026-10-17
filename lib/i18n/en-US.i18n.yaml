@@ -215,6 +215,7 @@ profile:
     npcClub: NTUT Programming Club
     preferences: Preferences
     logout: Sign Out
+  logoutFailed: Failed to sign out. Please try again.
   avatar:
     uploading: Updating avatar…
     uploadSuccess: Avatar updated

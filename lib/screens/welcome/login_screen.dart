@@ -140,7 +140,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _showMessage(t.ntutWifi.provisioning.failed);
         }
       }
-      final landingLocation = await resolveLandingLocation(
+      if (!mounted) return;
+      final landingLocation = await resolvePostAuthenticationLocation(
+        ProviderScope.containerOf(context),
         ref.read(preferencesRepositoryProvider),
       );
       if (mounted) context.go(landingLocation);
