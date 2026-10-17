@@ -1405,6 +1405,13 @@ class CourseRepository {
         )
         .toList();
     await _database.transaction(() async {
+      final existing = await (_database.select(
+        _database.materials,
+      )..where((row) => row.courseOffering.equals(courseOfferingId))).get();
+      final classifications = {
+        for (final material in existing)
+          (material.iSchoolCourseId, material.href): material.streamable,
+      };
       await (_database.delete(
         _database.materials,
       )..where((row) => row.courseOffering.equals(courseOfferingId))).go();
@@ -1417,6 +1424,9 @@ class CourseRepository {
                 title: Value(dto.title?.trim()),
                 href: Value(dto.href!.trim()),
                 iSchoolCourseId: Value(dto.course.internalId),
+                streamable: Value(
+                  classifications[(dto.course.internalId, dto.href!.trim())],
+                ),
               ),
             );
       }
