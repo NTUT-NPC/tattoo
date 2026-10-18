@@ -54,6 +54,10 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     UserSemesterSummaryCadreRoles,
     UserSemesterRankings,
     CalendarEvents,
+    CampusMapBuildings,
+    CampusMapFloors,
+    CampusMapRooms,
+    CampusMapSyncs,
   ],
   views: [
     CourseOfferingOverviews,
