@@ -497,6 +497,7 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
               controller: _controller,
               buildings: buildings,
               campuses: campuses,
+              focusedCampusCode: _campusCode,
               rooms: rooms.isEmpty && _selectedRoom != null
                   ? [_selectedRoom!]
                   : rooms,

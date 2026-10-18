@@ -29,11 +29,13 @@ class CampusMapViewport extends StatefulWidget {
     required this.onUserCameraChanged,
     this.tileProvider,
     this.campuses = const [],
+    this.focusedCampusCode,
   });
 
   final MapController controller;
   final List<CampusMapBuilding> buildings;
   final List<CampusMapCampus> campuses;
+  final String? focusedCampusCode;
   final List<CampusMapRoom> rooms;
   final String? selectedBuildingCode;
   final String? selectedRoomId;
@@ -116,8 +118,11 @@ class _CampusMapViewportState extends State<CampusMapViewport> {
             ],
           ),
         ),
-        CampusMapCampusLayer(campuses: widget.campuses),
-        CampusMapBuildingLabels(buildings: widget.buildings),
+        CampusMapCampusLayer(
+          campuses: widget.campuses,
+          focusedCampusCode: widget.focusedCampusCode,
+          buildingLabels: CampusMapBuildingLabels(buildings: widget.buildings),
+        ),
         GestureDetector(
           onTap: () {
             if (_roomHits.value?.hitValues.firstOrNull case final room?) {

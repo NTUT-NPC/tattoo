@@ -6,17 +6,105 @@ import 'package:tattoo/models/campus_map.dart';
 import 'package:tattoo/screens/main/map/campus_map_area_labels.dart';
 import 'package:tattoo/screens/main/map/campus_map_zoom.dart';
 
-/// Public campus boundaries replace building labels at the far overview scale.
-class CampusMapCampusLayer extends StatelessWidget {
-  const CampusMapCampusLayer({super.key, required this.campuses});
+/// Public campus boundaries at overview scale, with a brief focus highlight.
+///
+/// Changing [focusedCampusCode] reveals that campus even when zoomed in. The
+/// highlight holds for one second, with 200-millisecond fades at each end.
+/// [buildingLabels] yield while campus boundaries and names are displayed.
+class CampusMapCampusLayer extends StatefulWidget {
+  const CampusMapCampusLayer({
+    super.key,
+    required this.campuses,
+    this.focusedCampusCode,
+    this.buildingLabels,
+  });
+
+  final List<CampusMapCampus> campuses;
+  final String? focusedCampusCode;
+  final Widget? buildingLabels;
+
+  @override
+  State<CampusMapCampusLayer> createState() => _CampusMapCampusLayerState();
+}
+
+class _CampusMapCampusLayerState extends State<CampusMapCampusLayer>
+    with SingleTickerProviderStateMixin {
+  late final _highlight =
+      AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 1400),
+      )..addStatusListener((status) {
+        if (status == .completed) setState(() {});
+      });
+  late final _opacity = TweenSequence<double>([
+    TweenSequenceItem(
+      tween: Tween(
+        begin: 0.0,
+        end: 1.0,
+      ).chain(CurveTween(curve: Curves.easeInOut)),
+      weight: 200,
+    ),
+    TweenSequenceItem(tween: ConstantTween(1.0), weight: 1000),
+    TweenSequenceItem(
+      tween: Tween(
+        begin: 1.0,
+        end: 0.0,
+      ).chain(CurveTween(curve: Curves.easeInOut)),
+      weight: 200,
+    ),
+  ]).animate(_highlight);
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.focusedCampusCode != null) _highlight.forward();
+  }
+
+  @override
+  void didUpdateWidget(covariant CampusMapCampusLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.focusedCampusCode != oldWidget.focusedCampusCode) {
+      if (widget.focusedCampusCode == null) {
+        _highlight.stop();
+      } else {
+        _highlight.forward(from: 0);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _highlight.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (MapCamera.of(context).zoom < campusMapBuildingLabelMinZoom) {
+      return _CampusAreas(campuses: widget.campuses);
+    }
+    if (!_highlight.isAnimating) {
+      return widget.buildingLabels ?? const SizedBox.shrink();
+    }
+    return FadeTransition(
+      opacity: _opacity,
+      child: _CampusAreas(
+        campuses: [
+          for (final campus in widget.campuses)
+            if (campus.code == widget.focusedCampusCode) campus,
+        ],
+      ),
+    );
+  }
+}
+
+class _CampusAreas extends StatelessWidget {
+  const _CampusAreas({required this.campuses});
 
   final List<CampusMapCampus> campuses;
 
   @override
   Widget build(BuildContext context) {
-    if (MapCamera.of(context).zoom >= campusMapBuildingLabelMinZoom) {
-      return const SizedBox.shrink();
-    }
     final colors = Theme.of(context).colorScheme;
     return Stack(
       fit: .expand,
