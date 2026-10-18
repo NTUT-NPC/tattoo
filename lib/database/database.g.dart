@@ -28451,7 +28451,9 @@ class $$CampusMapBuildingsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$CampusMapBuildingsTable, MapBuildingRecord>(
+                    table,
+                  ),
                   $$CampusMapBuildingsTableReferences(db, table, e),
                 ),
               )
@@ -28819,7 +28821,7 @@ class $$CampusMapFloorsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$CampusMapFloorsTable, MapFloorRecord>(table),
                   $$CampusMapFloorsTableReferences(db, table, e),
                 ),
               )
@@ -29186,7 +29188,7 @@ class $$CampusMapRoomsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$CampusMapRoomsTable, MapRoomRecord>(table),
                   $$CampusMapRoomsTableReferences(db, table, e),
                 ),
               )
@@ -29392,7 +29394,16 @@ class $$CampusMapSyncsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$CampusMapSyncsTable, MapSyncRecord>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $CampusMapSyncsTable,
+                    MapSyncRecord
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
