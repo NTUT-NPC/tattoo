@@ -36,8 +36,11 @@ class CampusMapScreen extends ConsumerStatefulWidget {
   ConsumerState<CampusMapScreen> createState() => _CampusMapScreenState();
 }
 
-class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
+class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
+    with SingleTickerProviderStateMixin {
   final _controller = MapController();
+  late final AnimationController _cameraAnimation;
+  ({MapCamera start, MapCamera target})? _cameraMove;
   String _query = '';
   String? _buildingCode;
   String? _campusCode;
@@ -54,6 +57,10 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
   @override
   void initState() {
     super.initState();
+    _cameraAnimation = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    )..addListener(_tickCamera);
     if (widget.initialQuery case final query? when query.trim().isNotEmpty) {
       _query = query;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -66,6 +73,7 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
   void dispose() {
     _operation++;
     _autoSelectTimer?.cancel();
+    _cameraAnimation.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -81,13 +89,48 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
           LatLng(point.latitude, point.longitude),
     ];
     if (points.isEmpty) return;
-    _controller.fitCamera(
+    _animateCamera(
       CameraFit.bounds(
         bounds: LatLngBounds.fromPoints(points),
         padding: const .all(48),
         maxZoom: 21,
-      ),
+      ).fit(_controller.camera),
     );
+  }
+
+  /// Eases programmatic focus changes in projected map coordinates.
+  ///
+  /// A new target starts from the current camera. User gestures cancel the
+  /// transition, and the system's reduced-motion preference skips it entirely.
+  void _animateCamera(MapCamera target) {
+    _cameraAnimation.stop();
+    _autoSelectTimer?.cancel();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.move(target.center, target.zoom);
+      return;
+    }
+    _cameraMove = (start: _controller.camera, target: target);
+    _cameraAnimation.forward(from: 0);
+  }
+
+  void _tickCamera() {
+    if (_cameraMove case final move?) {
+      final progress = Curves.easeInOutCubic.transform(_cameraAnimation.value);
+      if (progress == 0) return;
+      if (progress == 1) {
+        _controller.move(move.target.center, move.target.zoom);
+        return;
+      }
+      final center = Offset.lerp(
+        move.start.projectAtZoom(move.start.center),
+        move.start.projectAtZoom(move.target.center),
+        progress,
+      )!;
+      _controller.move(
+        move.start.unprojectAtZoom(center),
+        move.start.zoom + (move.target.zoom - move.start.zoom) * progress,
+      );
+    }
   }
 
   void _selectCampus(CampusMapCampus campus) {
@@ -110,6 +153,7 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
   }
 
   void _onUserCameraChanged(MapCamera camera) {
+    _cameraAnimation.stop();
     _autoSelectTimer?.cancel();
     // Programmatic search/focus changes are excluded by the viewport callback.
     // A zoomed-in camera center identifies the building under the user's view.
@@ -163,6 +207,7 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
   }
 
   void _selectRoom(CampusMapRoom room) {
+    _cameraAnimation.stop();
     _autoSelectTimer?.cancel();
     _operation++;
     setState(() {
@@ -172,6 +217,7 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
   }
 
   void _clearSelection() {
+    _cameraAnimation.stop();
     _autoSelectTimer?.cancel();
     _pendingFocus = null;
     _operation++;
@@ -185,7 +231,12 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen> {
 
   void _overview() {
     _clearSelection();
-    _controller.move(const LatLng(25.0436, 121.5350), 17.5);
+    _animateCamera(
+      _controller.camera.withPosition(
+        center: const LatLng(25.0436, 121.5350),
+        zoom: 17.5,
+      ),
+    );
   }
 
   Future<void> _search(String query) async {
