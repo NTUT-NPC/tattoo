@@ -32,7 +32,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - `lib/models/` - Shared domain enums and types
 - `lib/repositories/` - Repository class + constructor provider (DI wiring)
 - `lib/router/` - go_router config (`app_router.dart`)
-- `lib/screens/` - Screen widgets organized by feature: `welcome/` (intro, login) and `main/` (home, course_table, score, calendar, portal, scanner, kiosk_login, profile). 4-tab `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation. Each tab owns its own `Scaffold`.
+- `lib/screens/` - Screen widgets organized by feature: `welcome/` (intro, login) and `main/` (home, course_table, score, calendar, portal, map, scanner, kiosk_login, profile). 4-tab `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation. Each tab owns its own `Scaffold`.
 - `lib/services/` - Clients that talk to external systems (NTUT HTTP services, Firebase, etc.) and `demo_mode.dart`
 - `lib/shells/` - Layout shells (AnimatedShellContainer for tab transitions, ShowcaseShell for onboarding, CenteredMaxWidthFrame and AdaptiveNavigationScaffold for the 580 logical-pixel adaptive breakpoint)
 - `lib/utils/` - HTTP utilities (cookie jar, interceptors, native adapter), localization, avatar payload, the `PrefType` SharedPreferences value-type enum, link URL override parsing
@@ -65,6 +65,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - ISchoolPlusService — 北科i學園PLUS (`ischool_plus_oauth`). Course rosters and materials.
 - StudentQueryService — 學生查詢專區 (`sa_003_oauth`). Academic records, GPA, rankings, registration history.
 - GitHubService — fetches repo contributors, filters bots
+- CampusMapService — Public GeoServer WFS for building outlines, indoor geometry, and room search metadata. Uses a local demo implementation and a host-scoped certificate exception for NTUT's GeoServer.
 - FirebaseService — Unified wrapper for Firebase Analytics, Crashlytics, and Remote Config. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`). `getRemoteConfigTyped(key, PrefType)` casts a Remote Config value to the caller's declared type (no sniffing), returning `(value: null, isRemote: false)` when disabled or not remotely set.
 - Campus Wi-Fi — `CampusWifiRepository` exposes one interface backed by OS-selected Android/iOS provisioners. Capabilities describe supported actions, not platform identity; native calls use `CampusWifiPlatform`.
 - CourseWidgetPlatform — Android-only method-channel bridge that atomically persists the latest course-table PNG and routes launcher-widget taps into the authenticated course-table screen. `CourseWidgetSyncController` observes cache transactions, serializes rendering, deduplicates output by fingerprint, and clears native widget state before logout or destructive local-data operations. The exported bitmap reuses `courseTableGridRange` and `CourseTableGridMetrics` so the widget and the in-app grid agree on visible periods and noon row height while keeping their own base row height.
@@ -84,6 +85,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - CalendarRepository — Academic calendar events from NTUT portal. Sliding window caching keyed to enrolled semesters.
 - StudentRepository — Academic records, GPA, rankings. Parallel course code resolution via CourseRepository.getCourse().
 - CampusWifiRepository — Serializes NTUT-802.1X setup/removal through local state updates and coordinates automatic refresh; platform policy stays in the selected provisioner.
+- CampusMapRepository — App-scoped public map cache backed by Drift, with on-demand floor downloads and a metadata-only search index. Building outlines are bundled by `tool/generate_campus_map_outlines.py`; display names use code-keyed Slang translations.
+- Campus boundaries are bundled from GeoServer with `tool/generate_campus_map_campuses.py`; translated names use `campusMap.campusNames` keyed by campus ID.
 - **Method pattern:** `watchX()` returns a `Stream` backed by Drift `.watch()` — emits cached data immediately, then background-fetches if empty or stale (each method has its own hard-coded TTL `const`). Network errors are absorbed (stale data preferred over errors). `refreshX()` is the imperative counterpart for pull-to-refresh — fetches from network, writes to DB, and lets the stream re-emit.
 
 **Version notifications:** The navigation HomeScreen coordinates update and What's New prompts, with updates taking priority. Maintain only the current release's localized feature list in `whats_new_screen.dart`; optional `TargetPlatform` sets restrict feature visibility.
@@ -115,13 +118,15 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 | Layer | Test type | Mock strategy | Runs in CI |
 | --- | --- | --- | --- |
 | NTUT services | Integration (real server) | None — tests hit real NTUT | Only with credentials |
+| Campus map service | Parser/protocol unit tests + public integration | Synthetic GeoJSON/XML and injected HTTP adapter | Unit tests always; integration opt-in |
 | Repositories | Unit | Mock NTUT service interfaces (return canned DTOs) | Always |
 | Utils | Unit | None needed (pure functions) | Always |
 | Database views | Unit (in-memory SQLite) | None needed (Drift test utilities) | Always |
-| Widgets | Widget tests | Low priority | Always |
+| Screen layer | Temporary checks in `temp/` by default | As needed | No |
 
 - **NTUT services** (Portal, Course, ISchoolPlus, StudentQuery) have `abstract interface class` — mock implementations return canned DTOs for repository unit tests and demo mode
 - **Non-NTUT services** (GitHubService, FirebaseService) do not need mock implementations — they have stable API contracts
+- **Campus map integration:** `flutter test --dart-define=TEST_CAMPUS_MAP=true test/services/map/campus_map_service_integration_test.dart` hits the live public GeoServer without portal credentials. It is skipped by default.
 - **No fixtures for live service tests:** Service-layer integration tests stay integration-only against real NTUT servers — inline HTML fixtures would go stale silently, so integration tests are the source of truth for live parsing correctness. Exception: de-identified snapshots promoted from `tmp/html_snapshot/` into `test/fixtures/` (see **HTML snapshot capture** above) back separate HTML-based parser tests, not the live integration tests.
 
 ## NTUT-Specific Patterns
