@@ -100,4 +100,47 @@ void main() {
       'Notes',
     );
   });
+  test('infers file types when dots belong to the material title', () {
+    expect(
+      materialFileName(
+        disposition: 'attachment; filename=123456',
+        title: 'Lecture 1. Introduction',
+        contentType: 'application/pdf',
+      ),
+      'Lecture 1. Introduction.pdf',
+    );
+    expect(
+      materialFileName(
+        disposition: 'attachment; filename="Lecture 1. Introduction"',
+        contentType: 'application/pdf',
+      ),
+      'Lecture 1. Introduction.pdf',
+    );
+    expect(
+      materialFileName(
+        title: 'Lecture 1. Introduction',
+        contentType: 'application/octet-stream',
+        leadingBytes: [0x25, 0x50, 0x44, 0x46, 0x2d],
+      ),
+      'Lecture 1. Introduction.pdf',
+    );
+    expect(
+      materialFileName(title: 'Lecture 1. Introduction'),
+      'Lecture 1. Introduction',
+    );
+  });
+  test('preserves plausible extensions including uncommon file types', () {
+    expect(
+      materialFileName(title: 'Example.ipynb', contentType: 'text/plain'),
+      'Example.ipynb',
+    );
+    expect(
+      materialFileName(title: 'Archive.7z', contentType: 'application/zip'),
+      'Archive.7z',
+    );
+    expect(
+      materialFileName(title: 'Lecture.PDF', contentType: 'application/pdf'),
+      'Lecture.PDF',
+    );
+  });
 }

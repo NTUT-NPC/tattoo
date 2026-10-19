@@ -42,11 +42,14 @@ String materialFileName({
           .replaceAll(RegExp(r'[. ]+$'), '')
           .trim();
   if (name.isEmpty || name == '.') name = 'material';
+  // Dots in prose titles are not necessarily filename extensions.
+  final extensionPattern = RegExp(r'^\.[a-zA-Z0-9]{1,10}$');
   final serverExtension = p.extension(serverName ?? '');
-  final extension = serverExtension.isNotEmpty
+  final titleExtension = p.extension(name);
+  final extension = extensionPattern.hasMatch(serverExtension)
       ? serverExtension
-      : p.extension(name).isNotEmpty
-      ? p.extension(name)
+      : extensionPattern.hasMatch(titleExtension)
+      ? titleExtension
       : switch (contentType?.split(';').first.trim().toLowerCase()) {
           'application/pdf' => '.pdf',
           'application/zip' || 'application/x-zip-compressed' => '.zip',
