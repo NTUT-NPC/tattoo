@@ -464,7 +464,7 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
                 _animateCamera(_controller.camera.withRotation(0));
               }
             },
-            icon: const Icon(Icons.north),
+            icon: const Icon(Icons.explore_outlined),
           ),
           IconButton(
             tooltip: t.campusMap.refresh,
