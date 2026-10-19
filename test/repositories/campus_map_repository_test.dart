@@ -227,6 +227,43 @@ void main() {
       },
     );
 
+    for (final bundled in [false, true]) {
+      test(
+        'search skips hidden buildings but retains upper-floor matches (bundled: $bundled)',
+        () async {
+          service.buildings = [
+            _outline('A1T', 'Alpha Hall'),
+            _outline('AD', 'Administration'),
+          ];
+          service.layers = [
+            (name: _layerA2, buildingCode: 'A1T', floor: '2F'),
+            (name: 'gis_room:AD_1F', buildingCode: 'AD', floor: '1F'),
+            (name: 'gis_room:AD_2F', buildingCode: 'AD', floor: '2F'),
+          ];
+          service.index = [
+            _room(_layerA2, '201', withGeometry: false),
+            _room('gis_room:AD_2F', '201A', withGeometry: false),
+          ];
+          repository = _repository(
+            service,
+            database,
+            () => clock,
+            bundled: bundled,
+          );
+
+          expect(
+            (await repository.watchBuildings().first).map(
+              (building) => building.code,
+            ),
+            ['AD'],
+          );
+          final results = await repository.searchRooms('201');
+          expect(results.map((room) => room.id), ['AD_2F.201A']);
+          expect(service.roomCalls, isEmpty);
+        },
+      );
+    }
+
     test('caches a successful empty floor as fetched', () async {
       await repository.refreshBuildings();
       await repository.refreshFloor(_layerA);

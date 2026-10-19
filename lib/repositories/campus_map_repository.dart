@@ -357,6 +357,8 @@ class CampusMapRepository {
   /// navigation. Exact matches take precedence over substring matches.
   /// [buildingNames] optionally maps building codes to additional display-name
   /// aliases. Original server names remain searchable and are returned intact.
+  /// Only overview buildings with an advertised first floor are searchable;
+  /// their rooms on other floors remain eligible.
   Future<List<CampusMapRoom>> searchRooms(
     String query, {
     Map<String, String> buildingNames = const {},
@@ -376,6 +378,9 @@ class CampusMapRepository {
     final table = _db.campusMapRooms;
     final floors = _db.campusMapFloors;
     final buildings = _db.campusMapBuildings;
+    final browsableBuildings = _db.selectOnly(floors)
+      ..addColumns([floors.building])
+      ..where(floors.code.equals('1F'));
     final searchQuery = _db.selectOnly(table)
       ..addColumns([
         table.id,
@@ -390,7 +395,8 @@ class CampusMapRepository {
       ..join([
         innerJoin(floors, floors.layerName.equalsExp(table.layerName)),
         innerJoin(buildings, buildings.code.equalsExp(floors.building)),
-      ]);
+      ])
+      ..where(floors.building.isInQuery(browsableBuildings));
     if (_firstFloorOutlines case final outlines?) {
       searchQuery.where(floors.building.isIn(outlines.keys));
     }
