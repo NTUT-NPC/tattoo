@@ -1,4 +1,5 @@
 import 'package:dart_polylabel2/dart_polylabel2.dart' as polylabel;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:material_ui/material_ui.dart';
@@ -44,7 +45,7 @@ class _CampusMapAreaLabelsState extends State<CampusMapAreaLabels> {
   @override
   void didUpdateWidget(covariant CampusMapAreaLabels oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.areas != widget.areas ||
+    if (!listEquals(oldWidget.areas, widget.areas) ||
         oldWidget.emphasized != widget.emphasized) {
       _clear();
       _colors = null;
