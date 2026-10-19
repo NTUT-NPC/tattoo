@@ -703,57 +703,60 @@ void main() {
       (Ntut8021xStoredProvisioningMode.direct, false),
       (Ntut8021xStoredProvisioningMode.direct, true),
     ]) {
-      test('removal waits for earlier manual $mode provisioning (save: $saveToSystem)', () async {
-        final authRepository = _FakeAuthRepository(
-          localUser: _testUser,
-          credentials: (username: '111360109', password: 'portal-password'),
-        );
-        addTearDown(authRepository.close);
-        final prefs = SharedPreferencesAsync();
-        final stateStore = Ntut8021xStateStore(prefs);
-        final platform = _BlockingCampusWifiPlatform(isIos: mode == .direct);
-        final repository = _buildRepository(
-          authRepository: authRepository,
-          platform: platform,
-          stateStore: stateStore,
-          provisioner: mode == .direct
-              ? IosCampusWifiProvisioner(
-                  platform: platform,
-                  stateStore: stateStore,
-                )
-              : AndroidCampusWifiProvisioner(
-                  platform: platform,
-                  stateStore: stateStore,
-                ),
-        );
-        final provisioning = saveToSystem
-            ? repository.saveNtut8021xToSystem()
-            : repository.provisionNtut8021x();
-        await platform.started.future;
-        final removal = repository.removeNtut8021x();
-        await Future<void>.delayed(Duration.zero);
-        platform.canFinish.complete();
-        await provisioning;
-        final removalStatus = await removal;
+      test(
+        'removal waits for earlier manual $mode provisioning (save: $saveToSystem)',
+        () async {
+          final authRepository = _FakeAuthRepository(
+            localUser: _testUser,
+            credentials: (username: '111360109', password: 'portal-password'),
+          );
+          addTearDown(authRepository.close);
+          final prefs = SharedPreferencesAsync();
+          final stateStore = Ntut8021xStateStore(prefs);
+          final platform = _BlockingCampusWifiPlatform(isIos: mode == .direct);
+          final repository = _buildRepository(
+            authRepository: authRepository,
+            platform: platform,
+            stateStore: stateStore,
+            provisioner: mode == .direct
+                ? IosCampusWifiProvisioner(
+                    platform: platform,
+                    stateStore: stateStore,
+                  )
+                : AndroidCampusWifiProvisioner(
+                    platform: platform,
+                    stateStore: stateStore,
+                  ),
+          );
+          final provisioning = saveToSystem
+              ? repository.saveNtut8021xToSystem()
+              : repository.provisionNtut8021x();
+          await platform.started.future;
+          final removal = repository.removeNtut8021x();
+          await Future<void>.delayed(Duration.zero);
+          platform.canFinish.complete();
+          await provisioning;
+          final removalStatus = await removal;
 
-        expect(
-          await prefs.getBool(ntut8021xAutoReprovisionPreferenceKey),
-          isFalse,
-        );
-        final state = await stateStore.read();
-        expect(
-          state.lastProvisioningMode,
-          Ntut8021xStoredProvisioningMode.none,
-        );
-        expect(state.pendingCompatPromptReason, isNull);
-        expect(state.pendingImmediatePrompt, isFalse);
-        expect(platform.removedDuringProvisioning, isFalse);
-        expect(removalStatus, switch (mode) {
-          .compat => Ntut8021xRemovalStatus.manualRemovalRequired,
-          .direct => Ntut8021xRemovalStatus.removalRequested,
-          _ => Ntut8021xRemovalStatus.removed,
-        });
-      });
+          expect(
+            await prefs.getBool(ntut8021xAutoReprovisionPreferenceKey),
+            isFalse,
+          );
+          final state = await stateStore.read();
+          expect(
+            state.lastProvisioningMode,
+            Ntut8021xStoredProvisioningMode.none,
+          );
+          expect(state.pendingCompatPromptReason, isNull);
+          expect(state.pendingImmediatePrompt, isFalse);
+          expect(platform.removedDuringProvisioning, isFalse);
+          expect(removalStatus, switch (mode) {
+            .compat => Ntut8021xRemovalStatus.manualRemovalRequired,
+            .direct => Ntut8021xRemovalStatus.removalRequested,
+            _ => Ntut8021xRemovalStatus.removed,
+          });
+        },
+      );
     }
 
     for (final blockEnable in [false, true]) {
@@ -802,7 +805,10 @@ void main() {
             isFalse,
           );
           final state = await stateStore.read();
-          expect(state.lastProvisioningMode, Ntut8021xStoredProvisioningMode.none);
+          expect(
+            state.lastProvisioningMode,
+            Ntut8021xStoredProvisioningMode.none,
+          );
           expect(state.pendingCompatPromptReason, isNull);
           expect(state.pendingImmediatePrompt, isFalse);
         },

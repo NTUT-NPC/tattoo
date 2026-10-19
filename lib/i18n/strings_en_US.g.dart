@@ -373,23 +373,22 @@ class _Translations$ntutWifi$en_US extends Translations$ntutWifi$zh_TW {
 	// Translations
 	@override String get title => 'NTUT-802.1X';
 	@override String get entryDescription => 'Automatically add NTUT-802.1X with your saved portal credentials';
-	@override String get intro => 'Use your saved NTUT portal credentials to add NTUT-802.1X so Android can auto-connect later.';
+	@override String get intro => 'Add NTUT-802.1X with your saved portal credentials.';
 	@override String get accountHint => 'Use your student or staff ID directly. Do not append @ntut.edu.tw.';
 	@override String androidVersion({required Object sdkInt}) => 'Android API ${sdkInt}';
-	@override String get unsupportedPlatform => 'This feature is available on Android and iOS devices.';
-	@override String get notLoggedIn => 'Sign in to your NTUT portal account first so the assistant can fill in the NTUT-802.1X identity and password.';
-	@override String get credentialsMissing => 'The saved portal password is missing. Sign in to TAT again if you need to copy the password.';
-	@override String get olderAndroidWarning => 'This assistant follows the Android 12+ UI. Field labels may look different on older versions.';
+	@override String get unsupportedPlatform => 'Automatic Wi-Fi setup is unavailable on this device.';
+	@override String get notLoggedIn => 'Sign in to use your portal credentials.';
+	@override String get credentialsMissing => 'Sign in again to save your portal password.';
+	@override String get olderAndroidWarning => 'Field names may differ on Android 10 and 11.';
 	@override String get copyFailed => 'Copy failed';
 	@override String get openSettingsFailed => 'Unable to open Wi-Fi settings';
 	@override String get openPanelFailed => 'Unable to open the Wi-Fi quick panel';
-	@override String get systemCertificatesHint => 'Automatic provisioning always uses "Use system certificates" with domain ntut.edu.tw and PEAP/GTC. If Android refuses to accept that Enterprise profile safely from the app, use the manual fallback below.';
-	@override String get automaticProvisionUnavailable => 'This device cannot let TAT add NTUT-802.1X automatically right now. Use the manual fallback below instead.';
-	@override String get compatModeSavedHint => 'This network was saved through compat mode. If your portal password changes later, update the system Wi-Fi profile again.';
-	@override String get compatUpdateRequired => 'The NTUT-802.1X profile previously saved through compat mode is out of date. Update the system Wi-Fi profile again.';
-	@override String get suggestionFallbackRequired => 'Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.';
-	@override String get android10PermissionRejected => 'Android 10 has rejected this app\'s Wi-Fi suggestion permission. Follow the manual instructions below instead.';
-	@override String get legacyManualOnly => 'Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.';
+	@override String get systemCertificatesHint => 'Uses system certificates, domain ntut.edu.tw, and PEAP/GTC.';
+	@override String get automaticProvisionUnavailable => 'Use the manual settings below.';
+	@override String get compatModeSavedHint => 'Saved to system Wi-Fi. Update it here if your password changes.';
+	@override String get compatUpdateRequired => 'Your password changed. Update the saved Wi-Fi configuration.';
+	@override String get suggestionFallbackRequired => 'Automatic update failed. Use compatibility mode.';
+	@override String get legacyManualOnly => 'Android 9 and earlier require manual setup.';
 	@override late final _Translations$ntutWifi$removal$en_US removal = _Translations$ntutWifi$removal$en_US._(_root);
 	@override late final _Translations$ntutWifi$ios$en_US ios = _Translations$ntutWifi$ios$en_US._(_root);
 	@override late final _Translations$ntutWifi$sections$en_US sections = _Translations$ntutWifi$sections$en_US._(_root);
@@ -850,14 +849,15 @@ class _Translations$ntutWifi$removal$en_US extends Translations$ntutWifi$removal
 	// Translations
 	@override String get button => 'Remove NTUT-802.1X configuration';
 	@override String get title => 'Remove NTUT-802.1X?';
-	@override String get confirmation => 'This removes only configurations or network suggestions owned by TAT. You may be disconnected, and automatic credential refresh will be disabled. Android networks saved through compatibility mode or manually cannot be removed by TAT, regardless of the last recorded setup mode; open Settings > Wi-Fi, select NTUT-802.1X and choose Forget. On iOS, configurations added by another app or manually must also be removed in Settings.';
+	@override late final _Translations$ntutWifi$removal$confirmation$en_US confirmation = _Translations$ntutWifi$removal$confirmation$en_US._(_root);
 	@override String get confirm => 'Remove configuration';
 	@override String get removing => 'Removing configuration…';
-	@override String get removed => 'TAT\'s NTUT-802.1X network suggestions were removed and automatic credential refresh is disabled. Saved compatibility-mode or manual networks may still exist. Open Wi-Fi settings, select NTUT-802.1X and choose Forget to remove those networks.';
-	@override String get requested => 'Removal of TAT\'s NTUT-802.1X configuration was requested and automatic credential refresh is disabled. iOS does not confirm completion. Open Settings > Wi-Fi to verify; use the network\'s info button and Forget This Network for any configuration not owned by TAT.';
-	@override String get manualRequired => 'TAT\'s network suggestions were removed and automatic credential refresh is disabled, but the saved Android network must be removed manually. Open Wi-Fi settings, select NTUT-802.1X and choose Forget.';
-	@override String get unsupported => 'This device does not support removing NTUT-802.1X configurations through TAT. Open Settings > Wi-Fi and forget the network manually.';
-	@override String get failed => 'Unable to remove the NTUT-802.1X configuration. Try again or open Settings > Wi-Fi and forget the network manually.';
+	@override String get removed => 'TAT\'s suggestions were removed and automatic updates are off. Forget manually saved networks in Wi-Fi settings.';
+	@override String get requested => 'Removal requested and automatic updates are off. Check Settings > Wi-Fi to confirm.';
+	@override String get manualRequired => 'Automatic updates are off. Forget the saved network in Wi-Fi settings.';
+	@override String get unsupported => 'Forget the network manually in Wi-Fi settings.';
+	@override String get failed => 'Removal failed. Try again or forget the network in Wi-Fi settings.';
+	@override late final _Translations$ntutWifi$removal$snackbar$en_US snackbar = _Translations$ntutWifi$removal$snackbar$en_US._(_root);
 }
 
 // Path: ntutWifi.ios
@@ -867,16 +867,16 @@ class _Translations$ntutWifi$ios$en_US extends Translations$ntutWifi$ios$zh_TW {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get intro => 'Use your saved NTUT portal credentials to join NTUT-802.1X. Turn on Wi-Fi and approve the iOS system prompt.';
+	@override String get intro => 'Join NTUT-802.1X with your saved portal credentials and approve the system prompt.';
 	@override String get connect => 'Connect to NTUT-802.1X';
-	@override String get certificatesHint => 'Uses PEAP and system-trusted certificates for ntut.edu.tw. The campus server negotiates inner authentication; iOS controls approval and connection.';
-	@override String get deviceRequired => 'Automatic Wi-Fi configuration requires a physical iPhone or iPad; it is not available in the simulator.';
-	@override String get configured => 'iOS accepted the NTUT-802.1X configuration. This does not confirm a connection; check Settings > Wi-Fi while on campus.';
-	@override String get cancelled => 'The Wi-Fi request was cancelled. You can try again from this page.';
-	@override String get alreadyAssociated => 'iOS reports that you are already connected to NTUT-802.1X. This does not confirm that a changed password was saved; check the network in Settings > Wi-Fi.';
-	@override String get updateRequired => 'Your portal credentials changed. Connect again to update the saved NTUT-802.1X configuration.';
-	@override String get openSettings => '1. Open the Settings app, then Wi-Fi. iOS does not let TAT open this page directly.';
-	@override String get enterCredentials => '3. Enter the identity and password shown above. Only trust the campus authentication server\'s certificate.';
+	@override String get certificatesHint => 'Uses PEAP and system-trusted certificates for ntut.edu.tw.';
+	@override String get deviceRequired => 'Automatic setup requires a physical iPhone or iPad.';
+	@override String get configured => 'Configuration saved. Check Settings > Wi-Fi for connection status.';
+	@override String get cancelled => 'Request cancelled.';
+	@override String get alreadyAssociated => 'Already connected. Check the saved credentials in Settings > Wi-Fi.';
+	@override String get updateRequired => 'Your credentials changed. Connect again to update them.';
+	@override String get openSettings => '1. Open Settings > Wi-Fi.';
+	@override String get enterCredentials => '3. Enter your credentials. Only trust the campus server\'s certificate.';
 }
 
 // Path: ntutWifi.sections
@@ -904,6 +904,7 @@ class _Translations$ntutWifi$actions$en_US extends Translations$ntutWifi$actions
 	@override String get updateCompatProvision => 'Update with Compat Mode';
 	@override String get openWifiSettings => 'Open Wi-Fi Settings';
 	@override String get openWifiPanel => 'Open Wi-Fi Panel';
+	@override String get openWifiPermissionSettings => 'Wi-Fi Control Permission';
 }
 
 // Path: ntutWifi.fields
@@ -953,18 +954,17 @@ class _Translations$ntutWifi$provisioning$en_US extends Translations$ntutWifi$pr
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get success => 'NTUT-802.1X has been added to Android. As long as Wi-Fi is on and the campus network is in range, the system will try to connect automatically.';
-	@override String get successPendingWifi => 'NTUT-802.1X has been added to Android, but Wi-Fi is currently off. Turn Wi-Fi on and Android will try to connect automatically.';
-	@override String get approvalPending => 'Android is not allowing TAT to submit Wi-Fi suggestions right now. Use the system settings entry below, then try again.';
-	@override String get approvalRejected => 'Android has rejected TAT\'s Wi-Fi suggestion. Allow it in system settings and try again, or use the manual fallback below.';
-	@override String get validationUnavailable => 'This device cannot safely accept the "system certificates + domain" Enterprise profile from TAT. Use the manual fallback below instead.';
-	@override String get unsupportedPlatform => 'This device does not support automatic NTUT-802.1X provisioning right now.';
-	@override String get failed => 'Automatic NTUT-802.1X provisioning failed. Use the manual fallback below instead.';
-	@override String get compatSuccess => 'NTUT-802.1X was written into system Wi-Fi through compat mode.';
-	@override String get compatFallbackSuccess => 'The suggestion API was rejected, so compat mode wrote NTUT-802.1X into system Wi-Fi instead.';
-	@override String get compatAlreadyExists => 'Android reported that an NTUT-802.1X profile already exists. The saved password may still be outdated, so check the system Wi-Fi entry or remove it and retry compat mode.';
-	@override String get compatCancelled => 'Compat mode was cancelled. You can retry from this page later.';
-	@override String get compatFailed => 'Compat mode failed to update system Wi-Fi. Use the manual instructions below instead.';
+	@override String get success => 'NTUT-802.1X added.';
+	@override String get successPendingWifi => 'Network added. Turn on Wi-Fi to connect.';
+	@override String get approvalPending => 'Awaiting Wi-Fi suggestion approval.';
+	@override String get approvalRejected => 'Allow TAT in Wi-Fi control settings.';
+	@override String get validationUnavailable => 'Use manual setup on this device.';
+	@override String get unsupportedPlatform => 'Automatic setup is unavailable.';
+	@override String get failed => 'Setup failed. Try manual setup.';
+	@override String get compatSuccess => 'Wi-Fi configuration saved.';
+	@override String get compatAlreadyExists => 'Network already saved. Check its password in Wi-Fi settings.';
+	@override String get compatCancelled => 'Update cancelled.';
+	@override String get compatFailed => 'Update failed. Try manual setup.';
 }
 
 // Path: ntutWifi.compatPrompt
@@ -1095,6 +1095,32 @@ class _Translations$profile$dangerZone$items$en_US extends Translations$profile$
 	@override String get preferences => 'Preferences';
 	@override String get credentials => 'Credentials';
 	@override String get userData => 'User data';
+}
+
+// Path: ntutWifi.removal.confirmation
+class _Translations$ntutWifi$removal$confirmation$en_US extends Translations$ntutWifi$removal$confirmation$zh_TW {
+	_Translations$ntutWifi$removal$confirmation$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get android10 => 'Remove TAT\'s network suggestions and stop automatic updates? This may disconnect Wi-Fi. Manually saved networks must be forgotten in Wi-Fi settings.';
+	@override String get android => 'Remove TAT\'s network suggestions and stop automatic updates? This may disconnect Wi-Fi. Compatibility-mode or manually saved networks must be forgotten in Wi-Fi settings.';
+	@override String get ios => 'Request removal of TAT\'s configuration and stop automatic updates? This may disconnect Wi-Fi. Configurations added elsewhere remain unchanged.';
+}
+
+// Path: ntutWifi.removal.snackbar
+class _Translations$ntutWifi$removal$snackbar$en_US extends Translations$ntutWifi$removal$snackbar$zh_TW {
+	_Translations$ntutWifi$removal$snackbar$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get removed => 'Network suggestions removed';
+	@override String get requested => 'Removal requested';
+	@override String get manualRequired => 'Forget the saved network in Wi-Fi settings';
+	@override String get unsupported => 'Manual removal required';
+	@override String get failed => 'Removal failed';
 }
 
 // Path: changePassword.errors.server
@@ -1363,43 +1389,49 @@ extension on TranslationsEnUs {
 			'scanner.invalidUrl' => 'Invalid URL',
 			'ntutWifi.title' => 'NTUT-802.1X',
 			'ntutWifi.entryDescription' => 'Automatically add NTUT-802.1X with your saved portal credentials',
-			'ntutWifi.intro' => 'Use your saved NTUT portal credentials to add NTUT-802.1X so Android can auto-connect later.',
+			'ntutWifi.intro' => 'Add NTUT-802.1X with your saved portal credentials.',
 			'ntutWifi.accountHint' => 'Use your student or staff ID directly. Do not append @ntut.edu.tw.',
 			'ntutWifi.androidVersion' => ({required Object sdkInt}) => 'Android API ${sdkInt}',
-			'ntutWifi.unsupportedPlatform' => 'This feature is available on Android and iOS devices.',
-			'ntutWifi.notLoggedIn' => 'Sign in to your NTUT portal account first so the assistant can fill in the NTUT-802.1X identity and password.',
-			'ntutWifi.credentialsMissing' => 'The saved portal password is missing. Sign in to TAT again if you need to copy the password.',
-			'ntutWifi.olderAndroidWarning' => 'This assistant follows the Android 12+ UI. Field labels may look different on older versions.',
+			'ntutWifi.unsupportedPlatform' => 'Automatic Wi-Fi setup is unavailable on this device.',
+			'ntutWifi.notLoggedIn' => 'Sign in to use your portal credentials.',
+			'ntutWifi.credentialsMissing' => 'Sign in again to save your portal password.',
+			'ntutWifi.olderAndroidWarning' => 'Field names may differ on Android 10 and 11.',
 			'ntutWifi.copyFailed' => 'Copy failed',
 			'ntutWifi.openSettingsFailed' => 'Unable to open Wi-Fi settings',
 			'ntutWifi.openPanelFailed' => 'Unable to open the Wi-Fi quick panel',
-			'ntutWifi.systemCertificatesHint' => 'Automatic provisioning always uses "Use system certificates" with domain ntut.edu.tw and PEAP/GTC. If Android refuses to accept that Enterprise profile safely from the app, use the manual fallback below.',
-			'ntutWifi.automaticProvisionUnavailable' => 'This device cannot let TAT add NTUT-802.1X automatically right now. Use the manual fallback below instead.',
-			'ntutWifi.compatModeSavedHint' => 'This network was saved through compat mode. If your portal password changes later, update the system Wi-Fi profile again.',
-			'ntutWifi.compatUpdateRequired' => 'The NTUT-802.1X profile previously saved through compat mode is out of date. Update the system Wi-Fi profile again.',
-			'ntutWifi.suggestionFallbackRequired' => 'Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.',
-			'ntutWifi.android10PermissionRejected' => 'Android 10 has rejected this app\'s Wi-Fi suggestion permission. Follow the manual instructions below instead.',
-			'ntutWifi.legacyManualOnly' => 'Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.',
+			'ntutWifi.systemCertificatesHint' => 'Uses system certificates, domain ntut.edu.tw, and PEAP/GTC.',
+			'ntutWifi.automaticProvisionUnavailable' => 'Use the manual settings below.',
+			'ntutWifi.compatModeSavedHint' => 'Saved to system Wi-Fi. Update it here if your password changes.',
+			'ntutWifi.compatUpdateRequired' => 'Your password changed. Update the saved Wi-Fi configuration.',
+			'ntutWifi.suggestionFallbackRequired' => 'Automatic update failed. Use compatibility mode.',
+			'ntutWifi.legacyManualOnly' => 'Android 9 and earlier require manual setup.',
 			'ntutWifi.removal.button' => 'Remove NTUT-802.1X configuration',
 			'ntutWifi.removal.title' => 'Remove NTUT-802.1X?',
-			'ntutWifi.removal.confirmation' => 'This removes only configurations or network suggestions owned by TAT. You may be disconnected, and automatic credential refresh will be disabled. Android networks saved through compatibility mode or manually cannot be removed by TAT, regardless of the last recorded setup mode; open Settings > Wi-Fi, select NTUT-802.1X and choose Forget. On iOS, configurations added by another app or manually must also be removed in Settings.',
+			'ntutWifi.removal.confirmation.android10' => 'Remove TAT\'s network suggestions and stop automatic updates? This may disconnect Wi-Fi. Manually saved networks must be forgotten in Wi-Fi settings.',
+			'ntutWifi.removal.confirmation.android' => 'Remove TAT\'s network suggestions and stop automatic updates? This may disconnect Wi-Fi. Compatibility-mode or manually saved networks must be forgotten in Wi-Fi settings.',
+			'ntutWifi.removal.confirmation.ios' => 'Request removal of TAT\'s configuration and stop automatic updates? This may disconnect Wi-Fi. Configurations added elsewhere remain unchanged.',
 			'ntutWifi.removal.confirm' => 'Remove configuration',
 			'ntutWifi.removal.removing' => 'Removing configuration…',
-			'ntutWifi.removal.removed' => 'TAT\'s NTUT-802.1X network suggestions were removed and automatic credential refresh is disabled. Saved compatibility-mode or manual networks may still exist. Open Wi-Fi settings, select NTUT-802.1X and choose Forget to remove those networks.',
-			'ntutWifi.removal.requested' => 'Removal of TAT\'s NTUT-802.1X configuration was requested and automatic credential refresh is disabled. iOS does not confirm completion. Open Settings > Wi-Fi to verify; use the network\'s info button and Forget This Network for any configuration not owned by TAT.',
-			'ntutWifi.removal.manualRequired' => 'TAT\'s network suggestions were removed and automatic credential refresh is disabled, but the saved Android network must be removed manually. Open Wi-Fi settings, select NTUT-802.1X and choose Forget.',
-			'ntutWifi.removal.unsupported' => 'This device does not support removing NTUT-802.1X configurations through TAT. Open Settings > Wi-Fi and forget the network manually.',
-			'ntutWifi.removal.failed' => 'Unable to remove the NTUT-802.1X configuration. Try again or open Settings > Wi-Fi and forget the network manually.',
-			'ntutWifi.ios.intro' => 'Use your saved NTUT portal credentials to join NTUT-802.1X. Turn on Wi-Fi and approve the iOS system prompt.',
+			'ntutWifi.removal.removed' => 'TAT\'s suggestions were removed and automatic updates are off. Forget manually saved networks in Wi-Fi settings.',
+			'ntutWifi.removal.requested' => 'Removal requested and automatic updates are off. Check Settings > Wi-Fi to confirm.',
+			'ntutWifi.removal.manualRequired' => 'Automatic updates are off. Forget the saved network in Wi-Fi settings.',
+			'ntutWifi.removal.unsupported' => 'Forget the network manually in Wi-Fi settings.',
+			'ntutWifi.removal.failed' => 'Removal failed. Try again or forget the network in Wi-Fi settings.',
+			'ntutWifi.removal.snackbar.removed' => 'Network suggestions removed',
+			'ntutWifi.removal.snackbar.requested' => 'Removal requested',
+			'ntutWifi.removal.snackbar.manualRequired' => 'Forget the saved network in Wi-Fi settings',
+			'ntutWifi.removal.snackbar.unsupported' => 'Manual removal required',
+			'ntutWifi.removal.snackbar.failed' => 'Removal failed',
+			'ntutWifi.ios.intro' => 'Join NTUT-802.1X with your saved portal credentials and approve the system prompt.',
 			'ntutWifi.ios.connect' => 'Connect to NTUT-802.1X',
-			'ntutWifi.ios.certificatesHint' => 'Uses PEAP and system-trusted certificates for ntut.edu.tw. The campus server negotiates inner authentication; iOS controls approval and connection.',
-			'ntutWifi.ios.deviceRequired' => 'Automatic Wi-Fi configuration requires a physical iPhone or iPad; it is not available in the simulator.',
-			'ntutWifi.ios.configured' => 'iOS accepted the NTUT-802.1X configuration. This does not confirm a connection; check Settings > Wi-Fi while on campus.',
-			'ntutWifi.ios.cancelled' => 'The Wi-Fi request was cancelled. You can try again from this page.',
-			'ntutWifi.ios.alreadyAssociated' => 'iOS reports that you are already connected to NTUT-802.1X. This does not confirm that a changed password was saved; check the network in Settings > Wi-Fi.',
-			'ntutWifi.ios.updateRequired' => 'Your portal credentials changed. Connect again to update the saved NTUT-802.1X configuration.',
-			'ntutWifi.ios.openSettings' => '1. Open the Settings app, then Wi-Fi. iOS does not let TAT open this page directly.',
-			'ntutWifi.ios.enterCredentials' => '3. Enter the identity and password shown above. Only trust the campus authentication server\'s certificate.',
+			'ntutWifi.ios.certificatesHint' => 'Uses PEAP and system-trusted certificates for ntut.edu.tw.',
+			'ntutWifi.ios.deviceRequired' => 'Automatic setup requires a physical iPhone or iPad.',
+			'ntutWifi.ios.configured' => 'Configuration saved. Check Settings > Wi-Fi for connection status.',
+			'ntutWifi.ios.cancelled' => 'Request cancelled.',
+			'ntutWifi.ios.alreadyAssociated' => 'Already connected. Check the saved credentials in Settings > Wi-Fi.',
+			'ntutWifi.ios.updateRequired' => 'Your credentials changed. Connect again to update them.',
+			'ntutWifi.ios.openSettings' => '1. Open Settings > Wi-Fi.',
+			'ntutWifi.ios.enterCredentials' => '3. Enter your credentials. Only trust the campus server\'s certificate.',
 			'ntutWifi.sections.quickActions' => 'Quick Actions',
 			'ntutWifi.sections.recommendedSettings' => 'Recommended Settings',
 			'ntutWifi.sections.fallback' => 'Manual Fallback',
@@ -1409,6 +1441,7 @@ extension on TranslationsEnUs {
 			'ntutWifi.actions.updateCompatProvision' => 'Update with Compat Mode',
 			'ntutWifi.actions.openWifiSettings' => 'Open Wi-Fi Settings',
 			'ntutWifi.actions.openWifiPanel' => 'Open Wi-Fi Panel',
+			'ntutWifi.actions.openWifiPermissionSettings' => 'Wi-Fi Control Permission',
 			'ntutWifi.fields.ssid' => 'Network name',
 			'ntutWifi.fields.eapMethod' => 'EAP method',
 			'ntutWifi.fields.phase2Auth' => 'Phase 2 authentication',
@@ -1422,18 +1455,17 @@ extension on TranslationsEnUs {
 			'ntutWifi.fallbackSteps.openSettings' => '1. Open Wi-Fi settings or the Wi-Fi quick panel.',
 			'ntutWifi.fallbackSteps.selectNetwork' => '2. Choose or add NTUT-802.1X.',
 			'ntutWifi.fallbackSteps.useDisplayedValues' => '3. Fill in the SSID, PEAP, GTC, identity, password, and domain shown below.',
-			'ntutWifi.provisioning.success' => 'NTUT-802.1X has been added to Android. As long as Wi-Fi is on and the campus network is in range, the system will try to connect automatically.',
-			'ntutWifi.provisioning.successPendingWifi' => 'NTUT-802.1X has been added to Android, but Wi-Fi is currently off. Turn Wi-Fi on and Android will try to connect automatically.',
-			'ntutWifi.provisioning.approvalPending' => 'Android is not allowing TAT to submit Wi-Fi suggestions right now. Use the system settings entry below, then try again.',
-			'ntutWifi.provisioning.approvalRejected' => 'Android has rejected TAT\'s Wi-Fi suggestion. Allow it in system settings and try again, or use the manual fallback below.',
-			'ntutWifi.provisioning.validationUnavailable' => 'This device cannot safely accept the "system certificates + domain" Enterprise profile from TAT. Use the manual fallback below instead.',
-			'ntutWifi.provisioning.unsupportedPlatform' => 'This device does not support automatic NTUT-802.1X provisioning right now.',
-			'ntutWifi.provisioning.failed' => 'Automatic NTUT-802.1X provisioning failed. Use the manual fallback below instead.',
-			'ntutWifi.provisioning.compatSuccess' => 'NTUT-802.1X was written into system Wi-Fi through compat mode.',
-			'ntutWifi.provisioning.compatFallbackSuccess' => 'The suggestion API was rejected, so compat mode wrote NTUT-802.1X into system Wi-Fi instead.',
-			'ntutWifi.provisioning.compatAlreadyExists' => 'Android reported that an NTUT-802.1X profile already exists. The saved password may still be outdated, so check the system Wi-Fi entry or remove it and retry compat mode.',
-			'ntutWifi.provisioning.compatCancelled' => 'Compat mode was cancelled. You can retry from this page later.',
-			'ntutWifi.provisioning.compatFailed' => 'Compat mode failed to update system Wi-Fi. Use the manual instructions below instead.',
+			'ntutWifi.provisioning.success' => 'NTUT-802.1X added.',
+			'ntutWifi.provisioning.successPendingWifi' => 'Network added. Turn on Wi-Fi to connect.',
+			'ntutWifi.provisioning.approvalPending' => 'Awaiting Wi-Fi suggestion approval.',
+			'ntutWifi.provisioning.approvalRejected' => 'Allow TAT in Wi-Fi control settings.',
+			'ntutWifi.provisioning.validationUnavailable' => 'Use manual setup on this device.',
+			'ntutWifi.provisioning.unsupportedPlatform' => 'Automatic setup is unavailable.',
+			'ntutWifi.provisioning.failed' => 'Setup failed. Try manual setup.',
+			'ntutWifi.provisioning.compatSuccess' => 'Wi-Fi configuration saved.',
+			'ntutWifi.provisioning.compatAlreadyExists' => 'Network already saved. Check its password in Wi-Fi settings.',
+			'ntutWifi.provisioning.compatCancelled' => 'Update cancelled.',
+			'ntutWifi.provisioning.compatFailed' => 'Update failed. Try manual setup.',
 			'ntutWifi.compatPrompt.title' => 'Update NTUT-802.1X',
 			'ntutWifi.compatPrompt.updateNow' => 'Update now',
 			'ntutWifi.compatPrompt.later' => 'Later',

@@ -34,8 +34,7 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
           capabilities.canProvisionNtut8021xCompat &&
           (capabilities.androidSdkInt ?? 0) >= 30,
       canRemoveNtut8021x:
-          capabilities.isSupported &&
-          (capabilities.androidSdkInt ?? 0) >= 29,
+          capabilities.isSupported && (capabilities.androidSdkInt ?? 0) >= 29,
       suggestionPermissionState:
           switch (capabilities.suggestionPermissionState) {
             'allowed' => CampusWifiSuggestionPermissionState.allowed,
