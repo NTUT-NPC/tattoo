@@ -79,8 +79,8 @@ class _CampusMapViewportState extends State<CampusMapViewport> {
         backgroundColor: colors.surfaceContainer,
         interactionOptions: const InteractionOptions(
           enableMultiFingerGestureRace: true,
-          rotationThreshold: 25,
-          pinchZoomThreshold: 0.1,
+          rotationThreshold: 12,
+          pinchZoomThreshold: 0.15,
         ),
         onMapReady: widget.onReady,
         // Polygon gesture detectors consume building and room taps first.
