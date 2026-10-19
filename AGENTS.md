@@ -97,7 +97,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 ## Database
 
-**Migrations:** Use `dart run drift_dev make-migrations` to record schema history. For each migration, first change the table or view, then increment `AppDatabase.schemaVersion` exactly once, and only afterward run the command to record the updated schema. Commit the generated migration files with the schema change.
+**Migrations:** Use `dart run drift_dev make-migrations` to record schema history. For each migration, first change the table or view, then increment `AppDatabase.schemaVersion` exactly once, and only afterward run the command to record the updated schema. Implement upgrades with generated step-by-step helpers and version-specific schema extensions. Commit the generated migration files with the schema change.
 
 **Cache Timestamps:** For data that doesn't have its own `fetchedAt` column, add a nullable `{feature}FetchedAt` column on the parent row's table (e.g., `Semesters.courseTableFetchedAt` for per-semester course table cache). For user-owned data with no natural parent row (e.g., the semester list itself), use a column on the `Users` table. App-scoped public datasets use a namespace-keyed sync table such as `CampusMapSyncs`.
 
