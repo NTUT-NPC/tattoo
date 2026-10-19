@@ -143,6 +143,7 @@ class _CampusAreas extends StatelessWidget {
               ),
           ],
           scaleForZoom: (_) => 1,
+          fontSize: 12,
         ),
       ],
     );

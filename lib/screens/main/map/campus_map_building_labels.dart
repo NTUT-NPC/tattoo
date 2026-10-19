@@ -23,6 +23,5 @@ class CampusMapBuildingLabels extends StatelessWidget {
         ),
     ],
     scaleForZoom: campusMapBuildingLabelScale,
-    emphasized: true,
   );
 }

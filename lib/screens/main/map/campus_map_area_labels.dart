@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/models/campus_map.dart';
+import 'package:tattoo/screens/main/map/campus_map_zoom.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 /// Shared campus and building capsules, sized independently of their footprints.
@@ -13,18 +14,20 @@ import 'package:tattoo/utils/auto_spacing.dart';
 /// Labels use the main polygon's interior anchor, including holes. Stable catalog
 /// order resolves collisions by moving capsules to the nearest vertical gap.
 /// The caller controls scale and layer order; labels do not intercept map taps.
-/// White text on half-transparent black stays distinct from themed building fills.
+/// Semibold white text with a thin outline and half-transparent black capsules
+/// stays distinct from themed building fills. Wide map views enlarge capsules
+/// without rebuilding their cached text layouts.
 class CampusMapAreaLabels extends StatefulWidget {
   const CampusMapAreaLabels({
     super.key,
     required this.areas,
     required this.scaleForZoom,
-    this.emphasized = false,
+    this.fontSize = 10,
   });
 
   final List<({String name, List<CampusMapPolygon> polygons})> areas;
   final double Function(double zoom) scaleForZoom;
-  final bool emphasized;
+  final double fontSize;
 
   @override
   State<CampusMapAreaLabels> createState() => _CampusMapAreaLabelsState();
@@ -48,7 +51,7 @@ class _CampusMapAreaLabelsState extends State<CampusMapAreaLabels> {
   void didUpdateWidget(covariant CampusMapAreaLabels oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!listEquals(oldWidget.areas, widget.areas) ||
-        oldWidget.emphasized != widget.emphasized) {
+        oldWidget.fontSize != widget.fontSize) {
       _clear();
       _colors = null;
     }
@@ -91,8 +94,8 @@ class _CampusMapAreaLabelsState extends State<CampusMapAreaLabels> {
             style: TextStyle(
               color: foreground == null ? Colors.white : null,
               foreground: foreground,
-              fontSize: 10,
-              fontWeight: widget.emphasized ? .w600 : .w500,
+              fontSize: widget.fontSize,
+              fontWeight: .w600,
             ),
           ),
           textAlign: .center,
@@ -100,15 +103,13 @@ class _CampusMapAreaLabelsState extends State<CampusMapAreaLabels> {
           textScaler: scaler,
           locale: locale,
         )..layout(maxWidth: 160);
-        final outline = widget.emphasized
-            ? layout(
-                Paint()
-                  ..color = Colors.black
-                  ..style = .stroke
-                  ..strokeWidth = 0.5
-                  ..strokeJoin = .round,
-              )
-            : null;
+        final outline = layout(
+          Paint()
+            ..color = Colors.black
+            ..style = .stroke
+            ..strokeWidth = 0.5
+            ..strokeJoin = .round,
+        );
         _labels.add((
           anchor: LatLng(pole.point.y, pole.point.x),
           text: layout(null),
@@ -124,7 +125,8 @@ class _CampusMapAreaLabelsState extends State<CampusMapAreaLabels> {
           camera,
           _labels,
           colors,
-          widget.scaleForZoom(camera.zoom),
+          widget.scaleForZoom(camera.zoom) *
+              campusMapAreaLabelViewportScale(camera.size.width),
         ),
       ),
     );
