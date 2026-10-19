@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:dart_polylabel2/dart_polylabel2.dart' as polylabel;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -234,5 +236,16 @@ Rect placeCampusMapAreaLabel(
       return rect;
     }
   }
-  return candidates.map(at).firstWhere(fits);
+  return candidates
+      .map(at)
+      .firstWhere(
+        fits,
+        orElse: () => at(
+          occupied.fold(
+                preferred.top,
+                (bottom, rect) => math.max(bottom, rect.bottom),
+              ) +
+              7,
+        ),
+      );
 }
