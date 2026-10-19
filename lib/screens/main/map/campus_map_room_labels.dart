@@ -259,17 +259,19 @@ class _CampusMapRoomLabelsState extends State<CampusMapRoomLabels> {
       _locale = locale;
     }
     return IgnorePointer(
-      child: CustomPaint(
-        size: .infinite,
-        painter: _RoomLabelsPainter(
-          camera,
-          widget.rooms,
-          colors,
-          widget.selectedRoomId,
-          scaler,
-          locale,
-          _cache,
-          _bounds,
+      child: MobileLayerTransformer(
+        child: CustomPaint(
+          size: camera.size,
+          painter: _RoomLabelsPainter(
+            camera,
+            widget.rooms,
+            colors,
+            widget.selectedRoomId,
+            scaler,
+            locale,
+            _cache,
+            _bounds,
+          ),
         ),
       ),
     );

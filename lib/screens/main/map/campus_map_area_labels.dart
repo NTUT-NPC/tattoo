@@ -126,7 +126,7 @@ class _CampusMapAreaLabelsState extends State<CampusMapAreaLabels> {
           _labels,
           colors,
           widget.scaleForZoom(camera.zoom) *
-              campusMapAreaLabelViewportScale(camera.size.width),
+              campusMapAreaLabelViewportScale(camera.nonRotatedSize.width),
         ),
       ),
     );
