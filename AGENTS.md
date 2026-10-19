@@ -82,7 +82,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - Course table output excludes withdrawn offerings; the database retains their full data and status.
 - CalendarRepository — Academic calendar events from NTUT portal. Sliding window caching keyed to enrolled semesters.
 - StudentRepository — Academic records, GPA, rankings. Parallel course code resolution via CourseRepository.getCourse().
-- CampusWifiRepository — NTUT-802.1X configuration and one-shot status via the selected provisioner, rather than the `watchX()`/`refreshX()` cache pattern.
+- CampusWifiRepository — Serializes NTUT-802.1X setup/removal through local state updates and coordinates automatic refresh; platform policy stays in the selected provisioner.
 - **Method pattern:** `watchX()` returns a `Stream` backed by Drift `.watch()` — emits cached data immediately, then background-fetches if empty or stale (each method has its own hard-coded TTL `const`). Network errors are absorbed (stale data preferred over errors). `refreshX()` is the imperative counterpart for pull-to-refresh — fetches from network, writes to DB, and lets the stream re-emit.
 
 **Version notifications:** The navigation HomeScreen coordinates update and What's New prompts, with updates taking priority. Maintain only the current release's localized feature list in `whats_new_screen.dart`; optional `TargetPlatform` sets restrict feature visibility.

@@ -42,12 +42,30 @@ final class CampusWifiChannel: NSObject, FlutterPlugin {
       ])
     case "provisionNtut8021x", "saveNtut8021xToSystem":
       applyConfiguration(arguments: call.arguments, result: result)
+    case "removeNtut8021x":
+      removeConfiguration(result: result)
     case "openWifiSettings", "openWifiPanel":
       // iOS has no public URL that opens the system Wi-Fi settings or panel.
       result(false)
     default:
       result(FlutterMethodNotImplemented)
     }
+  }
+
+  private func removeConfiguration(result: @escaping FlutterResult) {
+    #if targetEnvironment(simulator)
+    result("unsupportedPlatform")
+    #else
+    guard !isApplyingConfiguration else {
+      result("failed")
+      return
+    }
+
+    // Only this app's configuration is eligible for removal. The public API has no
+    // completion handler, so issuing the request cannot confirm that it was removed.
+    NEHotspotConfigurationManager.shared.removeConfiguration(forSSID: "NTUT-802.1X")
+    result("removalRequested")
+    #endif
   }
 
   private func applyConfiguration(arguments: Any?, result: @escaping FlutterResult) {

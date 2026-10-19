@@ -5,7 +5,7 @@ enum Ntut8021xAssistantStatus {
   unsupportedPlatform,
 }
 
-enum Ntut8021xScreenMode { normal, compatRetry, manualOnly }
+enum Ntut8021xScreenMode { normal, permissionRequired, compatRetry, manualOnly }
 
 enum Ntut8021xPendingPromptReason {
   credentialChanged,
@@ -33,6 +33,14 @@ enum Ntut8021xProvisioningStatus {
   compatFailed,
 }
 
+enum Ntut8021xRemovalStatus {
+  removed,
+  removalRequested,
+  manualRemovalRequired,
+  unsupportedPlatform,
+  failed,
+}
+
 enum CampusWifiSuggestionPermissionState { allowed, disallowed, unknown }
 
 typedef Ntut8021xSuggestionPermissionState =
@@ -48,6 +56,7 @@ class CampusWifiCapabilities {
     required this.canProvisionNtut8021xCompat,
     required this.canProvisionAutomatically,
     required this.canSaveToSystem,
+    required this.canRemoveNtut8021x,
     required this.suggestionPermissionState,
   });
 
@@ -61,6 +70,7 @@ class CampusWifiCapabilities {
         canProvisionNtut8021xCompat: false,
         canProvisionAutomatically: false,
         canSaveToSystem: false,
+        canRemoveNtut8021x: false,
         suggestionPermissionState: CampusWifiSuggestionPermissionState.unknown,
       );
 
@@ -72,6 +82,7 @@ class CampusWifiCapabilities {
   final bool canProvisionNtut8021xCompat;
   final bool canProvisionAutomatically;
   final bool canSaveToSystem;
+  final bool canRemoveNtut8021x;
   final CampusWifiSuggestionPermissionState suggestionPermissionState;
 
   bool get isAndroid10 => androidSdkInt == 29;
@@ -134,7 +145,8 @@ class Ntut8021xAssistantData {
 
   bool get canRetryWithCompat =>
       status == Ntut8021xAssistantStatus.ready &&
-      screenMode == Ntut8021xScreenMode.compatRetry &&
+      (screenMode == Ntut8021xScreenMode.compatRetry ||
+          screenMode == Ntut8021xScreenMode.permissionRequired) &&
       capabilities.canProvisionNtut8021xCompat &&
       capabilities.isAndroid11OrNewer &&
       canCopyIdentity &&
@@ -161,7 +173,6 @@ class Ntut8021xProvisioningResult {
     required this.androidSdkInt,
     required this.usedHiddenCaPath,
     required this.lastProvisioningMode,
-    required this.usedCompatFallback,
     required this.compatNetworkResultCodes,
     this.pendingPromptReason,
     this.wifiEnabled,
@@ -179,7 +190,6 @@ class Ntut8021xProvisioningResult {
         usedHiddenCaPath: false,
         lastProvisioningMode: Ntut8021xProvisioningMode.none,
         pendingPromptReason: null,
-        usedCompatFallback: false,
         compatNetworkResultCodes: const <int>[],
       );
 
@@ -195,12 +205,9 @@ class Ntut8021xProvisioningResult {
   final int? compatNetworkResultCode;
   final List<int> compatNetworkResultCodes;
   final String? message;
-  final bool usedCompatFallback;
 
   Ntut8021xPendingPromptReason? get pendingCompatPromptReason =>
       pendingPromptReason;
-
-  bool get fallbackTriggered => usedCompatFallback;
 
   List<int> get addNetworkResultCodes => compatNetworkResultCodes;
 

@@ -50,6 +50,11 @@ abstract interface class CampusWifiProvisioner {
     required Ntut8021xPendingPromptReason? pendingPromptReason,
   });
 
+  /// Removes app-owned configuration using the selected platform policy.
+  Future<Ntut8021xRemovalStatus> remove({
+    required Ntut8021xStoredProvisioningMode lastProvisioningMode,
+  });
+
   Future<void> refreshCredentials({
     required String identity,
     required String password,
@@ -92,6 +97,11 @@ class UnsupportedCampusWifiProvisioner implements CampusWifiProvisioner {
     required CampusWifiCapabilities capabilities,
     required Ntut8021xPendingPromptReason? pendingPromptReason,
   }) async => const Ntut8021xProvisioningResult.unsupported();
+
+  @override
+  Future<Ntut8021xRemovalStatus> remove({
+    required Ntut8021xStoredProvisioningMode lastProvisioningMode,
+  }) async => Ntut8021xRemovalStatus.unsupportedPlatform;
 
   @override
   Future<void> refreshCredentials({

@@ -70,6 +70,7 @@ class CampusWifiChannelHandler(
             )
             "provisionNtut8021x" -> handleProvisionNtut8021xCall(call, result)
             "saveNtut8021xToSystem" -> handleSaveNtut8021xToSystemCall(call, result)
+            "removeNtut8021x" -> handleRemoveNtut8021xCall(result)
             else -> result.notImplemented()
         }
     }
@@ -100,6 +101,15 @@ class CampusWifiChannelHandler(
             )
             mainHandler.post {
                 result.success(provisioningResult)
+            }
+        }
+    }
+
+    private fun handleRemoveNtut8021xCall(result: MethodChannel.Result) {
+        executor.execute {
+            val removalStatus = provisioner.removeNtut8021x()
+            mainHandler.post {
+                result.success(removalStatus)
             }
         }
     }

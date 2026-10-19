@@ -390,6 +390,7 @@ class _Translations$ntutWifi$en_US extends Translations$ntutWifi$zh_TW {
 	@override String get suggestionFallbackRequired => 'Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.';
 	@override String get android10PermissionRejected => 'Android 10 has rejected this app\'s Wi-Fi suggestion permission. Follow the manual instructions below instead.';
 	@override String get legacyManualOnly => 'Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.';
+	@override late final _Translations$ntutWifi$removal$en_US removal = _Translations$ntutWifi$removal$en_US._(_root);
 	@override late final _Translations$ntutWifi$ios$en_US ios = _Translations$ntutWifi$ios$en_US._(_root);
 	@override late final _Translations$ntutWifi$sections$en_US sections = _Translations$ntutWifi$sections$en_US._(_root);
 	@override late final _Translations$ntutWifi$actions$en_US actions = _Translations$ntutWifi$actions$en_US._(_root);
@@ -838,6 +839,25 @@ class _Translations$scanner$guide$en_US extends Translations$scanner$guide$zh_TW
 	@override String get step2 => '2. Click "Outside school login" in the navigation bar';
 	@override String get step3 => '3. Click "Scan QR code"';
 	@override String get button => 'Got it';
+}
+
+// Path: ntutWifi.removal
+class _Translations$ntutWifi$removal$en_US extends Translations$ntutWifi$removal$zh_TW {
+	_Translations$ntutWifi$removal$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get button => 'Remove NTUT-802.1X configuration';
+	@override String get title => 'Remove NTUT-802.1X?';
+	@override String get confirmation => 'This removes only configurations or network suggestions owned by TAT. You may be disconnected, and automatic credential refresh will be disabled. Android networks saved through compatibility mode or manually cannot be removed by TAT, regardless of the last recorded setup mode; open Settings > Wi-Fi, select NTUT-802.1X and choose Forget. On iOS, configurations added by another app or manually must also be removed in Settings.';
+	@override String get confirm => 'Remove configuration';
+	@override String get removing => 'Removing configuration…';
+	@override String get removed => 'TAT\'s NTUT-802.1X network suggestions were removed and automatic credential refresh is disabled. Saved compatibility-mode or manual networks may still exist. Open Wi-Fi settings, select NTUT-802.1X and choose Forget to remove those networks.';
+	@override String get requested => 'Removal of TAT\'s NTUT-802.1X configuration was requested and automatic credential refresh is disabled. iOS does not confirm completion. Open Settings > Wi-Fi to verify; use the network\'s info button and Forget This Network for any configuration not owned by TAT.';
+	@override String get manualRequired => 'TAT\'s network suggestions were removed and automatic credential refresh is disabled, but the saved Android network must be removed manually. Open Wi-Fi settings, select NTUT-802.1X and choose Forget.';
+	@override String get unsupported => 'This device does not support removing NTUT-802.1X configurations through TAT. Open Settings > Wi-Fi and forget the network manually.';
+	@override String get failed => 'Unable to remove the NTUT-802.1X configuration. Try again or open Settings > Wi-Fi and forget the network manually.';
 }
 
 // Path: ntutWifi.ios
@@ -1360,6 +1380,16 @@ extension on TranslationsEnUs {
 			'ntutWifi.suggestionFallbackRequired' => 'Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.',
 			'ntutWifi.android10PermissionRejected' => 'Android 10 has rejected this app\'s Wi-Fi suggestion permission. Follow the manual instructions below instead.',
 			'ntutWifi.legacyManualOnly' => 'Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.',
+			'ntutWifi.removal.button' => 'Remove NTUT-802.1X configuration',
+			'ntutWifi.removal.title' => 'Remove NTUT-802.1X?',
+			'ntutWifi.removal.confirmation' => 'This removes only configurations or network suggestions owned by TAT. You may be disconnected, and automatic credential refresh will be disabled. Android networks saved through compatibility mode or manually cannot be removed by TAT, regardless of the last recorded setup mode; open Settings > Wi-Fi, select NTUT-802.1X and choose Forget. On iOS, configurations added by another app or manually must also be removed in Settings.',
+			'ntutWifi.removal.confirm' => 'Remove configuration',
+			'ntutWifi.removal.removing' => 'Removing configuration…',
+			'ntutWifi.removal.removed' => 'TAT\'s NTUT-802.1X network suggestions were removed and automatic credential refresh is disabled. Saved compatibility-mode or manual networks may still exist. Open Wi-Fi settings, select NTUT-802.1X and choose Forget to remove those networks.',
+			'ntutWifi.removal.requested' => 'Removal of TAT\'s NTUT-802.1X configuration was requested and automatic credential refresh is disabled. iOS does not confirm completion. Open Settings > Wi-Fi to verify; use the network\'s info button and Forget This Network for any configuration not owned by TAT.',
+			'ntutWifi.removal.manualRequired' => 'TAT\'s network suggestions were removed and automatic credential refresh is disabled, but the saved Android network must be removed manually. Open Wi-Fi settings, select NTUT-802.1X and choose Forget.',
+			'ntutWifi.removal.unsupported' => 'This device does not support removing NTUT-802.1X configurations through TAT. Open Settings > Wi-Fi and forget the network manually.',
+			'ntutWifi.removal.failed' => 'Unable to remove the NTUT-802.1X configuration. Try again or open Settings > Wi-Fi and forget the network manually.',
 			'ntutWifi.ios.intro' => 'Use your saved NTUT portal credentials to join NTUT-802.1X. Turn on Wi-Fi and approve the iOS system prompt.',
 			'ntutWifi.ios.connect' => 'Connect to NTUT-802.1X',
 			'ntutWifi.ios.certificatesHint' => 'Uses PEAP and system-trusted certificates for ntut.edu.tw. The campus server negotiates inner authentication; iOS controls approval and connection.',

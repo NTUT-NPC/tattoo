@@ -613,6 +613,7 @@ class Translations$ntutWifi$zh_TW {
 	/// zh-TW: 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。'
 	String get legacyManualOnly => 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。';
 
+	late final Translations$ntutWifi$removal$zh_TW removal = Translations$ntutWifi$removal$zh_TW.internal(_root);
 	late final Translations$ntutWifi$ios$zh_TW ios = Translations$ntutWifi$ios$zh_TW.internal(_root);
 	late final Translations$ntutWifi$sections$zh_TW sections = Translations$ntutWifi$sections$zh_TW.internal(_root);
 	late final Translations$ntutWifi$actions$zh_TW actions = Translations$ntutWifi$actions$zh_TW.internal(_root);
@@ -1354,6 +1355,45 @@ class Translations$scanner$guide$zh_TW {
 	String get button => '我知道了';
 }
 
+// Path: ntutWifi.removal
+class Translations$ntutWifi$removal$zh_TW {
+	Translations$ntutWifi$removal$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '移除NTUT-802.1X設定'
+	String get button => '移除NTUT-802.1X設定';
+
+	/// zh-TW: '移除NTUT-802.1X？'
+	String get title => '移除NTUT-802.1X？';
+
+	/// zh-TW: '僅會移除TAT擁有的設定或網路建議。這可能中斷連線，並停用帳密自動更新。無論上次記錄的設定模式為何，TAT都無法移除Android透過相容模式或手動儲存的網路；請開啟「設定」>「Wi-Fi」，選擇NTUT-802.1X並按「忘記」。iOS上由其他App或手動加入的設定，也必須在「設定」中移除。'
+	String get confirmation => '僅會移除TAT擁有的設定或網路建議。這可能中斷連線，並停用帳密自動更新。無論上次記錄的設定模式為何，TAT都無法移除Android透過相容模式或手動儲存的網路；請開啟「設定」>「Wi-Fi」，選擇NTUT-802.1X並按「忘記」。iOS上由其他App或手動加入的設定，也必須在「設定」中移除。';
+
+	/// zh-TW: '移除設定'
+	String get confirm => '移除設定';
+
+	/// zh-TW: '正在移除設定…'
+	String get removing => '正在移除設定…';
+
+	/// zh-TW: '已移除TAT的NTUT-802.1X網路建議，並停用帳密自動更新。相容模式或手動儲存的網路可能仍存在。請開啟Wi-Fi設定，選擇NTUT-802.1X並按「忘記」以移除這些網路。'
+	String get removed => '已移除TAT的NTUT-802.1X網路建議，並停用帳密自動更新。相容模式或手動儲存的網路可能仍存在。請開啟Wi-Fi設定，選擇NTUT-802.1X並按「忘記」以移除這些網路。';
+
+	/// zh-TW: '已請求移除TAT的NTUT-802.1X設定，並停用帳密自動更新。iOS不會確認是否完成。請開啟「設定」>「Wi-Fi」確認；非TAT擁有的設定，請按網路旁的資訊按鈕，再選擇「忘記此網路設定」。'
+	String get requested => '已請求移除TAT的NTUT-802.1X設定，並停用帳密自動更新。iOS不會確認是否完成。請開啟「設定」>「Wi-Fi」確認；非TAT擁有的設定，請按網路旁的資訊按鈕，再選擇「忘記此網路設定」。';
+
+	/// zh-TW: '已移除TAT的網路建議，並停用帳密自動更新，但Android已儲存的網路仍須手動移除。請開啟Wi-Fi設定，選擇NTUT-802.1X並按「忘記」。'
+	String get manualRequired => '已移除TAT的網路建議，並停用帳密自動更新，但Android已儲存的網路仍須手動移除。請開啟Wi-Fi設定，選擇NTUT-802.1X並按「忘記」。';
+
+	/// zh-TW: '這台裝置不支援透過TAT移除NTUT-802.1X設定。請開啟「設定」>「Wi-Fi」並手動忘記此網路。'
+	String get unsupported => '這台裝置不支援透過TAT移除NTUT-802.1X設定。請開啟「設定」>「Wi-Fi」並手動忘記此網路。';
+
+	/// zh-TW: '無法移除NTUT-802.1X設定。請重試，或開啟「設定」>「Wi-Fi」並手動忘記此網路。'
+	String get failed => '無法移除NTUT-802.1X設定。請重試，或開啟「設定」>「Wi-Fi」並手動忘記此網路。';
+}
+
 // Path: ntutWifi.ios
 class Translations$ntutWifi$ios$zh_TW {
 	Translations$ntutWifi$ios$zh_TW.internal(this._root);
@@ -2053,6 +2093,16 @@ extension on Translations {
 			'ntutWifi.suggestionFallbackRequired' => 'suggestion 自動更新失敗，請改用相容模式將最新 NTUT-802.1X 設定寫入系統。',
 			'ntutWifi.android10PermissionRejected' => 'Android 10 已拒絕這個 App 的 Wi‑Fi suggestion 權限，請依下方教學手動連線。',
 			'ntutWifi.legacyManualOnly' => 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。',
+			'ntutWifi.removal.button' => '移除NTUT-802.1X設定',
+			'ntutWifi.removal.title' => '移除NTUT-802.1X？',
+			'ntutWifi.removal.confirmation' => '僅會移除TAT擁有的設定或網路建議。這可能中斷連線，並停用帳密自動更新。無論上次記錄的設定模式為何，TAT都無法移除Android透過相容模式或手動儲存的網路；請開啟「設定」>「Wi-Fi」，選擇NTUT-802.1X並按「忘記」。iOS上由其他App或手動加入的設定，也必須在「設定」中移除。',
+			'ntutWifi.removal.confirm' => '移除設定',
+			'ntutWifi.removal.removing' => '正在移除設定…',
+			'ntutWifi.removal.removed' => '已移除TAT的NTUT-802.1X網路建議，並停用帳密自動更新。相容模式或手動儲存的網路可能仍存在。請開啟Wi-Fi設定，選擇NTUT-802.1X並按「忘記」以移除這些網路。',
+			'ntutWifi.removal.requested' => '已請求移除TAT的NTUT-802.1X設定，並停用帳密自動更新。iOS不會確認是否完成。請開啟「設定」>「Wi-Fi」確認；非TAT擁有的設定，請按網路旁的資訊按鈕，再選擇「忘記此網路設定」。',
+			'ntutWifi.removal.manualRequired' => '已移除TAT的網路建議，並停用帳密自動更新，但Android已儲存的網路仍須手動移除。請開啟Wi-Fi設定，選擇NTUT-802.1X並按「忘記」。',
+			'ntutWifi.removal.unsupported' => '這台裝置不支援透過TAT移除NTUT-802.1X設定。請開啟「設定」>「Wi-Fi」並手動忘記此網路。',
+			'ntutWifi.removal.failed' => '無法移除NTUT-802.1X設定。請重試，或開啟「設定」>「Wi-Fi」並手動忘記此網路。',
 			'ntutWifi.ios.intro' => '使用已儲存的校園入口帳密連接NTUT-802.1X。請開啟Wi-Fi並允許iOS系統提示。',
 			'ntutWifi.ios.connect' => '連接NTUT-802.1X',
 			'ntutWifi.ios.certificatesHint' => '使用PEAP及ntut.edu.tw的系統信任憑證，由校園伺服器協商內層驗證，iOS控制允許與連線。',

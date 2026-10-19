@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tattoo/models/campus_wifi.dart';
 import 'package:tattoo/services/campus_wifi/campus_wifi_provisioner.dart';
 import 'package:tattoo/services/campus_wifi/ntut8021x_state_store.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
@@ -30,6 +31,7 @@ class Ntut8021xAutoReprovision {
   final SharedPreferencesAsync _prefs;
   final CampusWifiProvisioner _provisioner;
   final Ntut8021xStateStore _stateStore;
+  Future<void> _pendingReprovision = Future<void>.value();
 
   Future<bool> isEnabled() async {
     final enabled =
@@ -43,7 +45,39 @@ class Ntut8021xAutoReprovision {
     _logCampusWifi('Updated auto reprovision flag: enabled=true');
   }
 
+  /// Disables refreshes, then drains earlier updates before native removal.
+  Future<Ntut8021xRemovalStatus> removeNtut8021x() async {
+    await _prefs.setBool(ntut8021xAutoReprovisionPreferenceKey, false);
+    await _pendingReprovision;
+    final storedState = await _stateStore.read();
+    return _provisioner.remove(
+      lastProvisioningMode: storedState.lastProvisioningMode,
+    );
+  }
+
   Future<void> reprovisionIfEnabled({
+    required String identity,
+    required String password,
+    String? previousIdentity,
+    String? previousPassword,
+  }) {
+    final operation = _pendingReprovision.then(
+      (_) => _reprovisionIfEnabled(
+        identity: identity,
+        password: password,
+        previousIdentity: previousIdentity,
+        previousPassword: previousPassword,
+      ),
+    );
+    // Surface failures to callers without poisoning the refresh/removal queue.
+    _pendingReprovision = operation.then<void>(
+      (_) {},
+      onError: (Object error, StackTrace stack) {},
+    );
+    return operation;
+  }
+
+  Future<void> _reprovisionIfEnabled({
     required String identity,
     required String password,
     String? previousIdentity,

@@ -25,6 +25,10 @@ class NtutWifiScreen extends ConsumerStatefulWidget {
 class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
   bool _isProvisioning = false;
   bool _isSavingCompat = false;
+  bool _isRemoving = false;
+  Ntut8021xRemovalStatus? _lastRemovalStatus;
+
+  bool get _isBusy => _isProvisioning || _isSavingCompat || _isRemoving;
   Ntut8021xProvisioningResult? _lastProvisioningResult;
 
   Future<void> _copyText(String text) async {
@@ -53,7 +57,11 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
   }
 
   Future<void> _runProvisioning() async {
-    setState(() => _isProvisioning = true);
+    if (_isBusy) return;
+    setState(() {
+      _isProvisioning = true;
+      _lastRemovalStatus = null;
+    });
     Ntut8021xProvisioningResult? result;
     try {
       result = await ref
@@ -78,7 +86,11 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
   }
 
   Future<void> _saveNtut8021xToSystem() async {
-    setState(() => _isSavingCompat = true);
+    if (_isBusy) return;
+    setState(() {
+      _isSavingCompat = true;
+      _lastRemovalStatus = null;
+    });
     Ntut8021xProvisioningResult? result;
     try {
       result = await ref
@@ -100,6 +112,52 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
       final result? => _provisioningSnackBarMessage(result),
       null => t.ntutWifi.provisioning.compatFailed,
     });
+  }
+
+  Future<void> _removeNtut8021x() async {
+    if (_isBusy) return;
+    setState(() => _isRemoving = true);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        scrollable: true,
+        title: Text(t.ntutWifi.removal.title.spaced),
+        content: Text(t.ntutWifi.removal.confirmation.spaced),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(t.general.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(t.ntutWifi.removal.confirm.spaced),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (confirmed != true) {
+      setState(() => _isRemoving = false);
+      return;
+    }
+
+    setState(() {
+      _lastProvisioningResult = null;
+      _lastRemovalStatus = null;
+    });
+    Ntut8021xRemovalStatus status;
+    try {
+      status = await ref.read(campusWifiRepositoryProvider).removeNtut8021x();
+    } catch (_) {
+      status = .failed;
+    }
+    if (!mounted) return;
+    setState(() {
+      _isRemoving = false;
+      _lastRemovalStatus = status;
+    });
+    ref.invalidate(ntutWifiAssistantProvider);
+    _showMessage(_removalMessage(status));
   }
 
   void _showMessage(String message) {
@@ -146,6 +204,11 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
             provisioningResult: _lastProvisioningResult,
             isProvisioning: _isProvisioning,
             isSavingCompat: _isSavingCompat,
+            isRemoving: _isRemoving,
+            removalStatus: _lastRemovalStatus,
+            onRemove: value.capabilities.canRemoveNtut8021x
+                ? _removeNtut8021x
+                : null,
             onProvision: value.canProvisionAutomatically
                 ? _runProvisioning
                 : null,
@@ -181,11 +244,24 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
   }
 }
 
+String _removalMessage(Ntut8021xRemovalStatus status) {
+  return switch (status) {
+    .removed => t.ntutWifi.removal.removed,
+    .removalRequested => t.ntutWifi.removal.requested,
+    .manualRemovalRequired => t.ntutWifi.removal.manualRequired,
+    .unsupportedPlatform => t.ntutWifi.removal.unsupported,
+    .failed => t.ntutWifi.removal.failed,
+  };
+}
+
 class _AssistantBody extends StatelessWidget {
   const _AssistantBody({
     required this.data,
     required this.isProvisioning,
     required this.isSavingCompat,
+    required this.isRemoving,
+    this.removalStatus,
+    this.onRemove,
     this.provisioningResult,
     this.onProvision,
     this.onRetryCompat,
@@ -199,6 +275,9 @@ class _AssistantBody extends StatelessWidget {
   final Ntut8021xProvisioningResult? provisioningResult;
   final bool isProvisioning;
   final bool isSavingCompat;
+  final bool isRemoving;
+  final Ntut8021xRemovalStatus? removalStatus;
+  final VoidCallback? onRemove;
   final VoidCallback? onProvision;
   final VoidCallback? onRetryCompat;
   final VoidCallback? onCopyIdentity;
@@ -209,6 +288,7 @@ class _AssistantBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isIos = Theme.of(context).platform == TargetPlatform.iOS;
+    final isBusy = isProvisioning || isSavingCompat || isRemoving;
     final notices = <Widget>[
       BackgroundNotice(
         text: _statusMessage(data, isIos: isIos).spaced,
@@ -223,6 +303,15 @@ class _AssistantBody extends StatelessWidget {
         BackgroundNotice(
           text: _provisioningMessage(provisioningResult).spaced,
           noticeType: _provisioningNoticeType(provisioningResult),
+        ),
+      if (removalStatus case final status?)
+        BackgroundNotice(
+          text: _removalMessage(status).spaced,
+          noticeType: switch (status) {
+            .failed || .unsupportedPlatform => .error,
+            .manualRemovalRequired || .removalRequested => .warning,
+            .removed => .info,
+          },
         ),
       if (data.capabilities.androidSdkInt case final sdkInt?)
         Text(
@@ -261,7 +350,7 @@ class _AssistantBody extends StatelessWidget {
             ...notices,
             if (onProvision case final onProvision?)
               FilledButton.icon(
-                onPressed: isProvisioning ? null : onProvision,
+                onPressed: isBusy ? null : onProvision,
                 icon: isProvisioning
                     ? const SizedBox.square(
                         dimension: 18,
@@ -278,7 +367,7 @@ class _AssistantBody extends StatelessWidget {
               ),
             if (onRetryCompat case final onRetryCompat?)
               OutlinedButton.icon(
-                onPressed: isSavingCompat ? null : onRetryCompat,
+                onPressed: isBusy ? null : onRetryCompat,
                 icon: isSavingCompat
                     ? const SizedBox.square(
                         dimension: 18,
@@ -291,6 +380,22 @@ class _AssistantBody extends StatelessWidget {
                       : data.pendingCompatPromptReason == .credentialChanged
                       ? t.ntutWifi.actions.updateCompatProvision
                       : t.ntutWifi.actions.retryCompatProvision,
+                ),
+              ),
+            if (onRemove case final onRemove?)
+              OutlinedButton.icon(
+                onPressed: isBusy ? null : onRemove,
+                icon: isRemoving
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.wifi_off),
+                label: Text(
+                  (isRemoving
+                          ? t.ntutWifi.removal.removing
+                          : t.ntutWifi.removal.button)
+                      .spaced,
                 ),
               ),
             if (onOpenWifiSettings != null || onOpenWifiPanel != null) ...[

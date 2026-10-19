@@ -24,6 +24,8 @@ class IosCampusWifiProvisioner implements CampusWifiProvisioner {
       canProvisionNtut8021xCompat: false,
       canProvisionAutomatically: capabilities.canProvisionNtut8021x,
       canSaveToSystem: capabilities.canProvisionNtut8021x,
+      canRemoveNtut8021x:
+          capabilities.isSupported && capabilities.canProvisionNtut8021x,
       suggestionPermissionState: CampusWifiSuggestionPermissionState.unknown,
     );
   }
@@ -96,11 +98,20 @@ class IosCampusWifiProvisioner implements CampusWifiProvisioner {
       androidSdkInt: null,
       usedHiddenCaPath: false,
       lastProvisioningMode: Ntut8021xProvisioningMode.direct,
-      usedCompatFallback: false,
       compatNetworkResultCodes: const <int>[],
       message: provisioning.message,
     );
   }
+
+  @override
+  Future<Ntut8021xRemovalStatus> remove({
+    required Ntut8021xStoredProvisioningMode lastProvisioningMode,
+  }) async => switch (await _platform.removeNtut8021x()) {
+    'removed' => Ntut8021xRemovalStatus.removed,
+    'removalRequested' => Ntut8021xRemovalStatus.removalRequested,
+    'unsupportedPlatform' => Ntut8021xRemovalStatus.unsupportedPlatform,
+    _ => Ntut8021xRemovalStatus.failed,
+  };
 
   @override
   Future<void> refreshCredentials({

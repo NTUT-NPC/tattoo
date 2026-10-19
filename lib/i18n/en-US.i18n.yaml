@@ -320,6 +320,17 @@ ntutWifi:
   suggestionFallbackRequired: Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.
   android10PermissionRejected: Android 10 has rejected this app's Wi-Fi suggestion permission. Follow the manual instructions below instead.
   legacyManualOnly: Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.
+  removal:
+    button: Remove NTUT-802.1X configuration
+    title: Remove NTUT-802.1X?
+    confirmation: This removes only configurations or network suggestions owned by TAT. You may be disconnected, and automatic credential refresh will be disabled. Android networks saved through compatibility mode or manually cannot be removed by TAT, regardless of the last recorded setup mode; open Settings > Wi-Fi, select NTUT-802.1X and choose Forget. On iOS, configurations added by another app or manually must also be removed in Settings.
+    confirm: Remove configuration
+    removing: Removing configuration…
+    removed: TAT's NTUT-802.1X network suggestions were removed and automatic credential refresh is disabled. Saved compatibility-mode or manual networks may still exist. Open Wi-Fi settings, select NTUT-802.1X and choose Forget to remove those networks.
+    requested: Removal of TAT's NTUT-802.1X configuration was requested and automatic credential refresh is disabled. iOS does not confirm completion. Open Settings > Wi-Fi to verify; use the network's info button and Forget This Network for any configuration not owned by TAT.
+    manualRequired: TAT's network suggestions were removed and automatic credential refresh is disabled, but the saved Android network must be removed manually. Open Wi-Fi settings, select NTUT-802.1X and choose Forget.
+    unsupported: This device does not support removing NTUT-802.1X configurations through TAT. Open Settings > Wi-Fi and forget the network manually.
+    failed: Unable to remove the NTUT-802.1X configuration. Try again or open Settings > Wi-Fi and forget the network manually.
   ios:
     intro: Use your saved NTUT portal credentials to join NTUT-802.1X. Turn on Wi-Fi and approve the iOS system prompt.
     connect: Connect to NTUT-802.1X
