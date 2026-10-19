@@ -121,7 +121,10 @@ class _CampusMapViewportState extends State<CampusMapViewport> {
           campuses: widget.campuses,
           focusedCampusCode: widget.focusedCampusCode,
           campusFocusRequest: widget.campusFocusRequest,
-          buildingLabels: CampusMapBuildingLabels(buildings: widget.buildings),
+          buildingLabels: CampusMapBuildingLabels(
+            buildings: widget.buildings,
+            selectedBuildingCode: widget.selectedBuildingCode,
+          ),
         ),
         GestureDetector(
           onTap: () {
