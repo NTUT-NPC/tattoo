@@ -72,6 +72,7 @@ class _CampusMapCampusSelectorState extends State<CampusMapCampusSelector>
         (t.campusMap.campusNames[campus.code] ?? campus.name).spaced,
     ],
     controller: _controller,
+    onReselected: (_) => _onTabChanged(),
     padding: const .symmetric(horizontal: 12),
   );
 }
