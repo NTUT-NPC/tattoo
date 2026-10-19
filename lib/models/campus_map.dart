@@ -88,10 +88,10 @@ class CampusMapFloor {
 
   /// The physical order, with mezzanines after their corresponding floor.
   double get order {
-    if (code.startsWith('R')) {
-      return 100 + (int.tryParse(code.substring(1)) ?? 0).toDouble();
-    }
     final number = int.tryParse(code.replaceAll(RegExp('[^0-9]'), '')) ?? 0;
+    if (code.startsWith('R')) {
+      return 100 + number.toDouble();
+    }
     final base = code.startsWith('B') ? -number.toDouble() : number.toDouble();
     return base + (code.endsWith('M') ? 0.5 : 0);
   }

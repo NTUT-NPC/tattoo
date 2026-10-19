@@ -23,6 +23,13 @@ void main() {
       ]);
       expect(_floor('1M').order, 1.5);
     });
+
+    test('orders roof floors with an F suffix by their numeric level', () {
+      expect(_floor('R1F').order, 101);
+      expect(_floor('R2F').order, 102);
+      expect(_floor('R1F').order, _floor('R1').order);
+      expect(_floor('R2F').order, greaterThan(_floor('R1F').order));
+    });
   });
 
   test('normalizes full-width query text and common separators', () {
