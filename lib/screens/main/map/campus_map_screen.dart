@@ -44,6 +44,7 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
   String _query = '';
   String? _buildingCode;
   String? _campusCode;
+  int _campusFocusRequest = 0;
   CampusMapFloor? _floor;
   CampusMapRoom? _selectedRoom;
   bool _mapReady = false;
@@ -135,7 +136,10 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
 
   void _selectCampus(CampusMapCampus campus) {
     _clearSelection();
-    setState(() => _campusCode = campus.code);
+    setState(() {
+      _campusCode = campus.code;
+      _campusFocusRequest++;
+    });
     _focus(campus.polygons);
   }
 
@@ -498,6 +502,7 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
               buildings: buildings,
               campuses: campuses,
               focusedCampusCode: _campusCode,
+              campusFocusRequest: _campusFocusRequest,
               rooms: rooms.isEmpty && _selectedRoom != null
                   ? [_selectedRoom!]
                   : rooms,

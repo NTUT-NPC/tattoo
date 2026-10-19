@@ -30,12 +30,14 @@ class CampusMapViewport extends StatefulWidget {
     this.tileProvider,
     this.campuses = const [],
     this.focusedCampusCode,
+    this.campusFocusRequest = 0,
   });
 
   final MapController controller;
   final List<CampusMapBuilding> buildings;
   final List<CampusMapCampus> campuses;
   final String? focusedCampusCode;
+  final int campusFocusRequest;
   final List<CampusMapRoom> rooms;
   final String? selectedBuildingCode;
   final String? selectedRoomId;
@@ -121,6 +123,7 @@ class _CampusMapViewportState extends State<CampusMapViewport> {
         CampusMapCampusLayer(
           campuses: widget.campuses,
           focusedCampusCode: widget.focusedCampusCode,
+          campusFocusRequest: widget.campusFocusRequest,
           buildingLabels: CampusMapBuildingLabels(buildings: widget.buildings),
         ),
         GestureDetector(

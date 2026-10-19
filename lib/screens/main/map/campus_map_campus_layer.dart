@@ -10,17 +10,20 @@ import 'package:tattoo/screens/main/map/campus_map_zoom.dart';
 ///
 /// Changing [focusedCampusCode] reveals that campus even when zoomed in. The
 /// highlight holds for one second, with 200-millisecond fades at each end.
+/// Changing [campusFocusRequest] repeats the highlight for the same campus.
 /// [buildingLabels] yield while campus boundaries and names are displayed.
 class CampusMapCampusLayer extends StatefulWidget {
   const CampusMapCampusLayer({
     super.key,
     required this.campuses,
     this.focusedCampusCode,
+    this.campusFocusRequest = 0,
     this.buildingLabels,
   });
 
   final List<CampusMapCampus> campuses;
   final String? focusedCampusCode;
+  final int campusFocusRequest;
   final Widget? buildingLabels;
 
   @override
@@ -63,7 +66,8 @@ class _CampusMapCampusLayerState extends State<CampusMapCampusLayer>
   @override
   void didUpdateWidget(covariant CampusMapCampusLayer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.focusedCampusCode != oldWidget.focusedCampusCode) {
+    if (widget.focusedCampusCode != oldWidget.focusedCampusCode ||
+        widget.campusFocusRequest != oldWidget.campusFocusRequest) {
       if (widget.focusedCampusCode == null) {
         _highlight.stop();
       } else {
