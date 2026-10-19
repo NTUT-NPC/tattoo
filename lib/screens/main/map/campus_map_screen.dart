@@ -107,7 +107,7 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
     _cameraAnimation.stop();
     _autoSelectTimer?.cancel();
     if (MediaQuery.disableAnimationsOf(context)) {
-      _controller.move(target.center, target.zoom);
+      _controller.moveAndRotate(target.center, target.zoom, target.rotation);
       return;
     }
     _cameraMove = (start: _controller.camera, target: target);
@@ -119,7 +119,11 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
       final progress = Curves.easeInOutCubic.transform(_cameraAnimation.value);
       if (progress == 0) return;
       if (progress == 1) {
-        _controller.move(move.target.center, move.target.zoom);
+        _controller.moveAndRotate(
+          move.target.center,
+          move.target.zoom,
+          move.target.rotation,
+        );
         return;
       }
       final center = Offset.lerp(
@@ -127,9 +131,12 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
         move.start.projectAtZoom(move.target.center),
         progress,
       )!;
-      _controller.move(
+      final rotationDelta =
+          (move.target.rotation - move.start.rotation + 540) % 360 - 180;
+      _controller.moveAndRotate(
         move.start.unprojectAtZoom(center),
         move.start.zoom + (move.target.zoom - move.start.zoom) * progress,
+        move.start.rotation + rotationDelta * progress,
       );
     }
   }
@@ -450,6 +457,15 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
               : t.campusMap.title,
         ),
         actions: [
+          IconButton(
+            tooltip: t.campusMap.resetOrientation,
+            onPressed: () {
+              if (_mapReady) {
+                _animateCamera(_controller.camera.withRotation(0));
+              }
+            },
+            icon: const Icon(Icons.north),
+          ),
           IconButton(
             tooltip: t.campusMap.refresh,
             onPressed: _busy ? null : _refresh,

@@ -29,6 +29,7 @@ campusMap:
   locationUnavailable: This space has no available location data.
   loadFailed: Map data could not be loaded. Check your connection and try again.
   refresh: Refresh map data
+  resetOrientation: Reset map orientation
   campusNames(map):
     '1': West Campus
     '2': East Campus

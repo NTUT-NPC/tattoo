@@ -140,6 +140,9 @@ class Translations$campusMap$zh_TW {
 	/// zh-TW: '更新地圖資料'
 	String get refresh => '更新地圖資料';
 
+	/// zh-TW: '回正地圖'
+	String get resetOrientation => '回正地圖';
+
 	Map<String, String> get campusNames => {
 		'1': '西校區',
 		'2': '東校區',
@@ -1979,6 +1982,7 @@ extension on Translations {
 			'campusMap.locationUnavailable' => '目前沒有此空間的位置資料。',
 			'campusMap.loadFailed' => '無法載入地圖資料，請檢查網路後重試。',
 			'campusMap.refresh' => '更新地圖資料',
+			'campusMap.resetOrientation' => '回正地圖',
 			'campusMap.campusNames."1"' => '西校區',
 			'campusMap.campusNames."2"' => '東校區',
 			'campusMap.campusNames."3"' => '南側校區',

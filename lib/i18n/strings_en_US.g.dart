@@ -109,6 +109,7 @@ class _Translations$campusMap$en_US extends Translations$campusMap$zh_TW {
 	@override String get locationUnavailable => 'This space has no available location data.';
 	@override String get loadFailed => 'Map data could not be loaded. Check your connection and try again.';
 	@override String get refresh => 'Refresh map data';
+	@override String get resetOrientation => 'Reset map orientation';
 	@override Map<String, String> get campusNames => {
 		'1': 'West Campus',
 		'2': 'East Campus',
@@ -1228,6 +1229,7 @@ extension on TranslationsEnUs {
 			'campusMap.locationUnavailable' => 'This space has no available location data.',
 			'campusMap.loadFailed' => 'Map data could not be loaded. Check your connection and try again.',
 			'campusMap.refresh' => 'Refresh map data',
+			'campusMap.resetOrientation' => 'Reset map orientation',
 			'campusMap.campusNames."1"' => 'West Campus',
 			'campusMap.campusNames."2"' => 'East Campus',
 			'campusMap.campusNames."3"' => 'South Campus',

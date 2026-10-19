@@ -29,6 +29,7 @@ campusMap:
   locationUnavailable: 目前沒有此空間的位置資料。
   loadFailed: 無法載入地圖資料，請檢查網路後重試。
   refresh: 更新地圖資料
+  resetOrientation: 回正地圖
   campusNames(map):
     '1': 西校區
     '2': 東校區
