@@ -153,7 +153,11 @@ GoRouter createAppRouter({
       final pendingRoute = container.read(pendingAppRouteProvider);
       if (pendingRoute == null) return null;
       if (state.matchedLocation == pendingRoute) {
-        container.read(pendingAppRouteProvider.notifier).take();
+        // Redirect runs while the widget tree builds, where modifying a
+        // provider throws, so release the destination once this frame
+        // settles. Repeat redirects before then are harmless: they resolve
+        // to this same already-reached route.
+        Future(() => container.read(pendingAppRouteProvider.notifier).take());
         return null;
       }
       return pendingRoute;
