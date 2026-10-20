@@ -218,6 +218,15 @@ class CourseTableExport extends StatelessWidget {
   // Lay out the shared cell above its minimum height before scaling it down.
   static const _cellLayoutScale = 56.0 / (_periodRowHeight - 2);
 
+  static CourseTableGridMetrics _metricsFor(
+    CourseTableData courseTable,
+    CourseTableGridRange range,
+  ) => CourseTableGridMetrics(
+    visiblePeriods: range.visiblePeriods,
+    hasNoonCourse: courseTable.hasNoonCourse,
+    rowHeight: _periodRowHeight,
+  );
+
   /// Preserves stable cell geometry while omitting unused rows and columns.
   static Size logicalSizeFor(CourseTableData courseTable) {
     final range = courseTableGridRange(courseTable);
@@ -227,7 +236,7 @@ class CourseTableExport extends StatelessWidget {
           _dayColumnWidth * range.visibleDaysOfWeek.length,
       _outerPadding * 2 +
           _weekdayHeaderHeight +
-          _periodRowHeight * range.visiblePeriods.length,
+          _metricsFor(courseTable, range).gridHeight,
     );
   }
 
@@ -239,10 +248,8 @@ class CourseTableExport extends StatelessWidget {
     final colors = theme.colorScheme;
     final range = courseTableGridRange(courseTable);
     final days = range.visibleDaysOfWeek;
-    final periods = range.visiblePeriods;
-    const rowHeight = _periodRowHeight;
+    final metrics = _metricsFor(courseTable, range);
     const dayWidth = _dayColumnWidth;
-    final gridHeight = rowHeight * periods.length;
     final colorByCourseId = buildCourseTableColorMap(courseTable);
 
     return MediaQuery(
@@ -279,21 +286,17 @@ class CourseTableExport extends StatelessWidget {
                 ),
                 SizedBox(
                   width: double.infinity,
-                  height: gridHeight,
+                  height: metrics.gridHeight,
                   child: Stack(
                     children: [
-                      _PeriodLabels(
-                        periods: periods,
-                        rowHeight: rowHeight,
-                      ),
+                      _PeriodLabels(metrics: metrics),
                       for (final entry in courseTable.scheduled.entries)
                         if (days.contains(entry.key.day) &&
-                            periods.contains(entry.key.period))
+                            metrics.visiblePeriods.contains(entry.key.period))
                           _courseCell(
                             entry: entry,
-                            periods: periods,
+                            metrics: metrics,
                             days: days,
-                            rowHeight: rowHeight,
                             dayWidth: dayWidth,
                             baseColor: colorByCourseId[entry.value.id]!,
                           ),
@@ -325,22 +328,20 @@ class CourseTableExport extends StatelessWidget {
   Widget _courseCell({
     required MapEntry<({DayOfWeek day, Period period}), CourseTableCellData>
     entry,
-    required List<Period> periods,
+    required CourseTableGridMetrics metrics,
     required List<DayOfWeek> days,
-    required double rowHeight,
     required double dayWidth,
     required Color baseColor,
   }) {
     final cell = entry.value;
     final dayIndex = days.indexOf(entry.key.day);
-    final periodIndex = periods.indexOf(entry.key.period);
-    final representedRows = cell.span + (cell.crossesNoon ? 1 : 0);
+    final periodIndex = metrics.visiblePeriods.indexOf(entry.key.period);
     final cellWidth = dayWidth - 2;
-    final cellHeight = representedRows * rowHeight - 2;
+    final cellHeight = metrics.courseCellHeight(periodIndex, cell) - 2;
 
     return Positioned(
       left: _periodStubWidth + dayIndex * dayWidth + 1,
-      top: periodIndex * rowHeight + 1,
+      top: metrics.periodTopOffset(periodIndex) + 1,
       width: cellWidth,
       height: cellHeight,
       child: FittedBox(
@@ -358,13 +359,9 @@ class CourseTableExport extends StatelessWidget {
 }
 
 class _PeriodLabels extends StatelessWidget {
-  const _PeriodLabels({
-    required this.periods,
-    required this.rowHeight,
-  });
+  const _PeriodLabels({required this.metrics});
 
-  final List<Period> periods;
-  final double rowHeight;
+  final CourseTableGridMetrics metrics;
 
   @override
   Widget build(BuildContext context) {
@@ -372,9 +369,9 @@ class _PeriodLabels extends StatelessWidget {
       width: CourseTableExport._periodStubWidth,
       child: Column(
         children: [
-          for (final period in periods)
+          for (final period in metrics.visiblePeriods)
             SizedBox(
-              height: rowHeight,
+              height: metrics.periodHeight(period),
               child: Center(
                 child: Text(
                   period.code,
