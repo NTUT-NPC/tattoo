@@ -21,6 +21,7 @@ import 'package:tattoo/screens/update_screen.dart';
 import 'package:tattoo/screens/welcome/change_password_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
+import 'package:tattoo/screens/whats_new_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/shells/animated_shell_container.dart';
@@ -47,6 +48,7 @@ abstract class AppRoutes {
   static const regedit = '/regedit';
   static const changePassword = '/change-password';
   static const update = '/update';
+  static const whatsNew = '/whats-new';
   static const studentUnion = '/student-union';
 }
 
@@ -115,6 +117,7 @@ const _publicRoutes = {
   AppRoutes.intro,
   AppRoutes.login,
   AppRoutes.about,
+  AppRoutes.whatsNew,
   AppRoutes.changePassword,
   AppRoutes.update,
 };
@@ -172,6 +175,10 @@ GoRouter createAppRouter({
       firebaseService.analyticsObserver!,
   ],
   routes: [
+    GoRoute(
+      path: AppRoutes.whatsNew,
+      builder: (context, state) => _framed(const WhatsNewScreen()),
+    ),
     GoRoute(
       path: AppRoutes.update,
       builder: (context, state) => const UpdateScreen(),

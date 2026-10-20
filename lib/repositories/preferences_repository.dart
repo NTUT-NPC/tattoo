@@ -41,6 +41,15 @@ enum PrefKey<T> {
   /// Whether authenticated navigation starts on the course table instead of home.
   startWithCourseTable<bool>(.boolean, false),
 
+  /// Last app version whose new features were opened.
+  lastSeenWhatsNewVersion<String>(.string, ''),
+
+  /// Version associated with the new-feature prompt counter.
+  lastPromptedWhatsNewVersion<String>(.string, ''),
+
+  /// Number of new-feature prompts shown for that version.
+  whatsNewPromptCount<int>(.integer, 0),
+
   /// The app theme mode: system, light, or dark.
   themeMode<String>(.string, 'system'),
 

@@ -1,3 +1,23 @@
+newFeatures:
+  androidWidget:
+    title: Home screen widget
+    description: Add your latest timetable to your home screen for easy access anytime.
+  campusMap:
+    title: Campus map
+    description: View campus buildings and floor plans, and search for classrooms or teachers by name.
+  materialDownload:
+    title: Course material downloads
+    description: Browse and download iSchool course materials from the course details.
+  ntutSu:
+    title: Student Union
+    description: Find links to student rights resources and get help from the Student Union with everyday campus issues.
+
+whatsNew:
+  title: What's New
+  announcement: TAT has new features
+  view: View
+  gotIt: Got it
+
 preferences:
   startWithCourseTable:
     title: Start with Course Table

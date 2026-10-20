@@ -1,6 +1,7 @@
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:tattoo/components/feature_card.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/router/app_router.dart';
@@ -34,17 +35,17 @@ class _IntroScreenState extends State<IntroScreen>
     final body = Column(
       spacing: 8,
       children: [
-        _FeatureCard(
+        FeatureCard(
           title: t.intro.features.courseTable.title,
           description: t.intro.features.courseTable.description,
           icon: Icons.calendar_month,
         ),
-        _FeatureCard(
+        FeatureCard(
           title: t.intro.features.scores.title,
           description: t.intro.features.scores.description,
           icon: Icons.bar_chart,
         ),
-        _FeatureCard(
+        FeatureCard(
           title: t.intro.features.campusLife.title,
           description: t.intro.features.campusLife.description,
           icon: Icons.location_city,
@@ -108,54 +109,6 @@ class _IntroScreenState extends State<IntroScreen>
                     ),
                   ),
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FeatureCard extends StatelessWidget {
-  const _FeatureCard({
-    required this.title,
-    required this.description,
-    required this.icon,
-  });
-
-  final String title;
-  final String description;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: .infinity,
-        padding: const .symmetric(horizontal: 24, vertical: 12),
-        child: Row(
-          crossAxisAlignment: .center,
-          spacing: 24,
-          children: [
-            Icon(icon, size: 28),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: .start,
-                spacing: 4,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: .bold,
-                    ),
-                  ),
-                  Text(
-                    description,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
               ),
             ),
           ],

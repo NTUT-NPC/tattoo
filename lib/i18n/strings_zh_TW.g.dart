@@ -41,6 +41,8 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	Translations $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => Translations(meta: meta ?? this.$meta);
 
 	// Translations
+	late final Translations$newFeatures$zh_TW newFeatures = Translations$newFeatures$zh_TW.internal(_root);
+	late final Translations$whatsNew$zh_TW whatsNew = Translations$whatsNew$zh_TW.internal(_root);
 	late final Translations$preferences$zh_TW preferences = Translations$preferences$zh_TW.internal(_root);
 	late final Translations$general$zh_TW general = Translations$general$zh_TW.internal(_root);
 	late final Translations$errors$zh_TW errors = Translations$errors$zh_TW.internal(_root);
@@ -63,6 +65,40 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$forceUpdate$zh_TW forceUpdate = Translations$forceUpdate$zh_TW.internal(_root);
 	late final Translations$regedit$zh_TW regedit = Translations$regedit$zh_TW.internal(_root);
 	late final Translations$changePassword$zh_TW changePassword = Translations$changePassword$zh_TW.internal(_root);
+}
+
+// Path: newFeatures
+class Translations$newFeatures$zh_TW {
+	Translations$newFeatures$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final Translations$newFeatures$androidWidget$zh_TW androidWidget = Translations$newFeatures$androidWidget$zh_TW.internal(_root);
+	late final Translations$newFeatures$campusMap$zh_TW campusMap = Translations$newFeatures$campusMap$zh_TW.internal(_root);
+	late final Translations$newFeatures$materialDownload$zh_TW materialDownload = Translations$newFeatures$materialDownload$zh_TW.internal(_root);
+	late final Translations$newFeatures$ntutSu$zh_TW ntutSu = Translations$newFeatures$ntutSu$zh_TW.internal(_root);
+}
+
+// Path: whatsNew
+class Translations$whatsNew$zh_TW {
+	Translations$whatsNew$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '新功能'
+	String get title => '新功能';
+
+	/// zh-TW: 'TAT有新功能'
+	String get announcement => 'TAT有新功能';
+
+	/// zh-TW: '檢視'
+	String get view => '檢視';
+
+	/// zh-TW: '知道了'
+	String get gotIt => '知道了';
 }
 
 // Path: preferences
@@ -769,6 +805,66 @@ class Translations$changePassword$zh_TW {
 	String get success => '密碼變更成功';
 
 	late final Translations$changePassword$errors$zh_TW errors = Translations$changePassword$errors$zh_TW.internal(_root);
+}
+
+// Path: newFeatures.androidWidget
+class Translations$newFeatures$androidWidget$zh_TW {
+	Translations$newFeatures$androidWidget$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '桌面小工具'
+	String get title => '桌面小工具';
+
+	/// zh-TW: '可將最新課表新增到桌面上，方便隨時查看。'
+	String get description => '可將最新課表新增到桌面上，方便隨時查看。';
+}
+
+// Path: newFeatures.campusMap
+class Translations$newFeatures$campusMap$zh_TW {
+	Translations$newFeatures$campusMap$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '校園地圖'
+	String get title => '校園地圖';
+
+	/// zh-TW: '可查看校園建築物地圖與各樓層平面圖，並可搜尋教室位置或教師名字。'
+	String get description => '可查看校園建築物地圖與各樓層平面圖，並可搜尋教室位置或教師名字。';
+}
+
+// Path: newFeatures.materialDownload
+class Translations$newFeatures$materialDownload$zh_TW {
+	Translations$newFeatures$materialDownload$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '課程教材下載'
+	String get title => '課程教材下載';
+
+	/// zh-TW: '在課程詳細資料內，現在可瀏覽並下載i學園上的課程教材。'
+	String get description => '在課程詳細資料內，現在可瀏覽並下載i學園上的課程教材。';
+}
+
+// Path: newFeatures.ntutSu
+class Translations$newFeatures$ntutSu$zh_TW {
+	Translations$newFeatures$ntutSu$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '學生會專區'
+	String get title => '學生會專區';
+
+	/// zh-TW: '提供學生權益相關連結，與學生會一起陪你解決校園大小事。'
+	String get description => '提供學生權益相關連結，與學生會一起陪你解決校園大小事。';
 }
 
 // Path: preferences.startWithCourseTable
@@ -1661,6 +1757,18 @@ class Translations$changePassword$errors$server$zh_TW {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'newFeatures.androidWidget.title' => '桌面小工具',
+			'newFeatures.androidWidget.description' => '可將最新課表新增到桌面上，方便隨時查看。',
+			'newFeatures.campusMap.title' => '校園地圖',
+			'newFeatures.campusMap.description' => '可查看校園建築物地圖與各樓層平面圖，並可搜尋教室位置或教師名字。',
+			'newFeatures.materialDownload.title' => '課程教材下載',
+			'newFeatures.materialDownload.description' => '在課程詳細資料內，現在可瀏覽並下載i學園上的課程教材。',
+			'newFeatures.ntutSu.title' => '學生會專區',
+			'newFeatures.ntutSu.description' => '提供學生權益相關連結，與學生會一起陪你解決校園大小事。',
+			'whatsNew.title' => '新功能',
+			'whatsNew.announcement' => 'TAT有新功能',
+			'whatsNew.view' => '檢視',
+			'whatsNew.gotIt' => '知道了',
 			'preferences.startWithCourseTable.title' => '啟動時開啟課表',
 			'preferences.darkMode' => '深色模式',
 			'preferences.themeMode.system' => '預設',
