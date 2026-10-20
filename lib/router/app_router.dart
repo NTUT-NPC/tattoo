@@ -94,15 +94,6 @@ Future<String> resolveLandingLocation(
   }
 }
 
-/// Resolves a one-shot internal destination before normal landing preferences.
-Future<String> resolvePostAuthenticationLocation(
-  ProviderContainer container,
-  PreferencesRepository preferencesRepository,
-) async {
-  return container.read(pendingAppRouteProvider) ??
-      await resolveLandingLocation(preferencesRepository);
-}
-
 Widget _framed(Widget child) => CenteredMaxWidthFrame(child: child);
 
 /// Bridges [sessionProvider] to a [Listenable] for [GoRouter.refreshListenable].
