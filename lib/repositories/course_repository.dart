@@ -328,7 +328,7 @@ class CourseRepository {
     if (semester == null) return null;
     return (
       semester: semester,
-      courseTable: await _readCachedCourseTable(semester.id),
+      courseTable: (await _readCachedCourseTable(semester.id)).courseTable,
     );
   }
 
@@ -346,9 +346,11 @@ class CourseRepository {
       ..where((s) => s.semester.equals(semesterId));
 
     await for (final _ in query.watch()) {
-      final data = await _readCachedCourseTable(semesterId);
+      final (:courseTable, :hasCachedOfferings) = await _readCachedCourseTable(
+        semesterId,
+      );
 
-      if (data.scheduled.isEmpty && data.unscheduled.isEmpty) {
+      if (!hasCachedOfferings) {
         try {
           await refreshCourseTable(semesterId: semesterId);
         } catch (_) {
@@ -356,7 +358,7 @@ class CourseRepository {
         }
       }
 
-      yield data;
+      yield courseTable;
 
       final semesterRow = await (_database.select(
         _database.semesters,
@@ -378,7 +380,12 @@ class CourseRepository {
     }
   }
 
-  Future<CourseTableData> _readCachedCourseTable(int semesterId) async {
+  /// Reads the cached timetable, reporting whether any offering was cached.
+  ///
+  /// `hasCachedOfferings` stays `false` only when nothing was ever fetched, so
+  /// a semester whose offerings are all withdrawn does not refetch forever.
+  Future<({CourseTableData courseTable, bool hasCachedOfferings})>
+  _readCachedCourseTable(int semesterId) async {
     final rows = await (_database.select(
       _database.courseTableSlots,
     )..where((slot) => slot.semester.equals(semesterId))).get();
@@ -432,16 +439,19 @@ class CourseRepository {
         if (!data.teacherNames.contains(name)) data.teacherNames.add(name);
       }
     }
-    return _buildCourseTableData(
-      rows,
-      [
-        for (final data in allOfferings.values)
-          (
-            offering: data.offering,
-            course: data.course,
-            teacherNames: data.teacherNames.toList(growable: false),
-          ),
-      ],
+    return (
+      courseTable: _buildCourseTableData(
+        rows,
+        [
+          for (final data in allOfferings.values)
+            (
+              offering: data.offering,
+              course: data.course,
+              teacherNames: data.teacherNames.toList(growable: false),
+            ),
+        ],
+      ),
+      hasCachedOfferings: allOfferings.isNotEmpty,
     );
   }
 
@@ -626,10 +636,12 @@ class CourseRepository {
   ) {
     final scheduled = <({DayOfWeek day, Period period}), CourseTableCellData>{};
     final offeringsById = {
-      for (final offering in allOfferings) offering.offering.id: offering,
+      for (final offering in allOfferings)
+        if (offering.offering.status != '撤選') offering.offering.id: offering,
     };
 
     for (final row in rows) {
+      if (!offeringsById.containsKey(row.id)) continue;
       final key = (day: row.dayOfWeek, period: row.period);
       if (scheduled.containsKey(key)) continue;
 
@@ -708,7 +720,7 @@ class CourseRepository {
 
     // Filter offerings not present in the scheduled map.
     final scheduledIds = scheduled.values.map((c) => c.id).toSet();
-    final unscheduled = allOfferings
+    final unscheduled = offeringsById.values
         .where((row) => !scheduledIds.contains(row.offering.id))
         .map((row) {
           final courseName = localized(
