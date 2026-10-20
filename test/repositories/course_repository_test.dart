@@ -351,9 +351,13 @@ void main() {
     );
 
     test('signals cache changes after a transaction completes', () async {
-      final stream = repository.watchCourseTableCacheChanges();
-      final changed = stream.skip(1).first.timeout(const Duration(seconds: 2));
-      await Future<void>.delayed(Duration.zero);
+      var signals = 0;
+      final subscription = repository.watchCourseTableCacheChanges().listen(
+        (_) => signals++,
+      );
+      addTearDown(subscription.cancel);
+      await pumpEventQueue();
+      final signalsBeforeWrite = signals;
 
       await database.transaction(() async {
         await database.getOrCreateSemester(
@@ -366,8 +370,9 @@ void main() {
           nameZh: '第二教學大樓',
         );
       });
+      await pumpEventQueue();
 
-      await changed;
+      expect(signals, greaterThan(signalsBeforeWrite));
     });
   });
 }

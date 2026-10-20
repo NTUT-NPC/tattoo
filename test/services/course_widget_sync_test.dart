@@ -91,6 +91,7 @@ void main() {
         hasLength(commitCount),
       );
     });
+
     test('fallback cell number changes invalidate the bitmap', () async {
       latest = _cache('', number: 'A');
       await controller.start();
@@ -136,6 +137,7 @@ void main() {
       expect(commits, hasLength(1));
       expect(commits.single, endsWith(':newer:light|newer:dark'));
     });
+
     test('detaching the renderer invalidates an in-flight render', () async {
       final firstRender = Completer<Uint8List>();
       controller.attachRenderer((_) => firstRender.future);
@@ -176,6 +178,7 @@ void main() {
         hasLength(1),
       );
     });
+
     test('commit failure is contained and a later commit succeeds', () async {
       platform.commitError = StateError('commit failed');
       await controller.start();
@@ -230,6 +233,7 @@ void main() {
 
       expect(platform.operations.last, 'clear');
     });
+
     test('render invalidation cannot cancel startup subscription', () async {
       platform.readFingerprintGate = Completer<String?>();
       final started = controller.start();
@@ -313,7 +317,6 @@ class FakeCourseWidgetPlatform implements CourseWidgetPlatform {
   Completer<String?>? readFingerprintGate;
   Object? commitError;
   String? fingerprint;
-  ValueChanged<String>? routeHandler;
 
   @override
   Future<void> clear() async {
@@ -345,9 +348,7 @@ class FakeCourseWidgetPlatform implements CourseWidgetPlatform {
   }
 
   @override
-  void setRouteHandler(ValueChanged<String>? handler) {
-    routeHandler = handler;
-  }
+  void setRouteHandler(ValueChanged<String>? handler) {}
 
   @override
   Future<String?> takePendingRoute() async => null;
