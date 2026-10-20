@@ -100,6 +100,8 @@ PR previews and daily releases always build `staging`; the production release wo
 
 The home-screen campus Wi-Fi entry supports Android and physical iPhones/iPads, controlled by the existing `showWifiButton` preference/Remote Config flag. Sign in with your NTUT portal account to use its securely saved credentials; demo mode has no saved password.
 
+Setup and compatibility-save errors show failure feedback and leave the assistant available for retry.
+
 Android and iOS use independent `CampusWifiProvisioner` implementations selected by the operating system at provider construction. `CampusWifiRepository` keeps the shared screen-facing API; capabilities describe available actions, not which platform strategy to run.
 
 - **Android:** existing network suggestions, compatibility-mode save and manual setup.

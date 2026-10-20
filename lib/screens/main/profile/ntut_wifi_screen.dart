@@ -54,32 +54,52 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
 
   Future<void> _runProvisioning() async {
     setState(() => _isProvisioning = true);
-    final result = await ref
-        .read(campusWifiRepositoryProvider)
-        .provisionNtut8021x();
+    Ntut8021xProvisioningResult? result;
+    try {
+      result = await ref
+          .read(campusWifiRepositoryProvider)
+          .provisionNtut8021x();
+    } catch (_) {
+      result = null;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProvisioning = false;
+          _lastProvisioningResult = result;
+        });
+      }
+    }
     if (!mounted) return;
-
-    setState(() {
-      _isProvisioning = false;
-      _lastProvisioningResult = result;
-    });
     ref.invalidate(ntutWifiAssistantProvider);
-    _showMessage(_provisioningSnackBarMessage(result));
+    _showMessage(switch (result) {
+      final result? => _provisioningSnackBarMessage(result),
+      null => t.ntutWifi.provisioning.failed,
+    });
   }
 
   Future<void> _saveNtut8021xToSystem() async {
     setState(() => _isSavingCompat = true);
-    final result = await ref
-        .read(campusWifiRepositoryProvider)
-        .saveNtut8021xToSystem();
+    Ntut8021xProvisioningResult? result;
+    try {
+      result = await ref
+          .read(campusWifiRepositoryProvider)
+          .saveNtut8021xToSystem();
+    } catch (_) {
+      result = null;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSavingCompat = false;
+          _lastProvisioningResult = result;
+        });
+      }
+    }
     if (!mounted) return;
-
-    setState(() {
-      _isSavingCompat = false;
-      _lastProvisioningResult = result;
-    });
     ref.invalidate(ntutWifiAssistantProvider);
-    _showMessage(_provisioningSnackBarMessage(result));
+    _showMessage(switch (result) {
+      final result? => _provisioningSnackBarMessage(result),
+      null => t.ntutWifi.provisioning.compatFailed,
+    });
   }
 
   void _showMessage(String message) {
