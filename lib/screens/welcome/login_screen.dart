@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/campus_wifi.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/campus_wifi_repository.dart';

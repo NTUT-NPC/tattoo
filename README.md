@@ -100,6 +100,8 @@ PR previews and daily releases always build `staging`; the production release wo
 
 The home-screen campus Wi-Fi entry supports Android and physical iPhones/iPads, controlled by the existing `showWifiButton` preference/Remote Config flag. Sign in with your NTUT portal account to use its securely saved credentials; demo mode has no saved password.
 
+Android and iOS use independent `CampusWifiProvisioner` implementations selected by the operating system at provider construction. `CampusWifiRepository` keeps the shared screen-facing API; capabilities describe available actions, not which platform strategy to run.
+
 - **Android:** existing network suggestions, compatibility-mode save and manual setup.
 - **iOS:** tap **Connect to NTUT-802.1X** and approve the system prompt. TAT applies a persistent PEAP configuration, using system-trusted certificates restricted to `ntut.edu.tw` and its subdomains. The campus server negotiates inner authentication (GTC); Apple's public API cannot select PEAP's inner method explicitly. Changed portal credentials require a user-approved configuration update.
 - **Connection status:** an accepted configuration does not prove connection. Check **Settings > Wi-Fi** on campus. iOS's already-associated response does not prove a changed password was saved, so pending updates remain. iOS offers no public shortcut to Wi-Fi settings; open Settings manually.

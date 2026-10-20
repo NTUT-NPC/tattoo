@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/campus_wifi.dart';
 import 'package:tattoo/repositories/campus_wifi_repository.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
@@ -193,7 +194,7 @@ class _AssistantBody extends StatelessWidget {
         text: _statusMessage(data, isIos: isIos).spaced,
         noticeType: _statusNoticeType(data.status),
       ),
-      if (_modeNoticeMessage(data) case final message?)
+      if (_modeNoticeMessage(data, isIos: isIos) case final message?)
         BackgroundNotice(
           text: message.spaced,
           noticeType: _modeNoticeType(data),
@@ -223,7 +224,7 @@ class _AssistantBody extends StatelessWidget {
                   .spaced,
           noticeType: .info,
         ),
-      if (isIos && !data.capabilities.canProvisionNtut8021xDirect)
+      if (isIos && !data.capabilities.canProvisionAutomatically)
         BackgroundNotice(
           text: t.ntutWifi.ios.deviceRequired.spaced,
           noticeType: .warning,
@@ -366,7 +367,10 @@ class _AssistantBody extends StatelessWidget {
     };
   }
 
-  String? _modeNoticeMessage(Ntut8021xAssistantData data) {
+  String? _modeNoticeMessage(
+    Ntut8021xAssistantData data, {
+    required bool isIos,
+  }) {
     if (data.status != .ready) return null;
 
     if (data.capabilities.isLegacyAndroidManualOnly) {
@@ -379,7 +383,7 @@ class _AssistantBody extends StatelessWidget {
     }
 
     if (data.pendingCompatPromptReason == .credentialChanged) {
-      return data.capabilities.canProvisionNtut8021xDirect
+      return isIos
           ? t.ntutWifi.ios.updateRequired
           : t.ntutWifi.compatUpdateRequired;
     }

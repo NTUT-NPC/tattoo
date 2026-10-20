@@ -33,7 +33,7 @@ final class CampusWifiChannel: NSObject, FlutterPlugin {
       #endif
       result([
         "isSupported": true,
-        "canProvisionNtut8021xDirect": canProvisionDirectly,
+        "canProvisionNtut8021x": canProvisionDirectly,
         "canProvisionNtut8021xSuggestion": false,
         "canProvisionNtut8021xCompat": false,
         "canOpenWifiSettings": false,

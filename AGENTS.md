@@ -66,8 +66,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - StudentQueryService — 學生查詢專區 (`sa_003_oauth`). Academic records, GPA, rankings, registration history.
 - GitHubService — fetches repo contributors, filters bots
 - FirebaseService — Unified wrapper for Firebase Analytics, Crashlytics, and Remote Config. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`). `getRemoteConfigTyped(key, PrefType)` casts a Remote Config value to the caller's declared type (no sniffing), returning `(value: null, isRemote: false)` when disabled or not remotely set.
-- CampusWifiPlatform — Method-channel client wrapper for Android Wi-Fi suggestions/settings and iOS `NEHotspotConfigurationManager`, exposed via `campusWifiPlatformProvider` and structured DTOs (`CampusWifiCapabilitiesDto`, `Ntut8021xProvisioningDto`). iOS uses persistent PEAP with system certificate trust restricted to `ntut.edu.tw` and `*.ntut.edu.tw`; its public API cannot pin PEAP's inner GTC method. Requires the Hotspot Configuration entitlement for both flavors; no location or Wi-Fi-info permission. Simulator provisioning is unsupported, and iOS has no public Wi-Fi settings shortcut.
-- Ntut8021xStateStore — Stores non-secret device-local provisioning modes and pending update prompts in SharedPreferences via `ntut8021xStateStoreProvider`; credentials remain in AuthRepository's secure storage. iOS direct-mode credential changes queue a user-consented update rather than applying during authentication. Successful configuration is not proof of connectivity; cancellation, failure and `alreadyAssociated` must not clear pending credential updates.
+- Campus Wi-Fi — `CampusWifiRepository` exposes one interface backed by OS-selected Android/iOS provisioners. Capabilities describe supported actions, not platform identity; native calls use `CampusWifiPlatform`.
+- Ntut8021xStateStore — Non-secret provisioning state and pending prompts only; credentials stay in AuthRepository's secure storage. See README's Campus Wi-Fi section for platform constraints.
 - NTUT services share single cookie jar (NTUT session state)
 - NTUT services return DTOs as records — no database writes
 - DTOs are typedef'd records co-located with service interfaces
@@ -82,7 +82,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - Course table output excludes withdrawn offerings; the database retains their full data and status.
 - CalendarRepository — Academic calendar events from NTUT portal. Sliding window caching keyed to enrolled semesters.
 - StudentRepository — Academic records, GPA, rankings. Parallel course code resolution via CourseRepository.getCourse().
-- CampusWifiRepository — Platform-specific provisioner configuration and status for NTUT-802.1X campus Wi-Fi. Interacts directly with platform APIs, returning one-shot configuration status rather than using the `watchX()`/`refreshX()` cache pattern.
+- CampusWifiRepository — NTUT-802.1X configuration and one-shot status via the selected provisioner, rather than the `watchX()`/`refreshX()` cache pattern.
 - **Method pattern:** `watchX()` returns a `Stream` backed by Drift `.watch()` — emits cached data immediately, then background-fetches if empty or stale (each method has its own hard-coded TTL `const`). Network errors are absorbed (stale data preferred over errors). `refreshX()` is the imperative counterpart for pull-to-refresh — fetches from network, writes to DB, and lets the stream re-emit.
 
 **Version notifications:** The navigation HomeScreen coordinates update and What's New prompts, with updates taking priority. Maintain only the current release's localized feature list in `whats_new_screen.dart`; optional `TargetPlatform` sets restrict feature visibility.
