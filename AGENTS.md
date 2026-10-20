@@ -6,6 +6,10 @@ Follow @CONTRIBUTING.md for git operation guidelines.
 
 When making changes that add, remove, or alter conventions, patterns, or architectural structure described here, update this document in the same PR.
 
+## CI Build Numbers
+
+PR Build, Daily Release, and Production must use the same `build-number-allocation` concurrency group on their `prepare` jobs (`cancel-in-progress: false`, `queue: max`). The shared action reads the repository variable through the API only after acquiring this lock, then increments and persists it. Never pass `${{ vars.build_number }}` as the current counter. Build and upload jobs remain outside this lock. Update active release branches before resuming concurrent releases; older workflows do not participate in the lock.
+
 ## Architecture
 
 MVVM pattern with Riverpod for DI and reactive state (manual providers, no codegen):
