@@ -39,6 +39,8 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	TranslationsEnUs $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsEnUs(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _Translations$newFeatures$en_US newFeatures = _Translations$newFeatures$en_US._(_root);
+	@override late final _Translations$whatsNew$en_US whatsNew = _Translations$whatsNew$en_US._(_root);
 	@override late final _Translations$preferences$en_US preferences = _Translations$preferences$en_US._(_root);
 	@override late final _Translations$general$en_US general = _Translations$general$en_US._(_root);
 	@override late final _Translations$errors$en_US errors = _Translations$errors$en_US._(_root);
@@ -61,6 +63,32 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$forceUpdate$en_US forceUpdate = _Translations$forceUpdate$en_US._(_root);
 	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
 	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
+}
+
+// Path: newFeatures
+class _Translations$newFeatures$en_US extends Translations$newFeatures$zh_TW {
+	_Translations$newFeatures$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$newFeatures$androidWidget$en_US androidWidget = _Translations$newFeatures$androidWidget$en_US._(_root);
+	@override late final _Translations$newFeatures$campusMap$en_US campusMap = _Translations$newFeatures$campusMap$en_US._(_root);
+	@override late final _Translations$newFeatures$materialDownload$en_US materialDownload = _Translations$newFeatures$materialDownload$en_US._(_root);
+	@override late final _Translations$newFeatures$ntutSu$en_US ntutSu = _Translations$newFeatures$ntutSu$en_US._(_root);
+}
+
+// Path: whatsNew
+class _Translations$whatsNew$en_US extends Translations$whatsNew$zh_TW {
+	_Translations$whatsNew$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'What\'s New';
+	@override String get announcement => 'TAT has new features';
+	@override String get view => 'View';
+	@override String get gotIt => 'Got it';
 }
 
 // Path: preferences
@@ -466,6 +494,50 @@ class _Translations$changePassword$en_US extends Translations$changePassword$zh_
 	@override String get submit => 'Change Password';
 	@override String get success => 'Password changed successfully';
 	@override late final _Translations$changePassword$errors$en_US errors = _Translations$changePassword$errors$en_US._(_root);
+}
+
+// Path: newFeatures.androidWidget
+class _Translations$newFeatures$androidWidget$en_US extends Translations$newFeatures$androidWidget$zh_TW {
+	_Translations$newFeatures$androidWidget$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Home screen widget';
+	@override String get description => 'Add your latest timetable to your home screen for easy access anytime.';
+}
+
+// Path: newFeatures.campusMap
+class _Translations$newFeatures$campusMap$en_US extends Translations$newFeatures$campusMap$zh_TW {
+	_Translations$newFeatures$campusMap$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Campus map';
+	@override String get description => 'View campus buildings and floor plans, and search for classrooms or teachers by name.';
+}
+
+// Path: newFeatures.materialDownload
+class _Translations$newFeatures$materialDownload$en_US extends Translations$newFeatures$materialDownload$zh_TW {
+	_Translations$newFeatures$materialDownload$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Course material downloads';
+	@override String get description => 'Browse and download iSchool course materials from the course details.';
+}
+
+// Path: newFeatures.ntutSu
+class _Translations$newFeatures$ntutSu$en_US extends Translations$newFeatures$ntutSu$zh_TW {
+	_Translations$newFeatures$ntutSu$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Student Union';
+	@override String get description => 'Find links to student rights resources and get help from the Student Union with everyday campus issues.';
 }
 
 // Path: preferences.startWithCourseTable
@@ -1008,6 +1080,18 @@ class _Translations$changePassword$errors$server$en_US extends Translations$chan
 extension on TranslationsEnUs {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'newFeatures.androidWidget.title' => 'Home screen widget',
+			'newFeatures.androidWidget.description' => 'Add your latest timetable to your home screen for easy access anytime.',
+			'newFeatures.campusMap.title' => 'Campus map',
+			'newFeatures.campusMap.description' => 'View campus buildings and floor plans, and search for classrooms or teachers by name.',
+			'newFeatures.materialDownload.title' => 'Course material downloads',
+			'newFeatures.materialDownload.description' => 'Browse and download iSchool course materials from the course details.',
+			'newFeatures.ntutSu.title' => 'Student Union',
+			'newFeatures.ntutSu.description' => 'Find links to student rights resources and get help from the Student Union with everyday campus issues.',
+			'whatsNew.title' => 'What\'s New',
+			'whatsNew.announcement' => 'TAT has new features',
+			'whatsNew.view' => 'View',
+			'whatsNew.gotIt' => 'Got it',
 			'preferences.startWithCourseTable.title' => 'Start with Course Table',
 			'preferences.darkMode' => 'Dark Mode',
 			'preferences.themeMode.system' => 'Default',

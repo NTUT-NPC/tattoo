@@ -18,7 +18,7 @@ typedef VersionConfig = ({
 /// Compares two Semantic Versioning (SemVer) strings (e.g., "1.6.9", "1.0.0-pr.666").
 ///
 /// Returns `true` when [current] is strictly older than [required].
-bool _isOutdated(String current, String required) =>
+bool isVersionOlder(String current, String required) =>
     Version.parse(current) < Version.parse(required);
 
 /// Reads and parses the update parameters from Remote Config.
@@ -61,7 +61,7 @@ VersionConfig? _parseVersionConfig() {
 /// Gets the current application version exactly as structured in the About screen.
 /// Includes `VERSION_SUFFIX` (e.g., `-pr.666` or `-daily20260830`) so that
 /// SemVer pre-release comparisons work correctly.
-Future<String> _getCurrentSemVer() async {
+Future<String> getCurrentSemVer() async {
   final packageInfo = await PackageInfo.fromPlatform();
   const suffix = String.fromEnvironment('VERSION_SUFFIX');
   if (suffix.isEmpty) return packageInfo.version;
@@ -84,9 +84,9 @@ Future<VersionConfig?> checkForUpdate() async {
   final config = _parseVersionConfig();
   if (config == null) return null;
 
-  final currentVersion = await _getCurrentSemVer();
+  final currentVersion = await getCurrentSemVer();
 
-  if (_isOutdated(currentVersion, config.requiredVersion)) {
+  if (isVersionOlder(currentVersion, config.requiredVersion)) {
     log(
       '${config.isForcedUpdate ? 'Force' : 'Optional'} update available: '
       'current=$currentVersion, required=${config.requiredVersion}',
@@ -115,6 +115,19 @@ class UpdateConfigNotifier extends Notifier<VersionConfig?> {
 final updateConfigProvider =
     NotifierProvider<UpdateConfigNotifier, VersionConfig?>(
       UpdateConfigNotifier.new,
+    );
+
+/// Tracks whether the current app launch has shown the What's New prompt.
+class WhatsNewPromptedNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void markPrompted() => state = true;
+}
+
+final whatsNewPromptedProvider =
+    NotifierProvider<WhatsNewPromptedNotifier, bool>(
+      WhatsNewPromptedNotifier.new,
     );
 
 /// Session-scoped flag: `true` once the user dismisses the optional update
