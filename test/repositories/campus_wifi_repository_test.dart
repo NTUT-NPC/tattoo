@@ -221,72 +221,6 @@ void main() {
       expect(platform.settingsCallCount, 3);
     });
 
-    for (final (sdk, mode, denied, fallback, canRemove)
-        in <(int?, Ntut8021xStoredProvisioningMode, bool, bool, bool)>[
-          (28, .none, false, false, false),
-          (29, .suggestion, false, false, true),
-          (29, .suggestion, true, false, true),
-          (30, .suggestion, false, false, true),
-          (30, .suggestion, false, true, false),
-          (30, .suggestion, true, false, false),
-          (30, .compat, false, false, false),
-          (31, .suggestion, false, false, true),
-          (31, .compat, false, false, false),
-          (36, .suggestion, false, true, false),
-          (36, .compat, false, false, false),
-          (null, .direct, false, false, true),
-        ]) {
-      test(
-        'removal visibility: SDK $sdk, $mode, denied=$denied, fallback=$fallback',
-        () async {
-          final authRepository = _FakeAuthRepository(
-            localUser: _testUser,
-            credentials: (username: '111360109', password: 'portal-password'),
-          );
-          addTearDown(authRepository.close);
-          final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
-          await stateStore.markProvisioned(mode: mode);
-          if (fallback) {
-            await stateStore.setPendingCompatPrompt(
-              reason: .suggestionFallbackRequired,
-              immediate: false,
-            );
-          }
-          final platform = _FakeCampusWifiPlatform(
-            capabilities: sdk == null
-                ? _iosCapabilities
-                : (
-                    isSupported: true,
-                    androidSdkInt: sdk,
-                    canOpenWifiSettings: true,
-                    canOpenWifiPanel: sdk >= 29,
-                    canProvisionNtut8021xSuggestion: sdk >= 29,
-                    canProvisionNtut8021xCompat: sdk >= 30,
-                    canProvisionNtut8021x: sdk >= 29,
-                    suggestionPermissionState: denied
-                        ? 'disallowed'
-                        : 'allowed',
-                  ),
-          );
-          final repository = _buildRepository(
-            authRepository: authRepository,
-            platform: platform,
-            stateStore: stateStore,
-            provisioner: sdk == null
-                ? IosCampusWifiProvisioner(
-                    platform: platform,
-                    stateStore: stateStore,
-                  )
-                : null,
-          );
-
-          final data = await repository.getNtut8021xAssistantData();
-
-          expect(data.canRemoveConfiguration, canRemove);
-        },
-      );
-    }
-
     test('returns ready data with normal screen mode', () async {
       final authRepository = _FakeAuthRepository(
         localUser: _testUser,
@@ -306,6 +240,7 @@ void main() {
       expect(data.password, 'portal-password');
       expect(data.screenMode, Ntut8021xScreenMode.normal);
       expect(data.capabilities.canProvisionNtut8021xSuggestion, isTrue);
+      expect(data.canRemoveConfiguration, isTrue);
     });
 
     test('android 11+ denied permission requires settings with optional compat save', () async {
@@ -336,6 +271,7 @@ void main() {
       expect(data.screenMode, Ntut8021xScreenMode.permissionRequired);
       expect(data.canProvisionAutomatically, isFalse);
       expect(data.canUseCompatMode, isTrue);
+      expect(data.canRemoveConfiguration, isFalse);
       expect(data.pendingPromptReason, isNull);
     });
 
@@ -369,6 +305,7 @@ void main() {
         expect(data.screenMode, Ntut8021xScreenMode.permissionRequired);
         expect(data.canProvisionAutomatically, isFalse);
         expect(data.canUseCompatMode, isFalse);
+        expect(data.canRemoveConfiguration, isTrue);
       },
     );
 
@@ -614,6 +551,10 @@ void main() {
         ),
       );
 
+      expect(
+        (await repository.getNtut8021xAssistantData()).canRemoveConfiguration,
+        isFalse,
+      );
       final result = await repository.saveNtut8021xToSystem(
         pendingPromptReason: Ntut8021xPendingPromptReason.credentialChanged,
       );
@@ -666,6 +607,7 @@ void main() {
         expect(data.canProvisionAutomatically, isTrue);
         expect(data.canUseCompatMode, isFalse);
         expect(data.capabilities.isLegacyAndroidManualOnly, isFalse);
+        expect(data.canRemoveConfiguration, isTrue);
         final result = await repository.provisionNtut8021x();
         expect(result.status, Ntut8021xProvisioningStatus.configured);
         expect(result.isSuccess, isTrue);
@@ -867,6 +809,7 @@ void main() {
 
         final data = await repository.getNtut8021xAssistantData();
         expect(data.screenMode, Ntut8021xScreenMode.manualOnly);
+        expect(data.canRemoveConfiguration, isFalse);
         expect(data.canProvisionAutomatically, isFalse);
         expect(data.canUseCompatMode, isFalse);
         expect(
