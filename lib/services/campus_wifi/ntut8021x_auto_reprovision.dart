@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tattoo/models/campus_wifi.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/services/campus_wifi/campus_wifi_provisioner.dart';
 import 'package:tattoo/services/campus_wifi/ntut8021x_state_store.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
@@ -17,6 +18,8 @@ final ntut8021xAutoReprovisionProvider = Provider<Ntut8021xAutoReprovision>((
     prefs: ref.watch(sharedPreferencesProvider),
     provisioner: ref.watch(campusWifiProvisionerProvider),
     stateStore: ref.watch(ntut8021xStateStoreProvider),
+    isWifiEnabled: () =>
+        ref.read(preferencesRepositoryProvider).get(PrefKey.showWifiButton),
   );
 });
 
@@ -26,11 +29,13 @@ class Ntut8021xAutoReprovision {
     required this._prefs,
     required this._provisioner,
     required this._stateStore,
+    required this._isWifiEnabled,
   });
 
   final SharedPreferencesAsync _prefs;
   final CampusWifiProvisioner _provisioner;
   final Ntut8021xStateStore _stateStore;
+  final Future<bool> Function() _isWifiEnabled;
   Future<void> _pendingReprovision = Future<void>.value();
 
   Future<bool> isEnabled() async {
@@ -83,6 +88,7 @@ class Ntut8021xAutoReprovision {
     String? previousIdentity,
     String? previousPassword,
   }) async {
+    if (!await _isWifiEnabled()) return;
     if (!await isEnabled()) {
       _logCampusWifi(
         'Skipped NTUT-802.1X auto reprovision because the flag is disabled',
@@ -103,6 +109,7 @@ class Ntut8021xAutoReprovision {
       );
       return;
     }
+    if (!await _isWifiEnabled()) return;
     await _provisioner.refreshCredentials(
       identity: identity,
       password: password,

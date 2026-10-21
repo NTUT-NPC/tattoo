@@ -20,6 +20,119 @@ void main() {
   });
 
   group('Ntut8021xAutoReprovision', () {
+    for (final mode in [
+      Ntut8021xStoredProvisioningMode.suggestion,
+      Ntut8021xStoredProvisioningMode.compat,
+      Ntut8021xStoredProvisioningMode.direct,
+    ]) {
+      test('disabled Wi-Fi skips opted-in $mode refresh and prompts', () async {
+        final platform = _FakeCampusWifiPlatform()..hasConfiguration = true;
+        final prefs = SharedPreferencesAsync();
+        final stateStore = Ntut8021xStateStore(prefs);
+        final autoReprovision = Ntut8021xAutoReprovision(
+          prefs: prefs,
+          provisioner: mode == .direct
+              ? IosCampusWifiProvisioner(
+                  platform: platform,
+                  stateStore: stateStore,
+                )
+              : AndroidCampusWifiProvisioner(
+                  platform: platform,
+                  stateStore: stateStore,
+                ),
+          stateStore: stateStore,
+          isWifiEnabled: () async => false,
+        );
+        await autoReprovision.enable();
+        await stateStore.markProvisioned(mode: mode);
+
+        await autoReprovision.reprovisionIfEnabled(
+          identity: '111360109',
+          password: 'new-password',
+          previousIdentity: '111360109',
+          previousPassword: 'old-password',
+        );
+
+        expect(platform.capabilitiesCallCount, 0);
+        expect(platform.provisionCallCount, 0);
+        expect(platform.hasConfiguration, isTrue);
+        expect(await autoReprovision.isEnabled(), isTrue);
+        final state = await stateStore.read();
+        expect(state.lastProvisioningMode, mode);
+        expect(state.pendingCompatPromptReason, isNull);
+        expect(state.pendingImmediatePrompt, isFalse);
+      });
+    }
+
+    test('queued refresh reads the latest Wi-Fi gate', () async {
+      var enabled = true;
+      final started = Completer<void>();
+      final finish = Completer<void>();
+      final platform = _FakeCampusWifiPlatform()
+        ..beforeProvision = () async {
+          started.complete();
+          await finish.future;
+        };
+      final prefs = SharedPreferencesAsync();
+      final stateStore = Ntut8021xStateStore(prefs);
+      final autoReprovision = Ntut8021xAutoReprovision(
+        prefs: prefs,
+        provisioner: AndroidCampusWifiProvisioner(
+          platform: platform,
+          stateStore: stateStore,
+        ),
+        stateStore: stateStore,
+        isWifiEnabled: () async => enabled,
+      );
+      await autoReprovision.enable();
+      await stateStore.markProvisioned(mode: .suggestion);
+      final firstRefresh = autoReprovision.reprovisionIfEnabled(
+        identity: '111360109',
+        password: 'first-password',
+      );
+      await started.future;
+      final queuedRefresh = autoReprovision.reprovisionIfEnabled(
+        identity: '111360109',
+        password: 'second-password',
+      );
+      enabled = false;
+      finish.complete();
+      await firstRefresh;
+      await queuedRefresh;
+
+      expect(platform.provisionCallCount, 1);
+      expect(platform.capabilitiesCallCount, 1);
+      expect(platform.password, 'first-password');
+      expect(platform.hasConfiguration, isTrue);
+      expect(await autoReprovision.isEnabled(), isTrue);
+      expect((await stateStore.read()).pendingCompatPromptReason, isNull);
+    });
+
+    test('removal works while Wi-Fi is disabled', () async {
+      final platform = _FakeCampusWifiPlatform()..hasConfiguration = true;
+      final prefs = SharedPreferencesAsync();
+      final stateStore = Ntut8021xStateStore(prefs);
+      final autoReprovision = Ntut8021xAutoReprovision(
+        prefs: prefs,
+        provisioner: AndroidCampusWifiProvisioner(
+          platform: platform,
+          stateStore: stateStore,
+        ),
+        stateStore: stateStore,
+        isWifiEnabled: () async => false,
+      );
+      await autoReprovision.enable();
+      await stateStore.markProvisioned(mode: .suggestion);
+
+      expect(
+        await autoReprovision.removeNtut8021x(),
+        Ntut8021xRemovalStatus.removed,
+      );
+      expect(platform.hasConfiguration, isFalse);
+      expect(await autoReprovision.isEnabled(), isFalse);
+      expect(platform.provisionCallCount, 0);
+    });
+
     test('does nothing while the preference is disabled', () async {
       final platform = _FakeCampusWifiPlatform();
       final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
@@ -30,6 +143,7 @@ void main() {
           stateStore: stateStore,
         ),
         stateStore: stateStore,
+        isWifiEnabled: _wifiEnabled,
       );
 
       await autoReprovision.reprovisionIfEnabled(
@@ -53,6 +167,7 @@ void main() {
             stateStore: stateStore,
           ),
           stateStore: stateStore,
+          isWifiEnabled: _wifiEnabled,
         );
 
         await autoReprovision.enable();
@@ -101,6 +216,7 @@ void main() {
               stateStore: stateStore,
             ),
             stateStore: stateStore,
+            isWifiEnabled: _wifiEnabled,
           );
           await autoReprovision.enable();
           await stateStore.markProvisioned(mode: mode);
@@ -162,6 +278,7 @@ void main() {
             stateStore: stateStore,
           ),
           stateStore: stateStore,
+          isWifiEnabled: _wifiEnabled,
         );
         await autoReprovision.enable();
         await stateStore.markProvisioned(mode: .suggestion);
@@ -197,6 +314,7 @@ void main() {
             stateStore: stateStore,
           ),
           stateStore: stateStore,
+          isWifiEnabled: _wifiEnabled,
         );
 
         await autoReprovision.enable();
@@ -233,6 +351,7 @@ void main() {
           stateStore: stateStore,
         ),
         stateStore: stateStore,
+        isWifiEnabled: _wifiEnabled,
       );
 
       await autoReprovision.enable();
@@ -284,6 +403,7 @@ void main() {
             stateStore: stateStore,
           ),
           stateStore: stateStore,
+          isWifiEnabled: _wifiEnabled,
         );
 
         await autoReprovision.enable();
@@ -332,6 +452,7 @@ void main() {
             stateStore: stateStore,
           ),
           stateStore: stateStore,
+          isWifiEnabled: _wifiEnabled,
         );
         await autoReprovision.enable();
         await stateStore.markProvisioned(mode: .suggestion);
@@ -372,6 +493,7 @@ void main() {
             stateStore: stateStore,
           ),
           stateStore: stateStore,
+          isWifiEnabled: _wifiEnabled,
         );
         await autoReprovision.enable();
         await stateStore.markProvisioned(mode: .direct);
@@ -413,6 +535,7 @@ void main() {
           stateStore: stateStore,
         ),
         stateStore: stateStore,
+        isWifiEnabled: _wifiEnabled,
       );
       await autoReprovision.enable();
       await stateStore.markProvisioned(mode: .suggestion);
@@ -448,6 +571,8 @@ void main() {
   });
 }
 
+Future<bool> _wifiEnabled() async => true;
+
 class _FakeCampusWifiPlatform implements CampusWifiPlatform {
   _FakeCampusWifiPlatform({
     this.capabilities = const (
@@ -478,6 +603,7 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
   final Ntut8021xProvisioningDto provisioningResult;
 
   int provisionCallCount = 0;
+  int capabilitiesCallCount = 0;
   String? identity;
   String? password;
   String? previousIdentity;
@@ -492,7 +618,10 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
   }
 
   @override
-  Future<CampusWifiCapabilitiesDto> getCapabilities() async => capabilities;
+  Future<CampusWifiCapabilitiesDto> getCapabilities() async {
+    capabilitiesCallCount++;
+    return capabilities;
+  }
 
   @override
   Future<bool> openWifiPanel() async => false;

@@ -26,11 +26,12 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final options = [
-      OptionEntryTile.icon(
-        icon: Icons.map_outlined,
-        title: t.campusMap.title,
-        onTap: () => context.push(AppRoutes.campusMap),
-      ),
+      if (ref.pref(PrefKey.showCampusMapButton))
+        OptionEntryTile.icon(
+          icon: Icons.map_outlined,
+          title: t.campusMap.title,
+          onTap: () => context.push(AppRoutes.campusMap),
+        ),
       if (ref.pref(PrefKey.showScannerButton))
         OptionEntryTile.icon(
           icon: Icons.qr_code_scanner,
@@ -57,12 +58,13 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
           title: t.home.campusWifi.spaced,
           onTap: () => context.push(AppRoutes.ntutWifi),
         ),
-      OptionEntryTile.svg(
-        svgIconAsset: "assets/student_union_simple.svg",
-        title: t.studentUnion.title.spaced,
-        description: t.studentUnion.description,
-        onTap: () => context.push(AppRoutes.studentUnion),
-      ),
+      if (ref.pref(PrefKey.showStudentUnionButton))
+        OptionEntryTile.svg(
+          svgIconAsset: "assets/student_union_simple.svg",
+          title: t.studentUnion.title.spaced,
+          description: t.studentUnion.description,
+          onTap: () => context.push(AppRoutes.studentUnion),
+        ),
       OptionEntryTile.svg(
         svgIconAsset: "assets/tat_icon.svg",
         title: t.home.about.title.spaced,

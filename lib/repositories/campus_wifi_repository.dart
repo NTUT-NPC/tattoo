@@ -1,6 +1,7 @@
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/models/campus_wifi.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
+import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/services/campus_wifi/campus_wifi_platform.dart';
 import 'package:tattoo/services/campus_wifi/campus_wifi_provisioner.dart';
 import 'package:tattoo/services/campus_wifi/ntut8021x_auto_reprovision.dart';
@@ -13,6 +14,8 @@ final campusWifiRepositoryProvider = Provider<CampusWifiRepository>((ref) {
     provisioner: ref.watch(campusWifiProvisionerProvider),
     autoReprovision: ref.watch(ntut8021xAutoReprovisionProvider),
     stateStore: ref.watch(ntut8021xStateStoreProvider),
+    isWifiEnabled: () =>
+        ref.read(preferencesRepositoryProvider).get(PrefKey.showWifiButton),
   );
 });
 
@@ -23,6 +26,7 @@ class CampusWifiRepository {
     required this._provisioner,
     required this._autoReprovision,
     required this._stateStore,
+    required this._isWifiEnabled,
   });
 
   final AuthRepository _authRepository;
@@ -30,9 +34,19 @@ class CampusWifiRepository {
   final CampusWifiProvisioner _provisioner;
   final Ntut8021xAutoReprovision _autoReprovision;
   final Ntut8021xStateStore _stateStore;
+  final Future<bool> Function() _isWifiEnabled;
   Future<void> _pendingConfigurationChange = Future<void>.value();
 
+  static const _disabledAssistantData = Ntut8021xAssistantData(
+    status: Ntut8021xAssistantStatus.unsupportedPlatform,
+    capabilities: CampusWifiCapabilities.unsupported(),
+    screenMode: Ntut8021xScreenMode.manualOnly,
+    lastProvisioningMode: Ntut8021xProvisioningMode.none,
+    showImmediatePromptCandidate: false,
+  );
+
   Future<Ntut8021xAssistantData> getNtut8021xAssistantData() async {
+    if (!await _isWifiEnabled()) return _disabledAssistantData;
     final capabilities = await _provisioner.getCapabilities();
     var storedState = await _stateStore.read();
     if (capabilities.isSuggestionPermissionDisallowed &&
@@ -41,6 +55,7 @@ class CampusWifiRepository {
       await _stateStore.clearPendingCompatPrompt();
       storedState = await _stateStore.read();
     }
+    if (!await _isWifiEnabled()) return _disabledAssistantData;
     final lastProvisioningMode = _provisioningModeFromStored(
       storedState.lastProvisioningMode,
     );
@@ -75,6 +90,7 @@ class CampusWifiRepository {
     }
 
     final credentials = await _authRepository.getStoredCredentials();
+    if (!await _isWifiEnabled()) return _disabledAssistantData;
     final status = credentials == null
         ? Ntut8021xAssistantStatus.credentialsMissing
         : Ntut8021xAssistantStatus.ready;
@@ -96,6 +112,7 @@ class CampusWifiRepository {
   }
 
   Future<Ntut8021xImmediatePromptData?> consumePendingImmediatePrompt() async {
+    if (!await _isWifiEnabled()) return null;
     if ((await _provisioner.getCapabilities())
             .isSuggestionPermissionDisallowed &&
         (await _stateStore.read()).pendingCompatPromptReason ==
@@ -109,6 +126,7 @@ class CampusWifiRepository {
 
     final credentials = await _authRepository.getStoredCredentials();
     if (credentials == null) return null;
+    if (!await _isWifiEnabled()) return null;
 
     return Ntut8021xImmediatePromptData(
       reason: reason,
@@ -123,7 +141,7 @@ class CampusWifiRepository {
 
   Future<Ntut8021xProvisioningResult> _provisionNtut8021x() async {
     final data = await getNtut8021xAssistantData();
-    if (!data.canProvisionAutomatically) {
+    if (!data.canProvisionAutomatically || !await _isWifiEnabled()) {
       return const Ntut8021xProvisioningResult.unsupported();
     }
 
@@ -158,7 +176,8 @@ class CampusWifiRepository {
     final resolvedPassword = password ?? data.password;
     if (resolvedIdentity == null ||
         resolvedPassword == null ||
-        !data.capabilities.canSaveToSystem) {
+        !data.capabilities.canSaveToSystem ||
+        !await _isWifiEnabled()) {
       return const Ntut8021xProvisioningResult.unsupported();
     }
 
@@ -204,12 +223,14 @@ class CampusWifiRepository {
     return operation;
   }
 
-  Future<bool> openWifiSettings() => _platform.openWifiSettings();
+  Future<bool> openWifiSettings() async =>
+      await _isWifiEnabled() && await _platform.openWifiSettings();
 
-  Future<bool> openWifiPanel() => _platform.openWifiPanel();
+  Future<bool> openWifiPanel() async =>
+      await _isWifiEnabled() && await _platform.openWifiPanel();
 
-  Future<bool> openWifiPermissionSettings() =>
-      _platform.openWifiPermissionSettings();
+  Future<bool> openWifiPermissionSettings() async =>
+      await _isWifiEnabled() && await _platform.openWifiPermissionSettings();
 
   Ntut8021xPendingPromptReason? _pendingPromptReasonFromStored(
     Ntut8021xStoredPendingPromptReason? reason,
