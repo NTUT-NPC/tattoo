@@ -3,6 +3,7 @@ package club.ntut.npc.tat.campuswifi
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -68,8 +69,10 @@ class CampusWifiChannelHandler(
             "openWifiPanel" -> result.success(
                 openIntent(wifiPanelIntent ?: wifiSettingsIntent),
             )
+            "openWifiPermissionSettings" -> result.success(openWifiPermissionSettings())
             "provisionNtut8021x" -> handleProvisionNtut8021xCall(call, result)
             "saveNtut8021xToSystem" -> handleSaveNtut8021xToSystemCall(call, result)
+            "removeNtut8021x" -> handleRemoveNtut8021xCall(result)
             else -> result.notImplemented()
         }
     }
@@ -100,6 +103,15 @@ class CampusWifiChannelHandler(
             )
             mainHandler.post {
                 result.success(provisioningResult)
+            }
+        }
+    }
+
+    private fun handleRemoveNtut8021xCall(result: MethodChannel.Result) {
+        executor.execute {
+            val removalStatus = provisioner.removeNtut8021x()
+            mainHandler.post {
+                result.success(removalStatus)
             }
         }
     }
@@ -173,6 +185,21 @@ class CampusWifiChannelHandler(
         }
     }
 
+    private fun openWifiPermissionSettings(): Boolean {
+        val packageUri = Uri.fromParts("package", activity.packageName, null)
+        // Exported by AOSP/Pixel Settings, but not a documented SDK action.
+        val intent = Intent("android.settings.REQUEST_CHANGE_WIFI_STATE")
+        // Resolve before attaching the package URI, which the implicit filter omits.
+        val component = intent.resolveActivity(activity.packageManager)
+        if (component != null && openIntent(intent.apply {
+                this.component = component
+                data = packageUri
+            })) {
+            return true
+        }
+        return openIntent(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageUri))
+    }
+
     private fun buildCapabilities(): Map<String, Any?> {
         return mapOf(
             "sdkInt" to Build.VERSION.SDK_INT,
@@ -209,6 +236,8 @@ class CampusWifiChannelHandler(
             activity.startActivity(intent)
             true
         } catch (_: ActivityNotFoundException) {
+            false
+        } catch (_: SecurityException) {
             false
         }
     }

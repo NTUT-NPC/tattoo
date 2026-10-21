@@ -96,6 +96,19 @@ flutter build ipa --flavor production
 
 PR previews and daily releases always build `staging`; the production release workflow always builds `production`.
 
+## Campus Wi-Fi
+
+Campus Wi-Fi setup supports Android and physical iPhones/iPads under the `showWifiButton` flag. It uses securely saved portal credentials; demo mode has no saved password.
+
+Setup and compatibility-save errors show failure feedback and leave the assistant available for retry.
+
+- **Android:** network suggestions, explicit compatibility-mode saving, and manual setup. Denied suggestion permission offers **Wi-Fi Control Permission**, never automatic compatibility saving.
+- **iOS:** user-approved persistent PEAP configuration with system certificate trust restricted to NTUT server names. Credential changes require renewed consent; Apple's API leaves PEAP inner authentication to negotiation.
+- **Removal:** available without signing in; removes only app-owned configurations and disables automatic credential refresh, even on failure. Cancel changes nothing. Android compatibility/manual networks must be forgotten in system Wi-Fi settings; iOS acknowledges a removal request, not confirmed deletion.
+- **Verification:** accepted setup does not prove connectivity. Check **Settings > Wi-Fi** on campus. iOS has no public Wi-Fi settings shortcut, and simulator configuration is unsupported.
+
+Both iOS App IDs and signing profiles need **Hotspot Configuration** (`ios/Runner/Runner.entitlements`). Physical-device authentication and certificate validation require on-campus verification. See [AGENTS.md](AGENTS.md) for the shared repository and OS-selected provisioner architecture.
+
 ## HTML Snapshot Capture
 
 Developers can capture raw NTUT HTML/XML responses for parser work:

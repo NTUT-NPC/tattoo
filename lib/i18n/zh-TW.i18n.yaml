@@ -304,27 +304,57 @@ scanner:
 ntutWifi:
   title: NTUT-802.1X
   entryDescription: 使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi
-  intro: 使用已登入的校園入口帳號密碼，自動加入NTUT-802.1X並讓Android後續自動嘗試連線。
+  intro: 使用已儲存的入口帳密加入NTUT-802.1X。
   accountHint: 帳號直接使用學號或員編，不要加上@ntut.edu.tw。
-  androidVersion: "Android API ${sdkInt}"
-  unsupportedPlatform: 這個功能目前僅支援Android裝置。
-  notLoggedIn: 請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。
-  credentialsMissing: 找不到已保存的入口網站密碼。若要複製密碼，請先重新登入TAT。
-  olderAndroidWarning: 此助手依Android 12以上介面設計，較舊版本的欄位名稱可能略有不同。
+  androidVersion: Android API ${sdkInt}
+  unsupportedPlatform: 這台裝置不支援自動設定Wi-Fi。
+  notLoggedIn: 請先登入以使用入口帳密。
+  credentialsMissing: 請重新登入以儲存入口密碼。
+  olderAndroidWarning: Android 10及11的設定欄位名稱可能不同。
   copyFailed: 複製失敗
   openSettingsFailed: 無法開啟Wi‑Fi設定
   openPanelFailed: 無法開啟Wi‑Fi快捷面板
-  systemCertificatesHint: 自動佈署會固定使用「系統憑證 + 網域ntut.edu.tw + PEAP/GTC」。若系統不允許App安全地下發這組Enterprise設定，請改走下方手動fallback。
-  automaticProvisionUnavailable: 這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。
-  compatModeSavedHint: 相容模式已儲存到系統。之後若入口帳密變更，需要再次更新這組 Wi‑Fi 設定。
-  compatUpdateRequired: 先前使用相容模式寫入的 NTUT-802.1X 帳密已過期，請重新更新系統 Wi‑Fi。
-  suggestionFallbackRequired: suggestion 自動更新失敗，請改用相容模式將最新 NTUT-802.1X 設定寫入系統。
-  android10PermissionRejected: Android 10 已拒絕這個 App 的 Wi‑Fi suggestion 權限，請依下方教學手動連線。
-  legacyManualOnly: Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。
+  systemCertificatesHint: 使用系統憑證、網域ntut.edu.tw及PEAP/GTC。
+  automaticProvisionUnavailable: 請依下方資訊手動設定。
+  compatModeSavedHint: 已儲存至系統Wi-Fi，密碼變更後請在此更新。
+  compatUpdateRequired: 密碼已變更，請更新已儲存的Wi-Fi設定。
+  suggestionFallbackRequired: 自動更新失敗，請改用相容模式。
+  legacyManualOnly: Android 9及更舊版本需手動設定。
+  removal:
+    button: 移除NTUT-802.1X設定
+    title: 移除NTUT-802.1X？
+    confirmation:
+      android10: 移除TAT的網路建議並停用自動更新？這可能中斷Wi-Fi。手動儲存的網路需至Wi-Fi設定忘記。
+      android: 移除TAT的網路建議並停用自動更新？這可能中斷Wi-Fi。相容模式或手動儲存的網路需至Wi-Fi設定忘記。
+      ios: 請求移除TAT的設定並停用自動更新？這可能中斷Wi-Fi，其他來源的設定不受影響。
+    confirm: 移除設定
+    removing: 正在移除設定…
+    removed: 已移除TAT的網路建議並停用自動更新。手動儲存的網路仍需至Wi-Fi設定忘記。
+    requested: 已請求移除並停用自動更新，請至「設定」>「Wi-Fi」確認。
+    manualRequired: 已停用自動更新，請至Wi-Fi設定忘記已儲存的網路。
+    unsupported: 請至Wi-Fi設定手動忘記網路。
+    failed: 移除失敗，請重試或至Wi-Fi設定忘記網路。
+    snackbar:
+      removed: 已移除網路建議
+      requested: 已送出移除請求
+      manualRequired: 請至Wi-Fi設定忘記網路
+      unsupported: 需要手動移除網路
+      failed: 移除失敗
+  ios:
+    intro: 使用已儲存的入口帳密連接NTUT-802.1X，並允許系統提示。
+    connect: 連接NTUT-802.1X
+    certificatesHint: 使用PEAP及ntut.edu.tw的系統信任憑證。
+    deviceRequired: 自動設定需要實體iPhone或iPad。
+    configured: 已儲存設定，請至「設定」>「Wi-Fi」確認連線。
+    cancelled: 已取消請求。
+    alreadyAssociated: 目前已連線，請至「設定」>「Wi-Fi」確認儲存的帳密。
+    updateRequired: 帳密已變更，請再次連接以更新。
+    openSettings: 1. 開啟「設定」>「Wi-Fi」。
+    enterCredentials: 3. 輸入帳密，僅信任校園伺服器的憑證。
   sections:
     quickActions: 快速操作
     recommendedSettings: 建議設定
-    fallback: 手動Fallback
+    fallback: 手動設定
   actions:
     autoProvision: 自動加入NTUT-802.1X
     autoProvisioning: 正在加入NTUT-802.1X…
@@ -332,6 +362,7 @@ ntutWifi:
     updateCompatProvision: 使用相容模式更新
     openWifiSettings: 開啟Wi‑Fi設定
     openWifiPanel: 開啟Wi‑Fi快捷面板
+    openWifiPermissionSettings: Wi-Fi控制權限
   fields:
     ssid: 網路名稱
     eapMethod: EAP方法
@@ -349,23 +380,22 @@ ntutWifi:
     selectNetwork: 2. 選擇或新增NTUT-802.1X。
     useDisplayedValues: 3. 將下方顯示的SSID、PEAP、GTC、帳號、密碼與網域填入。
   provisioning:
-    success: 已將NTUT-802.1X加入Android。只要Wi‑Fi開啟且在校園網路範圍內，系統就會自動嘗試連線。
-    successPendingWifi: 已將NTUT-802.1X加入Android，但目前Wi‑Fi尚未開啟。開啟Wi‑Fi後，系統才會自動嘗試連線。
-    approvalPending: 系統目前不允許TAT直接送出Wi‑Fi建議，請改用下方設定入口完成系統層操作後再試。
-    approvalRejected: 系統已拒絕TAT的Wi‑Fi建議，請到系統設定允許後再試，或直接走下方手動設定。
-    validationUnavailable: 這台裝置無法讓TAT安全地下發「系統憑證 + 網域」Enterprise設定，請改用下方手動設定。
-    unsupportedPlatform: 這台裝置目前不支援自動加入NTUT-802.1X。
-    failed: 自動加入NTUT-802.1X失敗，請改用下方手動設定。
-    compatSuccess: 已透過相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。
-    compatFallbackSuccess: suggestion 被拒，已改用相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。
-    compatAlreadyExists: Android 回報系統內已存在 NTUT-802.1X 設定，但儲存的密碼可能仍是舊的。請先確認系統 Wi‑Fi 項目，或刪除後再重新使用相容模式。
-    compatCancelled: 已取消相容模式更新，稍後可在此頁重新嘗試。
-    compatFailed: 相容模式更新失敗，請改依下方教學手動連線。
+    success: 已加入NTUT-802.1X。
+    successPendingWifi: 已加入網路，請開啟Wi-Fi以連線。
+    approvalPending: 等待允許Wi-Fi建議。
+    approvalRejected: 請在Wi-Fi控制設定允許TAT。
+    validationUnavailable: 請在這台裝置上手動設定。
+    unsupportedPlatform: 不支援自動設定。
+    failed: 設定失敗，請改用手動設定。
+    compatSuccess: 已儲存Wi-Fi設定。
+    compatAlreadyExists: 網路已儲存，請至Wi-Fi設定確認密碼。
+    compatCancelled: 已取消更新。
+    compatFailed: 更新失敗，請改用手動設定。
   compatPrompt:
     title: 更新 NTUT-802.1X
     updateNow: 立即更新
     later: 稍後
-    credentialChanged: 你先前使用相容模式儲存了 NTUT-802.1X。現在入口帳密已變更，需要重新更新系統 Wi‑Fi。
+    credentialChanged: 入口帳密已變更，請更新先前儲存的NTUT-802.1X系統Wi-Fi設定。
     suggestionFallbackRequired: 系統無法自動更新 NTUT-802.1X，是否現在改用相容模式完成更新？
 kioskLogin:
   qrCode: 登入QR code

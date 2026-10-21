@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
+import 'package:tattoo/models/campus_wifi.dart';
+import 'package:tattoo/services/campus_wifi/android_campus_wifi_provisioner.dart';
 import 'package:tattoo/services/campus_wifi/campus_wifi_platform.dart';
+import 'package:tattoo/services/campus_wifi/ios_campus_wifi_provisioner.dart';
+import 'package:tattoo/services/campus_wifi/ntut8021x_auto_reprovision.dart';
 import 'package:tattoo/services/campus_wifi/ntut8021x_state_store.dart';
 
 void main() {
@@ -19,7 +25,10 @@ void main() {
       final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
       final autoReprovision = Ntut8021xAutoReprovision(
         prefs: SharedPreferencesAsync(),
-        platform: platform,
+        provisioner: AndroidCampusWifiProvisioner(
+          platform: platform,
+          stateStore: stateStore,
+        ),
         stateStore: stateStore,
       );
 
@@ -39,14 +48,15 @@ void main() {
         final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
         final autoReprovision = Ntut8021xAutoReprovision(
           prefs: SharedPreferencesAsync(),
-          platform: platform,
+          provisioner: AndroidCampusWifiProvisioner(
+            platform: platform,
+            stateStore: stateStore,
+          ),
           stateStore: stateStore,
         );
 
         await autoReprovision.enable();
-        await stateStore.markProvisioned(
-          mode: .compat,
-        );
+        await stateStore.markProvisioned(mode: .compat);
 
         await autoReprovision.reprovisionIfEnabled(
           identity: '111360109',
@@ -63,6 +73,118 @@ void main() {
       },
     );
 
+    for (final mode in [
+      Ntut8021xStoredProvisioningMode.compat,
+      Ntut8021xStoredProvisioningMode.direct,
+    ]) {
+      test(
+        'queues an update prompt for ${mode.name} despite denied suggestion permission',
+        () async {
+          final platform = _FakeCampusWifiPlatform(
+            capabilities: const (
+              isSupported: true,
+              androidSdkInt: 34,
+              canOpenWifiSettings: true,
+              canOpenWifiPanel: true,
+              canProvisionNtut8021xSuggestion: true,
+              canProvisionNtut8021xCompat: true,
+              canProvisionNtut8021x: true,
+              suggestionPermissionState: 'disallowed',
+            ),
+          );
+          final prefs = SharedPreferencesAsync();
+          final stateStore = Ntut8021xStateStore(prefs);
+          final autoReprovision = Ntut8021xAutoReprovision(
+            prefs: prefs,
+            provisioner: AndroidCampusWifiProvisioner(
+              platform: platform,
+              stateStore: stateStore,
+            ),
+            stateStore: stateStore,
+          );
+          await autoReprovision.enable();
+          await stateStore.markProvisioned(mode: mode);
+
+          await autoReprovision.reprovisionIfEnabled(
+            identity: '111360109',
+            password: 'new-password',
+            previousIdentity: '111360109',
+            previousPassword: 'old-password',
+          );
+
+          final state = await stateStore.read();
+          expect(platform.provisionCallCount, 0);
+          expect(state.lastProvisioningMode, mode);
+          expect(
+            state.pendingCompatPromptReason,
+            Ntut8021xStoredPendingPromptReason.credentialChanged,
+          );
+          expect(state.pendingImmediatePrompt, isTrue);
+        },
+      );
+    }
+
+    for (final deniedBeforeRefresh in [true, false]) {
+      test('preserves a credential update prompt when suggestion permission is denied '
+          '${deniedBeforeRefresh ? 'before' : 'during'} refresh', () async {
+        final platform = _FakeCampusWifiPlatform(
+          capabilities: (
+            isSupported: true,
+            androidSdkInt: 34,
+            canOpenWifiSettings: true,
+            canOpenWifiPanel: true,
+            canProvisionNtut8021xSuggestion: true,
+            canProvisionNtut8021xCompat: true,
+            canProvisionNtut8021x: true,
+            suggestionPermissionState: deniedBeforeRefresh
+                ? 'disallowed'
+                : 'allowed',
+          ),
+          provisioningResult: const (
+            status: 'approvalRejected',
+            androidSdkInt: 34,
+            usedHiddenCaPath: true,
+            wifiEnabled: true,
+            networkSuggestionStatus: 4,
+            approvalStatus: 3,
+            suggestionPermissionState: 'disallowed',
+            compatResultCode: null,
+            compatNetworkResultCodes: <int>[],
+            message: null,
+          ),
+        );
+        final prefs = SharedPreferencesAsync();
+        final stateStore = Ntut8021xStateStore(prefs);
+        final autoReprovision = Ntut8021xAutoReprovision(
+          prefs: prefs,
+          provisioner: AndroidCampusWifiProvisioner(
+            platform: platform,
+            stateStore: stateStore,
+          ),
+          stateStore: stateStore,
+        );
+        await autoReprovision.enable();
+        await stateStore.markProvisioned(mode: .suggestion);
+        await stateStore.setPendingCompatPrompt(
+          reason: .credentialChanged,
+          immediate: true,
+        );
+
+        await autoReprovision.reprovisionIfEnabled(
+          identity: '111360109',
+          password: 'new-password',
+        );
+
+        final state = await stateStore.read();
+        expect(platform.provisionCallCount, deniedBeforeRefresh ? 0 : 1);
+        expect(
+          state.pendingCompatPromptReason,
+          Ntut8021xStoredPendingPromptReason.credentialChanged,
+        );
+        expect(state.pendingImmediatePrompt, isTrue);
+      });
+    }
+
     test(
       'silently reprovisions when suggestion mode credentials change',
       () async {
@@ -70,14 +192,15 @@ void main() {
         final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
         final autoReprovision = Ntut8021xAutoReprovision(
           prefs: SharedPreferencesAsync(),
-          platform: platform,
+          provisioner: AndroidCampusWifiProvisioner(
+            platform: platform,
+            stateStore: stateStore,
+          ),
           stateStore: stateStore,
         );
 
         await autoReprovision.enable();
-        await stateStore.markProvisioned(
-          mode: .suggestion,
-        );
+        await stateStore.markProvisioned(mode: .suggestion);
 
         await autoReprovision.reprovisionIfEnabled(
           identity: '111360109',
@@ -105,14 +228,15 @@ void main() {
       final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
       final autoReprovision = Ntut8021xAutoReprovision(
         prefs: SharedPreferencesAsync(),
-        platform: platform,
+        provisioner: AndroidCampusWifiProvisioner(
+          platform: platform,
+          stateStore: stateStore,
+        ),
         stateStore: stateStore,
       );
 
       await autoReprovision.enable();
-      await stateStore.markProvisioned(
-        mode: .suggestion,
-      );
+      await stateStore.markProvisioned(mode: .suggestion);
 
       await autoReprovision.reprovisionIfEnabled(
         identity: '111360109',
@@ -136,16 +260,17 @@ void main() {
             canOpenWifiPanel: true,
             canProvisionNtut8021xSuggestion: true,
             canProvisionNtut8021xCompat: true,
+            canProvisionNtut8021x: true,
             suggestionPermissionState: 'allowed',
           ),
           provisioningResult: const (
-            status: 'approvalRejected',
+            status: 'failed',
             androidSdkInt: 30,
             usedHiddenCaPath: true,
             wifiEnabled: true,
             networkSuggestionStatus: 1,
             approvalStatus: null,
-            suggestionPermissionState: 'disallowed',
+            suggestionPermissionState: 'allowed',
             compatResultCode: null,
             compatNetworkResultCodes: <int>[],
             message: null,
@@ -154,14 +279,15 @@ void main() {
         final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
         final autoReprovision = Ntut8021xAutoReprovision(
           prefs: SharedPreferencesAsync(),
-          platform: platform,
+          provisioner: AndroidCampusWifiProvisioner(
+            platform: platform,
+            stateStore: stateStore,
+          ),
           stateStore: stateStore,
         );
 
         await autoReprovision.enable();
-        await stateStore.markProvisioned(
-          mode: .suggestion,
-        );
+        await stateStore.markProvisioned(mode: .suggestion);
 
         await autoReprovision.reprovisionIfEnabled(
           identity: '111360109',
@@ -177,6 +303,148 @@ void main() {
         expect(state.pendingImmediatePrompt, isTrue);
       },
     );
+
+    test(
+      'rejected automatic refresh does not queue a compatibility prompt',
+      () async {
+        final defaults = _FakeCampusWifiPlatform();
+        final platform = _FakeCampusWifiPlatform(
+          provisioningResult: (
+            status: 'approvalRejected',
+            androidSdkInt: 34,
+            usedHiddenCaPath: true,
+            wifiEnabled: true,
+            networkSuggestionStatus: 4,
+            approvalStatus: 3,
+            suggestionPermissionState: 'disallowed',
+            compatResultCode: null,
+            compatNetworkResultCodes: const <int>[],
+            message: null,
+          ),
+          capabilities: defaults.capabilities,
+        );
+        final prefs = SharedPreferencesAsync();
+        final stateStore = Ntut8021xStateStore(prefs);
+        final autoReprovision = Ntut8021xAutoReprovision(
+          prefs: prefs,
+          provisioner: AndroidCampusWifiProvisioner(
+            platform: platform,
+            stateStore: stateStore,
+          ),
+          stateStore: stateStore,
+        );
+        await autoReprovision.enable();
+        await stateStore.markProvisioned(mode: .suggestion);
+        await autoReprovision.reprovisionIfEnabled(
+          identity: '111360109',
+          password: 'changed-password',
+        );
+        final state = await stateStore.read();
+        expect(
+          state.lastProvisioningMode,
+          Ntut8021xStoredProvisioningMode.suggestion,
+        );
+        expect(state.pendingCompatPromptReason, isNull);
+        expect(state.pendingImmediatePrompt, isFalse);
+      },
+    );
+
+    test(
+      'iOS credential changes require consent instead of silent apply',
+      () async {
+        final platform = _FakeCampusWifiPlatform(
+          capabilities: const (
+            isSupported: true,
+            androidSdkInt: null,
+            canOpenWifiSettings: false,
+            canOpenWifiPanel: false,
+            canProvisionNtut8021xSuggestion: false,
+            canProvisionNtut8021xCompat: false,
+            canProvisionNtut8021x: true,
+            suggestionPermissionState: 'unknown',
+          ),
+        );
+        final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
+        final autoReprovision = Ntut8021xAutoReprovision(
+          prefs: SharedPreferencesAsync(),
+          provisioner: IosCampusWifiProvisioner(
+            platform: platform,
+            stateStore: stateStore,
+          ),
+          stateStore: stateStore,
+        );
+        await autoReprovision.enable();
+        await stateStore.markProvisioned(mode: .direct);
+
+        await autoReprovision.reprovisionIfEnabled(
+          identity: '111360109',
+          password: 'new-password',
+          previousIdentity: '111360109',
+          previousPassword: 'old-password',
+        );
+
+        expect(platform.provisionCallCount, 0);
+        final state = await stateStore.read();
+        expect(
+          state.lastProvisioningMode,
+          Ntut8021xStoredProvisioningMode.direct,
+        );
+        expect(
+          state.pendingCompatPromptReason,
+          Ntut8021xStoredPendingPromptReason.credentialChanged,
+        );
+        expect(state.pendingImmediatePrompt, isTrue);
+      },
+    );
+    test('removal waits for refresh and prevents later credential refreshes', () async {
+      final platform = _FakeCampusWifiPlatform();
+      final started = Completer<void>();
+      final finish = Completer<void>();
+      platform.beforeProvision = () async {
+        started.complete();
+        await finish.future;
+      };
+      final prefs = SharedPreferencesAsync();
+      final stateStore = Ntut8021xStateStore(prefs);
+      final autoReprovision = Ntut8021xAutoReprovision(
+        prefs: prefs,
+        provisioner: AndroidCampusWifiProvisioner(
+          platform: platform,
+          stateStore: stateStore,
+        ),
+        stateStore: stateStore,
+      );
+      await autoReprovision.enable();
+      await stateStore.markProvisioned(mode: .suggestion);
+      final refresh = autoReprovision.reprovisionIfEnabled(
+        identity: '111360109',
+        password: 'changed-password',
+      );
+      await started.future;
+      final removal = autoReprovision.removeNtut8021x();
+      var removalCompleted = false;
+      unawaited(
+        removal.then((_) {
+          removalCompleted = true;
+        }),
+      );
+      // Drain pending storage futures while the native refresh remains blocked.
+      await Future<void>.delayed(Duration.zero);
+      expect(removalCompleted, isFalse);
+      finish.complete();
+      await refresh;
+      expect(await removal, Ntut8021xRemovalStatus.removed);
+      expect(platform.hasConfiguration, isFalse);
+      expect(await autoReprovision.isEnabled(), isFalse);
+
+      await autoReprovision.reprovisionIfEnabled(
+        identity: '111360109',
+        password: 'another-password',
+      );
+      expect(platform.hasConfiguration, isFalse);
+      expect(platform.provisionCallCount, 1);
+      expect((await stateStore.read()).pendingCompatPromptReason, isNull);
+    });
   });
 }
 
@@ -189,6 +457,7 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
       canOpenWifiPanel: true,
       canProvisionNtut8021xSuggestion: true,
       canProvisionNtut8021xCompat: true,
+      canProvisionNtut8021x: true,
       suggestionPermissionState: 'allowed',
     ),
     this.provisioningResult = const (
@@ -213,6 +482,14 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
   String? password;
   String? previousIdentity;
   String? previousPassword;
+  Future<void> Function()? beforeProvision;
+  bool hasConfiguration = false;
+
+  @override
+  Future<String> removeNtut8021x() async {
+    hasConfiguration = false;
+    return 'removed';
+  }
 
   @override
   Future<CampusWifiCapabilitiesDto> getCapabilities() async => capabilities;
@@ -222,6 +499,9 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
 
   @override
   Future<bool> openWifiSettings() async => false;
+
+  @override
+  Future<bool> openWifiPermissionSettings() async => false;
 
   @override
   Future<Ntut8021xProvisioningDto> provisionNtut8021x({
@@ -235,6 +515,8 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
     this.password = password;
     this.previousIdentity = previousIdentity;
     this.previousPassword = previousPassword;
+    await beforeProvision?.call();
+    hasConfiguration = true;
     return provisioningResult;
   }
 

@@ -13,7 +13,7 @@ import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/models/login_exception.dart';
-import 'package:tattoo/services/campus_wifi/campus_wifi_platform.dart';
+import 'package:tattoo/services/campus_wifi/ntut8021x_auto_reprovision.dart';
 import 'package:tattoo/services/course_widget_sync.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/portal/portal_service.dart';

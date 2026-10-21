@@ -42,6 +42,35 @@ class Ntut8021xProvisioner(
     }
 
     @SuppressLint("MissingPermission")
+    fun removeNtut8021x(): String {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return "unsupportedPlatform"
+        }
+
+        return try {
+            val wifiManager = wifiManager ?: return "unsupportedPlatform"
+            val suggestions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                wifiManager.networkSuggestions.filter { it.ssid == NTUT_8021X_SSID }
+                    .also {
+                        // An empty removal list removes every suggestion owned by this app.
+                        if (it.isEmpty()) return "removed"
+                    }
+            } else {
+                // API 29 cannot enumerate suggestions. This app only suggests NTUT-802.1X,
+                // so removing all app-owned suggestions is safe on this version.
+                emptyList()
+            }
+            // This does not remove user-owned networks saved via ACTION_WIFI_ADD_NETWORKS.
+            when (wifiManager.removeNetworkSuggestions(suggestions)) {
+                WifiManager.STATUS_NETWORK_SUGGESTIONS_SUCCESS -> "removed"
+                else -> "failed"
+            }
+        } catch (_: RuntimeException) {
+            "failed"
+        }
+    }
+
+    @SuppressLint("MissingPermission")
     fun provisionNtut8021x(
         identity: String,
         password: String,
