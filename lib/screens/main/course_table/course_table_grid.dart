@@ -162,17 +162,18 @@ class CourseTableGridMetrics {
       .take(span)
       .fold(0.0, (sum, period) => sum + periodHeight(period));
 
-  /// Height of a course cell, adding the shrunken noon row that a
-  /// noon-crossing course covers without counting it in its span.
+  /// Height of a course cell, adding the noon row that a noon-crossing course
+  /// covers without counting it in its span. That row is full height when
+  /// another day has a noon course.
   double courseCellHeight(int startIndex, CourseTableCellData cell) {
     var remainingPeriods = cell.span;
-    var includeSyntheticNoonGap = cell.crossesNoon && !hasNoonCourse;
+    var includeSkippedNoon = cell.crossesNoon;
     var totalHeight = 0.0;
 
     for (final period in visiblePeriods.skip(startIndex)) {
-      if (period == .nPeriod && includeSyntheticNoonGap) {
+      if (period == .nPeriod && includeSkippedNoon) {
         totalHeight += noonRowHeight;
-        includeSyntheticNoonGap = false;
+        includeSkippedNoon = false;
         continue;
       }
 

@@ -80,6 +80,19 @@ void main() {
       );
       expect(metrics.courseCellHeight(0, _cell()), 30);
     });
+
+    test('a noon-crossing course covers the full noon row of another day', () {
+      final metrics = CourseTableGridMetrics(
+        visiblePeriods: const [Period.fourth, Period.nPeriod, Period.fifth],
+        hasNoonCourse: true,
+        rowHeight: 30,
+      );
+
+      expect(
+        metrics.courseCellHeight(0, _cell(span: 2, crossesNoon: true)),
+        90,
+      );
+    });
   });
 
   group('CourseTableExport', () {
