@@ -354,6 +354,18 @@ class _AssistantBody extends StatelessWidget {
                     text: _statusMessage(data, isIos: isIos).spaced,
                     noticeType: _statusNoticeType(data.status),
                   ),
+                if (onOpenWifiPermissionSettings case final onOpen?)
+                  BackgroundNotice(
+                    text: t.ntutWifi.permissionRequired.spaced,
+                    noticeType: .warning,
+                    action: TextButton.icon(
+                      onPressed: isBusy ? null : onOpen,
+                      icon: const Icon(Icons.settings_outlined),
+                      label: Text(
+                        t.ntutWifi.actions.openWifiPermissionSettings.spaced,
+                      ),
+                    ),
+                  ),
                 if (_modeNoticeMessage(data, isIos: isIos) case final message?)
                   BackgroundNotice(
                     text: message.spaced,
@@ -397,14 +409,6 @@ class _AssistantBody extends StatelessWidget {
                     onPressed: isBusy ? null : onOpen,
                     icon: const Icon(Icons.settings_outlined),
                     label: Text(t.ntutWifi.actions.openWifiSettings.spaced),
-                  ),
-                if (onOpenWifiPermissionSettings case final onOpen?)
-                  TextButton.icon(
-                    onPressed: isBusy ? null : onOpen,
-                    icon: const Icon(Icons.settings_outlined),
-                    label: Text(
-                      t.ntutWifi.actions.openWifiPermissionSettings.spaced,
-                    ),
                   ),
               ],
             ),
@@ -496,10 +500,6 @@ class _AssistantBody extends StatelessWidget {
       return isIos
           ? t.ntutWifi.ios.updateRequired
           : t.ntutWifi.compatUpdateRequired;
-    }
-
-    if (data.screenMode == .permissionRequired) {
-      return t.ntutWifi.provisioning.approvalRejected;
     }
 
     if (data.pendingCompatPromptReason == .suggestionFallbackRequired) {

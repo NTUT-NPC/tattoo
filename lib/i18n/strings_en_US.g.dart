@@ -432,6 +432,7 @@ class _Translations$ntutWifi$en_US extends Translations$ntutWifi$zh_TW {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get permissionRequired => 'Wi-Fi control permission was denied. Allow TAT to control Wi-Fi in settings, then return and try again.';
 	@override String get connectTitle => 'Connect to campus WiFi';
 	@override String get description => 'Follow the manual connection guide below, or use the button at the bottom to set up NTUT-802.1X automatically.';
 	@override String get addConfiguration => 'Enable auto-join';
@@ -992,7 +993,7 @@ class _Translations$ntutWifi$actions$en_US extends Translations$ntutWifi$actions
 	@override String get updateCompatProvision => 'Update with Compat Mode';
 	@override String get openWifiSettings => 'Open Wi-Fi Settings';
 	@override String get openWifiPanel => 'Open Wi-Fi Panel';
-	@override String get openWifiPermissionSettings => 'Wi-Fi Control Permission';
+	@override String get openWifiPermissionSettings => 'Open permission settings';
 }
 
 // Path: ntutWifi.fields
@@ -1575,6 +1576,7 @@ extension on TranslationsEnUs {
 			'scanner.guide.step3' => '3. Click "Scan QR code"',
 			'scanner.guide.button' => 'Got it',
 			'scanner.invalidUrl' => 'Invalid URL',
+			'ntutWifi.permissionRequired' => 'Wi-Fi control permission was denied. Allow TAT to control Wi-Fi in settings, then return and try again.',
 			'ntutWifi.connectTitle' => 'Connect to campus WiFi',
 			'ntutWifi.description' => 'Follow the manual connection guide below, or use the button at the bottom to set up NTUT-802.1X automatically.',
 			'ntutWifi.addConfiguration' => 'Enable auto-join',
@@ -1645,7 +1647,7 @@ extension on TranslationsEnUs {
 			'ntutWifi.actions.updateCompatProvision' => 'Update with Compat Mode',
 			'ntutWifi.actions.openWifiSettings' => 'Open Wi-Fi Settings',
 			'ntutWifi.actions.openWifiPanel' => 'Open Wi-Fi Panel',
-			'ntutWifi.actions.openWifiPermissionSettings' => 'Wi-Fi Control Permission',
+			'ntutWifi.actions.openWifiPermissionSettings' => 'Open permission settings',
 			'ntutWifi.fields.ssid' => 'Network name',
 			'ntutWifi.fields.eapMethod' => 'EAP method',
 			'ntutWifi.fields.phase2Auth' => 'Phase 2 authentication',

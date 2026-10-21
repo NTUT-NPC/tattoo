@@ -643,6 +643,9 @@ class Translations$ntutWifi$zh_TW {
 
 	// Translations
 
+	/// zh-TW: 'Wi-Fi控制權限已被拒絕。請前往設定允許TAT控制Wi-Fi，再回來重試。'
+	String get permissionRequired => 'Wi-Fi控制權限已被拒絕。請前往設定允許TAT控制Wi-Fi，再回來重試。';
+
 	/// zh-TW: '連接到校園WiFi'
 	String get connectTitle => '連接到校園WiFi';
 
@@ -1622,8 +1625,8 @@ class Translations$ntutWifi$actions$zh_TW {
 	/// zh-TW: '開啟Wi‑Fi快捷面板'
 	String get openWifiPanel => '開啟Wi‑Fi快捷面板';
 
-	/// zh-TW: 'Wi-Fi控制權限'
-	String get openWifiPermissionSettings => 'Wi-Fi控制權限';
+	/// zh-TW: '前往權限設定'
+	String get openWifiPermissionSettings => '前往權限設定';
 }
 
 // Path: ntutWifi.fields
@@ -2396,6 +2399,7 @@ extension on Translations {
 			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
 			'scanner.guide.button' => '我知道了',
 			'scanner.invalidUrl' => '無效的網址',
+			'ntutWifi.permissionRequired' => 'Wi-Fi控制權限已被拒絕。請前往設定允許TAT控制Wi-Fi，再回來重試。',
 			'ntutWifi.connectTitle' => '連接到校園WiFi',
 			'ntutWifi.description' => '以下提供手動連線設定教學，也可以按底下的按鈕自動設定NTUT-802.1X。',
 			'ntutWifi.addConfiguration' => '啟用自動連線',
@@ -2466,7 +2470,7 @@ extension on Translations {
 			'ntutWifi.actions.updateCompatProvision' => '使用相容模式更新',
 			'ntutWifi.actions.openWifiSettings' => '開啟Wi‑Fi設定',
 			'ntutWifi.actions.openWifiPanel' => '開啟Wi‑Fi快捷面板',
-			'ntutWifi.actions.openWifiPermissionSettings' => 'Wi-Fi控制權限',
+			'ntutWifi.actions.openWifiPermissionSettings' => '前往權限設定',
 			'ntutWifi.fields.ssid' => '網路名稱',
 			'ntutWifi.fields.eapMethod' => 'EAP方法',
 			'ntutWifi.fields.phase2Auth' => '第二階段驗證',

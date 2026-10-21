@@ -371,6 +371,7 @@ scanner:
     button: Got it
   invalidUrl: Invalid URL
 ntutWifi:
+  permissionRequired: Wi-Fi control permission was denied. Allow TAT to control Wi-Fi in settings, then return and try again.
   connectTitle: Connect to campus WiFi
   description: Follow the manual connection guide below, or use the button at the bottom to set up NTUT-802.1X automatically.
   addConfiguration: Enable auto-join
@@ -448,7 +449,7 @@ ntutWifi:
     updateCompatProvision: Update with Compat Mode
     openWifiSettings: Open Wi-Fi Settings
     openWifiPanel: Open Wi-Fi Panel
-    openWifiPermissionSettings: Wi-Fi Control Permission
+    openWifiPermissionSettings: Open permission settings
   fields:
     ssid: Network name
     eapMethod: EAP method

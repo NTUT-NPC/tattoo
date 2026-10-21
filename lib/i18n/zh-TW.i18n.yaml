@@ -371,6 +371,7 @@ scanner:
     button: 我知道了
   invalidUrl: 無效的網址
 ntutWifi:
+  permissionRequired: Wi-Fi控制權限已被拒絕。請前往設定允許TAT控制Wi-Fi，再回來重試。
   connectTitle: 連接到校園WiFi
   description: 以下提供手動連線設定教學，也可以按底下的按鈕自動設定NTUT-802.1X。
   addConfiguration: 啟用自動連線
@@ -448,7 +449,7 @@ ntutWifi:
     updateCompatProvision: 使用相容模式更新
     openWifiSettings: 開啟Wi‑Fi設定
     openWifiPanel: 開啟Wi‑Fi快捷面板
-    openWifiPermissionSettings: Wi-Fi控制權限
+    openWifiPermissionSettings: 前往權限設定
   fields:
     ssid: 網路名稱
     eapMethod: EAP方法
