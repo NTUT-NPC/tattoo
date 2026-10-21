@@ -91,6 +91,8 @@ enum PrefKey<T> {
 
   /// Whether the campus map building menu lists buildings hidden from the map.
   showAllCampusMapBuildings<bool>(.boolean, false),
+  /// Whether I-School Plus materials are shown in course details.
+  showCourseMaterials<bool>(.boolean, true),
 
   /// Link to instructions for connecting to the NTUT network remotely.
   iSchoolPlusNetworkGuideUrl<String>(.string, defaultISchoolPlusNetworkGuideUrl),

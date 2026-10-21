@@ -1,0 +1,119 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:path/path.dart' as p;
+
+/// Uses the material title as its filename, retaining the attachment extension.
+String materialFileName({
+  String? disposition,
+  String? title,
+  String? contentType,
+  List<int> leadingBytes = const [],
+}) {
+  String? serverName;
+  if (disposition case final disposition?) {
+    try {
+      final parameters = HeaderValue.parse(disposition).parameters;
+      serverName = parameters['filename'];
+      final encoded = parameters['filename*'];
+      if (encoded case final encoded?) {
+        final parts = encoded.split("'");
+        if (parts.length == 3 && parts.first.toLowerCase() == 'utf-8') {
+          serverName = Uri.decodeComponent(parts[2]);
+        }
+      }
+    } on FormatException {
+      // Retain filename when filename* is malformed; otherwise use the title.
+    } on ArgumentError {
+      // RFC 5987 filename encoding may itself be malformed.
+    }
+  }
+  if (serverName case final attachmentName?) {
+    serverName = p.posix
+        .basename(p.windows.basename(attachmentName))
+        .replaceAll(RegExp(r'''^['"]|['"]$'''), '');
+  }
+  final materialTitle = title?.trim();
+  var name =
+      (materialTitle != null && materialTitle.isNotEmpty
+              ? materialTitle
+              : serverName ?? 'material')
+          .replaceAll(RegExp(r'[<>:"/\\|?*\x00-\x1f]'), '_')
+          .replaceAll(RegExp(r'[. ]+$'), '')
+          .trim();
+  if (name.isEmpty || name == '.') name = 'material';
+  // Dots in prose titles are not necessarily filename extensions.
+  final extensionPattern = RegExp(r'^\.[a-zA-Z0-9]{1,10}$');
+  final serverExtension = p.extension(serverName ?? '');
+  final titleExtension = p.extension(name);
+  final extension = extensionPattern.hasMatch(serverExtension)
+      ? serverExtension
+      : extensionPattern.hasMatch(titleExtension)
+      ? titleExtension
+      : switch (contentType?.split(';').first.trim().toLowerCase()) {
+          'application/pdf' => '.pdf',
+          'application/zip' || 'application/x-zip-compressed' => '.zip',
+          'application/vnd.rar' ||
+          'application/x-rar' ||
+          'application/x-rar-compressed' => '.rar',
+          'application/x-7z-compressed' => '.7z',
+          'application/gzip' || 'application/x-gzip' => '.gz',
+          'application/msword' => '.doc',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document' =>
+            '.docx',
+          'application/vnd.ms-powerpoint' => '.ppt',
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation' =>
+            '.pptx',
+          'application/vnd.ms-excel' => '.xls',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' =>
+            '.xlsx',
+          'text/plain' => '.txt',
+          'image/jpeg' => '.jpg',
+          'image/png' => '.png',
+          _ => switch (leadingBytes) {
+            [0x52, 0x61, 0x72, 0x21, 0x1a, 0x07, 0x00, ...] ||
+            [0x52, 0x61, 0x72, 0x21, 0x1a, 0x07, 0x01, 0x00, ...] => '.rar',
+            [0x37, 0x7a, 0xbc, 0xaf, 0x27, 0x1c, ...] => '.7z',
+            [0x50, 0x4b, 0x03, 0x04, ...] ||
+            [0x50, 0x4b, 0x05, 0x06, ...] ||
+            [0x50, 0x4b, 0x07, 0x08, ...] => '.zip',
+            [0x1f, 0x8b, 0x08, ...] => '.gz',
+            [0x25, 0x50, 0x44, 0x46, 0x2d, ...] => '.pdf',
+            _ => '',
+          },
+        };
+  if (extension.isNotEmpty &&
+      !name.toLowerCase().endsWith(extension.toLowerCase())) {
+    name += extension;
+  }
+  const maxBytes = 240;
+  if (utf8.encode(name).length > maxBytes) {
+    final hasExtension =
+        extension.isNotEmpty &&
+        name.toLowerCase().endsWith(extension.toLowerCase());
+    final suffix = hasExtension
+        ? name.substring(name.length - extension.length)
+        : '';
+    final base = hasExtension
+        ? name.substring(0, name.length - extension.length)
+        : name;
+    final byteBudget = maxBytes - utf8.encode(suffix).length;
+    final truncated = StringBuffer();
+    var usedBytes = 0;
+    for (final rune in base.runes) {
+      final character = String.fromCharCode(rune);
+      final characterBytes = utf8.encode(character).length;
+      if (usedBytes + characterBytes > byteBudget) break;
+      truncated.write(character);
+      usedBytes += characterBytes;
+    }
+    name = '$truncated$suffix';
+  }
+  if (RegExp(
+    r'^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$',
+    caseSensitive: false,
+  ).hasMatch(p.basenameWithoutExtension(name))) {
+    name = '_$name';
+  }
+  return name;
+}

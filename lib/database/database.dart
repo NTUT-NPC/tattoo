@@ -75,12 +75,13 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: stepByStep(
       from1To2: (migrator, schema) => migrateV1ToV2(migrator, schema),
+      from2To3: (migrator, schema) => migrateV2ToV3(migrator, schema),
     ),
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
@@ -113,5 +114,17 @@ extension on GeneratedDatabase {
     await migrator.createTable(schema.campusMapSyncs);
     await migrator.createIndex(schema.campusMapFloorBuilding);
     await migrator.createIndex(schema.campusMapRoomLayer);
+  }
+
+  Future<void> migrateV2ToV3(Migrator migrator, Schema3 schema) async {
+    await migrator.addColumn(
+      schema.courseOfferings,
+      schema.courseOfferings.materialsFetchedAt,
+    );
+    await migrator.addColumn(
+      schema.materials,
+      schema.materials.iSchoolCourseId,
+    );
+    await migrator.addColumn(schema.materials, schema.materials.streamable);
   }
 }
