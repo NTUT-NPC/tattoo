@@ -33,6 +33,8 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
       canSaveToSystem:
           capabilities.canProvisionNtut8021xCompat &&
           (capabilities.androidSdkInt ?? 0) >= 30,
+      canRemoveNtut8021x:
+          capabilities.isSupported && (capabilities.androidSdkInt ?? 0) >= 29,
       suggestionPermissionState:
           switch (capabilities.suggestionPermissionState) {
             'allowed' => CampusWifiSuggestionPermissionState.allowed,
@@ -54,16 +56,13 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
     if (status != Ntut8021xAssistantStatus.ready) {
       return Ntut8021xScreenMode.normal;
     }
+    if (capabilities.isSuggestionPermissionDisallowed) {
+      return Ntut8021xScreenMode.permissionRequired;
+    }
     if (pendingPromptReason != null &&
         capabilities.isAndroid11OrNewer &&
         capabilities.canProvisionNtut8021xCompat) {
       return Ntut8021xScreenMode.compatRetry;
-    }
-    if (capabilities.isSuggestionPermissionDisallowed) {
-      return capabilities.isAndroid11OrNewer &&
-              capabilities.canProvisionNtut8021xCompat
-          ? Ntut8021xScreenMode.compatRetry
-          : Ntut8021xScreenMode.manualOnly;
     }
     if (!capabilities.canProvisionNtut8021xSuggestion) {
       return Ntut8021xScreenMode.manualOnly;
@@ -75,15 +74,7 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
   Ntut8021xPendingPromptReason? implicitPendingReason({
     required CampusWifiCapabilities capabilities,
     required Ntut8021xProvisioningMode lastProvisioningMode,
-  }) {
-    if (lastProvisioningMode == Ntut8021xProvisioningMode.compat) return null;
-    if (capabilities.isAndroid11OrNewer &&
-        capabilities.canProvisionNtut8021xCompat &&
-        capabilities.isSuggestionPermissionDisallowed) {
-      return Ntut8021xPendingPromptReason.suggestionFallbackRequired;
-    }
-    return null;
-  }
+  }) => null;
 
   @override
   Future<Ntut8021xProvisioningResult> provision({
@@ -109,24 +100,13 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
       );
       return suggestionResult;
     }
-    if (capabilities.isAndroid11OrNewer &&
-        capabilities.canProvisionNtut8021xCompat &&
-        (suggestionResult.status ==
-                Ntut8021xProvisioningStatus.approvalRejected ||
-            suggestionResult.pendingPromptReason ==
-                Ntut8021xPendingPromptReason.suggestionFallbackRequired)) {
-      final compatResult = await saveToSystem(
-        identity: identity,
-        password: password,
-        capabilities: capabilities,
-        pendingPromptReason:
-            Ntut8021xPendingPromptReason.suggestionFallbackRequired,
-      );
-      return _copyResult(
-        compatResult,
-        pendingPromptReason: compatResult.pendingPromptReason,
-        usedCompatFallback: true,
-      );
+    if (suggestionResult.status ==
+            Ntut8021xProvisioningStatus.approvalRejected ||
+        suggestionResult.status ==
+            Ntut8021xProvisioningStatus.approvalPending ||
+        provisioning.suggestionPermissionState == 'disallowed') {
+      await _clearSuggestionFallbackPrompt();
+      return suggestionResult;
     }
     if (capabilities.isAndroid11OrNewer &&
         capabilities.canProvisionNtut8021xCompat) {
@@ -191,6 +171,24 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
   }
 
   @override
+  Future<Ntut8021xRemovalStatus> remove({
+    required Ntut8021xStoredProvisioningMode lastProvisioningMode,
+  }) async {
+    final status = switch (await _platform.removeNtut8021x()) {
+      'removed' => Ntut8021xRemovalStatus.removed,
+      'removalRequested' => Ntut8021xRemovalStatus.removalRequested,
+      'unsupportedPlatform' => Ntut8021xRemovalStatus.unsupportedPlatform,
+      _ => Ntut8021xRemovalStatus.failed,
+    };
+    if ((status == Ntut8021xRemovalStatus.removed ||
+            status == Ntut8021xRemovalStatus.removalRequested) &&
+        lastProvisioningMode == Ntut8021xStoredProvisioningMode.compat) {
+      return Ntut8021xRemovalStatus.manualRemovalRequired;
+    }
+    return status;
+  }
+
+  @override
   Future<void> refreshCredentials({
     required String identity,
     required String password,
@@ -199,7 +197,9 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
   }) async {
     final storedState = await _stateStore.read();
     if (storedState.lastProvisioningMode ==
-        Ntut8021xStoredProvisioningMode.compat) {
+            Ntut8021xStoredProvisioningMode.compat ||
+        storedState.lastProvisioningMode ==
+            Ntut8021xStoredProvisioningMode.direct) {
       await _stateStore.setPendingCompatPrompt(
         reason: Ntut8021xStoredPendingPromptReason.credentialChanged,
         immediate: true,
@@ -210,12 +210,18 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
       return;
     }
     final capabilities = await getCapabilities();
+    if (capabilities.isSuggestionPermissionDisallowed) {
+      await _clearSuggestionFallbackPrompt();
+      _logCampusWifi(
+        'Skipped NTUT-802.1X refresh: Wi-Fi control permission is required',
+      );
+      return;
+    }
     if (!capabilities.isSupported ||
-        !capabilities.canProvisionNtut8021xSuggestion ||
-        capabilities.isSuggestionPermissionDisallowed) {
+        !capabilities.canProvisionNtut8021xSuggestion) {
       await _queueCompatPromptIfAvailable(capabilities);
       _logCampusWifi(
-        'Skipped NTUT-802.1X auto reprovision because suggestion mode is unavailable or disallowed',
+        'Skipped NTUT-802.1X auto reprovision because suggestion mode is unavailable',
       );
       return;
     }
@@ -229,6 +235,15 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
       previousIdentity: previousIdentity,
       previousPassword: previousPassword,
     );
+    if (result.status == 'approvalRejected' ||
+        result.status == 'approvalPending' ||
+        result.suggestionPermissionState == 'disallowed') {
+      await _clearSuggestionFallbackPrompt();
+      _logCampusWifi(
+        'Skipped compatibility fallback: Wi-Fi suggestion approval is required',
+      );
+      return;
+    }
     if (result.status == 'success' || result.status == 'successPendingWifi') {
       await _stateStore.markProvisioned(
         mode: Ntut8021xStoredProvisioningMode.suggestion,
@@ -241,6 +256,13 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
       'Finished NTUT-802.1X auto reprovision without silent success; '
       'result=${result.status}',
     );
+  }
+
+  Future<void> _clearSuggestionFallbackPrompt() async {
+    if ((await _stateStore.read()).pendingCompatPromptReason ==
+        Ntut8021xStoredPendingPromptReason.suggestionFallbackRequired) {
+      await _stateStore.clearPendingCompatPrompt();
+    }
   }
 
   Future<void> _queueCompatPromptIfAvailable(
@@ -277,7 +299,7 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
     };
     if (provisioning.suggestionPermissionState == 'disallowed' &&
         _isSuggestionSuccess(status)) {
-      status = Ntut8021xProvisioningStatus.failed;
+      status = Ntut8021xProvisioningStatus.approvalRejected;
     }
     return Ntut8021xProvisioningResult(
       status: status,
@@ -294,11 +316,6 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
           Ntut8021xProvisioningMode.compat,
         _ => defaultMode,
       },
-      pendingPromptReason:
-          status == Ntut8021xProvisioningStatus.approvalRejected ||
-              provisioning.suggestionPermissionState == 'disallowed'
-          ? Ntut8021xPendingPromptReason.suggestionFallbackRequired
-          : null,
       wifiEnabled: provisioning.wifiEnabled,
       networkSuggestionStatus: provisioning.networkSuggestionStatus,
       approvalStatus: provisioning.approvalStatus,
@@ -308,14 +325,12 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
           : provisioning.compatNetworkResultCodes.first,
       compatNetworkResultCodes: provisioning.compatNetworkResultCodes,
       message: provisioning.message,
-      usedCompatFallback: false,
     );
   }
 
   Ntut8021xProvisioningResult _copyResult(
     Ntut8021xProvisioningResult result, {
     required Ntut8021xPendingPromptReason? pendingPromptReason,
-    bool? usedCompatFallback,
   }) {
     return Ntut8021xProvisioningResult(
       status: result.status,
@@ -330,7 +345,6 @@ class AndroidCampusWifiProvisioner implements CampusWifiProvisioner {
       compatNetworkResultCode: result.compatNetworkResultCode,
       compatNetworkResultCodes: result.compatNetworkResultCodes,
       message: result.message,
-      usedCompatFallback: usedCompatFallback ?? result.usedCompatFallback,
     );
   }
 

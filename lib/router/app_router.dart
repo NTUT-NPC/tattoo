@@ -52,6 +52,27 @@ abstract class AppRoutes {
   static const studentUnion = '/student-union';
 }
 
+/// Holds the one internal widget destination until an auth gate can consume it.
+class PendingAppRouteNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void set(String? route) {
+    if (route == AppRoutes.courseTable) state = route;
+  }
+
+  String? take() {
+    final route = state;
+    state = null;
+    return route;
+  }
+}
+
+final pendingAppRouteProvider =
+    NotifierProvider<PendingAppRouteNotifier, String?>(
+      PendingAppRouteNotifier.new,
+    );
+
 /// Resolves the landing route used after authentication.
 ///
 /// Falls back to home if preferences cannot be read so a storage failure does
@@ -121,12 +142,26 @@ GoRouter createAppRouter({
     // but no update is actually available.
     if (state.matchedLocation == AppRoutes.update && updateConfig == null) {
       final hasSession = container.read(sessionProvider);
-      return hasSession ? landingLocation : AppRoutes.intro;
+      if (!hasSession) return AppRoutes.intro;
+      return container.read(pendingAppRouteProvider) ?? landingLocation;
     }
 
-    // Auth gate: redirect unauthenticated users to login.
+    // Auth gate: redirect unauthenticated users to login. An authenticated
+    // internal destination is consumed only once its route is reached.
     final hasSession = container.read(sessionProvider);
-    if (hasSession) return null;
+    if (hasSession) {
+      final pendingRoute = container.read(pendingAppRouteProvider);
+      if (pendingRoute == null) return null;
+      if (state.matchedLocation == pendingRoute) {
+        // Redirect runs while the widget tree builds, where modifying a
+        // provider throws, so release the destination once this frame
+        // settles. Repeat redirects before then are harmless: they resolve
+        // to this same already-reached route.
+        Future(() => container.read(pendingAppRouteProvider.notifier).take());
+        return null;
+      }
+      return pendingRoute;
+    }
     if (_publicRoutes.contains(state.matchedLocation)) return null;
     return AppRoutes.login;
   },

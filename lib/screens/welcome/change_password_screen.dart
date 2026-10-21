@@ -66,6 +66,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
     if (success && mounted) {
       if (widget.isExpired) {
+        // A pending widget destination is applied by the router's auth gate,
+        // which redirects away from this landing route while one is held.
         final landingLocation = await resolveLandingLocation(
           ref.read(preferencesRepositoryProvider),
         );

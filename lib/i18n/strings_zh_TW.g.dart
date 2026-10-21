@@ -487,6 +487,10 @@ class Translations$profile$zh_TW {
 	late final Translations$profile$passwordExpiry$zh_TW passwordExpiry = Translations$profile$passwordExpiry$zh_TW.internal(_root);
 	late final Translations$profile$sections$zh_TW sections = Translations$profile$sections$zh_TW.internal(_root);
 	late final Translations$profile$options$zh_TW options = Translations$profile$options$zh_TW.internal(_root);
+
+	/// zh-TW: '登出失敗，請再試一次'
+	String get logoutFailed => '登出失敗，請再試一次';
+
 	late final Translations$profile$avatar$zh_TW avatar = Translations$profile$avatar$zh_TW.internal(_root);
 	late final Translations$profile$dangerZone$zh_TW dangerZone = Translations$profile$dangerZone$zh_TW.internal(_root);
 }
@@ -562,8 +566,8 @@ class Translations$ntutWifi$zh_TW {
 	/// zh-TW: '使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi'
 	String get entryDescription => '使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi';
 
-	/// zh-TW: '使用已登入的校園入口帳號密碼，自動加入NTUT-802.1X並讓Android後續自動嘗試連線。'
-	String get intro => '使用已登入的校園入口帳號密碼，自動加入NTUT-802.1X並讓Android後續自動嘗試連線。';
+	/// zh-TW: '使用已儲存的入口帳密加入NTUT-802.1X。'
+	String get intro => '使用已儲存的入口帳密加入NTUT-802.1X。';
 
 	/// zh-TW: '帳號直接使用學號或員編，不要加上@ntut.edu.tw。'
 	String get accountHint => '帳號直接使用學號或員編，不要加上@ntut.edu.tw。';
@@ -571,17 +575,17 @@ class Translations$ntutWifi$zh_TW {
 	/// zh-TW: 'Android API ${sdkInt}'
 	String androidVersion({required Object sdkInt}) => 'Android API ${sdkInt}';
 
-	/// zh-TW: '這個功能支援Android及iOS裝置。'
-	String get unsupportedPlatform => '這個功能支援Android及iOS裝置。';
+	/// zh-TW: '這台裝置不支援自動設定Wi-Fi。'
+	String get unsupportedPlatform => '這台裝置不支援自動設定Wi-Fi。';
 
-	/// zh-TW: '請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。'
-	String get notLoggedIn => '請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。';
+	/// zh-TW: '請先登入以使用入口帳密。'
+	String get notLoggedIn => '請先登入以使用入口帳密。';
 
-	/// zh-TW: '找不到已保存的入口網站密碼。若要複製密碼，請先重新登入TAT。'
-	String get credentialsMissing => '找不到已保存的入口網站密碼。若要複製密碼，請先重新登入TAT。';
+	/// zh-TW: '請重新登入以儲存入口密碼。'
+	String get credentialsMissing => '請重新登入以儲存入口密碼。';
 
-	/// zh-TW: '此助手依Android 12以上介面設計，較舊版本的欄位名稱可能略有不同。'
-	String get olderAndroidWarning => '此助手依Android 12以上介面設計，較舊版本的欄位名稱可能略有不同。';
+	/// zh-TW: 'Android 10及11的設定欄位名稱可能不同。'
+	String get olderAndroidWarning => 'Android 10及11的設定欄位名稱可能不同。';
 
 	/// zh-TW: '複製失敗'
 	String get copyFailed => '複製失敗';
@@ -592,27 +596,25 @@ class Translations$ntutWifi$zh_TW {
 	/// zh-TW: '無法開啟Wi‑Fi快捷面板'
 	String get openPanelFailed => '無法開啟Wi‑Fi快捷面板';
 
-	/// zh-TW: '自動佈署會固定使用「系統憑證 + 網域ntut.edu.tw + PEAP/GTC」。若系統不允許App安全地下發這組Enterprise設定，請改走下方手動fallback。'
-	String get systemCertificatesHint => '自動佈署會固定使用「系統憑證 + 網域ntut.edu.tw + PEAP/GTC」。若系統不允許App安全地下發這組Enterprise設定，請改走下方手動fallback。';
+	/// zh-TW: '使用系統憑證、網域ntut.edu.tw及PEAP/GTC。'
+	String get systemCertificatesHint => '使用系統憑證、網域ntut.edu.tw及PEAP/GTC。';
 
-	/// zh-TW: '這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。'
-	String get automaticProvisionUnavailable => '這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。';
+	/// zh-TW: '請依下方資訊手動設定。'
+	String get automaticProvisionUnavailable => '請依下方資訊手動設定。';
 
-	/// zh-TW: '相容模式已儲存到系統。之後若入口帳密變更，需要再次更新這組 Wi‑Fi 設定。'
-	String get compatModeSavedHint => '相容模式已儲存到系統。之後若入口帳密變更，需要再次更新這組 Wi‑Fi 設定。';
+	/// zh-TW: '已儲存至系統Wi-Fi，密碼變更後請在此更新。'
+	String get compatModeSavedHint => '已儲存至系統Wi-Fi，密碼變更後請在此更新。';
 
-	/// zh-TW: '先前使用相容模式寫入的 NTUT-802.1X 帳密已過期，請重新更新系統 Wi‑Fi。'
-	String get compatUpdateRequired => '先前使用相容模式寫入的 NTUT-802.1X 帳密已過期，請重新更新系統 Wi‑Fi。';
+	/// zh-TW: '密碼已變更，請更新已儲存的Wi-Fi設定。'
+	String get compatUpdateRequired => '密碼已變更，請更新已儲存的Wi-Fi設定。';
 
-	/// zh-TW: 'suggestion 自動更新失敗，請改用相容模式將最新 NTUT-802.1X 設定寫入系統。'
-	String get suggestionFallbackRequired => 'suggestion 自動更新失敗，請改用相容模式將最新 NTUT-802.1X 設定寫入系統。';
+	/// zh-TW: '自動更新失敗，請改用相容模式。'
+	String get suggestionFallbackRequired => '自動更新失敗，請改用相容模式。';
 
-	/// zh-TW: 'Android 10 已拒絕這個 App 的 Wi‑Fi suggestion 權限，請依下方教學手動連線。'
-	String get android10PermissionRejected => 'Android 10 已拒絕這個 App 的 Wi‑Fi suggestion 權限，請依下方教學手動連線。';
+	/// zh-TW: 'Android 9及更舊版本需手動設定。'
+	String get legacyManualOnly => 'Android 9及更舊版本需手動設定。';
 
-	/// zh-TW: 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。'
-	String get legacyManualOnly => 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。';
-
+	late final Translations$ntutWifi$removal$zh_TW removal = Translations$ntutWifi$removal$zh_TW.internal(_root);
 	late final Translations$ntutWifi$ios$zh_TW ios = Translations$ntutWifi$ios$zh_TW.internal(_root);
 	late final Translations$ntutWifi$sections$zh_TW sections = Translations$ntutWifi$sections$zh_TW.internal(_root);
 	late final Translations$ntutWifi$actions$zh_TW actions = Translations$ntutWifi$actions$zh_TW.internal(_root);
@@ -1354,6 +1356,46 @@ class Translations$scanner$guide$zh_TW {
 	String get button => '我知道了';
 }
 
+// Path: ntutWifi.removal
+class Translations$ntutWifi$removal$zh_TW {
+	Translations$ntutWifi$removal$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '移除NTUT-802.1X設定'
+	String get button => '移除NTUT-802.1X設定';
+
+	/// zh-TW: '移除NTUT-802.1X？'
+	String get title => '移除NTUT-802.1X？';
+
+	late final Translations$ntutWifi$removal$confirmation$zh_TW confirmation = Translations$ntutWifi$removal$confirmation$zh_TW.internal(_root);
+
+	/// zh-TW: '移除設定'
+	String get confirm => '移除設定';
+
+	/// zh-TW: '正在移除設定…'
+	String get removing => '正在移除設定…';
+
+	/// zh-TW: '已移除TAT的網路建議並停用自動更新。手動儲存的網路仍需至Wi-Fi設定忘記。'
+	String get removed => '已移除TAT的網路建議並停用自動更新。手動儲存的網路仍需至Wi-Fi設定忘記。';
+
+	/// zh-TW: '已請求移除並停用自動更新，請至「設定」>「Wi-Fi」確認。'
+	String get requested => '已請求移除並停用自動更新，請至「設定」>「Wi-Fi」確認。';
+
+	/// zh-TW: '已停用自動更新，請至Wi-Fi設定忘記已儲存的網路。'
+	String get manualRequired => '已停用自動更新，請至Wi-Fi設定忘記已儲存的網路。';
+
+	/// zh-TW: '請至Wi-Fi設定手動忘記網路。'
+	String get unsupported => '請至Wi-Fi設定手動忘記網路。';
+
+	/// zh-TW: '移除失敗，請重試或至Wi-Fi設定忘記網路。'
+	String get failed => '移除失敗，請重試或至Wi-Fi設定忘記網路。';
+
+	late final Translations$ntutWifi$removal$snackbar$zh_TW snackbar = Translations$ntutWifi$removal$snackbar$zh_TW.internal(_root);
+}
+
 // Path: ntutWifi.ios
 class Translations$ntutWifi$ios$zh_TW {
 	Translations$ntutWifi$ios$zh_TW.internal(this._root);
@@ -1362,35 +1404,35 @@ class Translations$ntutWifi$ios$zh_TW {
 
 	// Translations
 
-	/// zh-TW: '使用已儲存的校園入口帳密連接NTUT-802.1X。請開啟Wi-Fi並允許iOS系統提示。'
-	String get intro => '使用已儲存的校園入口帳密連接NTUT-802.1X。請開啟Wi-Fi並允許iOS系統提示。';
+	/// zh-TW: '使用已儲存的入口帳密連接NTUT-802.1X，並允許系統提示。'
+	String get intro => '使用已儲存的入口帳密連接NTUT-802.1X，並允許系統提示。';
 
 	/// zh-TW: '連接NTUT-802.1X'
 	String get connect => '連接NTUT-802.1X';
 
-	/// zh-TW: '使用PEAP及ntut.edu.tw的系統信任憑證，由校園伺服器協商內層驗證，iOS控制允許與連線。'
-	String get certificatesHint => '使用PEAP及ntut.edu.tw的系統信任憑證，由校園伺服器協商內層驗證，iOS控制允許與連線。';
+	/// zh-TW: '使用PEAP及ntut.edu.tw的系統信任憑證。'
+	String get certificatesHint => '使用PEAP及ntut.edu.tw的系統信任憑證。';
 
-	/// zh-TW: '自動設定Wi-Fi需要實體iPhone或iPad，模擬器不支援此功能。'
-	String get deviceRequired => '自動設定Wi-Fi需要實體iPhone或iPad，模擬器不支援此功能。';
+	/// zh-TW: '自動設定需要實體iPhone或iPad。'
+	String get deviceRequired => '自動設定需要實體iPhone或iPad。';
 
-	/// zh-TW: 'iOS已接受NTUT-802.1X設定，但不代表已連線。請在校園內至「設定」>「Wi-Fi」確認。'
-	String get configured => 'iOS已接受NTUT-802.1X設定，但不代表已連線。請在校園內至「設定」>「Wi-Fi」確認。';
+	/// zh-TW: '已儲存設定，請至「設定」>「Wi-Fi」確認連線。'
+	String get configured => '已儲存設定，請至「設定」>「Wi-Fi」確認連線。';
 
-	/// zh-TW: '已取消Wi-Fi請求，稍後可在此頁重試。'
-	String get cancelled => '已取消Wi-Fi請求，稍後可在此頁重試。';
+	/// zh-TW: '已取消請求。'
+	String get cancelled => '已取消請求。';
 
-	/// zh-TW: 'iOS回報目前已連接NTUT-802.1X，但不代表新密碼已儲存，請至「設定」>「Wi-Fi」確認。'
-	String get alreadyAssociated => 'iOS回報目前已連接NTUT-802.1X，但不代表新密碼已儲存，請至「設定」>「Wi-Fi」確認。';
+	/// zh-TW: '目前已連線，請至「設定」>「Wi-Fi」確認儲存的帳密。'
+	String get alreadyAssociated => '目前已連線，請至「設定」>「Wi-Fi」確認儲存的帳密。';
 
-	/// zh-TW: '入口帳密已變更，請再次連接以更新已儲存的NTUT-802.1X設定。'
-	String get updateRequired => '入口帳密已變更，請再次連接以更新已儲存的NTUT-802.1X設定。';
+	/// zh-TW: '帳密已變更，請再次連接以更新。'
+	String get updateRequired => '帳密已變更，請再次連接以更新。';
 
-	/// zh-TW: '1. 開啟「設定」App，再選擇「Wi-Fi」。iOS不允許TAT直接開啟此頁。'
-	String get openSettings => '1. 開啟「設定」App，再選擇「Wi-Fi」。iOS不允許TAT直接開啟此頁。';
+	/// zh-TW: '1. 開啟「設定」>「Wi-Fi」。'
+	String get openSettings => '1. 開啟「設定」>「Wi-Fi」。';
 
-	/// zh-TW: '3. 輸入上方顯示的帳號與密碼，僅信任校園驗證伺服器的憑證。'
-	String get enterCredentials => '3. 輸入上方顯示的帳號與密碼，僅信任校園驗證伺服器的憑證。';
+	/// zh-TW: '3. 輸入帳密，僅信任校園伺服器的憑證。'
+	String get enterCredentials => '3. 輸入帳密，僅信任校園伺服器的憑證。';
 }
 
 // Path: ntutWifi.sections
@@ -1407,8 +1449,8 @@ class Translations$ntutWifi$sections$zh_TW {
 	/// zh-TW: '建議設定'
 	String get recommendedSettings => '建議設定';
 
-	/// zh-TW: '手動Fallback'
-	String get fallback => '手動Fallback';
+	/// zh-TW: '手動設定'
+	String get fallback => '手動設定';
 }
 
 // Path: ntutWifi.actions
@@ -1436,6 +1478,9 @@ class Translations$ntutWifi$actions$zh_TW {
 
 	/// zh-TW: '開啟Wi‑Fi快捷面板'
 	String get openWifiPanel => '開啟Wi‑Fi快捷面板';
+
+	/// zh-TW: 'Wi-Fi控制權限'
+	String get openWifiPermissionSettings => 'Wi-Fi控制權限';
 }
 
 // Path: ntutWifi.fields
@@ -1512,41 +1557,38 @@ class Translations$ntutWifi$provisioning$zh_TW {
 
 	// Translations
 
-	/// zh-TW: '已將NTUT-802.1X加入Android。只要Wi‑Fi開啟且在校園網路範圍內，系統就會自動嘗試連線。'
-	String get success => '已將NTUT-802.1X加入Android。只要Wi‑Fi開啟且在校園網路範圍內，系統就會自動嘗試連線。';
+	/// zh-TW: '已加入NTUT-802.1X。'
+	String get success => '已加入NTUT-802.1X。';
 
-	/// zh-TW: '已將NTUT-802.1X加入Android，但目前Wi‑Fi尚未開啟。開啟Wi‑Fi後，系統才會自動嘗試連線。'
-	String get successPendingWifi => '已將NTUT-802.1X加入Android，但目前Wi‑Fi尚未開啟。開啟Wi‑Fi後，系統才會自動嘗試連線。';
+	/// zh-TW: '已加入網路，請開啟Wi-Fi以連線。'
+	String get successPendingWifi => '已加入網路，請開啟Wi-Fi以連線。';
 
-	/// zh-TW: '系統目前不允許TAT直接送出Wi‑Fi建議，請改用下方設定入口完成系統層操作後再試。'
-	String get approvalPending => '系統目前不允許TAT直接送出Wi‑Fi建議，請改用下方設定入口完成系統層操作後再試。';
+	/// zh-TW: '等待允許Wi-Fi建議。'
+	String get approvalPending => '等待允許Wi-Fi建議。';
 
-	/// zh-TW: '系統已拒絕TAT的Wi‑Fi建議，請到系統設定允許後再試，或直接走下方手動設定。'
-	String get approvalRejected => '系統已拒絕TAT的Wi‑Fi建議，請到系統設定允許後再試，或直接走下方手動設定。';
+	/// zh-TW: '請在Wi-Fi控制設定允許TAT。'
+	String get approvalRejected => '請在Wi-Fi控制設定允許TAT。';
 
-	/// zh-TW: '這台裝置無法讓TAT安全地下發「系統憑證 + 網域」Enterprise設定，請改用下方手動設定。'
-	String get validationUnavailable => '這台裝置無法讓TAT安全地下發「系統憑證 + 網域」Enterprise設定，請改用下方手動設定。';
+	/// zh-TW: '請在這台裝置上手動設定。'
+	String get validationUnavailable => '請在這台裝置上手動設定。';
 
-	/// zh-TW: '這台裝置目前不支援自動加入NTUT-802.1X。'
-	String get unsupportedPlatform => '這台裝置目前不支援自動加入NTUT-802.1X。';
+	/// zh-TW: '不支援自動設定。'
+	String get unsupportedPlatform => '不支援自動設定。';
 
-	/// zh-TW: '自動加入NTUT-802.1X失敗，請改用下方手動設定。'
-	String get failed => '自動加入NTUT-802.1X失敗，請改用下方手動設定。';
+	/// zh-TW: '設定失敗，請改用手動設定。'
+	String get failed => '設定失敗，請改用手動設定。';
 
-	/// zh-TW: '已透過相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。'
-	String get compatSuccess => '已透過相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。';
+	/// zh-TW: '已儲存Wi-Fi設定。'
+	String get compatSuccess => '已儲存Wi-Fi設定。';
 
-	/// zh-TW: 'suggestion 被拒，已改用相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。'
-	String get compatFallbackSuccess => 'suggestion 被拒，已改用相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。';
+	/// zh-TW: '網路已儲存，請至Wi-Fi設定確認密碼。'
+	String get compatAlreadyExists => '網路已儲存，請至Wi-Fi設定確認密碼。';
 
-	/// zh-TW: 'Android 回報系統內已存在 NTUT-802.1X 設定，但儲存的密碼可能仍是舊的。請先確認系統 Wi‑Fi 項目，或刪除後再重新使用相容模式。'
-	String get compatAlreadyExists => 'Android 回報系統內已存在 NTUT-802.1X 設定，但儲存的密碼可能仍是舊的。請先確認系統 Wi‑Fi 項目，或刪除後再重新使用相容模式。';
+	/// zh-TW: '已取消更新。'
+	String get compatCancelled => '已取消更新。';
 
-	/// zh-TW: '已取消相容模式更新，稍後可在此頁重新嘗試。'
-	String get compatCancelled => '已取消相容模式更新，稍後可在此頁重新嘗試。';
-
-	/// zh-TW: '相容模式更新失敗，請改依下方教學手動連線。'
-	String get compatFailed => '相容模式更新失敗，請改依下方教學手動連線。';
+	/// zh-TW: '更新失敗，請改用手動設定。'
+	String get compatFailed => '更新失敗，請改用手動設定。';
 }
 
 // Path: ntutWifi.compatPrompt
@@ -1756,6 +1798,48 @@ class Translations$profile$dangerZone$items$zh_TW {
 
 	/// zh-TW: '使用者資料'
 	String get userData => '使用者資料';
+}
+
+// Path: ntutWifi.removal.confirmation
+class Translations$ntutWifi$removal$confirmation$zh_TW {
+	Translations$ntutWifi$removal$confirmation$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '移除TAT的網路建議並停用自動更新？這可能中斷Wi-Fi。手動儲存的網路需至Wi-Fi設定忘記。'
+	String get android10 => '移除TAT的網路建議並停用自動更新？這可能中斷Wi-Fi。手動儲存的網路需至Wi-Fi設定忘記。';
+
+	/// zh-TW: '移除TAT的網路建議並停用自動更新？這可能中斷Wi-Fi。相容模式或手動儲存的網路需至Wi-Fi設定忘記。'
+	String get android => '移除TAT的網路建議並停用自動更新？這可能中斷Wi-Fi。相容模式或手動儲存的網路需至Wi-Fi設定忘記。';
+
+	/// zh-TW: '請求移除TAT的設定並停用自動更新？這可能中斷Wi-Fi，其他來源的設定不受影響。'
+	String get ios => '請求移除TAT的設定並停用自動更新？這可能中斷Wi-Fi，其他來源的設定不受影響。';
+}
+
+// Path: ntutWifi.removal.snackbar
+class Translations$ntutWifi$removal$snackbar$zh_TW {
+	Translations$ntutWifi$removal$snackbar$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '已移除網路建議'
+	String get removed => '已移除網路建議';
+
+	/// zh-TW: '已送出移除請求'
+	String get requested => '已送出移除請求';
+
+	/// zh-TW: '請至Wi-Fi設定忘記網路'
+	String get manualRequired => '請至Wi-Fi設定忘記網路';
+
+	/// zh-TW: '需要手動移除網路'
+	String get unsupported => '需要手動移除網路';
+
+	/// zh-TW: '移除失敗'
+	String get failed => '移除失敗';
 }
 
 // Path: changePassword.errors.server
@@ -1976,6 +2060,7 @@ extension on Translations {
 			'profile.options.npcClub' => '北科程式設計研究社',
 			'profile.options.preferences' => '偏好設定',
 			'profile.options.logout' => '登出帳號',
+			'profile.logoutFailed' => '登出失敗，請再試一次',
 			'profile.avatar.uploading' => '正在更新個人圖片…',
 			'profile.avatar.uploadSuccess' => '個人圖片已更新',
 			'profile.avatar.tooLarge' => '圖片大小超過20 MB限制',
@@ -2036,42 +2121,59 @@ extension on Translations {
 			'scanner.invalidUrl' => '無效的網址',
 			'ntutWifi.title' => 'NTUT-802.1X',
 			'ntutWifi.entryDescription' => '使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi',
-			'ntutWifi.intro' => '使用已登入的校園入口帳號密碼，自動加入NTUT-802.1X並讓Android後續自動嘗試連線。',
+			'ntutWifi.intro' => '使用已儲存的入口帳密加入NTUT-802.1X。',
 			'ntutWifi.accountHint' => '帳號直接使用學號或員編，不要加上@ntut.edu.tw。',
 			'ntutWifi.androidVersion' => ({required Object sdkInt}) => 'Android API ${sdkInt}',
-			'ntutWifi.unsupportedPlatform' => '這個功能支援Android及iOS裝置。',
-			'ntutWifi.notLoggedIn' => '請先登入校園入口帳號，才能帶入NTUT-802.1X的帳號與密碼。',
-			'ntutWifi.credentialsMissing' => '找不到已保存的入口網站密碼。若要複製密碼，請先重新登入TAT。',
-			'ntutWifi.olderAndroidWarning' => '此助手依Android 12以上介面設計，較舊版本的欄位名稱可能略有不同。',
+			'ntutWifi.unsupportedPlatform' => '這台裝置不支援自動設定Wi-Fi。',
+			'ntutWifi.notLoggedIn' => '請先登入以使用入口帳密。',
+			'ntutWifi.credentialsMissing' => '請重新登入以儲存入口密碼。',
+			'ntutWifi.olderAndroidWarning' => 'Android 10及11的設定欄位名稱可能不同。',
 			'ntutWifi.copyFailed' => '複製失敗',
 			'ntutWifi.openSettingsFailed' => '無法開啟Wi‑Fi設定',
 			'ntutWifi.openPanelFailed' => '無法開啟Wi‑Fi快捷面板',
-			'ntutWifi.systemCertificatesHint' => '自動佈署會固定使用「系統憑證 + 網域ntut.edu.tw + PEAP/GTC」。若系統不允許App安全地下發這組Enterprise設定，請改走下方手動fallback。',
-			'ntutWifi.automaticProvisionUnavailable' => '這台裝置目前無法讓TAT自動加入NTUT-802.1X，請改走下方的手動設定路徑。',
-			'ntutWifi.compatModeSavedHint' => '相容模式已儲存到系統。之後若入口帳密變更，需要再次更新這組 Wi‑Fi 設定。',
-			'ntutWifi.compatUpdateRequired' => '先前使用相容模式寫入的 NTUT-802.1X 帳密已過期，請重新更新系統 Wi‑Fi。',
-			'ntutWifi.suggestionFallbackRequired' => 'suggestion 自動更新失敗，請改用相容模式將最新 NTUT-802.1X 設定寫入系統。',
-			'ntutWifi.android10PermissionRejected' => 'Android 10 已拒絕這個 App 的 Wi‑Fi suggestion 權限，請依下方教學手動連線。',
-			'ntutWifi.legacyManualOnly' => 'Android 9 以下不支援這個自動加入流程，請依下方教學手動設定。',
-			'ntutWifi.ios.intro' => '使用已儲存的校園入口帳密連接NTUT-802.1X。請開啟Wi-Fi並允許iOS系統提示。',
+			'ntutWifi.systemCertificatesHint' => '使用系統憑證、網域ntut.edu.tw及PEAP/GTC。',
+			'ntutWifi.automaticProvisionUnavailable' => '請依下方資訊手動設定。',
+			'ntutWifi.compatModeSavedHint' => '已儲存至系統Wi-Fi，密碼變更後請在此更新。',
+			'ntutWifi.compatUpdateRequired' => '密碼已變更，請更新已儲存的Wi-Fi設定。',
+			'ntutWifi.suggestionFallbackRequired' => '自動更新失敗，請改用相容模式。',
+			'ntutWifi.legacyManualOnly' => 'Android 9及更舊版本需手動設定。',
+			'ntutWifi.removal.button' => '移除NTUT-802.1X設定',
+			'ntutWifi.removal.title' => '移除NTUT-802.1X？',
+			'ntutWifi.removal.confirmation.android10' => '移除TAT的網路建議並停用自動更新？這可能中斷Wi-Fi。手動儲存的網路需至Wi-Fi設定忘記。',
+			'ntutWifi.removal.confirmation.android' => '移除TAT的網路建議並停用自動更新？這可能中斷Wi-Fi。相容模式或手動儲存的網路需至Wi-Fi設定忘記。',
+			'ntutWifi.removal.confirmation.ios' => '請求移除TAT的設定並停用自動更新？這可能中斷Wi-Fi，其他來源的設定不受影響。',
+			'ntutWifi.removal.confirm' => '移除設定',
+			'ntutWifi.removal.removing' => '正在移除設定…',
+			'ntutWifi.removal.removed' => '已移除TAT的網路建議並停用自動更新。手動儲存的網路仍需至Wi-Fi設定忘記。',
+			'ntutWifi.removal.requested' => '已請求移除並停用自動更新，請至「設定」>「Wi-Fi」確認。',
+			'ntutWifi.removal.manualRequired' => '已停用自動更新，請至Wi-Fi設定忘記已儲存的網路。',
+			'ntutWifi.removal.unsupported' => '請至Wi-Fi設定手動忘記網路。',
+			'ntutWifi.removal.failed' => '移除失敗，請重試或至Wi-Fi設定忘記網路。',
+			'ntutWifi.removal.snackbar.removed' => '已移除網路建議',
+			'ntutWifi.removal.snackbar.requested' => '已送出移除請求',
+			'ntutWifi.removal.snackbar.manualRequired' => '請至Wi-Fi設定忘記網路',
+			'ntutWifi.removal.snackbar.unsupported' => '需要手動移除網路',
+			'ntutWifi.removal.snackbar.failed' => '移除失敗',
+			'ntutWifi.ios.intro' => '使用已儲存的入口帳密連接NTUT-802.1X，並允許系統提示。',
 			'ntutWifi.ios.connect' => '連接NTUT-802.1X',
-			'ntutWifi.ios.certificatesHint' => '使用PEAP及ntut.edu.tw的系統信任憑證，由校園伺服器協商內層驗證，iOS控制允許與連線。',
-			'ntutWifi.ios.deviceRequired' => '自動設定Wi-Fi需要實體iPhone或iPad，模擬器不支援此功能。',
-			'ntutWifi.ios.configured' => 'iOS已接受NTUT-802.1X設定，但不代表已連線。請在校園內至「設定」>「Wi-Fi」確認。',
-			'ntutWifi.ios.cancelled' => '已取消Wi-Fi請求，稍後可在此頁重試。',
-			'ntutWifi.ios.alreadyAssociated' => 'iOS回報目前已連接NTUT-802.1X，但不代表新密碼已儲存，請至「設定」>「Wi-Fi」確認。',
-			'ntutWifi.ios.updateRequired' => '入口帳密已變更，請再次連接以更新已儲存的NTUT-802.1X設定。',
-			'ntutWifi.ios.openSettings' => '1. 開啟「設定」App，再選擇「Wi-Fi」。iOS不允許TAT直接開啟此頁。',
-			'ntutWifi.ios.enterCredentials' => '3. 輸入上方顯示的帳號與密碼，僅信任校園驗證伺服器的憑證。',
+			'ntutWifi.ios.certificatesHint' => '使用PEAP及ntut.edu.tw的系統信任憑證。',
+			'ntutWifi.ios.deviceRequired' => '自動設定需要實體iPhone或iPad。',
+			'ntutWifi.ios.configured' => '已儲存設定，請至「設定」>「Wi-Fi」確認連線。',
+			'ntutWifi.ios.cancelled' => '已取消請求。',
+			'ntutWifi.ios.alreadyAssociated' => '目前已連線，請至「設定」>「Wi-Fi」確認儲存的帳密。',
+			'ntutWifi.ios.updateRequired' => '帳密已變更，請再次連接以更新。',
+			'ntutWifi.ios.openSettings' => '1. 開啟「設定」>「Wi-Fi」。',
+			'ntutWifi.ios.enterCredentials' => '3. 輸入帳密，僅信任校園伺服器的憑證。',
 			'ntutWifi.sections.quickActions' => '快速操作',
 			'ntutWifi.sections.recommendedSettings' => '建議設定',
-			'ntutWifi.sections.fallback' => '手動Fallback',
+			'ntutWifi.sections.fallback' => '手動設定',
 			'ntutWifi.actions.autoProvision' => '自動加入NTUT-802.1X',
 			'ntutWifi.actions.autoProvisioning' => '正在加入NTUT-802.1X…',
 			'ntutWifi.actions.retryCompatProvision' => '使用相容模式重試',
 			'ntutWifi.actions.updateCompatProvision' => '使用相容模式更新',
 			'ntutWifi.actions.openWifiSettings' => '開啟Wi‑Fi設定',
 			'ntutWifi.actions.openWifiPanel' => '開啟Wi‑Fi快捷面板',
+			'ntutWifi.actions.openWifiPermissionSettings' => 'Wi-Fi控制權限',
 			'ntutWifi.fields.ssid' => '網路名稱',
 			'ntutWifi.fields.eapMethod' => 'EAP方法',
 			'ntutWifi.fields.phase2Auth' => '第二階段驗證',
@@ -2085,18 +2187,17 @@ extension on Translations {
 			'ntutWifi.fallbackSteps.openSettings' => '1. 開啟Wi‑Fi設定或快捷面板。',
 			'ntutWifi.fallbackSteps.selectNetwork' => '2. 選擇或新增NTUT-802.1X。',
 			'ntutWifi.fallbackSteps.useDisplayedValues' => '3. 將下方顯示的SSID、PEAP、GTC、帳號、密碼與網域填入。',
-			'ntutWifi.provisioning.success' => '已將NTUT-802.1X加入Android。只要Wi‑Fi開啟且在校園網路範圍內，系統就會自動嘗試連線。',
-			'ntutWifi.provisioning.successPendingWifi' => '已將NTUT-802.1X加入Android，但目前Wi‑Fi尚未開啟。開啟Wi‑Fi後，系統才會自動嘗試連線。',
-			'ntutWifi.provisioning.approvalPending' => '系統目前不允許TAT直接送出Wi‑Fi建議，請改用下方設定入口完成系統層操作後再試。',
-			'ntutWifi.provisioning.approvalRejected' => '系統已拒絕TAT的Wi‑Fi建議，請到系統設定允許後再試，或直接走下方手動設定。',
-			'ntutWifi.provisioning.validationUnavailable' => '這台裝置無法讓TAT安全地下發「系統憑證 + 網域」Enterprise設定，請改用下方手動設定。',
-			'ntutWifi.provisioning.unsupportedPlatform' => '這台裝置目前不支援自動加入NTUT-802.1X。',
-			'ntutWifi.provisioning.failed' => '自動加入NTUT-802.1X失敗，請改用下方手動設定。',
-			'ntutWifi.provisioning.compatSuccess' => '已透過相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。',
-			'ntutWifi.provisioning.compatFallbackSuccess' => 'suggestion 被拒，已改用相容模式將 NTUT-802.1X 寫入系統 Wi‑Fi。',
-			'ntutWifi.provisioning.compatAlreadyExists' => 'Android 回報系統內已存在 NTUT-802.1X 設定，但儲存的密碼可能仍是舊的。請先確認系統 Wi‑Fi 項目，或刪除後再重新使用相容模式。',
-			'ntutWifi.provisioning.compatCancelled' => '已取消相容模式更新，稍後可在此頁重新嘗試。',
-			'ntutWifi.provisioning.compatFailed' => '相容模式更新失敗，請改依下方教學手動連線。',
+			'ntutWifi.provisioning.success' => '已加入NTUT-802.1X。',
+			'ntutWifi.provisioning.successPendingWifi' => '已加入網路，請開啟Wi-Fi以連線。',
+			'ntutWifi.provisioning.approvalPending' => '等待允許Wi-Fi建議。',
+			'ntutWifi.provisioning.approvalRejected' => '請在Wi-Fi控制設定允許TAT。',
+			'ntutWifi.provisioning.validationUnavailable' => '請在這台裝置上手動設定。',
+			'ntutWifi.provisioning.unsupportedPlatform' => '不支援自動設定。',
+			'ntutWifi.provisioning.failed' => '設定失敗，請改用手動設定。',
+			'ntutWifi.provisioning.compatSuccess' => '已儲存Wi-Fi設定。',
+			'ntutWifi.provisioning.compatAlreadyExists' => '網路已儲存，請至Wi-Fi設定確認密碼。',
+			'ntutWifi.provisioning.compatCancelled' => '已取消更新。',
+			'ntutWifi.provisioning.compatFailed' => '更新失敗，請改用手動設定。',
 			'ntutWifi.compatPrompt.title' => '更新 NTUT-802.1X',
 			'ntutWifi.compatPrompt.updateNow' => '立即更新',
 			'ntutWifi.compatPrompt.later' => '稍後',

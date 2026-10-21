@@ -14,14 +14,179 @@ import 'package:tattoo/screens/main/course_table/course_table_detail_sheet.dart'
 import 'package:tattoo/screens/main/course_table/course_table_entrance_animation.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
-/// Internal value type that describes the currently visible grid scope.
-///
-/// It groups the weekday columns and period rows calculated from
-/// [CourseTableData], so layout and rendering can share the same range.
-typedef _GridRange = ({
+/// Weekday columns and period rows visible for one course-table snapshot.
+typedef CourseTableGridRange = ({
   List<DayOfWeek> visibleDaysOfWeek,
   List<Period> visiblePeriods,
 });
+
+CourseTableGridRange courseTableGridRange(CourseTableData courseTableData) {
+  final weekdays = DayOfWeek.values
+      .where((day) => day.isWeekday)
+      .toList(growable: false);
+  final defaultPeriods = Period.values
+      .where(
+        (period) => period.isAM || period == .nPeriod || period.isPM,
+      )
+      .toList(growable: false);
+
+  if (courseTableData.scheduled.isEmpty &&
+      courseTableData.unscheduled.isEmpty) {
+    return (visibleDaysOfWeek: weekdays, visiblePeriods: defaultPeriods);
+  }
+
+  final visibleDays = switch ((
+    courseTableData.hasWeekdayCourse,
+    courseTableData.hasSaturdayCourse,
+    courseTableData.hasSundayCourse,
+  )) {
+    (true, true, true) => [...weekdays, DayOfWeek.saturday, DayOfWeek.sunday],
+    (true, true, false) => [...weekdays, DayOfWeek.saturday],
+    (true, false, true) => [...weekdays, DayOfWeek.sunday],
+    (true, false, false) => [...weekdays],
+    (false, true, true) => [DayOfWeek.saturday, DayOfWeek.sunday],
+    (false, true, false) => [DayOfWeek.saturday],
+    (false, false, true) => [DayOfWeek.sunday],
+    (false, false, false) => <DayOfWeek>[],
+  };
+  final visiblePeriods = <Period>[];
+
+  void addPeriod(Period period) {
+    if (!visiblePeriods.contains(period)) {
+      visiblePeriods.add(period);
+    }
+  }
+
+  void addPeriods(Iterable<Period> periods) {
+    for (final period in periods) {
+      addPeriod(period);
+    }
+  }
+
+  switch ((
+    courseTableData.hasAMCourse,
+    courseTableData.hasNoonCourse,
+    courseTableData.hasPMCourse,
+  )) {
+    case (false, false, false):
+      break;
+    case (true, false, false):
+      addPeriods(Period.values.where((period) => period.isAM));
+      break;
+    case (false, true, false):
+      addPeriod(.nPeriod);
+      break;
+    case (false, false, true):
+      addPeriods(Period.values.where((period) => period.isPM));
+      break;
+    case (true, true, false):
+      addPeriods(Period.values.where((period) => period.isAM));
+      addPeriod(.nPeriod);
+      break;
+    case (false, true, true):
+      addPeriod(.nPeriod);
+      addPeriods(Period.values.where((period) => period.isPM));
+      break;
+    case (true, false, true):
+    case (true, true, true):
+      addPeriods(Period.values.where((period) => period.isAM));
+      addPeriod(.nPeriod);
+      addPeriods(Period.values.where((period) => period.isPM));
+      break;
+  }
+
+  final isEveningOnly =
+      !courseTableData.hasAMCourse &&
+      !courseTableData.hasPMCourse &&
+      courseTableData.hasEveningCourse;
+
+  switch ((
+    courseTableData.hasEveningCourse,
+    isEveningOnly,
+    courseTableData.latestPeriod,
+  )) {
+    case (false, _, _):
+      break;
+    case (true, true, _):
+      addPeriods(Period.values.where((period) => period.isEvening));
+      break;
+    case (true, false, Period lastPeriod):
+      addPeriods(
+        Period.values
+            .skip(visiblePeriods.last.index + 1)
+            .take(lastPeriod.index - visiblePeriods.last.index),
+      );
+      break;
+    case (true, false, null):
+      break;
+  }
+
+  return (
+    visibleDaysOfWeek: visibleDays.isEmpty ? weekdays : visibleDays,
+    visiblePeriods: visiblePeriods.isEmpty ? defaultPeriods : visiblePeriods,
+  );
+}
+
+/// Period row heights for one course-table snapshot.
+///
+/// The interactive grid and the launcher widget export pick their own
+/// [rowHeight], but share the noon shrinking rule and the span arithmetic so
+/// both surfaces place noon-crossing courses the same way.
+class CourseTableGridMetrics {
+  const CourseTableGridMetrics({
+    required this.visiblePeriods,
+    required this.hasNoonCourse,
+    required this.rowHeight,
+  });
+
+  final List<Period> visiblePeriods;
+  final bool hasNoonCourse;
+  final double rowHeight;
+
+  /// Noon shrinks to a third of a row while no course occupies it.
+  double get noonRowHeight => hasNoonCourse ? rowHeight : rowHeight / 3;
+
+  double get gridHeight => periodSpanHeight(0, visiblePeriods.length);
+
+  double periodHeight(Period period) => switch (period) {
+    .nPeriod => noonRowHeight,
+    _ => rowHeight,
+  };
+
+  double periodTopOffset(int periodIndex) => visiblePeriods
+      .take(periodIndex)
+      .fold(0.0, (sum, period) => sum + periodHeight(period));
+
+  double periodSpanHeight(int startIndex, int span) => visiblePeriods
+      .skip(startIndex)
+      .take(span)
+      .fold(0.0, (sum, period) => sum + periodHeight(period));
+
+  /// Height of a course cell, adding the noon row that a noon-crossing course
+  /// covers without counting it in its span. That row is full height when
+  /// another day has a noon course.
+  double courseCellHeight(int startIndex, CourseTableCellData cell) {
+    var remainingPeriods = cell.span;
+    var includeSkippedNoon = cell.crossesNoon;
+    var totalHeight = 0.0;
+
+    for (final period in visiblePeriods.skip(startIndex)) {
+      if (period == .nPeriod && includeSkippedNoon) {
+        totalHeight += noonRowHeight;
+        includeSkippedNoon = false;
+        continue;
+      }
+
+      totalHeight += periodHeight(period);
+      remainingPeriods--;
+      if (remainingPeriods == 0) {
+        break;
+      }
+    }
+
+    return totalHeight;
+  }
+}
 
 class CourseTableGrid extends StatelessWidget {
   CourseTableGrid({
@@ -48,7 +213,9 @@ class CourseTableGrid extends StatelessWidget {
   static const double _tableHeaderHeight = 25;
   static const double _stubWidth = 20;
   static const double _gridLineThickness = 1;
-  late final _GridRange _gridRange = _visibleGridRange();
+  late final CourseTableGridRange _gridRange = courseTableGridRange(
+    courseTableData,
+  );
   List<DayOfWeek> get _visibleDaysOfWeek => _gridRange.visibleDaysOfWeek;
   List<Period> get _visiblePeriods => _gridRange.visiblePeriods;
 
@@ -61,63 +228,15 @@ class CourseTableGrid extends StatelessWidget {
   bool get _isEmpty =>
       courseTableData.scheduled.isEmpty && courseTableData.unscheduled.isEmpty;
 
-  double get _periodNoonHeight => switch (courseTableData.hasNoonCourse) {
-    true => _periodRowHeight,
-    false => _periodRowHeight / 3,
-  };
+  late final CourseTableGridMetrics _metrics = CourseTableGridMetrics(
+    visiblePeriods: _visiblePeriods,
+    hasNoonCourse: courseTableData.hasNoonCourse,
+    rowHeight: _periodRowHeight,
+  );
   double get _dayColumnWidth => min(
     ((viewportWidth - _stubWidth) / _visibleDaysOfWeek.length),
     120,
   ).toDouble();
-
-  double _periodHeight(Period period) => switch (period) {
-    .nPeriod => _periodNoonHeight,
-    _ => _periodRowHeight,
-  };
-
-  double _periodTopOffset(List<Period> visiblePeriods, int periodIndex) {
-    return visiblePeriods
-        .take(periodIndex)
-        .fold(0.0, (sum, period) => sum + _periodHeight(period));
-  }
-
-  double _visiblePeriodSpanHeight(
-    List<Period> visiblePeriods,
-    int startIndex,
-    int span,
-  ) {
-    return visiblePeriods
-        .skip(startIndex)
-        .take(span)
-        .fold(0.0, (sum, period) => sum + _periodHeight(period));
-  }
-
-  double _courseCellHeight(
-    List<Period> visiblePeriods,
-    int startIndex,
-    CourseTableCellData cell,
-  ) {
-    var remainingPeriods = cell.span;
-    var includeSyntheticNoonGap =
-        cell.crossesNoon && !courseTableData.hasNoonCourse;
-    var totalHeight = 0.0;
-
-    for (final period in visiblePeriods.skip(startIndex)) {
-      if (period == .nPeriod && includeSyntheticNoonGap) {
-        totalHeight += _periodNoonHeight;
-        includeSyntheticNoonGap = false;
-        continue;
-      }
-
-      totalHeight += _periodHeight(period);
-      remainingPeriods--;
-      if (remainingPeriods == 0) {
-        break;
-      }
-    }
-
-    return totalHeight;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,112 +302,6 @@ class CourseTableGrid extends StatelessWidget {
     };
   }
 
-  _GridRange _visibleGridRange() {
-    final weekdays = DayOfWeek.values
-        .where((day) => day.isWeekday)
-        .toList(growable: false);
-    final defaultPeriods = Period.values
-        .where(
-          (period) => period.isAM || period == .nPeriod || period.isPM,
-        )
-        .toList(growable: false);
-
-    if (_isEmpty) {
-      return (visibleDaysOfWeek: weekdays, visiblePeriods: defaultPeriods);
-    }
-
-    final visibleDays = switch ((
-      courseTableData.hasWeekdayCourse,
-      courseTableData.hasSaturdayCourse,
-      courseTableData.hasSundayCourse,
-    )) {
-      (true, true, true) => [...weekdays, DayOfWeek.saturday, DayOfWeek.sunday],
-      (true, true, false) => [...weekdays, DayOfWeek.saturday],
-      (true, false, true) => [...weekdays, DayOfWeek.sunday],
-      (true, false, false) => [...weekdays],
-      (false, true, true) => [DayOfWeek.saturday, DayOfWeek.sunday],
-      (false, true, false) => [DayOfWeek.saturday],
-      (false, false, true) => [DayOfWeek.sunday],
-      (false, false, false) => <DayOfWeek>[],
-    };
-    final visiblePeriods = <Period>[];
-
-    void addPeriod(Period period) {
-      if (!visiblePeriods.contains(period)) {
-        visiblePeriods.add(period);
-      }
-    }
-
-    void addPeriods(Iterable<Period> periods) {
-      for (final period in periods) {
-        addPeriod(period);
-      }
-    }
-
-    switch ((
-      courseTableData.hasAMCourse,
-      courseTableData.hasNoonCourse,
-      courseTableData.hasPMCourse,
-    )) {
-      case (false, false, false):
-        break;
-      case (true, false, false):
-        addPeriods(Period.values.where((period) => period.isAM));
-        break;
-      case (false, true, false):
-        addPeriod(.nPeriod);
-        break;
-      case (false, false, true):
-        addPeriods(Period.values.where((period) => period.isPM));
-        break;
-      case (true, true, false):
-        addPeriods(Period.values.where((period) => period.isAM));
-        addPeriod(.nPeriod);
-        break;
-      case (false, true, true):
-        addPeriod(.nPeriod);
-        addPeriods(Period.values.where((period) => period.isPM));
-        break;
-      case (true, false, true):
-      case (true, true, true):
-        addPeriods(Period.values.where((period) => period.isAM));
-        addPeriod(.nPeriod);
-        addPeriods(Period.values.where((period) => period.isPM));
-        break;
-    }
-
-    final isEveningOnly =
-        !courseTableData.hasAMCourse &&
-        !courseTableData.hasPMCourse &&
-        courseTableData.hasEveningCourse;
-
-    switch ((
-      courseTableData.hasEveningCourse,
-      isEveningOnly,
-      courseTableData.latestPeriod,
-    )) {
-      case (false, _, _):
-        break;
-      case (true, true, _):
-        addPeriods(Period.values.where((period) => period.isEvening));
-        break;
-      case (true, false, Period lastPeriod):
-        addPeriods(
-          Period.values
-              .skip(visiblePeriods.last.index + 1)
-              .take(lastPeriod.index - visiblePeriods.last.index),
-        );
-        break;
-      case (true, false, null):
-        break;
-    }
-
-    return (
-      visibleDaysOfWeek: visibleDays.isEmpty ? weekdays : visibleDays,
-      visiblePeriods: visiblePeriods.isEmpty ? defaultPeriods : visiblePeriods,
-    );
-  }
-
   Widget _buildHeader(List<DayOfWeek> visibleDaysOfWeek) {
     return Row(
       children: [
@@ -316,7 +329,7 @@ class CourseTableGrid extends StatelessWidget {
             children: [
               SizedBox(
                 width: _stubWidth,
-                height: _periodHeight(period),
+                height: _metrics.periodHeight(period),
                 child: Container(
                   alignment: .center,
                   child: AutoSizeText(
@@ -329,7 +342,7 @@ class CourseTableGrid extends StatelessWidget {
               ),
               SizedBox(
                 width: viewportWidth - _stubWidth,
-                height: _periodHeight(period),
+                height: _metrics.periodHeight(period),
                 child: const SizedBox.shrink(),
               ),
             ],
@@ -347,7 +360,7 @@ class CourseTableGrid extends StatelessWidget {
     return [
       for (var i = 1; i < visiblePeriods.length; i++)
         Positioned(
-          top: _periodTopOffset(visiblePeriods, i) - (_gridLineThickness / 2),
+          top: _metrics.periodTopOffset(i) - (_gridLineThickness / 2),
           left: _stubWidth,
           child: Container(
             width: gridWidth,
@@ -391,13 +404,9 @@ class CourseTableGrid extends StatelessWidget {
       }
       if (startIndex == null) continue;
 
-      final cellTop = _periodTopOffset(visiblePeriods, startIndex);
+      final cellTop = _metrics.periodTopOffset(startIndex);
       final cellLeft = _stubWidth + (dayIndex * columnWidth);
-      final cellHeight = _visiblePeriodSpanHeight(
-        visiblePeriods,
-        startIndex,
-        spanLength,
-      );
+      final cellHeight = _metrics.periodSpanHeight(startIndex, spanLength);
       final delayMs = 50 + random.nextInt(101);
 
       cells.add(
@@ -455,9 +464,9 @@ class CourseTableGrid extends StatelessWidget {
         continue;
       }
 
-      final cellTop = _periodTopOffset(visiblePeriods, startIndex);
+      final cellTop = _metrics.periodTopOffset(startIndex);
       final cellLeft = _stubWidth + (dayIndex * columnWidth);
-      final cellHeight = _courseCellHeight(visiblePeriods, startIndex, cell);
+      final cellHeight = _metrics.courseCellHeight(startIndex, cell);
       final delayMs = 50 + random.nextInt(101);
 
       cells.add(

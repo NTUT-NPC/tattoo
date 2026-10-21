@@ -98,17 +98,16 @@ PR previews and daily releases always build `staging`; the production release wo
 
 ## Campus Wi-Fi
 
-The home-screen campus Wi-Fi entry supports Android and physical iPhones/iPads, controlled by the existing `showWifiButton` preference/Remote Config flag. Sign in with your NTUT portal account to use its securely saved credentials; demo mode has no saved password.
+Campus Wi-Fi setup supports Android and physical iPhones/iPads under the `showWifiButton` flag. It uses securely saved portal credentials; demo mode has no saved password.
 
 Setup and compatibility-save errors show failure feedback and leave the assistant available for retry.
 
-Android and iOS use independent `CampusWifiProvisioner` implementations selected by the operating system at provider construction. `CampusWifiRepository` keeps the shared screen-facing API; capabilities describe available actions, not which platform strategy to run.
+- **Android:** network suggestions, explicit compatibility-mode saving, and manual setup. Denied suggestion permission offers **Wi-Fi Control Permission**, never automatic compatibility saving.
+- **iOS:** user-approved persistent PEAP configuration with system certificate trust restricted to NTUT server names. Credential changes require renewed consent; Apple's API leaves PEAP inner authentication to negotiation.
+- **Removal:** available without signing in; removes only app-owned configurations and disables automatic credential refresh, even on failure. Cancel changes nothing. Android compatibility/manual networks must be forgotten in system Wi-Fi settings; iOS acknowledges a removal request, not confirmed deletion.
+- **Verification:** accepted setup does not prove connectivity. Check **Settings > Wi-Fi** on campus. iOS has no public Wi-Fi settings shortcut, and simulator configuration is unsupported.
 
-- **Android:** existing network suggestions, compatibility-mode save and manual setup.
-- **iOS:** tap **Connect to NTUT-802.1X** and approve the system prompt. TAT applies a persistent PEAP configuration, using system-trusted certificates restricted to `ntut.edu.tw` and its subdomains. The campus server negotiates inner authentication (GTC); Apple's public API cannot select PEAP's inner method explicitly. Changed portal credentials require a user-approved configuration update.
-- **Connection status:** an accepted configuration does not prove connection. Check **Settings > Wi-Fi** on campus. iOS's already-associated response does not prove a changed password was saved, so pending updates remain. iOS offers no public shortcut to Wi-Fi settings; open Settings manually.
-
-Both iOS flavors declare `com.apple.developer.networking.HotspotConfiguration` in `ios/Runner/Runner.entitlements`. Enable **Hotspot Configuration** for both Apple App IDs and regenerate signing/provisioning profiles if they do not include that entitlement. No location or Wi-Fi-info permission is required. Simulator builds display manual guidance but cannot configure Wi-Fi; live authentication and certificate validation must be checked on a physical device within range of NTUT-802.1X.
+Both iOS App IDs and signing profiles need **Hotspot Configuration** (`ios/Runner/Runner.entitlements`). Physical-device authentication and certificate validation require on-campus verification. See [AGENTS.md](AGENTS.md) for the shared repository and OS-selected provisioner architecture.
 
 ## HTML Snapshot Capture
 

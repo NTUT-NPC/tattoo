@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +16,8 @@ import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_card.dart';
 import 'package:tattoo/screens/main/profile/profile_danger_zone.dart';
+import 'package:tattoo/services/course_widget_sync.dart';
+import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
@@ -23,10 +27,6 @@ class ProfileScreen extends ConsumerWidget {
 
   Future<void> _refresh(WidgetRef ref) async {
     await ref.read(authRepositoryProvider).refreshUser();
-  }
-
-  Future<void> _logout(WidgetRef ref) async {
-    await ref.read(authRepositoryProvider).logout();
   }
 
   Future<XFile?> _pickAvatarImage() {
@@ -64,6 +64,28 @@ class ProfileScreen extends ConsumerWidget {
       DioException() => t.errors.connectionFailed,
       _ => t.profile.avatar.uploadFailed,
     };
+  }
+
+  Future<void> _logout(BuildContext context, WidgetRef ref) async {
+    final courseWidgetSyncController = ref.read(
+      courseWidgetSyncControllerProvider,
+    );
+    try {
+      await ref.read(authRepositoryProvider).logout();
+    } catch (error, stackTrace) {
+      log('Logout failed: $error', name: 'ProfileScreen');
+      firebaseService.crashlytics?.recordError(
+        error,
+        stackTrace,
+        fatal: false,
+      );
+      // A failed logout keeps the session active, so resume the widget sync
+      // that logout stops before clearing local data.
+      await courseWidgetSyncController.start();
+      await courseWidgetSyncController.reconcile();
+      if (!context.mounted) return;
+      _showMessage(context, t.profile.logoutFailed);
+    }
   }
 
   void _showMessage(BuildContext context, String message) {
@@ -133,7 +155,7 @@ class ProfileScreen extends ConsumerWidget {
       OptionEntryTile.icon(
         icon: Icons.logout,
         title: t.profile.options.logout,
-        onTap: () => _logout(ref),
+        onTap: () => _logout(context, ref),
       ),
       const ProfileDangerZone(),
     ];

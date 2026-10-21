@@ -142,6 +142,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _showMessage(t.ntutWifi.provisioning.failed);
         }
       }
+      if (!mounted) return;
+      // A pending widget destination is applied by the router's auth gate,
+      // which redirects away from this landing route while one is held.
       final landingLocation = await resolveLandingLocation(
         ref.read(preferencesRepositoryProvider),
       );
@@ -180,7 +183,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             );
         }
       }
-    } catch (_) {
+    } catch (error, stackTrace) {
+      // Logged because this branch hides post-authentication failures behind a
+      // generic credential error, which is indistinguishable from a rejection.
+      debugPrint('Login failed after authentication: $error\n$stackTrace');
       if (mounted) {
         _setError(t.login.errors.loginFailed, username: true, password: true);
       }

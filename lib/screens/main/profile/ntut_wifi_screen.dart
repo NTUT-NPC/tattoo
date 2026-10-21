@@ -25,7 +25,29 @@ class NtutWifiScreen extends ConsumerStatefulWidget {
 class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
   bool _isProvisioning = false;
   bool _isSavingCompat = false;
+  bool _isRemoving = false;
+  Ntut8021xRemovalStatus? _lastRemovalStatus;
+
+  bool get _isBusy => _isProvisioning || _isSavingCompat || _isRemoving;
   Ntut8021xProvisioningResult? _lastProvisioningResult;
+  late final AppLifecycleListener _lifecycleListener;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () {
+        setState(() => _lastProvisioningResult = null);
+        ref.invalidate(ntutWifiAssistantProvider);
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _lifecycleListener.dispose();
+    super.dispose();
+  }
 
   Future<void> _copyText(String text) async {
     try {
@@ -52,8 +74,20 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
     _showMessage(t.ntutWifi.openPanelFailed);
   }
 
+  Future<void> _openWifiPermissionSettings() async {
+    final opened = await ref
+        .read(campusWifiRepositoryProvider)
+        .openWifiPermissionSettings();
+    if (!mounted || opened) return;
+    _showMessage(t.ntutWifi.openSettingsFailed);
+  }
+
   Future<void> _runProvisioning() async {
-    setState(() => _isProvisioning = true);
+    if (_isBusy) return;
+    setState(() {
+      _isProvisioning = true;
+      _lastRemovalStatus = null;
+    });
     Ntut8021xProvisioningResult? result;
     try {
       result = await ref
@@ -78,7 +112,11 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
   }
 
   Future<void> _saveNtut8021xToSystem() async {
-    setState(() => _isSavingCompat = true);
+    if (_isBusy) return;
+    setState(() {
+      _isSavingCompat = true;
+      _lastRemovalStatus = null;
+    });
     Ntut8021xProvisioningResult? result;
     try {
       result = await ref
@@ -102,6 +140,59 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
     });
   }
 
+  Future<void> _removeNtut8021x(CampusWifiCapabilities capabilities) async {
+    if (_isBusy) return;
+    setState(() => _isRemoving = true);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        scrollable: true,
+        title: Text(t.ntutWifi.removal.title.spaced),
+        content: Text(
+          switch (capabilities.androidSdkInt) {
+            final sdk? when sdk < 30 =>
+              t.ntutWifi.removal.confirmation.android10,
+            final _? => t.ntutWifi.removal.confirmation.android,
+            null => t.ntutWifi.removal.confirmation.ios,
+          }.spaced,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(t.general.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(t.ntutWifi.removal.confirm.spaced),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (confirmed != true) {
+      setState(() => _isRemoving = false);
+      return;
+    }
+
+    setState(() {
+      _lastProvisioningResult = null;
+      _lastRemovalStatus = null;
+    });
+    Ntut8021xRemovalStatus status;
+    try {
+      status = await ref.read(campusWifiRepositoryProvider).removeNtut8021x();
+    } catch (_) {
+      status = .failed;
+    }
+    if (!mounted) return;
+    setState(() {
+      _isRemoving = false;
+      _lastRemovalStatus = status;
+    });
+    ref.invalidate(ntutWifiAssistantProvider);
+    _showMessage(_removalSnackBarMessage(status));
+  }
+
   void _showMessage(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -109,9 +200,6 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
   }
 
   String _provisioningSnackBarMessage(Ntut8021xProvisioningResult result) {
-    if (result.approvalStatus == 2) {
-      return t.ntutWifi.provisioning.approvalRejected;
-    }
     return switch (result.status) {
       .success => t.ntutWifi.provisioning.success,
       .configured => t.ntutWifi.ios.configured,
@@ -123,10 +211,7 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
       .validationUnavailable => t.ntutWifi.provisioning.validationUnavailable,
       .unsupportedPlatform => t.ntutWifi.provisioning.unsupportedPlatform,
       .failed => t.ntutWifi.provisioning.failed,
-      .compatSuccess =>
-        result.usedCompatFallback
-            ? t.ntutWifi.provisioning.compatFallbackSuccess
-            : t.ntutWifi.provisioning.compatSuccess,
+      .compatSuccess => t.ntutWifi.provisioning.compatSuccess,
       .compatAlreadyExists => t.ntutWifi.provisioning.compatAlreadyExists,
       .compatCancelled => t.ntutWifi.provisioning.compatCancelled,
       .compatFailed => t.ntutWifi.provisioning.compatFailed,
@@ -143,9 +228,13 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
         child: switch (assistantAsync) {
           AsyncData(:final value) => _AssistantBody(
             data: value,
-            provisioningResult: _lastProvisioningResult,
             isProvisioning: _isProvisioning,
             isSavingCompat: _isSavingCompat,
+            isRemoving: _isRemoving,
+            removalStatus: _lastRemovalStatus,
+            onRemove: value.capabilities.canRemoveNtut8021x
+                ? () => _removeNtut8021x(value.capabilities)
+                : null,
             onProvision: value.canProvisionAutomatically
                 ? _runProvisioning
                 : null,
@@ -164,6 +253,12 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
             onOpenWifiPanel: value.capabilities.canOpenWifiPanel
                 ? _openWifiPanel
                 : null,
+            onOpenWifiPermissionSettings:
+                value.capabilities.androidSdkInt != null &&
+                    (value.capabilities.isSuggestionPermissionDisallowed ||
+                        _lastProvisioningResult?.status == .approvalRejected)
+                ? _openWifiPermissionSettings
+                : null,
           ),
           AsyncError() => Center(
             child: Padding(
@@ -181,34 +276,61 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
   }
 }
 
+String _removalMessage(Ntut8021xRemovalStatus status) {
+  return switch (status) {
+    .removed => t.ntutWifi.removal.removed,
+    .removalRequested => t.ntutWifi.removal.requested,
+    .manualRemovalRequired => t.ntutWifi.removal.manualRequired,
+    .unsupportedPlatform => t.ntutWifi.removal.unsupported,
+    .failed => t.ntutWifi.removal.failed,
+  };
+}
+
+String _removalSnackBarMessage(Ntut8021xRemovalStatus status) {
+  return switch (status) {
+    .removed => t.ntutWifi.removal.snackbar.removed,
+    .removalRequested => t.ntutWifi.removal.snackbar.requested,
+    .manualRemovalRequired => t.ntutWifi.removal.snackbar.manualRequired,
+    .unsupportedPlatform => t.ntutWifi.removal.snackbar.unsupported,
+    .failed => t.ntutWifi.removal.snackbar.failed,
+  };
+}
+
 class _AssistantBody extends StatelessWidget {
   const _AssistantBody({
     required this.data,
     required this.isProvisioning,
     required this.isSavingCompat,
-    this.provisioningResult,
+    required this.isRemoving,
+    this.removalStatus,
+    this.onRemove,
     this.onProvision,
     this.onRetryCompat,
     this.onCopyIdentity,
     this.onCopyPassword,
     this.onOpenWifiSettings,
     this.onOpenWifiPanel,
+    this.onOpenWifiPermissionSettings,
   });
 
   final Ntut8021xAssistantData data;
-  final Ntut8021xProvisioningResult? provisioningResult;
   final bool isProvisioning;
   final bool isSavingCompat;
+  final bool isRemoving;
+  final Ntut8021xRemovalStatus? removalStatus;
+  final VoidCallback? onRemove;
   final VoidCallback? onProvision;
   final VoidCallback? onRetryCompat;
   final VoidCallback? onCopyIdentity;
   final VoidCallback? onCopyPassword;
   final VoidCallback? onOpenWifiSettings;
   final VoidCallback? onOpenWifiPanel;
+  final VoidCallback? onOpenWifiPermissionSettings;
 
   @override
   Widget build(BuildContext context) {
     final isIos = Theme.of(context).platform == TargetPlatform.iOS;
+    final isBusy = isProvisioning || isSavingCompat || isRemoving;
     final notices = <Widget>[
       BackgroundNotice(
         text: _statusMessage(data, isIos: isIos).spaced,
@@ -219,20 +341,24 @@ class _AssistantBody extends StatelessWidget {
           text: message.spaced,
           noticeType: _modeNoticeType(data),
         ),
-      if (provisioningResult case final provisioningResult?)
+      if (removalStatus case final status?)
         BackgroundNotice(
-          text: _provisioningMessage(provisioningResult).spaced,
-          noticeType: _provisioningNoticeType(provisioningResult),
+          text: _removalMessage(status).spaced,
+          noticeType: switch (status) {
+            .failed || .unsupportedPlatform => .error,
+            .manualRemovalRequired || .removalRequested => .warning,
+            .removed => .info,
+          },
         ),
       if (data.capabilities.androidSdkInt case final sdkInt?)
         Text(
           t.ntutWifi.androidVersion(sdkInt: sdkInt),
           style: Theme.of(context).textTheme.bodySmall,
         ),
-      if (data.capabilities.androidSdkInt != null &&
-          !data.capabilities.isAndroid12OrNewer)
+      if (data.capabilities.androidSdkInt case final sdk?
+          when sdk >= 29 && sdk < 31)
         BackgroundNotice(
-          text: t.ntutWifi.olderAndroidWarning,
+          text: t.ntutWifi.olderAndroidWarning.spaced,
           noticeType: .warning,
         ),
       if (data.status == .ready && data.screenMode != .manualOnly)
@@ -259,15 +385,24 @@ class _AssistantBody extends StatelessWidget {
           spacing: 16,
           children: [
             ...notices,
+            if (onOpenWifiPermissionSettings
+                case final onOpenWifiPermissionSettings?)
+              FilledButton.tonalIcon(
+                onPressed: isBusy ? null : onOpenWifiPermissionSettings,
+                icon: const Icon(Icons.settings),
+                label: Text(
+                  t.ntutWifi.actions.openWifiPermissionSettings.spaced,
+                ),
+              ),
             if (onProvision case final onProvision?)
               FilledButton.icon(
-                onPressed: isProvisioning ? null : onProvision,
+                onPressed: isBusy ? null : onProvision,
                 icon: isProvisioning
                     ? const SizedBox.square(
                         dimension: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.wifi_protected_setup),
+                    : const Icon(Icons.wifi),
                 label: Text(
                   isProvisioning
                       ? t.ntutWifi.actions.autoProvisioning
@@ -278,7 +413,7 @@ class _AssistantBody extends StatelessWidget {
               ),
             if (onRetryCompat case final onRetryCompat?)
               OutlinedButton.icon(
-                onPressed: isSavingCompat ? null : onRetryCompat,
+                onPressed: isBusy ? null : onRetryCompat,
                 icon: isSavingCompat
                     ? const SizedBox.square(
                         dimension: 18,
@@ -291,6 +426,22 @@ class _AssistantBody extends StatelessWidget {
                       : data.pendingCompatPromptReason == .credentialChanged
                       ? t.ntutWifi.actions.updateCompatProvision
                       : t.ntutWifi.actions.retryCompatProvision,
+                ),
+              ),
+            if (onRemove case final onRemove?)
+              OutlinedButton.icon(
+                onPressed: isBusy ? null : onRemove,
+                icon: isRemoving
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.wifi_off),
+                label: Text(
+                  (isRemoving
+                          ? t.ntutWifi.removal.removing
+                          : t.ntutWifi.removal.button)
+                      .spaced,
                 ),
               ),
             if (onOpenWifiSettings != null || onOpenWifiPanel != null) ...[
@@ -397,15 +548,14 @@ class _AssistantBody extends StatelessWidget {
       return t.ntutWifi.legacyManualOnly;
     }
 
-    if (data.capabilities.isAndroid10 &&
-        data.capabilities.isSuggestionPermissionDisallowed) {
-      return t.ntutWifi.android10PermissionRejected;
-    }
-
     if (data.pendingCompatPromptReason == .credentialChanged) {
       return isIos
           ? t.ntutWifi.ios.updateRequired
           : t.ntutWifi.compatUpdateRequired;
+    }
+
+    if (data.screenMode == .permissionRequired) {
+      return t.ntutWifi.provisioning.approvalRejected;
     }
 
     if (data.pendingCompatPromptReason == .suggestionFallbackRequired) {
@@ -421,8 +571,7 @@ class _AssistantBody extends StatelessWidget {
 
   NoticeType _modeNoticeType(Ntut8021xAssistantData data) {
     if (data.capabilities.isLegacyAndroidManualOnly ||
-        (data.capabilities.isAndroid10 &&
-            data.capabilities.isSuggestionPermissionDisallowed)) {
+        data.screenMode == .permissionRequired) {
       return .warning;
     }
 
@@ -431,48 +580,6 @@ class _AssistantBody extends StatelessWidget {
     }
 
     return .info;
-  }
-
-  String _provisioningMessage(Ntut8021xProvisioningResult result) {
-    if (result.approvalStatus == 2) {
-      return t.ntutWifi.provisioning.approvalRejected;
-    }
-    return switch (result.status) {
-      .success => t.ntutWifi.provisioning.success,
-      .configured => t.ntutWifi.ios.configured,
-      .cancelled => t.ntutWifi.ios.cancelled,
-      .alreadyAssociated => t.ntutWifi.ios.alreadyAssociated,
-      .successPendingWifi => t.ntutWifi.provisioning.successPendingWifi,
-      .approvalPending => t.ntutWifi.provisioning.approvalPending,
-      .approvalRejected => t.ntutWifi.provisioning.approvalRejected,
-      .validationUnavailable => t.ntutWifi.provisioning.validationUnavailable,
-      .unsupportedPlatform => t.ntutWifi.provisioning.unsupportedPlatform,
-      .failed => t.ntutWifi.provisioning.failed,
-      .compatSuccess =>
-        result.usedCompatFallback
-            ? t.ntutWifi.provisioning.compatFallbackSuccess
-            : t.ntutWifi.provisioning.compatSuccess,
-      .compatAlreadyExists => t.ntutWifi.provisioning.compatAlreadyExists,
-      .compatCancelled => t.ntutWifi.provisioning.compatCancelled,
-      .compatFailed => t.ntutWifi.provisioning.compatFailed,
-    };
-  }
-
-  NoticeType _provisioningNoticeType(Ntut8021xProvisioningResult result) {
-    if (result.approvalStatus == 2) {
-      return .warning;
-    }
-    return switch (result.status) {
-      .success || .configured || .successPendingWifi || .compatSuccess => .info,
-      .approvalPending ||
-      .approvalRejected ||
-      .validationUnavailable ||
-      .cancelled ||
-      .alreadyAssociated ||
-      .compatAlreadyExists ||
-      .compatCancelled => .warning,
-      .unsupportedPlatform || .failed || .compatFailed => .error,
-    };
   }
 }
 

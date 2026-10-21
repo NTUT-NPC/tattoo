@@ -13,6 +13,7 @@ import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/services/course_widget_sync.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/http.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
@@ -68,15 +69,24 @@ class ProfileDangerZone extends ConsumerWidget {
     context,
     t.profile.dangerZone.items.cache,
     () async {
-      final cacheDir = await getApplicationCacheDirectory();
-      if (await cacheDir.exists()) {
-        await for (final entity in cacheDir.list()) {
-          await entity.delete(recursive: true);
+      final courseWidgetSyncController = ref.read(
+        courseWidgetSyncControllerProvider,
+      );
+      await courseWidgetSyncController.invalidateAndClear();
+      try {
+        final cacheDir = await getApplicationCacheDirectory();
+        if (await cacheDir.exists()) {
+          await for (final entity in cacheDir.list()) {
+            await entity.delete(recursive: true);
+          }
         }
+        await ref.read(databaseProvider).deleteCachedData();
+        // Stream-based providers auto-update via Drift .watch().
+        ref.invalidate(userAvatarProvider);
+      } finally {
+        await courseWidgetSyncController.start();
+        await courseWidgetSyncController.reconcile();
       }
-      await ref.read(databaseProvider).deleteCachedData();
-      // Stream-based providers auto-update via Drift .watch().
-      ref.invalidate(userAvatarProvider);
     },
   );
 
@@ -107,9 +117,20 @@ class ProfileDangerZone extends ConsumerWidget {
     context,
     t.profile.dangerZone.items.userData,
     () async {
-      await ref.read(databaseProvider).deleteEverything();
-      await cookieJar.deleteAll();
-      await const FlutterSecureStorage().deleteAll();
+      final courseWidgetSyncController = ref.read(
+        courseWidgetSyncControllerProvider,
+      );
+      await courseWidgetSyncController.stopAndClear();
+      try {
+        await ref.read(databaseProvider).deleteEverything();
+        await cookieJar.deleteAll();
+        await const FlutterSecureStorage().deleteAll();
+      } catch (_) {
+        // The session stays active, so resume the widget sync stopped above.
+        await courseWidgetSyncController.start();
+        await courseWidgetSyncController.reconcile();
+        rethrow;
+      }
       ref.read(sessionProvider.notifier).destroy();
     },
   );

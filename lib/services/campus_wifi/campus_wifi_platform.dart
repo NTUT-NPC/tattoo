@@ -55,6 +55,12 @@ abstract interface class CampusWifiPlatform {
 
   Future<bool> openWifiPanel();
 
+  /// Opens Android Wi-Fi control settings, falling back to this app's details.
+  Future<bool> openWifiPermissionSettings();
+
+  /// Removes only app-managed configurations; no portal credentials are needed.
+  Future<String> removeNtut8021x();
+
   Future<Ntut8021xProvisioningDto> provisionNtut8021x({
     required String identity,
     required String password,
@@ -119,6 +125,21 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
   @override
   Future<bool> openWifiPanel() async {
     return _invokeBooleanMethod('openWifiPanel');
+  }
+
+  @override
+  Future<bool> openWifiPermissionSettings() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return false;
+    return _invokeBooleanMethod('openWifiPermissionSettings');
+  }
+
+  @override
+  Future<String> removeNtut8021x() {
+    return _invokeOnMobile(
+      fallback: _isMobilePlatform ? 'failed' : 'unsupportedPlatform',
+      invoke: () async =>
+          await _channel.invokeMethod<String>('removeNtut8021x') ?? 'failed',
+    );
   }
 
   @override
