@@ -333,132 +333,139 @@ class _AssistantBody extends StatelessWidget {
     final isBusy = isProvisioning || isSavingCompat || isRemoving;
     final guide = t.ntutWifi.manualGuide;
 
-    return Column(
+    return Stack(
       children: [
-        Expanded(
-          child: ShowcaseShell(
-            icon: Icon(Icons.wifi, color: theme.colorScheme.primary),
-            title: t.ntutWifi.connectTitle.spaced,
-            subtitle: t.ntutWifi.description.spaced,
-            body: Column(
-              crossAxisAlignment: .stretch,
-              spacing: 8,
-              children: [
-                if (isIos && !data.capabilities.canProvisionAutomatically)
-                  BackgroundNotice(
-                    text: t.ntutWifi.ios.deviceRequired.spaced,
-                    noticeType: .warning,
-                  ),
-                if (data.status != .ready)
-                  BackgroundNotice(
-                    text: _statusMessage(data, isIos: isIos).spaced,
-                    noticeType: _statusNoticeType(data.status),
-                  ),
-                if (onOpenWifiPermissionSettings case final onOpen?)
-                  BackgroundNotice(
-                    text: t.ntutWifi.permissionRequired.spaced,
-                    noticeType: .warning,
-                    action: TextButton.icon(
-                      onPressed: isBusy ? null : onOpen,
-                      icon: const Icon(Icons.settings_outlined),
-                      label: Text(
-                        t.ntutWifi.actions.openWifiPermissionSettings.spaced,
-                      ),
-                    ),
-                  ),
-                if (_modeNoticeMessage(data, isIos: isIos) case final message?)
-                  BackgroundNotice(
-                    text: message.spaced,
-                    noticeType: _modeNoticeType(data),
-                  ),
-                if (removalStatus case final status?)
-                  BackgroundNotice(
-                    text: _removalMessage(status).spaced,
-                    noticeType: switch (status) {
-                      .failed || .unsupportedPlatform => .error,
-                      .manualRemovalRequired || .removalRequested => .warning,
-                      .removed => .info,
-                    },
-                  ),
-                switch (theme.platform) {
-                  .iOS => NtutWifiIosGuide(
-                    onCopyIdentity: onCopyIdentity,
-                    onCopyPassword: onCopyPassword,
-                  ),
-                  _ => NtutWifiAndroidGuide(
-                    androidSdkInt: data.capabilities.androidSdkInt,
-                    onCopyIdentity: onCopyIdentity,
-                    onCopyPassword: onCopyPassword,
-                  ),
-                },
-                if (!data.canRemoveConfiguration &&
-                    (data.lastProvisioningMode == .compat ||
-                        data.screenMode == .manualOnly ||
-                        data.canUseCompatMode))
-                  Padding(
-                    padding: const .symmetric(horizontal: 24),
-                    child: Text(
-                      guide.removeManually.spaced,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                if (onOpenWifiSettings case final onOpen?)
-                  TextButton.icon(
+        ShowcaseShell(
+          icon: Icon(Icons.wifi, color: theme.colorScheme.primary),
+          title: t.ntutWifi.connectTitle.spaced,
+          subtitle: t.ntutWifi.description.spaced,
+          body: Column(
+            crossAxisAlignment: .stretch,
+            spacing: 8,
+            children: [
+              if (isIos && !data.capabilities.canProvisionAutomatically)
+                BackgroundNotice(
+                  text: t.ntutWifi.ios.deviceRequired.spaced,
+                  noticeType: .warning,
+                ),
+              if (data.status != .ready)
+                BackgroundNotice(
+                  text: _statusMessage(data, isIos: isIos).spaced,
+                  noticeType: _statusNoticeType(data.status),
+                ),
+              if (onOpenWifiPermissionSettings case final onOpen?)
+                BackgroundNotice(
+                  text: t.ntutWifi.permissionRequired.spaced,
+                  noticeType: .warning,
+                  action: TextButton.icon(
                     onPressed: isBusy ? null : onOpen,
                     icon: const Icon(Icons.settings_outlined),
-                    label: Text(t.ntutWifi.actions.openWifiSettings.spaced),
-                  ),
-              ],
-            ),
-            footer: const SizedBox.shrink(),
-          ),
-        ),
-        SafeArea(
-          top: false,
-          child: Container(
-            width: .infinity,
-            padding: const .only(top: 16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: .bottomCenter,
-                end: .topCenter,
-                colors: [
-                  theme.scaffoldBackgroundColor,
-                  theme.scaffoldBackgroundColor,
-                  theme.scaffoldBackgroundColor.withValues(alpha: 0),
-                ],
-                stops: const [0.0, 0.6, 1.0],
-              ),
-            ),
-            child: Padding(
-              padding: const .fromLTRB(16, 8, 16, 0),
-              child: Column(
-                crossAxisAlignment: .stretch,
-                mainAxisSize: .min,
-                spacing: 8,
-                children: [
-                  FilledButton(
-                    onPressed: isBusy ? null : onRetryCompat ?? onProvision,
-                    child: Padding(
-                      padding: const .all(6),
-                      child: isProvisioning || isSavingCompat
-                          ? const _ButtonProgress()
-                          : Text(t.ntutWifi.addConfiguration.spaced),
+                    label: Text(
+                      t.ntutWifi.actions.openWifiPermissionSettings.spaced,
                     ),
                   ),
-                  if (onRemove case final onRemove?)
-                    OutlinedButton(
-                      onPressed: isBusy ? null : onRemove,
+                ),
+              if (_modeNoticeMessage(data, isIos: isIos) case final message?)
+                BackgroundNotice(
+                  text: message.spaced,
+                  noticeType: _modeNoticeType(data),
+                ),
+              if (removalStatus case final status?)
+                BackgroundNotice(
+                  text: _removalMessage(status).spaced,
+                  noticeType: switch (status) {
+                    .failed || .unsupportedPlatform => .error,
+                    .manualRemovalRequired || .removalRequested => .warning,
+                    .removed => .info,
+                  },
+                ),
+              switch (theme.platform) {
+                .iOS => NtutWifiIosGuide(
+                  onCopyIdentity: onCopyIdentity,
+                  onCopyPassword: onCopyPassword,
+                ),
+                _ => NtutWifiAndroidGuide(
+                  androidSdkInt: data.capabilities.androidSdkInt,
+                  onCopyIdentity: onCopyIdentity,
+                  onCopyPassword: onCopyPassword,
+                ),
+              },
+              if (!data.canRemoveConfiguration &&
+                  (data.lastProvisioningMode == .compat ||
+                      data.screenMode == .manualOnly ||
+                      data.canUseCompatMode))
+                Padding(
+                  padding: const .symmetric(horizontal: 24),
+                  child: Text(
+                    guide.removeManually.spaced,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              if (onOpenWifiSettings case final onOpen?)
+                TextButton.icon(
+                  onPressed: isBusy ? null : onOpen,
+                  icon: const Icon(Icons.settings_outlined),
+                  label: Text(t.ntutWifi.actions.openWifiSettings.spaced),
+                ),
+            ],
+          ),
+          // ShowcaseShell reserves room for one button; make room for the
+          // remove button too so the last content can scroll clear of it.
+          footer: SizedBox(height: onRemove == null ? 0 : 56),
+        ),
+
+        // Bottom buttons with gradient fade
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: SafeArea(
+            top: false,
+            child: Container(
+              width: .infinity,
+              padding: const .only(top: 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: .bottomCenter,
+                  end: .topCenter,
+                  colors: [
+                    theme.scaffoldBackgroundColor,
+                    theme.scaffoldBackgroundColor,
+                    theme.scaffoldBackgroundColor.withValues(alpha: 0),
+                  ],
+                  stops: const [0.0, 0.6, 1.0],
+                ),
+              ),
+              child: Padding(
+                padding: const .fromLTRB(16, 8, 16, 0),
+                child: Column(
+                  crossAxisAlignment: .stretch,
+                  mainAxisSize: .min,
+                  spacing: 8,
+                  children: [
+                    FilledButton(
+                      onPressed: isBusy ? null : onRetryCompat ?? onProvision,
                       child: Padding(
                         padding: const .all(6),
-                        child: isRemoving
+                        child: isProvisioning || isSavingCompat
                             ? const _ButtonProgress()
-                            : Text(t.ntutWifi.removeConfiguration.spaced),
+                            : Text(t.ntutWifi.addConfiguration.spaced),
                       ),
                     ),
-                ],
+                    if (onRemove case final onRemove?)
+                      OutlinedButton(
+                        onPressed: isBusy ? null : onRemove,
+                        child: Padding(
+                          padding: const .all(6),
+                          child: isRemoving
+                              ? const _ButtonProgress()
+                              : Text(t.ntutWifi.removeConfiguration.spaced),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
