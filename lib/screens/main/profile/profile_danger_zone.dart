@@ -117,10 +117,20 @@ class ProfileDangerZone extends ConsumerWidget {
     context,
     t.profile.dangerZone.items.userData,
     () async {
-      await ref.read(courseWidgetSyncControllerProvider).stopAndClear();
-      await ref.read(databaseProvider).deleteEverything();
-      await cookieJar.deleteAll();
-      await const FlutterSecureStorage().deleteAll();
+      final courseWidgetSyncController = ref.read(
+        courseWidgetSyncControllerProvider,
+      );
+      await courseWidgetSyncController.stopAndClear();
+      try {
+        await ref.read(databaseProvider).deleteEverything();
+        await cookieJar.deleteAll();
+        await const FlutterSecureStorage().deleteAll();
+      } catch (_) {
+        // The session stays active, so resume the widget sync stopped above.
+        await courseWidgetSyncController.start();
+        await courseWidgetSyncController.reconcile();
+        rethrow;
+      }
       ref.read(sessionProvider.notifier).destroy();
     },
   );
