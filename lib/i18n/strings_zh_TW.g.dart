@@ -643,6 +643,23 @@ class Translations$ntutWifi$zh_TW {
 
 	// Translations
 
+	/// zh-TW: 'Wi-Fi控制權限已被拒絕。請前往設定允許TAT控制Wi-Fi，再回來重試。'
+	String get permissionRequired => 'Wi-Fi控制權限已被拒絕。請前往設定允許TAT控制Wi-Fi，再回來重試。';
+
+	/// zh-TW: '連接到校園WiFi'
+	String get connectTitle => '連接到校園WiFi';
+
+	/// zh-TW: '以下提供手動連線設定教學，也可以按底下的按鈕自動設定NTUT-802.1X。'
+	String get description => '以下提供手動連線設定教學，也可以按底下的按鈕自動設定NTUT-802.1X。';
+
+	/// zh-TW: '啟用自動連線'
+	String get addConfiguration => '啟用自動連線';
+
+	/// zh-TW: '移除自動連線設定'
+	String get removeConfiguration => '移除自動連線設定';
+
+	late final Translations$ntutWifi$manualGuide$zh_TW manualGuide = Translations$ntutWifi$manualGuide$zh_TW.internal(_root);
+
 	/// zh-TW: 'NTUT-802.1X'
 	String get title => 'NTUT-802.1X';
 
@@ -1440,6 +1457,51 @@ class Translations$scanner$guide$zh_TW {
 	String get button => '我知道了';
 }
 
+// Path: ntutWifi.manualGuide
+class Translations$ntutWifi$manualGuide$zh_TW {
+	Translations$ntutWifi$manualGuide$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '手動連線設定教學'
+	String get title => '手動連線設定教學';
+
+	/// zh-TW: '1. 選擇網路'
+	String get selectNetwork => '1. 選擇網路';
+
+	/// zh-TW: '開啟Wi-Fi設定，選擇NTUT-802.1X。'
+	String get openAndroid => '開啟Wi-Fi設定，選擇NTUT-802.1X。';
+
+	/// zh-TW: '前往「設定」→「Wi-Fi」，選擇NTUT-802.1X。'
+	String get openIos => '前往「設定」→「Wi-Fi」，選擇NTUT-802.1X。';
+
+	/// zh-TW: '2. 輸入入口帳密'
+	String get enterAccount => '2. 輸入入口帳密';
+
+	/// zh-TW: '3. 確認並連線'
+	String get connect => '3. 確認並連線';
+
+	/// zh-TW: '選擇PEAP與GTC，CA憑證選「使用系統憑證」，網域填ntut.edu.tw，再連線。'
+	String get configureAndroid => '選擇PEAP與GTC，CA憑證選「使用系統憑證」，網域填ntut.edu.tw，再連線。';
+
+	/// zh-TW: '選擇PEAP與GTC、使用系統憑證，網域填ntut.edu.tw。欄位名稱可能因版本不同。'
+	String get configureOlderAndroid => '選擇PEAP與GTC、使用系統憑證，網域填ntut.edu.tw。欄位名稱可能因版本不同。';
+
+	/// zh-TW: '複製帳號'
+	String get copyIdentity => '複製帳號';
+
+	/// zh-TW: '複製密碼'
+	String get copyPassword => '複製密碼';
+
+	/// zh-TW: '若要移除設定，請至系統Wi-Fi設定忘記此網路。'
+	String get removeManually => '若要移除設定，請至系統Wi-Fi設定忘記此網路。';
+
+	/// zh-TW: '點選「加入」。若出現憑證提示，確認為校園伺服器ntut.edu.tw的憑證後再信任。'
+	String get trustIos => '點選「加入」。若出現憑證提示，確認為校園伺服器ntut.edu.tw的憑證後再信任。';
+}
+
 // Path: ntutWifi.removal
 class Translations$ntutWifi$removal$zh_TW {
 	Translations$ntutWifi$removal$zh_TW.internal(this._root);
@@ -1563,8 +1625,8 @@ class Translations$ntutWifi$actions$zh_TW {
 	/// zh-TW: '開啟Wi‑Fi快捷面板'
 	String get openWifiPanel => '開啟Wi‑Fi快捷面板';
 
-	/// zh-TW: 'Wi-Fi控制權限'
-	String get openWifiPermissionSettings => 'Wi-Fi控制權限';
+	/// zh-TW: '前往權限設定'
+	String get openWifiPermissionSettings => '前往權限設定';
 }
 
 // Path: ntutWifi.fields
@@ -2337,6 +2399,23 @@ extension on Translations {
 			'scanner.guide.step3' => '3. 點擊「QR Code 登入」',
 			'scanner.guide.button' => '我知道了',
 			'scanner.invalidUrl' => '無效的網址',
+			'ntutWifi.permissionRequired' => 'Wi-Fi控制權限已被拒絕。請前往設定允許TAT控制Wi-Fi，再回來重試。',
+			'ntutWifi.connectTitle' => '連接到校園WiFi',
+			'ntutWifi.description' => '以下提供手動連線設定教學，也可以按底下的按鈕自動設定NTUT-802.1X。',
+			'ntutWifi.addConfiguration' => '啟用自動連線',
+			'ntutWifi.removeConfiguration' => '移除自動連線設定',
+			'ntutWifi.manualGuide.title' => '手動連線設定教學',
+			'ntutWifi.manualGuide.selectNetwork' => '1. 選擇網路',
+			'ntutWifi.manualGuide.openAndroid' => '開啟Wi-Fi設定，選擇NTUT-802.1X。',
+			'ntutWifi.manualGuide.openIos' => '前往「設定」→「Wi-Fi」，選擇NTUT-802.1X。',
+			'ntutWifi.manualGuide.enterAccount' => '2. 輸入入口帳密',
+			'ntutWifi.manualGuide.connect' => '3. 確認並連線',
+			'ntutWifi.manualGuide.configureAndroid' => '選擇PEAP與GTC，CA憑證選「使用系統憑證」，網域填ntut.edu.tw，再連線。',
+			'ntutWifi.manualGuide.configureOlderAndroid' => '選擇PEAP與GTC、使用系統憑證，網域填ntut.edu.tw。欄位名稱可能因版本不同。',
+			'ntutWifi.manualGuide.copyIdentity' => '複製帳號',
+			'ntutWifi.manualGuide.copyPassword' => '複製密碼',
+			'ntutWifi.manualGuide.removeManually' => '若要移除設定，請至系統Wi-Fi設定忘記此網路。',
+			'ntutWifi.manualGuide.trustIos' => '點選「加入」。若出現憑證提示，確認為校園伺服器ntut.edu.tw的憑證後再信任。',
 			'ntutWifi.title' => 'NTUT-802.1X',
 			'ntutWifi.entryDescription' => '使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi',
 			'ntutWifi.intro' => '使用已儲存的入口帳密加入NTUT-802.1X。',
@@ -2391,7 +2470,7 @@ extension on Translations {
 			'ntutWifi.actions.updateCompatProvision' => '使用相容模式更新',
 			'ntutWifi.actions.openWifiSettings' => '開啟Wi‑Fi設定',
 			'ntutWifi.actions.openWifiPanel' => '開啟Wi‑Fi快捷面板',
-			'ntutWifi.actions.openWifiPermissionSettings' => 'Wi-Fi控制權限',
+			'ntutWifi.actions.openWifiPermissionSettings' => '前往權限設定',
 			'ntutWifi.fields.ssid' => '網路名稱',
 			'ntutWifi.fields.eapMethod' => 'EAP方法',
 			'ntutWifi.fields.phase2Auth' => '第二階段驗證',

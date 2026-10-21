@@ -432,6 +432,12 @@ class _Translations$ntutWifi$en_US extends Translations$ntutWifi$zh_TW {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get permissionRequired => 'Wi-Fi control permission was denied. Allow TAT to control Wi-Fi in settings, then return and try again.';
+	@override String get connectTitle => 'Connect to campus WiFi';
+	@override String get description => 'Follow the manual connection guide below, or use the button at the bottom to set up NTUT-802.1X automatically.';
+	@override String get addConfiguration => 'Enable auto-join';
+	@override String get removeConfiguration => 'Remove auto-join configuration';
+	@override late final _Translations$ntutWifi$manualGuide$en_US manualGuide = _Translations$ntutWifi$manualGuide$en_US._(_root);
 	@override String get title => 'NTUT-802.1X';
 	@override String get entryDescription => 'Automatically add NTUT-802.1X with your saved portal credentials';
 	@override String get intro => 'Add NTUT-802.1X with your saved portal credentials.';
@@ -902,6 +908,27 @@ class _Translations$scanner$guide$en_US extends Translations$scanner$guide$zh_TW
 	@override String get button => 'Got it';
 }
 
+// Path: ntutWifi.manualGuide
+class _Translations$ntutWifi$manualGuide$en_US extends Translations$ntutWifi$manualGuide$zh_TW {
+	_Translations$ntutWifi$manualGuide$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Manual connection guide';
+	@override String get selectNetwork => '1. Select the network';
+	@override String get openAndroid => 'Open Wi-Fi settings and select NTUT-802.1X.';
+	@override String get openIos => 'Go to Settings → Wi-Fi and select NTUT-802.1X.';
+	@override String get enterAccount => '2. Enter your portal credentials';
+	@override String get connect => '3. Confirm and connect';
+	@override String get configureAndroid => 'Choose PEAP, GTC and system certificates. Set the domain to ntut.edu.tw, then connect.';
+	@override String get configureOlderAndroid => 'Use PEAP, GTC, system certificates and the domain ntut.edu.tw. Field names may vary by version.';
+	@override String get copyIdentity => 'Copy username';
+	@override String get copyPassword => 'Copy password';
+	@override String get removeManually => 'To remove this network, forget it in system Wi-Fi settings.';
+	@override String get trustIos => 'Tap Join. If prompted about a certificate, verify that it belongs to the campus server at ntut.edu.tw before trusting it.';
+}
+
 // Path: ntutWifi.removal
 class _Translations$ntutWifi$removal$en_US extends Translations$ntutWifi$removal$zh_TW {
 	_Translations$ntutWifi$removal$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -966,7 +993,7 @@ class _Translations$ntutWifi$actions$en_US extends Translations$ntutWifi$actions
 	@override String get updateCompatProvision => 'Update with Compat Mode';
 	@override String get openWifiSettings => 'Open Wi-Fi Settings';
 	@override String get openWifiPanel => 'Open Wi-Fi Panel';
-	@override String get openWifiPermissionSettings => 'Wi-Fi Control Permission';
+	@override String get openWifiPermissionSettings => 'Open permission settings';
 }
 
 // Path: ntutWifi.fields
@@ -1549,6 +1576,23 @@ extension on TranslationsEnUs {
 			'scanner.guide.step3' => '3. Click "Scan QR code"',
 			'scanner.guide.button' => 'Got it',
 			'scanner.invalidUrl' => 'Invalid URL',
+			'ntutWifi.permissionRequired' => 'Wi-Fi control permission was denied. Allow TAT to control Wi-Fi in settings, then return and try again.',
+			'ntutWifi.connectTitle' => 'Connect to campus WiFi',
+			'ntutWifi.description' => 'Follow the manual connection guide below, or use the button at the bottom to set up NTUT-802.1X automatically.',
+			'ntutWifi.addConfiguration' => 'Enable auto-join',
+			'ntutWifi.removeConfiguration' => 'Remove auto-join configuration',
+			'ntutWifi.manualGuide.title' => 'Manual connection guide',
+			'ntutWifi.manualGuide.selectNetwork' => '1. Select the network',
+			'ntutWifi.manualGuide.openAndroid' => 'Open Wi-Fi settings and select NTUT-802.1X.',
+			'ntutWifi.manualGuide.openIos' => 'Go to Settings → Wi-Fi and select NTUT-802.1X.',
+			'ntutWifi.manualGuide.enterAccount' => '2. Enter your portal credentials',
+			'ntutWifi.manualGuide.connect' => '3. Confirm and connect',
+			'ntutWifi.manualGuide.configureAndroid' => 'Choose PEAP, GTC and system certificates. Set the domain to ntut.edu.tw, then connect.',
+			'ntutWifi.manualGuide.configureOlderAndroid' => 'Use PEAP, GTC, system certificates and the domain ntut.edu.tw. Field names may vary by version.',
+			'ntutWifi.manualGuide.copyIdentity' => 'Copy username',
+			'ntutWifi.manualGuide.copyPassword' => 'Copy password',
+			'ntutWifi.manualGuide.removeManually' => 'To remove this network, forget it in system Wi-Fi settings.',
+			'ntutWifi.manualGuide.trustIos' => 'Tap Join. If prompted about a certificate, verify that it belongs to the campus server at ntut.edu.tw before trusting it.',
 			'ntutWifi.title' => 'NTUT-802.1X',
 			'ntutWifi.entryDescription' => 'Automatically add NTUT-802.1X with your saved portal credentials',
 			'ntutWifi.intro' => 'Add NTUT-802.1X with your saved portal credentials.',
@@ -1603,7 +1647,7 @@ extension on TranslationsEnUs {
 			'ntutWifi.actions.updateCompatProvision' => 'Update with Compat Mode',
 			'ntutWifi.actions.openWifiSettings' => 'Open Wi-Fi Settings',
 			'ntutWifi.actions.openWifiPanel' => 'Open Wi-Fi Panel',
-			'ntutWifi.actions.openWifiPermissionSettings' => 'Wi-Fi Control Permission',
+			'ntutWifi.actions.openWifiPermissionSettings' => 'Open permission settings',
 			'ntutWifi.fields.ssid' => 'Network name',
 			'ntutWifi.fields.eapMethod' => 'EAP method',
 			'ntutWifi.fields.phase2Auth' => 'Phase 2 authentication',

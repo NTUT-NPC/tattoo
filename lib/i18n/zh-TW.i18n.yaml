@@ -371,6 +371,24 @@ scanner:
     button: 我知道了
   invalidUrl: 無效的網址
 ntutWifi:
+  permissionRequired: Wi-Fi控制權限已被拒絕。請前往設定允許TAT控制Wi-Fi，再回來重試。
+  connectTitle: 連接到校園WiFi
+  description: 以下提供手動連線設定教學，也可以按底下的按鈕自動設定NTUT-802.1X。
+  addConfiguration: 啟用自動連線
+  removeConfiguration: 移除自動連線設定
+  manualGuide:
+    title: 手動連線設定教學
+    selectNetwork: 1. 選擇網路
+    openAndroid: 開啟Wi-Fi設定，選擇NTUT-802.1X。
+    openIos: 前往「設定」→「Wi-Fi」，選擇NTUT-802.1X。
+    enterAccount: 2. 輸入入口帳密
+    connect: 3. 確認並連線
+    configureAndroid: 選擇PEAP與GTC，CA憑證選「使用系統憑證」，網域填ntut.edu.tw，再連線。
+    configureOlderAndroid: 選擇PEAP與GTC、使用系統憑證，網域填ntut.edu.tw。欄位名稱可能因版本不同。
+    copyIdentity: 複製帳號
+    copyPassword: 複製密碼
+    removeManually: 若要移除設定，請至系統Wi-Fi設定忘記此網路。
+    trustIos: 點選「加入」。若出現憑證提示，確認為校園伺服器ntut.edu.tw的憑證後再信任。
   title: NTUT-802.1X
   entryDescription: 使用既有校園入口帳密自動加入NTUT-802.1X校園Wi‑Fi
   intro: 使用已儲存的入口帳密加入NTUT-802.1X。
@@ -431,7 +449,7 @@ ntutWifi:
     updateCompatProvision: 使用相容模式更新
     openWifiSettings: 開啟Wi‑Fi設定
     openWifiPanel: 開啟Wi‑Fi快捷面板
-    openWifiPermissionSettings: Wi-Fi控制權限
+    openWifiPermissionSettings: 前往權限設定
   fields:
     ssid: 網路名稱
     eapMethod: EAP方法

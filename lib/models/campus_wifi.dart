@@ -153,6 +153,12 @@ class Ntut8021xAssistantData {
       canCopyPassword;
 
   bool get canUseCompatMode => canRetryWithCompat;
+
+  bool get canRemoveConfiguration =>
+      capabilities.canRemoveNtut8021x &&
+      screenMode != .manualOnly &&
+      !canUseCompatMode &&
+      lastProvisioningMode != .compat;
 }
 
 class Ntut8021xImmediatePromptData {

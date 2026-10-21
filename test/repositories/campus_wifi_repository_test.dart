@@ -240,6 +240,7 @@ void main() {
       expect(data.password, 'portal-password');
       expect(data.screenMode, Ntut8021xScreenMode.normal);
       expect(data.capabilities.canProvisionNtut8021xSuggestion, isTrue);
+      expect(data.canRemoveConfiguration, isTrue);
     });
 
     test('android 11+ denied permission requires settings with optional compat save', () async {
@@ -270,6 +271,7 @@ void main() {
       expect(data.screenMode, Ntut8021xScreenMode.permissionRequired);
       expect(data.canProvisionAutomatically, isFalse);
       expect(data.canUseCompatMode, isTrue);
+      expect(data.canRemoveConfiguration, isFalse);
       expect(data.pendingPromptReason, isNull);
     });
 
@@ -303,6 +305,7 @@ void main() {
         expect(data.screenMode, Ntut8021xScreenMode.permissionRequired);
         expect(data.canProvisionAutomatically, isFalse);
         expect(data.canUseCompatMode, isFalse);
+        expect(data.canRemoveConfiguration, isTrue);
       },
     );
 
@@ -548,6 +551,10 @@ void main() {
         ),
       );
 
+      expect(
+        (await repository.getNtut8021xAssistantData()).canRemoveConfiguration,
+        isFalse,
+      );
       final result = await repository.saveNtut8021xToSystem(
         pendingPromptReason: Ntut8021xPendingPromptReason.credentialChanged,
       );
@@ -600,6 +607,7 @@ void main() {
         expect(data.canProvisionAutomatically, isTrue);
         expect(data.canUseCompatMode, isFalse);
         expect(data.capabilities.isLegacyAndroidManualOnly, isFalse);
+        expect(data.canRemoveConfiguration, isTrue);
         final result = await repository.provisionNtut8021x();
         expect(result.status, Ntut8021xProvisioningStatus.configured);
         expect(result.isSuccess, isTrue);
@@ -801,6 +809,7 @@ void main() {
 
         final data = await repository.getNtut8021xAssistantData();
         expect(data.screenMode, Ntut8021xScreenMode.manualOnly);
+        expect(data.canRemoveConfiguration, isFalse);
         expect(data.canProvisionAutomatically, isFalse);
         expect(data.canUseCompatMode, isFalse);
         expect(

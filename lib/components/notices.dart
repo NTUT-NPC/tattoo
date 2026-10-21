@@ -192,11 +192,14 @@ class BackgroundNotice extends StatelessWidget {
     this.icon,
     this.color,
     this.textStyle,
+    this.action,
     this.noticeType = NoticeType.info,
   });
 
   /// Message text shown in the notice.
   final String text;
+
+  final Widget? action;
 
   /// Optional leading icon. Falls back to a preset icon by [noticeType].
   final Widget? icon;
@@ -235,21 +238,30 @@ class BackgroundNotice extends StatelessWidget {
         ),
         child: Padding(
           padding: const .symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            crossAxisAlignment: .center,
-            spacing: 10,
+          child: Column(
+            mainAxisSize: .min,
+            crossAxisAlignment: .stretch,
+            spacing: 8,
             children: [
-              IconTheme(
-                data: IconThemeData(color: resolvedColor, size: 16),
-                child: resolvedIcon,
+              Row(
+                crossAxisAlignment: .center,
+                spacing: 10,
+                children: [
+                  IconTheme(
+                    data: IconThemeData(color: resolvedColor, size: 16),
+                    child: resolvedIcon,
+                  ),
+                  Expanded(
+                    child: Text(
+                      text,
+                      style: resolvedTextStyle,
+                      softWrap: true,
+                    ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: Text(
-                  text,
-                  style: resolvedTextStyle,
-                  softWrap: true,
-                ),
-              ),
+              if (action case final action?)
+                Align(alignment: .centerRight, child: action),
             ],
           ),
         ),
