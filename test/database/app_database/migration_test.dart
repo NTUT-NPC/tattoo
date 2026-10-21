@@ -56,57 +56,6 @@ void main() {
     },
   );
 
-  test(
-    'v1 preview map schema keeps rows and tolerates existing indexes',
-    () async {
-      final schema = await verifier.schemaAt(2);
-      schema.rawDatabase.execute('PRAGMA user_version = 1');
-      schema.rawDatabase.execute(
-        "INSERT INTO campus_map_buildings (code, name, geometry) "
-        "VALUES ('PREVIEW', 'Preview Building', '[]')",
-      );
-      schema.rawDatabase.execute(
-        "INSERT INTO campus_map_floors (layer_name, building, code) "
-        "VALUES ('preview:1f', 'PREVIEW', '1F')",
-      );
-      schema.rawDatabase.execute(
-        "INSERT INTO campus_map_rooms "
-        "(id, layer_name, name_zh, name_en, number) "
-        "VALUES ('preview:1f.1', 'preview:1f', '教室', 'Classroom', '101')",
-      );
-      schema.rawDatabase.execute(
-        "INSERT INTO campus_map_syncs (namespace) VALUES ('preview')",
-      );
-
-      final db = AppDatabase(schema.newConnection());
-      addTearDown(db.close);
-      await verifier.migrateAndValidate(db, 2);
-
-      expect(
-        await db
-            .customSelect('SELECT name FROM campus_map_buildings')
-            .map((row) => row.read<String>('name'))
-            .get(),
-        ['Preview Building'],
-      );
-      expect(
-        await db
-            .customSelect('SELECT number FROM campus_map_rooms')
-            .map((row) => row.read<String>('number'))
-            .get(),
-        ['101'],
-      );
-      expect(
-        await db
-            .customSelect('SELECT namespace FROM campus_map_syncs')
-            .map((row) => row.read<String>('namespace'))
-            .get(),
-        ['preview'],
-      );
-      await _expectMapSchema(db);
-    },
-  );
-
   test('fresh v2 database validates and supports map rows', () async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);

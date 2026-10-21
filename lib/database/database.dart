@@ -111,11 +111,7 @@ extension on GeneratedDatabase {
     await migrator.createTable(schema.campusMapFloors);
     await migrator.createTable(schema.campusMapRooms);
     await migrator.createTable(schema.campusMapSyncs);
-
-    // Rebuild preview indexes safely when a pre-versioned map schema exists.
-    await migrator.drop(schema.campusMapFloorBuilding);
     await migrator.createIndex(schema.campusMapFloorBuilding);
-    await migrator.drop(schema.campusMapRoomLayer);
     await migrator.createIndex(schema.campusMapRoomLayer);
   }
 }
