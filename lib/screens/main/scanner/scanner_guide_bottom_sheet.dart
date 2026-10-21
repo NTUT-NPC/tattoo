@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/shells/centered_max_width_frame.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 class ScannerGuideSheet extends StatelessWidget {
@@ -23,8 +24,6 @@ class ScannerGuideSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
     final screenHeight = MediaQuery.sizeOf(context).height;
     final topPadding = MediaQuery.paddingOf(context).top;
@@ -34,6 +33,25 @@ class ScannerGuideSheet extends StatelessWidget {
     // Calculate dynamic sizes relative to the available body height
     final minChildHeight = bottomPadding + 80;
     final minChildFraction = (minChildHeight / availableHeight).clamp(0.0, 1.0);
+
+    // Keep the sheet phone-width and clear of side insets in landscape, leaving
+    // the camera preview visible on either side.
+    return SafeArea(
+      top: false,
+      bottom: false,
+      child: Align(
+        alignment: .bottomCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: contentMaxWidth),
+          child: _buildSheet(context, minChildFraction),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSheet(BuildContext context, double minChildFraction) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
     return DraggableScrollableSheet(
       controller: controller,
