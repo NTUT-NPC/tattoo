@@ -18,6 +18,56 @@ whatsNew:
   view: View
   gotIt: Got it
 
+campusMap:
+  title: Campus Map
+  selectBuilding: Select a building
+  search: Search
+  searchHint: Classroom name or number (e.g. A1T101)
+  searchResults: Found $count spaces
+  noResults: No matching classrooms or spaces. Try another name or number.
+  searchFailed: Search failed. Check your connection and try again.
+  locationUnavailable: This space has no available location data.
+  loadFailed: Map data could not be loaded. Check your connection and try again.
+  refresh: Refresh map data
+  resetOrientation: Reset map orientation
+  campusNames(map):
+    '1': West Campus
+    '2': East Campus
+    '3': South Campus
+    '4': Linsen North Road Campus
+    '5': Jianguo Brewery Campus
+  # Keys are original GeoServer building codes (e.g. A6T, HR).
+  buildingNames(map):
+    A1T: 1st Academic
+    A2T: 2nd Academic
+    A3T: 3rd Academic
+    A4T: 4th Academic
+    A5T: 5th Academic/Biotech & Alumnus Associaltion
+    A6T: 6th Academic
+    AC: Yi-Da Corridor
+    AD: Administration Building
+    AM: Pioneer International R&D
+    B1D: Student Dormitory 1
+    B2D: Student Dormitory 2
+    CB: Integrated Technology Complex
+    CE: Civil Engineering
+    CH: Chemistry Building
+    CK: Student Activity Center
+    CM: Chemical Engineering
+    DB: Design Building
+    EL: Everlight Building
+    GB: General Studies
+    GH: Guanghua Building
+    GR: Ecology Cabin
+    HR: Hong-Yue Technology Research
+    LB: Library
+    LY: Lung-Yu Technology
+    ME: Molecular Science and Engineering
+    MR: Materials and Mineral Resources Engineering
+    RB: Red House
+    SE: Zhongxiao East Road Guardhouse
+    SS: Xinsheng South Road Guardhouse
+    SY: Sun Yat-Sen Memorial Hall
 preferences:
   startWithCourseTable:
     title: Start with Course Table

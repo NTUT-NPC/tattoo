@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:tattoo/database/database.steps.dart';
 import 'package:tattoo/database/schema.dart';
 import 'package:tattoo/database/views.dart';
 import 'package:tattoo/models/course.dart';
@@ -54,6 +55,10 @@ final databaseProvider = Provider<AppDatabase>((ref) {
     UserSemesterSummaryCadreRoles,
     UserSemesterRankings,
     CalendarEvents,
+    CampusMapBuildings,
+    CampusMapFloors,
+    CampusMapRooms,
+    CampusMapSyncs,
   ],
   views: [
     CourseOfferingOverviews,
@@ -70,11 +75,13 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onUpgrade: destructiveFallback.onUpgrade,
+    onUpgrade: stepByStep(
+      from1To2: (migrator, schema) => migrateV1ToV2(migrator, schema),
+    ),
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
 
@@ -95,5 +102,16 @@ class AppDatabase extends _$AppDatabase {
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'tattoo');
+  }
+}
+
+extension on GeneratedDatabase {
+  Future<void> migrateV1ToV2(Migrator migrator, Schema2 schema) async {
+    await migrator.createTable(schema.campusMapBuildings);
+    await migrator.createTable(schema.campusMapFloors);
+    await migrator.createTable(schema.campusMapRooms);
+    await migrator.createTable(schema.campusMapSyncs);
+    await migrator.createIndex(schema.campusMapFloorBuilding);
+    await migrator.createIndex(schema.campusMapRoomLayer);
   }
 }
