@@ -194,7 +194,16 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   }
 
   Widget _buildOverlay(BuildContext context) {
-    final scanWindowSize = MediaQuery.sizeOf(context).width * 0.7;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Size from the shorter body side so the window still fits in landscape.
+        final scanWindowSize = constraints.biggest.shortestSide * 0.7;
+        return _buildOverlayWindow(scanWindowSize);
+      },
+    );
+  }
+
+  Widget _buildOverlayWindow(double scanWindowSize) {
     return Stack(
       children: [
         // Darkened background with a hole
