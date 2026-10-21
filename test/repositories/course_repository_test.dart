@@ -6,8 +6,10 @@ import 'package:drift/native.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/services/course/course_service.dart';
 import 'package:tattoo/services/course/mock_course_service.dart';
 import 'package:tattoo/services/file_save_service.dart';
 import 'package:tattoo/services/firebase_service.dart';
@@ -36,6 +38,7 @@ void main() {
         database: database,
         secureStorage: const FlutterSecureStorage(),
         isDemo: false,
+        clearCourseWidget: () async {},
         onSessionCreated: () {},
         onSessionDestroyed: ([exception]) {},
       );
@@ -432,6 +435,167 @@ void main() {
       },
     );
   });
+
+  group('CourseRepository widget cache', () {
+    late AppDatabase database;
+    late _CountingCourseService courseService;
+    late CourseRepository repository;
+
+    setUp(() {
+      database = AppDatabase(NativeDatabase.memory());
+      courseService = _CountingCourseService();
+      final portalService = MockPortalService();
+      repository = CourseRepository(
+        portalService: portalService,
+        courseService: courseService,
+        iSchoolPlusService: MockISchoolPlusService(),
+        database: database,
+        authRepository: AuthRepository(
+          portalService: portalService,
+          studentQueryService: MockStudentQueryService(),
+          database: database,
+          secureStorage: const FlutterSecureStorage(),
+          isDemo: false,
+          clearCourseWidget: () async {},
+          onSessionCreated: () {},
+          onSessionDestroyed: ([exception]) {},
+        ),
+        firebaseService: const FirebaseService(),
+      );
+    });
+
+    tearDown(() => database.close());
+
+    test(
+      'reads and normalizes only the latest eligible cached semester',
+      () async {
+        final older = await database.getOrCreateSemester(
+          113,
+          2,
+          inCourseSemesterList: true,
+        );
+        await database.getOrCreateSemester(
+          115,
+          1,
+          inCourseSemesterList: false,
+        );
+        final latest = await database.getOrCreateSemester(
+          114,
+          1,
+          inCourseSemesterList: true,
+        );
+        final olderOffering = await database.upsertCourseOffering(
+          semesterId: older.id,
+          number: 'older',
+          nameZh: '舊課程',
+          inCourseTable: true,
+        );
+        await database
+            .into(database.schedules)
+            .insert(
+              SchedulesCompanion.insert(
+                courseOffering: olderOffering,
+                dayOfWeek: DayOfWeek.monday,
+                period: Period.first,
+              ),
+            );
+
+        await database.upsertCourse(
+          code: 'CS100',
+          credits: 3,
+          hours: 2,
+          nameZh: '快取課程',
+          nameEn: 'Cached Course',
+        );
+        final classroom = await database.upsertClassroom(
+          code: 'ROOM',
+          nameZh: '共同101',
+          nameEn: 'GSB 101',
+        );
+        final scheduled = await database.upsertCourseOffering(
+          semesterId: latest.id,
+          number: 'latest',
+          nameZh: '快取課程',
+          nameEn: 'Cached Course',
+          courseCode: const Value('CS100'),
+          inCourseTable: true,
+        );
+        final unscheduled = await database.upsertCourseOffering(
+          semesterId: latest.id,
+          number: 'unscheduled',
+          nameZh: '專題',
+          nameEn: 'Project',
+          inCourseTable: true,
+        );
+        for (final period in [Period.fourth, Period.fifth]) {
+          await database
+              .into(database.schedules)
+              .insert(
+                SchedulesCompanion.insert(
+                  courseOffering: scheduled,
+                  dayOfWeek: DayOfWeek.tuesday,
+                  period: period,
+                  classroom: Value(classroom),
+                ),
+              );
+        }
+
+        final result = await repository.readLatestCachedCourseTable();
+
+        expect((result!.semester.year, result.semester.term), (114, 1));
+        final cell = result.courseTable.scheduled.values.single;
+        expect((cell.id, cell.span, cell.crossesNoon), (scheduled, 2, true));
+        expect(result.courseTable.unscheduled.single.id, unscheduled);
+        expect(courseService.semesterListCalls, 0);
+        expect(courseService.courseTableCalls, 0);
+      },
+    );
+
+    test('signals cache changes after a transaction completes', () async {
+      var signals = 0;
+      final subscription = repository.watchCourseTableCacheChanges().listen(
+        (_) => signals++,
+      );
+      addTearDown(subscription.cancel);
+      await pumpEventQueue();
+      final signalsBeforeWrite = signals;
+
+      await database.transaction(() async {
+        await database.getOrCreateSemester(
+          114,
+          2,
+          inCourseSemesterList: true,
+        );
+        await database.upsertClassroom(
+          code: 'SECOND',
+          nameZh: '第二教學大樓',
+        );
+      });
+      await pumpEventQueue();
+
+      expect(signals, greaterThan(signalsBeforeWrite));
+    });
+  });
+}
+
+class _CountingCourseService extends MockCourseService {
+  var semesterListCalls = 0;
+  var courseTableCalls = 0;
+
+  @override
+  Future<List<SemesterDto>> getCourseSemesterList() {
+    semesterListCalls++;
+    return super.getCourseSemesterList();
+  }
+
+  @override
+  Future<List<ScheduleDto>> getCourseTable({
+    required String username,
+    required SemesterDto semester,
+  }) {
+    courseTableCalls++;
+    return super.getCourseTable(username: username, semester: semester);
+  }
 }
 
 class _TestISchoolPlusService extends MockISchoolPlusService {
@@ -485,6 +649,7 @@ class _PassthroughAuthRepository extends AuthRepository {
          studentQueryService: MockStudentQueryService(),
          secureStorage: const FlutterSecureStorage(),
          isDemo: false,
+         clearCourseWidget: () async {},
          onSessionCreated: () {},
          onSessionDestroyed: ([exception]) {},
        );

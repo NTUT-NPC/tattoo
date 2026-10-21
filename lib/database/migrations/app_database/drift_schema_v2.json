@@ -1280,16 +1280,6 @@
             "default_dart": null,
             "default_client_dart": null,
             "dsl_features": []
-          },
-          {
-            "name": "materials_fetched_at",
-            "getter_name": "materialsFetchedAt",
-            "moor_type": "dateTime",
-            "nullable": true,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
           }
         ],
         "is_virtual": false,
@@ -2092,30 +2082,6 @@
             "moor_type": "string",
             "nullable": true,
             "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "i_school_course_id",
-            "getter_name": "iSchoolCourseId",
-            "moor_type": "string",
-            "nullable": true,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "streamable",
-            "getter_name": "streamable",
-            "moor_type": "bool",
-            "nullable": true,
-            "customConstraints": null,
-            "defaultConstraints": "CHECK (\"streamable\" IN (0, 1))",
-            "dialectAwareDefaultConstraints": {
-              "sqlite": "CHECK (\"streamable\" IN (0, 1))"
-            },
             "default_dart": null,
             "default_client_dart": null,
             "dsl_features": []
@@ -2997,6 +2963,270 @@
     },
     {
       "id": 27,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "campus_map_buildings",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "code",
+            "getter_name": "code",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name",
+            "getter_name": "name",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "geometry",
+            "getter_name": "geometry",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "code"
+        ]
+      }
+    },
+    {
+      "id": 28,
+      "references": [
+        27
+      ],
+      "type": "table",
+      "data": {
+        "name": "campus_map_floors",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "layer_name",
+            "getter_name": "layerName",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "building",
+            "getter_name": "building",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES campus_map_buildings (code) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES campus_map_buildings (code) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "campus_map_buildings",
+                    "column": "code"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "code",
+            "getter_name": "code",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "fetched_at",
+            "getter_name": "fetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "layer_name"
+        ]
+      }
+    },
+    {
+      "id": 29,
+      "references": [
+        28
+      ],
+      "type": "table",
+      "data": {
+        "name": "campus_map_rooms",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "layer_name",
+            "getter_name": "layerName",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES campus_map_floors (layer_name) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES campus_map_floors (layer_name) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "campus_map_floors",
+                    "column": "layer_name"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "name_zh",
+            "getter_name": "nameZh",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "name_en",
+            "getter_name": "nameEn",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "number",
+            "getter_name": "number",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "geometry",
+            "getter_name": "geometry",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 30,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "campus_map_syncs",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "namespace",
+            "getter_name": "namespace",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "catalog_fetched_at",
+            "getter_name": "catalogFetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "index_fetched_at",
+            "getter_name": "indexFetchedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "namespace"
+        ]
+      }
+    },
+    {
+      "id": 31,
       "references": [
         11,
         6
@@ -3367,7 +3597,7 @@
       }
     },
     {
-      "id": 28,
+      "id": 32,
       "references": [
         16,
         11,
@@ -3639,7 +3869,7 @@
       }
     },
     {
-      "id": 29,
+      "id": 33,
       "references": [
         21,
         6,
@@ -3856,7 +4086,7 @@
       }
     },
     {
-      "id": 30,
+      "id": 34,
       "references": [
         22,
         5
@@ -4102,7 +4332,7 @@
       }
     },
     {
-      "id": 31,
+      "id": 35,
       "references": [
         22,
         5
@@ -4230,7 +4460,7 @@
       }
     },
     {
-      "id": 32,
+      "id": 36,
       "references": [
         9
       ],
@@ -4249,7 +4479,7 @@
       }
     },
     {
-      "id": 33,
+      "id": 37,
       "references": [
         11
       ],
@@ -4268,7 +4498,7 @@
       }
     },
     {
-      "id": 34,
+      "id": 38,
       "references": [
         11
       ],
@@ -4287,7 +4517,7 @@
       }
     },
     {
-      "id": 35,
+      "id": 39,
       "references": [
         16
       ],
@@ -4306,7 +4536,7 @@
       }
     },
     {
-      "id": 36,
+      "id": 40,
       "references": [
         19
       ],
@@ -4325,7 +4555,7 @@
       }
     },
     {
-      "id": 37,
+      "id": 41,
       "references": [
         12
       ],
@@ -4344,7 +4574,7 @@
       }
     },
     {
-      "id": 38,
+      "id": 42,
       "references": [
         20
       ],
@@ -4363,7 +4593,7 @@
       }
     },
     {
-      "id": 39,
+      "id": 43,
       "references": [
         21
       ],
@@ -4382,7 +4612,7 @@
       }
     },
     {
-      "id": 40,
+      "id": 44,
       "references": [
         22
       ],
@@ -4395,6 +4625,44 @@
         "columns": [
           {
             "column": "user",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 45,
+      "references": [
+        28
+      ],
+      "type": "index",
+      "data": {
+        "on": 28,
+        "name": "campus_map_floor_building",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "building",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 46,
+      "references": [
+        29
+      ],
+      "type": "index",
+      "data": {
+        "on": 29,
+        "name": "campus_map_room_layer",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "layer_name",
             "order_by": null
           }
         ]
@@ -4506,7 +4774,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"course_offerings\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"fetched_at\" INTEGER NULL, \"course_code\" TEXT NULL, \"semester\" INTEGER NOT NULL REFERENCES semesters (id), \"number\" TEXT NULL UNIQUE, \"name_zh\" TEXT NOT NULL, \"name_en\" TEXT NULL, \"credits\" REAL NULL, \"hours\" INTEGER NULL, \"phase\" INTEGER NULL, \"course_type\" TEXT NULL, \"status\" TEXT NULL, \"language\" TEXT NULL, \"remarks\" TEXT NULL, \"in_course_table\" INTEGER NOT NULL DEFAULT 0 CHECK (\"in_course_table\" IN (0, 1)), \"enrolled\" INTEGER NULL, \"withdrawn\" INTEGER NULL, \"student_roster_fetched_at\" INTEGER NULL, \"materials_fetched_at\" INTEGER NULL);"
+          "sql": "CREATE TABLE IF NOT EXISTS \"course_offerings\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"fetched_at\" INTEGER NULL, \"course_code\" TEXT NULL, \"semester\" INTEGER NOT NULL REFERENCES semesters (id), \"number\" TEXT NULL UNIQUE, \"name_zh\" TEXT NOT NULL, \"name_en\" TEXT NULL, \"credits\" REAL NULL, \"hours\" INTEGER NULL, \"phase\" INTEGER NULL, \"course_type\" TEXT NULL, \"status\" TEXT NULL, \"language\" TEXT NULL, \"remarks\" TEXT NULL, \"in_course_table\" INTEGER NOT NULL DEFAULT 0 CHECK (\"in_course_table\" IN (0, 1)), \"enrolled\" INTEGER NULL, \"withdrawn\" INTEGER NULL, \"student_roster_fetched_at\" INTEGER NULL);"
         }
       ]
     },
@@ -4578,7 +4846,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"materials\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"course_offering\" INTEGER NOT NULL REFERENCES course_offerings (id) ON DELETE CASCADE, \"title\" TEXT NULL, \"href\" TEXT NULL, \"i_school_course_id\" TEXT NULL, \"streamable\" INTEGER NULL CHECK (\"streamable\" IN (0, 1)), UNIQUE (\"course_offering\", \"href\"));"
+          "sql": "CREATE TABLE IF NOT EXISTS \"materials\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"course_offering\" INTEGER NOT NULL REFERENCES course_offerings (id) ON DELETE CASCADE, \"title\" TEXT NULL, \"href\" TEXT NULL, UNIQUE (\"course_offering\", \"href\"));"
         }
       ]
     },
@@ -4642,6 +4910,42 @@
         {
           "dialect": "sqlite",
           "sql": "CREATE TABLE IF NOT EXISTS \"calendar_events\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"portal_id\" INTEGER NOT NULL UNIQUE, \"start\" INTEGER NOT NULL, \"end\" INTEGER NOT NULL, \"all_day\" INTEGER NOT NULL DEFAULT 0 CHECK (\"all_day\" IN (0, 1)), \"title\" TEXT NULL, \"place\" TEXT NULL, \"content\" TEXT NULL, \"owner_name\" TEXT NULL, \"creator_name\" TEXT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "campus_map_buildings",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"campus_map_buildings\" (\"code\" TEXT NOT NULL, \"name\" TEXT NOT NULL, \"geometry\" TEXT NOT NULL, PRIMARY KEY (\"code\"));"
+        }
+      ]
+    },
+    {
+      "name": "campus_map_floors",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"campus_map_floors\" (\"layer_name\" TEXT NOT NULL, \"building\" TEXT NOT NULL REFERENCES campus_map_buildings (code) ON DELETE CASCADE, \"code\" TEXT NOT NULL, \"fetched_at\" INTEGER NULL, PRIMARY KEY (\"layer_name\"));"
+        }
+      ]
+    },
+    {
+      "name": "campus_map_rooms",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"campus_map_rooms\" (\"id\" TEXT NOT NULL, \"layer_name\" TEXT NOT NULL REFERENCES campus_map_floors (layer_name) ON DELETE CASCADE, \"name_zh\" TEXT NOT NULL, \"name_en\" TEXT NOT NULL, \"number\" TEXT NOT NULL, \"geometry\" TEXT NULL, PRIMARY KEY (\"id\"));"
+        }
+      ]
+    },
+    {
+      "name": "campus_map_syncs",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"campus_map_syncs\" (\"namespace\" TEXT NOT NULL, \"catalog_fetched_at\" INTEGER NULL, \"index_fetched_at\" INTEGER NULL, PRIMARY KEY (\"namespace\"));"
         }
       ]
     },
@@ -4768,6 +5072,24 @@
         {
           "dialect": "sqlite",
           "sql": "CREATE INDEX user_semester_summary_user ON user_semester_summaries (user)"
+        }
+      ]
+    },
+    {
+      "name": "campus_map_floor_building",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX campus_map_floor_building ON campus_map_floors (building)"
+        }
+      ]
+    },
+    {
+      "name": "campus_map_room_layer",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX campus_map_room_layer ON campus_map_rooms (layer_name)"
         }
       ]
     }

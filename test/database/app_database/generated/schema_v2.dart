@@ -4122,14 +4122,6 @@ class CourseOfferings extends Table
     requiredDuringInsert: false,
     $customConstraints: 'NULL',
   );
-  late final GeneratedColumn<int> materialsFetchedAt = GeneratedColumn<int>(
-    'materials_fetched_at',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: 'NULL',
-  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4150,7 +4142,6 @@ class CourseOfferings extends Table
     enrolled,
     withdrawn,
     studentRosterFetchedAt,
-    materialsFetchedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4235,10 +4226,6 @@ class CourseOfferings extends Table
         DriftSqlType.int,
         data['${effectivePrefix}student_roster_fetched_at'],
       ),
-      materialsFetchedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}materials_fetched_at'],
-      ),
     );
   }
 
@@ -4271,7 +4258,6 @@ class CourseOfferingsData extends DataClass
   final int? enrolled;
   final int? withdrawn;
   final int? studentRosterFetchedAt;
-  final int? materialsFetchedAt;
   const CourseOfferingsData({
     required this.id,
     this.fetchedAt,
@@ -4291,7 +4277,6 @@ class CourseOfferingsData extends DataClass
     this.enrolled,
     this.withdrawn,
     this.studentRosterFetchedAt,
-    this.materialsFetchedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4341,9 +4326,6 @@ class CourseOfferingsData extends DataClass
     }
     if (!nullToAbsent || studentRosterFetchedAt != null) {
       map['student_roster_fetched_at'] = Variable<int>(studentRosterFetchedAt);
-    }
-    if (!nullToAbsent || materialsFetchedAt != null) {
-      map['materials_fetched_at'] = Variable<int>(materialsFetchedAt);
     }
     return map;
   }
@@ -4396,9 +4378,6 @@ class CourseOfferingsData extends DataClass
       studentRosterFetchedAt: studentRosterFetchedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(studentRosterFetchedAt),
-      materialsFetchedAt: materialsFetchedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(materialsFetchedAt),
     );
   }
 
@@ -4428,7 +4407,6 @@ class CourseOfferingsData extends DataClass
       studentRosterFetchedAt: serializer.fromJson<int?>(
         json['studentRosterFetchedAt'],
       ),
-      materialsFetchedAt: serializer.fromJson<int?>(json['materialsFetchedAt']),
     );
   }
   @override
@@ -4453,7 +4431,6 @@ class CourseOfferingsData extends DataClass
       'enrolled': serializer.toJson<int?>(enrolled),
       'withdrawn': serializer.toJson<int?>(withdrawn),
       'studentRosterFetchedAt': serializer.toJson<int?>(studentRosterFetchedAt),
-      'materialsFetchedAt': serializer.toJson<int?>(materialsFetchedAt),
     };
   }
 
@@ -4476,7 +4453,6 @@ class CourseOfferingsData extends DataClass
     Value<int?> enrolled = const Value.absent(),
     Value<int?> withdrawn = const Value.absent(),
     Value<int?> studentRosterFetchedAt = const Value.absent(),
-    Value<int?> materialsFetchedAt = const Value.absent(),
   }) => CourseOfferingsData(
     id: id ?? this.id,
     fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
@@ -4498,9 +4474,6 @@ class CourseOfferingsData extends DataClass
     studentRosterFetchedAt: studentRosterFetchedAt.present
         ? studentRosterFetchedAt.value
         : this.studentRosterFetchedAt,
-    materialsFetchedAt: materialsFetchedAt.present
-        ? materialsFetchedAt.value
-        : this.materialsFetchedAt,
   );
   CourseOfferingsData copyWithCompanion(CourseOfferingsCompanion data) {
     return CourseOfferingsData(
@@ -4530,9 +4503,6 @@ class CourseOfferingsData extends DataClass
       studentRosterFetchedAt: data.studentRosterFetchedAt.present
           ? data.studentRosterFetchedAt.value
           : this.studentRosterFetchedAt,
-      materialsFetchedAt: data.materialsFetchedAt.present
-          ? data.materialsFetchedAt.value
-          : this.materialsFetchedAt,
     );
   }
 
@@ -4556,8 +4526,7 @@ class CourseOfferingsData extends DataClass
           ..write('inCourseTable: $inCourseTable, ')
           ..write('enrolled: $enrolled, ')
           ..write('withdrawn: $withdrawn, ')
-          ..write('studentRosterFetchedAt: $studentRosterFetchedAt, ')
-          ..write('materialsFetchedAt: $materialsFetchedAt')
+          ..write('studentRosterFetchedAt: $studentRosterFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -4582,7 +4551,6 @@ class CourseOfferingsData extends DataClass
     enrolled,
     withdrawn,
     studentRosterFetchedAt,
-    materialsFetchedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -4605,8 +4573,7 @@ class CourseOfferingsData extends DataClass
           other.inCourseTable == this.inCourseTable &&
           other.enrolled == this.enrolled &&
           other.withdrawn == this.withdrawn &&
-          other.studentRosterFetchedAt == this.studentRosterFetchedAt &&
-          other.materialsFetchedAt == this.materialsFetchedAt);
+          other.studentRosterFetchedAt == this.studentRosterFetchedAt);
 }
 
 class CourseOfferingsCompanion extends UpdateCompanion<CourseOfferingsData> {
@@ -4628,7 +4595,6 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOfferingsData> {
   final Value<int?> enrolled;
   final Value<int?> withdrawn;
   final Value<int?> studentRosterFetchedAt;
-  final Value<int?> materialsFetchedAt;
   const CourseOfferingsCompanion({
     this.id = const Value.absent(),
     this.fetchedAt = const Value.absent(),
@@ -4648,7 +4614,6 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOfferingsData> {
     this.enrolled = const Value.absent(),
     this.withdrawn = const Value.absent(),
     this.studentRosterFetchedAt = const Value.absent(),
-    this.materialsFetchedAt = const Value.absent(),
   });
   CourseOfferingsCompanion.insert({
     this.id = const Value.absent(),
@@ -4669,7 +4634,6 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOfferingsData> {
     this.enrolled = const Value.absent(),
     this.withdrawn = const Value.absent(),
     this.studentRosterFetchedAt = const Value.absent(),
-    this.materialsFetchedAt = const Value.absent(),
   }) : semester = Value(semester),
        nameZh = Value(nameZh);
   static Insertable<CourseOfferingsData> custom({
@@ -4691,7 +4655,6 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOfferingsData> {
     Expression<int>? enrolled,
     Expression<int>? withdrawn,
     Expression<int>? studentRosterFetchedAt,
-    Expression<int>? materialsFetchedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -4713,8 +4676,6 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOfferingsData> {
       if (withdrawn != null) 'withdrawn': withdrawn,
       if (studentRosterFetchedAt != null)
         'student_roster_fetched_at': studentRosterFetchedAt,
-      if (materialsFetchedAt != null)
-        'materials_fetched_at': materialsFetchedAt,
     });
   }
 
@@ -4737,7 +4698,6 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOfferingsData> {
     Value<int?>? enrolled,
     Value<int?>? withdrawn,
     Value<int?>? studentRosterFetchedAt,
-    Value<int?>? materialsFetchedAt,
   }) {
     return CourseOfferingsCompanion(
       id: id ?? this.id,
@@ -4759,7 +4719,6 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOfferingsData> {
       withdrawn: withdrawn ?? this.withdrawn,
       studentRosterFetchedAt:
           studentRosterFetchedAt ?? this.studentRosterFetchedAt,
-      materialsFetchedAt: materialsFetchedAt ?? this.materialsFetchedAt,
     );
   }
 
@@ -4822,9 +4781,6 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOfferingsData> {
         studentRosterFetchedAt.value,
       );
     }
-    if (materialsFetchedAt.present) {
-      map['materials_fetched_at'] = Variable<int>(materialsFetchedAt.value);
-    }
     return map;
   }
 
@@ -4848,8 +4804,7 @@ class CourseOfferingsCompanion extends UpdateCompanion<CourseOfferingsData> {
           ..write('inCourseTable: $inCourseTable, ')
           ..write('enrolled: $enrolled, ')
           ..write('withdrawn: $withdrawn, ')
-          ..write('studentRosterFetchedAt: $studentRosterFetchedAt, ')
-          ..write('materialsFetchedAt: $materialsFetchedAt')
+          ..write('studentRosterFetchedAt: $studentRosterFetchedAt')
           ..write(')'))
         .toString();
   }
@@ -6957,31 +6912,8 @@ class Materials extends Table with TableInfo<Materials, MaterialsData> {
     requiredDuringInsert: false,
     $customConstraints: 'NULL',
   );
-  late final GeneratedColumn<String> iSchoolCourseId = GeneratedColumn<String>(
-    'i_school_course_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: 'NULL',
-  );
-  late final GeneratedColumn<int> streamable = GeneratedColumn<int>(
-    'streamable',
-    aliasedName,
-    true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    $customConstraints: 'NULL CHECK (streamable IN (0, 1))',
-  );
   @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    courseOffering,
-    title,
-    href,
-    iSchoolCourseId,
-    streamable,
-  ];
+  List<GeneratedColumn> get $columns => [id, courseOffering, title, href];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -7013,14 +6945,6 @@ class Materials extends Table with TableInfo<Materials, MaterialsData> {
         DriftSqlType.string,
         data['${effectivePrefix}href'],
       ),
-      iSchoolCourseId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}i_school_course_id'],
-      ),
-      streamable: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}streamable'],
-      ),
     );
   }
 
@@ -7040,15 +6964,11 @@ class MaterialsData extends DataClass implements Insertable<MaterialsData> {
   final int courseOffering;
   final String? title;
   final String? href;
-  final String? iSchoolCourseId;
-  final int? streamable;
   const MaterialsData({
     required this.id,
     required this.courseOffering,
     this.title,
     this.href,
-    this.iSchoolCourseId,
-    this.streamable,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -7061,12 +6981,6 @@ class MaterialsData extends DataClass implements Insertable<MaterialsData> {
     if (!nullToAbsent || href != null) {
       map['href'] = Variable<String>(href);
     }
-    if (!nullToAbsent || iSchoolCourseId != null) {
-      map['i_school_course_id'] = Variable<String>(iSchoolCourseId);
-    }
-    if (!nullToAbsent || streamable != null) {
-      map['streamable'] = Variable<int>(streamable);
-    }
     return map;
   }
 
@@ -7078,12 +6992,6 @@ class MaterialsData extends DataClass implements Insertable<MaterialsData> {
           ? const Value.absent()
           : Value(title),
       href: href == null && nullToAbsent ? const Value.absent() : Value(href),
-      iSchoolCourseId: iSchoolCourseId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(iSchoolCourseId),
-      streamable: streamable == null && nullToAbsent
-          ? const Value.absent()
-          : Value(streamable),
     );
   }
 
@@ -7097,8 +7005,6 @@ class MaterialsData extends DataClass implements Insertable<MaterialsData> {
       courseOffering: serializer.fromJson<int>(json['courseOffering']),
       title: serializer.fromJson<String?>(json['title']),
       href: serializer.fromJson<String?>(json['href']),
-      iSchoolCourseId: serializer.fromJson<String?>(json['iSchoolCourseId']),
-      streamable: serializer.fromJson<int?>(json['streamable']),
     );
   }
   @override
@@ -7109,8 +7015,6 @@ class MaterialsData extends DataClass implements Insertable<MaterialsData> {
       'courseOffering': serializer.toJson<int>(courseOffering),
       'title': serializer.toJson<String?>(title),
       'href': serializer.toJson<String?>(href),
-      'iSchoolCourseId': serializer.toJson<String?>(iSchoolCourseId),
-      'streamable': serializer.toJson<int?>(streamable),
     };
   }
 
@@ -7119,17 +7023,11 @@ class MaterialsData extends DataClass implements Insertable<MaterialsData> {
     int? courseOffering,
     Value<String?> title = const Value.absent(),
     Value<String?> href = const Value.absent(),
-    Value<String?> iSchoolCourseId = const Value.absent(),
-    Value<int?> streamable = const Value.absent(),
   }) => MaterialsData(
     id: id ?? this.id,
     courseOffering: courseOffering ?? this.courseOffering,
     title: title.present ? title.value : this.title,
     href: href.present ? href.value : this.href,
-    iSchoolCourseId: iSchoolCourseId.present
-        ? iSchoolCourseId.value
-        : this.iSchoolCourseId,
-    streamable: streamable.present ? streamable.value : this.streamable,
   );
   MaterialsData copyWithCompanion(MaterialsCompanion data) {
     return MaterialsData(
@@ -7139,12 +7037,6 @@ class MaterialsData extends DataClass implements Insertable<MaterialsData> {
           : this.courseOffering,
       title: data.title.present ? data.title.value : this.title,
       href: data.href.present ? data.href.value : this.href,
-      iSchoolCourseId: data.iSchoolCourseId.present
-          ? data.iSchoolCourseId.value
-          : this.iSchoolCourseId,
-      streamable: data.streamable.present
-          ? data.streamable.value
-          : this.streamable,
     );
   }
 
@@ -7154,16 +7046,13 @@ class MaterialsData extends DataClass implements Insertable<MaterialsData> {
           ..write('id: $id, ')
           ..write('courseOffering: $courseOffering, ')
           ..write('title: $title, ')
-          ..write('href: $href, ')
-          ..write('iSchoolCourseId: $iSchoolCourseId, ')
-          ..write('streamable: $streamable')
+          ..write('href: $href')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, courseOffering, title, href, iSchoolCourseId, streamable);
+  int get hashCode => Object.hash(id, courseOffering, title, href);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -7171,9 +7060,7 @@ class MaterialsData extends DataClass implements Insertable<MaterialsData> {
           other.id == this.id &&
           other.courseOffering == this.courseOffering &&
           other.title == this.title &&
-          other.href == this.href &&
-          other.iSchoolCourseId == this.iSchoolCourseId &&
-          other.streamable == this.streamable);
+          other.href == this.href);
 }
 
 class MaterialsCompanion extends UpdateCompanion<MaterialsData> {
@@ -7181,39 +7068,29 @@ class MaterialsCompanion extends UpdateCompanion<MaterialsData> {
   final Value<int> courseOffering;
   final Value<String?> title;
   final Value<String?> href;
-  final Value<String?> iSchoolCourseId;
-  final Value<int?> streamable;
   const MaterialsCompanion({
     this.id = const Value.absent(),
     this.courseOffering = const Value.absent(),
     this.title = const Value.absent(),
     this.href = const Value.absent(),
-    this.iSchoolCourseId = const Value.absent(),
-    this.streamable = const Value.absent(),
   });
   MaterialsCompanion.insert({
     this.id = const Value.absent(),
     required int courseOffering,
     this.title = const Value.absent(),
     this.href = const Value.absent(),
-    this.iSchoolCourseId = const Value.absent(),
-    this.streamable = const Value.absent(),
   }) : courseOffering = Value(courseOffering);
   static Insertable<MaterialsData> custom({
     Expression<int>? id,
     Expression<int>? courseOffering,
     Expression<String>? title,
     Expression<String>? href,
-    Expression<String>? iSchoolCourseId,
-    Expression<int>? streamable,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (courseOffering != null) 'course_offering': courseOffering,
       if (title != null) 'title': title,
       if (href != null) 'href': href,
-      if (iSchoolCourseId != null) 'i_school_course_id': iSchoolCourseId,
-      if (streamable != null) 'streamable': streamable,
     });
   }
 
@@ -7222,16 +7099,12 @@ class MaterialsCompanion extends UpdateCompanion<MaterialsData> {
     Value<int>? courseOffering,
     Value<String?>? title,
     Value<String?>? href,
-    Value<String?>? iSchoolCourseId,
-    Value<int?>? streamable,
   }) {
     return MaterialsCompanion(
       id: id ?? this.id,
       courseOffering: courseOffering ?? this.courseOffering,
       title: title ?? this.title,
       href: href ?? this.href,
-      iSchoolCourseId: iSchoolCourseId ?? this.iSchoolCourseId,
-      streamable: streamable ?? this.streamable,
     );
   }
 
@@ -7250,12 +7123,6 @@ class MaterialsCompanion extends UpdateCompanion<MaterialsData> {
     if (href.present) {
       map['href'] = Variable<String>(href.value);
     }
-    if (iSchoolCourseId.present) {
-      map['i_school_course_id'] = Variable<String>(iSchoolCourseId.value);
-    }
-    if (streamable.present) {
-      map['streamable'] = Variable<int>(streamable.value);
-    }
     return map;
   }
 
@@ -7265,9 +7132,7 @@ class MaterialsCompanion extends UpdateCompanion<MaterialsData> {
           ..write('id: $id, ')
           ..write('courseOffering: $courseOffering, ')
           ..write('title: $title, ')
-          ..write('href: $href, ')
-          ..write('iSchoolCourseId: $iSchoolCourseId, ')
-          ..write('streamable: $streamable')
+          ..write('href: $href')
           ..write(')'))
         .toString();
   }
@@ -10005,6 +9870,1109 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEventsData> {
   }
 }
 
+class CampusMapBuildings extends Table
+    with TableInfo<CampusMapBuildings, CampusMapBuildingsData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  CampusMapBuildings(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> geometry = GeneratedColumn<String>(
+    'geometry',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [code, name, geometry];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'campus_map_buildings';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {code};
+  @override
+  CampusMapBuildingsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CampusMapBuildingsData(
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      geometry: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}geometry'],
+      )!,
+    );
+  }
+
+  @override
+  CampusMapBuildings createAlias(String alias) {
+    return CampusMapBuildings(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const ['PRIMARY KEY(code)'];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class CampusMapBuildingsData extends DataClass
+    implements Insertable<CampusMapBuildingsData> {
+  final String code;
+  final String name;
+  final String geometry;
+  const CampusMapBuildingsData({
+    required this.code,
+    required this.name,
+    required this.geometry,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['code'] = Variable<String>(code);
+    map['name'] = Variable<String>(name);
+    map['geometry'] = Variable<String>(geometry);
+    return map;
+  }
+
+  CampusMapBuildingsCompanion toCompanion(bool nullToAbsent) {
+    return CampusMapBuildingsCompanion(
+      code: Value(code),
+      name: Value(name),
+      geometry: Value(geometry),
+    );
+  }
+
+  factory CampusMapBuildingsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CampusMapBuildingsData(
+      code: serializer.fromJson<String>(json['code']),
+      name: serializer.fromJson<String>(json['name']),
+      geometry: serializer.fromJson<String>(json['geometry']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'code': serializer.toJson<String>(code),
+      'name': serializer.toJson<String>(name),
+      'geometry': serializer.toJson<String>(geometry),
+    };
+  }
+
+  CampusMapBuildingsData copyWith({
+    String? code,
+    String? name,
+    String? geometry,
+  }) => CampusMapBuildingsData(
+    code: code ?? this.code,
+    name: name ?? this.name,
+    geometry: geometry ?? this.geometry,
+  );
+  CampusMapBuildingsData copyWithCompanion(CampusMapBuildingsCompanion data) {
+    return CampusMapBuildingsData(
+      code: data.code.present ? data.code.value : this.code,
+      name: data.name.present ? data.name.value : this.name,
+      geometry: data.geometry.present ? data.geometry.value : this.geometry,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CampusMapBuildingsData(')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('geometry: $geometry')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(code, name, geometry);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CampusMapBuildingsData &&
+          other.code == this.code &&
+          other.name == this.name &&
+          other.geometry == this.geometry);
+}
+
+class CampusMapBuildingsCompanion
+    extends UpdateCompanion<CampusMapBuildingsData> {
+  final Value<String> code;
+  final Value<String> name;
+  final Value<String> geometry;
+  final Value<int> rowid;
+  const CampusMapBuildingsCompanion({
+    this.code = const Value.absent(),
+    this.name = const Value.absent(),
+    this.geometry = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CampusMapBuildingsCompanion.insert({
+    required String code,
+    required String name,
+    required String geometry,
+    this.rowid = const Value.absent(),
+  }) : code = Value(code),
+       name = Value(name),
+       geometry = Value(geometry);
+  static Insertable<CampusMapBuildingsData> custom({
+    Expression<String>? code,
+    Expression<String>? name,
+    Expression<String>? geometry,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (code != null) 'code': code,
+      if (name != null) 'name': name,
+      if (geometry != null) 'geometry': geometry,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CampusMapBuildingsCompanion copyWith({
+    Value<String>? code,
+    Value<String>? name,
+    Value<String>? geometry,
+    Value<int>? rowid,
+  }) {
+    return CampusMapBuildingsCompanion(
+      code: code ?? this.code,
+      name: name ?? this.name,
+      geometry: geometry ?? this.geometry,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (geometry.present) {
+      map['geometry'] = Variable<String>(geometry.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CampusMapBuildingsCompanion(')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('geometry: $geometry, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class CampusMapFloors extends Table
+    with TableInfo<CampusMapFloors, CampusMapFloorsData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  CampusMapFloors(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> layerName = GeneratedColumn<String>(
+    'layer_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> building = GeneratedColumn<String>(
+    'building',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'NOT NULL REFERENCES campus_map_buildings(code)ON DELETE CASCADE',
+  );
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<int> fetchedAt = GeneratedColumn<int>(
+    'fetched_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [layerName, building, code, fetchedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'campus_map_floors';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {layerName};
+  @override
+  CampusMapFloorsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CampusMapFloorsData(
+      layerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}layer_name'],
+      )!,
+      building: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}building'],
+      )!,
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}fetched_at'],
+      ),
+    );
+  }
+
+  @override
+  CampusMapFloors createAlias(String alias) {
+    return CampusMapFloors(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const ['PRIMARY KEY(layer_name)'];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class CampusMapFloorsData extends DataClass
+    implements Insertable<CampusMapFloorsData> {
+  final String layerName;
+  final String building;
+  final String code;
+  final int? fetchedAt;
+  const CampusMapFloorsData({
+    required this.layerName,
+    required this.building,
+    required this.code,
+    this.fetchedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['layer_name'] = Variable<String>(layerName);
+    map['building'] = Variable<String>(building);
+    map['code'] = Variable<String>(code);
+    if (!nullToAbsent || fetchedAt != null) {
+      map['fetched_at'] = Variable<int>(fetchedAt);
+    }
+    return map;
+  }
+
+  CampusMapFloorsCompanion toCompanion(bool nullToAbsent) {
+    return CampusMapFloorsCompanion(
+      layerName: Value(layerName),
+      building: Value(building),
+      code: Value(code),
+      fetchedAt: fetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fetchedAt),
+    );
+  }
+
+  factory CampusMapFloorsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CampusMapFloorsData(
+      layerName: serializer.fromJson<String>(json['layerName']),
+      building: serializer.fromJson<String>(json['building']),
+      code: serializer.fromJson<String>(json['code']),
+      fetchedAt: serializer.fromJson<int?>(json['fetchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'layerName': serializer.toJson<String>(layerName),
+      'building': serializer.toJson<String>(building),
+      'code': serializer.toJson<String>(code),
+      'fetchedAt': serializer.toJson<int?>(fetchedAt),
+    };
+  }
+
+  CampusMapFloorsData copyWith({
+    String? layerName,
+    String? building,
+    String? code,
+    Value<int?> fetchedAt = const Value.absent(),
+  }) => CampusMapFloorsData(
+    layerName: layerName ?? this.layerName,
+    building: building ?? this.building,
+    code: code ?? this.code,
+    fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
+  );
+  CampusMapFloorsData copyWithCompanion(CampusMapFloorsCompanion data) {
+    return CampusMapFloorsData(
+      layerName: data.layerName.present ? data.layerName.value : this.layerName,
+      building: data.building.present ? data.building.value : this.building,
+      code: data.code.present ? data.code.value : this.code,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CampusMapFloorsData(')
+          ..write('layerName: $layerName, ')
+          ..write('building: $building, ')
+          ..write('code: $code, ')
+          ..write('fetchedAt: $fetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(layerName, building, code, fetchedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CampusMapFloorsData &&
+          other.layerName == this.layerName &&
+          other.building == this.building &&
+          other.code == this.code &&
+          other.fetchedAt == this.fetchedAt);
+}
+
+class CampusMapFloorsCompanion extends UpdateCompanion<CampusMapFloorsData> {
+  final Value<String> layerName;
+  final Value<String> building;
+  final Value<String> code;
+  final Value<int?> fetchedAt;
+  final Value<int> rowid;
+  const CampusMapFloorsCompanion({
+    this.layerName = const Value.absent(),
+    this.building = const Value.absent(),
+    this.code = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CampusMapFloorsCompanion.insert({
+    required String layerName,
+    required String building,
+    required String code,
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : layerName = Value(layerName),
+       building = Value(building),
+       code = Value(code);
+  static Insertable<CampusMapFloorsData> custom({
+    Expression<String>? layerName,
+    Expression<String>? building,
+    Expression<String>? code,
+    Expression<int>? fetchedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (layerName != null) 'layer_name': layerName,
+      if (building != null) 'building': building,
+      if (code != null) 'code': code,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CampusMapFloorsCompanion copyWith({
+    Value<String>? layerName,
+    Value<String>? building,
+    Value<String>? code,
+    Value<int?>? fetchedAt,
+    Value<int>? rowid,
+  }) {
+    return CampusMapFloorsCompanion(
+      layerName: layerName ?? this.layerName,
+      building: building ?? this.building,
+      code: code ?? this.code,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (layerName.present) {
+      map['layer_name'] = Variable<String>(layerName.value);
+    }
+    if (building.present) {
+      map['building'] = Variable<String>(building.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<int>(fetchedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CampusMapFloorsCompanion(')
+          ..write('layerName: $layerName, ')
+          ..write('building: $building, ')
+          ..write('code: $code, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class CampusMapRooms extends Table
+    with TableInfo<CampusMapRooms, CampusMapRoomsData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  CampusMapRooms(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> layerName = GeneratedColumn<String>(
+    'layer_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'NOT NULL REFERENCES campus_map_floors(layer_name)ON DELETE CASCADE',
+  );
+  late final GeneratedColumn<String> nameZh = GeneratedColumn<String>(
+    'name_zh',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> nameEn = GeneratedColumn<String>(
+    'name_en',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> number = GeneratedColumn<String>(
+    'number',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> geometry = GeneratedColumn<String>(
+    'geometry',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    layerName,
+    nameZh,
+    nameEn,
+    number,
+    geometry,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'campus_map_rooms';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CampusMapRoomsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CampusMapRoomsData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      layerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}layer_name'],
+      )!,
+      nameZh: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_zh'],
+      )!,
+      nameEn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_en'],
+      )!,
+      number: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}number'],
+      )!,
+      geometry: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}geometry'],
+      ),
+    );
+  }
+
+  @override
+  CampusMapRooms createAlias(String alias) {
+    return CampusMapRooms(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const ['PRIMARY KEY(id)'];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class CampusMapRoomsData extends DataClass
+    implements Insertable<CampusMapRoomsData> {
+  final String id;
+  final String layerName;
+  final String nameZh;
+  final String nameEn;
+  final String number;
+  final String? geometry;
+  const CampusMapRoomsData({
+    required this.id,
+    required this.layerName,
+    required this.nameZh,
+    required this.nameEn,
+    required this.number,
+    this.geometry,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['layer_name'] = Variable<String>(layerName);
+    map['name_zh'] = Variable<String>(nameZh);
+    map['name_en'] = Variable<String>(nameEn);
+    map['number'] = Variable<String>(number);
+    if (!nullToAbsent || geometry != null) {
+      map['geometry'] = Variable<String>(geometry);
+    }
+    return map;
+  }
+
+  CampusMapRoomsCompanion toCompanion(bool nullToAbsent) {
+    return CampusMapRoomsCompanion(
+      id: Value(id),
+      layerName: Value(layerName),
+      nameZh: Value(nameZh),
+      nameEn: Value(nameEn),
+      number: Value(number),
+      geometry: geometry == null && nullToAbsent
+          ? const Value.absent()
+          : Value(geometry),
+    );
+  }
+
+  factory CampusMapRoomsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CampusMapRoomsData(
+      id: serializer.fromJson<String>(json['id']),
+      layerName: serializer.fromJson<String>(json['layerName']),
+      nameZh: serializer.fromJson<String>(json['nameZh']),
+      nameEn: serializer.fromJson<String>(json['nameEn']),
+      number: serializer.fromJson<String>(json['number']),
+      geometry: serializer.fromJson<String?>(json['geometry']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'layerName': serializer.toJson<String>(layerName),
+      'nameZh': serializer.toJson<String>(nameZh),
+      'nameEn': serializer.toJson<String>(nameEn),
+      'number': serializer.toJson<String>(number),
+      'geometry': serializer.toJson<String?>(geometry),
+    };
+  }
+
+  CampusMapRoomsData copyWith({
+    String? id,
+    String? layerName,
+    String? nameZh,
+    String? nameEn,
+    String? number,
+    Value<String?> geometry = const Value.absent(),
+  }) => CampusMapRoomsData(
+    id: id ?? this.id,
+    layerName: layerName ?? this.layerName,
+    nameZh: nameZh ?? this.nameZh,
+    nameEn: nameEn ?? this.nameEn,
+    number: number ?? this.number,
+    geometry: geometry.present ? geometry.value : this.geometry,
+  );
+  CampusMapRoomsData copyWithCompanion(CampusMapRoomsCompanion data) {
+    return CampusMapRoomsData(
+      id: data.id.present ? data.id.value : this.id,
+      layerName: data.layerName.present ? data.layerName.value : this.layerName,
+      nameZh: data.nameZh.present ? data.nameZh.value : this.nameZh,
+      nameEn: data.nameEn.present ? data.nameEn.value : this.nameEn,
+      number: data.number.present ? data.number.value : this.number,
+      geometry: data.geometry.present ? data.geometry.value : this.geometry,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CampusMapRoomsData(')
+          ..write('id: $id, ')
+          ..write('layerName: $layerName, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('number: $number, ')
+          ..write('geometry: $geometry')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, layerName, nameZh, nameEn, number, geometry);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CampusMapRoomsData &&
+          other.id == this.id &&
+          other.layerName == this.layerName &&
+          other.nameZh == this.nameZh &&
+          other.nameEn == this.nameEn &&
+          other.number == this.number &&
+          other.geometry == this.geometry);
+}
+
+class CampusMapRoomsCompanion extends UpdateCompanion<CampusMapRoomsData> {
+  final Value<String> id;
+  final Value<String> layerName;
+  final Value<String> nameZh;
+  final Value<String> nameEn;
+  final Value<String> number;
+  final Value<String?> geometry;
+  final Value<int> rowid;
+  const CampusMapRoomsCompanion({
+    this.id = const Value.absent(),
+    this.layerName = const Value.absent(),
+    this.nameZh = const Value.absent(),
+    this.nameEn = const Value.absent(),
+    this.number = const Value.absent(),
+    this.geometry = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CampusMapRoomsCompanion.insert({
+    required String id,
+    required String layerName,
+    required String nameZh,
+    required String nameEn,
+    required String number,
+    this.geometry = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       layerName = Value(layerName),
+       nameZh = Value(nameZh),
+       nameEn = Value(nameEn),
+       number = Value(number);
+  static Insertable<CampusMapRoomsData> custom({
+    Expression<String>? id,
+    Expression<String>? layerName,
+    Expression<String>? nameZh,
+    Expression<String>? nameEn,
+    Expression<String>? number,
+    Expression<String>? geometry,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (layerName != null) 'layer_name': layerName,
+      if (nameZh != null) 'name_zh': nameZh,
+      if (nameEn != null) 'name_en': nameEn,
+      if (number != null) 'number': number,
+      if (geometry != null) 'geometry': geometry,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CampusMapRoomsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? layerName,
+    Value<String>? nameZh,
+    Value<String>? nameEn,
+    Value<String>? number,
+    Value<String?>? geometry,
+    Value<int>? rowid,
+  }) {
+    return CampusMapRoomsCompanion(
+      id: id ?? this.id,
+      layerName: layerName ?? this.layerName,
+      nameZh: nameZh ?? this.nameZh,
+      nameEn: nameEn ?? this.nameEn,
+      number: number ?? this.number,
+      geometry: geometry ?? this.geometry,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (layerName.present) {
+      map['layer_name'] = Variable<String>(layerName.value);
+    }
+    if (nameZh.present) {
+      map['name_zh'] = Variable<String>(nameZh.value);
+    }
+    if (nameEn.present) {
+      map['name_en'] = Variable<String>(nameEn.value);
+    }
+    if (number.present) {
+      map['number'] = Variable<String>(number.value);
+    }
+    if (geometry.present) {
+      map['geometry'] = Variable<String>(geometry.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CampusMapRoomsCompanion(')
+          ..write('id: $id, ')
+          ..write('layerName: $layerName, ')
+          ..write('nameZh: $nameZh, ')
+          ..write('nameEn: $nameEn, ')
+          ..write('number: $number, ')
+          ..write('geometry: $geometry, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class CampusMapSyncs extends Table
+    with TableInfo<CampusMapSyncs, CampusMapSyncsData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  CampusMapSyncs(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> namespace = GeneratedColumn<String>(
+    'namespace',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<int> catalogFetchedAt = GeneratedColumn<int>(
+    'catalog_fetched_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
+  );
+  late final GeneratedColumn<int> indexFetchedAt = GeneratedColumn<int>(
+    'index_fetched_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    namespace,
+    catalogFetchedAt,
+    indexFetchedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'campus_map_syncs';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {namespace};
+  @override
+  CampusMapSyncsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CampusMapSyncsData(
+      namespace: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}namespace'],
+      )!,
+      catalogFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}catalog_fetched_at'],
+      ),
+      indexFetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}index_fetched_at'],
+      ),
+    );
+  }
+
+  @override
+  CampusMapSyncs createAlias(String alias) {
+    return CampusMapSyncs(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const ['PRIMARY KEY(namespace)'];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class CampusMapSyncsData extends DataClass
+    implements Insertable<CampusMapSyncsData> {
+  final String namespace;
+  final int? catalogFetchedAt;
+  final int? indexFetchedAt;
+  const CampusMapSyncsData({
+    required this.namespace,
+    this.catalogFetchedAt,
+    this.indexFetchedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['namespace'] = Variable<String>(namespace);
+    if (!nullToAbsent || catalogFetchedAt != null) {
+      map['catalog_fetched_at'] = Variable<int>(catalogFetchedAt);
+    }
+    if (!nullToAbsent || indexFetchedAt != null) {
+      map['index_fetched_at'] = Variable<int>(indexFetchedAt);
+    }
+    return map;
+  }
+
+  CampusMapSyncsCompanion toCompanion(bool nullToAbsent) {
+    return CampusMapSyncsCompanion(
+      namespace: Value(namespace),
+      catalogFetchedAt: catalogFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(catalogFetchedAt),
+      indexFetchedAt: indexFetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(indexFetchedAt),
+    );
+  }
+
+  factory CampusMapSyncsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CampusMapSyncsData(
+      namespace: serializer.fromJson<String>(json['namespace']),
+      catalogFetchedAt: serializer.fromJson<int?>(json['catalogFetchedAt']),
+      indexFetchedAt: serializer.fromJson<int?>(json['indexFetchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'namespace': serializer.toJson<String>(namespace),
+      'catalogFetchedAt': serializer.toJson<int?>(catalogFetchedAt),
+      'indexFetchedAt': serializer.toJson<int?>(indexFetchedAt),
+    };
+  }
+
+  CampusMapSyncsData copyWith({
+    String? namespace,
+    Value<int?> catalogFetchedAt = const Value.absent(),
+    Value<int?> indexFetchedAt = const Value.absent(),
+  }) => CampusMapSyncsData(
+    namespace: namespace ?? this.namespace,
+    catalogFetchedAt: catalogFetchedAt.present
+        ? catalogFetchedAt.value
+        : this.catalogFetchedAt,
+    indexFetchedAt: indexFetchedAt.present
+        ? indexFetchedAt.value
+        : this.indexFetchedAt,
+  );
+  CampusMapSyncsData copyWithCompanion(CampusMapSyncsCompanion data) {
+    return CampusMapSyncsData(
+      namespace: data.namespace.present ? data.namespace.value : this.namespace,
+      catalogFetchedAt: data.catalogFetchedAt.present
+          ? data.catalogFetchedAt.value
+          : this.catalogFetchedAt,
+      indexFetchedAt: data.indexFetchedAt.present
+          ? data.indexFetchedAt.value
+          : this.indexFetchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CampusMapSyncsData(')
+          ..write('namespace: $namespace, ')
+          ..write('catalogFetchedAt: $catalogFetchedAt, ')
+          ..write('indexFetchedAt: $indexFetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(namespace, catalogFetchedAt, indexFetchedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CampusMapSyncsData &&
+          other.namespace == this.namespace &&
+          other.catalogFetchedAt == this.catalogFetchedAt &&
+          other.indexFetchedAt == this.indexFetchedAt);
+}
+
+class CampusMapSyncsCompanion extends UpdateCompanion<CampusMapSyncsData> {
+  final Value<String> namespace;
+  final Value<int?> catalogFetchedAt;
+  final Value<int?> indexFetchedAt;
+  final Value<int> rowid;
+  const CampusMapSyncsCompanion({
+    this.namespace = const Value.absent(),
+    this.catalogFetchedAt = const Value.absent(),
+    this.indexFetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CampusMapSyncsCompanion.insert({
+    required String namespace,
+    this.catalogFetchedAt = const Value.absent(),
+    this.indexFetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : namespace = Value(namespace);
+  static Insertable<CampusMapSyncsData> custom({
+    Expression<String>? namespace,
+    Expression<int>? catalogFetchedAt,
+    Expression<int>? indexFetchedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (namespace != null) 'namespace': namespace,
+      if (catalogFetchedAt != null) 'catalog_fetched_at': catalogFetchedAt,
+      if (indexFetchedAt != null) 'index_fetched_at': indexFetchedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CampusMapSyncsCompanion copyWith({
+    Value<String>? namespace,
+    Value<int?>? catalogFetchedAt,
+    Value<int?>? indexFetchedAt,
+    Value<int>? rowid,
+  }) {
+    return CampusMapSyncsCompanion(
+      namespace: namespace ?? this.namespace,
+      catalogFetchedAt: catalogFetchedAt ?? this.catalogFetchedAt,
+      indexFetchedAt: indexFetchedAt ?? this.indexFetchedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (namespace.present) {
+      map['namespace'] = Variable<String>(namespace.value);
+    }
+    if (catalogFetchedAt.present) {
+      map['catalog_fetched_at'] = Variable<int>(catalogFetchedAt.value);
+    }
+    if (indexFetchedAt.present) {
+      map['index_fetched_at'] = Variable<int>(indexFetchedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CampusMapSyncsCompanion(')
+          ..write('namespace: $namespace, ')
+          ..write('catalogFetchedAt: $catalogFetchedAt, ')
+          ..write('indexFetchedAt: $indexFetchedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $CourseOfferingOverviewsViewData extends DataClass {
   final int id;
   final String? courseCode;
@@ -11499,6 +12467,10 @@ class DatabaseAtV2 extends GeneratedDatabase {
     this,
   );
   late final CalendarEvents calendarEvents = CalendarEvents(this);
+  late final CampusMapBuildings campusMapBuildings = CampusMapBuildings(this);
+  late final CampusMapFloors campusMapFloors = CampusMapFloors(this);
+  late final CampusMapRooms campusMapRooms = CampusMapRooms(this);
+  late final CampusMapSyncs campusMapSyncs = CampusMapSyncs(this);
   late final $CourseOfferingOverviewsView courseOfferingOverviews =
       $CourseOfferingOverviewsView(this);
   late final $CourseTableSlotsView courseTableSlots = $CourseTableSlotsView(
@@ -11546,6 +12518,14 @@ class DatabaseAtV2 extends GeneratedDatabase {
     'user_semester_summary_user',
     'CREATE INDEX user_semester_summary_user ON user_semester_summaries (user)',
   );
+  late final Index campusMapFloorBuilding = Index(
+    'campus_map_floor_building',
+    'CREATE INDEX campus_map_floor_building ON campus_map_floors (building)',
+  );
+  late final Index campusMapRoomLayer = Index(
+    'campus_map_room_layer',
+    'CREATE INDEX campus_map_room_layer ON campus_map_rooms (layer_name)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -11578,6 +12558,10 @@ class DatabaseAtV2 extends GeneratedDatabase {
     userSemesterSummaryCadreRoles,
     userSemesterRankings,
     calendarEvents,
+    campusMapBuildings,
+    campusMapFloors,
+    campusMapRooms,
+    campusMapSyncs,
     courseOfferingOverviews,
     courseTableSlots,
     scoreDetails,
@@ -11592,6 +12576,8 @@ class DatabaseAtV2 extends GeneratedDatabase {
     teacherOfficeHourTeacherSemester,
     scoreUser,
     userSemesterSummaryUser,
+    campusMapFloorBuilding,
+    campusMapRoomLayer,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -11721,6 +12707,20 @@ class DatabaseAtV2 extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('user_semester_rankings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'campus_map_buildings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('campus_map_floors', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'campus_map_floors',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('campus_map_rooms', kind: UpdateKind.delete)],
     ),
   ]);
   @override

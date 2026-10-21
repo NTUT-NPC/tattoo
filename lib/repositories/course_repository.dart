@@ -144,6 +144,12 @@ typedef CourseTableData = ({
   int totalHours,
 });
 
+/// Latest eligible semester and its fully normalized cached timetable.
+typedef LatestCachedCourseTable = ({
+  Semester semester,
+  CourseTableData courseTable,
+});
+
 typedef _CourseTableOfferingData = ({
   CourseOffering offering,
   Course? course,
@@ -300,6 +306,45 @@ class CourseRepository {
     });
   }
 
+  /// Emits when any table that affects the launcher timetable changes.
+  ///
+  /// Events are invalidation signals only. Consumers must perform a coherent
+  /// cache read after receiving one.
+  Stream<void> watchCourseTableCacheChanges() {
+    return _database
+        .customSelect(
+          'SELECT 1',
+          readsFrom: {
+            _database.semesters,
+            _database.courseOfferings,
+            _database.courses,
+            _database.schedules,
+            _database.classrooms,
+          },
+        )
+        .watch()
+        .map((_) {});
+  }
+
+  /// Reads the newest semester eligible for the course table without network
+  /// access or interactive refresh side effects.
+  Future<LatestCachedCourseTable?> readLatestCachedCourseTable() async {
+    final semester =
+        await (_database.select(_database.semesters)
+              ..where((row) => row.inCourseSemesterList.equals(true))
+              ..orderBy([
+                (row) => OrderingTerm.desc(row.year),
+                (row) => OrderingTerm.desc(row.term),
+              ])
+              ..limit(1))
+            .getSingleOrNull();
+    if (semester == null) return null;
+    return (
+      semester: semester,
+      courseTable: (await _readCachedCourseTable(semester.id)).courseTable,
+    );
+  }
+
   /// Watches the course schedule for a semester with automatic background refresh.
   ///
   /// Emits cached data immediately, then triggers a background network fetch
@@ -313,70 +358,12 @@ class CourseRepository {
     final query = _database.select(_database.courseTableSlots)
       ..where((s) => s.semester.equals(semesterId));
 
-    await for (final rows in query.watch()) {
-      final allOfferingRows =
-          await ((_database.select(_database.courseOfferings)..where(
-                    (o) =>
-                        o.semester.equals(semesterId) &
-                        o.inCourseTable.equals(true),
-                  ))
-                  .join([
-                    leftOuterJoin(
-                      _database.courses,
-                      _database.courses.code.equalsExp(
-                        _database.courseOfferings.courseCode,
-                      ),
-                    ),
-                    leftOuterJoin(
-                      _database.courseOfferingTeachers,
-                      _database.courseOfferingTeachers.courseOffering.equalsExp(
-                        _database.courseOfferings.id,
-                      ),
-                    ),
-                    leftOuterJoin(
-                      _database.teacherSemesters,
-                      _database.teacherSemesters.id.equalsExp(
-                        _database.courseOfferingTeachers.teacherSemester,
-                      ),
-                    ),
-                    leftOuterJoin(
-                      _database.teachers,
-                      _database.teachers.id.equalsExp(
-                        _database.teacherSemesters.teacher,
-                      ),
-                    ),
-                  ])
-                ..orderBy([
-                  .asc(_database.courseOfferings.id),
-                  .asc(_database.teachers.code),
-                ]))
-              .get();
-      final allOfferings = <int, _CourseTableOfferingData>{};
-      for (final row in allOfferingRows) {
-        final offering = row.readTable(_database.courseOfferings);
-        final course = row.readTableOrNull(_database.courses);
-        final data = allOfferings.putIfAbsent(
-          offering.id,
-          () => (offering: offering, course: course, teacherNames: []),
-        );
-        if (row.readTableOrNull(_database.teachers) case final teacher?) {
-          final name = localized(teacher.nameZh, teacher.nameEn);
-          if (!data.teacherNames.contains(name)) data.teacherNames.add(name);
-        }
-      }
-      final data = _buildCourseTableData(
-        rows,
-        [
-          for (final data in allOfferings.values)
-            (
-              offering: data.offering,
-              course: data.course,
-              teacherNames: data.teacherNames.toList(growable: false),
-            ),
-        ],
+    await for (final _ in query.watch()) {
+      final (:courseTable, :hasCachedOfferings) = await _readCachedCourseTable(
+        semesterId,
       );
 
-      if (allOfferings.isEmpty) {
+      if (!hasCachedOfferings) {
         try {
           await refreshCourseTable(semesterId: semesterId);
         } catch (_) {
@@ -384,7 +371,7 @@ class CourseRepository {
         }
       }
 
-      yield data;
+      yield courseTable;
 
       final semesterRow = await (_database.select(
         _database.semesters,
@@ -404,6 +391,81 @@ class CourseRepository {
         }
       }
     }
+  }
+
+  /// Reads the cached timetable, reporting whether any offering was cached.
+  ///
+  /// `hasCachedOfferings` stays `false` only when nothing was ever fetched, so
+  /// a semester whose offerings are all withdrawn does not refetch forever.
+  Future<({CourseTableData courseTable, bool hasCachedOfferings})>
+  _readCachedCourseTable(int semesterId) async {
+    final rows = await (_database.select(
+      _database.courseTableSlots,
+    )..where((slot) => slot.semester.equals(semesterId))).get();
+    final allOfferingRows =
+        await ((_database.select(_database.courseOfferings)..where(
+                  (offering) =>
+                      offering.semester.equals(semesterId) &
+                      offering.inCourseTable.equals(true),
+                ))
+                .join([
+                  leftOuterJoin(
+                    _database.courses,
+                    _database.courses.code.equalsExp(
+                      _database.courseOfferings.courseCode,
+                    ),
+                  ),
+                  leftOuterJoin(
+                    _database.courseOfferingTeachers,
+                    _database.courseOfferingTeachers.courseOffering.equalsExp(
+                      _database.courseOfferings.id,
+                    ),
+                  ),
+                  leftOuterJoin(
+                    _database.teacherSemesters,
+                    _database.teacherSemesters.id.equalsExp(
+                      _database.courseOfferingTeachers.teacherSemester,
+                    ),
+                  ),
+                  leftOuterJoin(
+                    _database.teachers,
+                    _database.teachers.id.equalsExp(
+                      _database.teacherSemesters.teacher,
+                    ),
+                  ),
+                ])
+              ..orderBy([
+                .asc(_database.courseOfferings.id),
+                .asc(_database.teachers.code),
+              ]))
+            .get();
+    final allOfferings = <int, _CourseTableOfferingData>{};
+    for (final row in allOfferingRows) {
+      final offering = row.readTable(_database.courseOfferings);
+      final course = row.readTableOrNull(_database.courses);
+      final data = allOfferings.putIfAbsent(
+        offering.id,
+        () => (offering: offering, course: course, teacherNames: []),
+      );
+      if (row.readTableOrNull(_database.teachers) case final teacher?) {
+        final name = localized(teacher.nameZh, teacher.nameEn);
+        if (!data.teacherNames.contains(name)) data.teacherNames.add(name);
+      }
+    }
+    return (
+      courseTable: _buildCourseTableData(
+        rows,
+        [
+          for (final data in allOfferings.values)
+            (
+              offering: data.offering,
+              course: data.course,
+              teacherNames: data.teacherNames.toList(growable: false),
+            ),
+        ],
+      ),
+      hasCachedOfferings: allOfferings.isNotEmpty,
+    );
   }
 
   /// Fetches fresh course table data from network and writes to DB.

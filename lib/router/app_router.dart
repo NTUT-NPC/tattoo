@@ -8,6 +8,7 @@ import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/main/home/home_screen.dart';
 import 'package:tattoo/screens/main/home/student_union_screen.dart';
 import 'package:tattoo/screens/main/home_screen.dart';
+import 'package:tattoo/screens/main/map/campus_map_screen.dart';
 import 'package:tattoo/screens/main/portal/portal_screen.dart';
 import 'package:tattoo/screens/main/profile/about_screen.dart';
 import 'package:tattoo/screens/main/profile/ntut_wifi_screen.dart';
@@ -21,6 +22,7 @@ import 'package:tattoo/screens/update_screen.dart';
 import 'package:tattoo/screens/welcome/change_password_screen.dart';
 import 'package:tattoo/screens/welcome/intro_screen.dart';
 import 'package:tattoo/screens/welcome/login_screen.dart';
+import 'package:tattoo/screens/whats_new_screen.dart';
 import 'package:tattoo/services/firebase_service.dart';
 import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/shells/animated_shell_container.dart';
@@ -35,6 +37,7 @@ abstract class AppRoutes {
   static const score = '/score';
   static const portal = '/portal';
   static const calendar = '/calendar';
+  static const campusMap = '/campus-map';
   static const profile = '/profile';
   static const preferences = '/preferences';
   static const language = '/preferences/language';
@@ -47,8 +50,39 @@ abstract class AppRoutes {
   static const regedit = '/regedit';
   static const changePassword = '/change-password';
   static const update = '/update';
+  static const whatsNew = '/whats-new';
   static const studentUnion = '/student-union';
+
+  /// Builds a map location that searches a classroom name or number on opening.
+  ///
+  /// For example, `context.push(AppRoutes.campusMapForRoom('A1T101'))` locates
+  /// the room immediately if its normalized name or number has a unique match.
+  static String campusMapForRoom(String classroom) => Uri(
+    path: campusMap,
+    queryParameters: {'room': classroom},
+  ).toString();
 }
+
+/// Holds the one internal widget destination until an auth gate can consume it.
+class PendingAppRouteNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void set(String? route) {
+    if (route == AppRoutes.courseTable) state = route;
+  }
+
+  String? take() {
+    final route = state;
+    state = null;
+    return route;
+  }
+}
+
+final pendingAppRouteProvider =
+    NotifierProvider<PendingAppRouteNotifier, String?>(
+      PendingAppRouteNotifier.new,
+    );
 
 /// Resolves the landing route used after authentication.
 ///
@@ -85,6 +119,7 @@ const _publicRoutes = {
   AppRoutes.intro,
   AppRoutes.login,
   AppRoutes.about,
+  AppRoutes.whatsNew,
   AppRoutes.changePassword,
   AppRoutes.update,
 };
@@ -118,12 +153,26 @@ GoRouter createAppRouter({
     // but no update is actually available.
     if (state.matchedLocation == AppRoutes.update && updateConfig == null) {
       final hasSession = container.read(sessionProvider);
-      return hasSession ? landingLocation : AppRoutes.intro;
+      if (!hasSession) return AppRoutes.intro;
+      return container.read(pendingAppRouteProvider) ?? landingLocation;
     }
 
-    // Auth gate: redirect unauthenticated users to login.
+    // Auth gate: redirect unauthenticated users to login. An authenticated
+    // internal destination is consumed only once its route is reached.
     final hasSession = container.read(sessionProvider);
-    if (hasSession) return null;
+    if (hasSession) {
+      final pendingRoute = container.read(pendingAppRouteProvider);
+      if (pendingRoute == null) return null;
+      if (state.matchedLocation == pendingRoute) {
+        // Redirect runs while the widget tree builds, where modifying a
+        // provider throws, so release the destination once this frame
+        // settles. Repeat redirects before then are harmless: they resolve
+        // to this same already-reached route.
+        Future(() => container.read(pendingAppRouteProvider.notifier).take());
+        return null;
+      }
+      return pendingRoute;
+    }
     if (_publicRoutes.contains(state.matchedLocation)) return null;
     return AppRoutes.login;
   },
@@ -132,6 +181,10 @@ GoRouter createAppRouter({
       firebaseService.analyticsObserver!,
   ],
   routes: [
+    GoRoute(
+      path: AppRoutes.whatsNew,
+      builder: (context, state) => _framed(const WhatsNewScreen()),
+    ),
     GoRoute(
       path: AppRoutes.update,
       builder: (context, state) => const UpdateScreen(),
@@ -201,6 +254,12 @@ GoRouter createAppRouter({
     GoRoute(
       path: AppRoutes.ntutWifi,
       builder: (context, state) => const NtutWifiScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.campusMap,
+      builder: (context, state) => CampusMapScreen(
+        initialQuery: state.uri.queryParameters['room'],
+      ),
     ),
     StatefulShellRoute(
       builder: (context, state, navigationShell) =>

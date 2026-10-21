@@ -39,6 +39,9 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	TranslationsEnUs $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsEnUs(meta: meta ?? this.$meta);
 
 	// Translations
+	@override late final _Translations$newFeatures$en_US newFeatures = _Translations$newFeatures$en_US._(_root);
+	@override late final _Translations$whatsNew$en_US whatsNew = _Translations$whatsNew$en_US._(_root);
+	@override late final _Translations$campusMap$en_US campusMap = _Translations$campusMap$en_US._(_root);
 	@override late final _Translations$preferences$en_US preferences = _Translations$preferences$en_US._(_root);
 	@override late final _Translations$general$en_US general = _Translations$general$en_US._(_root);
 	@override late final _Translations$errors$en_US errors = _Translations$errors$en_US._(_root);
@@ -61,6 +64,91 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$forceUpdate$en_US forceUpdate = _Translations$forceUpdate$en_US._(_root);
 	@override late final _Translations$regedit$en_US regedit = _Translations$regedit$en_US._(_root);
 	@override late final _Translations$changePassword$en_US changePassword = _Translations$changePassword$en_US._(_root);
+}
+
+// Path: newFeatures
+class _Translations$newFeatures$en_US extends Translations$newFeatures$zh_TW {
+	_Translations$newFeatures$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$newFeatures$androidWidget$en_US androidWidget = _Translations$newFeatures$androidWidget$en_US._(_root);
+	@override late final _Translations$newFeatures$campusMap$en_US campusMap = _Translations$newFeatures$campusMap$en_US._(_root);
+	@override late final _Translations$newFeatures$materialDownload$en_US materialDownload = _Translations$newFeatures$materialDownload$en_US._(_root);
+	@override late final _Translations$newFeatures$ntutSu$en_US ntutSu = _Translations$newFeatures$ntutSu$en_US._(_root);
+}
+
+// Path: whatsNew
+class _Translations$whatsNew$en_US extends Translations$whatsNew$zh_TW {
+	_Translations$whatsNew$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'What\'s New';
+	@override String get announcement => 'TAT has new features';
+	@override String get view => 'View';
+	@override String get gotIt => 'Got it';
+}
+
+// Path: campusMap
+class _Translations$campusMap$en_US extends Translations$campusMap$zh_TW {
+	_Translations$campusMap$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Campus Map';
+	@override String get selectBuilding => 'Select a building';
+	@override String get search => 'Search';
+	@override String get searchHint => 'Classroom name or number (e.g. A1T101)';
+	@override String searchResults({required Object count}) => 'Found ${count} spaces';
+	@override String get noResults => 'No matching classrooms or spaces. Try another name or number.';
+	@override String get searchFailed => 'Search failed. Check your connection and try again.';
+	@override String get locationUnavailable => 'This space has no available location data.';
+	@override String get loadFailed => 'Map data could not be loaded. Check your connection and try again.';
+	@override String get refresh => 'Refresh map data';
+	@override String get resetOrientation => 'Reset map orientation';
+	@override Map<String, String> get campusNames => {
+		'1': 'West Campus',
+		'2': 'East Campus',
+		'3': 'South Campus',
+		'4': 'Linsen North Road Campus',
+		'5': 'Jianguo Brewery Campus',
+	};
+	@override Map<String, String> get buildingNames => {
+		'A1T': '1st Academic',
+		'A2T': '2nd Academic',
+		'A3T': '3rd Academic',
+		'A4T': '4th Academic',
+		'A5T': '5th Academic/Biotech & Alumnus Associaltion',
+		'A6T': '6th Academic',
+		'AC': 'Yi-Da Corridor',
+		'AD': 'Administration Building',
+		'AM': 'Pioneer International R&D',
+		'B1D': 'Student Dormitory 1',
+		'B2D': 'Student Dormitory 2',
+		'CB': 'Integrated Technology Complex',
+		'CE': 'Civil Engineering',
+		'CH': 'Chemistry Building',
+		'CK': 'Student Activity Center',
+		'CM': 'Chemical Engineering',
+		'DB': 'Design Building',
+		'EL': 'Everlight Building',
+		'GB': 'General Studies',
+		'GH': 'Guanghua Building',
+		'GR': 'Ecology Cabin',
+		'HR': 'Hong-Yue Technology Research',
+		'LB': 'Library',
+		'LY': 'Lung-Yu Technology',
+		'ME': 'Molecular Science and Engineering',
+		'MR': 'Materials and Mineral Resources Engineering',
+		'RB': 'Red House',
+		'SE': 'Zhongxiao East Road Guardhouse',
+		'SS': 'Xinsheng South Road Guardhouse',
+		'SY': 'Sun Yat-Sen Memorial Hall',
+	};
 }
 
 // Path: preferences
@@ -301,6 +389,7 @@ class _Translations$profile$en_US extends Translations$profile$zh_TW {
 	@override late final _Translations$profile$passwordExpiry$en_US passwordExpiry = _Translations$profile$passwordExpiry$en_US._(_root);
 	@override late final _Translations$profile$sections$en_US sections = _Translations$profile$sections$en_US._(_root);
 	@override late final _Translations$profile$options$en_US options = _Translations$profile$options$en_US._(_root);
+	@override String get logoutFailed => 'Failed to sign out. Please try again.';
 	@override late final _Translations$profile$avatar$en_US avatar = _Translations$profile$avatar$en_US._(_root);
 	@override late final _Translations$profile$dangerZone$en_US dangerZone = _Translations$profile$dangerZone$en_US._(_root);
 }
@@ -345,23 +434,24 @@ class _Translations$ntutWifi$en_US extends Translations$ntutWifi$zh_TW {
 	// Translations
 	@override String get title => 'NTUT-802.1X';
 	@override String get entryDescription => 'Automatically add NTUT-802.1X with your saved portal credentials';
-	@override String get intro => 'Use your saved NTUT portal credentials to add NTUT-802.1X so Android can auto-connect later.';
+	@override String get intro => 'Add NTUT-802.1X with your saved portal credentials.';
 	@override String get accountHint => 'Use your student or staff ID directly. Do not append @ntut.edu.tw.';
 	@override String androidVersion({required Object sdkInt}) => 'Android API ${sdkInt}';
-	@override String get unsupportedPlatform => 'This feature is currently available only on Android.';
-	@override String get notLoggedIn => 'Sign in to your NTUT portal account first so the assistant can fill in the NTUT-802.1X identity and password.';
-	@override String get credentialsMissing => 'The saved portal password is missing. Sign in to TAT again if you need to copy the password.';
-	@override String get olderAndroidWarning => 'This assistant follows the Android 12+ UI. Field labels may look different on older versions.';
+	@override String get unsupportedPlatform => 'Automatic Wi-Fi setup is unavailable on this device.';
+	@override String get notLoggedIn => 'Sign in to use your portal credentials.';
+	@override String get credentialsMissing => 'Sign in again to save your portal password.';
+	@override String get olderAndroidWarning => 'Field names may differ on Android 10 and 11.';
 	@override String get copyFailed => 'Copy failed';
 	@override String get openSettingsFailed => 'Unable to open Wi-Fi settings';
 	@override String get openPanelFailed => 'Unable to open the Wi-Fi quick panel';
-	@override String get systemCertificatesHint => 'Automatic provisioning always uses "Use system certificates" with domain ntut.edu.tw and PEAP/GTC. If Android refuses to accept that Enterprise profile safely from the app, use the manual fallback below.';
-	@override String get automaticProvisionUnavailable => 'This device cannot let TAT add NTUT-802.1X automatically right now. Use the manual fallback below instead.';
-	@override String get compatModeSavedHint => 'This network was saved through compat mode. If your portal password changes later, update the system Wi-Fi profile again.';
-	@override String get compatUpdateRequired => 'The NTUT-802.1X profile previously saved through compat mode is out of date. Update the system Wi-Fi profile again.';
-	@override String get suggestionFallbackRequired => 'Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.';
-	@override String get android10PermissionRejected => 'Android 10 has rejected this app\'s Wi-Fi suggestion permission. Follow the manual instructions below instead.';
-	@override String get legacyManualOnly => 'Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.';
+	@override String get systemCertificatesHint => 'Uses system certificates, domain ntut.edu.tw, and PEAP/GTC.';
+	@override String get automaticProvisionUnavailable => 'Use the manual settings below.';
+	@override String get compatModeSavedHint => 'Saved to system Wi-Fi. Update it here if your password changes.';
+	@override String get compatUpdateRequired => 'Your password changed. Update the saved Wi-Fi configuration.';
+	@override String get suggestionFallbackRequired => 'Automatic update failed. Use compatibility mode.';
+	@override String get legacyManualOnly => 'Android 9 and earlier require manual setup.';
+	@override late final _Translations$ntutWifi$removal$en_US removal = _Translations$ntutWifi$removal$en_US._(_root);
+	@override late final _Translations$ntutWifi$ios$en_US ios = _Translations$ntutWifi$ios$en_US._(_root);
 	@override late final _Translations$ntutWifi$sections$en_US sections = _Translations$ntutWifi$sections$en_US._(_root);
 	@override late final _Translations$ntutWifi$actions$en_US actions = _Translations$ntutWifi$actions$en_US._(_root);
 	@override late final _Translations$ntutWifi$fields$en_US fields = _Translations$ntutWifi$fields$en_US._(_root);
@@ -466,6 +556,50 @@ class _Translations$changePassword$en_US extends Translations$changePassword$zh_
 	@override String get submit => 'Change Password';
 	@override String get success => 'Password changed successfully';
 	@override late final _Translations$changePassword$errors$en_US errors = _Translations$changePassword$errors$en_US._(_root);
+}
+
+// Path: newFeatures.androidWidget
+class _Translations$newFeatures$androidWidget$en_US extends Translations$newFeatures$androidWidget$zh_TW {
+	_Translations$newFeatures$androidWidget$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Home screen widget';
+	@override String get description => 'Add your latest timetable to your home screen for easy access anytime.';
+}
+
+// Path: newFeatures.campusMap
+class _Translations$newFeatures$campusMap$en_US extends Translations$newFeatures$campusMap$zh_TW {
+	_Translations$newFeatures$campusMap$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Campus map';
+	@override String get description => 'View campus buildings and floor plans, and search for classrooms or teachers by name.';
+}
+
+// Path: newFeatures.materialDownload
+class _Translations$newFeatures$materialDownload$en_US extends Translations$newFeatures$materialDownload$zh_TW {
+	_Translations$newFeatures$materialDownload$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Course material downloads';
+	@override String get description => 'Browse and download iSchool course materials from the course details.';
+}
+
+// Path: newFeatures.ntutSu
+class _Translations$newFeatures$ntutSu$en_US extends Translations$newFeatures$ntutSu$zh_TW {
+	_Translations$newFeatures$ntutSu$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Student Union';
+	@override String get description => 'Find links to student rights resources and get help from the Student Union with everyday campus issues.';
 }
 
 // Path: preferences.startWithCourseTable
@@ -768,6 +902,45 @@ class _Translations$scanner$guide$en_US extends Translations$scanner$guide$zh_TW
 	@override String get button => 'Got it';
 }
 
+// Path: ntutWifi.removal
+class _Translations$ntutWifi$removal$en_US extends Translations$ntutWifi$removal$zh_TW {
+	_Translations$ntutWifi$removal$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get button => 'Remove NTUT-802.1X configuration';
+	@override String get title => 'Remove NTUT-802.1X?';
+	@override late final _Translations$ntutWifi$removal$confirmation$en_US confirmation = _Translations$ntutWifi$removal$confirmation$en_US._(_root);
+	@override String get confirm => 'Remove configuration';
+	@override String get removing => 'Removing configuration…';
+	@override String get removed => 'TAT\'s suggestions were removed and automatic updates are off. Forget manually saved networks in Wi-Fi settings.';
+	@override String get requested => 'Removal requested and automatic updates are off. Check Settings > Wi-Fi to confirm.';
+	@override String get manualRequired => 'Automatic updates are off. Forget the saved network in Wi-Fi settings.';
+	@override String get unsupported => 'Forget the network manually in Wi-Fi settings.';
+	@override String get failed => 'Removal failed. Try again or forget the network in Wi-Fi settings.';
+	@override late final _Translations$ntutWifi$removal$snackbar$en_US snackbar = _Translations$ntutWifi$removal$snackbar$en_US._(_root);
+}
+
+// Path: ntutWifi.ios
+class _Translations$ntutWifi$ios$en_US extends Translations$ntutWifi$ios$zh_TW {
+	_Translations$ntutWifi$ios$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get intro => 'Join NTUT-802.1X with your saved portal credentials and approve the system prompt.';
+	@override String get connect => 'Connect to NTUT-802.1X';
+	@override String get certificatesHint => 'Uses PEAP and system-trusted certificates for ntut.edu.tw.';
+	@override String get deviceRequired => 'Automatic setup requires a physical iPhone or iPad.';
+	@override String get configured => 'Configuration saved. Check Settings > Wi-Fi for connection status.';
+	@override String get cancelled => 'Request cancelled.';
+	@override String get alreadyAssociated => 'Already connected. Check the saved credentials in Settings > Wi-Fi.';
+	@override String get updateRequired => 'Your credentials changed. Connect again to update them.';
+	@override String get openSettings => '1. Open Settings > Wi-Fi.';
+	@override String get enterCredentials => '3. Enter your credentials. Only trust the campus server\'s certificate.';
+}
+
 // Path: ntutWifi.sections
 class _Translations$ntutWifi$sections$en_US extends Translations$ntutWifi$sections$zh_TW {
 	_Translations$ntutWifi$sections$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -793,6 +966,7 @@ class _Translations$ntutWifi$actions$en_US extends Translations$ntutWifi$actions
 	@override String get updateCompatProvision => 'Update with Compat Mode';
 	@override String get openWifiSettings => 'Open Wi-Fi Settings';
 	@override String get openWifiPanel => 'Open Wi-Fi Panel';
+	@override String get openWifiPermissionSettings => 'Wi-Fi Control Permission';
 }
 
 // Path: ntutWifi.fields
@@ -842,18 +1016,17 @@ class _Translations$ntutWifi$provisioning$en_US extends Translations$ntutWifi$pr
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get success => 'NTUT-802.1X has been added to Android. As long as Wi-Fi is on and the campus network is in range, the system will try to connect automatically.';
-	@override String get successPendingWifi => 'NTUT-802.1X has been added to Android, but Wi-Fi is currently off. Turn Wi-Fi on and Android will try to connect automatically.';
-	@override String get approvalPending => 'Android is not allowing TAT to submit Wi-Fi suggestions right now. Use the system settings entry below, then try again.';
-	@override String get approvalRejected => 'Android has rejected TAT\'s Wi-Fi suggestion. Allow it in system settings and try again, or use the manual fallback below.';
-	@override String get validationUnavailable => 'This device cannot safely accept the "system certificates + domain" Enterprise profile from TAT. Use the manual fallback below instead.';
-	@override String get unsupportedPlatform => 'This device does not support automatic NTUT-802.1X provisioning right now.';
-	@override String get failed => 'Automatic NTUT-802.1X provisioning failed. Use the manual fallback below instead.';
-	@override String get compatSuccess => 'NTUT-802.1X was written into system Wi-Fi through compat mode.';
-	@override String get compatFallbackSuccess => 'The suggestion API was rejected, so compat mode wrote NTUT-802.1X into system Wi-Fi instead.';
-	@override String get compatAlreadyExists => 'Android reported that an NTUT-802.1X profile already exists. The saved password may still be outdated, so check the system Wi-Fi entry or remove it and retry compat mode.';
-	@override String get compatCancelled => 'Compat mode was cancelled. You can retry from this page later.';
-	@override String get compatFailed => 'Compat mode failed to update system Wi-Fi. Use the manual instructions below instead.';
+	@override String get success => 'NTUT-802.1X added.';
+	@override String get successPendingWifi => 'Network added. Turn on Wi-Fi to connect.';
+	@override String get approvalPending => 'Awaiting Wi-Fi suggestion approval.';
+	@override String get approvalRejected => 'Allow TAT in Wi-Fi control settings.';
+	@override String get validationUnavailable => 'Use manual setup on this device.';
+	@override String get unsupportedPlatform => 'Automatic setup is unavailable.';
+	@override String get failed => 'Setup failed. Try manual setup.';
+	@override String get compatSuccess => 'Wi-Fi configuration saved.';
+	@override String get compatAlreadyExists => 'Network already saved. Check its password in Wi-Fi settings.';
+	@override String get compatCancelled => 'Update cancelled.';
+	@override String get compatFailed => 'Update failed. Try manual setup.';
 }
 
 // Path: ntutWifi.compatPrompt
@@ -866,7 +1039,7 @@ class _Translations$ntutWifi$compatPrompt$en_US extends Translations$ntutWifi$co
 	@override String get title => 'Update NTUT-802.1X';
 	@override String get updateNow => 'Update now';
 	@override String get later => 'Later';
-	@override String get credentialChanged => 'NTUT-802.1X was previously saved through compat mode. Your portal credentials changed, so the system Wi-Fi profile needs to be updated.';
+	@override String get credentialChanged => 'Your portal credentials changed. Update the previously saved NTUT-802.1X system Wi-Fi configuration.';
 	@override String get suggestionFallbackRequired => 'Automatic NTUT-802.1X refresh failed. Do you want to switch to compat mode and update it now?';
 }
 
@@ -1011,6 +1184,32 @@ class _Translations$profile$dangerZone$items$en_US extends Translations$profile$
 	@override String get userData => 'User data';
 }
 
+// Path: ntutWifi.removal.confirmation
+class _Translations$ntutWifi$removal$confirmation$en_US extends Translations$ntutWifi$removal$confirmation$zh_TW {
+	_Translations$ntutWifi$removal$confirmation$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get android10 => 'Remove TAT\'s network suggestions and stop automatic updates? This may disconnect Wi-Fi. Manually saved networks must be forgotten in Wi-Fi settings.';
+	@override String get android => 'Remove TAT\'s network suggestions and stop automatic updates? This may disconnect Wi-Fi. Compatibility-mode or manually saved networks must be forgotten in Wi-Fi settings.';
+	@override String get ios => 'Request removal of TAT\'s configuration and stop automatic updates? This may disconnect Wi-Fi. Configurations added elsewhere remain unchanged.';
+}
+
+// Path: ntutWifi.removal.snackbar
+class _Translations$ntutWifi$removal$snackbar$en_US extends Translations$ntutWifi$removal$snackbar$zh_TW {
+	_Translations$ntutWifi$removal$snackbar$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get removed => 'Network suggestions removed';
+	@override String get requested => 'Removal requested';
+	@override String get manualRequired => 'Forget the saved network in Wi-Fi settings';
+	@override String get unsupported => 'Manual removal required';
+	@override String get failed => 'Removal failed';
+}
+
 // Path: changePassword.errors.server
 class _Translations$changePassword$errors$server$en_US extends Translations$changePassword$errors$server$zh_TW {
 	_Translations$changePassword$errors$server$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -1045,6 +1244,64 @@ class _Translations$courseTable$detail$materials$saved$en_US extends Translation
 extension on TranslationsEnUs {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'newFeatures.androidWidget.title' => 'Home screen widget',
+			'newFeatures.androidWidget.description' => 'Add your latest timetable to your home screen for easy access anytime.',
+			'newFeatures.campusMap.title' => 'Campus map',
+			'newFeatures.campusMap.description' => 'View campus buildings and floor plans, and search for classrooms or teachers by name.',
+			'newFeatures.materialDownload.title' => 'Course material downloads',
+			'newFeatures.materialDownload.description' => 'Browse and download iSchool course materials from the course details.',
+			'newFeatures.ntutSu.title' => 'Student Union',
+			'newFeatures.ntutSu.description' => 'Find links to student rights resources and get help from the Student Union with everyday campus issues.',
+			'whatsNew.title' => 'What\'s New',
+			'whatsNew.announcement' => 'TAT has new features',
+			'whatsNew.view' => 'View',
+			'whatsNew.gotIt' => 'Got it',
+			'campusMap.title' => 'Campus Map',
+			'campusMap.selectBuilding' => 'Select a building',
+			'campusMap.search' => 'Search',
+			'campusMap.searchHint' => 'Classroom name or number (e.g. A1T101)',
+			'campusMap.searchResults' => ({required Object count}) => 'Found ${count} spaces',
+			'campusMap.noResults' => 'No matching classrooms or spaces. Try another name or number.',
+			'campusMap.searchFailed' => 'Search failed. Check your connection and try again.',
+			'campusMap.locationUnavailable' => 'This space has no available location data.',
+			'campusMap.loadFailed' => 'Map data could not be loaded. Check your connection and try again.',
+			'campusMap.refresh' => 'Refresh map data',
+			'campusMap.resetOrientation' => 'Reset map orientation',
+			'campusMap.campusNames."1"' => 'West Campus',
+			'campusMap.campusNames."2"' => 'East Campus',
+			'campusMap.campusNames."3"' => 'South Campus',
+			'campusMap.campusNames."4"' => 'Linsen North Road Campus',
+			'campusMap.campusNames."5"' => 'Jianguo Brewery Campus',
+			'campusMap.buildingNames.A1T' => '1st Academic',
+			'campusMap.buildingNames.A2T' => '2nd Academic',
+			'campusMap.buildingNames.A3T' => '3rd Academic',
+			'campusMap.buildingNames.A4T' => '4th Academic',
+			'campusMap.buildingNames.A5T' => '5th Academic/Biotech & Alumnus Associaltion',
+			'campusMap.buildingNames.A6T' => '6th Academic',
+			'campusMap.buildingNames.AC' => 'Yi-Da Corridor',
+			'campusMap.buildingNames.AD' => 'Administration Building',
+			'campusMap.buildingNames.AM' => 'Pioneer International R&D',
+			'campusMap.buildingNames.B1D' => 'Student Dormitory 1',
+			'campusMap.buildingNames.B2D' => 'Student Dormitory 2',
+			'campusMap.buildingNames.CB' => 'Integrated Technology Complex',
+			'campusMap.buildingNames.CE' => 'Civil Engineering',
+			'campusMap.buildingNames.CH' => 'Chemistry Building',
+			'campusMap.buildingNames.CK' => 'Student Activity Center',
+			'campusMap.buildingNames.CM' => 'Chemical Engineering',
+			'campusMap.buildingNames.DB' => 'Design Building',
+			'campusMap.buildingNames.EL' => 'Everlight Building',
+			'campusMap.buildingNames.GB' => 'General Studies',
+			'campusMap.buildingNames.GH' => 'Guanghua Building',
+			'campusMap.buildingNames.GR' => 'Ecology Cabin',
+			'campusMap.buildingNames.HR' => 'Hong-Yue Technology Research',
+			'campusMap.buildingNames.LB' => 'Library',
+			'campusMap.buildingNames.LY' => 'Lung-Yu Technology',
+			'campusMap.buildingNames.ME' => 'Molecular Science and Engineering',
+			'campusMap.buildingNames.MR' => 'Materials and Mineral Resources Engineering',
+			'campusMap.buildingNames.RB' => 'Red House',
+			'campusMap.buildingNames.SE' => 'Zhongxiao East Road Guardhouse',
+			'campusMap.buildingNames.SS' => 'Xinsheng South Road Guardhouse',
+			'campusMap.buildingNames.SY' => 'Sun Yat-Sen Memorial Hall',
 			'preferences.startWithCourseTable.title' => 'Start with Course Table',
 			'preferences.darkMode' => 'Dark Mode',
 			'preferences.themeMode.system' => 'Default',
@@ -1233,6 +1490,7 @@ extension on TranslationsEnUs {
 			'profile.options.npcClub' => 'NTUT Programming Club',
 			'profile.options.preferences' => 'Preferences',
 			'profile.options.logout' => 'Sign Out',
+			'profile.logoutFailed' => 'Failed to sign out. Please try again.',
 			'profile.avatar.uploading' => 'Updating avatar…',
 			'profile.avatar.uploadSuccess' => 'Avatar updated',
 			'profile.avatar.tooLarge' => 'Image exceeds the 20 MB size limit',
@@ -1293,23 +1551,49 @@ extension on TranslationsEnUs {
 			'scanner.invalidUrl' => 'Invalid URL',
 			'ntutWifi.title' => 'NTUT-802.1X',
 			'ntutWifi.entryDescription' => 'Automatically add NTUT-802.1X with your saved portal credentials',
-			'ntutWifi.intro' => 'Use your saved NTUT portal credentials to add NTUT-802.1X so Android can auto-connect later.',
+			'ntutWifi.intro' => 'Add NTUT-802.1X with your saved portal credentials.',
 			'ntutWifi.accountHint' => 'Use your student or staff ID directly. Do not append @ntut.edu.tw.',
 			'ntutWifi.androidVersion' => ({required Object sdkInt}) => 'Android API ${sdkInt}',
-			'ntutWifi.unsupportedPlatform' => 'This feature is currently available only on Android.',
-			'ntutWifi.notLoggedIn' => 'Sign in to your NTUT portal account first so the assistant can fill in the NTUT-802.1X identity and password.',
-			'ntutWifi.credentialsMissing' => 'The saved portal password is missing. Sign in to TAT again if you need to copy the password.',
-			'ntutWifi.olderAndroidWarning' => 'This assistant follows the Android 12+ UI. Field labels may look different on older versions.',
+			'ntutWifi.unsupportedPlatform' => 'Automatic Wi-Fi setup is unavailable on this device.',
+			'ntutWifi.notLoggedIn' => 'Sign in to use your portal credentials.',
+			'ntutWifi.credentialsMissing' => 'Sign in again to save your portal password.',
+			'ntutWifi.olderAndroidWarning' => 'Field names may differ on Android 10 and 11.',
 			'ntutWifi.copyFailed' => 'Copy failed',
 			'ntutWifi.openSettingsFailed' => 'Unable to open Wi-Fi settings',
 			'ntutWifi.openPanelFailed' => 'Unable to open the Wi-Fi quick panel',
-			'ntutWifi.systemCertificatesHint' => 'Automatic provisioning always uses "Use system certificates" with domain ntut.edu.tw and PEAP/GTC. If Android refuses to accept that Enterprise profile safely from the app, use the manual fallback below.',
-			'ntutWifi.automaticProvisionUnavailable' => 'This device cannot let TAT add NTUT-802.1X automatically right now. Use the manual fallback below instead.',
-			'ntutWifi.compatModeSavedHint' => 'This network was saved through compat mode. If your portal password changes later, update the system Wi-Fi profile again.',
-			'ntutWifi.compatUpdateRequired' => 'The NTUT-802.1X profile previously saved through compat mode is out of date. Update the system Wi-Fi profile again.',
-			'ntutWifi.suggestionFallbackRequired' => 'Automatic suggestion-based refresh failed. Use compat mode to write the latest NTUT-802.1X profile into the system.',
-			'ntutWifi.android10PermissionRejected' => 'Android 10 has rejected this app\'s Wi-Fi suggestion permission. Follow the manual instructions below instead.',
-			'ntutWifi.legacyManualOnly' => 'Android 9 and earlier do not support this automatic flow. Follow the manual instructions below.',
+			'ntutWifi.systemCertificatesHint' => 'Uses system certificates, domain ntut.edu.tw, and PEAP/GTC.',
+			'ntutWifi.automaticProvisionUnavailable' => 'Use the manual settings below.',
+			'ntutWifi.compatModeSavedHint' => 'Saved to system Wi-Fi. Update it here if your password changes.',
+			'ntutWifi.compatUpdateRequired' => 'Your password changed. Update the saved Wi-Fi configuration.',
+			'ntutWifi.suggestionFallbackRequired' => 'Automatic update failed. Use compatibility mode.',
+			'ntutWifi.legacyManualOnly' => 'Android 9 and earlier require manual setup.',
+			'ntutWifi.removal.button' => 'Remove NTUT-802.1X configuration',
+			'ntutWifi.removal.title' => 'Remove NTUT-802.1X?',
+			'ntutWifi.removal.confirmation.android10' => 'Remove TAT\'s network suggestions and stop automatic updates? This may disconnect Wi-Fi. Manually saved networks must be forgotten in Wi-Fi settings.',
+			'ntutWifi.removal.confirmation.android' => 'Remove TAT\'s network suggestions and stop automatic updates? This may disconnect Wi-Fi. Compatibility-mode or manually saved networks must be forgotten in Wi-Fi settings.',
+			'ntutWifi.removal.confirmation.ios' => 'Request removal of TAT\'s configuration and stop automatic updates? This may disconnect Wi-Fi. Configurations added elsewhere remain unchanged.',
+			'ntutWifi.removal.confirm' => 'Remove configuration',
+			'ntutWifi.removal.removing' => 'Removing configuration…',
+			'ntutWifi.removal.removed' => 'TAT\'s suggestions were removed and automatic updates are off. Forget manually saved networks in Wi-Fi settings.',
+			'ntutWifi.removal.requested' => 'Removal requested and automatic updates are off. Check Settings > Wi-Fi to confirm.',
+			'ntutWifi.removal.manualRequired' => 'Automatic updates are off. Forget the saved network in Wi-Fi settings.',
+			'ntutWifi.removal.unsupported' => 'Forget the network manually in Wi-Fi settings.',
+			'ntutWifi.removal.failed' => 'Removal failed. Try again or forget the network in Wi-Fi settings.',
+			'ntutWifi.removal.snackbar.removed' => 'Network suggestions removed',
+			'ntutWifi.removal.snackbar.requested' => 'Removal requested',
+			'ntutWifi.removal.snackbar.manualRequired' => 'Forget the saved network in Wi-Fi settings',
+			'ntutWifi.removal.snackbar.unsupported' => 'Manual removal required',
+			'ntutWifi.removal.snackbar.failed' => 'Removal failed',
+			'ntutWifi.ios.intro' => 'Join NTUT-802.1X with your saved portal credentials and approve the system prompt.',
+			'ntutWifi.ios.connect' => 'Connect to NTUT-802.1X',
+			'ntutWifi.ios.certificatesHint' => 'Uses PEAP and system-trusted certificates for ntut.edu.tw.',
+			'ntutWifi.ios.deviceRequired' => 'Automatic setup requires a physical iPhone or iPad.',
+			'ntutWifi.ios.configured' => 'Configuration saved. Check Settings > Wi-Fi for connection status.',
+			'ntutWifi.ios.cancelled' => 'Request cancelled.',
+			'ntutWifi.ios.alreadyAssociated' => 'Already connected. Check the saved credentials in Settings > Wi-Fi.',
+			'ntutWifi.ios.updateRequired' => 'Your credentials changed. Connect again to update them.',
+			'ntutWifi.ios.openSettings' => '1. Open Settings > Wi-Fi.',
+			'ntutWifi.ios.enterCredentials' => '3. Enter your credentials. Only trust the campus server\'s certificate.',
 			'ntutWifi.sections.quickActions' => 'Quick Actions',
 			'ntutWifi.sections.recommendedSettings' => 'Recommended Settings',
 			'ntutWifi.sections.fallback' => 'Manual Fallback',
@@ -1319,6 +1603,7 @@ extension on TranslationsEnUs {
 			'ntutWifi.actions.updateCompatProvision' => 'Update with Compat Mode',
 			'ntutWifi.actions.openWifiSettings' => 'Open Wi-Fi Settings',
 			'ntutWifi.actions.openWifiPanel' => 'Open Wi-Fi Panel',
+			'ntutWifi.actions.openWifiPermissionSettings' => 'Wi-Fi Control Permission',
 			'ntutWifi.fields.ssid' => 'Network name',
 			'ntutWifi.fields.eapMethod' => 'EAP method',
 			'ntutWifi.fields.phase2Auth' => 'Phase 2 authentication',
@@ -1332,22 +1617,21 @@ extension on TranslationsEnUs {
 			'ntutWifi.fallbackSteps.openSettings' => '1. Open Wi-Fi settings or the Wi-Fi quick panel.',
 			'ntutWifi.fallbackSteps.selectNetwork' => '2. Choose or add NTUT-802.1X.',
 			'ntutWifi.fallbackSteps.useDisplayedValues' => '3. Fill in the SSID, PEAP, GTC, identity, password, and domain shown below.',
-			'ntutWifi.provisioning.success' => 'NTUT-802.1X has been added to Android. As long as Wi-Fi is on and the campus network is in range, the system will try to connect automatically.',
-			'ntutWifi.provisioning.successPendingWifi' => 'NTUT-802.1X has been added to Android, but Wi-Fi is currently off. Turn Wi-Fi on and Android will try to connect automatically.',
-			'ntutWifi.provisioning.approvalPending' => 'Android is not allowing TAT to submit Wi-Fi suggestions right now. Use the system settings entry below, then try again.',
-			'ntutWifi.provisioning.approvalRejected' => 'Android has rejected TAT\'s Wi-Fi suggestion. Allow it in system settings and try again, or use the manual fallback below.',
-			'ntutWifi.provisioning.validationUnavailable' => 'This device cannot safely accept the "system certificates + domain" Enterprise profile from TAT. Use the manual fallback below instead.',
-			'ntutWifi.provisioning.unsupportedPlatform' => 'This device does not support automatic NTUT-802.1X provisioning right now.',
-			'ntutWifi.provisioning.failed' => 'Automatic NTUT-802.1X provisioning failed. Use the manual fallback below instead.',
-			'ntutWifi.provisioning.compatSuccess' => 'NTUT-802.1X was written into system Wi-Fi through compat mode.',
-			'ntutWifi.provisioning.compatFallbackSuccess' => 'The suggestion API was rejected, so compat mode wrote NTUT-802.1X into system Wi-Fi instead.',
-			'ntutWifi.provisioning.compatAlreadyExists' => 'Android reported that an NTUT-802.1X profile already exists. The saved password may still be outdated, so check the system Wi-Fi entry or remove it and retry compat mode.',
-			'ntutWifi.provisioning.compatCancelled' => 'Compat mode was cancelled. You can retry from this page later.',
-			'ntutWifi.provisioning.compatFailed' => 'Compat mode failed to update system Wi-Fi. Use the manual instructions below instead.',
+			'ntutWifi.provisioning.success' => 'NTUT-802.1X added.',
+			'ntutWifi.provisioning.successPendingWifi' => 'Network added. Turn on Wi-Fi to connect.',
+			'ntutWifi.provisioning.approvalPending' => 'Awaiting Wi-Fi suggestion approval.',
+			'ntutWifi.provisioning.approvalRejected' => 'Allow TAT in Wi-Fi control settings.',
+			'ntutWifi.provisioning.validationUnavailable' => 'Use manual setup on this device.',
+			'ntutWifi.provisioning.unsupportedPlatform' => 'Automatic setup is unavailable.',
+			'ntutWifi.provisioning.failed' => 'Setup failed. Try manual setup.',
+			'ntutWifi.provisioning.compatSuccess' => 'Wi-Fi configuration saved.',
+			'ntutWifi.provisioning.compatAlreadyExists' => 'Network already saved. Check its password in Wi-Fi settings.',
+			'ntutWifi.provisioning.compatCancelled' => 'Update cancelled.',
+			'ntutWifi.provisioning.compatFailed' => 'Update failed. Try manual setup.',
 			'ntutWifi.compatPrompt.title' => 'Update NTUT-802.1X',
 			'ntutWifi.compatPrompt.updateNow' => 'Update now',
 			'ntutWifi.compatPrompt.later' => 'Later',
-			'ntutWifi.compatPrompt.credentialChanged' => 'NTUT-802.1X was previously saved through compat mode. Your portal credentials changed, so the system Wi-Fi profile needs to be updated.',
+			'ntutWifi.compatPrompt.credentialChanged' => 'Your portal credentials changed. Update the previously saved NTUT-802.1X system Wi-Fi configuration.',
 			'ntutWifi.compatPrompt.suggestionFallbackRequired' => 'Automatic NTUT-802.1X refresh failed. Do you want to switch to compat mode and update it now?',
 			'kioskLogin.qrCode' => 'login QR code',
 			'kioskLogin.refresh' => 'Regenerate',

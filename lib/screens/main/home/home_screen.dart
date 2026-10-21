@@ -12,7 +12,6 @@ import 'package:tattoo/screens/main/course_table_providers.dart';
 import 'package:tattoo/screens/main/home/home_providers.dart';
 import 'package:tattoo/screens/main/home/next_course_carousel.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
-import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/course_schedule.dart';
 
@@ -24,64 +23,14 @@ class MainHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
-  bool _updateSnackbarCheckScheduled = false;
-
-  @override
-  void initState() {
-    super.initState();
-    ref.listenManual(updateConfigProvider, (_, _) {
-      _scheduleUpdateSnackbarCheck();
-    });
-    _scheduleUpdateSnackbarCheck();
-  }
-
-  /// Schedules the snackbar check after the current frame so
-  /// [ScaffoldMessenger] is available.
-  void _scheduleUpdateSnackbarCheck() {
-    if (_updateSnackbarCheckScheduled) return;
-    _updateSnackbarCheckScheduled = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateSnackbarCheckScheduled = false;
-      _maybeShowUpdateSnackbar();
-    });
-  }
-
-  /// Shows a floating snackbar when an optional update is pending and the user
-  /// has not already dismissed it this session.
-  void _maybeShowUpdateSnackbar() {
-    if (!mounted) return;
-    final config = ref.read(updateConfigProvider);
-
-    // Clear an obsolete optional snackbar when the update is removed or forced.
-    if (config == null || config.isForcedUpdate) {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      return;
-    }
-
-    final dismissed = ref.read(optionalUpdateDismissedProvider);
-    if (dismissed) return;
-
-    // Mark as dismissed so the snackbar isn't re-shown on hot-reload / re-entry.
-    ref.read(optionalUpdateDismissedProvider.notifier).dismiss();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(t.forceUpdate.title),
-        behavior: .fixed,
-        duration: const Duration(seconds: 8),
-        // Breaking change in Flutter 3.38, when snack bar with action, auto-dismiss will be disaable unless set persist=false.
-        persist: false,
-        action: SnackBarAction(
-          label: t.forceUpdate.view,
-          onPressed: () => context.push(AppRoutes.update),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final options = [
+      OptionEntryTile.icon(
+        icon: Icons.map_outlined,
+        title: t.campusMap.title,
+        onTap: () => context.push(AppRoutes.campusMap),
+      ),
       if (ref.pref(PrefKey.showScannerButton))
         OptionEntryTile.icon(
           icon: Icons.qr_code_scanner,
@@ -100,7 +49,8 @@ class _MainHomeScreenState extends ConsumerState<MainHomeScreen> {
           title: t.nav.calendar.spaced,
           onTap: () => context.push(AppRoutes.calendar),
         ),
-      if (Theme.of(context).platform == TargetPlatform.android &&
+      if ((Theme.of(context).platform == TargetPlatform.android ||
+              Theme.of(context).platform == TargetPlatform.iOS) &&
           ref.pref(PrefKey.showWifiButton))
         OptionEntryTile.icon(
           icon: Icons.wifi,

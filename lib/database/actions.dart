@@ -223,6 +223,10 @@ extension DatabaseActions on AppDatabase {
   /// Upserts by number. Null-number entries always insert (SQLite treats NULLs
   /// as distinct) — caller must delete stale ones first.
   ///
+  /// Updates the offering's semester to [semesterId], allowing a timetable to
+  /// correct a semester provisionally inferred from a score record. The score
+  /// keeps its own semester and reference to the same offering.
+  ///
   /// An omitted [Value] leaves the stored field untouched, so a source that
   /// cannot see a field must omit it rather than pass null.
   Future<int> upsertCourseOffering({
@@ -256,6 +260,7 @@ extension DatabaseActions on AppDatabase {
       ),
       onConflict: DoUpdate(
         (old) => CourseOfferingsCompanion(
+          semester: Value(semesterId),
           courseCode: courseCode,
           nameZh: Value(nameZh),
           nameEn: .absentIfNull(nameEn),

@@ -79,12 +79,17 @@ class ChipTabSwitcher extends StatefulWidget {
     super.key,
     required this.tabs,
     this.controller,
+    this.onReselected,
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
     this.spacing = 8,
   });
 
   final List<String> tabs;
   final TabController? controller;
+
+  /// Called when the currently active tab is tapped again.
+  final ValueChanged<int>? onReselected;
+
   final EdgeInsetsGeometry padding;
   final double spacing;
 
@@ -221,7 +226,11 @@ class _ChipTabSwitcherState extends State<ChipTabSwitcher> {
   void _handleChipTap(int index) {
     final controller = _tabController;
 
-    if (controller == null || index == _activeIndex) {
+    if (controller == null) {
+      return;
+    }
+    if (index == _activeIndex) {
+      widget.onReselected?.call(index);
       return;
     }
 

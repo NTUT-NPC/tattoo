@@ -36,6 +36,10 @@ final class Schema2 extends i0.VersionedSchema {
     userSemesterSummaryCadreRoles,
     userSemesterRankings,
     calendarEvents,
+    campusMapBuildings,
+    campusMapFloors,
+    campusMapRooms,
+    campusMapSyncs,
     courseOfferingOverviews,
     courseTableSlots,
     scoreDetails,
@@ -50,6 +54,8 @@ final class Schema2 extends i0.VersionedSchema {
     teacherOfficeHourTeacherSemester,
     scoreUser,
     userSemesterSummaryUser,
+    campusMapFloorBuilding,
+    campusMapRoomLayer,
   ];
   late final Shape0 users = Shape0(
     source: i0.VersionedTable(
@@ -254,7 +260,6 @@ final class Schema2 extends i0.VersionedSchema {
         _column_46,
         _column_47,
         _column_48,
-        _column_49,
       ],
       attachedDatabase: database,
     ),
@@ -269,13 +274,13 @@ final class Schema2 extends i0.VersionedSchema {
       columns: [
         _column_0,
         _column_1,
-        _column_50,
+        _column_49,
         _column_35,
+        _column_50,
         _column_51,
         _column_52,
         _column_53,
         _column_54,
-        _column_55,
       ],
       attachedDatabase: database,
     ),
@@ -287,7 +292,7 @@ final class Schema2 extends i0.VersionedSchema {
       withoutRowId: false,
       isStrict: false,
       tableConstraints: ['PRIMARY KEY(course_offering, teacher_semester)'],
-      columns: [_column_56, _column_57],
+      columns: [_column_55, _column_56],
       attachedDatabase: database,
     ),
     alias: null,
@@ -298,7 +303,7 @@ final class Schema2 extends i0.VersionedSchema {
       withoutRowId: false,
       isStrict: false,
       tableConstraints: ['PRIMARY KEY(course_offering, class_entity)'],
-      columns: [_column_56, _column_58],
+      columns: [_column_55, _column_57],
       attachedDatabase: database,
     ),
     alias: null,
@@ -309,7 +314,7 @@ final class Schema2 extends i0.VersionedSchema {
       withoutRowId: false,
       isStrict: false,
       tableConstraints: ['PRIMARY KEY(course_offering, student)'],
-      columns: [_column_56, _column_59],
+      columns: [_column_55, _column_58],
       attachedDatabase: database,
     ),
     alias: null,
@@ -320,7 +325,7 @@ final class Schema2 extends i0.VersionedSchema {
       withoutRowId: false,
       isStrict: false,
       tableConstraints: ['UNIQUE(course_offering, day_of_week, period)'],
-      columns: [_column_0, _column_56, _column_60, _column_61, _column_62],
+      columns: [_column_0, _column_55, _column_59, _column_60, _column_61],
       attachedDatabase: database,
     ),
     alias: null,
@@ -333,11 +338,11 @@ final class Schema2 extends i0.VersionedSchema {
       tableConstraints: ['UNIQUE(course_offering, teacher, language)'],
       columns: [
         _column_0,
-        _column_56,
-        _column_50,
+        _column_55,
+        _column_49,
+        _column_62,
         _column_63,
         _column_64,
-        _column_65,
       ],
       attachedDatabase: database,
     ),
@@ -349,7 +354,7 @@ final class Schema2 extends i0.VersionedSchema {
       withoutRowId: false,
       isStrict: false,
       tableConstraints: ['UNIQUE(syllabus, position)'],
-      columns: [_column_0, _column_66, _column_67, _column_68, _column_19],
+      columns: [_column_0, _column_65, _column_66, _column_67, _column_19],
       attachedDatabase: database,
     ),
     alias: null,
@@ -360,14 +365,7 @@ final class Schema2 extends i0.VersionedSchema {
       withoutRowId: false,
       isStrict: false,
       tableConstraints: ['UNIQUE(course_offering, href)'],
-      columns: [
-        _column_0,
-        _column_56,
-        _column_53,
-        _column_69,
-        _column_70,
-        _column_71,
-      ],
+      columns: [_column_0, _column_55, _column_52, _column_68],
       attachedDatabase: database,
     ),
     alias: null,
@@ -382,12 +380,12 @@ final class Schema2 extends i0.VersionedSchema {
       ],
       columns: [
         _column_0,
-        _column_57,
-        _column_60,
+        _column_56,
+        _column_59,
+        _column_69,
+        _column_70,
+        _column_71,
         _column_72,
-        _column_73,
-        _column_74,
-        _column_75,
       ],
       attachedDatabase: database,
     ),
@@ -403,9 +401,9 @@ final class Schema2 extends i0.VersionedSchema {
         _column_0,
         _column_17,
         _column_35,
-        _column_76,
-        _column_77,
-        _column_78,
+        _column_73,
+        _column_74,
+        _column_75,
         _column_42,
       ],
       attachedDatabase: database,
@@ -422,6 +420,9 @@ final class Schema2 extends i0.VersionedSchema {
         _column_0,
         _column_17,
         _column_35,
+        _column_76,
+        _column_77,
+        _column_78,
         _column_79,
         _column_80,
         _column_81,
@@ -429,9 +430,6 @@ final class Schema2 extends i0.VersionedSchema {
         _column_83,
         _column_84,
         _column_85,
-        _column_86,
-        _column_87,
-        _column_88,
       ],
       attachedDatabase: database,
     ),
@@ -443,7 +441,7 @@ final class Schema2 extends i0.VersionedSchema {
       withoutRowId: false,
       isStrict: false,
       tableConstraints: ['PRIMARY KEY(summary, teacher_semester)'],
-      columns: [_column_89, _column_57],
+      columns: [_column_86, _column_56],
       attachedDatabase: database,
     ),
     alias: null,
@@ -454,7 +452,7 @@ final class Schema2 extends i0.VersionedSchema {
       withoutRowId: false,
       isStrict: false,
       tableConstraints: ['UNIQUE(summary, role)'],
-      columns: [_column_0, _column_89, _column_90],
+      columns: [_column_0, _column_86, _column_87],
       attachedDatabase: database,
     ),
     alias: null,
@@ -466,12 +464,12 @@ final class Schema2 extends i0.VersionedSchema {
       isStrict: false,
       tableConstraints: ['PRIMARY KEY(summary, ranking_type)'],
       columns: [
+        _column_86,
+        _column_88,
         _column_89,
+        _column_90,
         _column_91,
         _column_92,
-        _column_93,
-        _column_94,
-        _column_95,
       ],
       attachedDatabase: database,
     ),
@@ -485,34 +483,76 @@ final class Schema2 extends i0.VersionedSchema {
       tableConstraints: [],
       columns: [
         _column_0,
+        _column_93,
+        _column_94,
+        _column_95,
         _column_96,
+        _column_52,
         _column_97,
+        _column_67,
         _column_98,
         _column_99,
-        _column_53,
-        _column_100,
-        _column_68,
-        _column_101,
-        _column_102,
       ],
       attachedDatabase: database,
     ),
     alias: null,
   );
-  late final Shape27 courseOfferingOverviews = Shape27(
+  late final Shape27 campusMapBuildings = Shape27(
+    source: i0.VersionedTable(
+      entityName: 'campus_map_buildings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(code)'],
+      columns: [_column_21, _column_100, _column_101],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape28 campusMapFloors = Shape28(
+    source: i0.VersionedTable(
+      entityName: 'campus_map_floors',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(layer_name)'],
+      columns: [_column_102, _column_103, _column_21, _column_1],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape29 campusMapRooms = Shape29(
+    source: i0.VersionedTable(
+      entityName: 'campus_map_rooms',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_104,
+        _column_105,
+        _column_3,
+        _column_106,
+        _column_107,
+        _column_108,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape30 campusMapSyncs = Shape30(
+    source: i0.VersionedTable(
+      entityName: 'campus_map_syncs',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(namespace)'],
+      columns: [_column_109, _column_110, _column_111],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape31 courseOfferingOverviews = Shape31(
     source: i0.VersionedView(
       entityName: 'course_offering_overviews',
       createViewStmt: 'CREATE VIEW IF NOT EXISTS course_offering_overviews (id,course_code,semester,number,name_zh,name_en,credits,hours,phase,course_type,status,language,remarks,enrolled,withdrawn,fetched_at) AS SELECT t0.id AS id, t0.course_code AS course_code, t0.semester AS semester, t0.number AS number, COALESCE(t0.name_zh, t1.name_zh) AS name_zh, COALESCE(t0.name_en, t1.name_en) AS name_en, COALESCE(t0.credits, t1.credits) AS credits, COALESCE(t0.hours, t1.hours) AS hours, t0.phase AS phase, t0.course_type AS course_type, t0.status AS status, t0.language AS language, t0.remarks AS remarks, t0.enrolled AS enrolled, t0.withdrawn AS withdrawn, t0.fetched_at AS fetched_at FROM course_offerings AS t0 LEFT OUTER JOIN courses AS t1 ON t1.code = t0.course_code;',
       columns: [
-        _column_103,
-        _column_104,
-        _column_105,
-        _column_106,
-        _column_107,
-        _column_108,
-        _column_109,
-        _column_110,
-        _column_111,
         _column_112,
         _column_113,
         _column_114,
@@ -520,82 +560,91 @@ final class Schema2 extends i0.VersionedSchema {
         _column_116,
         _column_117,
         _column_118,
-      ],
-      attachedDatabase: database,
-    ),
-    alias: null,
-  );
-  late final Shape28 courseTableSlots = Shape28(
-    source: i0.VersionedView(
-      entityName: 'course_table_slots',
-      createViewStmt: 'CREATE VIEW IF NOT EXISTS course_table_slots (id,number,semester,name_zh,name_en,credits,hours,day_of_week,period,classroom_name_zh,classroom_name_en) AS SELECT t1.id AS id, t1.number AS number, t1.semester AS semester, COALESCE(t1.name_zh, t2.name_zh) AS name_zh, COALESCE(t1.name_en, t2.name_en) AS name_en, COALESCE(t1.credits, t2.credits) AS credits, COALESCE(t1.hours, t2.hours) AS hours, t0.day_of_week AS day_of_week, t0.period AS period, t3.name_zh AS classroom_name_zh, t3.name_en AS classroom_name_en FROM schedules AS t0 INNER JOIN course_offerings AS t1 ON t1.id = t0.course_offering LEFT OUTER JOIN courses AS t2 ON t2.code = t1.course_code LEFT OUTER JOIN classrooms AS t3 ON t3.id = t0.classroom WHERE t1.in_course_table = 1;',
-      columns: [
-        _column_103,
-        _column_106,
-        _column_105,
-        _column_107,
-        _column_108,
-        _column_109,
-        _column_110,
         _column_119,
         _column_120,
         _column_121,
         _column_122,
-      ],
-      attachedDatabase: database,
-    ),
-    alias: null,
-  );
-  late final Shape29 scoreDetails = Shape29(
-    source: i0.VersionedView(
-      entityName: 'score_details',
-      createViewStmt: 'CREATE VIEW IF NOT EXISTS score_details (id,user,semester,score,status,code,name_zh,name_en,number) AS SELECT t0.id AS id, t0.user AS user, t0.semester AS semester, t0.score AS score, t0.status AS status, t1.code AS code, COALESCE(t2.name_zh, t1.name_zh) AS name_zh, COALESCE(t2.name_en, t1.name_en) AS name_en, t2.number AS number FROM scores AS t0 INNER JOIN courses AS t1 ON t1.id = t0.course LEFT OUTER JOIN course_offerings AS t2 ON t2.id = t0.course_offering;',
-      columns: [
-        _column_103,
         _column_123,
-        _column_105,
         _column_124,
-        _column_113,
         _column_125,
-        _column_107,
-        _column_108,
-        _column_106,
-      ],
-      attachedDatabase: database,
-    ),
-    alias: null,
-  );
-  late final Shape30 userAcademicSummaries = Shape30(
-    source: i0.VersionedView(
-      entityName: 'user_academic_summaries',
-      createViewStmt: 'CREATE VIEW IF NOT EXISTS user_academic_summaries (id,user,semester,year,term,average,conduct,total_credits,credits_passed,note,gpa) AS SELECT t0.id AS id, t0.user AS user, t0.semester AS semester, t1.year AS year, t1.term AS term, t0.average AS average, t0.conduct AS conduct, t0.total_credits AS total_credits, t0.credits_passed AS credits_passed, t0.note AS note, t0.gpa AS gpa FROM user_semester_summaries AS t0 INNER JOIN semesters AS t1 ON t1.id = t0.semester;',
-      columns: [
-        _column_103,
-        _column_123,
-        _column_105,
         _column_126,
         _column_127,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape32 courseTableSlots = Shape32(
+    source: i0.VersionedView(
+      entityName: 'course_table_slots',
+      createViewStmt: 'CREATE VIEW IF NOT EXISTS course_table_slots (id,number,semester,name_zh,name_en,credits,hours,day_of_week,period,classroom_name_zh,classroom_name_en) AS SELECT t1.id AS id, t1.number AS number, t1.semester AS semester, COALESCE(t1.name_zh, t2.name_zh) AS name_zh, COALESCE(t1.name_en, t2.name_en) AS name_en, COALESCE(t1.credits, t2.credits) AS credits, COALESCE(t1.hours, t2.hours) AS hours, t0.day_of_week AS day_of_week, t0.period AS period, t3.name_zh AS classroom_name_zh, t3.name_en AS classroom_name_en FROM schedules AS t0 INNER JOIN course_offerings AS t1 ON t1.id = t0.course_offering LEFT OUTER JOIN courses AS t2 ON t2.code = t1.course_code LEFT OUTER JOIN classrooms AS t3 ON t3.id = t0.classroom WHERE t1.in_course_table = 1;',
+      columns: [
+        _column_112,
+        _column_115,
+        _column_114,
+        _column_116,
+        _column_117,
+        _column_118,
+        _column_119,
         _column_128,
         _column_129,
         _column_130,
         _column_131,
-        _column_132,
-        _column_133,
       ],
       attachedDatabase: database,
     ),
     alias: null,
   );
-  late final Shape31 userRegistrations = Shape31(
+  late final Shape33 scoreDetails = Shape33(
+    source: i0.VersionedView(
+      entityName: 'score_details',
+      createViewStmt: 'CREATE VIEW IF NOT EXISTS score_details (id,user,semester,score,status,code,name_zh,name_en,number) AS SELECT t0.id AS id, t0.user AS user, t0.semester AS semester, t0.score AS score, t0.status AS status, t1.code AS code, COALESCE(t2.name_zh, t1.name_zh) AS name_zh, COALESCE(t2.name_en, t1.name_en) AS name_en, t2.number AS number FROM scores AS t0 INNER JOIN courses AS t1 ON t1.id = t0.course LEFT OUTER JOIN course_offerings AS t2 ON t2.id = t0.course_offering;',
+      columns: [
+        _column_112,
+        _column_132,
+        _column_114,
+        _column_133,
+        _column_122,
+        _column_134,
+        _column_116,
+        _column_117,
+        _column_115,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape34 userAcademicSummaries = Shape34(
+    source: i0.VersionedView(
+      entityName: 'user_academic_summaries',
+      createViewStmt: 'CREATE VIEW IF NOT EXISTS user_academic_summaries (id,user,semester,year,term,average,conduct,total_credits,credits_passed,note,gpa) AS SELECT t0.id AS id, t0.user AS user, t0.semester AS semester, t1.year AS year, t1.term AS term, t0.average AS average, t0.conduct AS conduct, t0.total_credits AS total_credits, t0.credits_passed AS credits_passed, t0.note AS note, t0.gpa AS gpa FROM user_semester_summaries AS t0 INNER JOIN semesters AS t1 ON t1.id = t0.semester;',
+      columns: [
+        _column_112,
+        _column_132,
+        _column_114,
+        _column_135,
+        _column_136,
+        _column_137,
+        _column_138,
+        _column_139,
+        _column_140,
+        _column_141,
+        _column_142,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape35 userRegistrations = Shape35(
     source: i0.VersionedView(
       entityName: 'user_registrations',
       createViewStmt: 'CREATE VIEW IF NOT EXISTS user_registrations (year,term,class_name,enrollment_status,graduated) AS SELECT t1.year AS year, t1.term AS term, t0.class_name AS class_name, t0.enrollment_status AS enrollment_status, t0.graduated AS graduated FROM user_semester_summaries AS t0 INNER JOIN semesters AS t1 ON t1.id = t0.semester;',
       columns: [
-        _column_126,
-        _column_127,
-        _column_134,
         _column_135,
         _column_136,
+        _column_143,
+        _column_144,
+        _column_145,
       ],
       attachedDatabase: database,
     ),
@@ -636,6 +685,14 @@ final class Schema2 extends i0.VersionedSchema {
   final i1.Index userSemesterSummaryUser = i1.Index(
     'user_semester_summary_user',
     'CREATE INDEX user_semester_summary_user ON user_semester_summaries (user)',
+  );
+  final i1.Index campusMapFloorBuilding = i1.Index(
+    'campus_map_floor_building',
+    'CREATE INDEX campus_map_floor_building ON campus_map_floors (building)',
+  );
+  final i1.Index campusMapRoomLayer = i1.Index(
+    'campus_map_room_layer',
+    'CREATE INDEX campus_map_room_layer ON campus_map_rooms (layer_name)',
   );
 }
 
@@ -1163,8 +1220,6 @@ class Shape11 extends i0.VersionedTable {
       columnsByName['withdrawn']! as i1.GeneratedColumn<int>;
   i1.GeneratedColumn<int> get studentRosterFetchedAt =>
       columnsByName['student_roster_fetched_at']! as i1.GeneratedColumn<int>;
-  i1.GeneratedColumn<int> get materialsFetchedAt =>
-      columnsByName['materials_fetched_at']! as i1.GeneratedColumn<int>;
 }
 
 i1.GeneratedColumn<String> _column_36(String aliasedName) =>
@@ -1273,14 +1328,6 @@ i1.GeneratedColumn<int> _column_48(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<int> _column_49(String aliasedName) =>
-    i1.GeneratedColumn<int>(
-      'materials_fetched_at',
-      aliasedName,
-      true,
-      type: i1.DriftSqlType.int,
-      $customConstraints: 'NULL',
-    );
 
 class Shape12 extends i0.VersionedTable {
   Shape12({required super.source, required super.alias}) : super.aliased();
@@ -1304,7 +1351,7 @@ class Shape12 extends i0.VersionedTable {
       columnsByName['office_hours_note']! as i1.GeneratedColumn<String>;
 }
 
-i1.GeneratedColumn<int> _column_50(String aliasedName) =>
+i1.GeneratedColumn<int> _column_49(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'teacher',
       aliasedName,
@@ -1312,7 +1359,7 @@ i1.GeneratedColumn<int> _column_50(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL REFERENCES teachers(id)',
     );
-i1.GeneratedColumn<String> _column_51(String aliasedName) =>
+i1.GeneratedColumn<String> _column_50(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'email',
       aliasedName,
@@ -1320,7 +1367,7 @@ i1.GeneratedColumn<String> _column_51(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<int> _column_52(String aliasedName) =>
+i1.GeneratedColumn<int> _column_51(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'department',
       aliasedName,
@@ -1328,7 +1375,7 @@ i1.GeneratedColumn<int> _column_52(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NULL REFERENCES departments(id)',
     );
-i1.GeneratedColumn<String> _column_53(String aliasedName) =>
+i1.GeneratedColumn<String> _column_52(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'title',
       aliasedName,
@@ -1336,7 +1383,7 @@ i1.GeneratedColumn<String> _column_53(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<double> _column_54(String aliasedName) =>
+i1.GeneratedColumn<double> _column_53(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'teaching_hours',
       aliasedName,
@@ -1344,7 +1391,7 @@ i1.GeneratedColumn<double> _column_54(String aliasedName) =>
       type: i1.DriftSqlType.double,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<String> _column_55(String aliasedName) =>
+i1.GeneratedColumn<String> _column_54(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'office_hours_note',
       aliasedName,
@@ -1361,7 +1408,7 @@ class Shape13 extends i0.VersionedTable {
       columnsByName['teacher_semester']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<int> _column_56(String aliasedName) =>
+i1.GeneratedColumn<int> _column_55(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'course_offering',
       aliasedName,
@@ -1370,7 +1417,7 @@ i1.GeneratedColumn<int> _column_56(String aliasedName) =>
       $customConstraints:
           'NOT NULL REFERENCES course_offerings(id)ON DELETE CASCADE',
     );
-i1.GeneratedColumn<int> _column_57(String aliasedName) =>
+i1.GeneratedColumn<int> _column_56(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'teacher_semester',
       aliasedName,
@@ -1387,7 +1434,7 @@ class Shape14 extends i0.VersionedTable {
       columnsByName['class_entity']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<int> _column_58(String aliasedName) =>
+i1.GeneratedColumn<int> _column_57(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'class_entity',
       aliasedName,
@@ -1404,7 +1451,7 @@ class Shape15 extends i0.VersionedTable {
       columnsByName['student']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<int> _column_59(String aliasedName) =>
+i1.GeneratedColumn<int> _column_58(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'student',
       aliasedName,
@@ -1427,7 +1474,7 @@ class Shape16 extends i0.VersionedTable {
       columnsByName['classroom']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<int> _column_60(String aliasedName) =>
+i1.GeneratedColumn<int> _column_59(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'day_of_week',
       aliasedName,
@@ -1435,7 +1482,7 @@ i1.GeneratedColumn<int> _column_60(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_61(String aliasedName) =>
+i1.GeneratedColumn<int> _column_60(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'period',
       aliasedName,
@@ -1443,7 +1490,7 @@ i1.GeneratedColumn<int> _column_61(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_62(String aliasedName) =>
+i1.GeneratedColumn<int> _column_61(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'classroom',
       aliasedName,
@@ -1468,7 +1515,7 @@ class Shape17 extends i0.VersionedTable {
       columnsByName['fetched_at']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<String> _column_63(String aliasedName) =>
+i1.GeneratedColumn<String> _column_62(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'language',
       aliasedName,
@@ -1476,7 +1523,7 @@ i1.GeneratedColumn<String> _column_63(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_64(String aliasedName) =>
+i1.GeneratedColumn<int> _column_63(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'updated_at',
       aliasedName,
@@ -1484,7 +1531,7 @@ i1.GeneratedColumn<int> _column_64(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<int> _column_65(String aliasedName) =>
+i1.GeneratedColumn<int> _column_64(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'fetched_at',
       aliasedName,
@@ -1507,7 +1554,7 @@ class Shape18 extends i0.VersionedTable {
       columnsByName['position']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<int> _column_66(String aliasedName) =>
+i1.GeneratedColumn<int> _column_65(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'syllabus',
       aliasedName,
@@ -1515,7 +1562,7 @@ i1.GeneratedColumn<int> _column_66(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL REFERENCES syllabuses(id)ON DELETE CASCADE',
     );
-i1.GeneratedColumn<String> _column_67(String aliasedName) =>
+i1.GeneratedColumn<String> _column_66(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'title',
       aliasedName,
@@ -1523,7 +1570,7 @@ i1.GeneratedColumn<String> _column_67(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<String> _column_68(String aliasedName) =>
+i1.GeneratedColumn<String> _column_67(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'content',
       aliasedName,
@@ -1542,35 +1589,15 @@ class Shape19 extends i0.VersionedTable {
       columnsByName['title']! as i1.GeneratedColumn<String>;
   i1.GeneratedColumn<String> get href =>
       columnsByName['href']! as i1.GeneratedColumn<String>;
-  i1.GeneratedColumn<String> get iSchoolCourseId =>
-      columnsByName['i_school_course_id']! as i1.GeneratedColumn<String>;
-  i1.GeneratedColumn<int> get streamable =>
-      columnsByName['streamable']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<String> _column_69(String aliasedName) =>
+i1.GeneratedColumn<String> _column_68(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'href',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,
       $customConstraints: 'NULL',
-    );
-i1.GeneratedColumn<String> _column_70(String aliasedName) =>
-    i1.GeneratedColumn<String>(
-      'i_school_course_id',
-      aliasedName,
-      true,
-      type: i1.DriftSqlType.string,
-      $customConstraints: 'NULL',
-    );
-i1.GeneratedColumn<int> _column_71(String aliasedName) =>
-    i1.GeneratedColumn<int>(
-      'streamable',
-      aliasedName,
-      true,
-      type: i1.DriftSqlType.int,
-      $customConstraints: 'NULL CHECK (streamable IN (0, 1))',
     );
 
 class Shape20 extends i0.VersionedTable {
@@ -1591,7 +1618,7 @@ class Shape20 extends i0.VersionedTable {
       columnsByName['end_minute']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<int> _column_72(String aliasedName) =>
+i1.GeneratedColumn<int> _column_69(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'start_hour',
       aliasedName,
@@ -1599,7 +1626,7 @@ i1.GeneratedColumn<int> _column_72(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_73(String aliasedName) =>
+i1.GeneratedColumn<int> _column_70(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'start_minute',
       aliasedName,
@@ -1607,7 +1634,7 @@ i1.GeneratedColumn<int> _column_73(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_74(String aliasedName) =>
+i1.GeneratedColumn<int> _column_71(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'end_hour',
       aliasedName,
@@ -1615,7 +1642,7 @@ i1.GeneratedColumn<int> _column_74(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_75(String aliasedName) =>
+i1.GeneratedColumn<int> _column_72(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'end_minute',
       aliasedName,
@@ -1642,7 +1669,7 @@ class Shape21 extends i0.VersionedTable {
       columnsByName['status']! as i1.GeneratedColumn<String>;
 }
 
-i1.GeneratedColumn<int> _column_76(String aliasedName) =>
+i1.GeneratedColumn<int> _column_73(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'course',
       aliasedName,
@@ -1650,7 +1677,7 @@ i1.GeneratedColumn<int> _column_76(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL REFERENCES courses(id)',
     );
-i1.GeneratedColumn<int> _column_77(String aliasedName) =>
+i1.GeneratedColumn<int> _column_74(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'course_offering',
       aliasedName,
@@ -1659,7 +1686,7 @@ i1.GeneratedColumn<int> _column_77(String aliasedName) =>
       $customConstraints:
           'NULL REFERENCES course_offerings(id)ON DELETE SET NULL',
     );
-i1.GeneratedColumn<int> _column_78(String aliasedName) =>
+i1.GeneratedColumn<int> _column_75(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'score',
       aliasedName,
@@ -1698,7 +1725,7 @@ class Shape22 extends i0.VersionedTable {
       columnsByName['graduated']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<double> _column_79(String aliasedName) =>
+i1.GeneratedColumn<double> _column_76(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'average',
       aliasedName,
@@ -1706,7 +1733,7 @@ i1.GeneratedColumn<double> _column_79(String aliasedName) =>
       type: i1.DriftSqlType.double,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<double> _column_80(String aliasedName) =>
+i1.GeneratedColumn<double> _column_77(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'conduct',
       aliasedName,
@@ -1714,7 +1741,7 @@ i1.GeneratedColumn<double> _column_80(String aliasedName) =>
       type: i1.DriftSqlType.double,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<double> _column_81(String aliasedName) =>
+i1.GeneratedColumn<double> _column_78(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'total_credits',
       aliasedName,
@@ -1722,7 +1749,7 @@ i1.GeneratedColumn<double> _column_81(String aliasedName) =>
       type: i1.DriftSqlType.double,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<double> _column_82(String aliasedName) =>
+i1.GeneratedColumn<double> _column_79(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'credits_passed',
       aliasedName,
@@ -1730,7 +1757,7 @@ i1.GeneratedColumn<double> _column_82(String aliasedName) =>
       type: i1.DriftSqlType.double,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<String> _column_83(String aliasedName) =>
+i1.GeneratedColumn<String> _column_80(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'note',
       aliasedName,
@@ -1738,7 +1765,7 @@ i1.GeneratedColumn<String> _column_83(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<double> _column_84(String aliasedName) =>
+i1.GeneratedColumn<double> _column_81(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'gpa',
       aliasedName,
@@ -1746,7 +1773,7 @@ i1.GeneratedColumn<double> _column_84(String aliasedName) =>
       type: i1.DriftSqlType.double,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<String> _column_85(String aliasedName) =>
+i1.GeneratedColumn<String> _column_82(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'class_name',
       aliasedName,
@@ -1754,7 +1781,7 @@ i1.GeneratedColumn<String> _column_85(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<String> _column_86(String aliasedName) =>
+i1.GeneratedColumn<String> _column_83(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'enrollment_status',
       aliasedName,
@@ -1762,7 +1789,7 @@ i1.GeneratedColumn<String> _column_86(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<int> _column_87(String aliasedName) =>
+i1.GeneratedColumn<int> _column_84(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'registered',
       aliasedName,
@@ -1770,7 +1797,7 @@ i1.GeneratedColumn<int> _column_87(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NULL CHECK (registered IN (0, 1))',
     );
-i1.GeneratedColumn<int> _column_88(String aliasedName) =>
+i1.GeneratedColumn<int> _column_85(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'graduated',
       aliasedName,
@@ -1787,7 +1814,7 @@ class Shape23 extends i0.VersionedTable {
       columnsByName['teacher_semester']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<int> _column_89(String aliasedName) =>
+i1.GeneratedColumn<int> _column_86(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'summary',
       aliasedName,
@@ -1807,7 +1834,7 @@ class Shape24 extends i0.VersionedTable {
       columnsByName['role']! as i1.GeneratedColumn<String>;
 }
 
-i1.GeneratedColumn<String> _column_90(String aliasedName) =>
+i1.GeneratedColumn<String> _column_87(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'role',
       aliasedName,
@@ -1832,7 +1859,7 @@ class Shape25 extends i0.VersionedTable {
       columnsByName['grand_total_total']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<String> _column_91(String aliasedName) =>
+i1.GeneratedColumn<String> _column_88(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'ranking_type',
       aliasedName,
@@ -1840,7 +1867,7 @@ i1.GeneratedColumn<String> _column_91(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_92(String aliasedName) =>
+i1.GeneratedColumn<int> _column_89(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'semester_rank',
       aliasedName,
@@ -1848,7 +1875,7 @@ i1.GeneratedColumn<int> _column_92(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_93(String aliasedName) =>
+i1.GeneratedColumn<int> _column_90(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'semester_total',
       aliasedName,
@@ -1856,7 +1883,7 @@ i1.GeneratedColumn<int> _column_93(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_94(String aliasedName) =>
+i1.GeneratedColumn<int> _column_91(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'grand_total_rank',
       aliasedName,
@@ -1864,7 +1891,7 @@ i1.GeneratedColumn<int> _column_94(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_95(String aliasedName) =>
+i1.GeneratedColumn<int> _column_92(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'grand_total_total',
       aliasedName,
@@ -1897,7 +1924,7 @@ class Shape26 extends i0.VersionedTable {
       columnsByName['creator_name']! as i1.GeneratedColumn<String>;
 }
 
-i1.GeneratedColumn<int> _column_96(String aliasedName) =>
+i1.GeneratedColumn<int> _column_93(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'portal_id',
       aliasedName,
@@ -1905,7 +1932,7 @@ i1.GeneratedColumn<int> _column_96(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL UNIQUE',
     );
-i1.GeneratedColumn<int> _column_97(String aliasedName) =>
+i1.GeneratedColumn<int> _column_94(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'start',
       aliasedName,
@@ -1913,7 +1940,7 @@ i1.GeneratedColumn<int> _column_97(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_98(String aliasedName) =>
+i1.GeneratedColumn<int> _column_95(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'end',
       aliasedName,
@@ -1921,7 +1948,7 @@ i1.GeneratedColumn<int> _column_98(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_99(String aliasedName) =>
+i1.GeneratedColumn<int> _column_96(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'all_day',
       aliasedName,
@@ -1930,7 +1957,7 @@ i1.GeneratedColumn<int> _column_99(String aliasedName) =>
       $customConstraints: 'NOT NULL DEFAULT 0 CHECK (all_day IN (0, 1))',
       defaultValue: const i1.CustomExpression('0'),
     );
-i1.GeneratedColumn<String> _column_100(String aliasedName) =>
+i1.GeneratedColumn<String> _column_97(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'place',
       aliasedName,
@@ -1938,7 +1965,7 @@ i1.GeneratedColumn<String> _column_100(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<String> _column_101(String aliasedName) =>
+i1.GeneratedColumn<String> _column_98(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'owner_name',
       aliasedName,
@@ -1946,7 +1973,7 @@ i1.GeneratedColumn<String> _column_101(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NULL',
     );
-i1.GeneratedColumn<String> _column_102(String aliasedName) =>
+i1.GeneratedColumn<String> _column_99(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'creator_name',
       aliasedName,
@@ -1955,8 +1982,158 @@ i1.GeneratedColumn<String> _column_102(String aliasedName) =>
       $customConstraints: 'NULL',
     );
 
-class Shape27 extends i0.VersionedView {
+class Shape27 extends i0.VersionedTable {
   Shape27({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get code =>
+      columnsByName['code']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get name =>
+      columnsByName['name']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get geometry =>
+      columnsByName['geometry']! as i1.GeneratedColumn<String>;
+}
+
+i1.GeneratedColumn<String> _column_100(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'name',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _column_101(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'geometry',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+
+class Shape28 extends i0.VersionedTable {
+  Shape28({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get layerName =>
+      columnsByName['layer_name']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get building =>
+      columnsByName['building']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get code =>
+      columnsByName['code']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get fetchedAt =>
+      columnsByName['fetched_at']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<String> _column_102(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'layer_name',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _column_103(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'building',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints:
+          'NOT NULL REFERENCES campus_map_buildings(code)ON DELETE CASCADE',
+    );
+
+class Shape29 extends i0.VersionedTable {
+  Shape29({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get layerName =>
+      columnsByName['layer_name']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get nameZh =>
+      columnsByName['name_zh']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get nameEn =>
+      columnsByName['name_en']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get number =>
+      columnsByName['number']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get geometry =>
+      columnsByName['geometry']! as i1.GeneratedColumn<String>;
+}
+
+i1.GeneratedColumn<String> _column_104(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'id',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _column_105(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'layer_name',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints:
+          'NOT NULL REFERENCES campus_map_floors(layer_name)ON DELETE CASCADE',
+    );
+i1.GeneratedColumn<String> _column_106(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'name_en',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _column_107(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'number',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _column_108(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'geometry',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NULL',
+    );
+
+class Shape30 extends i0.VersionedTable {
+  Shape30({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get namespace =>
+      columnsByName['namespace']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get catalogFetchedAt =>
+      columnsByName['catalog_fetched_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get indexFetchedAt =>
+      columnsByName['index_fetched_at']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<String> _column_109(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'namespace',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<int> _column_110(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'catalog_fetched_at',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _column_111(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'index_fetched_at',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+
+class Shape31 extends i0.VersionedView {
+  Shape31({required super.source, required super.alias}) : super.aliased();
   i1.GeneratedColumn<int> get id =>
       columnsByName['id']! as i1.GeneratedColumn<int>;
   i1.GeneratedColumn<String> get courseCode =>
@@ -1991,112 +2168,112 @@ class Shape27 extends i0.VersionedView {
       columnsByName['fetched_at']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<int> _column_103(String aliasedName) =>
+i1.GeneratedColumn<int> _column_112(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'id',
       aliasedName,
       false,
       type: i1.DriftSqlType.int,
     );
-i1.GeneratedColumn<String> _column_104(String aliasedName) =>
+i1.GeneratedColumn<String> _column_113(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'course_code',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,
     );
-i1.GeneratedColumn<int> _column_105(String aliasedName) =>
+i1.GeneratedColumn<int> _column_114(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'semester',
       aliasedName,
       false,
       type: i1.DriftSqlType.int,
     );
-i1.GeneratedColumn<String> _column_106(String aliasedName) =>
+i1.GeneratedColumn<String> _column_115(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'number',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,
     );
-i1.GeneratedColumn<String> _column_107(String aliasedName) =>
+i1.GeneratedColumn<String> _column_116(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'name_zh',
       aliasedName,
       false,
       type: i1.DriftSqlType.string,
     );
-i1.GeneratedColumn<String> _column_108(String aliasedName) =>
+i1.GeneratedColumn<String> _column_117(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'name_en',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,
     );
-i1.GeneratedColumn<double> _column_109(String aliasedName) =>
+i1.GeneratedColumn<double> _column_118(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'credits',
       aliasedName,
       true,
       type: i1.DriftSqlType.double,
     );
-i1.GeneratedColumn<int> _column_110(String aliasedName) =>
+i1.GeneratedColumn<int> _column_119(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'hours',
       aliasedName,
       true,
       type: i1.DriftSqlType.int,
     );
-i1.GeneratedColumn<int> _column_111(String aliasedName) =>
+i1.GeneratedColumn<int> _column_120(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'phase',
       aliasedName,
       true,
       type: i1.DriftSqlType.int,
     );
-i1.GeneratedColumn<String> _column_112(String aliasedName) =>
+i1.GeneratedColumn<String> _column_121(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'course_type',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,
     );
-i1.GeneratedColumn<String> _column_113(String aliasedName) =>
+i1.GeneratedColumn<String> _column_122(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'status',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,
     );
-i1.GeneratedColumn<String> _column_114(String aliasedName) =>
+i1.GeneratedColumn<String> _column_123(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'language',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,
     );
-i1.GeneratedColumn<String> _column_115(String aliasedName) =>
+i1.GeneratedColumn<String> _column_124(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'remarks',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,
     );
-i1.GeneratedColumn<int> _column_116(String aliasedName) =>
+i1.GeneratedColumn<int> _column_125(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'enrolled',
       aliasedName,
       true,
       type: i1.DriftSqlType.int,
     );
-i1.GeneratedColumn<int> _column_117(String aliasedName) =>
+i1.GeneratedColumn<int> _column_126(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'withdrawn',
       aliasedName,
       true,
       type: i1.DriftSqlType.int,
     );
-i1.GeneratedColumn<int> _column_118(String aliasedName) =>
+i1.GeneratedColumn<int> _column_127(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'fetched_at',
       aliasedName,
@@ -2104,8 +2281,8 @@ i1.GeneratedColumn<int> _column_118(String aliasedName) =>
       type: i1.DriftSqlType.int,
     );
 
-class Shape28 extends i0.VersionedView {
-  Shape28({required super.source, required super.alias}) : super.aliased();
+class Shape32 extends i0.VersionedView {
+  Shape32({required super.source, required super.alias}) : super.aliased();
   i1.GeneratedColumn<int> get id =>
       columnsByName['id']! as i1.GeneratedColumn<int>;
   i1.GeneratedColumn<String> get number =>
@@ -2130,28 +2307,28 @@ class Shape28 extends i0.VersionedView {
       columnsByName['classroom_name_en']! as i1.GeneratedColumn<String>;
 }
 
-i1.GeneratedColumn<int> _column_119(String aliasedName) =>
+i1.GeneratedColumn<int> _column_128(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'day_of_week',
       aliasedName,
       false,
       type: i1.DriftSqlType.int,
     );
-i1.GeneratedColumn<int> _column_120(String aliasedName) =>
+i1.GeneratedColumn<int> _column_129(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'period',
       aliasedName,
       false,
       type: i1.DriftSqlType.int,
     );
-i1.GeneratedColumn<String> _column_121(String aliasedName) =>
+i1.GeneratedColumn<String> _column_130(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'classroom_name_zh',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,
     );
-i1.GeneratedColumn<String> _column_122(String aliasedName) =>
+i1.GeneratedColumn<String> _column_131(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'classroom_name_en',
       aliasedName,
@@ -2159,8 +2336,8 @@ i1.GeneratedColumn<String> _column_122(String aliasedName) =>
       type: i1.DriftSqlType.string,
     );
 
-class Shape29 extends i0.VersionedView {
-  Shape29({required super.source, required super.alias}) : super.aliased();
+class Shape33 extends i0.VersionedView {
+  Shape33({required super.source, required super.alias}) : super.aliased();
   i1.GeneratedColumn<int> get id =>
       columnsByName['id']! as i1.GeneratedColumn<int>;
   i1.GeneratedColumn<int> get user =>
@@ -2181,21 +2358,21 @@ class Shape29 extends i0.VersionedView {
       columnsByName['number']! as i1.GeneratedColumn<String>;
 }
 
-i1.GeneratedColumn<int> _column_123(String aliasedName) =>
+i1.GeneratedColumn<int> _column_132(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'user',
       aliasedName,
       false,
       type: i1.DriftSqlType.int,
     );
-i1.GeneratedColumn<int> _column_124(String aliasedName) =>
+i1.GeneratedColumn<int> _column_133(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'score',
       aliasedName,
       true,
       type: i1.DriftSqlType.int,
     );
-i1.GeneratedColumn<String> _column_125(String aliasedName) =>
+i1.GeneratedColumn<String> _column_134(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'code',
       aliasedName,
@@ -2203,8 +2380,8 @@ i1.GeneratedColumn<String> _column_125(String aliasedName) =>
       type: i1.DriftSqlType.string,
     );
 
-class Shape30 extends i0.VersionedView {
-  Shape30({required super.source, required super.alias}) : super.aliased();
+class Shape34 extends i0.VersionedView {
+  Shape34({required super.source, required super.alias}) : super.aliased();
   i1.GeneratedColumn<int> get id =>
       columnsByName['id']! as i1.GeneratedColumn<int>;
   i1.GeneratedColumn<int> get user =>
@@ -2229,56 +2406,56 @@ class Shape30 extends i0.VersionedView {
       columnsByName['gpa']! as i1.GeneratedColumn<double>;
 }
 
-i1.GeneratedColumn<int> _column_126(String aliasedName) =>
+i1.GeneratedColumn<int> _column_135(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'year',
       aliasedName,
       false,
       type: i1.DriftSqlType.int,
     );
-i1.GeneratedColumn<int> _column_127(String aliasedName) =>
+i1.GeneratedColumn<int> _column_136(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'term',
       aliasedName,
       false,
       type: i1.DriftSqlType.int,
     );
-i1.GeneratedColumn<double> _column_128(String aliasedName) =>
+i1.GeneratedColumn<double> _column_137(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'average',
       aliasedName,
       true,
       type: i1.DriftSqlType.double,
     );
-i1.GeneratedColumn<double> _column_129(String aliasedName) =>
+i1.GeneratedColumn<double> _column_138(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'conduct',
       aliasedName,
       true,
       type: i1.DriftSqlType.double,
     );
-i1.GeneratedColumn<double> _column_130(String aliasedName) =>
+i1.GeneratedColumn<double> _column_139(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'total_credits',
       aliasedName,
       true,
       type: i1.DriftSqlType.double,
     );
-i1.GeneratedColumn<double> _column_131(String aliasedName) =>
+i1.GeneratedColumn<double> _column_140(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'credits_passed',
       aliasedName,
       true,
       type: i1.DriftSqlType.double,
     );
-i1.GeneratedColumn<String> _column_132(String aliasedName) =>
+i1.GeneratedColumn<String> _column_141(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'note',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,
     );
-i1.GeneratedColumn<double> _column_133(String aliasedName) =>
+i1.GeneratedColumn<double> _column_142(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'gpa',
       aliasedName,
@@ -2286,8 +2463,8 @@ i1.GeneratedColumn<double> _column_133(String aliasedName) =>
       type: i1.DriftSqlType.double,
     );
 
-class Shape31 extends i0.VersionedView {
-  Shape31({required super.source, required super.alias}) : super.aliased();
+class Shape35 extends i0.VersionedView {
+  Shape35({required super.source, required super.alias}) : super.aliased();
   i1.GeneratedColumn<int> get year =>
       columnsByName['year']! as i1.GeneratedColumn<int>;
   i1.GeneratedColumn<int> get term =>
@@ -2300,29 +2477,813 @@ class Shape31 extends i0.VersionedView {
       columnsByName['graduated']! as i1.GeneratedColumn<int>;
 }
 
-i1.GeneratedColumn<String> _column_134(String aliasedName) =>
+i1.GeneratedColumn<String> _column_143(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'class_name',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,
     );
-i1.GeneratedColumn<String> _column_135(String aliasedName) =>
+i1.GeneratedColumn<String> _column_144(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'enrollment_status',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,
     );
-i1.GeneratedColumn<int> _column_136(String aliasedName) =>
+i1.GeneratedColumn<int> _column_145(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'graduated',
       aliasedName,
       true,
       type: i1.DriftSqlType.int,
     );
+
+final class Schema3 extends i0.VersionedSchema {
+  Schema3({required super.database}) : super(version: 3);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    users,
+    portalApplicationCategories,
+    portalApplications,
+    portalApplicationFavorites,
+    students,
+    semesters,
+    courses,
+    departments,
+    teachers,
+    classes,
+    classrooms,
+    courseOfferings,
+    teacherSemesters,
+    courseOfferingTeachers,
+    courseOfferingClasses,
+    courseOfferingStudents,
+    schedules,
+    syllabuses,
+    syllabusSections,
+    materials,
+    teacherOfficeHours,
+    scores,
+    userSemesterSummaries,
+    userSemesterSummaryTutors,
+    userSemesterSummaryCadreRoles,
+    userSemesterRankings,
+    calendarEvents,
+    campusMapBuildings,
+    campusMapFloors,
+    campusMapRooms,
+    campusMapSyncs,
+    courseOfferingOverviews,
+    courseTableSlots,
+    scoreDetails,
+    userAcademicSummaries,
+    userRegistrations,
+    classSemester,
+    courseOfferingCourseCode,
+    courseOfferingSemester,
+    scheduleCourseOffering,
+    materialCourseOffering,
+    teacherSemesterSemester,
+    teacherOfficeHourTeacherSemester,
+    scoreUser,
+    userSemesterSummaryUser,
+    campusMapFloorBuilding,
+    campusMapRoomLayer,
+  ];
+  late final Shape0 users = Shape0(
+    source: i0.VersionedTable(
+      entityName: 'users',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_13,
+        _column_14,
+        _column_15,
+        _column_16,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape1 portalApplicationCategories = Shape1(
+    source: i0.VersionedTable(
+      entityName: 'portal_application_categories',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['UNIQUE(user, distinguished_name)'],
+      columns: [
+        _column_0,
+        _column_17,
+        _column_18,
+        _column_3,
+        _column_4,
+        _column_19,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 portalApplications = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'portal_applications',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['UNIQUE(category, code)'],
+      columns: [
+        _column_0,
+        _column_20,
+        _column_21,
+        _column_3,
+        _column_4,
+        _column_22,
+        _column_19,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape3 portalApplicationFavorites = Shape3(
+    source: i0.VersionedTable(
+      entityName: 'portal_application_favorites',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(user, application_code)'],
+      columns: [_column_17, _column_23],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape4 students = Shape4(
+    source: i0.VersionedTable(
+      entityName: 'students',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [_column_0, _column_2, _column_24],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape5 semesters = Shape5(
+    source: i0.VersionedTable(
+      entityName: 'semesters',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['UNIQUE(year, term)'],
+      columns: [
+        _column_0,
+        _column_25,
+        _column_26,
+        _column_27,
+        _column_28,
+        _column_29,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape6 courses = Shape6(
+    source: i0.VersionedTable(
+      entityName: 'courses',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_30,
+        _column_31,
+        _column_32,
+        _column_3,
+        _column_4,
+        _column_33,
+        _column_34,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape7 departments = Shape7(
+    source: i0.VersionedTable(
+      entityName: 'departments',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [_column_0, _column_1, _column_30, _column_3],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape8 teachers = Shape8(
+    source: i0.VersionedTable(
+      entityName: 'teachers',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [_column_0, _column_30, _column_3, _column_4],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape9 classes = Shape9(
+    source: i0.VersionedTable(
+      entityName: 'classes',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['UNIQUE(code, semester)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_21,
+        _column_35,
+        _column_3,
+        _column_4,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape10 classrooms = Shape10(
+    source: i0.VersionedTable(
+      entityName: 'classrooms',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [_column_0, _column_1, _column_30, _column_3, _column_4],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape36 courseOfferings = Shape36(
+    source: i0.VersionedTable(
+      entityName: 'course_offerings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_36,
+        _column_35,
+        _column_37,
+        _column_3,
+        _column_4,
+        _column_38,
+        _column_39,
+        _column_40,
+        _column_41,
+        _column_42,
+        _column_43,
+        _column_44,
+        _column_45,
+        _column_46,
+        _column_47,
+        _column_48,
+        _column_146,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape12 teacherSemesters = Shape12(
+    source: i0.VersionedTable(
+      entityName: 'teacher_semesters',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['UNIQUE(teacher, semester)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_49,
+        _column_35,
+        _column_50,
+        _column_51,
+        _column_52,
+        _column_53,
+        _column_54,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape13 courseOfferingTeachers = Shape13(
+    source: i0.VersionedTable(
+      entityName: 'course_offering_teachers',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(course_offering, teacher_semester)'],
+      columns: [_column_55, _column_56],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape14 courseOfferingClasses = Shape14(
+    source: i0.VersionedTable(
+      entityName: 'course_offering_classes',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(course_offering, class_entity)'],
+      columns: [_column_55, _column_57],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape15 courseOfferingStudents = Shape15(
+    source: i0.VersionedTable(
+      entityName: 'course_offering_students',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(course_offering, student)'],
+      columns: [_column_55, _column_58],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape16 schedules = Shape16(
+    source: i0.VersionedTable(
+      entityName: 'schedules',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['UNIQUE(course_offering, day_of_week, period)'],
+      columns: [_column_0, _column_55, _column_59, _column_60, _column_61],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape17 syllabuses = Shape17(
+    source: i0.VersionedTable(
+      entityName: 'syllabuses',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['UNIQUE(course_offering, teacher, language)'],
+      columns: [
+        _column_0,
+        _column_55,
+        _column_49,
+        _column_62,
+        _column_63,
+        _column_64,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape18 syllabusSections = Shape18(
+    source: i0.VersionedTable(
+      entityName: 'syllabus_sections',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['UNIQUE(syllabus, position)'],
+      columns: [_column_0, _column_65, _column_66, _column_67, _column_19],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape37 materials = Shape37(
+    source: i0.VersionedTable(
+      entityName: 'materials',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['UNIQUE(course_offering, href)'],
+      columns: [
+        _column_0,
+        _column_55,
+        _column_52,
+        _column_68,
+        _column_147,
+        _column_148,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape20 teacherOfficeHours = Shape20(
+    source: i0.VersionedTable(
+      entityName: 'teacher_office_hours',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'UNIQUE(teacher_semester, day_of_week, start_hour, start_minute)',
+      ],
+      columns: [
+        _column_0,
+        _column_56,
+        _column_59,
+        _column_69,
+        _column_70,
+        _column_71,
+        _column_72,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape21 scores = Shape21(
+    source: i0.VersionedTable(
+      entityName: 'scores',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_17,
+        _column_35,
+        _column_73,
+        _column_74,
+        _column_75,
+        _column_42,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape22 userSemesterSummaries = Shape22(
+    source: i0.VersionedTable(
+      entityName: 'user_semester_summaries',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['UNIQUE(user, semester)'],
+      columns: [
+        _column_0,
+        _column_17,
+        _column_35,
+        _column_76,
+        _column_77,
+        _column_78,
+        _column_79,
+        _column_80,
+        _column_81,
+        _column_82,
+        _column_83,
+        _column_84,
+        _column_85,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape23 userSemesterSummaryTutors = Shape23(
+    source: i0.VersionedTable(
+      entityName: 'user_semester_summary_tutors',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(summary, teacher_semester)'],
+      columns: [_column_86, _column_56],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape24 userSemesterSummaryCadreRoles = Shape24(
+    source: i0.VersionedTable(
+      entityName: 'user_semester_summary_cadre_roles',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['UNIQUE(summary, role)'],
+      columns: [_column_0, _column_86, _column_87],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape25 userSemesterRankings = Shape25(
+    source: i0.VersionedTable(
+      entityName: 'user_semester_rankings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(summary, ranking_type)'],
+      columns: [
+        _column_86,
+        _column_88,
+        _column_89,
+        _column_90,
+        _column_91,
+        _column_92,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape26 calendarEvents = Shape26(
+    source: i0.VersionedTable(
+      entityName: 'calendar_events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_93,
+        _column_94,
+        _column_95,
+        _column_96,
+        _column_52,
+        _column_97,
+        _column_67,
+        _column_98,
+        _column_99,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape27 campusMapBuildings = Shape27(
+    source: i0.VersionedTable(
+      entityName: 'campus_map_buildings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(code)'],
+      columns: [_column_21, _column_100, _column_101],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape28 campusMapFloors = Shape28(
+    source: i0.VersionedTable(
+      entityName: 'campus_map_floors',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(layer_name)'],
+      columns: [_column_102, _column_103, _column_21, _column_1],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape29 campusMapRooms = Shape29(
+    source: i0.VersionedTable(
+      entityName: 'campus_map_rooms',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_104,
+        _column_105,
+        _column_3,
+        _column_106,
+        _column_107,
+        _column_108,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape30 campusMapSyncs = Shape30(
+    source: i0.VersionedTable(
+      entityName: 'campus_map_syncs',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(namespace)'],
+      columns: [_column_109, _column_110, _column_111],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape31 courseOfferingOverviews = Shape31(
+    source: i0.VersionedView(
+      entityName: 'course_offering_overviews',
+      createViewStmt: 'CREATE VIEW IF NOT EXISTS course_offering_overviews (id,course_code,semester,number,name_zh,name_en,credits,hours,phase,course_type,status,language,remarks,enrolled,withdrawn,fetched_at) AS SELECT t0.id AS id, t0.course_code AS course_code, t0.semester AS semester, t0.number AS number, COALESCE(t0.name_zh, t1.name_zh) AS name_zh, COALESCE(t0.name_en, t1.name_en) AS name_en, COALESCE(t0.credits, t1.credits) AS credits, COALESCE(t0.hours, t1.hours) AS hours, t0.phase AS phase, t0.course_type AS course_type, t0.status AS status, t0.language AS language, t0.remarks AS remarks, t0.enrolled AS enrolled, t0.withdrawn AS withdrawn, t0.fetched_at AS fetched_at FROM course_offerings AS t0 LEFT OUTER JOIN courses AS t1 ON t1.code = t0.course_code;',
+      columns: [
+        _column_112,
+        _column_113,
+        _column_114,
+        _column_115,
+        _column_116,
+        _column_117,
+        _column_118,
+        _column_119,
+        _column_120,
+        _column_121,
+        _column_122,
+        _column_123,
+        _column_124,
+        _column_125,
+        _column_126,
+        _column_127,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape32 courseTableSlots = Shape32(
+    source: i0.VersionedView(
+      entityName: 'course_table_slots',
+      createViewStmt: 'CREATE VIEW IF NOT EXISTS course_table_slots (id,number,semester,name_zh,name_en,credits,hours,day_of_week,period,classroom_name_zh,classroom_name_en) AS SELECT t1.id AS id, t1.number AS number, t1.semester AS semester, COALESCE(t1.name_zh, t2.name_zh) AS name_zh, COALESCE(t1.name_en, t2.name_en) AS name_en, COALESCE(t1.credits, t2.credits) AS credits, COALESCE(t1.hours, t2.hours) AS hours, t0.day_of_week AS day_of_week, t0.period AS period, t3.name_zh AS classroom_name_zh, t3.name_en AS classroom_name_en FROM schedules AS t0 INNER JOIN course_offerings AS t1 ON t1.id = t0.course_offering LEFT OUTER JOIN courses AS t2 ON t2.code = t1.course_code LEFT OUTER JOIN classrooms AS t3 ON t3.id = t0.classroom WHERE t1.in_course_table = 1;',
+      columns: [
+        _column_112,
+        _column_115,
+        _column_114,
+        _column_116,
+        _column_117,
+        _column_118,
+        _column_119,
+        _column_128,
+        _column_129,
+        _column_130,
+        _column_131,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape33 scoreDetails = Shape33(
+    source: i0.VersionedView(
+      entityName: 'score_details',
+      createViewStmt: 'CREATE VIEW IF NOT EXISTS score_details (id,user,semester,score,status,code,name_zh,name_en,number) AS SELECT t0.id AS id, t0.user AS user, t0.semester AS semester, t0.score AS score, t0.status AS status, t1.code AS code, COALESCE(t2.name_zh, t1.name_zh) AS name_zh, COALESCE(t2.name_en, t1.name_en) AS name_en, t2.number AS number FROM scores AS t0 INNER JOIN courses AS t1 ON t1.id = t0.course LEFT OUTER JOIN course_offerings AS t2 ON t2.id = t0.course_offering;',
+      columns: [
+        _column_112,
+        _column_132,
+        _column_114,
+        _column_133,
+        _column_122,
+        _column_134,
+        _column_116,
+        _column_117,
+        _column_115,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape34 userAcademicSummaries = Shape34(
+    source: i0.VersionedView(
+      entityName: 'user_academic_summaries',
+      createViewStmt: 'CREATE VIEW IF NOT EXISTS user_academic_summaries (id,user,semester,year,term,average,conduct,total_credits,credits_passed,note,gpa) AS SELECT t0.id AS id, t0.user AS user, t0.semester AS semester, t1.year AS year, t1.term AS term, t0.average AS average, t0.conduct AS conduct, t0.total_credits AS total_credits, t0.credits_passed AS credits_passed, t0.note AS note, t0.gpa AS gpa FROM user_semester_summaries AS t0 INNER JOIN semesters AS t1 ON t1.id = t0.semester;',
+      columns: [
+        _column_112,
+        _column_132,
+        _column_114,
+        _column_135,
+        _column_136,
+        _column_137,
+        _column_138,
+        _column_139,
+        _column_140,
+        _column_141,
+        _column_142,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape35 userRegistrations = Shape35(
+    source: i0.VersionedView(
+      entityName: 'user_registrations',
+      createViewStmt: 'CREATE VIEW IF NOT EXISTS user_registrations (year,term,class_name,enrollment_status,graduated) AS SELECT t1.year AS year, t1.term AS term, t0.class_name AS class_name, t0.enrollment_status AS enrollment_status, t0.graduated AS graduated FROM user_semester_summaries AS t0 INNER JOIN semesters AS t1 ON t1.id = t0.semester;',
+      columns: [
+        _column_135,
+        _column_136,
+        _column_143,
+        _column_144,
+        _column_145,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  final i1.Index classSemester = i1.Index(
+    'class_semester',
+    'CREATE INDEX class_semester ON classes (semester)',
+  );
+  final i1.Index courseOfferingCourseCode = i1.Index(
+    'course_offering_course_code',
+    'CREATE INDEX course_offering_course_code ON course_offerings (course_code)',
+  );
+  final i1.Index courseOfferingSemester = i1.Index(
+    'course_offering_semester',
+    'CREATE INDEX course_offering_semester ON course_offerings (semester)',
+  );
+  final i1.Index scheduleCourseOffering = i1.Index(
+    'schedule_course_offering',
+    'CREATE INDEX schedule_course_offering ON schedules (course_offering)',
+  );
+  final i1.Index materialCourseOffering = i1.Index(
+    'material_course_offering',
+    'CREATE INDEX material_course_offering ON materials (course_offering)',
+  );
+  final i1.Index teacherSemesterSemester = i1.Index(
+    'teacher_semester_semester',
+    'CREATE INDEX teacher_semester_semester ON teacher_semesters (semester)',
+  );
+  final i1.Index teacherOfficeHourTeacherSemester = i1.Index(
+    'teacher_office_hour_teacher_semester',
+    'CREATE INDEX teacher_office_hour_teacher_semester ON teacher_office_hours (teacher_semester)',
+  );
+  final i1.Index scoreUser = i1.Index(
+    'score_user',
+    'CREATE INDEX score_user ON scores (user)',
+  );
+  final i1.Index userSemesterSummaryUser = i1.Index(
+    'user_semester_summary_user',
+    'CREATE INDEX user_semester_summary_user ON user_semester_summaries (user)',
+  );
+  final i1.Index campusMapFloorBuilding = i1.Index(
+    'campus_map_floor_building',
+    'CREATE INDEX campus_map_floor_building ON campus_map_floors (building)',
+  );
+  final i1.Index campusMapRoomLayer = i1.Index(
+    'campus_map_room_layer',
+    'CREATE INDEX campus_map_room_layer ON campus_map_rooms (layer_name)',
+  );
+}
+
+class Shape36 extends i0.VersionedTable {
+  Shape36({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<int> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get fetchedAt =>
+      columnsByName['fetched_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get courseCode =>
+      columnsByName['course_code']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get semester =>
+      columnsByName['semester']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get number =>
+      columnsByName['number']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get nameZh =>
+      columnsByName['name_zh']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get nameEn =>
+      columnsByName['name_en']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<double> get credits =>
+      columnsByName['credits']! as i1.GeneratedColumn<double>;
+  i1.GeneratedColumn<int> get hours =>
+      columnsByName['hours']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get phase =>
+      columnsByName['phase']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get courseType =>
+      columnsByName['course_type']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get status =>
+      columnsByName['status']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get language =>
+      columnsByName['language']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get remarks =>
+      columnsByName['remarks']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get inCourseTable =>
+      columnsByName['in_course_table']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get enrolled =>
+      columnsByName['enrolled']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get withdrawn =>
+      columnsByName['withdrawn']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get studentRosterFetchedAt =>
+      columnsByName['student_roster_fetched_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get materialsFetchedAt =>
+      columnsByName['materials_fetched_at']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<int> _column_146(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'materials_fetched_at',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+
+class Shape37 extends i0.VersionedTable {
+  Shape37({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<int> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get courseOffering =>
+      columnsByName['course_offering']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get title =>
+      columnsByName['title']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get href =>
+      columnsByName['href']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get iSchoolCourseId =>
+      columnsByName['i_school_course_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get streamable =>
+      columnsByName['streamable']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<String> _column_147(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'i_school_course_id',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _column_148(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'streamable',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL CHECK (streamable IN (0, 1))',
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
+  required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -2331,6 +3292,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from1To2(migrator, schema);
         return 2;
+      case 2:
+        final schema = Schema3(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from2To3(migrator, schema);
+        return 3;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -2339,6 +3305,7 @@ i0.MigrationStepWithVersion migrationSteps({
 
 i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
+  required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
 }) => i0.VersionedSchema.stepByStepHelper(
-  step: migrationSteps(from1To2: from1To2),
+  step: migrationSteps(from1To2: from1To2, from2To3: from2To3),
 );

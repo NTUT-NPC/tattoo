@@ -1,10 +1,12 @@
 import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/database/database.dart';
 
 import 'generated/schema.dart';
 import 'generated/schema_v1.dart' as v1;
+import 'generated/schema_v2.dart' as v2;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -14,54 +16,218 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  group('simple database migrations', () {
-    // These simple tests verify all possible schema updates with a simple (no
-    // data) migration. This is a quick way to ensure that written database
-    // migrations properly alter the schema.
-    const versions = GeneratedHelper.versions;
-    for (final (i, fromVersion) in versions.indexed) {
-      group('from $fromVersion', () {
-        for (final toVersion in versions.skip(i + 1)) {
-          test('to $toVersion', () async {
-            final schema = await verifier.schemaAt(fromVersion);
-            final db = AppDatabase(schema.newConnection());
-            await verifier.migrateAndValidate(db, toVersion);
-            await db.close();
-          });
+  for (final fromVersion in [1, 2]) {
+    test(
+      'v$fromVersion to v3 migration preserves login and cached data',
+      () async {
+        final schema = await verifier.schemaAt(fromVersion);
+        final oldDb = switch (fromVersion) {
+          1 => v1.DatabaseAtV1(schema.newConnection()),
+          _ => v2.DatabaseAtV2(schema.newConnection()),
+        };
+        await oldDb.customStatement(
+          "INSERT INTO users (student_id, name_zh, avatar_filename, email) "
+          "VALUES ('111000001', 'Student', '', 'student@example.com')",
+        );
+        await oldDb.customStatement(
+          'INSERT INTO semesters (id, year, term) VALUES (1, 114, 1)',
+        );
+        await oldDb.customStatement(
+          "INSERT INTO course_offerings "
+          "(id, semester, number, name_zh, student_roster_fetched_at) "
+          "VALUES (1, 1, '352902', 'Course', 1000)",
+        );
+        await oldDb.customStatement(
+          "INSERT INTO materials (course_offering, title, href) "
+          "VALUES (1, 'Notes', 'resource')",
+        );
+        if (fromVersion == 2) {
+          await oldDb.customStatement(
+            "INSERT INTO campus_map_buildings (code, name, geometry) "
+            """VALUES ('B', 'Building B', '[[[121.5,25.0]]]')""",
+          );
+          await oldDb.customStatement(
+            "INSERT INTO campus_map_floors (layer_name, building, code, fetched_at) "
+            "VALUES ('ntut:building_b_1f', 'B', '1F', 2000)",
+          );
+          await oldDb.customStatement(
+            "INSERT INTO campus_map_rooms "
+            "(id, layer_name, name_zh, name_en, number, geometry) "
+            """VALUES ('room-b', 'ntut:building_b_1f', '教室', 'Classroom', '201', '[[[121.5,25.0]]]')""",
+          );
+          await oldDb.customStatement(
+            "INSERT INTO campus_map_syncs "
+            "(namespace, catalog_fetched_at, index_fetched_at) "
+            "VALUES ('ntut', 3000, 4000)",
+          );
         }
-      });
-    }
-  });
 
-  test(
-    'v1 material migration preserves login and cached course data',
-    () async {
-      final schema = await verifier.schemaAt(1);
-      final oldDb = v1.DatabaseAtV1(schema.newConnection());
-      await oldDb.customStatement(
-        "INSERT INTO users (student_id, name_zh, avatar_filename, email) VALUES ('111000001', 'Student', '', 'student@example.com')",
-      );
-      await oldDb.customStatement(
-        'INSERT INTO semesters (id, year, term) VALUES (1, 114, 1)',
-      );
-      await oldDb.customStatement(
-        "INSERT INTO course_offerings (id, semester, number, name_zh, student_roster_fetched_at) VALUES (1, 1, '352902', 'Course', 1000)",
-      );
-      await oldDb.customStatement(
-        "INSERT INTO materials (course_offering, title, href) VALUES (1, 'Notes', 'resource')",
-      );
-      final db = AppDatabase(schema.newConnection());
-      addTearDown(db.close);
-      addTearDown(oldDb.close);
-      await verifier.migrateAndValidate(db, 2);
-      expect((await db.select(db.users).getSingle()).studentId, '111000001');
-      final offering = await db.select(db.courseOfferings).getSingle();
-      expect(offering.studentRosterFetchedAt, isNotNull);
-      expect(offering.materialsFetchedAt, isNull);
-      final material = await db.select(db.materials).getSingle();
-      expect(material.href, 'resource');
-      expect(material.iSchoolCourseId, isNull);
-      expect(material.streamable, isNull);
-    },
+        final db = AppDatabase(schema.newConnection());
+        addTearDown(db.close);
+        addTearDown(oldDb.close);
+        await verifier.migrateAndValidate(db, 3);
+
+        expect((await db.select(db.users).getSingle()).studentId, '111000001');
+        expect((await db.select(db.semesters).getSingle()).year, 114);
+        final offering = await db.select(db.courseOfferings).getSingle();
+        expect(offering.number, '352902');
+        expect(offering.studentRosterFetchedAt, isNotNull);
+        expect(offering.materialsFetchedAt, isNull);
+        final material = await db.select(db.materials).getSingle();
+        expect(material.href, 'resource');
+        expect(material.title, 'Notes');
+        expect(material.iSchoolCourseId, isNull);
+        expect(material.streamable, isNull);
+
+        if (fromVersion == 2) {
+          final building = await db.select(db.campusMapBuildings).getSingle();
+          expect(
+            (building.code, building.name, building.geometry),
+            ('B', 'Building B', '[[[121.5,25.0]]]'),
+          );
+          final floor = await db.select(db.campusMapFloors).getSingle();
+          expect(
+            (floor.layerName, floor.building, floor.code, floor.fetchedAt),
+            (
+              'ntut:building_b_1f',
+              'B',
+              '1F',
+              DateTime.fromMillisecondsSinceEpoch(2000000),
+            ),
+          );
+          final room = await db.select(db.campusMapRooms).getSingle();
+          expect(
+            (
+              room.id,
+              room.layerName,
+              room.nameZh,
+              room.nameEn,
+              room.number,
+              room.geometry,
+            ),
+            (
+              'room-b',
+              'ntut:building_b_1f',
+              '教室',
+              'Classroom',
+              '201',
+              '[[[121.5,25.0]]]',
+            ),
+          );
+          final sync = await db.select(db.campusMapSyncs).getSingle();
+          expect(
+            (sync.namespace, sync.catalogFetchedAt, sync.indexFetchedAt),
+            (
+              'ntut',
+              DateTime.fromMillisecondsSinceEpoch(3000000),
+              DateTime.fromMillisecondsSinceEpoch(4000000),
+            ),
+          );
+        }
+
+        await _expectMapSchema(db);
+        await _expectCascadeDeleteAndSync(db);
+      },
+    );
+  }
+
+  test('fresh v3 database validates and supports map rows', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await db.customSelect('SELECT 1').getSingle();
+    await db.validateDatabaseSchema();
+    await _expectMapSchema(db);
+    await _expectCascadeDeleteAndSync(db);
+  });
+}
+
+Future<void> _expectMapSchema(AppDatabase db) async {
+  final indexes = await db
+      .customSelect(
+        "SELECT name FROM sqlite_master "
+        "WHERE type = 'index' "
+        "AND name IN ('campus_map_floor_building', 'campus_map_room_layer')",
+      )
+      .get();
+  expect(
+    indexes.map((row) => row.read<String>('name')).toSet(),
+    {'campus_map_floor_building', 'campus_map_room_layer'},
+  );
+
+  final floorForeignKeys = await db
+      .customSelect(
+        "PRAGMA foreign_key_list('campus_map_floors')",
+      )
+      .get();
+  expect(
+    floorForeignKeys.any(
+      (row) =>
+          row.read<String>('table') == 'campus_map_buildings' &&
+          row.read<String>('on_delete').toUpperCase() == 'CASCADE',
+    ),
+    isTrue,
+  );
+  final roomForeignKeys = await db
+      .customSelect(
+        "PRAGMA foreign_key_list('campus_map_rooms')",
+      )
+      .get();
+  expect(
+    roomForeignKeys.any(
+      (row) =>
+          row.read<String>('table') == 'campus_map_floors' &&
+          row.read<String>('on_delete').toUpperCase() == 'CASCADE',
+    ),
+    isTrue,
+  );
+}
+
+Future<void> _expectCascadeDeleteAndSync(AppDatabase db) async {
+  await db.customStatement(
+    "INSERT INTO campus_map_buildings (code, name, geometry) "
+    "VALUES ('A', 'Building A', '[]')",
+  );
+  await db.customStatement(
+    "INSERT INTO campus_map_floors (layer_name, building, code) "
+    "VALUES ('ntut:building_a_1f', 'A', '1F')",
+  );
+  await db.customStatement(
+    "INSERT INTO campus_map_rooms (id, layer_name, name_zh, name_en, number) "
+    "VALUES ('ntut:building_a_1f.1', 'ntut:building_a_1f', '教室', 'Classroom', '101')",
+  );
+  await db.customStatement(
+    "INSERT INTO campus_map_syncs (namespace) VALUES ('migration-test')",
+  );
+  await db.customStatement("DELETE FROM campus_map_buildings WHERE code = 'A'");
+
+  expect(
+    await db
+        .customSelect(
+          "SELECT COUNT(*) AS count FROM campus_map_floors WHERE building = 'A'",
+        )
+        .map((row) => row.read<int>('count'))
+        .getSingle(),
+    0,
+  );
+  expect(
+    await db
+        .customSelect(
+          "SELECT COUNT(*) AS count FROM campus_map_rooms "
+          "WHERE layer_name = 'ntut:building_a_1f'",
+        )
+        .map((row) => row.read<int>('count'))
+        .getSingle(),
+    0,
+  );
+  expect(
+    await db
+        .customSelect(
+          "SELECT namespace FROM campus_map_syncs "
+          "WHERE namespace = 'migration-test'",
+        )
+        .map((row) => row.read<String>('namespace'))
+        .getSingle(),
+    'migration-test',
   );
 }
