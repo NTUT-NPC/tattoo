@@ -432,6 +432,11 @@ class _Translations$ntutWifi$en_US extends Translations$ntutWifi$zh_TW {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get connectTitle => 'Connect to campus WiFi';
+	@override String get description => 'Follow the manual connection guide below, or use the button at the bottom to set up NTUT-802.1X automatically.';
+	@override String get addConfiguration => 'Enable auto-join';
+	@override String get removeConfiguration => 'Remove auto-join configuration';
+	@override late final _Translations$ntutWifi$manualGuide$en_US manualGuide = _Translations$ntutWifi$manualGuide$en_US._(_root);
 	@override String get title => 'NTUT-802.1X';
 	@override String get entryDescription => 'Automatically add NTUT-802.1X with your saved portal credentials';
 	@override String get intro => 'Add NTUT-802.1X with your saved portal credentials.';
@@ -900,6 +905,27 @@ class _Translations$scanner$guide$en_US extends Translations$scanner$guide$zh_TW
 	@override String get step2 => '2. Click "Outside school login" in the navigation bar';
 	@override String get step3 => '3. Click "Scan QR code"';
 	@override String get button => 'Got it';
+}
+
+// Path: ntutWifi.manualGuide
+class _Translations$ntutWifi$manualGuide$en_US extends Translations$ntutWifi$manualGuide$zh_TW {
+	_Translations$ntutWifi$manualGuide$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Manual connection guide';
+	@override String get selectNetwork => '1. Select the network';
+	@override String get openAndroid => 'Open Wi-Fi settings and select NTUT-802.1X.';
+	@override String get openIos => 'Go to Settings → Wi-Fi and select NTUT-802.1X.';
+	@override String get enterAccount => '2. Enter your portal credentials';
+	@override String get connect => '3. Confirm and connect';
+	@override String get configureAndroid => 'Choose PEAP, GTC and system certificates. Set the domain to ntut.edu.tw, then connect.';
+	@override String get configureOlderAndroid => 'Use PEAP, GTC, system certificates and the domain ntut.edu.tw. Field names may vary by version.';
+	@override String get copyIdentity => 'Copy username';
+	@override String get copyPassword => 'Copy password';
+	@override String get removeManually => 'To remove this network, forget it in system Wi-Fi settings.';
+	@override String get trustIos => 'Tap Join. If prompted about a certificate, verify that it belongs to the campus server at ntut.edu.tw before trusting it.';
 }
 
 // Path: ntutWifi.removal
@@ -1549,6 +1575,22 @@ extension on TranslationsEnUs {
 			'scanner.guide.step3' => '3. Click "Scan QR code"',
 			'scanner.guide.button' => 'Got it',
 			'scanner.invalidUrl' => 'Invalid URL',
+			'ntutWifi.connectTitle' => 'Connect to campus WiFi',
+			'ntutWifi.description' => 'Follow the manual connection guide below, or use the button at the bottom to set up NTUT-802.1X automatically.',
+			'ntutWifi.addConfiguration' => 'Enable auto-join',
+			'ntutWifi.removeConfiguration' => 'Remove auto-join configuration',
+			'ntutWifi.manualGuide.title' => 'Manual connection guide',
+			'ntutWifi.manualGuide.selectNetwork' => '1. Select the network',
+			'ntutWifi.manualGuide.openAndroid' => 'Open Wi-Fi settings and select NTUT-802.1X.',
+			'ntutWifi.manualGuide.openIos' => 'Go to Settings → Wi-Fi and select NTUT-802.1X.',
+			'ntutWifi.manualGuide.enterAccount' => '2. Enter your portal credentials',
+			'ntutWifi.manualGuide.connect' => '3. Confirm and connect',
+			'ntutWifi.manualGuide.configureAndroid' => 'Choose PEAP, GTC and system certificates. Set the domain to ntut.edu.tw, then connect.',
+			'ntutWifi.manualGuide.configureOlderAndroid' => 'Use PEAP, GTC, system certificates and the domain ntut.edu.tw. Field names may vary by version.',
+			'ntutWifi.manualGuide.copyIdentity' => 'Copy username',
+			'ntutWifi.manualGuide.copyPassword' => 'Copy password',
+			'ntutWifi.manualGuide.removeManually' => 'To remove this network, forget it in system Wi-Fi settings.',
+			'ntutWifi.manualGuide.trustIos' => 'Tap Join. If prompted about a certificate, verify that it belongs to the campus server at ntut.edu.tw before trusting it.',
 			'ntutWifi.title' => 'NTUT-802.1X',
 			'ntutWifi.entryDescription' => 'Automatically add NTUT-802.1X with your saved portal credentials',
 			'ntutWifi.intro' => 'Add NTUT-802.1X with your saved portal credentials.',

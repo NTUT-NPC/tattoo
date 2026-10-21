@@ -221,6 +221,72 @@ void main() {
       expect(platform.settingsCallCount, 3);
     });
 
+    for (final (sdk, mode, denied, fallback, canRemove)
+        in <(int?, Ntut8021xStoredProvisioningMode, bool, bool, bool)>[
+          (28, .none, false, false, false),
+          (29, .suggestion, false, false, true),
+          (29, .suggestion, true, false, true),
+          (30, .suggestion, false, false, true),
+          (30, .suggestion, false, true, false),
+          (30, .suggestion, true, false, false),
+          (30, .compat, false, false, false),
+          (31, .suggestion, false, false, true),
+          (31, .compat, false, false, false),
+          (36, .suggestion, false, true, false),
+          (36, .compat, false, false, false),
+          (null, .direct, false, false, true),
+        ]) {
+      test(
+        'removal visibility: SDK $sdk, $mode, denied=$denied, fallback=$fallback',
+        () async {
+          final authRepository = _FakeAuthRepository(
+            localUser: _testUser,
+            credentials: (username: '111360109', password: 'portal-password'),
+          );
+          addTearDown(authRepository.close);
+          final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
+          await stateStore.markProvisioned(mode: mode);
+          if (fallback) {
+            await stateStore.setPendingCompatPrompt(
+              reason: .suggestionFallbackRequired,
+              immediate: false,
+            );
+          }
+          final platform = _FakeCampusWifiPlatform(
+            capabilities: sdk == null
+                ? _iosCapabilities
+                : (
+                    isSupported: true,
+                    androidSdkInt: sdk,
+                    canOpenWifiSettings: true,
+                    canOpenWifiPanel: sdk >= 29,
+                    canProvisionNtut8021xSuggestion: sdk >= 29,
+                    canProvisionNtut8021xCompat: sdk >= 30,
+                    canProvisionNtut8021x: sdk >= 29,
+                    suggestionPermissionState: denied
+                        ? 'disallowed'
+                        : 'allowed',
+                  ),
+          );
+          final repository = _buildRepository(
+            authRepository: authRepository,
+            platform: platform,
+            stateStore: stateStore,
+            provisioner: sdk == null
+                ? IosCampusWifiProvisioner(
+                    platform: platform,
+                    stateStore: stateStore,
+                  )
+                : null,
+          );
+
+          final data = await repository.getNtut8021xAssistantData();
+
+          expect(data.canRemoveConfiguration, canRemove);
+        },
+      );
+    }
+
     test('returns ready data with normal screen mode', () async {
       final authRepository = _FakeAuthRepository(
         localUser: _testUser,

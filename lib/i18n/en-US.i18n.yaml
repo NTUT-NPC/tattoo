@@ -371,6 +371,23 @@ scanner:
     button: Got it
   invalidUrl: Invalid URL
 ntutWifi:
+  connectTitle: Connect to campus WiFi
+  description: Follow the manual connection guide below, or use the button at the bottom to set up NTUT-802.1X automatically.
+  addConfiguration: Enable auto-join
+  removeConfiguration: Remove auto-join configuration
+  manualGuide:
+    title: Manual connection guide
+    selectNetwork: 1. Select the network
+    openAndroid: Open Wi-Fi settings and select NTUT-802.1X.
+    openIos: Go to Settings → Wi-Fi and select NTUT-802.1X.
+    enterAccount: 2. Enter your portal credentials
+    connect: 3. Confirm and connect
+    configureAndroid: Choose PEAP, GTC and system certificates. Set the domain to ntut.edu.tw, then connect.
+    configureOlderAndroid: Use PEAP, GTC, system certificates and the domain ntut.edu.tw. Field names may vary by version.
+    copyIdentity: Copy username
+    copyPassword: Copy password
+    removeManually: To remove this network, forget it in system Wi-Fi settings.
+    trustIos: Tap Join. If prompted about a certificate, verify that it belongs to the campus server at ntut.edu.tw before trusting it.
   title: NTUT-802.1X
   entryDescription: Automatically add NTUT-802.1X with your saved portal credentials
   intro: Add NTUT-802.1X with your saved portal credentials.
