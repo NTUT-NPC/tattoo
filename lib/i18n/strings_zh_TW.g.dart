@@ -75,6 +75,7 @@ class Translations$newFeatures$zh_TW {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+	late final Translations$newFeatures$campusWifi$zh_TW campusWifi = Translations$newFeatures$campusWifi$zh_TW.internal(_root);
 	late final Translations$newFeatures$androidWidget$zh_TW androidWidget = Translations$newFeatures$androidWidget$zh_TW.internal(_root);
 	late final Translations$newFeatures$campusMap$zh_TW campusMap = Translations$newFeatures$campusMap$zh_TW.internal(_root);
 	late final Translations$newFeatures$materialDownload$zh_TW materialDownload = Translations$newFeatures$materialDownload$zh_TW.internal(_root);
@@ -904,6 +905,24 @@ class Translations$changePassword$zh_TW {
 	String get success => '密碼變更成功';
 
 	late final Translations$changePassword$errors$zh_TW errors = Translations$changePassword$errors$zh_TW.internal(_root);
+}
+
+// Path: newFeatures.campusWifi
+class Translations$newFeatures$campusWifi$zh_TW {
+	Translations$newFeatures$campusWifi$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '自動連接校園Wi-Fi'
+	String get title => '自動連接校園Wi-Fi';
+
+	/// zh-TW: '現在可使用入口帳密自動加入NTUT-802.1X校園Wi-Fi，不必再手動設定。'
+	String get iosDescription => '現在可使用入口帳密自動加入NTUT-802.1X校園Wi-Fi，不必再手動設定。';
+
+	/// zh-TW: '修正連接NTUT-802.1X校園Wi-Fi時發生的問題，現在可以順利連線。'
+	String get androidDescription => '修正連接NTUT-802.1X校園Wi-Fi時發生的問題，現在可以順利連線。';
 }
 
 // Path: newFeatures.androidWidget
@@ -2094,6 +2113,9 @@ class Translations$courseTable$detail$materials$saved$zh_TW {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'newFeatures.campusWifi.title' => '自動連接校園Wi-Fi',
+			'newFeatures.campusWifi.iosDescription' => '現在可使用入口帳密自動加入NTUT-802.1X校園Wi-Fi，不必再手動設定。',
+			'newFeatures.campusWifi.androidDescription' => '修正連接NTUT-802.1X校園Wi-Fi時發生的問題，現在可以順利連線。',
 			'newFeatures.androidWidget.title' => '桌面小工具',
 			'newFeatures.androidWidget.description' => '可將最新課表新增到桌面上，方便隨時查看。',
 			'newFeatures.campusMap.title' => '校園地圖',

@@ -73,6 +73,7 @@ class _Translations$newFeatures$en_US extends Translations$newFeatures$zh_TW {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override late final _Translations$newFeatures$campusWifi$en_US campusWifi = _Translations$newFeatures$campusWifi$en_US._(_root);
 	@override late final _Translations$newFeatures$androidWidget$en_US androidWidget = _Translations$newFeatures$androidWidget$en_US._(_root);
 	@override late final _Translations$newFeatures$campusMap$en_US campusMap = _Translations$newFeatures$campusMap$en_US._(_root);
 	@override late final _Translations$newFeatures$materialDownload$en_US materialDownload = _Translations$newFeatures$materialDownload$en_US._(_root);
@@ -562,6 +563,18 @@ class _Translations$changePassword$en_US extends Translations$changePassword$zh_
 	@override String get submit => 'Change Password';
 	@override String get success => 'Password changed successfully';
 	@override late final _Translations$changePassword$errors$en_US errors = _Translations$changePassword$errors$en_US._(_root);
+}
+
+// Path: newFeatures.campusWifi
+class _Translations$newFeatures$campusWifi$en_US extends Translations$newFeatures$campusWifi$zh_TW {
+	_Translations$newFeatures$campusWifi$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Auto-connect to campus Wi-Fi';
+	@override String get iosDescription => 'Automatically join the NTUT-802.1X campus Wi-Fi with your portal account, no manual setup needed.';
+	@override String get androidDescription => 'Fixed issues connecting to the NTUT-802.1X campus Wi-Fi, so you can now connect reliably.';
 }
 
 // Path: newFeatures.androidWidget
@@ -1271,6 +1284,9 @@ class _Translations$courseTable$detail$materials$saved$en_US extends Translation
 extension on TranslationsEnUs {
 	dynamic _flatMapFunction(String path) {
 		return switch (path) {
+			'newFeatures.campusWifi.title' => 'Auto-connect to campus Wi-Fi',
+			'newFeatures.campusWifi.iosDescription' => 'Automatically join the NTUT-802.1X campus Wi-Fi with your portal account, no manual setup needed.',
+			'newFeatures.campusWifi.androidDescription' => 'Fixed issues connecting to the NTUT-802.1X campus Wi-Fi, so you can now connect reliably.',
 			'newFeatures.androidWidget.title' => 'Home screen widget',
 			'newFeatures.androidWidget.description' => 'Add your latest timetable to your home screen for easy access anytime.',
 			'newFeatures.campusMap.title' => 'Campus map',

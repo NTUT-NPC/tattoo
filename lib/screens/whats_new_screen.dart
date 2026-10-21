@@ -144,6 +144,18 @@ class WhatsNewFeature {
 List<WhatsNewFeature> currentWhatsNewFeatures() =>
     [
           WhatsNewFeature(
+            icon: Icons.wifi,
+            title: t.newFeatures.campusWifi.title,
+            description: t.newFeatures.campusWifi.iosDescription,
+            availablePlatforms: const {.iOS},
+          ),
+          WhatsNewFeature(
+            icon: Icons.wifi,
+            title: t.newFeatures.campusWifi.title,
+            description: t.newFeatures.campusWifi.androidDescription,
+            availablePlatforms: const {.android},
+          ),
+          WhatsNewFeature(
             icon: Icons.widgets_outlined,
             title: t.newFeatures.androidWidget.title,
             description: t.newFeatures.androidWidget.description,
