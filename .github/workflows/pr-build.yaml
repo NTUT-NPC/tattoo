@@ -21,18 +21,25 @@ jobs:
       artifact_run_id: ${{ github.run_id }}
       version_suffix: pr.${{ github.event.pull_request.number }}
       commit_sha: ${{ steps.commit.outputs.short_sha }}
-      commit_message: ${{ github.event.pull_request.title }}
+      commit_message: ${{ steps.commit.outputs.message }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
-      - name: Resolve short commit SHA
+      - name: Resolve short commit SHA and commit message
         id: commit
         env:
+          GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: echo "short_sha=${HEAD_SHA:0:7}" >> "$GITHUB_OUTPUT"
+        run: |
+          message=$(gh api "/repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA" \
+            --jq '.commit.message | split("\n")[0]')
+          {
+            echo "short_sha=${HEAD_SHA:0:7}"
+            echo "message=$message"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Manage Build Number
         id: build-number
@@ -134,6 +141,7 @@ jobs:
       pull-requests: write
     with:
       build_number: ${{ needs.prepare.outputs.build_number }}
+      commit_message: ${{ needs.prepare.outputs.commit_message }}
 
   pr-build:
     if: >-
