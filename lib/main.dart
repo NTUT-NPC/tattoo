@@ -256,13 +256,19 @@ class MyApp extends ConsumerWidget {
         'dark' => .dark,
         _ => .system,
       },
-      builder: (context, child) => CourseWidgetRenderHost(
-        lightColorScheme: lightColorScheme,
-        darkColorScheme: darkColorScheme,
+      builder: (context, child) {
         // TODO: Remove after dependencies stop importing Flutter's design libraries.
         // ignore: deprecated_member_use
-        child: MaterialUiCompatibilityBridge(child: child!),
-      ),
+        final content = MaterialUiCompatibilityBridge(child: child!);
+        if (!kIsWeb && defaultTargetPlatform == .android) {
+          return CourseWidgetRenderHost(
+            lightColorScheme: lightColorScheme,
+            darkColorScheme: darkColorScheme,
+            child: content,
+          );
+        }
+        return content;
+      },
       routerConfig: router,
     );
   }
