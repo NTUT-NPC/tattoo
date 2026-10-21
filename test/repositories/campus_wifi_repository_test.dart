@@ -28,6 +28,199 @@ void main() {
   });
 
   group('CampusWifiRepository', () {
+    test(
+      'disabled Wi-Fi hides credentials and skips all feature actions',
+      () async {
+        final authRepository = _FakeAuthRepository(
+          localUser: _testUser,
+          credentials: (username: '111360109', password: 'portal-password'),
+        );
+        addTearDown(authRepository.close);
+        final prefs = SharedPreferencesAsync();
+        final stateStore = Ntut8021xStateStore(prefs);
+        await prefs.setBool(ntut8021xAutoReprovisionPreferenceKey, true);
+        await stateStore.markProvisioned(mode: .compat);
+        await stateStore.setPendingCompatPrompt(
+          reason: .credentialChanged,
+          immediate: true,
+        );
+        final platform = _FakeCampusWifiPlatform();
+        final repository = _buildRepository(
+          authRepository: authRepository,
+          platform: platform,
+          stateStore: stateStore,
+          isWifiEnabled: () async => false,
+        );
+
+        final data = await repository.getNtut8021xAssistantData();
+        expect(data.status, Ntut8021xAssistantStatus.unsupportedPlatform);
+        expect(data.capabilities.isSupported, isFalse);
+        expect(data.identity, isNull);
+        expect(data.password, isNull);
+        expect(data.pendingPromptReason, isNull);
+        expect(data.showImmediatePromptCandidate, isFalse);
+        expect(await repository.consumePendingImmediatePrompt(), isNull);
+        expect(
+          (await repository.provisionNtut8021x()).status,
+          Ntut8021xProvisioningStatus.unsupportedPlatform,
+        );
+        expect(
+          (await repository.saveNtut8021xToSystem(
+            identity: '111360109',
+            password: 'explicit-password',
+          )).status,
+          Ntut8021xProvisioningStatus.unsupportedPlatform,
+        );
+        expect(await repository.openWifiSettings(), isFalse);
+        expect(await repository.openWifiPanel(), isFalse);
+        expect(await repository.openWifiPermissionSettings(), isFalse);
+        expect(platform.capabilitiesCallCount, 0);
+        expect(platform.provisionCallCount, 0);
+        expect(platform.compatCallCount, 0);
+        expect(platform.settingsCallCount, 0);
+        expect(platform.removalCallCount, 0);
+        expect(authRepository.credentialsReadCount, 0);
+        final state = await stateStore.read();
+        expect(
+          state.lastProvisioningMode,
+          Ntut8021xStoredProvisioningMode.compat,
+        );
+        expect(state.pendingImmediatePrompt, isTrue);
+        expect(
+          await prefs.getBool(ntut8021xAutoReprovisionPreferenceKey),
+          isTrue,
+        );
+      },
+    );
+
+    for (final action in ['assistant', 'prompt', 'provision', 'save']) {
+      test(
+        'disabling during $action credential resolution hides credentials',
+        () async {
+          var enabled = true;
+          final authRepository =
+              _FakeAuthRepository(
+                  localUser: _testUser,
+                  credentials: (
+                    username: '111360109',
+                    password: 'portal-password',
+                  ),
+                )
+                ..beforeReadCredentials = () async {
+                  enabled = false;
+                };
+          addTearDown(authRepository.close);
+          final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
+          if (action == 'prompt') {
+            await stateStore.setPendingCompatPrompt(
+              reason: .credentialChanged,
+              immediate: true,
+            );
+          }
+          final platform = _FakeCampusWifiPlatform();
+          final repository = _buildRepository(
+            authRepository: authRepository,
+            platform: platform,
+            stateStore: stateStore,
+            isWifiEnabled: () async => enabled,
+          );
+
+          switch (action) {
+            case 'assistant':
+              final data = await repository.getNtut8021xAssistantData();
+              expect(data.identity, isNull);
+              expect(data.password, isNull);
+              expect(data.status, Ntut8021xAssistantStatus.unsupportedPlatform);
+            case 'prompt':
+              expect(await repository.consumePendingImmediatePrompt(), isNull);
+            case 'provision':
+              expect(
+                (await repository.provisionNtut8021x()).status,
+                Ntut8021xProvisioningStatus.unsupportedPlatform,
+              );
+            case 'save':
+              expect(
+                (await repository.saveNtut8021xToSystem(
+                  identity: '111360109',
+                  password: 'explicit-password',
+                )).status,
+                Ntut8021xProvisioningStatus.unsupportedPlatform,
+              );
+          }
+          expect(platform.provisionCallCount, 0);
+          expect(platform.compatCallCount, 0);
+        },
+      );
+    }
+
+    for (final saveToSystem in [false, true]) {
+      test(
+        'queued setup reads the latest Wi-Fi gate (save: $saveToSystem)',
+        () async {
+          var enabled = true;
+          final authRepository = _FakeAuthRepository(
+            localUser: _testUser,
+            credentials: (username: '111360109', password: 'portal-password'),
+          );
+          addTearDown(authRepository.close);
+          final platform = _BlockingCampusWifiPlatform();
+          final repository = _buildRepository(
+            authRepository: authRepository,
+            platform: platform,
+            isWifiEnabled: () async => enabled,
+          );
+          final firstSetup = repository.provisionNtut8021x();
+          await platform.started.future;
+          final queuedSetup = saveToSystem
+              ? repository.saveNtut8021xToSystem(
+                  identity: '111360109',
+                  password: 'explicit-password',
+                )
+              : repository.provisionNtut8021x();
+          enabled = false;
+          platform.canFinish.complete();
+          expect((await firstSetup).isSuccess, isTrue);
+
+          expect(
+            (await queuedSetup).status,
+            Ntut8021xProvisioningStatus.unsupportedPlatform,
+          );
+          expect(platform.provisionCallCount, 1);
+          expect(platform.compatCallCount, 0);
+          expect(platform.removalCallCount, 0);
+          expect(
+            await SharedPreferencesAsync().getBool(
+              ntut8021xAutoReprovisionPreferenceKey,
+            ),
+            isTrue,
+          );
+        },
+      );
+    }
+
+    test('settings actions read the latest Wi-Fi gate', () async {
+      var enabled = false;
+      final authRepository = _FakeAuthRepository();
+      addTearDown(authRepository.close);
+      final platform = _FakeCampusWifiPlatform();
+      final repository = _buildRepository(
+        authRepository: authRepository,
+        platform: platform,
+        isWifiEnabled: () async => enabled,
+      );
+
+      expect(await repository.openWifiSettings(), isFalse);
+      enabled = true;
+      expect(await repository.openWifiSettings(), isTrue);
+      expect(await repository.openWifiPanel(), isTrue);
+      expect(await repository.openWifiPermissionSettings(), isTrue);
+      enabled = false;
+      expect(await repository.openWifiSettings(), isFalse);
+      expect(await repository.openWifiPanel(), isFalse);
+      expect(await repository.openWifiPermissionSettings(), isFalse);
+      expect(platform.settingsCallCount, 3);
+    });
+
     test('returns ready data with normal screen mode', () async {
       final authRepository = _FakeAuthRepository(
         localUser: _testUser,
@@ -895,6 +1088,7 @@ void main() {
                   platform: platform,
                   stateStore: stateStore,
                 ),
+          isWifiEnabled: () async => false,
         );
 
         expect(await repository.removeNtut8021x(), expectedStatus);
@@ -968,6 +1162,7 @@ CampusWifiRepository _buildRepository({
   required _FakeCampusWifiPlatform platform,
   Ntut8021xStateStore? stateStore,
   CampusWifiProvisioner? provisioner,
+  Future<bool> Function() isWifiEnabled = _wifiEnabled,
 }) {
   final prefs = SharedPreferencesAsync();
   final resolvedStateStore = stateStore ?? Ntut8021xStateStore(prefs);
@@ -985,8 +1180,10 @@ CampusWifiRepository _buildRepository({
       prefs: prefs,
       provisioner: resolvedProvisioner,
       stateStore: resolvedStateStore,
+      isWifiEnabled: isWifiEnabled,
     ),
     stateStore: resolvedStateStore,
+    isWifiEnabled: isWifiEnabled,
   );
 }
 
@@ -1026,6 +1223,8 @@ class _FakeAuthRepository extends AuthRepository {
   final AppDatabase _database;
   final User? localUser;
   final ({String username, String password})? credentials;
+  int credentialsReadCount = 0;
+  Future<void> Function()? beforeReadCredentials;
 
   Future<void> close() => _database.close();
 
@@ -1034,6 +1233,8 @@ class _FakeAuthRepository extends AuthRepository {
 
   @override
   Future<({String username, String password})?> getStoredCredentials() async {
+    credentialsReadCount++;
+    await beforeReadCredentials?.call();
     return credentials;
   }
 }
@@ -1086,6 +1287,8 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
   int provisionCallCount = 0;
   int compatCallCount = 0;
   int removalCallCount = 0;
+  int capabilitiesCallCount = 0;
+  int settingsCallCount = 0;
 
   @override
   Future<String> removeNtut8021x() async {
@@ -1094,16 +1297,28 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
   }
 
   @override
-  Future<CampusWifiCapabilitiesDto> getCapabilities() async => capabilities;
+  Future<CampusWifiCapabilitiesDto> getCapabilities() async {
+    capabilitiesCallCount++;
+    return capabilities;
+  }
 
   @override
-  Future<bool> openWifiPanel() async => capabilities.canOpenWifiPanel;
+  Future<bool> openWifiPanel() async {
+    settingsCallCount++;
+    return capabilities.canOpenWifiPanel;
+  }
 
   @override
-  Future<bool> openWifiSettings() async => capabilities.canOpenWifiSettings;
+  Future<bool> openWifiSettings() async {
+    settingsCallCount++;
+    return capabilities.canOpenWifiSettings;
+  }
 
   @override
-  Future<bool> openWifiPermissionSettings() async => true;
+  Future<bool> openWifiPermissionSettings() async {
+    settingsCallCount++;
+    return true;
+  }
 
   @override
   Future<Ntut8021xProvisioningDto> provisionNtut8021x({
@@ -1147,6 +1362,7 @@ class _BlockingCampusWifiPlatform extends _FakeCampusWifiPlatform {
     String? previousIdentity,
     String? previousPassword,
   }) async {
+    provisionCallCount++;
     started.complete();
     await canFinish.future;
     return isIos ? _iosResult('configured') : provisioningResult;
@@ -1157,6 +1373,7 @@ class _BlockingCampusWifiPlatform extends _FakeCampusWifiPlatform {
     required String identity,
     required String password,
   }) async {
+    compatCallCount++;
     started.complete();
     await canFinish.future;
     return isIos ? _iosResult('configured') : compatResult;
@@ -1172,6 +1389,8 @@ class _BlockingCampusWifiPlatform extends _FakeCampusWifiPlatform {
 void _noop() {}
 
 Future<void> _noopAsync() async {}
+
+Future<bool> _wifiEnabled() async => true;
 
 void _noopDestroyed([_]) {}
 

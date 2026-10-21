@@ -59,7 +59,7 @@ enum PrefKey<T> {
   /// Whether the Weblate button is shown on the about page.
   showWeblateButton<bool>(.boolean, false),
 
-  /// Whether the Wi-Fi auto-connect button is shown on the home screen.
+  /// Whether campus Wi-Fi UI, setup, and automatic credential refresh are enabled.
   showWifiButton<bool>(.boolean, false),
 
   /// Whether to show the detailed error dialog on uncaught exceptions.
@@ -79,6 +79,12 @@ enum PrefKey<T> {
 
   /// Whether the academic calendar button is shown on the home screen.
   showCalendarButton<bool>(.boolean, true),
+
+  /// Whether the campus map entry button is shown on the home screen.
+  showCampusMapButton<bool>(.boolean, true),
+
+  /// Whether the student union entry button is shown on the home screen.
+  showStudentUnionButton<bool>(.boolean, true),
 
   /// Whether the change password button is shown on the profile screen.
   showChangePasswordButton<bool>(.boolean, true),
