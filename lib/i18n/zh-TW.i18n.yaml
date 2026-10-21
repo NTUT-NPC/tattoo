@@ -1,4 +1,8 @@
 newFeatures:
+  campusWifi:
+    title: 自動連接校園Wi-Fi
+    iosDescription: 現在可使用入口帳密自動加入NTUT-802.1X校園Wi-Fi，不必再手動設定。
+    androidDescription: 修正連接NTUT-802.1X校園Wi-Fi時發生的問題，現在可以順利連線。
   androidWidget:
     title: 桌面小工具
     description: 可將最新課表新增到桌面上，方便隨時查看。

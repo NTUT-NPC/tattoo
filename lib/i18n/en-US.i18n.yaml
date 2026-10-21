@@ -1,4 +1,8 @@
 newFeatures:
+  campusWifi:
+    title: Auto-connect to campus Wi-Fi
+    iosDescription: Automatically join the NTUT-802.1X campus Wi-Fi with your portal account, no manual setup needed.
+    androidDescription: Fixed issues connecting to the NTUT-802.1X campus Wi-Fi, so you can now connect reliably.
   androidWidget:
     title: Home screen widget
     description: Add your latest timetable to your home screen for easy access anytime.
