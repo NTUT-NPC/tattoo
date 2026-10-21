@@ -138,6 +138,65 @@ void main() {
       expect(commits.single, endsWith(':newer:light|newer:dark'));
     });
 
+    test(
+      'unchanged invalidation during rendering queues a replacement',
+      () async {
+        final firstRender = Completer<Uint8List>();
+        controller.attachRenderer((input) async {
+          final variant = 'initial:${input.brightness.name}';
+          renderedVariants.add(variant);
+          if (renderedVariants.length == 1) return firstRender.future;
+          return Uint8List.fromList(variant.codeUnits);
+        });
+        await controller.start();
+        await controller.reconcile();
+        await pumpEventQueue();
+
+        changes.add(null);
+        await Future<void>.delayed(
+          CourseWidgetSyncController.debounceDuration +
+              const Duration(milliseconds: 50),
+        );
+        await pumpEventQueue();
+        expect(renderedVariants, ['initial:light']);
+
+        firstRender.complete(Uint8List.fromList('stale'.codeUnits));
+        await pumpEventQueue();
+
+        expect(renderedVariants, [
+          'initial:light',
+          'initial:light',
+          'initial:dark',
+        ]);
+        final commits = platform.operations.where(
+          (entry) => entry.startsWith('commit:'),
+        );
+        expect(commits, hasLength(1));
+        expect(commits.single, endsWith(':initial:light|initial:dark'));
+      },
+    );
+
+    test('returning to persisted input during a commit restores it', () async {
+      await controller.start();
+      await controller.reconcile();
+      await pumpEventQueue();
+      final initialFingerprint = platform.fingerprint;
+
+      platform.commitGate = Completer<void>();
+      latest = _cache('newer');
+      await controller.reconcile();
+      await pumpEventQueue();
+      expect(platform.operations.last, endsWith(':newer:light|newer:dark'));
+
+      latest = _cache('initial');
+      await controller.reconcile();
+      platform.commitGate!.complete();
+      await pumpEventQueue();
+
+      expect(platform.fingerprint, initialFingerprint);
+      expect(platform.operations.last, endsWith(':initial:light|initial:dark'));
+    });
+
     test('detaching the renderer invalidates an in-flight render', () async {
       final firstRender = Completer<Uint8List>();
       controller.attachRenderer((_) => firstRender.future);

@@ -61,7 +61,6 @@ class CourseWidgetSyncController {
   _PendingRender? _pending;
   Future<void>? _commit;
   String? _persistedFingerprint;
-  String? _activeFingerprint;
   var _generation = 0;
   var _lifecycleGeneration = 0;
   var _started = false;
@@ -105,8 +104,7 @@ class CourseWidgetSyncController {
 
     final input = (cache: cache, presentation: presentation);
     final fingerprint = _courseWidgetFingerprint(input);
-    if (fingerprint == _persistedFingerprint ||
-        fingerprint == _activeFingerprint ||
+    if ((_commit == null && fingerprint == _persistedFingerprint) ||
         fingerprint == _pending?.fingerprint) {
       return;
     }
@@ -139,7 +137,6 @@ class CourseWidgetSyncController {
     await _awaitCommit();
     await _platform.clear();
     _persistedFingerprint = null;
-    _activeFingerprint = null;
   }
 
   Future<void> _clearWhileRunning() async {
@@ -148,7 +145,6 @@ class CourseWidgetSyncController {
     await _awaitCommit();
     await _platform.clear();
     _persistedFingerprint = null;
-    _activeFingerprint = null;
   }
 
   Future<void> _awaitCommit() async {
@@ -177,7 +173,6 @@ class CourseWidgetSyncController {
         _pending = null;
         final renderer = _renderer;
         if (renderer == null) break;
-        _activeFingerprint = pending.fingerprint;
         final source = pending.input;
         try {
           final lightPng = await renderer((
@@ -212,12 +207,9 @@ class CourseWidgetSyncController {
           }
         } catch (error, stackTrace) {
           debugPrint('Course widget sync failed: $error\n$stackTrace');
-        } finally {
-          _activeFingerprint = null;
         }
       }
     } finally {
-      _activeFingerprint = null;
       _draining = false;
       if (_started && _pending != null) unawaited(_drain());
     }
