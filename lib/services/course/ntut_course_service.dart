@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:tattoo/models/course.dart';
@@ -11,6 +12,16 @@ typedef _EnglishCourseNames = ({
   String? courseName,
   List<String> teacherNames,
   List<ReferenceDto> classes,
+});
+
+/// One meaningful item inside a timetable grid cell.
+///
+/// `page` is the JSP page an anchor links to (`Curr.jsp`, `Teach.jsp`,
+/// `Croom.jsp`), lowercased; it is null for plain text.
+typedef _TimetableCellEntry = ({
+  String text,
+  String? page,
+  ReferenceDto? reference,
 });
 
 typedef _OfferingHeader = ({
@@ -444,6 +455,13 @@ class NtutCourseService implements CourseService {
   ///
   /// Returns [ScheduleDto]s with `nameEn: null` — English names are merged
   /// separately from the English page.
+  ///
+  /// [parseZhCourseTable] exposes this to the fixture-backed parser tests,
+  /// which cover grid shapes that a live account may not currently have.
+  @visibleForTesting
+  List<ScheduleDto> parseZhCourseTable(String html) =>
+      _parseZhCourseTable(html);
+
   List<ScheduleDto> _parseZhCourseTable(String html) {
     final document = parse(html);
     final tables = document.querySelectorAll('table');
@@ -482,7 +500,6 @@ class NtutCourseService implements CourseService {
 
     // Build schedule map keyed by course name from the grid
     final periodRegex = RegExp(r'第 (\S) 節');
-    final eClassroomRegex = RegExp(r'\s*\(?e\)?\s*$');
     final scheduleMap =
         <
           String,
@@ -504,25 +521,16 @@ class NtutCourseService implements CourseService {
         final day = colToDayMap[colIndex];
         if (day == null) continue;
 
-        final anchors = cells[colIndex].querySelectorAll('a');
-
         // Key by course name — works for both regular courses (with <a>
         // links) and special entries like 班週會 (plain text).
-        final courseName = anchors.isNotEmpty
-            ? anchors[0].text.trim()
-            : cells[colIndex].text.trim();
-        if (courseName.isEmpty) continue;
+        final (:courseName, :classroom) = _parseTimetableCell(cells[colIndex]);
+        if (courseName == null) continue;
 
-        var classroomRef = anchors.length >= 3
-            ? _parseAnchorRef(anchors.last)
-            : null;
         // Strip e化教室 marker "(e)" from classroom names
-        if (classroomRef?.name case final name?) {
-          classroomRef = (
-            id: classroomRef!.id,
-            name: name.replaceFirst(eClassroomRegex, ''),
-          );
-        }
+        final classroomRef = switch (classroom) {
+          final classroom? => _stripEClassroomMarker(classroom),
+          null => null,
+        };
 
         scheduleMap.putIfAbsent(courseName, () => []);
         scheduleMap[courseName]!.add((
@@ -583,6 +591,78 @@ class NtutCourseService implements CourseService {
         remarks: remarks,
       );
     }).toList();
+  }
+
+  /// Resolves the course name and classroom of one timetable grid cell.
+  ///
+  /// NTUT stacks the course, its teachers and its classroom as sibling anchors
+  /// with nothing in the markup to tell them apart, so the data type comes from
+  /// the JSP page each anchor links to. Anchor position cannot be trusted: a
+  /// course with no classroom simply omits the `Croom.jsp` anchor, which makes
+  /// the last anchor of a team-taught course a teacher, not a classroom.
+  ///
+  /// Returns a null `courseName` for empty cells, and a null `classroom` when
+  /// the cell carries no classroom at all.
+  ({String? courseName, ReferenceDto? classroom}) _parseTimetableCell(
+    Element cell,
+  ) {
+    final entries = _parseTimetableCellEntries(cell);
+
+    final courseName =
+        entries.firstWhereOrNull((entry) => entry.page == 'curr.jsp')?.text ??
+        cell.text.trim();
+
+    var classroom = entries
+        .firstWhereOrNull((entry) => entry.page == 'croom.jsp')
+        ?.reference;
+
+    // Some classrooms are plain text instead of a link. Only a trailing text
+    // entry qualifies — the first entry is the course name itself, as in
+    // link-less rows like 班週會及導師時間. Unknown links are never a classroom.
+    if (classroom == null && entries.length > 1) {
+      if (entries.last case (text: final text, page: null, reference: _)) {
+        classroom = (id: null, name: text);
+      }
+    }
+
+    return (
+      courseName: courseName.isEmpty ? null : courseName,
+      classroom: classroom,
+    );
+  }
+
+  /// Flattens a timetable grid cell into its non-empty anchors and text runs.
+  List<_TimetableCellEntry> _parseTimetableCellEntries(Element cell) {
+    final entries = <_TimetableCellEntry>[];
+
+    void visit(Node node) {
+      switch (node) {
+        case Text():
+          final text = node.text.trim();
+          if (text.isEmpty) break;
+          entries.add((text: text, page: null, reference: null));
+        case Element(localName: 'a'):
+          final text = node.text.trim();
+          if (text.isEmpty) break;
+          entries.add((
+            text: text,
+            page: _parseHrefPage(node.attributes['href']),
+            reference: _parseAnchorRef(node),
+          ));
+        case Element():
+          node.nodes.forEach(visit);
+      }
+    }
+
+    cell.nodes.forEach(visit);
+    return entries;
+  }
+
+  /// Returns the lowercased JSP page an `href` points at, e.g. `croom.jsp`.
+  String? _parseHrefPage(String? href) {
+    if (href == null) return null;
+    final segment = Uri.tryParse(href)?.pathSegments.lastOrNull;
+    return segment == null || segment.isEmpty ? null : segment.toLowerCase();
   }
 
   /// Parses the English course list page for English names.
