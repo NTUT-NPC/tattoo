@@ -38,32 +38,32 @@ campusMap:
     '5': Jianguo Brewery Campus
   # Keys are original GeoServer building codes (e.g. A6T, HR).
   buildingNames(map):
-    A1T: First Academic Building
-    A2T: Second Academic Building
-    A3T: Third Academic Building
-    A4T: Fourth Academic Building
-    A5T: Biotechnology and Alumni Association Building
-    A6T: Sixth Academic Building
-    AC: Yi Da Hall
+    A1T: 1st Academic
+    A2T: 2nd Academic
+    A3T: 3rd Academic
+    A4T: 4th Academic
+    A5T: 5th Academic/Biotech & Alumnus Associaltion
+    A6T: 6th Academic
+    AC: Yi-Da Corridor
     AD: Administration Building
-    AM: Pioneer International R&D Building
+    AM: Pioneer International R&D
     B1D: Student Dormitory 1
     B2D: Student Dormitory 2
     CB: Integrated Technology Complex
-    CE: Civil Engineering Building
+    CE: Civil Engineering
     CH: Chemistry Building
     CK: Student Activity Center
-    CM: Chemical Engineering Building
+    CM: Chemical Engineering
     DB: Design Building
     EL: Everlight Building
-    GB: General Studies Building
+    GB: General Studies
     GH: Guanghua Building
     GR: Ecology Cabin
-    HR: Hong-Yue Technology Research Building
+    HR: Hong-Yue Technology Research
     LB: Library
-    LY: Lung-Yu Technology Building
-    ME: Molecular Science and Engineering Building
-    MR: Materials and Mineral Resources Engineering Building
+    LY: Lung-Yu Technology
+    ME: Molecular Science and Engineering
+    MR: Materials and Mineral Resources Engineering
     RB: Red House
     SE: Zhongxiao East Road Guardhouse
     SS: Xinsheng South Road Guardhouse
