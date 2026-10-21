@@ -13,13 +13,14 @@ import 'package:tattoo/services/course/ntut_course_service.dart';
 /// classroom, a single-teacher course with no classroom, and a link-less row.
 void main() {
   group('zh course table parser', () {
+    late String fixture;
     late List<ScheduleDto> table;
 
     setUpAll(() {
-      final html = File(
+      fixture = File(
         'test/fixtures/course/course_table_zh_y111_t1.html',
       ).readAsStringSync();
-      table = NtutCourseService().parseZhCourseTable(html);
+      table = NtutCourseService().parseZhCourseTable(fixture);
     });
 
     ReferenceDto? classroomOf(String courseName) {
@@ -81,6 +82,59 @@ void main() {
         practical.schedule!.map((meeting) => meeting.day).toSet(),
         {DayOfWeek.wednesday},
       );
+    });
+
+    group('link-less rows that also carry a location', () {
+      // No captured page has one yet, so these rewrite the 班週會及導師時間
+      // cell of the real fixture. The grid is keyed by course name and the
+      // course list joins on it, so folding the trailing location into the
+      // name silently drops the course's entire schedule.
+      final cellRegex = RegExp(r'<td align=center>\s*班週會及導師時間\s*</td>');
+
+      List<({DayOfWeek day, Period period, ReferenceDto? classroom})>
+      classMeetingSchedule(String cellInnerHtml) {
+        final table = NtutCourseService().parseZhCourseTable(
+          fixture.replaceAll(
+            cellRegex,
+            '<td align=center>$cellInnerHtml</td>',
+          ),
+        );
+        final schedule = table
+            .firstWhere((dto) => dto.course?.nameZh == '班週會及導師時間')
+            .schedule;
+        expect(
+          schedule,
+          isNotNull,
+          reason: 'the course name must stay the grid key',
+        );
+        return schedule!;
+      }
+
+      test('takes a trailing plain-text run as the classroom', () {
+        for (final meeting in classMeetingSchedule(
+          '班週會及導師時間<BR>六教226',
+        )) {
+          expect(meeting.classroom, (id: null, name: '六教226'));
+        }
+      });
+
+      test('takes a Croom.jsp anchor as the classroom', () {
+        for (final meeting in classMeetingSchedule(
+          '班週會及導師時間<BR>'
+          '<A href="Croom.jsp?format=-3&year=111&sem=1&code=423">六教226</A>',
+        )) {
+          expect(meeting.classroom, (id: '423', name: '六教226'));
+        }
+      });
+
+      test('never takes a Teach.jsp anchor as the classroom', () {
+        for (final meeting in classMeetingSchedule(
+          '班週會及導師時間<BR>'
+          '<A href="Teach.jsp?format=-3&year=111&sem=1&code=24465">某導師</A>',
+        )) {
+          expect(meeting.classroom, isNull);
+        }
+      });
     });
   });
 }

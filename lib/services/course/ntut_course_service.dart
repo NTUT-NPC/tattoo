@@ -601,16 +601,23 @@ class NtutCourseService implements CourseService {
   /// course with no classroom simply omits the `Croom.jsp` anchor, which makes
   /// the last anchor of a team-taught course a teacher, not a classroom.
   ///
-  /// Returns a null `courseName` for empty cells, and a null `classroom` when
-  /// the cell carries no classroom at all.
+  /// Returns a null `courseName` for empty cells and for cells whose entries
+  /// are all links to other pages, and a null `classroom` when the cell
+  /// carries no classroom at all.
   ({String? courseName, ReferenceDto? classroom}) _parseTimetableCell(
     Element cell,
   ) {
     final entries = _parseTimetableCellEntries(cell);
 
+    // Link-less rows such as 班週會及導師時間 name the course in the leading
+    // text run. Reading the whole cell instead would fold a trailing classroom
+    // or teacher into the name, and the course list joins on that name.
     final courseName =
         entries.firstWhereOrNull((entry) => entry.page == 'curr.jsp')?.text ??
-        cell.text.trim();
+        switch (entries.firstOrNull) {
+          (text: final text, page: null, reference: _) => text,
+          _ => '',
+        };
 
     var classroom = entries
         .firstWhereOrNull((entry) => entry.page == 'croom.jsp')
