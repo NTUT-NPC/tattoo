@@ -3,22 +3,20 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:riverpod/riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tattoo/services/campus_wifi/ntut8021x_state_store.dart';
-import 'package:tattoo/utils/shared_preferences.dart';
 
 const _campusWifiChannel = MethodChannel('club.ntut.tattoo/campus_wifi');
-const ntut8021xAutoReprovisionPreferenceKey = 'ntut8021xAutoReprovisionEnabled';
 
-bool get _isAndroidPlatform =>
-    !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+bool get _isMobilePlatform =>
+    !kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS);
 
 void _logCampusWifi(String message) {
   log(message, name: 'CampusWifi');
   debugPrint('[CampusWifi] $message');
 }
 
-/// Raw capabilities returned from the platform channel before repository mapping.
+/// Raw capabilities returned from the platform channel before provisioner mapping.
 typedef CampusWifiCapabilitiesDto = ({
   bool isSupported,
   int? androidSdkInt,
@@ -26,6 +24,7 @@ typedef CampusWifiCapabilitiesDto = ({
   bool canOpenWifiPanel,
   bool canProvisionNtut8021xSuggestion,
   bool canProvisionNtut8021xCompat,
+  bool canProvisionNtut8021x,
   String suggestionPermissionState,
 });
 
@@ -43,19 +42,9 @@ typedef Ntut8021xProvisioningDto = ({
   String? message,
 });
 
-/// Provides the platform bridge used by the campus Wi-Fi repository.
+/// Provides the platform bridge used by campus Wi-Fi actions.
 final campusWifiPlatformProvider = Provider<CampusWifiPlatform>((_) {
   return const MethodChannelCampusWifiPlatform(_campusWifiChannel);
-});
-
-final ntut8021xAutoReprovisionProvider = Provider<Ntut8021xAutoReprovision>((
-  ref,
-) {
-  return Ntut8021xAutoReprovision(
-    prefs: ref.watch(sharedPreferencesProvider),
-    platform: ref.watch(campusWifiPlatformProvider),
-    stateStore: ref.watch(ntut8021xStateStoreProvider),
-  );
 });
 
 /// Native/platform-facing bridge for campus Wi-Fi actions.
@@ -87,7 +76,7 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
 
   @override
   Future<CampusWifiCapabilitiesDto> getCapabilities() async {
-    return _invokeOnAndroid(
+    return _invokeOnMobile(
       fallback: (
         isSupported: false,
         androidSdkInt: null,
@@ -95,6 +84,7 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
         canOpenWifiPanel: false,
         canProvisionNtut8021xSuggestion: false,
         canProvisionNtut8021xCompat: false,
+        canProvisionNtut8021x: false,
         suggestionPermissionState: 'unknown',
       ),
       invoke: () async {
@@ -102,16 +92,18 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
           'getCapabilities',
         );
         return (
-          isSupported: true,
+          isSupported: result.readBool('isSupported') ?? result != null,
           androidSdkInt: result.readInt('sdkInt'),
-          canOpenWifiSettings: result.readBool('canOpenWifiSettings') ?? true,
+          canOpenWifiSettings: result.readBool('canOpenWifiSettings') ?? false,
           canOpenWifiPanel: result.readBool('canOpenWifiPanel') ?? false,
           canProvisionNtut8021xSuggestion:
-              result.readBool('canProvisionNtut8021xSuggestion') ??
-              result.readBool('canProvisionNtut8021x') ??
-              false,
+              result.readBool('canProvisionNtut8021xSuggestion') ?? false,
           canProvisionNtut8021xCompat:
               result.readBool('canProvisionNtut8021xCompat') ?? false,
+          canProvisionNtut8021x:
+              result.readBool('canProvisionNtut8021x') ??
+              ((result.readBool('canProvisionNtut8021xSuggestion') ?? false) ||
+                  (result.readBool('canProvisionNtut8021xCompat') ?? false)),
           suggestionPermissionState:
               result.readString('suggestionPermissionState') ?? 'unknown',
         );
@@ -165,9 +157,9 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
     required String method,
     required Map<String, Object?> arguments,
   }) async {
-    return _invokeOnAndroid(
+    return _invokeOnMobile(
       fallback: (
-        status: 'unsupportedPlatform',
+        status: _isMobilePlatform ? 'failed' : 'unsupportedPlatform',
         androidSdkInt: null,
         usedHiddenCaPath: false,
         wifiEnabled: null,
@@ -202,17 +194,17 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
   }
 
   Future<bool> _invokeBooleanMethod(String method) async {
-    return _invokeOnAndroid(
+    return _invokeOnMobile(
       fallback: false,
       invoke: () async => await _channel.invokeMethod<bool>(method) ?? false,
     );
   }
 
-  Future<T> _invokeOnAndroid<T>({
+  Future<T> _invokeOnMobile<T>({
     required T fallback,
     required Future<T> Function() invoke,
   }) async {
-    if (!_isAndroidPlatform) return fallback;
+    if (!_isMobilePlatform) return fallback;
 
     try {
       return await invoke();
@@ -224,136 +216,6 @@ class MethodChannelCampusWifiPlatform implements CampusWifiPlatform {
       );
       return fallback;
     }
-  }
-}
-
-/// Manages whether NTUT-802.1X should be automatically re-provisioned when
-/// credentials change, and performs the refresh when enabled.
-class Ntut8021xAutoReprovision {
-  Ntut8021xAutoReprovision({
-    required this._prefs,
-    required this._platform,
-    required this._stateStore,
-  });
-
-  final SharedPreferencesAsync _prefs;
-  final CampusWifiPlatform _platform;
-  final Ntut8021xStateStore _stateStore;
-
-  Future<bool> isEnabled() async {
-    final enabled =
-        await _prefs.getBool(ntut8021xAutoReprovisionPreferenceKey) ?? false;
-    _logCampusWifi('Read auto reprovision flag: enabled=$enabled');
-    return enabled;
-  }
-
-  Future<void> enable() async {
-    await _prefs.setBool(ntut8021xAutoReprovisionPreferenceKey, true);
-    _logCampusWifi('Updated auto reprovision flag: enabled=true');
-  }
-
-  Future<void> reprovisionIfEnabled({
-    required String identity,
-    required String password,
-    String? previousIdentity,
-    String? previousPassword,
-  }) async {
-    final enabled = await isEnabled();
-    if (!enabled) {
-      _logCampusWifi(
-        'Skipped NTUT-802.1X auto reprovision because the flag is disabled',
-      );
-      return;
-    }
-
-    final storedState = await _stateStore.read();
-    if (storedState.lastProvisioningMode ==
-        Ntut8021xStoredProvisioningMode.none) {
-      _logCampusWifi(
-        'Skipped NTUT-802.1X auto reprovision because no provisioning mode is stored',
-      );
-      return;
-    }
-
-    if (previousIdentity == identity && previousPassword == password) {
-      _logCampusWifi(
-        'Skipped NTUT-802.1X auto reprovision because credentials did not change',
-      );
-      return;
-    }
-
-    if (storedState.lastProvisioningMode ==
-        Ntut8021xStoredProvisioningMode.compat) {
-      await _stateStore.setPendingCompatPrompt(
-        reason: Ntut8021xStoredPendingPromptReason.credentialChanged,
-        immediate: true,
-      );
-      _logCampusWifi(
-        'Queued NTUT-802.1X compat prompt because last provisioning used compat mode',
-      );
-      return;
-    }
-
-    final capabilities = await _platform.getCapabilities();
-    if (!capabilities.canProvisionNtut8021xSuggestion) {
-      await _queueCompatPromptIfAvailable(capabilities, immediate: true);
-      _logCampusWifi(
-        'Skipped NTUT-802.1X auto reprovision because suggestion mode is unavailable',
-      );
-      return;
-    }
-
-    if (capabilities.suggestionPermissionState == 'disallowed') {
-      await _queueCompatPromptIfAvailable(capabilities, immediate: true);
-      _logCampusWifi(
-        'Queued NTUT-802.1X compat prompt because suggestion permission is disallowed',
-      );
-      return;
-    }
-
-    _logCampusWifi(
-      'Starting NTUT-802.1X auto reprovision; '
-      'hasPreviousCredentials=${previousIdentity != null && previousPassword != null}',
-    );
-
-    final result = await _platform.provisionNtut8021x(
-      identity: identity,
-      password: password,
-      previousIdentity: previousIdentity,
-      previousPassword: previousPassword,
-    );
-
-    if (_isSuggestionSuccess(result.status)) {
-      await _stateStore.markProvisioned(
-        mode: Ntut8021xStoredProvisioningMode.suggestion,
-      );
-      _logCampusWifi('Finished NTUT-802.1X auto reprovision successfully');
-      return;
-    }
-
-    await _queueCompatPromptIfAvailable(capabilities, immediate: true);
-    _logCampusWifi(
-      'Finished NTUT-802.1X auto reprovision without silent success; '
-      'result=${result.status}',
-    );
-  }
-
-  Future<void> _queueCompatPromptIfAvailable(
-    CampusWifiCapabilitiesDto capabilities, {
-    required bool immediate,
-  }) async {
-    if ((capabilities.androidSdkInt ?? 0) < 30 ||
-        !capabilities.canProvisionNtut8021xCompat) {
-      return;
-    }
-    await _stateStore.setPendingCompatPrompt(
-      reason: Ntut8021xStoredPendingPromptReason.suggestionFallbackRequired,
-      immediate: immediate,
-    );
-  }
-
-  bool _isSuggestionSuccess(String status) {
-    return status == 'success' || status == 'successPendingWifi';
   }
 }
 

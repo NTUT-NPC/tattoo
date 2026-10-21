@@ -5,12 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/campus_wifi.dart';
 import 'package:tattoo/models/login_exception.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/campus_wifi_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/services/demo_mode.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -237,6 +239,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return switch (result.status) {
       Ntut8021xProvisioningStatus.compatSuccess =>
         t.ntutWifi.provisioning.compatSuccess,
+      Ntut8021xProvisioningStatus.configured =>
+        t.ntutWifi.ios.configured.spaced,
+      Ntut8021xProvisioningStatus.cancelled => t.ntutWifi.ios.cancelled.spaced,
+      Ntut8021xProvisioningStatus.alreadyAssociated =>
+        t.ntutWifi.ios.alreadyAssociated.spaced,
       Ntut8021xProvisioningStatus.compatAlreadyExists =>
         t.ntutWifi.provisioning.compatAlreadyExists,
       Ntut8021xProvisioningStatus.compatCancelled =>

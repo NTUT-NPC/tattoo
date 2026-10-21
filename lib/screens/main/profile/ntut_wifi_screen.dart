@@ -4,7 +4,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/components/notices.dart';
 import 'package:tattoo/components/section_header.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/campus_wifi.dart';
 import 'package:tattoo/repositories/campus_wifi_repository.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 final ntutWifiAssistantProvider =
     FutureProvider.autoDispose<Ntut8021xAssistantData>((ref) async {
@@ -52,38 +54,58 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
 
   Future<void> _runProvisioning() async {
     setState(() => _isProvisioning = true);
-    final result = await ref
-        .read(campusWifiRepositoryProvider)
-        .provisionNtut8021x();
+    Ntut8021xProvisioningResult? result;
+    try {
+      result = await ref
+          .read(campusWifiRepositoryProvider)
+          .provisionNtut8021x();
+    } catch (_) {
+      result = null;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isProvisioning = false;
+          _lastProvisioningResult = result;
+        });
+      }
+    }
     if (!mounted) return;
-
-    setState(() {
-      _isProvisioning = false;
-      _lastProvisioningResult = result;
-    });
     ref.invalidate(ntutWifiAssistantProvider);
-    _showMessage(_provisioningSnackBarMessage(result));
+    _showMessage(switch (result) {
+      final result? => _provisioningSnackBarMessage(result),
+      null => t.ntutWifi.provisioning.failed,
+    });
   }
 
   Future<void> _saveNtut8021xToSystem() async {
     setState(() => _isSavingCompat = true);
-    final result = await ref
-        .read(campusWifiRepositoryProvider)
-        .saveNtut8021xToSystem();
+    Ntut8021xProvisioningResult? result;
+    try {
+      result = await ref
+          .read(campusWifiRepositoryProvider)
+          .saveNtut8021xToSystem();
+    } catch (_) {
+      result = null;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSavingCompat = false;
+          _lastProvisioningResult = result;
+        });
+      }
+    }
     if (!mounted) return;
-
-    setState(() {
-      _isSavingCompat = false;
-      _lastProvisioningResult = result;
-    });
     ref.invalidate(ntutWifiAssistantProvider);
-    _showMessage(_provisioningSnackBarMessage(result));
+    _showMessage(switch (result) {
+      final result? => _provisioningSnackBarMessage(result),
+      null => t.ntutWifi.provisioning.compatFailed,
+    });
   }
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+      ..showSnackBar(SnackBar(content: Text(message.spaced)));
   }
 
   String _provisioningSnackBarMessage(Ntut8021xProvisioningResult result) {
@@ -92,6 +114,9 @@ class _NtutWifiScreenState extends ConsumerState<NtutWifiScreen> {
     }
     return switch (result.status) {
       .success => t.ntutWifi.provisioning.success,
+      .configured => t.ntutWifi.ios.configured,
+      .cancelled => t.ntutWifi.ios.cancelled,
+      .alreadyAssociated => t.ntutWifi.ios.alreadyAssociated,
       .successPendingWifi => t.ntutWifi.provisioning.successPendingWifi,
       .approvalPending => t.ntutWifi.provisioning.approvalPending,
       .approvalRejected => t.ntutWifi.provisioning.approvalRejected,
@@ -183,19 +208,20 @@ class _AssistantBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isIos = Theme.of(context).platform == TargetPlatform.iOS;
     final notices = <Widget>[
       BackgroundNotice(
-        text: _statusMessage(data),
+        text: _statusMessage(data, isIos: isIos).spaced,
         noticeType: _statusNoticeType(data.status),
       ),
-      if (_modeNoticeMessage(data) case final message?)
+      if (_modeNoticeMessage(data, isIos: isIos) case final message?)
         BackgroundNotice(
-          text: message,
+          text: message.spaced,
           noticeType: _modeNoticeType(data),
         ),
       if (provisioningResult case final provisioningResult?)
         BackgroundNotice(
-          text: _provisioningMessage(provisioningResult),
+          text: _provisioningMessage(provisioningResult).spaced,
           noticeType: _provisioningNoticeType(provisioningResult),
         ),
       if (data.capabilities.androidSdkInt case final sdkInt?)
@@ -203,7 +229,7 @@ class _AssistantBody extends StatelessWidget {
           t.ntutWifi.androidVersion(sdkInt: sdkInt),
           style: Theme.of(context).textTheme.bodySmall,
         ),
-      if (data.capabilities.isSupported &&
+      if (data.capabilities.androidSdkInt != null &&
           !data.capabilities.isAndroid12OrNewer)
         BackgroundNotice(
           text: t.ntutWifi.olderAndroidWarning,
@@ -211,8 +237,17 @@ class _AssistantBody extends StatelessWidget {
         ),
       if (data.status == .ready && data.screenMode != .manualOnly)
         BackgroundNotice(
-          text: t.ntutWifi.systemCertificatesHint,
+          text:
+              (isIos
+                      ? t.ntutWifi.ios.certificatesHint
+                      : t.ntutWifi.systemCertificatesHint)
+                  .spaced,
           noticeType: .info,
+        ),
+      if (isIos && !data.capabilities.canProvisionAutomatically)
+        BackgroundNotice(
+          text: t.ntutWifi.ios.deviceRequired.spaced,
+          noticeType: .warning,
         ),
     ];
 
@@ -236,6 +271,8 @@ class _AssistantBody extends StatelessWidget {
                 label: Text(
                   isProvisioning
                       ? t.ntutWifi.actions.autoProvisioning
+                      : isIos
+                      ? t.ntutWifi.ios.connect
                       : t.ntutWifi.actions.autoProvision,
                 ),
               ),
@@ -286,10 +323,11 @@ class _AssistantBody extends StatelessWidget {
               label: t.ntutWifi.fields.eapMethod,
               value: Ntut8021xAssistantData.eapMethod,
             ),
-            _SettingFieldTile(
-              label: t.ntutWifi.fields.phase2Auth,
-              value: Ntut8021xAssistantData.phase2Authentication,
-            ),
+            if (!isIos)
+              _SettingFieldTile(
+                label: t.ntutWifi.fields.phase2Auth,
+                value: Ntut8021xAssistantData.phase2Authentication,
+              ),
             _SettingFieldTile(
               label: t.ntutWifi.fields.identity,
               value: data.identity ?? t.general.notLoggedIn,
@@ -311,18 +349,29 @@ class _AssistantBody extends StatelessWidget {
               value: Ntut8021xAssistantData.domainSuffix,
             ),
             SectionHeader(title: t.ntutWifi.sections.fallback),
-            Text(t.ntutWifi.fallbackSteps.openSettings),
+            Text(
+              (isIos
+                      ? t.ntutWifi.ios.openSettings
+                      : t.ntutWifi.fallbackSteps.openSettings)
+                  .spaced,
+            ),
             Text(t.ntutWifi.fallbackSteps.selectNetwork),
-            Text(t.ntutWifi.fallbackSteps.useDisplayedValues),
+            Text(
+              (isIos
+                      ? t.ntutWifi.ios.enterCredentials
+                      : t.ntutWifi.fallbackSteps.useDisplayedValues)
+                  .spaced,
+            ),
           ],
         ),
       ],
     );
   }
 
-  String _statusMessage(Ntut8021xAssistantData data) {
+  String _statusMessage(Ntut8021xAssistantData data, {required bool isIos}) {
     return switch (data.status) {
-      .ready => '${t.ntutWifi.intro}\n${t.ntutWifi.accountHint}',
+      .ready =>
+        '${isIos ? t.ntutWifi.ios.intro : t.ntutWifi.intro}\n${t.ntutWifi.accountHint}',
       .notLoggedIn => t.ntutWifi.notLoggedIn,
       .credentialsMissing =>
         '${t.ntutWifi.credentialsMissing}\n${t.ntutWifi.accountHint}',
@@ -338,7 +387,10 @@ class _AssistantBody extends StatelessWidget {
     };
   }
 
-  String? _modeNoticeMessage(Ntut8021xAssistantData data) {
+  String? _modeNoticeMessage(
+    Ntut8021xAssistantData data, {
+    required bool isIos,
+  }) {
     if (data.status != .ready) return null;
 
     if (data.capabilities.isLegacyAndroidManualOnly) {
@@ -351,7 +403,9 @@ class _AssistantBody extends StatelessWidget {
     }
 
     if (data.pendingCompatPromptReason == .credentialChanged) {
-      return t.ntutWifi.compatUpdateRequired;
+      return isIos
+          ? t.ntutWifi.ios.updateRequired
+          : t.ntutWifi.compatUpdateRequired;
     }
 
     if (data.pendingCompatPromptReason == .suggestionFallbackRequired) {
@@ -385,6 +439,9 @@ class _AssistantBody extends StatelessWidget {
     }
     return switch (result.status) {
       .success => t.ntutWifi.provisioning.success,
+      .configured => t.ntutWifi.ios.configured,
+      .cancelled => t.ntutWifi.ios.cancelled,
+      .alreadyAssociated => t.ntutWifi.ios.alreadyAssociated,
       .successPendingWifi => t.ntutWifi.provisioning.successPendingWifi,
       .approvalPending => t.ntutWifi.provisioning.approvalPending,
       .approvalRejected => t.ntutWifi.provisioning.approvalRejected,
@@ -406,10 +463,12 @@ class _AssistantBody extends StatelessWidget {
       return .warning;
     }
     return switch (result.status) {
-      .success || .successPendingWifi || .compatSuccess => .info,
+      .success || .configured || .successPendingWifi || .compatSuccess => .info,
       .approvalPending ||
       .approvalRejected ||
       .validationUnavailable ||
+      .cancelled ||
+      .alreadyAssociated ||
       .compatAlreadyExists ||
       .compatCancelled => .warning,
       .unsupportedPlatform || .failed || .compatFailed => .error,

@@ -5,9 +5,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:shared_preferences_platform_interface/types.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/models/campus_wifi.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/campus_wifi_repository.dart';
+import 'package:tattoo/services/campus_wifi/android_campus_wifi_provisioner.dart';
 import 'package:tattoo/services/campus_wifi/campus_wifi_platform.dart';
+import 'package:tattoo/services/campus_wifi/campus_wifi_provisioner.dart';
+import 'package:tattoo/services/campus_wifi/ios_campus_wifi_provisioner.dart';
+import 'package:tattoo/services/campus_wifi/ntut8021x_auto_reprovision.dart';
 import 'package:tattoo/services/campus_wifi/ntut8021x_state_store.dart';
 import 'package:tattoo/services/portal/mock_portal_service.dart';
 import 'package:tattoo/services/student_query/mock_student_query_service.dart';
@@ -61,6 +66,7 @@ void main() {
               canOpenWifiPanel: true,
               canProvisionNtut8021xSuggestion: true,
               canProvisionNtut8021xCompat: true,
+              canProvisionNtut8021x: true,
               suggestionPermissionState: 'disallowed',
             ),
           ),
@@ -91,6 +97,7 @@ void main() {
               canOpenWifiPanel: true,
               canProvisionNtut8021xSuggestion: true,
               canProvisionNtut8021xCompat: false,
+              canProvisionNtut8021x: true,
               suggestionPermissionState: 'disallowed',
             ),
           ),
@@ -229,22 +236,378 @@ void main() {
         Ntut8021xStoredProvisioningMode.compat,
       );
     });
+
+    test(
+      'iOS configuration clears pending updates only after acceptance',
+      () async {
+        final authRepository = _FakeAuthRepository(
+          localUser: _testUser,
+          credentials: (username: '111360109', password: 'new-password'),
+        );
+        addTearDown(authRepository.close);
+        final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
+        await stateStore.setPendingCompatPrompt(
+          reason: .credentialChanged,
+          immediate: true,
+        );
+        final platform = _FakeCampusWifiPlatform(
+          capabilities: _iosCapabilities,
+          provisioningResult: _iosResult('configured'),
+        );
+        final repository = _buildRepository(
+          authRepository: authRepository,
+          stateStore: stateStore,
+          platform: platform,
+          provisioner: IosCampusWifiProvisioner(
+            platform: platform,
+            stateStore: stateStore,
+          ),
+        );
+
+        final data = await repository.getNtut8021xAssistantData();
+        expect(data.canProvisionAutomatically, isTrue);
+        expect(data.canUseCompatMode, isFalse);
+        expect(data.capabilities.isLegacyAndroidManualOnly, isFalse);
+        final result = await repository.provisionNtut8021x();
+        expect(result.status, Ntut8021xProvisioningStatus.configured);
+        expect(result.isSuccess, isTrue);
+        expect(result.lastProvisioningMode, Ntut8021xProvisioningMode.direct);
+        final state = await stateStore.read();
+        expect(
+          state.lastProvisioningMode,
+          Ntut8021xStoredProvisioningMode.direct,
+        );
+        expect(state.pendingCompatPromptReason, isNull);
+        expect(state.pendingImmediatePrompt, isFalse);
+        expect(platform.provisionCallCount, 1);
+        expect(platform.compatCallCount, 0);
+      },
+    );
+
+    for (final (wireStatus, expectedStatus) in [
+      ('cancelled', Ntut8021xProvisioningStatus.cancelled),
+      ('alreadyAssociated', Ntut8021xProvisioningStatus.alreadyAssociated),
+      ('failed', Ntut8021xProvisioningStatus.failed),
+    ]) {
+      test('iOS $wireStatus preserves the pending credential update', () async {
+        final authRepository = _FakeAuthRepository(
+          localUser: _testUser,
+          credentials: (username: '111360109', password: 'new-password'),
+        );
+        addTearDown(authRepository.close);
+        final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
+        await stateStore.markProvisioned(mode: .direct);
+        await stateStore.setPendingCompatPrompt(
+          reason: .credentialChanged,
+          immediate: false,
+        );
+        final platform = _FakeCampusWifiPlatform(
+          capabilities: _iosCapabilities,
+          provisioningResult: _iosResult(wireStatus),
+        );
+        final repository = _buildRepository(
+          authRepository: authRepository,
+          stateStore: stateStore,
+          platform: platform,
+          provisioner: IosCampusWifiProvisioner(
+            platform: platform,
+            stateStore: stateStore,
+          ),
+        );
+
+        final result = await repository.provisionNtut8021x();
+        expect(result.status, expectedStatus);
+        expect(result.isSuccess, isFalse);
+        expect(platform.provisionCallCount, 1);
+        expect(platform.compatCallCount, 0);
+        final state = await stateStore.read();
+        expect(
+          state.lastProvisioningMode,
+          Ntut8021xStoredProvisioningMode.direct,
+        );
+        expect(
+          state.pendingCompatPromptReason,
+          Ntut8021xStoredPendingPromptReason.credentialChanged,
+        );
+        expect(
+          (await repository.getNtut8021xAssistantData())
+              .canProvisionAutomatically,
+          isTrue,
+        );
+      });
+    }
+
+    test('iOS does not offer provisioning without saved credentials', () async {
+      final authRepository = _FakeAuthRepository(localUser: _testUser);
+      addTearDown(authRepository.close);
+      final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
+      final platform = _FakeCampusWifiPlatform(capabilities: _iosCapabilities);
+      final repository = _buildRepository(
+        authRepository: authRepository,
+        platform: platform,
+        stateStore: stateStore,
+        provisioner: IosCampusWifiProvisioner(
+          platform: platform,
+          stateStore: stateStore,
+        ),
+      );
+      final data = await repository.getNtut8021xAssistantData();
+      expect(data.status, Ntut8021xAssistantStatus.credentialsMissing);
+      expect(data.canProvisionAutomatically, isFalse);
+      expect(
+        (await repository.provisionNtut8021x()).status,
+        Ntut8021xProvisioningStatus.unsupportedPlatform,
+      );
+      expect(platform.provisionCallCount, 0);
+      expect(platform.compatCallCount, 0);
+    });
+
+    test(
+      'iOS ignores Android SDK metadata and suggestion denial',
+      () async {
+        final authRepository = _FakeAuthRepository(
+          localUser: _testUser,
+          credentials: (username: '111360109', password: 'new-password'),
+        );
+        addTearDown(authRepository.close);
+        final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
+        await stateStore.markProvisioned(mode: .direct);
+        await stateStore.setPendingCompatPrompt(
+          reason: .credentialChanged,
+          immediate: true,
+        );
+        final platform = _FakeCampusWifiPlatform(
+          capabilities: const (
+            isSupported: true,
+            androidSdkInt: 34,
+            canOpenWifiSettings: true,
+            canOpenWifiPanel: true,
+            canProvisionNtut8021xSuggestion: true,
+            canProvisionNtut8021xCompat: true,
+            canProvisionNtut8021x: true,
+            suggestionPermissionState: 'disallowed',
+          ),
+          provisioningResult: _iosResult('cancelled'),
+          compatResult: _iosResult('cancelled'),
+        );
+        final repository = _buildRepository(
+          authRepository: authRepository,
+          platform: platform,
+          stateStore: stateStore,
+          provisioner: IosCampusWifiProvisioner(
+            platform: platform,
+            stateStore: stateStore,
+          ),
+        );
+
+        final data = await repository.getNtut8021xAssistantData();
+        expect(data.status, Ntut8021xAssistantStatus.ready);
+        expect(data.screenMode, Ntut8021xScreenMode.normal);
+        expect(data.canProvisionAutomatically, isTrue);
+        expect(data.canUseCompatMode, isFalse);
+        expect(
+          data.pendingPromptReason,
+          Ntut8021xPendingPromptReason.credentialChanged,
+        );
+
+        final result = await repository.provisionNtut8021x();
+        expect(result.status, Ntut8021xProvisioningStatus.cancelled);
+        expect(result.isSuccess, isFalse);
+        expect(result.fallbackTriggered, isFalse);
+        final saveResult = await repository.saveNtut8021xToSystem(
+          pendingPromptReason: .credentialChanged,
+        );
+        expect(saveResult.status, Ntut8021xProvisioningStatus.cancelled);
+        expect(saveResult.fallbackTriggered, isFalse);
+        expect(platform.provisionCallCount, 1);
+        expect(platform.compatCallCount, 1);
+
+        final state = await stateStore.read();
+        expect(
+          state.lastProvisioningMode,
+          Ntut8021xStoredProvisioningMode.direct,
+        );
+        expect(
+          state.pendingCompatPromptReason,
+          Ntut8021xStoredPendingPromptReason.credentialChanged,
+        );
+        expect(state.pendingImmediatePrompt, isTrue);
+        final refreshedData = await repository.getNtut8021xAssistantData();
+        expect(refreshedData.canProvisionAutomatically, isTrue);
+        expect(
+          refreshedData.pendingPromptReason,
+          Ntut8021xPendingPromptReason.credentialChanged,
+        );
+      },
+    );
+
+    test(
+      'Android without suggestion or compat support never uses direct apply',
+      () async {
+        final authRepository = _FakeAuthRepository(
+          localUser: _testUser,
+          credentials: (username: '111360109', password: 'portal-password'),
+        );
+        addTearDown(authRepository.close);
+        final platform = _FakeCampusWifiPlatform(
+          capabilities: const (
+            isSupported: true,
+            androidSdkInt: 34,
+            canOpenWifiSettings: true,
+            canOpenWifiPanel: true,
+            canProvisionNtut8021xSuggestion: false,
+            canProvisionNtut8021xCompat: false,
+            canProvisionNtut8021x: true,
+            suggestionPermissionState: 'allowed',
+          ),
+          provisioningResult: _iosResult('configured'),
+        );
+        final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
+        final repository = _buildRepository(
+          authRepository: authRepository,
+          platform: platform,
+          stateStore: stateStore,
+        );
+
+        final data = await repository.getNtut8021xAssistantData();
+        expect(data.screenMode, Ntut8021xScreenMode.manualOnly);
+        expect(data.canProvisionAutomatically, isFalse);
+        expect(data.canUseCompatMode, isFalse);
+        expect(
+          (await repository.provisionNtut8021x()).status,
+          Ntut8021xProvisioningStatus.unsupportedPlatform,
+        );
+        expect(
+          (await repository.saveNtut8021xToSystem()).status,
+          Ntut8021xProvisioningStatus.unsupportedPlatform,
+        );
+        expect(platform.provisionCallCount, 0);
+        expect(platform.compatCallCount, 0);
+        expect(
+          (await stateStore.read()).lastProvisioningMode,
+          Ntut8021xStoredProvisioningMode.none,
+        );
+      },
+    );
+
+    for (final isSupported in [false, true]) {
+      test(
+        'iOS without native apply stays manual when supported=$isSupported',
+        () async {
+          final authRepository = _FakeAuthRepository(
+            localUser: _testUser,
+            credentials: (username: '111360109', password: 'new-password'),
+          );
+          addTearDown(authRepository.close);
+          final stateStore = Ntut8021xStateStore(SharedPreferencesAsync());
+          await stateStore.setPendingCompatPrompt(
+            reason: .credentialChanged,
+            immediate: true,
+          );
+          final platform = _FakeCampusWifiPlatform(
+            capabilities: (
+              isSupported: isSupported,
+              androidSdkInt: null,
+              canOpenWifiSettings: false,
+              canOpenWifiPanel: false,
+              canProvisionNtut8021xSuggestion: false,
+              canProvisionNtut8021xCompat: false,
+              canProvisionNtut8021x: false,
+              suggestionPermissionState: 'unknown',
+            ),
+            provisioningResult: _iosResult('configured'),
+          );
+          final repository = _buildRepository(
+            authRepository: authRepository,
+            platform: platform,
+            stateStore: stateStore,
+            provisioner: IosCampusWifiProvisioner(
+              platform: platform,
+              stateStore: stateStore,
+            ),
+          );
+
+          final data = await repository.getNtut8021xAssistantData();
+          expect(
+            data.status,
+            isSupported
+                ? Ntut8021xAssistantStatus.ready
+                : Ntut8021xAssistantStatus.unsupportedPlatform,
+          );
+          expect(data.screenMode, Ntut8021xScreenMode.manualOnly);
+          expect(data.canProvisionAutomatically, isFalse);
+          expect(data.canUseCompatMode, isFalse);
+          expect(
+            (await repository.provisionNtut8021x()).status,
+            Ntut8021xProvisioningStatus.unsupportedPlatform,
+          );
+          expect(
+            (await repository.saveNtut8021xToSystem()).status,
+            Ntut8021xProvisioningStatus.unsupportedPlatform,
+          );
+          expect(platform.provisionCallCount, 0);
+          expect(platform.compatCallCount, 0);
+          final state = await stateStore.read();
+          expect(
+            state.lastProvisioningMode,
+            Ntut8021xStoredProvisioningMode.none,
+          );
+          expect(
+            state.pendingCompatPromptReason,
+            Ntut8021xStoredPendingPromptReason.credentialChanged,
+          );
+          expect(state.pendingImmediatePrompt, isTrue);
+        },
+      );
+    }
   });
 }
+
+const _iosCapabilities = (
+  isSupported: true,
+  androidSdkInt: null,
+  canOpenWifiSettings: false,
+  canOpenWifiPanel: false,
+  canProvisionNtut8021xSuggestion: false,
+  canProvisionNtut8021xCompat: false,
+  canProvisionNtut8021x: true,
+  suggestionPermissionState: 'unknown',
+);
+
+Ntut8021xProvisioningDto _iosResult(String status) => (
+  status: status,
+  androidSdkInt: null,
+  usedHiddenCaPath: false,
+  wifiEnabled: null,
+  networkSuggestionStatus: null,
+  approvalStatus: null,
+  suggestionPermissionState: 'unknown',
+  compatResultCode: null,
+  compatNetworkResultCodes: const <int>[],
+  message: null,
+);
 
 CampusWifiRepository _buildRepository({
   required _FakeAuthRepository authRepository,
   required _FakeCampusWifiPlatform platform,
   Ntut8021xStateStore? stateStore,
+  CampusWifiProvisioner? provisioner,
 }) {
   final prefs = SharedPreferencesAsync();
   final resolvedStateStore = stateStore ?? Ntut8021xStateStore(prefs);
+  final resolvedProvisioner =
+      provisioner ??
+      AndroidCampusWifiProvisioner(
+        platform: platform,
+        stateStore: resolvedStateStore,
+      );
   return CampusWifiRepository(
     authRepository: authRepository,
     platform: platform,
+    provisioner: resolvedProvisioner,
     autoReprovision: Ntut8021xAutoReprovision(
       prefs: prefs,
-      platform: platform,
+      provisioner: resolvedProvisioner,
       stateStore: resolvedStateStore,
     ),
     stateStore: resolvedStateStore,
@@ -310,6 +673,7 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
       canOpenWifiPanel: true,
       canProvisionNtut8021xSuggestion: true,
       canProvisionNtut8021xCompat: true,
+      canProvisionNtut8021x: true,
       suggestionPermissionState: 'allowed',
     ),
     this.provisioningResult = const (
@@ -343,6 +707,9 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
   final Ntut8021xProvisioningDto provisioningResult;
   final Ntut8021xProvisioningDto compatResult;
 
+  int provisionCallCount = 0;
+  int compatCallCount = 0;
+
   @override
   Future<CampusWifiCapabilitiesDto> getCapabilities() async => capabilities;
 
@@ -359,6 +726,7 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
     String? previousIdentity,
     String? previousPassword,
   }) async {
+    provisionCallCount++;
     return provisioningResult;
   }
 
@@ -367,6 +735,7 @@ class _FakeCampusWifiPlatform implements CampusWifiPlatform {
     required String identity,
     required String password,
   }) async {
+    compatCallCount++;
     return compatResult;
   }
 }
