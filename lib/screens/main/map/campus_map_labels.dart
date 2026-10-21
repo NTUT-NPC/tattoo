@@ -9,10 +9,12 @@ import 'package:tattoo/utils/localized.dart';
 String campusMapBuildingName(String code, {required String fallbackName}) =>
     t.campusMap.buildingNames[code] ?? fallbackName;
 
-/// Formats a developer menu entry as the original [code] and mapped name.
-String campusMapBuildingMenuLabel(String code) {
-  final translation = t.campusMap.buildingNames[code];
-  return translation == null ? code : '$code: $translation';
+/// Formats a building menu entry as the original [code] and display name.
+///
+/// Untranslated codes use [fallbackName], omitted when it repeats the code.
+String campusMapBuildingMenuLabel(String code, {required String fallbackName}) {
+  final name = campusMapBuildingName(code, fallbackName: fallbackName);
+  return name == code ? code : '$code: $name';
 }
 
 /// Chooses the localized space name, treating blank server fields as missing.

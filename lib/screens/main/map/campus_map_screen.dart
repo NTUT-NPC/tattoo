@@ -186,7 +186,12 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
     );
     CampusMapBuilding? candidate() => campusMapBuildingAt(
       point: point,
-      buildings: ref.read(campusMapBuildingsProvider).value ?? [],
+      buildings: [
+        ...?ref
+            .read(campusMapBuildingsProvider)
+            .value
+            ?.where((building) => building.shownOnMap),
+      ],
       selectedBuildingCode: _buildingCode,
       visibleRooms: switch (_floor) {
         final floor? =>
@@ -384,9 +389,15 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
       }
     });
     final catalog = ref.watch(campusMapBuildingsProvider);
-    final buildings = catalog.value ?? const <CampusMapBuilding>[];
+    final allBuildings = catalog.value ?? const <CampusMapBuilding>[];
+    final buildings = allBuildings
+        .where((building) => building.shownOnMap)
+        .toList();
+    final menuBuildings = ref.pref(PrefKey.showAllCampusMapBuildings)
+        ? allBuildings
+        : buildings;
     final campuses = ref.watch(campusMapCampusesProvider);
-    final building = buildings
+    final building = allBuildings
         .where((building) => building.code == _buildingCode)
         .firstOrNull;
     final floorData = _floor == null
@@ -430,21 +441,25 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
         tooltip: t.campusMap.search,
         onTap: _openSearch,
       ),
-      if (ref.pref(PrefKey.showCampusMapBuildingSelector))
-        FloatingActionBarMenuButton<CampusMapBuilding>(
-          icon: Icons.apartment_outlined,
-          tooltip: t.campusMap.selectBuilding,
-          enabled: buildings.isNotEmpty,
-          items: [
-            for (final item in buildings)
-              CheckedPopupMenuItem(
-                value: item,
-                checked: item.code == _buildingCode,
-                child: Text(campusMapBuildingMenuLabel(item.code).spaced),
+      FloatingActionBarMenuButton<CampusMapBuilding>(
+        icon: Icons.apartment_outlined,
+        tooltip: t.campusMap.selectBuilding,
+        enabled: menuBuildings.isNotEmpty,
+        items: [
+          for (final item in menuBuildings)
+            CheckedPopupMenuItem(
+              value: item,
+              checked: item.code == _buildingCode,
+              child: Text(
+                campusMapBuildingMenuLabel(
+                  item.code,
+                  fallbackName: item.name,
+                ).spaced,
               ),
-          ],
-          onSelected: _selectBuilding,
-        ),
+            ),
+        ],
+        onSelected: _selectBuilding,
+      ),
     ];
     return Scaffold(
       appBar: AppBar(

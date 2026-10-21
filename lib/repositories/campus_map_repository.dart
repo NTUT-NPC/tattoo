@@ -74,7 +74,8 @@ class CampusMapRepository {
   /// once per subscription; failures retain stale data or emit an empty catalog
   /// for the screen's retry state.
   /// Bundled first-floor outlines replace upstream outlines, including existing
-  /// caches. Buildings without usable first-floor outlines are omitted.
+  /// caches. Buildings without usable first-floor outlines are not
+  /// [CampusMapBuilding.shownOnMap].
   Stream<List<CampusMapBuilding>> watchBuildings() async* {
     var attempted = false;
     final query = _db.select(_db.campusMapBuildings).join([
@@ -109,20 +110,21 @@ class CampusMapRepository {
       }
       yield [
         for (final building in buildings.values)
-          if ((_firstFloorOutlines == null ||
-                  _firstFloorOutlines.containsKey(building.code)) &&
-              (floors[building.code]?.any((floor) => floor.code == '1F') ??
-                  false))
-            CampusMapBuilding(
-              code: building.code,
-              name: _firstFloorOutlines?[building.code]?.name ?? building.name,
-              polygons: decodeCampusMapGeometry(
-                _firstFloorOutlines?[building.code]?.geometry ??
-                    building.geometry,
-              ),
-              floors: (floors[building.code] ?? [])
-                ..sort((a, b) => a.order.compareTo(b.order)),
+          CampusMapBuilding(
+            code: building.code,
+            name: _firstFloorOutlines?[building.code]?.name ?? building.name,
+            polygons: decodeCampusMapGeometry(
+              _firstFloorOutlines?[building.code]?.geometry ??
+                  building.geometry,
             ),
+            floors: (floors[building.code] ?? [])
+              ..sort((a, b) => a.order.compareTo(b.order)),
+            shownOnMap:
+                (_firstFloorOutlines == null ||
+                    _firstFloorOutlines.containsKey(building.code)) &&
+                (floors[building.code]?.any((floor) => floor.code == '1F') ??
+                    false),
+          ),
       ]..sort((a, b) => a.name.compareTo(b.name));
       if (!attempted &&
           (stamp == null || _now().difference(stamp) >= _cacheTtl)) {

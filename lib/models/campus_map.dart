@@ -60,6 +60,7 @@ class CampusMapBuilding {
     required this.name,
     required this.polygons,
     required this.floors,
+    required this.shownOnMap,
   });
 
   /// The GeoServer building code, or a feature ID for uncoded outlines.
@@ -73,6 +74,11 @@ class CampusMapBuilding {
 
   /// The building's available floors in ascending physical order.
   final List<CampusMapFloor> floors;
+
+  /// Whether the map draws this building, which requires a first floor.
+  ///
+  /// Hidden buildings stay in the catalog for the developer building menu.
+  final bool shownOnMap;
 }
 
 /// One published indoor layer belonging to a building.

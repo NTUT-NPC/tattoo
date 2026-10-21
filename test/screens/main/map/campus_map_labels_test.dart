@@ -47,17 +47,27 @@ void main() {
   });
 
   test(
-    'developer building menu shows original codes followed by mapped names',
+    'building menu shows original codes followed by display names',
     () async {
       expect(
-        campusMapBuildingMenuLabel('A6T'),
+        campusMapBuildingMenuLabel('A6T', fallbackName: '宏裕科技大樓/第六教學大樓'),
         'A6T: 第六教學大樓',
       );
-      expect(campusMapBuildingMenuLabel('HR'), 'HR: 宏裕科技大樓');
-      expect(campusMapBuildingMenuLabel('ZZ'), 'ZZ');
+      expect(
+        campusMapBuildingMenuLabel('HR', fallbackName: 'HR'),
+        'HR: 宏裕科技大樓',
+      );
+      expect(campusMapBuildingMenuLabel('ZZ', fallbackName: 'ZZ'), 'ZZ');
+      expect(
+        campusMapBuildingMenuLabel('ZZ', fallbackName: '尚未翻譯的大樓'),
+        'ZZ: 尚未翻譯的大樓',
+      );
       await LocaleSettings.setLocale(AppLocale.enUs);
-      expect(campusMapBuildingMenuLabel('LB'), 'LB: Library');
-      expect(campusMapBuildingMenuLabel('ZZ'), 'ZZ');
+      expect(
+        campusMapBuildingMenuLabel('LB', fallbackName: '圖書館'),
+        'LB: Library',
+      );
+      expect(campusMapBuildingMenuLabel('ZZ', fallbackName: 'ZZ'), 'ZZ');
     },
   );
 

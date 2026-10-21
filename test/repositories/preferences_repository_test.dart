@@ -49,8 +49,8 @@ void main() {
       expect(PrefKey.showCourseRoster.type, PrefType.boolean);
       expect(PrefKey.showCourseRoster.defaultValue, true);
 
-      expect(PrefKey.showCampusMapBuildingSelector.type, PrefType.boolean);
-      expect(PrefKey.showCampusMapBuildingSelector.defaultValue, false);
+      expect(PrefKey.showAllCampusMapBuildings.type, PrefType.boolean);
+      expect(PrefKey.showAllCampusMapBuildings.defaultValue, false);
 
       expect(PrefKey.iSchoolPlusNetworkGuideUrl.type, PrefType.string);
       expect(

@@ -191,10 +191,21 @@ void main() {
         final source = await database.select(database.campusMapBuildings).get();
         repository = _repository(service, database, () => clock, bundled: true);
 
-        final buildings = await repository.watchBuildings().first;
+        final catalog = await repository.watchBuildings().first;
+        final buildings = catalog.where((building) => building.shownOnMap);
         expect(
           buildings.map((building) => building.code),
           unorderedEquals(codes),
+        );
+        expect(
+          catalog
+              .where((building) => !building.shownOnMap)
+              .map((building) => building.code),
+          unorderedEquals([
+            'gis_building_geom.13',
+            'gis_building_geom.17',
+            'PK',
+          ]),
         );
         for (final building in buildings) {
           expect(building.polygons, isNotEmpty, reason: building.code);
@@ -213,7 +224,7 @@ void main() {
     );
 
     test(
-      'a known building without an advertised first floor is omitted',
+      'a known building without an advertised first floor is hidden',
       () async {
         service.buildings = [_outline('A1T', 'Alpha Hall')];
         service.layers = [
@@ -222,7 +233,10 @@ void main() {
         await repository.refreshBuildings();
         repository = _repository(service, database, () => clock, bundled: true);
 
-        expect(await repository.watchBuildings().first, isEmpty);
+        final building = (await repository.watchBuildings().first).single;
+        expect(building.code, 'A1T');
+        expect(building.shownOnMap, isFalse);
+        expect(building.floors.single.layerName, _layerA2);
         expect(service.roomCalls, isEmpty);
       },
     );
@@ -252,9 +266,9 @@ void main() {
           );
 
           expect(
-            (await repository.watchBuildings().first).map(
-              (building) => building.code,
-            ),
+            (await repository.watchBuildings().first)
+                .where((building) => building.shownOnMap)
+                .map((building) => building.code),
             ['AD'],
           );
           final results = await repository.searchRooms('201');
