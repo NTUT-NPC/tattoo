@@ -29,6 +29,9 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<!-- Flutter routes report named screens; native controllers are not screens. -->
+	<key>FirebaseAutomaticScreenReportingEnabled</key>
+	<false/>
 	<key>GOOGLE_ANALYTICS_ADID_COLLECTION_ENABLED</key>
 	<false/>
 	<key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key>
