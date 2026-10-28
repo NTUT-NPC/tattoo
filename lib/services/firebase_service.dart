@@ -67,7 +67,7 @@ class FirebaseService {
     );
   }
 
-  /// Loads activated Remote Config values from local storage.
+  /// Seeds defaults while using FlutterFire's activated config cache.
   ///
   /// Call at app start with optional in-app [defaults]. No network requests are
   /// made here; call [startBackgroundUpdates] after the first frame.
@@ -79,8 +79,6 @@ class FirebaseService {
       if (defaults != null) await _setDefaults(defaults);
       return;
     }
-
-    await rc.ensureInitialized();
 
     if (defaults != null) {
       await rc.setDefaults(defaults);
@@ -165,6 +163,9 @@ class FirebaseService {
   }) async {
     try {
       if (setupSettings) {
+        // Native initialization can wait for an Installations token over the
+        // network, so keep it in the background fetch rather than app startup.
+        await rc.ensureInitialized();
         await rc.setConfigSettings(
           RemoteConfigSettings(
             fetchTimeout: const Duration(minutes: 1),
