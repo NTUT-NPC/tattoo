@@ -8,7 +8,7 @@
   "schedule": ["* * 2 * *"],
   "prHourlyLimit": 0,
   "constraints": {
-    "flutter": "3.47.7"
+    "flutter": "3.47.8"
   },
   "bundler": {
     "managerFilePatterns": ["/(^|/)Pluginfile$/"]
