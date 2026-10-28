@@ -1,4 +1,4 @@
 [tools]
-flutter = "3.47.7"
+flutter = "3.47.8"
 java = "temurin-17" # Required by Android build
 ruby = "4.0.7"      # Required by Fastlane

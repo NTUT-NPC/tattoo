@@ -51,7 +51,7 @@ runs:
         cache_save: ${{ inputs.save-caches }}
 
     - name: Verify Flutter version
-      if: ${{ inputs.platform == 'android' && steps.mise.outputs.flutter != '3.47.7' }}
+      if: ${{ inputs.platform == 'android' && steps.mise.outputs.flutter != '3.47.8' }}
       shell: bash
       env:
         FLUTTER_VERSION: ${{ steps.mise.outputs.flutter }}

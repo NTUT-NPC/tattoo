@@ -43,6 +43,8 @@ Project Tattoo is a work-in-progress Flutter app that helps Taipei Tech (NTUT) s
 
 This project uses [mise](https://mise.jdx.dev/) to manage development tools (Flutter, Java, Ruby).
 
+Use the Flutter version pinned in `mise.toml`. Flutter 3.47.8 / Dart 3.13.7 is the minimum security baseline for the [compromised eMudhra CA advisory](https://firebase.google.com/support/guides/compromised-emudhra-intermediate-ca#flutter-apps). Android app binaries must be rebuilt with the patched SDK and released, and users must update existing installations; an OS update alone does not fix their compiled-in TLS verification.
+
 ```bash
 # Install and activate mise (if not already)
 # See: https://mise.jdx.dev/getting-started.html
