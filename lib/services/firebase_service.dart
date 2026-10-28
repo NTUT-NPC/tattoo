@@ -67,10 +67,10 @@ class FirebaseService {
     );
   }
 
-  /// Initializes Firebase Remote Config.
+  /// Loads activated Remote Config values from local storage.
   ///
-  /// Call this at app start to fetch and activate the latest configuration.
-  /// Optionally provide [defaults] for in-app default values.
+  /// Call at app start with optional in-app [defaults]. No network requests are
+  /// made here; call [startBackgroundUpdates] after the first frame.
   Future<void> init({Map<String, dynamic>? defaults}) async {
     final rc = remoteConfig;
     if (rc == null) return;
@@ -80,18 +80,37 @@ class FirebaseService {
       return;
     }
 
+    await rc.ensureInitialized();
+
     if (defaults != null) {
       await rc.setDefaults(defaults);
     }
 
-    _setupUpdateListener(rc);
+    _isInitialized = true;
+  }
 
-    await _fetchAndActivate(
+  /// Fetches fresh config and listens for updates after startup completes.
+  ///
+  /// Activated values notify preference listeners. The launch's update check
+  /// keeps its cached result until the next cold start.
+  Future<void> startBackgroundUpdates() async {
+    final rc = remoteConfig;
+    if (rc == null) return;
+
+    try {
+      _setupUpdateListener(rc);
+    } catch (e) {
+      dev.log(
+        'Failed to listen for Remote Config updates: $e',
+        name: 'FirebaseService',
+      );
+    }
+    final succeeded = await _fetchAndActivate(
       rc,
       context: 'initialized',
       setupSettings: true,
     );
-    _isInitialized = true;
+    if (succeeded) _updateController.add(null);
   }
 
   /// Updates the in-app default values for Remote Config.
@@ -100,22 +119,30 @@ class FirebaseService {
   }
 
   void _setupUpdateListener(FirebaseRemoteConfig rc) {
-    rc.onConfigUpdated.listen((event) async {
-      dev.log(
-        'Remote Config updated: ${event.updatedKeys}',
-        name: 'FirebaseService',
-      );
-      try {
-        await rc.activate();
-      } catch (e) {
+    rc.onConfigUpdated.listen(
+      (event) async {
         dev.log(
-          'Failed to activate Remote Config: $e',
+          'Remote Config updated: ${event.updatedKeys}',
           name: 'FirebaseService',
         );
-        return;
-      }
-      _updateController.add(null);
-    });
+        try {
+          await rc.activate();
+        } catch (e) {
+          dev.log(
+            'Failed to activate Remote Config: $e',
+            name: 'FirebaseService',
+          );
+          return;
+        }
+        _updateController.add(null);
+      },
+      onError: (Object error) {
+        dev.log(
+          'Remote Config update stream error: $error',
+          name: 'FirebaseService',
+        );
+      },
+    );
   }
 
   /// Forces a fresh fetch and activation of Remote Config.
@@ -130,7 +157,7 @@ class FirebaseService {
     );
   }
 
-  Future<void> _fetchAndActivate(
+  Future<bool> _fetchAndActivate(
     FirebaseRemoteConfig rc, {
     required String context,
     bool setupSettings = false,
@@ -162,6 +189,7 @@ class FirebaseService {
         dev.log(message, name: 'FirebaseService');
         firebaseService.log(message);
       }
+      return status == .success;
     } catch (e) {
       final keys = rc.getAll().keys.toList()..sort();
       final message =
@@ -173,6 +201,7 @@ class FirebaseService {
       } else {
         firebaseService.log(message);
       }
+      return false;
     }
   }
 
