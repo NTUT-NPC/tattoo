@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
 
@@ -174,11 +175,11 @@ Future<void> main() async {
   // Restore the platform language selection before mounting the app.
   await container.read(languageRepositoryProvider).restore();
 
-  // Initialize Remote Config and preference defaults
+  // Load local Remote Config values and preference defaults without fetching.
   final preferencesRepository = container.read(preferencesRepositoryProvider);
   await preferencesRepository.init();
 
-  // Run force-update check and wire Remote Config live updates.
+  // Check cached update config before any background fetch can activate values.
   await UpdateService.init(container);
 
   final database = container.read(databaseProvider);
@@ -227,6 +228,9 @@ Future<void> main() async {
       ),
     ),
   );
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    unawaited(firebaseService.startBackgroundUpdates());
+  });
 }
 
 class MyApp extends ConsumerWidget {
