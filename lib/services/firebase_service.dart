@@ -39,11 +39,6 @@ class FirebaseService {
   /// The [FirebaseAnalytics] instance, or `null` if Firebase is disabled.
   FirebaseAnalytics? get analytics => useFirebase ? .instance : null;
 
-  /// Returns a [FirebaseAnalyticsObserver] for use with navigation observers, or
-  /// `null` if Firebase is disabled.
-  FirebaseAnalyticsObserver? get analyticsObserver =>
-      useFirebase ? FirebaseAnalyticsObserver(analytics: analytics!) : null;
-
   /// The [FirebaseCrashlytics] instance, or `null` if Firebase is disabled.
   FirebaseCrashlytics? get crashlytics => useFirebase ? .instance : null;
 

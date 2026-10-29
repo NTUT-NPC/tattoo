@@ -1,8 +1,10 @@
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/router/screen_tracking.dart';
 import 'package:tattoo/screens/main/calendar/calendar_screen.dart';
 import 'package:tattoo/screens/main/course_table/course_table_screen.dart';
 import 'package:tattoo/screens/main/home/home_screen.dart';
@@ -135,179 +137,191 @@ GoRouter createAppRouter({
   required String initialLocation,
   required String landingLocation,
   required ProviderContainer container,
-}) => GoRouter(
-  navigatorKey: rootNavigatorKey,
-  initialLocation: initialLocation,
-  refreshListenable: _SessionRefreshListenable(container),
-  redirect: (context, state) {
-    // Force-update gate: block all navigation when a forced update is pending.
-    final updateConfig = container.read(updateConfigProvider);
-    final isForcedUpdate = updateConfig?.isForcedUpdate == true;
-    if (isForcedUpdate) {
-      if (state.matchedLocation == AppRoutes.update) return null;
-      return AppRoutes.update;
-    }
-
-    // Escape: forced update cleared remotely while user is on the gate screen.
-    // Also kicks the user out if they manually navigated to the update screen
-    // but no update is actually available.
-    if (state.matchedLocation == AppRoutes.update && updateConfig == null) {
-      final hasSession = container.read(sessionProvider);
-      if (!hasSession) return AppRoutes.intro;
-      return container.read(pendingAppRouteProvider) ?? landingLocation;
-    }
-
-    // Auth gate: redirect unauthenticated users to login. An authenticated
-    // internal destination is consumed only once its route is reached.
-    final hasSession = container.read(sessionProvider);
-    if (hasSession) {
-      final pendingRoute = container.read(pendingAppRouteProvider);
-      if (pendingRoute == null) return null;
-      if (state.matchedLocation == pendingRoute) {
-        // Redirect runs while the widget tree builds, where modifying a
-        // provider throws, so release the destination once this frame
-        // settles. Repeat redirects before then are harmless: they resolve
-        // to this same already-reached route.
-        Future(() => container.read(pendingAppRouteProvider.notifier).take());
-        return null;
+}) {
+  final router = GoRouter(
+    navigatorKey: rootNavigatorKey,
+    initialLocation: initialLocation,
+    refreshListenable: _SessionRefreshListenable(container),
+    redirect: (context, state) {
+      // Force-update gate: block all navigation when a forced update is pending.
+      final updateConfig = container.read(updateConfigProvider);
+      final isForcedUpdate = updateConfig?.isForcedUpdate == true;
+      if (isForcedUpdate) {
+        if (state.matchedLocation == AppRoutes.update) return null;
+        return AppRoutes.update;
       }
-      return pendingRoute;
-    }
-    if (_publicRoutes.contains(state.matchedLocation)) return null;
-    return AppRoutes.login;
-  },
-  observers: [
-    if (firebaseService.analyticsObserver != null)
-      firebaseService.analyticsObserver!,
-  ],
-  routes: [
-    GoRoute(
-      path: AppRoutes.whatsNew,
-      builder: (context, state) => _framed(const WhatsNewScreen()),
-    ),
-    GoRoute(
-      path: AppRoutes.update,
-      builder: (context, state) => const UpdateScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.intro,
-      builder: (context, state) => _framed(const IntroScreen()),
-    ),
-    GoRoute(
-      path: AppRoutes.studentUnion,
-      builder: (context, state) => _framed(const StudentUnionScreen()),
-    ),
-    GoRoute(
-      path: AppRoutes.login,
-      builder: (context, state) => _framed(const LoginScreen()),
-    ),
-    GoRoute(
-      path: AppRoutes.changePassword,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        final isExpired = extra?['isExpired'] as bool? ?? false;
-        final username = extra?['username'] as String?;
-        return _framed(
-          ChangePasswordScreen(
-            isExpired: isExpired,
-            username: username,
+
+      // Escape: forced update cleared remotely while user is on the gate screen.
+      // Also kicks the user out if they manually navigated to the update screen
+      // but no update is actually available.
+      if (state.matchedLocation == AppRoutes.update && updateConfig == null) {
+        final hasSession = container.read(sessionProvider);
+        if (!hasSession) return AppRoutes.intro;
+        return container.read(pendingAppRouteProvider) ?? landingLocation;
+      }
+
+      // Auth gate: redirect unauthenticated users to login. An authenticated
+      // internal destination is consumed only once its route is reached.
+      final hasSession = container.read(sessionProvider);
+      if (hasSession) {
+        final pendingRoute = container.read(pendingAppRouteProvider);
+        if (pendingRoute == null) return null;
+        if (state.matchedLocation == pendingRoute) {
+          // Redirect runs while the widget tree builds, where modifying a
+          // provider throws, so release the destination once this frame
+          // settles. Repeat redirects before then are harmless: they resolve
+          // to this same already-reached route.
+          Future(() => container.read(pendingAppRouteProvider.notifier).take());
+          return null;
+        }
+        return pendingRoute;
+      }
+      if (_publicRoutes.contains(state.matchedLocation)) return null;
+      return AppRoutes.login;
+    },
+    routes: [
+      GoRoute(
+        path: AppRoutes.whatsNew,
+        builder: (context, state) => _framed(const WhatsNewScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.update,
+        builder: (context, state) => const UpdateScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.intro,
+        builder: (context, state) => _framed(const IntroScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.studentUnion,
+        builder: (context, state) => _framed(const StudentUnionScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) => _framed(const LoginScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.changePassword,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final isExpired = extra?['isExpired'] as bool? ?? false;
+          final username = extra?['username'] as String?;
+          return _framed(
+            ChangePasswordScreen(
+              isExpired: isExpired,
+              username: username,
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.about,
+        builder: (context, state) => _framed(const AboutScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.scanner,
+        builder: (context, state) => const ScannerScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.regedit,
+        builder: (context, state) => _framed(const RegeditScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.preferences,
+        builder: (context, state) => _framed(const PreferencesScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.language,
+        builder: (context, state) => _framed(
+          const PreferenceDetailScreen(id: .language),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.themeMode,
+        builder: (context, state) => _framed(
+          const PreferenceDetailScreen(id: .themeMode),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.portal,
+        builder: (context, state) => _framed(const PortalScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.calendar,
+        builder: (context, state) => _framed(const CalendarScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.ntutWifi,
+        builder: (context, state) => const NtutWifiScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.campusMap,
+        builder: (context, state) => CampusMapScreen(
+          initialQuery: state.uri.queryParameters['room'],
+        ),
+      ),
+      StatefulShellRoute(
+        builder: (context, state, navigationShell) =>
+            HomeScreen(navigationShell: navigationShell),
+        navigatorContainerBuilder: (context, navigationShell, children) {
+          return AnimatedShellContainer(
+            currentIndex: navigationShell.currentIndex,
+            children: children,
+          );
+        },
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                pageBuilder: (context, state) =>
+                    NoTransitionPage(child: _framed(const MainHomeScreen())),
+              ),
+            ],
           ),
-        );
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.courseTable,
+                pageBuilder: (context, state) =>
+                    NoTransitionPage(child: _framed(const CourseTableScreen())),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.score,
+                pageBuilder: (context, state) =>
+                    NoTransitionPage(child: _framed(const ScoreScreen())),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.profile,
+                pageBuilder: (context, state) =>
+                    NoTransitionPage(child: _framed(const ProfileScreen())),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  );
+  if (firebaseService.analytics case final analytics?) {
+    trackScreenViews(
+      router,
+      onScreenView: (screenName) {
+        analytics
+            .logScreenView(screenName: screenName)
+            .catchError(
+              (Object error) => debugPrint('Failed to log screen view: $error'),
+              test: (Object error) => error is PlatformException,
+            );
       },
-    ),
-    GoRoute(
-      path: AppRoutes.about,
-      builder: (context, state) => _framed(const AboutScreen()),
-    ),
-    GoRoute(
-      path: AppRoutes.scanner,
-      builder: (context, state) => const ScannerScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.regedit,
-      builder: (context, state) => _framed(const RegeditScreen()),
-    ),
-    GoRoute(
-      path: AppRoutes.preferences,
-      builder: (context, state) => _framed(const PreferencesScreen()),
-    ),
-    GoRoute(
-      path: AppRoutes.language,
-      builder: (context, state) => _framed(
-        const PreferenceDetailScreen(id: .language),
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.themeMode,
-      builder: (context, state) => _framed(
-        const PreferenceDetailScreen(id: .themeMode),
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.portal,
-      builder: (context, state) => _framed(const PortalScreen()),
-    ),
-    GoRoute(
-      path: AppRoutes.calendar,
-      builder: (context, state) => _framed(const CalendarScreen()),
-    ),
-    GoRoute(
-      path: AppRoutes.ntutWifi,
-      builder: (context, state) => const NtutWifiScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.campusMap,
-      builder: (context, state) => CampusMapScreen(
-        initialQuery: state.uri.queryParameters['room'],
-      ),
-    ),
-    StatefulShellRoute(
-      builder: (context, state, navigationShell) =>
-          HomeScreen(navigationShell: navigationShell),
-      navigatorContainerBuilder: (context, navigationShell, children) {
-        return AnimatedShellContainer(
-          currentIndex: navigationShell.currentIndex,
-          children: children,
-        );
-      },
-      branches: [
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.home,
-              pageBuilder: (context, state) =>
-                  NoTransitionPage(child: _framed(const MainHomeScreen())),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.courseTable,
-              pageBuilder: (context, state) =>
-                  NoTransitionPage(child: _framed(const CourseTableScreen())),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.score,
-              pageBuilder: (context, state) =>
-                  NoTransitionPage(child: _framed(const ScoreScreen())),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.profile,
-              pageBuilder: (context, state) =>
-                  NoTransitionPage(child: _framed(const ProfileScreen())),
-            ),
-          ],
-        ),
-      ],
-    ),
-  ],
-);
+    );
+  }
+  return router;
+}
