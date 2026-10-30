@@ -35,6 +35,7 @@ class WhatsNewPromptNotifier extends Notifier<bool> {
     final preferences = ref.read(preferencesRepositoryProvider);
     final count = await _promptCount(version);
     await preferences.set(PrefKey.whatsNewPromptCount, count + 1);
+    await preferences.set(PrefKey.lastPromptedWhatsNewVersion, version);
   }
 
   Future<void> markSeen(String version) => ref
@@ -51,11 +52,6 @@ class WhatsNewPromptNotifier extends Notifier<bool> {
     } on FormatException {
       // Missing or invalid prompt history starts a new release's count.
     }
-    await preferences.set(PrefKey.whatsNewPromptCount, 0);
-    await preferences.set(
-      PrefKey.lastPromptedWhatsNewVersion,
-      release.toString(),
-    );
     return 0;
   }
 }
