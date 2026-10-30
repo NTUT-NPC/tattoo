@@ -43,6 +43,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - Constructor providers (DI wiring) are co-located with the classes they construct (services, database, repositories)
 - Screen-specific providers live alongside the screen that consumes them (e.g., `screens/main/profile/profile_providers.dart`)
 - Shared providers used by multiple screens in a feature live one level up
+- `screens/whats_new_providers.dart` owns What's New prompt eligibility, major/minor release grouping, persisted read/prompt history, and the app-launch prompt flag. Screens coordinate display and navigation; App update checks retain full SemVer comparison in `UpdateService`.
 - Repository classes take framework-agnostic dependencies (callbacks, not Riverpod notifiers)
 
 **Data Flow Pattern (per Flutter's architecture guide):**
