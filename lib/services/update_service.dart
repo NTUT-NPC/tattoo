@@ -75,8 +75,9 @@ Future<String> getCurrentSemVer() async {
 /// Checks whether the running app version is older than the version declared
 /// in Remote Config.
 ///
-/// Returns `null` when Firebase is disabled, the config key is absent, or the
-/// app is already up to date — regardless of `isForceUpdate`.
+/// Returns `null` when Firebase is disabled, the config key is absent, either
+/// version is malformed, or the app is already up to date — regardless of
+/// `isForceUpdate`. Malformed versions are logged and skipped so startup continues.
 /// Returns a [VersionConfig] record (with `isForcedUpdate` set accordingly)
 /// when the running version is outdated, covering both forced and optional
 /// update scenarios.
@@ -86,7 +87,21 @@ Future<VersionConfig?> checkForUpdate() async {
 
   final currentVersion = await getCurrentSemVer();
 
-  if (isVersionOlder(currentVersion, config.requiredVersion)) {
+  final bool needsUpdate;
+  try {
+    needsUpdate = isVersionOlder(currentVersion, config.requiredVersion);
+  } on FormatException catch (error, stackTrace) {
+    log(
+      'Skipping update check with malformed version: '
+      'current=$currentVersion, required=${config.requiredVersion}',
+      name: 'UpdateService',
+      error: error,
+      stackTrace: stackTrace,
+    );
+    return null;
+  }
+
+  if (needsUpdate) {
     log(
       '${config.isForcedUpdate ? 'Force' : 'Optional'} update available: '
       'current=$currentVersion, required=${config.requiredVersion}',
