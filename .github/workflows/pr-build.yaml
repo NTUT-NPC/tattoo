@@ -10,6 +10,10 @@ jobs:
   prepare:
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    concurrency:
+      group: build-number-allocation
+      cancel-in-progress: false
+      queue: max
     permissions:
       contents: read
     outputs:
@@ -35,7 +39,6 @@ jobs:
         uses: ./.github/actions/manage-build-number
         with:
           github_token: ${{ secrets.BUILD_NUMBER_PAT }}
-          current_build_number: ${{ vars.build_number }}
 
   build-android:
     permissions:
