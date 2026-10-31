@@ -3,6 +3,13 @@ import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/postman/mock_postman_service.dart';
 import 'package:tattoo/services/postman/ntut_postman_service.dart';
 
+/// Pagination metadata comes from the server, not the number of returned items.
+typedef PostmanAnnouncementPageDto = ({
+  List<PostmanAnnouncementDto> announcements,
+  int page,
+  int totalPages,
+});
+
 /// A school announcement in the Postman list, in server display order.
 typedef PostmanAnnouncementDto = ({
   String id,
@@ -11,16 +18,6 @@ typedef PostmanAnnouncementDto = ({
   String department,
   DateTime publishedAt,
 });
-
-/// Pagination metadata comes from the server, not the number of returned items.
-typedef PostmanAnnouncementPageDto = ({
-  List<PostmanAnnouncementDto> announcements,
-  int page,
-  int totalPages,
-});
-
-/// An attachment link supplied by Postman; downloading requires NTUT cookies.
-typedef PostmanAttachmentDto = ({String name, Uri url});
 
 /// Details returned by the announcement modal, without list-only date metadata.
 typedef PostmanAnnouncementDetailDto = ({
@@ -36,6 +33,9 @@ typedef PostmanAnnouncementDetailDto = ({
   /// Publisher and contact information, preserving line breaks.
   String contact,
 });
+
+/// An attachment link supplied by Postman; downloading requires NTUT cookies.
+typedef PostmanAttachmentDto = ({String name, Uri url});
 
 final postmanServiceProvider = Provider<PostmanService>((ref) {
   if (ref.watch(isDemoProvider)) return MockPostmanService();
