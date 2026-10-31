@@ -7,6 +7,10 @@ on:
         description: Build number represented by the preview comment
         required: true
         type: string
+      commit_message:
+        description: Pull request head commit subject shown in the preview comment
+        required: true
+        type: string
 
 jobs:
   comment:
@@ -31,7 +35,7 @@ jobs:
           BUILD_NUMBER: ${{ inputs.build_number }}
           GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
+          COMMIT_MESSAGE: ${{ inputs.commit_message }}
         run: |
           download_receipt() {
             marker_name=$1
@@ -55,7 +59,7 @@ jobs:
           ## PR Preview Builds (Staging)
           **Build Number:** $BUILD_NUMBER
           **Commit:** $HEAD_SHA
-          **Message:** $PR_TITLE
+          **Message:** $COMMIT_MESSAGE
           EOF
 
           if [ -f "$RUNNER_TEMP/android.json" ]; then
