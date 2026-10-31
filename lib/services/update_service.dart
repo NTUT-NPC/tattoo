@@ -132,19 +132,6 @@ final updateConfigProvider =
       UpdateConfigNotifier.new,
     );
 
-/// Tracks whether the current app launch has shown the What's New prompt.
-class WhatsNewPromptedNotifier extends Notifier<bool> {
-  @override
-  bool build() => false;
-
-  void markPrompted() => state = true;
-}
-
-final whatsNewPromptedProvider =
-    NotifierProvider<WhatsNewPromptedNotifier, bool>(
-      WhatsNewPromptedNotifier.new,
-    );
-
 /// Session-scoped flag: `true` once the user dismisses the optional update
 /// banner. Resets to `false` on each app launch or when a new update config
 /// is fetched (e.g. via a Remote Config push).

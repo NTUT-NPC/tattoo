@@ -11,6 +11,7 @@ import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
+import 'package:tattoo/screens/whats_new_providers.dart';
 import 'package:tattoo/services/github_service.dart';
 import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
@@ -74,9 +75,9 @@ class _AboutScreenState extends ConsumerState<AboutScreen> {
         icon: Icons.new_releases_outlined,
         title: t.whatsNew.title.spaced,
         onTap: () async {
-          final prefs = ref.read(preferencesRepositoryProvider);
+          final whatsNew = ref.read(whatsNewPromptProvider.notifier);
           final version = await getCurrentSemVer();
-          await prefs.set(PrefKey.lastSeenWhatsNewVersion, version);
+          await whatsNew.markSeen(version);
           if (context.mounted) context.push(AppRoutes.whatsNew);
         },
       ),

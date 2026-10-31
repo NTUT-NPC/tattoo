@@ -43,6 +43,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - Constructor providers (DI wiring) are co-located with the classes they construct (services, database, repositories)
 - Screen-specific providers live alongside the screen that consumes them (e.g., `screens/main/profile/profile_providers.dart`)
 - Shared providers used by multiple screens in a feature live one level up
+- `screens/whats_new_providers.dart` owns What's New prompt eligibility, major/minor release grouping, persisted read/prompt history, and the app-launch prompt flag. Screens coordinate display and navigation; App update checks retain full SemVer comparison in `UpdateService`.
 - Repository classes take framework-agnostic dependencies (callbacks, not Riverpod notifiers)
 
 **Data Flow Pattern (per Flutter's architecture guide):**
@@ -67,6 +68,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - FileSaveService — Exports course material downloads through native save dialogs.
 - GitHubService — fetches repo contributors, filters bots
 - FirebaseService — Unified wrapper for Firebase Analytics, Crashlytics, and Remote Config. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`). `getRemoteConfigTyped(key, PrefType)` casts a Remote Config value to the caller's declared type (no sniffing), returning `(value: null, isRemote: false)` when disabled or not remotely set.
+- **Screen analytics:** `lib/router/screen_tracking.dart` reports committed go_router route templates through `FirebaseAnalytics.logScreenView`, including initial routes, retained tab revisits, and push/pop returns. Consecutive updates to the same screen are deduplicated; query values and concrete path parameters are excluded. Native automatic screen reporting is disabled in AndroidManifest.xml and Info.plist because native activities/controllers do not identify Flutter screens. Do not add a Navigator analytics observer alongside this tracking.
 - CampusWifiPlatform — Method-channel client wrapper that exposes Android-only system Wi-Fi APIs (suggestions and settings) to the Dart application via the `campusWifiPlatformProvider` Riverpod provider and structured method-channel DTOs (`CampusWifiCapabilitiesDto`, `Ntut8021xProvisioningDto`).
 - Ntut8021xStateStore — Securely stores device-local provisioning state (modes, credential fingerprint, pending compat prompts) using SharedPreferences, exposed via the `ntut8021xStateStoreProvider`.
 - NTUT services share single cookie jar (NTUT session state)

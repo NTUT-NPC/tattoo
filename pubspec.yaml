@@ -2,7 +2,7 @@ name: tattoo
 description: "A modern reimplementation of TAT — the course helper app for Taipei Tech students"
 publish_to: 'none'
 
-version: 2.2.0+5667
+version: 2.2.1+5684
 
 environment:
   sdk: ^3.13.2
