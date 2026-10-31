@@ -103,7 +103,8 @@ typedef PortalApplicationCategoryDto = ({
 enum PortalServiceCode {
   studentQueryService('sa_003_oauth'),
   courseService('aa_0010-oauth'),
-  iSchoolPlusService('ischool_plus_oauth');
+  iSchoolPlusService('ischool_plus_oauth'),
+  postmanService('test_postman');
 
   final String code;
   const PortalServiceCode(this.code);

@@ -65,6 +65,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - CourseService — 課程系統 (`aa_0010-oauth`). Course catalog, schedules, teacher profiles, syllabi. All HTML-parsed.
 - ISchoolPlusService — 北科i學園PLUS (`ischool_plus_oauth`). Course rosters and materials.
 - StudentQueryService — 學生查詢專區 (`sa_003_oauth`). Academic records, GPA, rankings, registration history.
+- PostmanService — 小郵差 (`test_postman`). Paginated school announcements via `getAnnouncements(page: ...)`, with one-based page numbers and server-provided total pages. `getAnnouncement(id)` returns summary, untrusted content HTML, attachment URLs, and publisher/contact text. Requires portal SSO and supports demo mode.
 - FileSaveService — Exports course material downloads through native save dialogs.
 - GitHubService — fetches repo contributors, filters bots
 - FirebaseService — Unified wrapper for Firebase Analytics, Crashlytics, and Remote Config. Gated by compile-time `USE_FIREBASE` flag (`--dart-define=USE_FIREBASE=true`), defaults to `false` to avoid package name mismatch in debug builds. Callers use null-aware access (`firebase.analytics?.logAppOpen()`). `getRemoteConfigTyped(key, PrefType)` casts a Remote Config value to the caller's declared type (no sniffing), returning `(value: null, isRemote: false)` when disabled or not remotely set.

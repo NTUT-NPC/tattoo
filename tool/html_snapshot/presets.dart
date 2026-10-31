@@ -41,6 +41,12 @@ enum SnapshotService {
     baseUrl: 'https://istudy.ntut.edu.tw/learn/',
     host: 'istudy.ntut.edu.tw',
     ssoCode: 'ischool_plus_oauth',
+  ),
+  postman(
+    cliName: 'postman',
+    baseUrl: 'https://postman.ntut.edu.tw/CI/',
+    host: 'postman.ntut.edu.tw',
+    ssoCode: 'test_postman',
   );
 
   final String cliName;
@@ -76,6 +82,29 @@ enum SnapshotService {
 // dart format on
 
 final _presetList = <SnapshotPreset>[
+  SnapshotPreset(
+    name: 'postman.announcements',
+    service: .postman,
+    description: 'Postman school announcements, first page.',
+    includeInAll: true,
+    buildRequest: _simple(.postman, 'home/1'),
+  ),
+  SnapshotPreset(
+    name: 'postman.announcement',
+    service: .postman,
+    description: 'Postman announcement details. Required: --announcement-id.',
+    includeInAll: false,
+    allSkipReason: 'Requires --announcement-id.',
+    buildRequest: (context, args) async {
+      final id = _requiredOption(args, 'announcement-id');
+      return SnapshotRequest(
+        service: .postman,
+        path: 'ajax/msghtml/${Uri.encodeComponent(id)}',
+        extension: 'html',
+        fileParts: [id],
+      );
+    },
+  ),
   SnapshotPreset(
     name: 'portal.application_categories',
     service: .portal,
