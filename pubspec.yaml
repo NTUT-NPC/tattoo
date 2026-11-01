@@ -48,7 +48,7 @@ dependencies:
   table_calendar: ^3.3.0
   mobile_scanner: ^7.4.2
   qr_flutter: ^4.1.0
-  firebase_remote_config: ^6.7.0
+  firebase_remote_config: ^7.0.1
   pub_semver: ^2.2.1
   material_ui: ^1.6.0
   flutter_map: ^8.3.2
