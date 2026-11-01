@@ -41,7 +41,7 @@ dependencies:
   drift_dev: ^2.35.1 # TODO: move back to dev_dependencies after first release
   flutter_image_compress: ^2.5.1
   msgpack_dart: ^1.0.1
-  firebase_core: ^4.15.0
+  firebase_core: ^5.1.0
   firebase_crashlytics: ^5.4.0
   firebase_analytics: ^12.6.0
   auto_size_text: ^3.0.0
