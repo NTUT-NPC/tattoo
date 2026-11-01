@@ -64,6 +64,17 @@
       "matchUpdateTypes": ["major"],
       "groupName": null,
       "groupSlug": null
+    },
+    {
+      "matchManagers": ["gradle", "gradle-wrapper"],
+      "matchDepNames": [
+        "gradle",
+        "com.android.application",
+        "org.jetbrains.kotlin.android"
+      ],
+      "groupName": "Android build toolchain",
+      "groupSlug": "android-toolchain",
+      "separateMajorMinor": false
     }
   ]
 }
