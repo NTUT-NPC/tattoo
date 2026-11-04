@@ -1057,8 +1057,8 @@ class NtutCourseService implements CourseService {
   }
 
   String? _parseCellText(Element cell) {
-    final text = cell.text.trim();
-    return text.isNotEmpty ? text : null;
+    final text = cell.textContent(convertBRsToNewlines: true)?.trim();
+    return text?.isNotEmpty == true ? text : null;
   }
 
   /// Parses teacher names from an English course-list cell.
