@@ -41,14 +41,14 @@ dependencies:
   drift_dev: ^2.35.1 # TODO: move back to dev_dependencies after first release
   flutter_image_compress: ^2.5.1
   msgpack_dart: ^1.0.1
-  firebase_core: ^4.15.0
-  firebase_crashlytics: ^5.4.0
-  firebase_analytics: ^12.6.0
+  firebase_core: ^5.1.0
+  firebase_crashlytics: ^6.0.1
+  firebase_analytics: ^13.0.1
   auto_size_text: ^3.0.0
   table_calendar: ^3.3.0
   mobile_scanner: ^7.4.2
   qr_flutter: ^4.1.0
-  firebase_remote_config: ^6.7.0
+  firebase_remote_config: ^7.0.1
   pub_semver: ^2.2.1
   material_ui: ^1.6.0
   flutter_map: ^8.3.2
