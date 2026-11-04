@@ -117,7 +117,8 @@ class CaptureCommand extends SnapshotCommand {
       )
       ..addOption('classroom-id', help: 'Classroom ID for course.classroom.')
       ..addOption('course-number', help: 'Course offering number.')
-      ..addOption('course-internal-id', help: 'Internal iSchool+ course ID.');
+      ..addOption('course-internal-id', help: 'Internal iSchool+ course ID.')
+      ..addOption('announcement-id', help: 'Postman announcement ID.');
   }
 
   @override
@@ -881,6 +882,7 @@ String _serviceFilePrefix(SnapshotService service) {
     .course => 'course',
     .studentQuery => 'sq',
     .ischool => 'ischool',
+    .postman => 'postman',
   };
 }
 
