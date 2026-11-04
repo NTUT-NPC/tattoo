@@ -1,0 +1,114 @@
+<!--
+
+preset: student_query.profile
+request_url: https://aps-stu.ntut.edu.tw/StuQuery/QryBasisData.jsp
+
+fetchtime: 2026-07-14 17:50:19
+message: This is a usual student profile page.
+
+TODO: Add the expected parse result after the HTML-based test code is complete.
+
+-->
+
+
+
+
+
+
+<HTML>
+<HEAD>
+<TITLE>學生查詢專區--學業基本資料查詢</TITLE>
+<Script src="https://font.ntut.edu.tw/wfs/js/lib/wfs.js" type="text/javascript" ></script>
+</HEAD>
+
+<BODY bgcolor=#ffffdf background="./image/grey918y.gif" text=#003398>
+<H3><img src=./image/or_ball.gif>王大同(111590001) 的學籍基本資料</H3>
+
+<p style='margin:10px 0;color:red;font-weight:bold;'>＊倘需修改學籍基本資料，請至聯合服務中心或所屬教務單位申請學籍異動。</p>
+<table border=1 BGCOLOR=#CCFFFF>
+
+<tr><th BGCOLOR=99FF99>學　　號<th BGCOLOR=99FF99>Student ID No.<td>111590001
+<tr><th BGCOLOR=99FF99>中文姓名<th BGCOLOR=99FF99>Chinese Name <td>王大同
+<tr><th BGCOLOR=99FF99>英文姓名<th BGCOLOR=99FF99>English Name<td>WANG,DA-TONG<div style='background-color:#ffff99;color:red;padding:4px 6px;margin-top:3px;'>申請教務處英文相關文件前（例如英文畢業證明書、英文成績單），請確認與護照姓名相同。</div></td>
+<tr><th BGCOLOR=99FF99>性　別<th BGCOLOR=99FF99>Gender<td>男 Male
+<tr><th BGCOLOR=99FF99>身分證字號<th BGCOLOR=99FF99>ID No.<td>A110056789<div style='background-color:#ffff99;color:red;padding:4px 6px;margin-top:3px;'>屬畢業證書必要資訊，僑生身分學生請更新為最新居留證證號。</div></td>
+<tr><th BGCOLOR=99FF99>出生日期<th BGCOLOR=99FF99>Date of Birth<td>92年05月12日　2003/5/12
+<tr><th BGCOLOR=99FF99>出 生 地<th BGCOLOR=99FF99>Birth Place<td>臺北市
+<tr><th BGCOLOR=99FF99>學制<th BGCOLOR=99FF99>Program<td>四年制大學部Four-Year Program
+<tr><th BGCOLOR=99FF99>科系所組<th BGCOLOR=99FF99>Department/Graduate Institute<td>電子工程系Department of Electronic Engineering
+<tr><th colspan=3>　
+<tr><th colspan=3 BGCOLOR=FFCCCC>戶籍地址 Permanent Address
+<tr><th BGCOLOR=99FF99>郵遞區號<th BGCOLOR=99FF99>Postal Code<td>100
+<tr><th BGCOLOR=99FF99>地　　址<th BGCOLOR=99FF99>Address<td>臺北市中正區新生南路一段1號
+<tr><th BGCOLOR=99FF99>電　　話<th BGCOLOR=99FF99>Phone<td>02-27712171
+<tr><th colspan=3>　
+<tr><th colspan=3 BGCOLOR=FFCCCC>通訊地址 Contact Address
+<tr><th BGCOLOR=99FF99>郵遞區號<th BGCOLOR=99FF99>Postal Code<td>106
+<tr><th BGCOLOR=99FF99>地　　址<th BGCOLOR=99FF99>Address<td>臺北市大安區忠孝東路三段1號
+<tr><th BGCOLOR=99FF99>電　　話<th BGCOLOR=99FF99>Phone<td>02-27712171
+<tr><th BGCOLOR=99FF99>行動電話<th BGCOLOR=99FF99>Cell-Phone<td>0912345678
+<tr><th BGCOLOR=99FF99>常用Email<th BGCOLOR=99FF99>Email<td>datong@ntut.edu.tw
+<tr><th colspan=3>　
+<tr><th colspan=3 BGCOLOR=FFCCCC>家長(監護人)或緊急聯絡人 Emergency Contact
+<tr><th BGCOLOR=99FF99>姓　　名<th BGCOLOR=99FF99>Name<td>王源
+<tr><th BGCOLOR=99FF99>郵遞區號<th BGCOLOR=99FF99>Postal Code<td>106
+<tr><th BGCOLOR=99FF99>地　　址<th BGCOLOR=99FF99>Address<td>臺北市大安區忠孝東路三段1號
+<tr><th BGCOLOR=99FF99>電　　話<th BGCOLOR=99FF99>Phone<td>0987654321
+</table>
+ 
+
+
+
+<Center><Font size=4 color=red></Font></Center>
+
+<P>備註：</P>
+<OL>
+<LI>本資料係由本校教務處、進修部、進修學院及計網中心所共同提供。</LI>
+<LI>本資料僅供參考，不作其他證明之用，正式資料仍以教務處、進修部、進修學院所登錄之書面資料為準。</LI>
+<LI>上述資料如需變更，請備妥相關證明文件至各部處學籍管理單位辦理。</LI>
+</OL>
+<P>Remarks : </P>
+<OL>
+<LI>The above information is for reference only. Official information is based on Office of Academic Affairs, 
+    Office of Continuing Education and Computer and Network Center. </LI>
+<LI>If you want to change personal information, please prepare all of the required documents 
+    to contact relevant administration units of the Office of Academic Affairs (day school students) or the Office of Continuing Education (night school students)</LI>
+</OL>
+
+<script type="text/javascript">
+window.onload = function () {
+    // 從 JSP 傳進來的字串
+    var engName = "WANG,DA-TONG";
+    var idno    = "A110056789";
+    var birth8  = "20030512";
+
+    var msgList = [];
+    
+    //  英文姓名為空白
+    if (!engName?.trim()) {
+    msgList.push(
+        "【提醒】您的英文姓名目前為空白。\n" +
+        "如欲申請教務處英文相關文件（例如：英文畢業證明書、英文成績單），請先至聯合服務中心或所屬教務單位申請學籍異動。"
+    );
+}
+    
+    // 身分證字號為空白
+    if (!idno || String(idno).trim() === "") {
+        msgList.push("【提醒】您的身分證字號欄位為空白，此欄位屬畢業證書必要資訊，請至聯合服務中心或所屬教務單位申請學籍異動。");
+    }
+
+    //  身分證字號是 8 碼數字，且剛好等於生日 yyyyMMdd
+    var isEightDigit = /^[0-9]{8}$/.test(idno);
+    if (isEightDigit && birth8 && idno === birth8) {
+        msgList.push("【提醒】您的身分證字號目前為生日 (" + birth8 + ") 格式。\n" +
+                     "此欄位為畢業證書必要資訊，僑生身分學生請更新為最新居留證證號或正確證號。");
+    }
+
+    if (msgList.length > 0) {
+        alert(msgList.join("\n\n"));
+    }
+};
+</script>
+
+</BODY>
+</HTML>
