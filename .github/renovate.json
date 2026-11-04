@@ -66,6 +66,13 @@
       "groupSlug": null
     },
     {
+      "matchManagers": ["pub"],
+      "matchDepNames": ["firebase_*"],
+      "groupName": "FlutterFire",
+      "groupSlug": "flutterfire",
+      "separateMajorMinor": false
+    },
+    {
       "matchManagers": ["gradle", "gradle-wrapper"],
       "matchDepNames": [
         "gradle",
