@@ -243,8 +243,8 @@ Dio createDio({bool useCookies = true}) {
     NullHeaderInterceptor(), // Strip Cookie: null from dio_cookie_manager
     ClientIdentifierInterceptor(), // Identify app on campus Wi-Fi
     HttpsInterceptor(), // Enforce HTTPS
+    LogInterceptor(), // Log requests and responses; keep before redirects
     RedirectInterceptor(() => dio), // Handle redirects within this Dio instance
-    LogInterceptor(), // Log requests and responses
   ]);
 
   return dio;
