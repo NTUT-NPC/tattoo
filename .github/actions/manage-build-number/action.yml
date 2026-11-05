@@ -1,5 +1,5 @@
 name: Manage Build Number
-description: Reads, increments, and outputs the build number; callers must serialize allocation
+description: Reads, increments, and outputs the build number using GitHub repository variables
 
 inputs:
   github_token:
