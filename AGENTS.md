@@ -14,6 +14,8 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - UI observes data through screen-level StreamProviders backed by Drift `.watch()` queries (`ref.watch`)
 - Repositories encapsulate business logic, coordinate Services (HTTP) and Database (Drift)
 
+**Page scrolling:** Prefer `AppPageScrollPhysics` (`lib/utils/app_page_scroll_physics.dart`) for swipeable page views such as `TabBarView` and `PageView` to reduce long settling tails that can delay subsequent vertical scrolling.
+
 **Code generation:** Run `dart run build_runner build` (Drift) and `dart run slang` (i18n) after modifying annotated source files or i18n YAMLs. Commit generated files (`.g.dart`) alongside source changes.
 
 **Credentials:** `tool/credentials.dart` manages encrypted credentials from the `tattoo-credentials` Git repo. Run `dart run tool/credentials.dart fetch` to populate both flavors through a static source-to-destination mapping. Firebase configs live under `firebase/staging/` and `firebase/production/` in the credentials repository and decrypt to flavor-specific ignored paths; signing files are shared. Config comes from env vars or `.env`.
