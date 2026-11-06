@@ -30,12 +30,23 @@ jobs:
       pull-requests: write
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number }}
+      commit_message: ${{ steps.commit.outputs.message }}
       comment_id: ${{ steps.find-comment.outputs.comment-id || steps.create.outputs.comment-id }}
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+
+      - name: Resolve commit message
+        id: commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          message=$(gh api "/repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA" \
+            --jq '.commit.message | split("\n")[0]')
+          echo "message=$message" >> "$GITHUB_OUTPUT"
 
       - name: Manage build number
         id: build-number
@@ -62,7 +73,7 @@ jobs:
             ## Production Release
             **Build Number:** ${{ steps.build-number.outputs.build_number }}
             **Commit:** ${{ github.event.pull_request.head.sha }}
-            **Message:** ${{ github.event.pull_request.title }}
+            **Message:** ${{ steps.commit.outputs.message }}
           edit-mode: replace
 
   build-android:
@@ -137,7 +148,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
-          COMMIT_MESSAGE: ${{ github.event.pull_request.title }}
+          COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
         run: >-
           bundle exec fastlane android upload_play_store
           aab:"${{ github.workspace }}/build/app/outputs/bundle/productionRelease/app-production-release.aab"
@@ -194,7 +205,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
-          COMMIT_MESSAGE: ${{ github.event.pull_request.title }}
+          COMMIT_MESSAGE: ${{ needs.prepare.outputs.commit_message }}
         run: >-
           bundle exec fastlane ios upload_testflight
           ipa:"${{ github.workspace }}/build/ios/ipa/app-release.ipa"
