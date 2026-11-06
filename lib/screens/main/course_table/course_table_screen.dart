@@ -12,6 +12,7 @@ import 'package:tattoo/screens/main/course_table/course_table_grid.dart';
 import 'package:tattoo/screens/main/course_table/course_table_weekly.dart';
 import 'package:tattoo/screens/main/course_table_providers.dart';
 import 'package:tattoo/screens/main/user_providers.dart';
+import 'package:tattoo/utils/app_page_scroll_physics.dart';
 
 const _loadingSemesterTabLabels = ['114-2', '114-1', '113-2'];
 const _floatingBarBottomInset = 80.0;
@@ -135,6 +136,7 @@ class _CourseTableScreenState extends ConsumerState<CourseTableScreen> {
 
                 // LOADED state: show course table with tabs
                 AsyncData(value: final semesters) => TabBarView(
+                  physics: const AppPageScrollPhysics(),
                   children: [
                     for (final semester in semesters)
                       Consumer(
