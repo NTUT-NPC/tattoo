@@ -7,12 +7,14 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/screens/main/course_table/course_detail_info_card.dart';
 import 'package:tattoo/screens/main/course_table/course_materials_list.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/i_school_plus_providers.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/shells/centered_max_width_frame.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
+import 'package:tattoo/utils/course_schedule.dart';
 import 'package:tattoo/utils/localized.dart';
 
 Future<void> showCourseTableDetailSheet(
@@ -49,7 +51,7 @@ class CourseTableDetailSheet extends ConsumerWidget {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const .fromLTRB(16, 8, 16, 16),
+        padding: const .fromLTRB(12, 4, 12, 16),
         child: switch (detailAsync) {
           AsyncData(value: final detail?) => SizedBox(
             height: MediaQuery.sizeOf(context).height * 0.85,
@@ -102,16 +104,17 @@ class _CourseDetailContent extends ConsumerWidget {
         )
         .nonNulls
         .toSet()
-        .join('、');
-    final periodsByDay = <DayOfWeek, List<String>>{};
+        .toList();
+    final periodsByDay = <DayOfWeek, List<Period>>{};
     for (final slot in detail.schedule) {
-      (periodsByDay[slot.day] ??= []).add(slot.period.code);
+      (periodsByDay[slot.day] ??= []).add(slot.period);
     }
     final periods = periodsByDay.entries
         .map(
-          (entry) => '${_dayOfWeekLabel(entry.key)} ${entry.value.join('、')}',
+          (entry) =>
+              '${_dayOfWeekLabel(entry.key)} ${formatPeriodTimeRanges(entry.value)}',
         )
-        .join('；');
+        .join('\n');
     final syllabusAsync = switch (overview.number) {
       final courseNumber? => ref.watch(
         syllabusProvider((
@@ -150,44 +153,43 @@ class _CourseDetailContent extends ConsumerWidget {
     final showCourseMaterials =
         iSchoolKey != null && ref.pref(PrefKey.showCourseMaterials);
 
-    return ListView(
-      padding: .zero,
+    final header = Column(
+      mainAxisSize: .min,
       children: [
         SizedBox(
           width: .infinity,
-          child: Text(
-            title.spaced,
-            textAlign: .center,
-            style: theme.textTheme.titleLarge,
-          ),
-        ),
-        SizedBox(
-          width: .infinity,
-          child: Card(
-            margin: const .all(8),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: .circular(12),
-              side: BorderSide(color: theme.colorScheme.outlineVariant),
-            ),
-            color: theme.colorScheme.surfaceContainer,
-            child: Padding(
-              padding: const .all(12),
-              child: Column(
-                crossAxisAlignment: .start,
-                spacing: 6,
-                children: [
-                  if (overview.number case final number?) Text('課號: $number'),
-                  Text('老師: ${teachers.isEmpty ? '-' : teachers}'.spaced),
-                  Text('上課地點: ${classrooms.isEmpty ? '-' : classrooms}'.spaced),
-                  Text('上課節次: ${periods.isEmpty ? '-' : periods}'.spaced),
-                  Text('學分: ${_formatDecimal(overview.credits)}'),
-                  Text('時數: ${_formatInteger(overview.hours)}'),
-                ],
+          child: Column(
+            spacing: 2,
+            children: [
+              Text(
+                overview.number.toString(),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
+              Text(
+                title.spaced,
+                textAlign: .center,
+                style: theme.textTheme.titleLarge,
+              ),
+            ],
           ),
         ),
+        CourseDetailInfoCard(
+          teachers: teachers,
+          periods: periods,
+          credits: _formatDecimal(overview.credits),
+          hours: _formatInteger(overview.hours),
+          courseType: overview.courseType?.symbol ?? '-',
+          classrooms: classrooms,
+        ),
+      ],
+    );
+
+    return ListView(
+      padding: .zero,
+      children: [
+        header,
         if (showCourseRoster || showCourseMaterials)
           _CourseDetailTabs(
             key: ValueKey((showCourseRoster, showCourseMaterials)),
