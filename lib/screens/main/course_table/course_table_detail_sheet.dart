@@ -1,3 +1,5 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
@@ -23,7 +25,7 @@ Future<void> showCourseTableDetailSheet(
 }) {
   return showModalBottomSheet<void>(
     context: context,
-    showDragHandle: true,
+    showDragHandle: false,
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
@@ -38,47 +40,204 @@ Future<void> showCourseTableDetailSheet(
   );
 }
 
-class CourseTableDetailSheet extends ConsumerWidget {
+class CourseTableDetailSheet extends ConsumerStatefulWidget {
   const CourseTableDetailSheet({super.key, required this.number});
 
   /// The course number (課號) identifying the offering to show.
   final String number;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final detailAsync = ref.watch(courseOfferingProvider(number));
+  ConsumerState<CourseTableDetailSheet> createState() =>
+      _CourseTableDetailSheetState();
+}
 
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const .fromLTRB(12, 4, 12, 16),
-        child: switch (detailAsync) {
-          AsyncData(value: final detail?) => SizedBox(
-            height: MediaQuery.sizeOf(context).height * 0.85,
-            child: _CourseDetailContent(detail: detail),
+class _CourseTableDetailSheetState
+    extends ConsumerState<CourseTableDetailSheet> {
+  static const _fallbackSheetSize = 0.58;
+  static const _minimumSheetSize = 0.4;
+  static const _maximumSheetSize = 0.96;
+  static const _dragHandleHeight = kMinInteractiveDimension;
+  static const _contentPadding = EdgeInsets.fromLTRB(12, 4, 12, 16);
+
+  double? _headerHeight;
+  List<double> _snapSizes = const [_fallbackSheetSize];
+  Drag? _handleDrag;
+
+  Widget _buildDragHandle(
+    BuildContext context, [
+    ScrollController? controller,
+  ]) {
+    final theme = Theme.of(context);
+    final handleSize =
+        theme.bottomSheetTheme.dragHandleSize ?? const Size(32, 4);
+    return GestureDetector(
+      behavior: .opaque,
+      onVerticalDragStart: controller == null
+          ? null
+          : (details) {
+              _handleDrag?.cancel();
+              if (!controller.hasClients) return;
+              // Use the sheet's scroll position for resizing, fling and snap.
+              _handleDrag = controller.position.drag(
+                details,
+                () => _handleDrag = null,
+              );
+            },
+      onVerticalDragUpdate: controller == null
+          ? null
+          : (details) => _handleDrag?.update(details),
+      onVerticalDragEnd: controller == null
+          ? null
+          : (details) {
+              _handleDrag?.end(details);
+              _handleDrag = null;
+            },
+      onVerticalDragCancel: controller == null
+          ? null
+          : () {
+              _handleDrag?.cancel();
+              _handleDrag = null;
+            },
+      child: SizedBox(
+        height: _dragHandleHeight,
+        width: .infinity,
+        child: Center(
+          child: Container(
+            width: handleSize.width,
+            height: handleSize.height,
+            decoration: BoxDecoration(
+              color:
+                  theme.bottomSheetTheme.dragHandleColor ??
+                  theme.colorScheme.onSurfaceVariant,
+              borderRadius: .circular(handleSize.height / 2),
+            ),
           ),
-          AsyncData() => _DetailState(
-            icon: Icons.search_off_outlined,
-            message: t.courseTable.notFound,
-          ),
-          AsyncError(:final error) => _DetailState(
-            icon: Icons.error_outline,
-            message: 'Error: $error',
-          ),
-          _ => const SizedBox(
-            height: 160,
-            child: Center(child: CircularProgressIndicator()),
-          ),
+        ),
+      ),
+    );
+  }
+
+  void _updateHeaderHeight(double height) {
+    if (!mounted || _headerHeight == height) return;
+    setState(() => _headerHeight = height);
+  }
+
+  final DraggableScrollableController _sheetController =
+      DraggableScrollableController();
+
+  void _expandSheet() {
+    if (!_sheetController.isAttached ||
+        _sheetController.size >= _maximumSheetSize) {
+      return;
+    }
+    _sheetController.animateTo(
+      _maximumSheetSize,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  void dispose() {
+    _handleDrag?.cancel();
+    _sheetController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final detailAsync = ref.watch(courseOfferingProvider(widget.number));
+
+    final content = switch (detailAsync) {
+      AsyncData(value: final detail?) => LayoutBuilder(
+        builder: (context, constraints) {
+          final initialSize = switch (_headerHeight) {
+            final height? =>
+              ((height +
+                          _dragHandleHeight +
+                          _contentPadding.vertical +
+                          MediaQuery.paddingOf(context).bottom) /
+                      constraints.maxHeight)
+                  .clamp(0.01, _maximumSheetSize),
+            null => _fallbackSheetSize,
+          };
+          if (_snapSizes.single != initialSize) {
+            _snapSizes = [initialSize];
+          }
+          return DraggableScrollableSheet(
+            controller: _sheetController,
+            initialChildSize: initialSize,
+            minChildSize: initialSize < _minimumSheetSize
+                ? initialSize
+                : _minimumSheetSize,
+            maxChildSize: _maximumSheetSize,
+            snap: true,
+            snapSizes: _snapSizes,
+            shouldCloseOnMinExtent: true,
+            expand: false,
+            builder: (context, scrollController) => SafeArea(
+              top: false,
+              child: Column(
+                children: [
+                  _buildDragHandle(context, scrollController),
+                  Expanded(
+                    child: Padding(
+                      padding: _contentPadding,
+                      child: _CourseDetailContent(
+                        detail: detail,
+                        scrollController: scrollController,
+                        onTabSelected: _expandSheet,
+                        onHeaderHeightChanged: _updateHeaderHeight,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
         },
       ),
+      AsyncData() => SafeArea(
+        top: false,
+        child: _DetailState(
+          icon: Icons.search_off_outlined,
+          message: t.courseTable.notFound,
+        ),
+      ),
+      AsyncError(:final error) => SafeArea(
+        top: false,
+        child: _DetailState(
+          icon: Icons.error_outline,
+          message: 'Error: $error',
+        ),
+      ),
+      _ => const SizedBox(
+        height: 160,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+    };
+    if (detailAsync case AsyncData(value: _?)) {
+      return content;
+    }
+    return Column(
+      mainAxisSize: .min,
+      children: [_buildDragHandle(context), content],
     );
   }
 }
 
 class _CourseDetailContent extends ConsumerWidget {
-  const _CourseDetailContent({required this.detail});
+  const _CourseDetailContent({
+    required this.detail,
+    required this.scrollController,
+    required this.onTabSelected,
+    required this.onHeaderHeightChanged,
+  });
 
   final CourseOfferingDetail detail;
+  final ScrollController scrollController;
+  final VoidCallback onTabSelected;
+  final ValueChanged<double> onHeaderHeightChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -130,6 +289,7 @@ class _CourseDetailContent extends ConsumerWidget {
     final syllabus = switch (syllabusAsync) {
       AsyncData(value: final syllabuses) => _SyllabusTabs(
         details: syllabuses,
+        onTabSelected: onTabSelected,
       ),
       AsyncError(:final error) => _DetailState(
         icon: Icons.error_outline,
@@ -187,9 +347,9 @@ class _CourseDetailContent extends ConsumerWidget {
     );
 
     return ListView(
+      controller: scrollController,
       padding: .zero,
       children: [
-        header,
         if (showCourseRoster || showCourseMaterials)
           _CourseDetailTabs(
             key: ValueKey((showCourseRoster, showCourseMaterials)),
@@ -197,9 +357,17 @@ class _CourseDetailContent extends ConsumerWidget {
             syllabus: syllabus,
             showRoster: showCourseRoster,
             showMaterials: showCourseMaterials,
+            onTabSelected: onTabSelected,
+            header: header,
+            onHeaderHeightChanged: onHeaderHeightChanged,
           )
-        else
+        else ...[
+          _DetailHeaderHeight(
+            onChanged: onHeaderHeightChanged,
+            child: header,
+          ),
           syllabus,
+        ],
         SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
       ],
     );
@@ -215,9 +383,16 @@ class _CourseDetailTabs extends StatefulWidget {
     required this.syllabus,
     required this.showRoster,
     required this.showMaterials,
+    required this.onTabSelected,
+    required this.header,
+    required this.onHeaderHeightChanged,
   });
   final bool showRoster;
   final bool showMaterials;
+  final VoidCallback onTabSelected;
+
+  final Widget header;
+  final ValueChanged<double> onHeaderHeightChanged;
 
   final CourseISchoolKey iSchoolKey;
   final Widget syllabus;
@@ -263,18 +438,29 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TabBar(
-          controller: _controller,
-          tabs: [
-            for (final tab in _tabs)
-              Tab(
-                text: switch (tab) {
-                  .syllabus => t.courseTable.detail.tabs.syllabus.spaced,
-                  .roster => t.courseTable.detail.tabs.roster.spaced,
-                  .materials => t.courseTable.detail.tabs.materials.spaced,
-                },
+        _DetailHeaderHeight(
+          onChanged: widget.onHeaderHeightChanged,
+          child: Column(
+            mainAxisSize: .min,
+            children: [
+              widget.header,
+              TabBar(
+                controller: _controller,
+                onTap: (_) => widget.onTabSelected(),
+                tabs: [
+                  for (final tab in _tabs)
+                    Tab(
+                      text: switch (tab) {
+                        .syllabus => t.courseTable.detail.tabs.syllabus.spaced,
+                        .roster => t.courseTable.detail.tabs.roster.spaced,
+                        .materials =>
+                          t.courseTable.detail.tabs.materials.spaced,
+                      },
+                    ),
+                ],
               ),
-          ],
+            ],
+          ),
         ),
         Offstage(
           offstage: _tabs[_controller.index] != .syllabus,
@@ -313,6 +499,42 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
 }
 
 enum _CourseISchoolPaneType { roster, materials }
+
+class _DetailHeaderHeight extends SingleChildRenderObjectWidget {
+  const _DetailHeaderHeight({required this.onChanged, required super.child});
+
+  final ValueChanged<double> onChanged;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderDetailHeaderHeight(onChanged);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderDetailHeaderHeight renderObject,
+  ) {
+    renderObject.onChanged = onChanged;
+  }
+}
+
+class _RenderDetailHeaderHeight extends RenderProxyBox {
+  _RenderDetailHeaderHeight(this.onChanged);
+
+  ValueChanged<double> onChanged;
+  double? _lastHeight;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    final height = size.height;
+    if (_lastHeight == height) return;
+    _lastHeight = height;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (attached) onChanged(height);
+    });
+  }
+}
 
 class _CourseISchoolPane extends ConsumerStatefulWidget {
   const _CourseISchoolPane({
@@ -740,9 +962,13 @@ class _CourseRosterTable extends StatelessWidget {
 }
 
 class _SyllabusTabs extends StatefulWidget {
-  const _SyllabusTabs({required this.details});
+  const _SyllabusTabs({
+    required this.details,
+    required this.onTabSelected,
+  });
 
   final List<TeacherSyllabusDetail> details;
+  final VoidCallback onTabSelected;
 
   @override
   State<_SyllabusTabs> createState() => _SyllabusTabsState();
@@ -751,6 +977,7 @@ class _SyllabusTabs extends StatefulWidget {
 class _SyllabusTabsState extends State<_SyllabusTabs>
     with SingleTickerProviderStateMixin {
   late TabController _controller;
+  var _lastSelectedIndex = 0;
 
   @override
   void initState() {
@@ -780,6 +1007,7 @@ class _SyllabusTabsState extends State<_SyllabusTabs>
   }
 
   TabController _createController({int initialIndex = 0}) {
+    _lastSelectedIndex = initialIndex;
     final controller = TabController(
       length: widget.details.length,
       initialIndex: initialIndex,
@@ -790,6 +1018,10 @@ class _SyllabusTabsState extends State<_SyllabusTabs>
   }
 
   void _handleTabChanged() {
+    if (_controller.index != _lastSelectedIndex) {
+      _lastSelectedIndex = _controller.index;
+      widget.onTabSelected();
+    }
     if (mounted) {
       setState(() {});
     }
