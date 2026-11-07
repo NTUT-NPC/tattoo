@@ -154,6 +154,8 @@ class _InfoField extends StatelessWidget {
         ),
 
         Row(
+          mainAxisSize: .min,
+          crossAxisAlignment: .center,
           children: [
             Text(
               (value.isEmpty ? '-' : value).spaced,
