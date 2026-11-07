@@ -11,6 +11,7 @@ import 'package:tattoo/models/ranking.dart';
 import 'package:tattoo/repositories/student_repository.dart';
 import 'package:tattoo/screens/main/score/score_providers.dart';
 import 'package:tattoo/screens/main/score/score_view_helpers.dart';
+import 'package:tattoo/utils/app_page_scroll_physics.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/localized.dart';
 
@@ -138,6 +139,7 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen> {
                   child: Center(child: Text(t.score.loadFailed)),
                 ),
                 AsyncData(value: final recordMap) => TabBarView(
+                  physics: const AppPageScrollPhysics(),
                   children: [
                     for (final semester in semesters)
                       if (recordMap[semester.id] case final record?)
@@ -153,6 +155,7 @@ class _ScoreScreenState extends ConsumerState<ScoreScreen> {
                   ],
                 ),
                 _ => TabBarView(
+                  physics: const AppPageScrollPhysics(),
                   children: [
                     for (final _ in semesters)
                       _SemesterScoreList(
