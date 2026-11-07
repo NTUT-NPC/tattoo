@@ -170,6 +170,7 @@ class _InfoField extends StatelessWidget {
                   message: description.spaced,
                   textAlign: TextAlign.left,
                   triggerMode: TooltipTriggerMode.tap,
+                  showDuration: const Duration(seconds: 5),
                   child: Semantics(
                     button: true,
                     child: Icon(
