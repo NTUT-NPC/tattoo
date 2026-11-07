@@ -153,30 +153,34 @@ class _InfoField extends StatelessWidget {
           ),
         ),
 
-        Row(
-          mainAxisSize: .min,
-          crossAxisAlignment: .center,
-          children: [
-            Text(
-              (value.isEmpty ? '-' : value).spaced,
-              style: theme.textTheme.bodyMedium,
-            ),
-            if (description case final description?
-                when description.trim().isNotEmpty)
-              Tooltip(
-                message: description.spaced,
-                textAlign: TextAlign.left,
-                triggerMode: TooltipTriggerMode.tap,
-                child: Semantics(
-                  button: true,
-                  child: Icon(
-                    Icons.help_outline,
-                    size: 12,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
+        Flexible(
+          child: Row(
+            mainAxisSize: .min,
+            crossAxisAlignment: .center,
+            children: [
+              Flexible(
+                child: Text(
+                  (value.isEmpty ? '-' : value).spaced,
+                  style: theme.textTheme.bodyMedium,
                 ),
               ),
-          ],
+              if (description case final description?
+                  when description.trim().isNotEmpty)
+                Tooltip(
+                  message: description.spaced,
+                  textAlign: TextAlign.left,
+                  triggerMode: TooltipTriggerMode.tap,
+                  child: Semantics(
+                    button: true,
+                    child: Icon(
+                      Icons.help_outline,
+                      size: 12,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
 
         if (actionIcon case final icon? when action != null)

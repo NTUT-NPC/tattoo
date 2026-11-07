@@ -28,7 +28,6 @@ Future<void> showCourseTableDetailSheet(
     showDragHandle: false,
     isScrollControlled: true,
     useSafeArea: true,
-    backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
     builder: (context) => Align(
       alignment: Alignment.bottomCenter,
       heightFactor: 1,
@@ -55,7 +54,7 @@ class _CourseTableDetailSheetState
     extends ConsumerState<CourseTableDetailSheet> {
   static const _fallbackSheetSize = 0.58;
   static const _minimumSheetSize = 0.4;
-  static const _maximumSheetSize = 0.96;
+  static const _maximumSheetSize = 1.0;
   static const _dragHandleHeight = kMinInteractiveDimension;
   static const _contentPadding = EdgeInsets.fromLTRB(12, 4, 12, 16);
 
