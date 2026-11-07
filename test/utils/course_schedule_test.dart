@@ -4,6 +4,49 @@ import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/utils/course_schedule.dart';
 
 void main() {
+  group('period time strings', () {
+    test('formats a single period while preserving its code', () {
+      expect(Period.first.timeRange, '08:10 - 09:00');
+      expect(Period.first.code, '1');
+      expect(Period.nPeriod.timeRange, '12:10 - 13:00');
+      expect(Period.dPeriod.timeRange, '21:10 - 22:00');
+    });
+
+    test('sorts and deduplicates consecutive periods before merging', () {
+      expect(
+        formatPeriodTimeRanges([
+          Period.fourth,
+          Period.third,
+          Period.third,
+        ]),
+        '10:10 - 12:00',
+      );
+    });
+
+    test('keeps separate ranges across missing periods including noon', () {
+      expect(
+        formatPeriodTimeRanges([Period.fourth, Period.fifth, Period.seventh]),
+        '11:10 - 12:00、13:10 - 14:00、15:10 - 16:00',
+      );
+    });
+
+    test('merges noon and evening periods when present', () {
+      expect(
+        formatPeriodTimeRanges([Period.fourth, Period.nPeriod, Period.fifth]),
+        '11:10 - 14:00',
+      );
+      expect(
+        formatPeriodTimeRanges([Period.aPeriod, Period.bPeriod]),
+        '18:30 - 20:10',
+      );
+    });
+
+    test('handles an empty schedule and a single period', () {
+      expect(formatPeriodTimeRanges([]), '');
+      expect(formatPeriodTimeRanges([Period.second]), '09:10 - 10:00');
+    });
+  });
+
   group('PeriodScheduleTime', () {
     test('maps daytime and evening periods to NTUT times', () {
       expect(Period.first.startTime, (hour: 8, minute: 10));
