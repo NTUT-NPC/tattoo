@@ -28,6 +28,10 @@ Future<void> showCourseTableDetailSheet(
     showDragHandle: false,
     isScrollControlled: true,
     useSafeArea: true,
+    sheetAnimationStyle: const AnimationStyle(
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeOutCubic,
+    ),
     builder: (context) => Align(
       alignment: Alignment.bottomCenter,
       heightFactor: 1,
