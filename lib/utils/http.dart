@@ -185,6 +185,25 @@ CookieJar? _cookieJar;
 /// Shared CookieJar instance for maintaining session across clients.
 CookieJar get cookieJar => _cookieJar ??= CookieJar();
 
+/// Reloads jar cookies on redirects to avoid stale or duplicate Cookie headers.
+///
+/// Clears the header copied by [RedirectInterceptor] before [CookieManager]
+/// merges it with updated jar cookies. Initial requests use normal cookie merging.
+class _RedirectCookieManager extends CookieManager {
+  _RedirectCookieManager(super.cookieJar);
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) {
+    if (options.redirectContext != null) {
+      options.headers[HttpHeaders.cookieHeader] = null;
+    }
+    return super.onRequest(options, handler);
+  }
+}
+
 /// Adds an `X-Client` header identifying this app on campus Wi-Fi.
 ///
 /// NTUT campus network (SSID: NTUT, NTUT-802.1X) requires client identification
@@ -239,12 +258,15 @@ Dio createDio({bool useCookies = true}) {
   }
 
   dio.interceptors.addAll([
-    if (useCookies) CookieManager(cookieJar), // Store cookies
+    HttpsInterceptor(), // Enforce HTTPS
+    if (useCookies) _RedirectCookieManager(cookieJar), // Store cookies
     NullHeaderInterceptor(), // Strip Cookie: null from dio_cookie_manager
     ClientIdentifierInterceptor(), // Identify app on campus Wi-Fi
-    HttpsInterceptor(), // Enforce HTTPS
-    LogInterceptor(), // Log requests and responses; keep before redirects
-    RedirectInterceptor(() => dio), // Handle redirects within this Dio instance
+    LogInterceptor(), // Log requests and responses
+    RedirectInterceptor(
+      () => dio,
+      allowProtocolDowngrade: true,
+    ), // Handle redirects within this Dio instance
   ]);
 
   return dio;
