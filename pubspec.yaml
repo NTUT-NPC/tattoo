@@ -16,7 +16,7 @@ dependencies:
   dio_cookie_manager: ^3.5.0
   html: ^0.15.7
   crypto: ^3.0.8
-  dio_redirect_interceptor: ^1.0.1
+  dio_redirect_interceptor: ^2.0.0
   collection: ^1.19.1
   intl: ^0.20.3
   flutter_svg: ^2.3.2
