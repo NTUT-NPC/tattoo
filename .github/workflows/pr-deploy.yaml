@@ -46,14 +46,21 @@ jobs:
       deploy_android: ${{ (github.event.action == 'labeled' && github.event.label.name == 'deploy:android') || inputs.deploy_android }}
       deploy_ios: ${{ (github.event.action == 'labeled' && github.event.label.name == 'deploy:ios') || inputs.deploy_ios }}
       commit_sha: ${{ steps.commit.outputs.short_sha || inputs.commit_sha }}
-      commit_message: ${{ github.event.pull_request.title || inputs.commit_message }}
+      commit_message: ${{ steps.commit.outputs.message || inputs.commit_message }}
     steps:
-      - name: Resolve short commit SHA
+      - name: Resolve short commit SHA and commit message
         if: github.event.action == 'labeled'
         id: commit
         env:
+          GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: echo "short_sha=${HEAD_SHA:0:7}" >> "$GITHUB_OUTPUT"
+        run: |
+          message=$(gh api "/repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA" \
+            --jq '.commit.message | split("\n")[0]')
+          {
+            echo "short_sha=${HEAD_SHA:0:7}"
+            echo "message=$message"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Resolve existing build artifact
         if: github.event.action == 'labeled'
@@ -326,3 +333,4 @@ jobs:
       pull-requests: write
     with:
       build_number: ${{ needs.prepare.outputs.build_number }}
+      commit_message: ${{ needs.prepare.outputs.commit_message }}
