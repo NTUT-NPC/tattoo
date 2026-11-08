@@ -82,8 +82,11 @@ void main(List<String> args) async {
     );
 
   dio.interceptors.addAll([
-    CookieManager(cookieJar),
-    RedirectInterceptor(() => dio),
+    _RedirectCookieManager(cookieJar),
+    RedirectInterceptor(
+      () => dio,
+      allowProtocolDowngrade: true,
+    ),
   ]);
 
   // Step 1: Login using mobile User-Agent to bypass captcha
@@ -430,4 +433,19 @@ String _normalizeUrl(String url) {
     }
   } catch (_) {}
   return url;
+}
+
+class _RedirectCookieManager extends CookieManager {
+  _RedirectCookieManager(super.cookieJar);
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) {
+    if (options.redirectContext != null) {
+      options.headers[HttpHeaders.cookieHeader] = null;
+    }
+    return super.onRequest(options, handler);
+  }
 }

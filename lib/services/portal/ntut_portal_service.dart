@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
@@ -26,18 +25,6 @@ typedef _PortalApplicationCategoryPageDto = ({
 
 class NtutPortalService implements PortalService {
   static const _defaultISchoolSsoTimeout = Duration(seconds: 20);
-  static const _redirectStatusCodes = {
-    HttpStatus.movedPermanently,
-    HttpStatus.found,
-    HttpStatus.seeOther,
-    HttpStatus.temporaryRedirect,
-    HttpStatus.permanentRedirect,
-  };
-  static const _preserveMethodRedirectStatusCodes = {
-    HttpStatus.temporaryRedirect,
-    HttpStatus.permanentRedirect,
-  };
-  static const _maxRedirects = 10;
   static const _chineseLocale = 'zh_TW';
   static const _englishLocale = 'en';
   // The mobile home endpoint is a JSON feed and exposes no locale marker.
@@ -237,85 +224,14 @@ class NtutPortalService implements PortalService {
       _portalDio.transformer = PlainTextTransformer();
     }
 
-    // Submit the SSO form and follow redirects. The package redirect
-    // interceptor does not propagate a request CancelToken to redirect GETs,
-    // so iSchool Plus follows them here to keep the whole chain cancellable.
-    if (cancelToken case final token?) {
-      await _submitISchoolSsoForm(
-        actionUrl,
-        formData,
-        cancelToken: token,
-      );
-    } else {
-      await _portalDio.post(
-        actionUrl,
-        data: formData,
-        options: Options(contentType: Headers.formUrlEncodedContentType),
-      );
-    }
-  }
-
-  /// Submits the iSchool Plus SSO form and follows redirects with one token.
-  Future<void> _submitISchoolSsoForm(
-    String actionUrl,
-    Map<String, dynamic> formData, {
-    required CancelToken cancelToken,
-  }) async {
-    final dio = _portalDio.clone()
-      ..interceptors.removeWhere(
-        (interceptor) => interceptor is RedirectInterceptor,
-      );
-    var response = await dio.post<dynamic>(
+    // Submit the SSO form and follow redirects
+    await _portalDio.post(
       actionUrl,
       data: formData,
       cancelToken: cancelToken,
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-        followRedirects: false,
-        validateStatus: _validateSsoStatus,
-      ),
+      options: Options(contentType: Headers.formUrlEncodedContentType),
     );
-
-    var redirectCount = 0;
-    while (_redirectStatusCodes.contains(response.statusCode)) {
-      if (redirectCount >= _maxRedirects) {
-        throw StateError('I-School Plus SSO exceeded $_maxRedirects redirects');
-      }
-      if (cancelToken.cancelError case final error?) throw error;
-
-      final location = response.headers.value('location');
-      if (location == null) {
-        throw StateError('I-School Plus SSO redirect has no location');
-      }
-      final redirectUri = response.requestOptions.uri.resolve(location);
-      final previousRequest = response.requestOptions;
-      if (_preserveMethodRedirectStatusCodes.contains(response.statusCode)) {
-        response = await dio.requestUri<dynamic>(
-          redirectUri,
-          data: previousRequest.data,
-          cancelToken: cancelToken,
-          options: Options(
-            method: previousRequest.method,
-            contentType: previousRequest.contentType,
-            followRedirects: false,
-            validateStatus: _validateSsoStatus,
-          ),
-        );
-      } else {
-        response = await dio.getUri<dynamic>(
-          redirectUri,
-          cancelToken: cancelToken,
-          options: Options(
-            followRedirects: false,
-            validateStatus: _validateSsoStatus,
-          ),
-        );
-      }
-      redirectCount++;
-    }
   }
-
-  static bool _validateSsoStatus(int? status) => status != null && status < 400;
 
   @override
   Future<Uri> getSsoUrl(String serviceCode) {

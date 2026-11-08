@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:dio_redirect_interceptor/dio_redirect_interceptor.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/services/portal/ntut_portal_service.dart';
 import 'package:tattoo/services/portal/portal_service.dart';
@@ -93,6 +94,7 @@ void main() {
                       ],
                     }),
                   ),
+                  true,
                 );
                 return;
               }
@@ -116,6 +118,7 @@ void main() {
             },
           ),
         );
+      dio.interceptors.add(RedirectInterceptor(() => dio));
       final service = NtutPortalService(
         dio: dio,
         iSchoolSsoTimeout: shortDeadline,
@@ -264,6 +267,7 @@ void main() {
     test('reuses the cookie filter across repeated SSO calls', () async {
       final dio = Dio()
         ..httpClientAdapter = _SsoRedirectAdapter(statusCode: 302);
+      dio.interceptors.add(RedirectInterceptor(() => dio));
       final service = NtutPortalService(dio: dio);
 
       await service.sso(PortalServiceCode.iSchoolPlusService.code);
@@ -276,6 +280,7 @@ void main() {
     test('follows an adapter-backed 302 as GET', () async {
       final adapter = _SsoRedirectAdapter(statusCode: 302);
       final dio = Dio()..httpClientAdapter = adapter;
+      dio.interceptors.add(RedirectInterceptor(() => dio));
       final service = NtutPortalService(
         dio: dio,
         iSchoolSsoTimeout: shortDeadline,
@@ -293,6 +298,7 @@ void main() {
     test('preserves POST for an adapter-backed 307', () async {
       final adapter = _SsoRedirectAdapter(statusCode: 307);
       final dio = Dio()..httpClientAdapter = adapter;
+      dio.interceptors.add(RedirectInterceptor(() => dio));
       final service = NtutPortalService(
         dio: dio,
         iSchoolSsoTimeout: shortDeadline,
