@@ -16429,10 +16429,11 @@ class $$UsersTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (portalApplicationCategoriesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           User,
                           $UsersTable,
-                          PortalApplicationCategory
+                          PortalApplicationCategory,
+                          $PortalApplicationCategoriesTable
                         >(
                           currentTable: table,
                           referencedTable: $$UsersTableReferences
@@ -16443,17 +16444,16 @@ class $$UsersTableTableManager
                                 table,
                                 p0,
                               ).portalApplicationCategoriesRefs,
-                          referencedItemsForCurrentItem: (
-                            item,
-                            referencedItems,
-                          ) => referencedItems.where((e) => e.user == item.id),
+                          currentColumn: 'id',
+                          referencedColumn: 'user',
                           typedResults: items,
                         ),
                       if (portalApplicationFavoritesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           User,
                           $UsersTable,
-                          PortalApplicationFavorite
+                          PortalApplicationFavorite,
+                          $PortalApplicationFavoritesTable
                         >(
                           currentTable: table,
                           referencedTable: $$UsersTableReferences
@@ -16464,30 +16464,32 @@ class $$UsersTableTableManager
                                 table,
                                 p0,
                               ).portalApplicationFavoritesRefs,
-                          referencedItemsForCurrentItem: (
-                            item,
-                            referencedItems,
-                          ) => referencedItems.where((e) => e.user == item.id),
+                          currentColumn: 'id',
+                          referencedColumn: 'user',
                           typedResults: items,
                         ),
                       if (scoresRefs)
-                        await $_getPrefetchedData<User, $UsersTable, Score>(
+                        await $_getPrefetchedDataByColumns<
+                          User,
+                          $UsersTable,
+                          Score,
+                          $ScoresTable
+                        >(
                           currentTable: table,
                           referencedTable: $$UsersTableReferences
                               ._scoresRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$UsersTableReferences(db, table, p0).scoresRefs,
-                          referencedItemsForCurrentItem: (
-                            item,
-                            referencedItems,
-                          ) => referencedItems.where((e) => e.user == item.id),
+                          currentColumn: 'id',
+                          referencedColumn: 'user',
                           typedResults: items,
                         ),
                       if (userSemesterSummariesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           User,
                           $UsersTable,
-                          UserSemesterSummary
+                          UserSemesterSummary,
+                          $UserSemesterSummariesTable
                         >(
                           currentTable: table,
                           referencedTable: $$UsersTableReferences
@@ -16498,10 +16500,8 @@ class $$UsersTableTableManager
                                 table,
                                 p0,
                               ).userSemesterSummariesRefs,
-                          referencedItemsForCurrentItem: (
-                            item,
-                            referencedItems,
-                          ) => referencedItems.where((e) => e.user == item.id),
+                          currentColumn: 'id',
+                          referencedColumn: 'user',
                           typedResults: items,
                         ),
                     ];
@@ -16945,10 +16945,11 @@ class $$PortalApplicationCategoriesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (portalApplicationsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           PortalApplicationCategory,
                           $PortalApplicationCategoriesTable,
-                          PortalApplication
+                          PortalApplication,
+                          $PortalApplicationsTable
                         >(
                           currentTable: table,
                           referencedTable:
@@ -16960,10 +16961,8 @@ class $$PortalApplicationCategoriesTableTableManager
                                 table,
                                 p0,
                               ).portalApplicationsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.category == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'category',
                           typedResults: items,
                         ),
                     ];
@@ -17865,10 +17864,11 @@ class $$StudentsTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (courseOfferingStudentsRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       Student,
                       $StudentsTable,
-                      CourseOfferingStudent
+                      CourseOfferingStudent,
+                      $CourseOfferingStudentsTable
                     >(
                       currentTable: table,
                       referencedTable: $$StudentsTableReferences
@@ -17878,8 +17878,8 @@ class $$StudentsTableTableManager
                         table,
                         p0,
                       ).courseOfferingStudentsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.student == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'student',
                       typedResults: items,
                     ),
                 ];
@@ -18487,10 +18487,11 @@ class $$SemestersTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (classesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Semester,
                           $SemestersTable,
-                          ClassesData
+                          ClassesData,
+                          $ClassesTable
                         >(
                           currentTable: table,
                           referencedTable: $$SemestersTableReferences
@@ -18501,17 +18502,16 @@ class $$SemestersTableTableManager
                                 table,
                                 p0,
                               ).classesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.semester == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'semester',
                           typedResults: items,
                         ),
                       if (courseOfferingsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Semester,
                           $SemestersTable,
-                          CourseOffering
+                          CourseOffering,
+                          $CourseOfferingsTable
                         >(
                           currentTable: table,
                           referencedTable: $$SemestersTableReferences
@@ -18522,17 +18522,16 @@ class $$SemestersTableTableManager
                                 table,
                                 p0,
                               ).courseOfferingsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.semester == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'semester',
                           typedResults: items,
                         ),
                       if (teacherSemestersRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Semester,
                           $SemestersTable,
-                          TeacherSemester
+                          TeacherSemester,
+                          $TeacherSemestersTable
                         >(
                           currentTable: table,
                           referencedTable: $$SemestersTableReferences
@@ -18543,17 +18542,16 @@ class $$SemestersTableTableManager
                                 table,
                                 p0,
                               ).teacherSemestersRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.semester == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'semester',
                           typedResults: items,
                         ),
                       if (scoresRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Semester,
                           $SemestersTable,
-                          Score
+                          Score,
+                          $ScoresTable
                         >(
                           currentTable: table,
                           referencedTable: $$SemestersTableReferences
@@ -18564,17 +18562,16 @@ class $$SemestersTableTableManager
                                 table,
                                 p0,
                               ).scoresRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.semester == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'semester',
                           typedResults: items,
                         ),
                       if (userSemesterSummariesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Semester,
                           $SemestersTable,
-                          UserSemesterSummary
+                          UserSemesterSummary,
+                          $UserSemesterSummariesTable
                         >(
                           currentTable: table,
                           referencedTable: $$SemestersTableReferences
@@ -18585,10 +18582,8 @@ class $$SemestersTableTableManager
                                 table,
                                 p0,
                               ).userSemesterSummariesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.semester == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'semester',
                           typedResults: items,
                         ),
                     ];
@@ -18953,14 +18948,19 @@ class $$CoursesTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (scoresRefs)
-                    await $_getPrefetchedData<Course, $CoursesTable, Score>(
+                    await $_getPrefetchedDataByColumns<
+                      Course,
+                      $CoursesTable,
+                      Score,
+                      $ScoresTable
+                    >(
                       currentTable: table,
                       referencedTable: $$CoursesTableReferences
                           ._scoresRefsTable(db),
                       managerFromTypedResult: (p0) =>
                           $$CoursesTableReferences(db, table, p0).scoresRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.course == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'course',
                       typedResults: items,
                     ),
                 ];
@@ -19225,10 +19225,11 @@ class $$DepartmentsTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (teacherSemestersRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       Department,
                       $DepartmentsTable,
-                      TeacherSemester
+                      TeacherSemester,
+                      $TeacherSemestersTable
                     >(
                       currentTable: table,
                       referencedTable: $$DepartmentsTableReferences
@@ -19239,8 +19240,8 @@ class $$DepartmentsTableTableManager
                             table,
                             p0,
                           ).teacherSemestersRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.department == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'department',
                       typedResults: items,
                     ),
                 ];
@@ -19576,10 +19577,11 @@ class $$TeachersTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (teacherSemestersRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Teacher,
                           $TeachersTable,
-                          TeacherSemester
+                          TeacherSemester,
+                          $TeacherSemestersTable
                         >(
                           currentTable: table,
                           referencedTable: $$TeachersTableReferences
@@ -19590,17 +19592,16 @@ class $$TeachersTableTableManager
                                 table,
                                 p0,
                               ).teacherSemestersRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.teacher == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'teacher',
                           typedResults: items,
                         ),
                       if (syllabusesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Teacher,
                           $TeachersTable,
-                          Syllabus
+                          Syllabus,
+                          $SyllabusesTable
                         >(
                           currentTable: table,
                           referencedTable: $$TeachersTableReferences
@@ -19611,10 +19612,8 @@ class $$TeachersTableTableManager
                                 table,
                                 p0,
                               ).syllabusesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.teacher == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'teacher',
                           typedResults: items,
                         ),
                     ];
@@ -20028,10 +20027,11 @@ class $$ClassesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (courseOfferingClassesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           ClassesData,
                           $ClassesTable,
-                          CourseOfferingClassesData
+                          CourseOfferingClassesData,
+                          $CourseOfferingClassesTable
                         >(
                           currentTable: table,
                           referencedTable: $$ClassesTableReferences
@@ -20042,10 +20042,8 @@ class $$ClassesTableTableManager
                                 table,
                                 p0,
                               ).courseOfferingClassesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.classEntity == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'class_entity',
                           typedResults: items,
                         ),
                     ];
@@ -20323,10 +20321,11 @@ class $$ClassroomsTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (schedulesRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       Classroom,
                       $ClassroomsTable,
-                      Schedule
+                      Schedule,
+                      $SchedulesTable
                     >(
                       currentTable: table,
                       referencedTable: $$ClassroomsTableReferences
@@ -20337,8 +20336,8 @@ class $$ClassroomsTableTableManager
                             table,
                             p0,
                           ).schedulesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.classroom == item.id),
+                      currentColumn: 'id',
+                      referencedColumn: 'classroom',
                       typedResults: items,
                     ),
                 ];
@@ -21471,10 +21470,11 @@ class $$CourseOfferingsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (courseOfferingTeachersRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           CourseOffering,
                           $CourseOfferingsTable,
-                          CourseOfferingTeacher
+                          CourseOfferingTeacher,
+                          $CourseOfferingTeachersTable
                         >(
                           currentTable: table,
                           referencedTable: $$CourseOfferingsTableReferences
@@ -21485,17 +21485,16 @@ class $$CourseOfferingsTableTableManager
                                 table,
                                 p0,
                               ).courseOfferingTeachersRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.courseOffering == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'course_offering',
                           typedResults: items,
                         ),
                       if (courseOfferingClassesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           CourseOffering,
                           $CourseOfferingsTable,
-                          CourseOfferingClassesData
+                          CourseOfferingClassesData,
+                          $CourseOfferingClassesTable
                         >(
                           currentTable: table,
                           referencedTable: $$CourseOfferingsTableReferences
@@ -21506,17 +21505,16 @@ class $$CourseOfferingsTableTableManager
                                 table,
                                 p0,
                               ).courseOfferingClassesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.courseOffering == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'course_offering',
                           typedResults: items,
                         ),
                       if (courseOfferingStudentsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           CourseOffering,
                           $CourseOfferingsTable,
-                          CourseOfferingStudent
+                          CourseOfferingStudent,
+                          $CourseOfferingStudentsTable
                         >(
                           currentTable: table,
                           referencedTable: $$CourseOfferingsTableReferences
@@ -21527,17 +21525,16 @@ class $$CourseOfferingsTableTableManager
                                 table,
                                 p0,
                               ).courseOfferingStudentsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.courseOffering == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'course_offering',
                           typedResults: items,
                         ),
                       if (schedulesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           CourseOffering,
                           $CourseOfferingsTable,
-                          Schedule
+                          Schedule,
+                          $SchedulesTable
                         >(
                           currentTable: table,
                           referencedTable: $$CourseOfferingsTableReferences
@@ -21548,17 +21545,16 @@ class $$CourseOfferingsTableTableManager
                                 table,
                                 p0,
                               ).schedulesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.courseOffering == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'course_offering',
                           typedResults: items,
                         ),
                       if (syllabusesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           CourseOffering,
                           $CourseOfferingsTable,
-                          Syllabus
+                          Syllabus,
+                          $SyllabusesTable
                         >(
                           currentTable: table,
                           referencedTable: $$CourseOfferingsTableReferences
@@ -21569,17 +21565,16 @@ class $$CourseOfferingsTableTableManager
                                 table,
                                 p0,
                               ).syllabusesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.courseOffering == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'course_offering',
                           typedResults: items,
                         ),
                       if (materialsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           CourseOffering,
                           $CourseOfferingsTable,
-                          CourseMaterial
+                          CourseMaterial,
+                          $MaterialsTable
                         >(
                           currentTable: table,
                           referencedTable: $$CourseOfferingsTableReferences
@@ -21590,17 +21585,16 @@ class $$CourseOfferingsTableTableManager
                                 table,
                                 p0,
                               ).materialsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.courseOffering == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'course_offering',
                           typedResults: items,
                         ),
                       if (scoresRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           CourseOffering,
                           $CourseOfferingsTable,
-                          Score
+                          Score,
+                          $ScoresTable
                         >(
                           currentTable: table,
                           referencedTable: $$CourseOfferingsTableReferences
@@ -21611,10 +21605,8 @@ class $$CourseOfferingsTableTableManager
                                 table,
                                 p0,
                               ).scoresRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.courseOffering == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'course_offering',
                           typedResults: items,
                         ),
                     ];
@@ -22444,10 +22436,11 @@ class $$TeacherSemestersTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (courseOfferingTeachersRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           TeacherSemester,
                           $TeacherSemestersTable,
-                          CourseOfferingTeacher
+                          CourseOfferingTeacher,
+                          $CourseOfferingTeachersTable
                         >(
                           currentTable: table,
                           referencedTable: $$TeacherSemestersTableReferences
@@ -22458,17 +22451,16 @@ class $$TeacherSemestersTableTableManager
                                 table,
                                 p0,
                               ).courseOfferingTeachersRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.teacherSemester == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'teacher_semester',
                           typedResults: items,
                         ),
                       if (teacherOfficeHoursRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           TeacherSemester,
                           $TeacherSemestersTable,
-                          TeacherOfficeHour
+                          TeacherOfficeHour,
+                          $TeacherOfficeHoursTable
                         >(
                           currentTable: table,
                           referencedTable: $$TeacherSemestersTableReferences
@@ -22479,17 +22471,16 @@ class $$TeacherSemestersTableTableManager
                                 table,
                                 p0,
                               ).teacherOfficeHoursRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.teacherSemester == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'teacher_semester',
                           typedResults: items,
                         ),
                       if (userSemesterSummaryTutorsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           TeacherSemester,
                           $TeacherSemestersTable,
-                          UserSemesterSummaryTutor
+                          UserSemesterSummaryTutor,
+                          $UserSemesterSummaryTutorsTable
                         >(
                           currentTable: table,
                           referencedTable: $$TeacherSemestersTableReferences
@@ -22500,10 +22491,8 @@ class $$TeacherSemestersTableTableManager
                                 table,
                                 p0,
                               ).userSemesterSummaryTutorsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.teacherSemester == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'teacher_semester',
                           typedResults: items,
                         ),
                     ];
@@ -24517,10 +24506,11 @@ class $$SyllabusesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (syllabusSectionsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Syllabus,
                           $SyllabusesTable,
-                          SyllabusSection
+                          SyllabusSection,
+                          $SyllabusSectionsTable
                         >(
                           currentTable: table,
                           referencedTable: $$SyllabusesTableReferences
@@ -24531,10 +24521,8 @@ class $$SyllabusesTableTableManager
                                 table,
                                 p0,
                               ).syllabusSectionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.syllabus == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'syllabus',
                           typedResults: items,
                         ),
                     ];
@@ -27017,10 +27005,11 @@ class $$UserSemesterSummariesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (userSemesterSummaryTutorsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           UserSemesterSummary,
                           $UserSemesterSummariesTable,
-                          UserSemesterSummaryTutor
+                          UserSemesterSummaryTutor,
+                          $UserSemesterSummaryTutorsTable
                         >(
                           currentTable: table,
                           referencedTable:
@@ -27032,17 +27021,16 @@ class $$UserSemesterSummariesTableTableManager
                                 table,
                                 p0,
                               ).userSemesterSummaryTutorsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.summary == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'summary',
                           typedResults: items,
                         ),
                       if (userSemesterSummaryCadreRolesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           UserSemesterSummary,
                           $UserSemesterSummariesTable,
-                          UserSemesterSummaryCadreRole
+                          UserSemesterSummaryCadreRole,
+                          $UserSemesterSummaryCadreRolesTable
                         >(
                           currentTable: table,
                           referencedTable:
@@ -27054,17 +27042,16 @@ class $$UserSemesterSummariesTableTableManager
                                 table,
                                 p0,
                               ).userSemesterSummaryCadreRolesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.summary == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'summary',
                           typedResults: items,
                         ),
                       if (userSemesterRankingsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           UserSemesterSummary,
                           $UserSemesterSummariesTable,
-                          UserSemesterRanking
+                          UserSemesterRanking,
+                          $UserSemesterRankingsTable
                         >(
                           currentTable: table,
                           referencedTable:
@@ -27076,10 +27063,8 @@ class $$UserSemesterSummariesTableTableManager
                                 table,
                                 p0,
                               ).userSemesterRankingsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.summary == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'summary',
                           typedResults: items,
                         ),
                     ];
@@ -28712,10 +28697,11 @@ class $$CampusMapBuildingsTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (campusMapFloorsRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       MapBuildingRecord,
                       $CampusMapBuildingsTable,
-                      MapFloorRecord
+                      MapFloorRecord,
+                      $CampusMapFloorsTable
                     >(
                       currentTable: table,
                       referencedTable: $$CampusMapBuildingsTableReferences
@@ -28726,8 +28712,8 @@ class $$CampusMapBuildingsTableTableManager
                             table,
                             p0,
                           ).campusMapFloorsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.building == item.code),
+                      currentColumn: 'code',
+                      referencedColumn: 'building',
                       typedResults: items,
                     ),
                 ];
@@ -29110,10 +29096,11 @@ class $$CampusMapFloorsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (campusMapRoomsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           MapFloorRecord,
                           $CampusMapFloorsTable,
-                          MapRoomRecord
+                          MapRoomRecord,
+                          $CampusMapRoomsTable
                         >(
                           currentTable: table,
                           referencedTable: $$CampusMapFloorsTableReferences
@@ -29124,10 +29111,8 @@ class $$CampusMapFloorsTableTableManager
                                 table,
                                 p0,
                               ).campusMapRoomsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.layerName == item.layerName,
-                              ),
+                          currentColumn: 'layer_name',
+                          referencedColumn: 'layer_name',
                           typedResults: items,
                         ),
                     ];
