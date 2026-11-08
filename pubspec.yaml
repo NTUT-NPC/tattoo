@@ -15,20 +15,20 @@ dependencies:
   cookie_jar: ^4.0.9
   dio_cookie_manager: ^3.5.0
   html: ^0.15.7
-  crypto: ^3.0.7
+  crypto: ^3.0.8
   dio_redirect_interceptor: ^1.0.1
   collection: ^1.19.1
   intl: ^0.20.3
-  flutter_svg: ^2.3.0
-  drift: ^2.35.2
+  flutter_svg: ^2.3.2
+  drift: ^2.35.3
   drift_flutter: ^0.3.1
   path_provider: ^2.1.6
   path: ^1.9.1
-  flutter_file_dialog: ^3.3.3
+  flutter_file_dialog: ^3.3.6
   url_launcher: ^6.3.3
-  riverpod: ^3.4.3
-  flutter_riverpod: ^3.4.3
-  go_router: ^18.0.2
+  riverpod: ^3.5.0
+  flutter_riverpod: ^3.5.0
+  go_router: ^18.1.3
   flutter_secure_storage: ^11.2.0
   package_info_plus: ^10.2.2
   image_picker: ^1.2.4
@@ -38,7 +38,7 @@ dependencies:
   slang_flutter: ^4.19.0
   http_parser: ^4.1.2
   shared_preferences: ^2.5.6
-  drift_dev: ^2.35.1 # TODO: move back to dev_dependencies after first release
+  drift_dev: ^2.35.2 # TODO: move back to dev_dependencies after first release
   flutter_image_compress: ^2.5.1
   msgpack_dart: ^1.0.1
   firebase_core: ^5.1.0
@@ -46,16 +46,16 @@ dependencies:
   firebase_analytics: ^13.0.1
   auto_size_text: ^3.0.0
   table_calendar: ^3.3.0
-  mobile_scanner: ^7.4.2
+  mobile_scanner: ^7.5.0
   qr_flutter: ^4.1.0
   firebase_remote_config: ^7.0.1
   pub_semver: ^2.2.1
-  material_ui: ^1.6.0
+  material_ui: ^1.10.0
   flutter_map: ^8.3.2
   latlong2: ^0.10.1
   dart_polylabel2: ^1.0.0
   http: ^1.6.0
-  xml: ^7.0.1
+  xml: ^7.1.0
 
 # darwin <=0.3.2 declares iOS 12.0 but uses iOS-13+ CryptoKit, breaking the SPM
 # iOS build. 0.4.0 only raises that floor. Drop once fss 11 ships stable.
@@ -67,7 +67,7 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^6.0.0
-  build_runner: ^2.16.2
+  build_runner: ^2.17.1
   flutter_secure_storage_platform_interface: ^2.1.1
   pointycastle: ^4.0.0
   slang_mcp: ^0.2.1
