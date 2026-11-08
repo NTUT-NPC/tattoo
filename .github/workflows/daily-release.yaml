@@ -18,6 +18,10 @@ concurrency:
 jobs:
   prepare:
     runs-on: ubuntu-latest
+    concurrency:
+      group: build-number-allocation
+      cancel-in-progress: false
+      queue: max
     outputs:
       build_number: ${{ steps.build-number.outputs.build_number }}
       version_suffix: ${{ steps.version-suffix.outputs.suffix }}
@@ -73,7 +77,6 @@ jobs:
         uses: ./.github/actions/manage-build-number
         with:
           github_token: ${{ secrets.BUILD_NUMBER_PAT }}
-          current_build_number: ${{ vars.build_number }}
 
       - name: Generate changelog
         if: steps.check-changes.outputs.skip != 'true'
