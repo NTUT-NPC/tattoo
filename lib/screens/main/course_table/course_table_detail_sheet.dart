@@ -57,7 +57,7 @@ class CourseTableDetailSheet extends ConsumerStatefulWidget {
 class _CourseTableDetailSheetState
     extends ConsumerState<CourseTableDetailSheet> {
   static const _fallbackSheetSize = 0.58;
-  static const _minimumSheetSize = 0.4;
+  static const _dismissExtentFactor = 0.7;
   static const _maximumSheetSize = 1.0;
   static const _dragHandleHeight = kMinInteractiveDimension;
   static const _contentPadding = EdgeInsets.fromLTRB(12, 4, 12, 16);
@@ -164,15 +164,14 @@ class _CourseTableDetailSheetState
                   .clamp(0.01, _maximumSheetSize),
             null => _fallbackSheetSize,
           };
+          final minimumSize = initialSize * _dismissExtentFactor;
           if (_snapSizes.single != initialSize) {
             _snapSizes = [initialSize];
           }
           return DraggableScrollableSheet(
             controller: _sheetController,
             initialChildSize: initialSize,
-            minChildSize: initialSize < _minimumSheetSize
-                ? initialSize
-                : _minimumSheetSize,
+            minChildSize: minimumSize,
             maxChildSize: _maximumSheetSize,
             snap: true,
             snapSizes: _snapSizes,
