@@ -1,6 +1,7 @@
 import 'package:flutter/widget_previews.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
 class CourseDetailInfoCard extends StatelessWidget {
@@ -42,12 +43,12 @@ class CourseDetailInfoCard extends StatelessWidget {
             spacing: 8,
             children: [
               _InfoField(
-                label: '老師',
+                label: t.courseDetail.infoCard.teacher,
                 icon: Icons.person_outline,
                 value: teachers,
               ),
               _InfoField(
-                label: '上課時間',
+                label: t.courseDetail.infoCard.period,
                 icon: Icons.calendar_today_outlined,
                 value: periods,
               ),
@@ -57,53 +58,49 @@ class CourseDetailInfoCard extends StatelessWidget {
                 runSpacing: 12,
                 children: [
                   _InfoField(
-                    label: '學分',
+                    label: t.courseDetail.infoCard.credits,
                     icon: Icons.school_outlined,
                     value: credits,
                   ),
                   _InfoField(
-                    label: '時數',
+                    label: t.courseDetail.infoCard.hours,
                     icon: Icons.schedule_outlined,
                     value: hours,
                   ),
                   _InfoField(
-                    label: '類型',
+                    label: t.courseDetail.infoCard.type,
                     icon: Icons.category_outlined,
                     value: courseType,
-                    description:
-                        '○ 系共同必修\n'
-                        '△ 校共同必修\n'
-                        '☆ 共同選修\n'
-                        '● 系專業必修\n'
-                        '▲ 校專業必修\n'
-                        '★ 專業選修',
+                    description: t.courseDetail.infoCard.typeDescription,
                   ),
                 ],
               ),
               if (classrooms.isEmpty)
-                const _InfoField(
-                  label: '教室',
+                _InfoField(
+                  label: t.courseDetail.infoCard.classroom,
                   icon: Icons.room_outlined,
                   value: '-',
                 )
               else
                 for (final classroom in classrooms)
                   _InfoField(
-                    label: '教室',
+                    label: t.courseDetail.infoCard.classroom,
                     icon: Icons.room_outlined,
                     value: classroom,
                     action: () {
                       ScaffoldMessenger.of(context)
                         ..hideCurrentSnackBar()
                         ..showSnackBar(
-                          const SnackBar(
-                            content: Text('尋找教室功能即將推出'),
+                          SnackBar(
+                            content: Text(
+                              t.courseDetail.infoCard.findClassroomComingSoon,
+                            ),
                             persist: false,
                           ),
                         );
                     },
                     actionIcon: Icons.map_outlined,
-                    actionTooltip: '在地圖上尋找教室',
+                    actionTooltip: t.courseDetail.infoCard.findClassroomOnMap,
                   ),
             ],
           ),
