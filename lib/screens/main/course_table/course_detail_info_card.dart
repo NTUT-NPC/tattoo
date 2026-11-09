@@ -52,29 +52,6 @@ class CourseDetailInfoCard extends StatelessWidget {
                 icon: Icons.calendar_today_outlined,
                 value: periods,
               ),
-              Wrap(
-                alignment: .spaceBetween,
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  _InfoField(
-                    label: t.courseDetail.infoCard.credits,
-                    icon: Icons.school_outlined,
-                    value: credits,
-                  ),
-                  _InfoField(
-                    label: t.courseDetail.infoCard.hours,
-                    icon: Icons.schedule_outlined,
-                    value: hours,
-                  ),
-                  _InfoField(
-                    label: t.courseDetail.infoCard.type,
-                    icon: Icons.category_outlined,
-                    value: courseType,
-                    description: t.courseDetail.infoCard.typeDescription,
-                  ),
-                ],
-              ),
               if (classrooms.isEmpty)
                 _InfoField(
                   label: t.courseDetail.infoCard.classroom,
@@ -102,6 +79,32 @@ class CourseDetailInfoCard extends StatelessWidget {
                     actionIcon: Icons.map_outlined,
                     actionTooltip: t.courseDetail.infoCard.findClassroomOnMap,
                   ),
+              Wrap(
+                alignment: .spaceBetween,
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _InfoField(
+                    label: t.courseDetail.infoCard.credits,
+                    icon: Icons.school_outlined,
+                    value: credits,
+                    compact: true,
+                  ),
+                  _InfoField(
+                    label: t.courseDetail.infoCard.hours,
+                    icon: Icons.schedule_outlined,
+                    value: hours,
+                    compact: true,
+                  ),
+                  _InfoField(
+                    label: t.courseDetail.infoCard.type,
+                    icon: Icons.category_outlined,
+                    value: courseType,
+                    description: t.courseDetail.infoCard.typeDescription,
+                    compact: true,
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -119,6 +122,7 @@ class _InfoField extends StatelessWidget {
     this.action,
     this.actionTooltip,
     this.description,
+    this.compact = false,
   });
 
   final String label;
@@ -128,76 +132,128 @@ class _InfoField extends StatelessWidget {
   final VoidCallback? action;
   final String? actionTooltip;
   final String? description;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
+    final iconWidget = switch (icon) {
+      final icon? => Icon(
+        icon,
+        size: 18,
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+      null => null,
+    };
+    final labelWidget = Text(
+      label,
+      style: theme.textTheme.bodyMedium?.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+    );
+    final valueWidget = Row(
       mainAxisSize: .min,
       crossAxisAlignment: .center,
-      spacing: 8,
       children: [
-        if (icon case final icon?)
-          Icon(
-            icon,
-            size: 18,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        Text(
-          label,
-          style: theme.textTheme.labelMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-
         Flexible(
-          child: Row(
-            mainAxisSize: .min,
-            crossAxisAlignment: .center,
-            children: [
-              Flexible(
-                child: Text(
-                  (value.isEmpty ? '-' : value).spaced,
-                  style: theme.textTheme.bodyMedium,
-                ),
-              ),
-              if (description case final description?
-                  when description.trim().isNotEmpty)
-                Tooltip(
-                  message: description.spaced,
-                  textAlign: TextAlign.left,
-                  triggerMode: TooltipTriggerMode.tap,
-                  showDuration: const Duration(seconds: 5),
-                  child: Semantics(
-                    button: true,
-                    child: Icon(
-                      Icons.help_outline,
-                      size: 12,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-            ],
+          child: Text(
+            (value.isEmpty ? '-' : value).spaced,
+            style: theme.textTheme.bodyMedium,
           ),
         ),
-
-        if (actionIcon case final icon? when action != null)
-          IconButton(
-            onPressed: action,
-            icon: Icon(icon, size: 16),
-            tooltip: actionTooltip,
-            style: IconButton.styleFrom(
-              tapTargetSize: .shrinkWrap,
-              minimumSize: const Size.square(32),
-              maximumSize: const Size.square(32),
-              visualDensity: VisualDensity.standard,
-              padding: const .all(8),
-              shape: const CircleBorder(),
-              foregroundColor: theme.colorScheme.primary,
-              backgroundColor: theme.colorScheme.surfaceContainerLowest,
+        if (description case final description?
+            when description.trim().isNotEmpty)
+          Tooltip(
+            message: description.spaced,
+            textAlign: TextAlign.left,
+            triggerMode: TooltipTriggerMode.tap,
+            showDuration: const Duration(seconds: 5),
+            child: Semantics(
+              button: true,
+              child: Icon(
+                Icons.help_outline,
+                size: 12,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
       ],
+    );
+    final actionWidget = switch ((actionIcon, action)) {
+      (final icon?, final action?) => IconButton(
+        onPressed: action,
+        icon: Icon(icon, size: 16),
+        tooltip: actionTooltip,
+        style: IconButton.styleFrom(
+          tapTargetSize: .shrinkWrap,
+          minimumSize: const Size.square(32),
+          maximumSize: const Size.square(32),
+          visualDensity: VisualDensity.standard,
+          padding: const .all(8),
+          shape: const CircleBorder(),
+          foregroundColor: theme.colorScheme.primary,
+          backgroundColor: theme.colorScheme.surfaceContainerLowest,
+        ),
+      ),
+      _ => null,
+    };
+
+    if (compact) {
+      return Row(
+        mainAxisSize: .min,
+        crossAxisAlignment: .center,
+        spacing: 8,
+        children: [
+          ?iconWidget,
+          labelWidget,
+          Flexible(child: valueWidget),
+          ?actionWidget,
+        ],
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final stacked = constraints.maxWidth < 240;
+        final labelWidth = (constraints.maxWidth * .25).clamp(72.0, 112.0);
+        final trailing = Row(
+          crossAxisAlignment: .center,
+          children: [
+            Expanded(child: valueWidget),
+            ?actionWidget,
+          ],
+        );
+        if (stacked) {
+          return Column(
+            crossAxisAlignment: .stretch,
+            children: [
+              Row(
+                spacing: 8,
+                children: [
+                  ?iconWidget,
+                  Expanded(child: labelWidget),
+                ],
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.only(
+                  start: iconWidget == null ? 0 : 26,
+                ),
+                child: trailing,
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: .center,
+          spacing: 8,
+          children: [
+            ?iconWidget,
+            SizedBox(width: labelWidth, child: labelWidget),
+            Expanded(child: trailing),
+          ],
+        );
+      },
     );
   }
 }
