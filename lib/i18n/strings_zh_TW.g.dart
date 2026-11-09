@@ -56,6 +56,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$score$zh_TW score = Translations$score$zh_TW.internal(_root);
 	late final Translations$calendar$zh_TW calendar = Translations$calendar$zh_TW.internal(_root);
 	late final Translations$courseTable$zh_TW courseTable = Translations$courseTable$zh_TW.internal(_root);
+	late final Translations$courseDetail$zh_TW courseDetail = Translations$courseDetail$zh_TW.internal(_root);
 	late final Translations$iSchoolPlus$zh_TW iSchoolPlus = Translations$iSchoolPlus$zh_TW.internal(_root);
 	late final Translations$profile$zh_TW profile = Translations$profile$zh_TW.internal(_root);
 	late final Translations$scanner$zh_TW scanner = Translations$scanner$zh_TW.internal(_root);
@@ -545,6 +546,16 @@ class Translations$courseTable$zh_TW {
 		'friday': '星期五',
 		'saturday': '星期六',
 	};
+}
+
+// Path: courseDetail
+class Translations$courseDetail$zh_TW {
+	Translations$courseDetail$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	late final Translations$courseDetail$infoCard$zh_TW infoCard = Translations$courseDetail$infoCard$zh_TW.internal(_root);
 }
 
 // Path: iSchoolPlus
@@ -1255,6 +1266,42 @@ class Translations$courseTable$actions$zh_TW {
 
 	/// zh-TW: '切換至網格檢視'
 	String get showGridView => '切換至網格檢視';
+}
+
+// Path: courseDetail.infoCard
+class Translations$courseDetail$infoCard$zh_TW {
+	Translations$courseDetail$infoCard$zh_TW.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-TW: '老師'
+	String get teacher => '老師';
+
+	/// zh-TW: '上課時間'
+	String get period => '上課時間';
+
+	/// zh-TW: '學分'
+	String get credits => '學分';
+
+	/// zh-TW: '時數'
+	String get hours => '時數';
+
+	/// zh-TW: '類型'
+	String get type => '類型';
+
+	/// zh-TW: '○ 系共同必修 △ 校共同必修 ☆ 共同選修 ● 系專業必修 ▲ 校專業必修 ★ 專業選修'
+	String get typeDescription => '○ 系共同必修\n△ 校共同必修\n☆ 共同選修\n● 系專業必修\n▲ 校專業必修\n★ 專業選修';
+
+	/// zh-TW: '教室'
+	String get classroom => '教室';
+
+	/// zh-TW: '尋找教室功能即將推出'
+	String get findClassroomComingSoon => '尋找教室功能即將推出';
+
+	/// zh-TW: '在地圖上尋找教室'
+	String get findClassroomOnMap => '在地圖上尋找教室';
 }
 
 // Path: iSchoolPlus.network
@@ -2341,6 +2388,15 @@ extension on Translations {
 			'courseTable.dayOfWeekLong.thursday' => '星期四',
 			'courseTable.dayOfWeekLong.friday' => '星期五',
 			'courseTable.dayOfWeekLong.saturday' => '星期六',
+			'courseDetail.infoCard.teacher' => '老師',
+			'courseDetail.infoCard.period' => '上課時間',
+			'courseDetail.infoCard.credits' => '學分',
+			'courseDetail.infoCard.hours' => '時數',
+			'courseDetail.infoCard.type' => '類型',
+			'courseDetail.infoCard.typeDescription' => '○ 系共同必修\n△ 校共同必修\n☆ 共同選修\n● 系專業必修\n▲ 校專業必修\n★ 專業選修',
+			'courseDetail.infoCard.classroom' => '教室',
+			'courseDetail.infoCard.findClassroomComingSoon' => '尋找教室功能即將推出',
+			'courseDetail.infoCard.findClassroomOnMap' => '在地圖上尋找教室',
 			'iSchoolPlus.network.loadingNetworkHint' => 'i學園功能需要使用學校網路。',
 			'iSchoolPlus.network.title' => '無法連接到i學園服務',
 			'iSchoolPlus.network.description' => 'i學園受學校資安政策限制，請先連接學校網路，例如校園Wi-Fi或VPN，再重試此功能。',

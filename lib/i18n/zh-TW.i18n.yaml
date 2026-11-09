@@ -279,6 +279,23 @@ courseTable:
     thursday: 星期四
     friday: 星期五
     saturday: 星期六
+courseDetail:
+  infoCard:
+    teacher: 老師
+    period: 上課時間
+    credits: 學分
+    hours: 時數
+    type: 類型
+    typeDescription: |-
+      ○ 系共同必修
+      △ 校共同必修
+      ☆ 共同選修
+      ● 系專業必修
+      ▲ 校專業必修
+      ★ 專業選修
+    classroom: 教室
+    findClassroomComingSoon: 尋找教室功能即將推出
+    findClassroomOnMap: 在地圖上尋找教室
 iSchoolPlus:
   network:
     loadingNetworkHint: i學園功能需要使用學校網路。

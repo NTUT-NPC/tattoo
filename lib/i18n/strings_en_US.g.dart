@@ -54,6 +54,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$score$en_US score = _Translations$score$en_US._(_root);
 	@override late final _Translations$calendar$en_US calendar = _Translations$calendar$en_US._(_root);
 	@override late final _Translations$courseTable$en_US courseTable = _Translations$courseTable$en_US._(_root);
+	@override late final _Translations$courseDetail$en_US courseDetail = _Translations$courseDetail$en_US._(_root);
 	@override late final _Translations$iSchoolPlus$en_US iSchoolPlus = _Translations$iSchoolPlus$en_US._(_root);
 	@override late final _Translations$profile$en_US profile = _Translations$profile$en_US._(_root);
 	@override late final _Translations$scanner$en_US scanner = _Translations$scanner$en_US._(_root);
@@ -367,6 +368,16 @@ class _Translations$courseTable$en_US extends Translations$courseTable$zh_TW {
 		'friday': 'Friday',
 		'saturday': 'Saturday',
 	};
+}
+
+// Path: courseDetail
+class _Translations$courseDetail$en_US extends Translations$courseDetail$zh_TW {
+	_Translations$courseDetail$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override late final _Translations$courseDetail$infoCard$en_US infoCard = _Translations$courseDetail$infoCard$en_US._(_root);
 }
 
 // Path: iSchoolPlus
@@ -796,6 +807,24 @@ class _Translations$courseTable$actions$en_US extends Translations$courseTable$a
 	@override String get displayOptions => 'Display options';
 	@override String get showWeeklyView => 'Switch to weekly view';
 	@override String get showGridView => 'Switch to grid view';
+}
+
+// Path: courseDetail.infoCard
+class _Translations$courseDetail$infoCard$en_US extends Translations$courseDetail$infoCard$zh_TW {
+	_Translations$courseDetail$infoCard$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get teacher => 'Instructor';
+	@override String get period => 'Class Time';
+	@override String get credits => 'Credits';
+	@override String get hours => 'Hours';
+	@override String get type => 'Type';
+	@override String get typeDescription => '○ Department Required\n△ University Required\n☆ General Elective\n● Department Required (Major)\n▲ University Required (Major)\n★ Major Elective';
+	@override String get classroom => 'Classroom';
+	@override String get findClassroomComingSoon => 'Classroom search is coming soon.';
+	@override String get findClassroomOnMap => 'Find classroom on map';
 }
 
 // Path: iSchoolPlus.network
@@ -1512,6 +1541,15 @@ extension on TranslationsEnUs {
 			'courseTable.dayOfWeekLong.thursday' => 'Thursday',
 			'courseTable.dayOfWeekLong.friday' => 'Friday',
 			'courseTable.dayOfWeekLong.saturday' => 'Saturday',
+			'courseDetail.infoCard.teacher' => 'Instructor',
+			'courseDetail.infoCard.period' => 'Class Time',
+			'courseDetail.infoCard.credits' => 'Credits',
+			'courseDetail.infoCard.hours' => 'Hours',
+			'courseDetail.infoCard.type' => 'Type',
+			'courseDetail.infoCard.typeDescription' => '○ Department Required\n△ University Required\n☆ General Elective\n● Department Required (Major)\n▲ University Required (Major)\n★ Major Elective',
+			'courseDetail.infoCard.classroom' => 'Classroom',
+			'courseDetail.infoCard.findClassroomComingSoon' => 'Classroom search is coming soon.',
+			'courseDetail.infoCard.findClassroomOnMap' => 'Find classroom on map',
 			'iSchoolPlus.network.loadingNetworkHint' => 'I-School Plus requires the NTUT network.',
 			'iSchoolPlus.network.title' => 'Unable to connect to I-School Plus',
 			'iSchoolPlus.network.description' => 'I-School Plus is restricted by NTUT security policy. Connect through campus Wi-Fi or VPN, then try this feature again.',

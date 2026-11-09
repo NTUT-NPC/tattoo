@@ -279,6 +279,23 @@ courseTable:
     thursday: Thursday
     friday: Friday
     saturday: Saturday
+courseDetail:
+  infoCard:
+    teacher: Instructor
+    period: Class Time
+    credits: Credits
+    hours: Hours
+    type: Type
+    typeDescription: |-
+      ○ Department Required
+      △ University Required
+      ☆ General Elective
+      ● Department Required (Major)
+      ▲ University Required (Major)
+      ★ Major Elective
+    classroom: Classroom
+    findClassroomComingSoon: Classroom search is coming soon.
+    findClassroomOnMap: Find classroom on map
 iSchoolPlus:
   network:
     loadingNetworkHint: I-School Plus requires the NTUT network.
