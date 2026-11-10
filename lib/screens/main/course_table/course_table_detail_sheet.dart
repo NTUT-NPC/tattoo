@@ -1,7 +1,7 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
 import 'package:tattoo/components/dot_separated_wrap.dart';
 import 'package:tattoo/components/i_school_plus_network_guide.dart';
@@ -11,6 +11,7 @@ import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_detail_info_card.dart';
+import 'package:tattoo/screens/main/course_table/course_detail_morphing_header.dart';
 import 'package:tattoo/screens/main/course_table/course_materials_list.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/i_school_plus_providers.dart';
@@ -23,22 +24,19 @@ Future<void> showCourseTableDetailSheet(
   BuildContext context, {
   required String number,
 }) {
-  return showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: false,
-    isScrollControlled: true,
-    useSafeArea: true,
-    sheetAnimationStyle: const AnimationStyle(
-      curve: Curves.easeOutCubic,
-      reverseCurve: Curves.easeOutCubic,
-    ),
-    builder: (context) => Align(
-      alignment: Alignment.bottomCenter,
-      heightFactor: 1,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: contentMaxWidth),
-        child: CourseTableDetailSheet(number: number),
+  return Navigator.of(context).push<void>(
+    ModalSheetRoute<void>(
+      swipeDismissible: true,
+      viewportBuilder: (context, child) => SafeArea(
+        bottom: false,
+        child: Center(
+          child: SizedBox(
+            width: contentMaxWidth,
+            child: SheetViewport(child: child),
+          ),
+        ),
       ),
+      builder: (context) => CourseTableDetailSheet(number: number),
     ),
   );
 }
@@ -57,63 +55,30 @@ class CourseTableDetailSheet extends ConsumerStatefulWidget {
 class _CourseTableDetailSheetState
     extends ConsumerState<CourseTableDetailSheet> {
   static const _fallbackSheetSize = 0.58;
-  static const _dismissExtentFactor = 0.7;
   static const _maximumSheetSize = 1.0;
   static const _dragHandleHeight = kMinInteractiveDimension;
   static const _contentPadding = EdgeInsets.fromLTRB(12, 4, 12, 16);
 
+  final _titleAnchor = GlobalKey();
+  final _titleBlockAnchor = GlobalKey();
   double? _headerHeight;
-  List<double> _snapSizes = const [_fallbackSheetSize];
-  Drag? _handleDrag;
 
-  Widget _buildDragHandle(
-    BuildContext context, [
-    ScrollController? controller,
-  ]) {
+  Widget _buildDragHandle(BuildContext context) {
     final theme = Theme.of(context);
     final handleSize =
         theme.bottomSheetTheme.dragHandleSize ?? const Size(32, 4);
-    return GestureDetector(
-      behavior: .opaque,
-      onVerticalDragStart: controller == null
-          ? null
-          : (details) {
-              _handleDrag?.cancel();
-              if (!controller.hasClients) return;
-              // Use the sheet's scroll position for resizing, fling and snap.
-              _handleDrag = controller.position.drag(
-                details,
-                () => _handleDrag = null,
-              );
-            },
-      onVerticalDragUpdate: controller == null
-          ? null
-          : (details) => _handleDrag?.update(details),
-      onVerticalDragEnd: controller == null
-          ? null
-          : (details) {
-              _handleDrag?.end(details);
-              _handleDrag = null;
-            },
-      onVerticalDragCancel: controller == null
-          ? null
-          : () {
-              _handleDrag?.cancel();
-              _handleDrag = null;
-            },
-      child: SizedBox(
-        height: _dragHandleHeight,
-        width: .infinity,
-        child: Center(
-          child: Container(
-            width: handleSize.width,
-            height: handleSize.height,
-            decoration: BoxDecoration(
-              color:
-                  theme.bottomSheetTheme.dragHandleColor ??
-                  theme.colorScheme.onSurfaceVariant,
-              borderRadius: .circular(handleSize.height / 2),
-            ),
+    return SizedBox(
+      height: _dragHandleHeight,
+      width: .infinity,
+      child: Center(
+        child: Container(
+          width: handleSize.width,
+          height: handleSize.height,
+          decoration: BoxDecoration(
+            color:
+                theme.bottomSheetTheme.dragHandleColor ??
+                theme.colorScheme.onSurfaceVariant,
+            borderRadius: .circular(handleSize.height / 2),
           ),
         ),
       ),
@@ -121,28 +86,31 @@ class _CourseTableDetailSheetState
   }
 
   void _updateHeaderHeight(double height) {
-    if (!mounted || _headerHeight == height) return;
+    // Snap size uses the expanded layout of the title block, even while the
+    // block is being collapsed. Otherwise resizing would move its own baseline.
+    final titleBlock = _titleBlockAnchor.currentContext?.findRenderObject();
+    if (titleBlock is RenderPositionedBox) {
+      if (titleBlock.child case final child?) {
+        height += child.size.height - titleBlock.size.height;
+      }
+    }
+    if (!mounted) return;
+    if (_headerHeight case final previous?
+        when (previous - height).abs() < .01) {
+      return;
+    }
     setState(() => _headerHeight = height);
   }
 
-  final DraggableScrollableController _sheetController =
-      DraggableScrollableController();
+  final SheetController _sheetController = SheetController();
 
   void _expandSheet() {
-    if (!_sheetController.isAttached ||
-        _sheetController.size >= _maximumSheetSize) {
-      return;
-    }
-    _sheetController.animateTo(
-      _maximumSheetSize,
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeOutCubic,
-    );
+    if (!_sheetController.hasClient) return;
+    _sheetController.animateTo(const SheetOffset(1));
   }
 
   @override
   void dispose() {
-    _handleDrag?.cancel();
     _sheetController.dispose();
     super.dispose();
   }
@@ -164,36 +132,74 @@ class _CourseTableDetailSheetState
                   .clamp(0.01, _maximumSheetSize),
             null => _fallbackSheetSize,
           };
-          final minimumSize = initialSize * _dismissExtentFactor;
-          if (_snapSizes.single != initialSize) {
-            _snapSizes = [initialSize];
-          }
-          return DraggableScrollableSheet(
-            controller: _sheetController,
-            initialChildSize: initialSize,
-            minChildSize: minimumSize,
-            maxChildSize: _maximumSheetSize,
-            snap: true,
-            snapSizes: _snapSizes,
-            shouldCloseOnMinExtent: true,
-            expand: false,
-            builder: (context, scrollController) => SafeArea(
-              top: false,
-              child: Column(
-                children: [
-                  _buildDragHandle(context, scrollController),
-                  Expanded(
-                    child: Padding(
-                      padding: _contentPadding,
-                      child: _CourseDetailContent(
-                        detail: detail,
-                        scrollController: scrollController,
-                        onTabSelected: _expandSheet,
-                        onHeaderHeightChanged: _updateHeaderHeight,
-                      ),
-                    ),
-                  ),
+          final initiallyFullHeight = initialSize >= _maximumSheetSize;
+
+          return Opacity(
+            // Measure the content before choosing between the two title modes.
+            opacity: _headerHeight == null ? 0 : 1,
+            child: Sheet(
+              // Recreate once after measuring so the first visible offset is
+              // the content-sized stop rather than the measurement fallback.
+              key: ValueKey(_headerHeight != null),
+              controller: _sheetController,
+              initialOffset: SheetOffset(initialSize),
+              snapGrid: SheetSnapGrid(
+                snaps: [
+                  SheetOffset(initialSize),
+                  if (!initiallyFullHeight) const SheetOffset(1),
                 ],
+              ),
+              scrollConfiguration: const SheetScrollConfiguration(),
+              decoration: MaterialSheetDecoration(
+                size: SheetSize.fit,
+                color: Theme.of(context).bottomSheetTheme.backgroundColor,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(28),
+                ),
+                clipBehavior: Clip.antiAlias,
+              ),
+              child: SizedBox(
+                height: constraints.maxHeight,
+                width: constraints.maxWidth.clamp(0, contentMaxWidth),
+                child: _CourseDetailScrollContent(
+                  builder: (context, scrollController) {
+                    final overview = detail.overview;
+                    final title =
+                        (_normalizedText(
+                                  localized(overview.nameZh, overview.nameEn),
+                                ) ??
+                                _normalizedText(overview.number) ??
+                                t.general.unknown)
+                            .spaced;
+                    return SafeArea(
+                      top: false,
+                      child: CourseDetailMorphingHeader(
+                        sheetController: _sheetController,
+                        scrollController: scrollController,
+                        collapsedSize: initialSize,
+                        initiallyFullHeight: initiallyFullHeight,
+                        title: title,
+                        sourceAnchor: _titleAnchor,
+                        dragHandle: _buildDragHandle(context),
+                        child: Padding(
+                          padding: _contentPadding,
+                          child: _CourseDetailContent(
+                            detail: detail,
+                            title: title,
+                            titleAnchor: _titleAnchor,
+                            titleBlockAnchor: _titleBlockAnchor,
+                            sheetController: _sheetController,
+                            collapsedSize: initialSize,
+                            initiallyFullHeight: initiallyFullHeight,
+                            scrollController: scrollController,
+                            onTabSelected: _expandSheet,
+                            onHeaderHeightChanged: _updateHeaderHeight,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           );
@@ -221,22 +227,74 @@ class _CourseTableDetailSheetState
     if (detailAsync case AsyncData(value: _?)) {
       return content;
     }
-    return Column(
-      mainAxisSize: .min,
-      children: [_buildDragHandle(context), content],
+    return Sheet(
+      decoration: MaterialSheetDecoration(
+        size: SheetSize.fit,
+        color: Theme.of(context).bottomSheetTheme.backgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        clipBehavior: Clip.antiAlias,
+      ),
+      child: SizedBox(
+        width: contentMaxWidth,
+        child: Column(
+          mainAxisSize: .min,
+          children: [_buildDragHandle(context), content],
+        ),
+      ),
     );
   }
+}
+
+// Keep the scroll controller with the keyed Sheet subtree: measuring the
+// initial stop replaces that subtree before it becomes visible.
+class _CourseDetailScrollContent extends StatefulWidget {
+  const _CourseDetailScrollContent({required this.builder});
+
+  final Widget Function(BuildContext, SheetScrollController) builder;
+
+  @override
+  State<_CourseDetailScrollContent> createState() =>
+      _CourseDetailScrollContentState();
+}
+
+class _CourseDetailScrollContentState
+    extends State<_CourseDetailScrollContent> {
+  final _controller = SheetScrollController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => SheetScrollable(
+    controller: _controller,
+    child: widget.builder(context, _controller),
+  );
 }
 
 class _CourseDetailContent extends ConsumerWidget {
   const _CourseDetailContent({
     required this.detail,
+    required this.title,
+    required this.titleAnchor,
+    required this.titleBlockAnchor,
+    required this.sheetController,
+    required this.collapsedSize,
+    required this.initiallyFullHeight,
     required this.scrollController,
     required this.onTabSelected,
     required this.onHeaderHeightChanged,
   });
 
   final CourseOfferingDetail detail;
+  final String title;
+  final GlobalKey titleAnchor;
+  final GlobalKey titleBlockAnchor;
+  final SheetController sheetController;
+  final double collapsedSize;
+  final bool initiallyFullHeight;
   final ScrollController scrollController;
   final VoidCallback onTabSelected;
   final ValueChanged<double> onHeaderHeightChanged;
@@ -245,10 +303,6 @@ class _CourseDetailContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final overview = detail.overview;
-    final title =
-        _normalizedText(localized(overview.nameZh, overview.nameEn)) ??
-        _normalizedText(overview.number) ??
-        t.general.unknown;
     final syllabusAsync = switch (overview.number) {
       final courseNumber? => ref.watch(
         syllabusProvider((
@@ -289,6 +343,23 @@ class _CourseDetailContent extends ConsumerWidget {
         iSchoolKey != null && ref.pref(PrefKey.showCourseMaterials);
     final typeTooltipKey = GlobalKey<TooltipState>();
 
+    final titlePlaceholder = Padding(
+      padding: const .only(top: 2),
+      child: ExcludeSemantics(
+        child: Opacity(
+          opacity: 0,
+          child: SizedBox(
+            key: titleAnchor,
+            width: .infinity,
+            child: Text(
+              title.spaced,
+              textAlign: .center,
+              style: theme.textTheme.titleLarge,
+            ),
+          ),
+        ),
+      ),
+    );
     final header = Column(
       mainAxisSize: .min,
       children: [
@@ -297,11 +368,15 @@ class _CourseDetailContent extends ConsumerWidget {
           child: Column(
             spacing: 2,
             children: [
-              Text(
-                title.spaced,
-                textAlign: .center,
-                style: theme.textTheme.titleLarge,
-              ),
+              if (initiallyFullHeight)
+                titlePlaceholder
+              else
+                CourseDetailCollapsingTitle(
+                  sheetController: sheetController,
+                  collapsedSize: collapsedSize,
+                  sizeAnchor: titleBlockAnchor,
+                  child: titlePlaceholder,
+                ),
               DotSeparatedWrap(
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
