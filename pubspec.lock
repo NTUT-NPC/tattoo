@@ -973,6 +973,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.19.3"
+  navigator_resizable:
+    dependency: transitive
+    description:
+      name: navigator_resizable
+      sha256: "689f591b70218e152c6496b41142d9058e6c9ba5581a4126a7db978a8239d2eb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   objective_c:
     dependency: transitive
     description:
@@ -1314,6 +1322,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.1"
+  smooth_sheets:
+    dependency: "direct main"
+    description:
+      name: smooth_sheets
+      sha256: ce88a0aa9db65c660af051e6f0678ffbf04eacc612acd232b725892a652e1422
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   source_gen:
     dependency: transitive
     description:
