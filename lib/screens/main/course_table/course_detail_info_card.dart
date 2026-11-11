@@ -44,18 +44,15 @@ class CourseDetailInfoCard extends StatelessWidget {
             children: [
               _InfoField(
                 label: t.courseDetail.infoCard.teacher,
-                // icon: Icons.person_outline,
                 value: teachers,
               ),
               _InfoField(
                 label: t.courseDetail.infoCard.period,
-                // icon: Icons.calendar_today_outlined,
                 value: periods,
               ),
               if (classrooms.isEmpty)
                 _InfoField(
                   label: t.courseDetail.infoCard.classroom,
-                  // icon: Icons.room_outlined,
                   value: '-',
                 )
               else
