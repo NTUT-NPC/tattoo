@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
+import 'package:tattoo/components/dot_separated_wrap.dart';
 import 'package:tattoo/components/i_school_plus_network_guide.dart';
 import 'package:tattoo/components/tap_to_copy.dart';
 import 'package:tattoo/database/database.dart';
@@ -330,19 +331,13 @@ class _CourseDetailContent extends ConsumerWidget {
                 textAlign: .center,
                 style: theme.textTheme.titleLarge,
               ),
-              Row(
-                spacing: 0,
-                mainAxisAlignment: .center,
-                crossAxisAlignment: .center,
+              DotSeparatedWrap(
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
                 children: [
                   Text(
                     t.$wip('115-1'),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  Text(
-                    ' · ',
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -354,12 +349,6 @@ class _CourseDetailContent extends ConsumerWidget {
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
-                    ),
-                  ),
-                  Text(
-                    ' · ',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                   Tooltip(
