@@ -89,18 +89,21 @@ class CourseDetailInfoCard extends StatelessWidget {
                       icon: Icons.school_outlined,
                       value: credits,
                       compact: true,
+                      tapToCopy: false,
                     ),
                     _InfoField(
                       label: t.courseDetail.infoCard.hours,
                       icon: Icons.schedule_outlined,
                       value: hours,
                       compact: true,
+                      tapToCopy: false,
                     ),
                     _InfoField(
                       label: t.courseDetail.infoCard.phase,
                       icon: Icons.flag_outlined,
                       value: phase.toString(),
                       compact: true,
+                      tapToCopy: false,
                     ),
                   ];
 
@@ -136,6 +139,7 @@ class _InfoField extends StatelessWidget {
     this.action,
     this.actionTooltip,
     this.compact = false,
+    this.tapToCopy = true,
   });
 
   final String label;
@@ -145,6 +149,7 @@ class _InfoField extends StatelessWidget {
   final VoidCallback? action;
   final String? actionTooltip;
   final bool compact;
+  final bool tapToCopy;
 
   @override
   Widget build(BuildContext context) {
@@ -163,18 +168,21 @@ class _InfoField extends StatelessWidget {
         color: theme.colorScheme.onSurfaceVariant,
       ),
     );
+    final valueText = Text(
+      (value.isEmpty ? '-' : value).spaced,
+      style: theme.textTheme.bodyMedium,
+    );
     final valueWidget = Row(
       mainAxisSize: .min,
       crossAxisAlignment: .center,
       children: [
         Flexible(
-          child: TapToCopy(
-            copyText: value.isEmpty ? '-' : value,
-            child: Text(
-              (value.isEmpty ? '-' : value).spaced,
-              style: theme.textTheme.bodyMedium,
-            ),
-          ),
+          child: tapToCopy
+              ? TapToCopy(
+                  copyText: value.isEmpty ? '-' : value,
+                  child: valueText,
+                )
+              : valueText,
         ),
       ],
     );
