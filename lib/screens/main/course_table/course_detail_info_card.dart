@@ -13,6 +13,7 @@ class CourseDetailInfoCard extends StatelessWidget {
     required this.hours,
     required this.courseType,
     required this.classrooms,
+    this.phase,
   });
 
   final String teachers;
@@ -20,6 +21,7 @@ class CourseDetailInfoCard extends StatelessWidget {
   final String credits;
   final String hours;
   final String courseType;
+  final int? phase;
   final List<String> classrooms;
 
   @override
@@ -78,31 +80,38 @@ class CourseDetailInfoCard extends StatelessWidget {
                   ),
               LayoutBuilder(
                 builder: (context, constraints) {
-                  final creditsField = _InfoField(
-                    label: t.courseDetail.infoCard.credits,
-                    icon: Icons.school_outlined,
-                    value: credits,
-                    compact: true,
-                  );
-                  final hoursField = _InfoField(
-                    label: t.courseDetail.infoCard.hours,
-                    icon: Icons.schedule_outlined,
-                    value: hours,
-                    compact: true,
-                  );
+                  final compactFields = [
+                    _InfoField(
+                      label: t.courseDetail.infoCard.credits,
+                      icon: Icons.school_outlined,
+                      value: credits,
+                      compact: true,
+                    ),
+                    _InfoField(
+                      label: t.courseDetail.infoCard.hours,
+                      icon: Icons.schedule_outlined,
+                      value: hours,
+                      compact: true,
+                    ),
+                    _InfoField(
+                      label: t.$wip('階段'),
+                      icon: Icons.flag_outlined,
+                      value: phase.toString(),
+                      compact: true,
+                    ),
+                  ];
 
                   if (constraints.maxWidth < 240) {
                     return Wrap(
                       spacing: 12,
                       runSpacing: 12,
-                      children: [creditsField, hoursField],
+                      children: compactFields,
                     );
                   }
 
                   return Row(
                     children: [
-                      Expanded(child: creditsField),
-                      Expanded(child: hoursField),
+                      for (final field in compactFields) Expanded(child: field),
                     ],
                   );
                 },
