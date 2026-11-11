@@ -256,11 +256,11 @@ void main() {
 
     expect(find.bySemanticsLabel(longTitle), findsOneWidget);
 
-    final listView = find.byType(ListView).first;
-    await tester.fling(listView, const Offset(0, -400), 1200);
+    final scrollView = find.byType(CustomScrollView).first;
+    await tester.fling(scrollView, const Offset(0, -400), 1200);
     await tester.pumpAndSettle();
     final scrollable = find.descendant(
-      of: listView,
+      of: scrollView,
       matching: find.byType(Scrollable),
     );
     final scrollPosition = tester.state<ScrollableState>(scrollable).position;

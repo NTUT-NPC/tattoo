@@ -449,29 +449,32 @@ class _CourseDetailContent extends ConsumerWidget {
       ],
     );
 
-    return ListView(
+    if (showCourseRoster || showCourseMaterials) {
+      return _CourseDetailTabs(
+        key: ValueKey((showCourseRoster, showCourseMaterials)),
+        iSchoolKey: iSchoolKey,
+        syllabus: syllabus,
+        showRoster: showCourseRoster,
+        showMaterials: showCourseMaterials,
+        onTabSelected: onTabSelected,
+        header: header,
+        scrollController: scrollController,
+        onHeaderHeightChanged: onHeaderHeightChanged,
+      );
+    }
+    return CustomScrollView(
       controller: scrollController,
-      padding: .zero,
-      children: [
-        if (showCourseRoster || showCourseMaterials)
-          _CourseDetailTabs(
-            key: ValueKey((showCourseRoster, showCourseMaterials)),
-            iSchoolKey: iSchoolKey,
-            syllabus: syllabus,
-            showRoster: showCourseRoster,
-            showMaterials: showCourseMaterials,
-            onTabSelected: onTabSelected,
-            header: header,
-            onHeaderHeightChanged: onHeaderHeightChanged,
-          )
-        else ...[
-          _DetailHeaderHeight(
+      slivers: [
+        SliverToBoxAdapter(
+          child: _DetailHeaderHeight(
             onChanged: onHeaderHeightChanged,
             child: header,
           ),
-          syllabus,
-        ],
-        SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
+        ),
+        SliverToBoxAdapter(child: syllabus),
+        SliverToBoxAdapter(
+          child: SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
+        ),
       ],
     );
   }
@@ -488,6 +491,7 @@ class _CourseDetailTabs extends StatefulWidget {
     required this.showMaterials,
     required this.onTabSelected,
     required this.header,
+    required this.scrollController,
     required this.onHeaderHeightChanged,
   });
   final bool showRoster;
@@ -495,6 +499,7 @@ class _CourseDetailTabs extends StatefulWidget {
   final VoidCallback onTabSelected;
 
   final Widget header;
+  final ScrollController scrollController;
   final ValueChanged<double> onHeaderHeightChanged;
 
   final CourseISchoolKey iSchoolKey;
@@ -539,66 +544,108 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _DetailHeaderHeight(
-          onChanged: widget.onHeaderHeightChanged,
-          child: Column(
-            mainAxisSize: .min,
-            children: [
-              widget.header,
-              TabBar(
-                controller: _controller,
-                onTap: (_) => widget.onTabSelected(),
-                tabs: [
-                  for (final tab in _tabs)
-                    Tab(
-                      text: switch (tab) {
-                        .syllabus => t.courseTable.detail.tabs.syllabus.spaced,
-                        .roster => t.courseTable.detail.tabs.roster.spaced,
-                        .materials =>
-                          t.courseTable.detail.tabs.materials.spaced,
-                      },
-                    ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        Offstage(
-          offstage: _tabs[_controller.index] != .syllabus,
-          child: Padding(
-            padding: const .only(top: 8),
-            child: widget.syllabus,
-          ),
-        ),
-        if (_rosterVisited)
-          Offstage(
-            key: const ValueKey<_CourseDetailTab>(.roster),
-            offstage: _tabs[_controller.index] != .roster,
-            child: Padding(
-              padding: const .only(top: 8),
-              child: _CourseISchoolPane(
-                iSchoolKey: widget.iSchoolKey,
-                type: .roster,
-              ),
-            ),
-          ),
-        if (_materialsVisited)
-          Offstage(
-            key: const ValueKey<_CourseDetailTab>(.materials),
-            offstage: _tabs[_controller.index] != .materials,
-            child: Padding(
-              padding: const .only(top: 8),
-              child: _CourseISchoolPane(
-                iSchoolKey: widget.iSchoolKey,
-                type: .materials,
-              ),
-            ),
+    final tabBar = TabBar(
+      controller: _controller,
+      onTap: (_) => widget.onTabSelected(),
+      tabs: [
+        for (final tab in _tabs)
+          Tab(
+            text: switch (tab) {
+              .syllabus => t.courseTable.detail.tabs.syllabus.spaced,
+              .roster => t.courseTable.detail.tabs.roster.spaced,
+              .materials => t.courseTable.detail.tabs.materials.spaced,
+            },
           ),
       ],
     );
+    return CustomScrollView(
+      controller: widget.scrollController,
+      slivers: [
+        SliverToBoxAdapter(
+          child: _DetailHeaderHeight(
+            // Keep the full header and tab extent as the half-height baseline,
+            // independently of the tab bar's pinned position.
+            onChanged: (height) => widget.onHeaderHeightChanged(
+              height + tabBar.preferredSize.height,
+            ),
+            child: widget.header,
+          ),
+        ),
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: _CourseDetailTabBarHeader(tabBar),
+        ),
+        SliverToBoxAdapter(
+          child: Column(
+            children: [
+              Offstage(
+                offstage: _tabs[_controller.index] != .syllabus,
+                child: Padding(
+                  padding: const .only(top: 8),
+                  child: widget.syllabus,
+                ),
+              ),
+              if (_rosterVisited)
+                Offstage(
+                  key: const ValueKey<_CourseDetailTab>(.roster),
+                  offstage: _tabs[_controller.index] != .roster,
+                  child: Padding(
+                    padding: const .only(top: 8),
+                    child: _CourseISchoolPane(
+                      iSchoolKey: widget.iSchoolKey,
+                      type: .roster,
+                    ),
+                  ),
+                ),
+              if (_materialsVisited)
+                Offstage(
+                  key: const ValueKey<_CourseDetailTab>(.materials),
+                  offstage: _tabs[_controller.index] != .materials,
+                  child: Padding(
+                    padding: const .only(top: 8),
+                    child: _CourseISchoolPane(
+                      iSchoolKey: widget.iSchoolKey,
+                      type: .materials,
+                    ),
+                  ),
+                ),
+              SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
+            ],
+          ),
+        ),
+      ],
+    );
   }
+}
+
+class _CourseDetailTabBarHeader extends SliverPersistentHeaderDelegate {
+  _CourseDetailTabBarHeader(this.tabBar);
+
+  final TabBar tabBar;
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+
+  @override
+  double get maxExtent => minExtent;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final theme = Theme.of(context);
+    return ColoredBox(
+      color:
+          theme.bottomSheetTheme.backgroundColor ?? theme.colorScheme.surface,
+      child: tabBar,
+    );
+  }
+
+  @override
+  bool shouldRebuild(_CourseDetailTabBarHeader oldDelegate) =>
+      tabBar != oldDelegate.tabBar;
 }
 
 enum _CourseISchoolPaneType { roster, materials }
