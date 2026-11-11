@@ -314,6 +314,7 @@ class _CourseDetailContent extends ConsumerWidget {
         iSchoolKey != null && ref.pref(PrefKey.showCourseRoster);
     final showCourseMaterials =
         iSchoolKey != null && ref.pref(PrefKey.showCourseMaterials);
+    final typeTooltipKey = GlobalKey<TooltipState>();
 
     final header = Column(
       mainAxisSize: .min,
@@ -358,16 +359,18 @@ class _CourseDetailContent extends ConsumerWidget {
                     ),
                   ),
                   Tooltip(
+                    key: typeTooltipKey,
                     message: t.courseDetail.infoCard.typeDescription.spaced,
                     textAlign: TextAlign.left,
-                    triggerMode: TooltipTriggerMode.tap,
+                    triggerMode: TooltipTriggerMode.manual,
                     showDuration: const Duration(seconds: 5),
                     child: Semantics(
                       button: true,
                       child: Material(
                         type: MaterialType.transparency,
                         child: InkWell(
-                          onTap: () {},
+                          onTap: () => typeTooltipKey.currentState
+                              ?.ensureTooltipVisible(),
                           customBorder: const StadiumBorder(),
                           child: Padding(
                             padding: const .fromLTRB(0, 1, 2, 1),
