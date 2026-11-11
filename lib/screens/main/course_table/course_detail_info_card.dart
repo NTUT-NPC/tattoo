@@ -111,7 +111,6 @@ class _InfoField extends StatelessWidget {
     this.actionIcon,
     this.action,
     this.actionTooltip,
-    this.description,
     this.compact = false,
   });
 
@@ -121,7 +120,6 @@ class _InfoField extends StatelessWidget {
   final IconData? actionIcon;
   final VoidCallback? action;
   final String? actionTooltip;
-  final String? description;
   final bool compact;
 
   @override
@@ -151,22 +149,6 @@ class _InfoField extends StatelessWidget {
             style: theme.textTheme.bodyMedium,
           ),
         ),
-        if (description case final description?
-            when description.trim().isNotEmpty)
-          Tooltip(
-            message: description.spaced,
-            textAlign: TextAlign.left,
-            triggerMode: TooltipTriggerMode.tap,
-            showDuration: const Duration(seconds: 5),
-            child: Semantics(
-              button: true,
-              child: Icon(
-                Icons.help_outline,
-                size: 12,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
       ],
     );
     final actionWidget = switch ((actionIcon, action)) {
