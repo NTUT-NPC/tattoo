@@ -705,7 +705,7 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
           content: Text(message.spaced),
           persist: false,
           action: SnackBarAction(
-            label: actionLabel,
+            label: actionLabel.spaced,
             onPressed: _openNetworkGuide,
           ),
         ),

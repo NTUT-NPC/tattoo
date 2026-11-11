@@ -70,14 +70,16 @@ class CourseDetailInfoCard extends StatelessWidget {
                         ..showSnackBar(
                           SnackBar(
                             content: Text(
-                              t.courseDetail.infoCard.findClassroomComingSoon,
+                              t.courseDetail.infoCard.findClassroomComingSoon
+                                  .spaced,
                             ),
                             persist: false,
                           ),
                         );
                     },
                     actionIcon: Icons.map_outlined,
-                    actionTooltip: t.courseDetail.infoCard.findClassroomOnMap,
+                    actionTooltip: t.courseDetail.infoCard.findClassroomOnMap
+                        .spaced,
                   ),
               LayoutBuilder(
                 builder: (context, constraints) {
@@ -95,7 +97,7 @@ class CourseDetailInfoCard extends StatelessWidget {
                       compact: true,
                     ),
                     _InfoField(
-                      label: t.$wip('階段'),
+                      label: t.courseDetail.infoCard.phase,
                       icon: Icons.flag_outlined,
                       value: phase.toString(),
                       compact: true,
@@ -156,7 +158,7 @@ class _InfoField extends StatelessWidget {
       null => null,
     };
     final labelWidget = Text(
-      label,
+      label.spaced,
       style: theme.textTheme.bodyMedium?.copyWith(
         color: theme.colorScheme.onSurfaceVariant,
       ),

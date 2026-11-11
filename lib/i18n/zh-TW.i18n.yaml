@@ -103,6 +103,8 @@ general:
   notLoggedIn: 未登入
   copy: 複製
   copied: 已複製
+  copiedToClipboard: 已複製到剪貼簿
+  copyToClipboardFailed: 複製到剪貼簿失敗
   back: 返回
   ok: 確定
   cancel: 取消
@@ -285,6 +287,7 @@ courseDetail:
     period: 上課時間
     credits: 學分
     hours: 時數
+    phase: 階段
     type: 類型
     typeDescription: |-
       ○ 系共同必修

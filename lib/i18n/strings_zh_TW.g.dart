@@ -243,6 +243,12 @@ class Translations$general$zh_TW {
 	/// zh-TW: '已複製'
 	String get copied => '已複製';
 
+	/// zh-TW: '已複製到剪貼簿'
+	String get copiedToClipboard => '已複製到剪貼簿';
+
+	/// zh-TW: '複製到剪貼簿失敗'
+	String get copyToClipboardFailed => '複製到剪貼簿失敗';
+
 	/// zh-TW: '返回'
 	String get back => '返回';
 
@@ -1288,6 +1294,9 @@ class Translations$courseDetail$infoCard$zh_TW {
 	/// zh-TW: '時數'
 	String get hours => '時數';
 
+	/// zh-TW: '階段'
+	String get phase => '階段';
+
 	/// zh-TW: '類型'
 	String get type => '類型';
 
@@ -2246,6 +2255,8 @@ extension on Translations {
 			'general.notLoggedIn' => '未登入',
 			'general.copy' => '複製',
 			'general.copied' => '已複製',
+			'general.copiedToClipboard' => '已複製到剪貼簿',
+			'general.copyToClipboardFailed' => '複製到剪貼簿失敗',
 			'general.back' => '返回',
 			'general.ok' => '確定',
 			'general.cancel' => '取消',
@@ -2392,6 +2403,7 @@ extension on Translations {
 			'courseDetail.infoCard.period' => '上課時間',
 			'courseDetail.infoCard.credits' => '學分',
 			'courseDetail.infoCard.hours' => '時數',
+			'courseDetail.infoCard.phase' => '階段',
 			'courseDetail.infoCard.type' => '類型',
 			'courseDetail.infoCard.typeDescription' => '○ 系共同必修\n△ 校共同必修\n☆ 共同選修\n● 系專業必修\n▲ 校專業必修\n★ 專業選修',
 			'courseDetail.infoCard.classroom' => '教室',

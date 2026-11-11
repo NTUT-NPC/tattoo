@@ -103,6 +103,8 @@ general:
   notLoggedIn: Not logged in
   copy: Copy
   copied: Copied
+  copiedToClipboard: Copied to clipboard
+  copyToClipboardFailed: Failed to copy to clipboard
   back: Back
   ok: OK
   cancel: Cancel
@@ -285,6 +287,7 @@ courseDetail:
     period: Class Time
     credits: Credits
     hours: Hours
+    phase: Phase
     type: Type
     typeDescription: |-
       ○ Department Required

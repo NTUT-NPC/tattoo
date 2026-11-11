@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/utils/auto_spacing.dart';
 
 class TapToCopy extends StatelessWidget {
   const TapToCopy({
@@ -34,14 +35,18 @@ class TapToCopy extends StatelessWidget {
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()
                 ..showSnackBar(
-                  SnackBar(content: Text(t.$wip('已複製到剪貼簿'))),
+                  SnackBar(content: Text(t.general.copiedToClipboard.spaced)),
                 );
             } catch (_) {
               if (!context.mounted) return;
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()
                 ..showSnackBar(
-                  SnackBar(content: Text(t.$wip('複製到剪貼簿失敗'))),
+                  SnackBar(
+                    content: Text(
+                      t.general.copyToClipboardFailed.spaced,
+                    ),
+                  ),
                 );
             }
           },
