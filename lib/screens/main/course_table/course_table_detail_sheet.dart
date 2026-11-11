@@ -329,12 +329,30 @@ class _CourseDetailContent extends ConsumerWidget {
                 style: theme.textTheme.titleLarge,
               ),
               Row(
-                spacing: 2,
+                spacing: 0,
                 mainAxisAlignment: .center,
                 crossAxisAlignment: .center,
                 children: [
                   Text(
+                    t.$wip('115-1'),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Text(
+                    ' · ',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Text(
                     overview.number.toString(),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Text(
+                    ' · ',
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -352,16 +370,14 @@ class _CourseDetailContent extends ConsumerWidget {
                           onTap: () {},
                           customBorder: const StadiumBorder(),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 2,
-                            ),
+                            padding: const .fromLTRB(0, 1, 2, 1),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Transform.translate(
                                   offset: const Offset(0, -2),
                                   child: Text(
-                                    overview.courseType?.symbol ?? '',
+                                    overview.courseType?.symbol ?? '-',
                                     style: theme.textTheme.titleMedium
                                         ?.copyWith(
                                           color: theme
