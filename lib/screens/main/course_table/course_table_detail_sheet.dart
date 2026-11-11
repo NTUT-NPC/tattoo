@@ -394,6 +394,7 @@ class _CourseDetailContent extends ConsumerWidget {
           hours: _formatInteger(overview.hours),
           courseType: overview.courseType?.symbol ?? '-',
           classrooms: classrooms,
+          phase: overview.phase,
         ),
       ],
     );
