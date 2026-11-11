@@ -1,5 +1,6 @@
 import 'package:flutter/widget_previews.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:tattoo/components/tap_to_copy.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
@@ -165,9 +166,12 @@ class _InfoField extends StatelessWidget {
       crossAxisAlignment: .center,
       children: [
         Flexible(
-          child: Text(
-            (value.isEmpty ? '-' : value).spaced,
-            style: theme.textTheme.bodyMedium,
+          child: TapToCopy(
+            copyText: value.isEmpty ? '-' : value,
+            child: Text(
+              (value.isEmpty ? '-' : value).spaced,
+              style: theme.textTheme.bodyMedium,
+            ),
           ),
         ),
       ],
