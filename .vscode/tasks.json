@@ -1,0 +1,47 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build on Bob (debug)",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/tool/build_on_bob.sh", "debug"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build on Bob (debug with Firebase)",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/tool/build_on_bob.sh", "debug", "--firebase"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build on Bob (profile)",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/tool/build_on_bob.sh", "profile"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build on Bob (profile with Firebase)",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/tool/build_on_bob.sh", "profile", "--firebase"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build on Bob (release)",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/tool/build_on_bob.sh", "release"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build on Bob (release with Firebase)",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/tool/build_on_bob.sh", "release", "--firebase"],
+      "problemMatcher": []
+    }
+  ]
+}

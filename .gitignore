@@ -26,6 +26,7 @@ migrate_working_dir/
 !.vscode/README.md
 !.vscode/extensions.json
 !.vscode/launch.json
+!.vscode/tasks.json
 
 # Flutter/Dart/Pub related
 **/doc/api/

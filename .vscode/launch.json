@@ -56,5 +56,78 @@
         "--dart-define=cronetHttpNoPlay=true"
       ],
     },
+    {
+      "name": "Build on Bob and Debug",
+      "request": "launch",
+      "type": "dart",
+      "preLaunchTask": "Build on Bob (debug)",
+      "toolArgs": [
+        "--flavor=staging",
+        "--dart-define=cronetHttpNoPlay=true",
+        "--use-application-binary=${workspaceFolder}/build/bob/debug/app-staging-debug.apk"
+      ],
+    },
+    {
+      "name": "Build on Bob and Debug with Firebase",
+      "request": "launch",
+      "type": "dart",
+      "preLaunchTask": "Build on Bob (debug with Firebase)",
+      "toolArgs": [
+        "--flavor=staging",
+        "--dart-define=USE_FIREBASE=true",
+        "--dart-define=cronetHttpNoPlay=true",
+        "--use-application-binary=${workspaceFolder}/build/bob/debug-firebase/app-staging-debug.apk"
+      ],
+    },
+    {
+      "name": "Build on Bob and Profile",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile",
+      "preLaunchTask": "Build on Bob (profile)",
+      "toolArgs": [
+        "--flavor=staging",
+        "--dart-define=cronetHttpNoPlay=true",
+        "--use-application-binary=${workspaceFolder}/build/bob/profile/app-staging-profile.apk"
+      ],
+    },
+    {
+      "name": "Build on Bob and Profile with Firebase",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile",
+      "preLaunchTask": "Build on Bob (profile with Firebase)",
+      "toolArgs": [
+        "--flavor=staging",
+        "--dart-define=USE_FIREBASE=true",
+        "--dart-define=cronetHttpNoPlay=true",
+        "--use-application-binary=${workspaceFolder}/build/bob/profile-firebase/app-staging-profile.apk"
+      ],
+    },
+    {
+      "name": "Build on Bob and Release",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "preLaunchTask": "Build on Bob (release)",
+      "toolArgs": [
+        "--flavor=staging",
+        "--dart-define=cronetHttpNoPlay=true",
+        "--use-application-binary=${workspaceFolder}/build/bob/release/app-staging-release.apk"
+      ],
+    },
+    {
+      "name": "Build on Bob and Release with Firebase",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "preLaunchTask": "Build on Bob (release with Firebase)",
+      "toolArgs": [
+        "--flavor=staging",
+        "--dart-define=USE_FIREBASE=true",
+        "--dart-define=cronetHttpNoPlay=true",
+        "--use-application-binary=${workspaceFolder}/build/bob/release-firebase/app-staging-release.apk"
+      ],
+    },
   ]
 }
