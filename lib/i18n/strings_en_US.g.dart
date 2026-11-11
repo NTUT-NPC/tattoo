@@ -186,6 +186,8 @@ class _Translations$general$en_US extends Translations$general$zh_TW {
 	@override String get notLoggedIn => 'Not logged in';
 	@override String get copy => 'Copy';
 	@override String get copied => 'Copied';
+	@override String get copiedToClipboard => 'Copied to clipboard';
+	@override String get copyToClipboardFailed => 'Failed to copy to clipboard';
 	@override String get back => 'Back';
 	@override String get ok => 'OK';
 	@override String get cancel => 'Cancel';
@@ -822,6 +824,7 @@ class _Translations$courseDetail$infoCard$en_US extends Translations$courseDetai
 	@override String get period => 'Class Time';
 	@override String get credits => 'Credits';
 	@override String get hours => 'Hours';
+	@override String get phase => 'Phase';
 	@override String get type => 'Type';
 	@override String get typeDescription => '○ Department Required\n△ University Required\n☆ General Elective\n● Department Required (Major)\n▲ University Required (Major)\n★ Major Elective';
 	@override String get classroom => 'Classroom';
@@ -1403,6 +1406,8 @@ extension on TranslationsEnUs {
 			'general.notLoggedIn' => 'Not logged in',
 			'general.copy' => 'Copy',
 			'general.copied' => 'Copied',
+			'general.copiedToClipboard' => 'Copied to clipboard',
+			'general.copyToClipboardFailed' => 'Failed to copy to clipboard',
 			'general.back' => 'Back',
 			'general.ok' => 'OK',
 			'general.cancel' => 'Cancel',
@@ -1549,6 +1554,7 @@ extension on TranslationsEnUs {
 			'courseDetail.infoCard.period' => 'Class Time',
 			'courseDetail.infoCard.credits' => 'Credits',
 			'courseDetail.infoCard.hours' => 'Hours',
+			'courseDetail.infoCard.phase' => 'Phase',
 			'courseDetail.infoCard.type' => 'Type',
 			'courseDetail.infoCard.typeDescription' => '○ Department Required\n△ University Required\n☆ General Elective\n● Department Required (Major)\n▲ University Required (Major)\n★ Major Elective',
 			'courseDetail.infoCard.classroom' => 'Classroom',
