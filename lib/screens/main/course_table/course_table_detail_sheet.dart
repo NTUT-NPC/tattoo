@@ -324,15 +324,65 @@ class _CourseDetailContent extends ConsumerWidget {
             spacing: 2,
             children: [
               Text(
-                overview.number.toString(),
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              Text(
                 title.spaced,
                 textAlign: .center,
                 style: theme.textTheme.titleLarge,
+              ),
+              Row(
+                spacing: 2,
+                mainAxisAlignment: .center,
+                crossAxisAlignment: .center,
+                children: [
+                  Text(
+                    overview.number.toString(),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Tooltip(
+                    message: t.courseDetail.infoCard.typeDescription.spaced,
+                    textAlign: TextAlign.left,
+                    triggerMode: TooltipTriggerMode.tap,
+                    showDuration: const Duration(seconds: 5),
+                    child: Semantics(
+                      button: true,
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: InkWell(
+                          onTap: () {},
+                          customBorder: const StadiumBorder(),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 2,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Transform.translate(
+                                  offset: const Offset(0, -2),
+                                  child: Text(
+                                    overview.courseType?.symbol ?? '',
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                          color: theme
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.help_outline,
+                                  size: 12,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

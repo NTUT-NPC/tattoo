@@ -44,25 +44,25 @@ class CourseDetailInfoCard extends StatelessWidget {
             children: [
               _InfoField(
                 label: t.courseDetail.infoCard.teacher,
-                icon: Icons.person_outline,
+                // icon: Icons.person_outline,
                 value: teachers,
               ),
               _InfoField(
                 label: t.courseDetail.infoCard.period,
-                icon: Icons.calendar_today_outlined,
+                // icon: Icons.calendar_today_outlined,
                 value: periods,
               ),
               if (classrooms.isEmpty)
                 _InfoField(
                   label: t.courseDetail.infoCard.classroom,
-                  icon: Icons.room_outlined,
+                  // icon: Icons.room_outlined,
                   value: '-',
                 )
               else
                 for (final classroom in classrooms)
                   _InfoField(
                     label: t.courseDetail.infoCard.classroom,
-                    icon: Icons.room_outlined,
+                    // icon: Icons.room_outlined,
                     value: classroom,
                     action: () {
                       ScaffoldMessenger.of(context)
@@ -94,13 +94,6 @@ class CourseDetailInfoCard extends StatelessWidget {
                     label: t.courseDetail.infoCard.hours,
                     icon: Icons.schedule_outlined,
                     value: hours,
-                    compact: true,
-                  ),
-                  _InfoField(
-                    label: t.courseDetail.infoCard.type,
-                    icon: Icons.category_outlined,
-                    value: courseType,
-                    description: t.courseDetail.infoCard.typeDescription,
                     compact: true,
                   ),
                 ],
