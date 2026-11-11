@@ -76,24 +76,36 @@ class CourseDetailInfoCard extends StatelessWidget {
                     actionIcon: Icons.map_outlined,
                     actionTooltip: t.courseDetail.infoCard.findClassroomOnMap,
                   ),
-              Wrap(
-                alignment: .spaceBetween,
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  _InfoField(
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final creditsField = _InfoField(
                     label: t.courseDetail.infoCard.credits,
                     icon: Icons.school_outlined,
                     value: credits,
                     compact: true,
-                  ),
-                  _InfoField(
+                  );
+                  final hoursField = _InfoField(
                     label: t.courseDetail.infoCard.hours,
                     icon: Icons.schedule_outlined,
                     value: hours,
                     compact: true,
-                  ),
-                ],
+                  );
+
+                  if (constraints.maxWidth < 240) {
+                    return Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [creditsField, hoursField],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      Expanded(child: creditsField),
+                      Expanded(child: hoursField),
+                    ],
+                  );
+                },
               ),
             ],
           ),
