@@ -308,7 +308,7 @@ class _CourseDetailContent extends ConsumerWidget {
                 ),
                 children: [
                   Text(
-                    t.$wip('115-1'),
+                    '${detail.semesterYear}-${detail.semesterTerm}',
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),

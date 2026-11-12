@@ -27,6 +27,8 @@ import 'package:tattoo/utils/localized.dart';
 /// additional fields on this record.
 typedef CourseOfferingDetail = ({
   CourseOfferingOverview overview,
+  int semesterYear,
+  int semesterTerm,
   List<
     ({
       DayOfWeek day,
@@ -826,6 +828,7 @@ class CourseRepository {
             .getSingleOrNull();
 
     if (cached?.readTable(overviews) case final overview?) {
+      final semester = cached!.readTable(_database.semesters);
       final offeringId = overview.id;
       final (schedule, teachers, classes) = await (
         _readOfferingSchedule(offeringId),
@@ -835,6 +838,8 @@ class CourseRepository {
 
       return (
         overview: overview,
+        semesterYear: semester.year,
+        semesterTerm: semester.term,
         schedule: schedule,
         teachers: teachers,
         classes: classes,
@@ -854,6 +859,8 @@ class CourseRepository {
 
     final schedule = dto.schedule;
     return (
+      semesterYear: semester.year,
+      semesterTerm: semester.term,
       // TODO: sentinel id because the offering itself is not persisted, so it
       // has no row to report. No caller reads `overview.id` — give
       // CourseOfferingDetail a DTO-backed variant if that stops being true.

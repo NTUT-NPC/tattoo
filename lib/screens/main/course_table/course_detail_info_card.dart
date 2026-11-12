@@ -299,6 +299,8 @@ class _InfoField extends StatelessWidget {
 Widget courseDetailInfoCardPreview() => WidgetPreviewFrame(
   child: CourseDetailInfoCard(
     detail: (
+      semesterYear: 114,
+      semesterTerm: 1,
       overview: CourseOfferingOverview(
         id: 1,
         semester: 1,
