@@ -95,7 +95,10 @@ class CourseDetailInfoCard extends StatelessWidget {
                         ..showSnackBar(
                           SnackBar(
                             content: Text(
-                              t.courseDetail.infoCard.findClassroomComingSoon
+                              t
+                                  .courseDetail
+                                  .infoCard
+                                  .findClassroomComingSoon
                                   .spaced,
                             ),
                             persist: false,
@@ -103,49 +106,36 @@ class CourseDetailInfoCard extends StatelessWidget {
                         );
                     },
                     actionIcon: Icons.map_outlined,
-                    actionTooltip: t.courseDetail.infoCard.findClassroomOnMap
-                        .spaced,
+                    actionTooltip:
+                        t.courseDetail.infoCard.findClassroomOnMap.spaced,
                   ),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final compactFields = [
-                    _InfoField(
-                      label: t.courseDetail.infoCard.credits,
-                      icon: Icons.school_outlined,
-                      value: credits,
-                      compact: true,
-                      tapToCopy: false,
-                    ),
-                    _InfoField(
-                      label: t.courseDetail.infoCard.hours,
-                      icon: Icons.schedule_outlined,
-                      value: hours,
-                      compact: true,
-                      tapToCopy: false,
-                    ),
-                    _InfoField(
-                      label: t.courseDetail.infoCard.phase,
-                      icon: Icons.flag_outlined,
-                      value: phase.toString(),
-                      compact: true,
-                      tapToCopy: false,
-                    ),
-                  ];
-
-                  if (constraints.maxWidth < 240) {
-                    return Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: compactFields,
-                    );
-                  }
-
-                  return Row(
-                    children: [
-                      for (final field in compactFields) Expanded(child: field),
-                    ],
-                  );
-                },
+              Wrap(
+                alignment: .spaceBetween,
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _InfoField(
+                    label: t.courseDetail.infoCard.credits,
+                    icon: Icons.school_outlined,
+                    value: credits,
+                    compact: true,
+                    tapToCopy: false,
+                  ),
+                  _InfoField(
+                    label: t.courseDetail.infoCard.hours,
+                    icon: Icons.schedule_outlined,
+                    value: hours,
+                    compact: true,
+                    tapToCopy: false,
+                  ),
+                  _InfoField(
+                    label: t.courseDetail.infoCard.phase,
+                    icon: Icons.flag_outlined,
+                    value: phase.toString(),
+                    compact: true,
+                    tapToCopy: false,
+                  ),
+                ],
               ),
             ],
           ),
