@@ -17,6 +17,7 @@ import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/i_school_plus_providers.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/shells/centered_max_width_frame.dart';
+import 'package:tattoo/utils/app_sheet_physics.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/localized.dart';
 
@@ -138,6 +139,7 @@ class _CourseTableDetailSheetState
             // Measure the content before choosing between the two title modes.
             opacity: _headerHeight == null ? 0 : 1,
             child: Sheet(
+              physics: const AppSheetPhysics(),
               // Recreate once after measuring so the first visible offset is
               // the content-sized stop rather than the measurement fallback.
               key: ValueKey(_headerHeight != null),
@@ -228,6 +230,7 @@ class _CourseTableDetailSheetState
       return content;
     }
     return Sheet(
+      physics: const AppSheetPhysics(),
       decoration: MaterialSheetDecoration(
         size: SheetSize.fit,
         color: Theme.of(context).bottomSheetTheme.backgroundColor,
