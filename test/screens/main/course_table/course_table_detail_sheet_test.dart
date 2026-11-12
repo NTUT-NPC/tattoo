@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:tattoo/components/i_school_plus_network_guide.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
@@ -70,7 +72,11 @@ void main() {
           ],
           child: TranslationProvider(
             child: const MaterialApp(
-              home: Scaffold(body: CourseTableDetailSheet(number: '352902')),
+              home: Scaffold(
+                body: SheetViewport(
+                  child: CourseTableDetailSheet(number: '352902'),
+                ),
+              ),
             ),
           ),
         ),
@@ -140,6 +146,138 @@ void main() {
     });
   }
 
+  testWidgets('selecting a tab expands the content-sized sheet', (
+    tester,
+  ) async {
+    const key = (courseOfferingId: 1, courseNumber: '352902');
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          preferenceValueProvider.overrideWith(
+            (ref, key) =>
+                key == PrefKey.showCourseRoster ? true : key.defaultValue,
+          ),
+          courseOfferingProvider('352902').overrideWith((ref) async => detail),
+          syllabusProvider.overrideWith((ref, key) => Stream.value([])),
+          courseMaterialsProvider(key).overrideWith(
+            (ref) => Stream.value((
+              materials: const <CourseMaterial>[],
+              fetchedAt: DateTime(2026),
+            )),
+          ),
+          courseMaterialsRefreshProvider(key).overrideWith(
+            (ref) async => (refreshed: false, hadCacheAtStart: true),
+          ),
+          courseMaterialsAvailabilityProvider(key).overrideWith((ref) async {}),
+        ],
+        child: TranslationProvider(
+          child: const MaterialApp(
+            home: Scaffold(
+              body: SheetViewport(
+                child: CourseTableDetailSheet(number: '352902'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final sheet = find.byType(Sheet);
+    final collapsedTop = tester.getTopLeft(sheet).dy;
+    expect(collapsedTop, greaterThan(0));
+
+    await tester.tap(find.text(t.courseTable.detail.tabs.materials));
+    await tester.pumpAndSettle();
+
+    final expandedTop = tester.getTopLeft(sheet).dy;
+    expect(expandedTop, lessThan(collapsedTop));
+
+    await tester.drag(find.byType(AppBar), const Offset(0, 200));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(sheet).dy, closeTo(collapsedTop, 1.5));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('long title stays available on a narrow, short, scaled screen', (
+    tester,
+  ) async {
+    const key = (courseOfferingId: 1, courseNumber: '352902');
+    const longTitle = '這是一門用來確認窄螢幕與大字縮放仍可顯示的非常長的課程名稱';
+    final longDetail = (
+      overview: detail.overview.copyWith(nameZh: Value(longTitle)),
+      schedule: detail.schedule,
+      teachers: detail.teachers,
+      classes: detail.classes,
+    );
+    tester.view.physicalSize = const Size(320, 440);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          preferenceValueProvider.overrideWith((ref, key) => key.defaultValue),
+          courseOfferingProvider('352902').overrideWith(
+            (ref) async => longDetail,
+          ),
+          syllabusProvider.overrideWith((ref, key) => Stream.value([])),
+          courseMaterialsProvider(key).overrideWith(
+            (ref) => Stream.value((
+              materials: const <CourseMaterial>[],
+              fetchedAt: DateTime(2026),
+            )),
+          ),
+          courseMaterialsRefreshProvider(key).overrideWith(
+            (ref) async => (refreshed: false, hadCacheAtStart: true),
+          ),
+          courseMaterialsAvailabilityProvider(key).overrideWith(
+            (ref) async {},
+          ),
+        ],
+        child: TranslationProvider(
+          child: MaterialApp(
+            home: MediaQuery(
+              data: const MediaQueryData(
+                textScaler: TextScaler.linear(1.8),
+              ),
+              child: const Scaffold(
+                body: SheetViewport(
+                  child: CourseTableDetailSheet(number: '352902'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.bySemanticsLabel(longTitle), findsOneWidget);
+
+    final scrollView = find.byType(CustomScrollView).first;
+    await tester.fling(scrollView, const Offset(0, -400), 1200);
+    await tester.pumpAndSettle();
+    final scrollable = find.descendant(
+      of: scrollView,
+      matching: find.byType(Scrollable),
+    );
+    final scrollPosition = tester.state<ScrollableState>(scrollable).position;
+    expect(
+      scrollPosition.pixels,
+      greaterThan(0),
+    );
+    expect(find.bySemanticsLabel(longTitle), findsOneWidget);
+
+    final scrolledPixels = scrollPosition.pixels;
+    await tester.drag(find.byType(AppBar), const Offset(0, 180));
+    await tester.pumpAndSettle();
+    expect(scrollPosition.pixels, lessThan(scrolledPixels));
+    expect(find.bySemanticsLabel(longTitle), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'download failure can open the guide after a successful refresh',
     (
@@ -182,7 +320,11 @@ void main() {
           ],
           child: TranslationProvider(
             child: const MaterialApp(
-              home: Scaffold(body: CourseTableDetailSheet(number: '352902')),
+              home: Scaffold(
+                body: SheetViewport(
+                  child: CourseTableDetailSheet(number: '352902'),
+                ),
+              ),
             ),
           ),
         ),
