@@ -131,7 +131,7 @@ class CourseDetailInfoCard extends StatelessWidget {
                   _InfoField(
                     label: t.courseDetail.infoCard.phase,
                     icon: Icons.flag_outlined,
-                    value: phase.toString(),
+                    value: phase?.toString() ?? '-',
                     compact: true,
                     tapToCopy: false,
                   ),
