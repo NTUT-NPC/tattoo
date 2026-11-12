@@ -46,7 +46,7 @@ class CourseDetailInfoCard extends StatelessWidget {
     final periods = periodsByDay.entries
         .map(
           (entry) =>
-              '${_dayOfWeekLabel(entry.key)} ${formatPeriodTimeRanges(entry.value)}',
+              '${entry.key.toShortLabel()} ${formatPeriodTimeRanges(entry.value)}',
         )
         .join('\n');
     final credits = _formatDecimal(overview.credits);
@@ -164,16 +164,6 @@ String _formatDecimal(double? value) => switch (value) {
   final value? when value == value.roundToDouble() => value.toInt().toString(),
   final value? => value.toString(),
   null => '-',
-};
-
-String _dayOfWeekLabel(DayOfWeek day) => switch (day) {
-  .sunday => '星期日',
-  .monday => '星期一',
-  .tuesday => '星期二',
-  .wednesday => '星期三',
-  .thursday => '星期四',
-  .friday => '星期五',
-  .saturday => '星期六',
 };
 
 class _InfoField extends StatelessWidget {
