@@ -15,6 +15,8 @@ import 'package:tattoo/screens/main/profile/preference_providers.dart';
 
 void main() {
   const CourseOfferingDetail detail = (
+    semesterYear: 114,
+    semesterTerm: 1,
     overview: CourseOfferingOverview(
       id: 1,
       semester: 1,
@@ -74,6 +76,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      expect(find.text('114-1'), findsOneWidget);
       expect(find.text(t.courseTable.detail.tabs.materials), findsOneWidget);
       expect(
         find.text(t.courseTable.detail.tabs.roster),

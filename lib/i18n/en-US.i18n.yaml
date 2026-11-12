@@ -103,6 +103,8 @@ general:
   notLoggedIn: Not logged in
   copy: Copy
   copied: Copied
+  copiedToClipboard: Copied to clipboard
+  copyToClipboardFailed: Failed to copy to clipboard
   back: Back
   ok: OK
   cancel: Cancel
@@ -279,6 +281,24 @@ courseTable:
     thursday: Thursday
     friday: Friday
     saturday: Saturday
+courseDetail:
+  infoCard:
+    teacher: Instructor
+    period: Class Time
+    credits: Credits
+    hours: Hours
+    phase: Phase
+    type: Type
+    typeDescription: |-
+      ○ Department Required
+      △ University Required
+      ☆ General Elective
+      ● Department Required (Major)
+      ▲ University Required (Major)
+      ★ Major Elective
+    classroom: Classroom
+    findClassroomComingSoon: Classroom search is coming soon.
+    findClassroomOnMap: Find classroom on map
 iSchoolPlus:
   network:
     loadingNetworkHint: I-School Plus requires the NTUT network.

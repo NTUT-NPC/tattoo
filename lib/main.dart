@@ -253,8 +253,18 @@ class MyApp extends ConsumerWidget {
       locale: TranslationProvider.of(context).flutterLocale,
       supportedLocales: AppLocaleUtils.supportedLocales,
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      theme: ThemeData(colorScheme: lightColorScheme),
-      darkTheme: ThemeData(colorScheme: darkColorScheme),
+      theme: ThemeData(
+        colorScheme: lightColorScheme,
+        bottomSheetTheme: BottomSheetThemeData(
+          backgroundColor: lightColorScheme.surfaceContainerLowest,
+        ),
+      ),
+      darkTheme: ThemeData(
+        colorScheme: darkColorScheme,
+        bottomSheetTheme: BottomSheetThemeData(
+          backgroundColor: darkColorScheme.surfaceContainerLowest,
+        ),
+      ),
       themeMode: switch (ref.pref(PrefKey.themeMode)) {
         'light' => .light,
         'dark' => .dark,

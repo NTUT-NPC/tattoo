@@ -43,6 +43,10 @@ CourseScheduleDateRange ntutSemesterDateRange({
 
 /// Official NTUT class times for each [Period].
 extension PeriodScheduleTime on Period {
+  /// The class time range in zero-padded `HH:mm - HH:mm` format.
+  String get timeRange =>
+      '${_formatScheduleTime(startTime)} - ${_formatScheduleTime(endTime)}';
+
   CourseScheduleTime get startTime => switch (this) {
     .first => (hour: 8, minute: 10),
     .second => (hour: 9, minute: 10),
@@ -76,6 +80,41 @@ extension PeriodScheduleTime on Period {
     .cPeriod => (hour: 21, minute: 10),
     .dPeriod => (hour: 22, minute: 0),
   };
+}
+
+String _formatScheduleTime(CourseScheduleTime time) =>
+    '${time.hour.toString().padLeft(2, '0')}\u{2060}:\u{2060}'
+    '${time.minute.toString().padLeft(2, '0')}';
+
+/// Formats consecutive [periods] as merged time ranges in schedule order.
+///
+/// Duplicate periods are ignored. Missing periods, including noon, separate
+/// ranges, which are joined with an ideographic comma.
+String formatPeriodTimeRanges(Iterable<Period> periods) {
+  final sorted = periods.toSet().toList()
+    ..sort((first, second) => first.index.compareTo(second.index));
+  if (sorted.isEmpty) return '';
+
+  final ranges = <String>[];
+  var start = sorted.first;
+  var end = start;
+  for (final period in sorted.skip(1)) {
+    if (period.index == end.index + 1) {
+      end = period;
+    } else {
+      ranges.add(
+        '${_formatScheduleTime(start.startTime)} - '
+        '${_formatScheduleTime(end.endTime)}',
+      );
+      start = end = period;
+    }
+  }
+  ranges.add(
+    '${_formatScheduleTime(start.startTime)}'
+    '\u2060 \u2060-\u2060 \u2060'
+    '${_formatScheduleTime(end.endTime)}',
+  );
+  return ranges.join('、\u{200B}'); // Prevent line breaks within time ranges.
 }
 
 /// Returns the final period occupied by a merged course-table cell.

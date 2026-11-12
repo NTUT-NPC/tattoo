@@ -1,12 +1,16 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/components/chip_tab_switcher.dart';
+import 'package:tattoo/components/dot_separated_wrap.dart';
 import 'package:tattoo/components/i_school_plus_network_guide.dart';
+import 'package:tattoo/components/tap_to_copy.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
+import 'package:tattoo/screens/main/course_table/course_detail_info_card.dart';
 import 'package:tattoo/screens/main/course_table/course_materials_list.dart';
 import 'package:tattoo/screens/main/course_table/course_table_providers.dart';
 import 'package:tattoo/screens/main/i_school_plus_providers.dart';
@@ -21,10 +25,13 @@ Future<void> showCourseTableDetailSheet(
 }) {
   return showModalBottomSheet<void>(
     context: context,
-    showDragHandle: true,
+    showDragHandle: false,
     isScrollControlled: true,
     useSafeArea: true,
-    backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+    sheetAnimationStyle: const AnimationStyle(
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeOutCubic,
+    ),
     builder: (context) => Align(
       alignment: Alignment.bottomCenter,
       heightFactor: 1,
@@ -36,47 +43,203 @@ Future<void> showCourseTableDetailSheet(
   );
 }
 
-class CourseTableDetailSheet extends ConsumerWidget {
+class CourseTableDetailSheet extends ConsumerStatefulWidget {
   const CourseTableDetailSheet({super.key, required this.number});
 
   /// The course number (課號) identifying the offering to show.
   final String number;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final detailAsync = ref.watch(courseOfferingProvider(number));
+  ConsumerState<CourseTableDetailSheet> createState() =>
+      _CourseTableDetailSheetState();
+}
 
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const .fromLTRB(16, 8, 16, 16),
-        child: switch (detailAsync) {
-          AsyncData(value: final detail?) => SizedBox(
-            height: MediaQuery.sizeOf(context).height * 0.85,
-            child: _CourseDetailContent(detail: detail),
+class _CourseTableDetailSheetState
+    extends ConsumerState<CourseTableDetailSheet> {
+  static const _fallbackSheetSize = 0.58;
+  static const _dismissExtentFactor = 0.7;
+  static const _maximumSheetSize = 1.0;
+  static const _dragHandleHeight = kMinInteractiveDimension;
+  static const _contentPadding = EdgeInsets.fromLTRB(12, 4, 12, 16);
+
+  double? _headerHeight;
+  List<double> _snapSizes = const [_fallbackSheetSize];
+  Drag? _handleDrag;
+
+  Widget _buildDragHandle(
+    BuildContext context, [
+    ScrollController? controller,
+  ]) {
+    final theme = Theme.of(context);
+    final handleSize =
+        theme.bottomSheetTheme.dragHandleSize ?? const Size(32, 4);
+    return GestureDetector(
+      behavior: .opaque,
+      onVerticalDragStart: controller == null
+          ? null
+          : (details) {
+              _handleDrag?.cancel();
+              if (!controller.hasClients) return;
+              // Use the sheet's scroll position for resizing, fling and snap.
+              _handleDrag = controller.position.drag(
+                details,
+                () => _handleDrag = null,
+              );
+            },
+      onVerticalDragUpdate: controller == null
+          ? null
+          : (details) => _handleDrag?.update(details),
+      onVerticalDragEnd: controller == null
+          ? null
+          : (details) {
+              _handleDrag?.end(details);
+              _handleDrag = null;
+            },
+      onVerticalDragCancel: controller == null
+          ? null
+          : () {
+              _handleDrag?.cancel();
+              _handleDrag = null;
+            },
+      child: SizedBox(
+        height: _dragHandleHeight,
+        width: .infinity,
+        child: Center(
+          child: Container(
+            width: handleSize.width,
+            height: handleSize.height,
+            decoration: BoxDecoration(
+              color:
+                  theme.bottomSheetTheme.dragHandleColor ??
+                  theme.colorScheme.onSurfaceVariant,
+              borderRadius: .circular(handleSize.height / 2),
+            ),
           ),
-          AsyncData() => _DetailState(
-            icon: Icons.search_off_outlined,
-            message: t.courseTable.notFound,
-          ),
-          AsyncError(:final error) => _DetailState(
-            icon: Icons.error_outline,
-            message: 'Error: $error',
-          ),
-          _ => const SizedBox(
-            height: 160,
-            child: Center(child: CircularProgressIndicator()),
-          ),
+        ),
+      ),
+    );
+  }
+
+  void _updateHeaderHeight(double height) {
+    if (!mounted || _headerHeight == height) return;
+    setState(() => _headerHeight = height);
+  }
+
+  final DraggableScrollableController _sheetController =
+      DraggableScrollableController();
+
+  void _expandSheet() {
+    if (!_sheetController.isAttached ||
+        _sheetController.size >= _maximumSheetSize) {
+      return;
+    }
+    _sheetController.animateTo(
+      _maximumSheetSize,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  void dispose() {
+    _handleDrag?.cancel();
+    _sheetController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final detailAsync = ref.watch(courseOfferingProvider(widget.number));
+
+    final content = switch (detailAsync) {
+      AsyncData(value: final detail?) => LayoutBuilder(
+        builder: (context, constraints) {
+          final initialSize = switch (_headerHeight) {
+            final height? =>
+              ((height +
+                          _dragHandleHeight +
+                          _contentPadding.vertical +
+                          MediaQuery.paddingOf(context).bottom) /
+                      constraints.maxHeight)
+                  .clamp(0.01, _maximumSheetSize),
+            null => _fallbackSheetSize,
+          };
+          final minimumSize = initialSize * _dismissExtentFactor;
+          if (_snapSizes.single != initialSize) {
+            _snapSizes = [initialSize];
+          }
+          return DraggableScrollableSheet(
+            controller: _sheetController,
+            initialChildSize: initialSize,
+            minChildSize: minimumSize,
+            maxChildSize: _maximumSheetSize,
+            snap: true,
+            snapSizes: _snapSizes,
+            shouldCloseOnMinExtent: true,
+            expand: false,
+            builder: (context, scrollController) => SafeArea(
+              top: false,
+              child: Column(
+                children: [
+                  _buildDragHandle(context, scrollController),
+                  Expanded(
+                    child: Padding(
+                      padding: _contentPadding,
+                      child: _CourseDetailContent(
+                        detail: detail,
+                        scrollController: scrollController,
+                        onTabSelected: _expandSheet,
+                        onHeaderHeightChanged: _updateHeaderHeight,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
         },
       ),
+      AsyncData() => SafeArea(
+        top: false,
+        child: _DetailState(
+          icon: Icons.search_off_outlined,
+          message: t.courseTable.notFound,
+        ),
+      ),
+      AsyncError(:final error) => SafeArea(
+        top: false,
+        child: _DetailState(
+          icon: Icons.error_outline,
+          message: 'Error: $error',
+        ),
+      ),
+      _ => const SizedBox(
+        height: 160,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+    };
+    if (detailAsync case AsyncData(value: _?)) {
+      return content;
+    }
+    return Column(
+      mainAxisSize: .min,
+      children: [_buildDragHandle(context), content],
     );
   }
 }
 
 class _CourseDetailContent extends ConsumerWidget {
-  const _CourseDetailContent({required this.detail});
+  const _CourseDetailContent({
+    required this.detail,
+    required this.scrollController,
+    required this.onTabSelected,
+    required this.onHeaderHeightChanged,
+  });
 
   final CourseOfferingDetail detail;
+  final ScrollController scrollController;
+  final VoidCallback onTabSelected;
+  final ValueChanged<double> onHeaderHeightChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -86,32 +249,6 @@ class _CourseDetailContent extends ConsumerWidget {
         _normalizedText(localized(overview.nameZh, overview.nameEn)) ??
         _normalizedText(overview.number) ??
         t.general.unknown;
-    final teachers = detail.teachers
-        .map(
-          (teacher) => _normalizedText(
-            localized(teacher.nameZh, teacher.nameEn),
-          ),
-        )
-        .nonNulls
-        .join('、');
-    final classrooms = detail.schedule
-        .map(
-          (slot) => _normalizedText(
-            localized(slot.classroomNameZh, slot.classroomNameEn),
-          ),
-        )
-        .nonNulls
-        .toSet()
-        .join('、');
-    final periodsByDay = <DayOfWeek, List<String>>{};
-    for (final slot in detail.schedule) {
-      (periodsByDay[slot.day] ??= []).add(slot.period.code);
-    }
-    final periods = periodsByDay.entries
-        .map(
-          (entry) => '${_dayOfWeekLabel(entry.key)} ${entry.value.join('、')}',
-        )
-        .join('；');
     final syllabusAsync = switch (overview.number) {
       final courseNumber? => ref.watch(
         syllabusProvider((
@@ -127,6 +264,7 @@ class _CourseDetailContent extends ConsumerWidget {
     final syllabus = switch (syllabusAsync) {
       AsyncData(value: final syllabuses) => _SyllabusTabs(
         details: syllabuses,
+        onTabSelected: onTabSelected,
       ),
       AsyncError(:final error) => _DetailState(
         icon: Icons.error_outline,
@@ -149,45 +287,97 @@ class _CourseDetailContent extends ConsumerWidget {
         iSchoolKey != null && ref.pref(PrefKey.showCourseRoster);
     final showCourseMaterials =
         iSchoolKey != null && ref.pref(PrefKey.showCourseMaterials);
+    final typeTooltipKey = GlobalKey<TooltipState>();
 
-    return ListView(
-      padding: .zero,
+    final header = Column(
+      mainAxisSize: .min,
       children: [
         SizedBox(
           width: .infinity,
-          child: Text(
-            title.spaced,
-            textAlign: .center,
-            style: theme.textTheme.titleLarge,
-          ),
-        ),
-        SizedBox(
-          width: .infinity,
-          child: Card(
-            margin: const .all(8),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: .circular(12),
-              side: BorderSide(color: theme.colorScheme.outlineVariant),
-            ),
-            color: theme.colorScheme.surfaceContainer,
-            child: Padding(
-              padding: const .all(12),
-              child: Column(
-                crossAxisAlignment: .start,
-                spacing: 6,
+          child: Column(
+            spacing: 2,
+            children: [
+              Text(
+                title.spaced,
+                textAlign: .center,
+                style: theme.textTheme.titleLarge,
+              ),
+              DotSeparatedWrap(
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
                 children: [
-                  if (overview.number case final number?) Text('課號: $number'),
-                  Text('老師: ${teachers.isEmpty ? '-' : teachers}'.spaced),
-                  Text('上課地點: ${classrooms.isEmpty ? '-' : classrooms}'.spaced),
-                  Text('上課節次: ${periods.isEmpty ? '-' : periods}'.spaced),
-                  Text('學分: ${_formatDecimal(overview.credits)}'),
-                  Text('時數: ${_formatInteger(overview.hours)}'),
+                  Text(
+                    '${detail.semesterYear}-${detail.semesterTerm}',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  TapToCopy(
+                    copyText: overview.number.toString(),
+                    child: Text(
+                      overview.number.toString(),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  Tooltip(
+                    key: typeTooltipKey,
+                    message: t.courseDetail.infoCard.typeDescription.spaced,
+                    textAlign: TextAlign.left,
+                    triggerMode: TooltipTriggerMode.manual,
+                    showDuration: const Duration(seconds: 5),
+                    child: Semantics(
+                      button: true,
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: InkWell(
+                          onTap: () => typeTooltipKey.currentState
+                              ?.ensureTooltipVisible(),
+                          customBorder: const StadiumBorder(),
+                          child: Padding(
+                            padding: const .fromLTRB(0, 1, 2, 1),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Transform.translate(
+                                  offset: const Offset(0, -2),
+                                  child: Text(
+                                    overview.courseType?.symbol ?? '-',
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                          color: theme
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.help_outline,
+                                  size: 12,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            ),
+            ],
           ),
         ),
+        CourseDetailInfoCard(detail: detail),
+      ],
+    );
+
+    return ListView(
+      controller: scrollController,
+      padding: .zero,
+      children: [
         if (showCourseRoster || showCourseMaterials)
           _CourseDetailTabs(
             key: ValueKey((showCourseRoster, showCourseMaterials)),
@@ -195,9 +385,17 @@ class _CourseDetailContent extends ConsumerWidget {
             syllabus: syllabus,
             showRoster: showCourseRoster,
             showMaterials: showCourseMaterials,
+            onTabSelected: onTabSelected,
+            header: header,
+            onHeaderHeightChanged: onHeaderHeightChanged,
           )
-        else
+        else ...[
+          _DetailHeaderHeight(
+            onChanged: onHeaderHeightChanged,
+            child: header,
+          ),
           syllabus,
+        ],
         SizedBox(height: MediaQuery.viewInsetsOf(context).bottom),
       ],
     );
@@ -213,9 +411,16 @@ class _CourseDetailTabs extends StatefulWidget {
     required this.syllabus,
     required this.showRoster,
     required this.showMaterials,
+    required this.onTabSelected,
+    required this.header,
+    required this.onHeaderHeightChanged,
   });
   final bool showRoster;
   final bool showMaterials;
+  final VoidCallback onTabSelected;
+
+  final Widget header;
+  final ValueChanged<double> onHeaderHeightChanged;
 
   final CourseISchoolKey iSchoolKey;
   final Widget syllabus;
@@ -261,18 +466,29 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TabBar(
-          controller: _controller,
-          tabs: [
-            for (final tab in _tabs)
-              Tab(
-                text: switch (tab) {
-                  .syllabus => t.courseTable.detail.tabs.syllabus.spaced,
-                  .roster => t.courseTable.detail.tabs.roster.spaced,
-                  .materials => t.courseTable.detail.tabs.materials.spaced,
-                },
+        _DetailHeaderHeight(
+          onChanged: widget.onHeaderHeightChanged,
+          child: Column(
+            mainAxisSize: .min,
+            children: [
+              widget.header,
+              TabBar(
+                controller: _controller,
+                onTap: (_) => widget.onTabSelected(),
+                tabs: [
+                  for (final tab in _tabs)
+                    Tab(
+                      text: switch (tab) {
+                        .syllabus => t.courseTable.detail.tabs.syllabus.spaced,
+                        .roster => t.courseTable.detail.tabs.roster.spaced,
+                        .materials =>
+                          t.courseTable.detail.tabs.materials.spaced,
+                      },
+                    ),
+                ],
               ),
-          ],
+            ],
+          ),
         ),
         Offstage(
           offstage: _tabs[_controller.index] != .syllabus,
@@ -311,6 +527,42 @@ class _CourseDetailTabsState extends State<_CourseDetailTabs>
 }
 
 enum _CourseISchoolPaneType { roster, materials }
+
+class _DetailHeaderHeight extends SingleChildRenderObjectWidget {
+  const _DetailHeaderHeight({required this.onChanged, required super.child});
+
+  final ValueChanged<double> onChanged;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderDetailHeaderHeight(onChanged);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderDetailHeaderHeight renderObject,
+  ) {
+    renderObject.onChanged = onChanged;
+  }
+}
+
+class _RenderDetailHeaderHeight extends RenderProxyBox {
+  _RenderDetailHeaderHeight(this.onChanged);
+
+  ValueChanged<double> onChanged;
+  double? _lastHeight;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    final height = size.height;
+    if (_lastHeight == height) return;
+    _lastHeight = height;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (attached) onChanged(height);
+    });
+  }
+}
 
 class _CourseISchoolPane extends ConsumerStatefulWidget {
   const _CourseISchoolPane({
@@ -405,7 +657,7 @@ class _CourseISchoolPaneState extends ConsumerState<_CourseISchoolPane> {
           content: Text(message.spaced),
           persist: false,
           action: SnackBarAction(
-            label: actionLabel,
+            label: actionLabel.spaced,
             onPressed: _openNetworkGuide,
           ),
         ),
@@ -738,9 +990,13 @@ class _CourseRosterTable extends StatelessWidget {
 }
 
 class _SyllabusTabs extends StatefulWidget {
-  const _SyllabusTabs({required this.details});
+  const _SyllabusTabs({
+    required this.details,
+    required this.onTabSelected,
+  });
 
   final List<TeacherSyllabusDetail> details;
+  final VoidCallback onTabSelected;
 
   @override
   State<_SyllabusTabs> createState() => _SyllabusTabsState();
@@ -749,6 +1005,7 @@ class _SyllabusTabs extends StatefulWidget {
 class _SyllabusTabsState extends State<_SyllabusTabs>
     with SingleTickerProviderStateMixin {
   late TabController _controller;
+  var _lastSelectedIndex = 0;
 
   @override
   void initState() {
@@ -778,6 +1035,7 @@ class _SyllabusTabsState extends State<_SyllabusTabs>
   }
 
   TabController _createController({int initialIndex = 0}) {
+    _lastSelectedIndex = initialIndex;
     final controller = TabController(
       length: widget.details.length,
       initialIndex: initialIndex,
@@ -788,6 +1046,10 @@ class _SyllabusTabsState extends State<_SyllabusTabs>
   }
 
   void _handleTabChanged() {
+    if (_controller.index != _lastSelectedIndex) {
+      _lastSelectedIndex = _controller.index;
+      widget.onTabSelected();
+    }
     if (mounted) {
       setState(() {});
     }
@@ -918,24 +1180,3 @@ String? _normalizedText(String? value) {
     _ => null,
   };
 }
-
-String _formatDecimal(double? value) {
-  return switch (value) {
-    final value? when value == value.roundToDouble() =>
-      value.toInt().toString(),
-    final value? => value.toString(),
-    null => '-',
-  };
-}
-
-String _formatInteger(int? value) => value?.toString() ?? '-';
-
-String _dayOfWeekLabel(DayOfWeek day) => switch (day) {
-  .sunday => '星期日',
-  .monday => '星期一',
-  .tuesday => '星期二',
-  .wednesday => '星期三',
-  .thursday => '星期四',
-  .friday => '星期五',
-  .saturday => '星期六',
-};
