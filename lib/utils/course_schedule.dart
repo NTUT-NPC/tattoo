@@ -83,7 +83,7 @@ extension PeriodScheduleTime on Period {
 }
 
 String _formatScheduleTime(CourseScheduleTime time) =>
-    '${time.hour.toString().padLeft(2, '0')}:'
+    '${time.hour.toString().padLeft(2, '0')}\u{2060}:\u{2060}'
     '${time.minute.toString().padLeft(2, '0')}';
 
 /// Formats consecutive [periods] as merged time ranges in schedule order.
@@ -110,10 +110,11 @@ String formatPeriodTimeRanges(Iterable<Period> periods) {
     }
   }
   ranges.add(
-    '${_formatScheduleTime(start.startTime)} - '
+    '${_formatScheduleTime(start.startTime)}'
+    '\u2060 \u2060-\u2060 \u2060'
     '${_formatScheduleTime(end.endTime)}',
   );
-  return ranges.join('、');
+  return ranges.join('、\u{200B}'); // Prevent line breaks within time ranges.
 }
 
 /// Returns the final period occupied by a merged course-table cell.
