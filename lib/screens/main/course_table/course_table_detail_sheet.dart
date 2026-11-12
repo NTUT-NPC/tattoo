@@ -254,11 +254,12 @@ class _CourseDetailContent extends ConsumerWidget {
     final teachers = detail.teachers
         .map(
           (teacher) => _normalizedText(
-            localized(teacher.nameZh, teacher.nameEn),
+            localized(teacher.nameZh.spaced, teacher.nameEn?.spaced),
           ),
         )
         .nonNulls
-        .join('、');
+        .map((name) => name.split('').join('\u{2060}'))
+        .join('、\u{200B}'); // Prevending line break between teacher names.
     final classrooms = detail.schedule
         .map(
           (slot) => _normalizedText(
