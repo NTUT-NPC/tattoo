@@ -2,31 +2,56 @@ import 'package:flutter/widget_previews.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/components/tap_to_copy.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
+import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/models/course.dart';
+import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
+import 'package:tattoo/utils/course_schedule.dart';
+import 'package:tattoo/utils/localized.dart';
 
 class CourseDetailInfoCard extends StatelessWidget {
   const CourseDetailInfoCard({
     super.key,
-    required this.teachers,
-    required this.periods,
-    required this.credits,
-    required this.hours,
-    required this.courseType,
-    required this.classrooms,
-    this.phase,
+    required this.detail,
   });
 
-  final String teachers;
-  final String periods;
-  final String credits;
-  final String hours;
-  final String courseType;
-  final int? phase;
-  final List<String> classrooms;
+  final CourseOfferingDetail detail;
 
   @override
   Widget build(BuildContext context) {
+    final overview = detail.overview;
+    final teachers = detail.teachers
+        .map(
+          (teacher) => _normalizedText(
+            localized(teacher.nameZh.spaced, teacher.nameEn?.spaced),
+          ),
+        )
+        .nonNulls
+        .map((name) => name.split('').join('\u{2060}'))
+        .join('、\u{200B}'); // Prevent line breaks within teacher names.
+    final classrooms = detail.schedule
+        .map(
+          (slot) => _normalizedText(
+            localized(slot.classroomNameZh, slot.classroomNameEn),
+          ),
+        )
+        .nonNulls
+        .toSet()
+        .toList();
+    final periodsByDay = <DayOfWeek, List<Period>>{};
+    for (final slot in detail.schedule) {
+      (periodsByDay[slot.day] ??= []).add(slot.period);
+    }
+    final periods = periodsByDay.entries
+        .map(
+          (entry) =>
+              '${_dayOfWeekLabel(entry.key)} ${formatPeriodTimeRanges(entry.value)}',
+        )
+        .join('\n');
+    final credits = _formatDecimal(overview.credits);
+    final hours = overview.hours?.toString() ?? '-';
+    final phase = overview.phase;
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     return Padding(
@@ -129,6 +154,27 @@ class CourseDetailInfoCard extends StatelessWidget {
     );
   }
 }
+
+String? _normalizedText(String? value) => switch (value?.trim()) {
+  final value? when value.isNotEmpty => value,
+  _ => null,
+};
+
+String _formatDecimal(double? value) => switch (value) {
+  final value? when value == value.roundToDouble() => value.toInt().toString(),
+  final value? => value.toString(),
+  null => '-',
+};
+
+String _dayOfWeekLabel(DayOfWeek day) => switch (day) {
+  .sunday => '星期日',
+  .monday => '星期一',
+  .tuesday => '星期二',
+  .wednesday => '星期三',
+  .thursday => '星期四',
+  .friday => '星期五',
+  .saturday => '星期六',
+};
 
 class _InfoField extends StatelessWidget {
   const _InfoField({
@@ -272,11 +318,19 @@ class _InfoField extends StatelessWidget {
 )
 Widget courseDetailInfoCardPreview() => WidgetPreviewFrame(
   child: CourseDetailInfoCard(
-    teachers: '王小明、陳小華',
-    periods: '星期一 10:10 - 12:00\n星期三 13:10 - 14:00',
-    credits: '3',
-    hours: '3',
-    courseType: '●',
-    classrooms: const ['六教305', '共同科館201'],
+    detail: (
+      overview: CourseOfferingOverview(
+        id: 1,
+        semester: 1,
+        credits: 3,
+        hours: 3,
+      ),
+      teachers: [
+        (code: '1', nameZh: '王小明', nameEn: null),
+        (code: '2', nameZh: '陳小華', nameEn: null),
+      ],
+      schedule: [],
+      classes: [],
+    ),
   ),
 );

@@ -8,7 +8,6 @@ import 'package:tattoo/components/i_school_plus_network_guide.dart';
 import 'package:tattoo/components/tap_to_copy.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
-import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/course_table/course_detail_info_card.dart';
@@ -18,7 +17,6 @@ import 'package:tattoo/screens/main/i_school_plus_providers.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/shells/centered_max_width_frame.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
-import 'package:tattoo/utils/course_schedule.dart';
 import 'package:tattoo/utils/localized.dart';
 
 Future<void> showCourseTableDetailSheet(
@@ -251,34 +249,6 @@ class _CourseDetailContent extends ConsumerWidget {
         _normalizedText(localized(overview.nameZh, overview.nameEn)) ??
         _normalizedText(overview.number) ??
         t.general.unknown;
-    final teachers = detail.teachers
-        .map(
-          (teacher) => _normalizedText(
-            localized(teacher.nameZh.spaced, teacher.nameEn?.spaced),
-          ),
-        )
-        .nonNulls
-        .map((name) => name.split('').join('\u{2060}'))
-        .join('、\u{200B}'); // Prevending line break between teacher names.
-    final classrooms = detail.schedule
-        .map(
-          (slot) => _normalizedText(
-            localized(slot.classroomNameZh, slot.classroomNameEn),
-          ),
-        )
-        .nonNulls
-        .toSet()
-        .toList();
-    final periodsByDay = <DayOfWeek, List<Period>>{};
-    for (final slot in detail.schedule) {
-      (periodsByDay[slot.day] ??= []).add(slot.period);
-    }
-    final periods = periodsByDay.entries
-        .map(
-          (entry) =>
-              '${_dayOfWeekLabel(entry.key)} ${formatPeriodTimeRanges(entry.value)}',
-        )
-        .join('\n');
     final syllabusAsync = switch (overview.number) {
       final courseNumber? => ref.watch(
         syllabusProvider((
@@ -400,15 +370,7 @@ class _CourseDetailContent extends ConsumerWidget {
             ],
           ),
         ),
-        CourseDetailInfoCard(
-          teachers: teachers,
-          periods: periods,
-          credits: _formatDecimal(overview.credits),
-          hours: _formatInteger(overview.hours),
-          courseType: overview.courseType?.symbol ?? '-',
-          classrooms: classrooms,
-          phase: overview.phase,
-        ),
+        CourseDetailInfoCard(detail: detail),
       ],
     );
 
@@ -1218,24 +1180,3 @@ String? _normalizedText(String? value) {
     _ => null,
   };
 }
-
-String _formatDecimal(double? value) {
-  return switch (value) {
-    final value? when value == value.roundToDouble() =>
-      value.toInt().toString(),
-    final value? => value.toString(),
-    null => '-',
-  };
-}
-
-String _formatInteger(int? value) => value?.toString() ?? '-';
-
-String _dayOfWeekLabel(DayOfWeek day) => switch (day) {
-  .sunday => '星期日',
-  .monday => '星期一',
-  .tuesday => '星期二',
-  .wednesday => '星期三',
-  .thursday => '星期四',
-  .friday => '星期五',
-  .saturday => '星期六',
-};
