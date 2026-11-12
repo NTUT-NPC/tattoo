@@ -30,7 +30,11 @@ class TapToCopy extends StatelessWidget {
           onTap: () async {
             if (enableHapticFeedback) HapticFeedback.lightImpact();
             try {
-              await Clipboard.setData(ClipboardData(text: copyText));
+              await Clipboard.setData(
+                ClipboardData(
+                  text: copyText.replaceAll(RegExp('[\u2005\u2060\u200B]'), ''),
+                ),
+              );
               if (!context.mounted) return;
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()
