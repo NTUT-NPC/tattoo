@@ -142,6 +142,24 @@ class CampusMapRoom {
   final List<CampusMapPolygon> polygons;
 }
 
+/// A building or one of its rooms found in the map metadata.
+typedef CampusMapSearchMatch = ({
+  String buildingCode,
+  String buildingName,
+  CampusMapRoom? room,
+});
+
+/// The complete matches for a query, or name suggestions if there are none.
+class CampusMapSearchResult {
+  const CampusMapSearchResult(this.matches, {this.isExact = false});
+
+  final List<CampusMapSearchMatch> matches;
+  final bool isExact;
+
+  CampusMapSearchMatch? get uniqueExactMatch =>
+      isExact && matches.length == 1 ? matches.single : null;
+}
+
 /// A floor's cached spaces and whether a complete geometry fetch succeeded.
 class CampusMapFloorData {
   /// Creates a snapshot, distinguishing an empty floor from a failed cold load.
