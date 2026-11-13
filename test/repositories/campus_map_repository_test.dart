@@ -566,6 +566,34 @@ void main() {
       },
     );
 
+    test('粽科207-3 selects only the full hyphenated room number', () async {
+      const cbFirst = 'gis_room:CB_1F';
+      const cbSecond = 'gis_room:CB_2F';
+      service.layers = [
+        (name: cbFirst, buildingCode: 'CB', floor: '1F'),
+        (name: cbSecond, buildingCode: 'CB', floor: '2F'),
+      ];
+      service.index = [
+        _room(cbSecond, '207-2'),
+        _room(cbSecond, '207-3'),
+        _room(cbSecond, '207-4'),
+        _room(cbSecond, '2073'),
+      ];
+
+      for (final query in ['粽科207-3', '粽科（２０７－３）', 'CB-207-3']) {
+        final result = await repository.searchPlaces(query);
+        expect(result.uniqueExactMatch?.room?.id, 'CB_2F.207-3', reason: query);
+      }
+      expect((await repository.searchPlaces('粽科207')).matches, isEmpty);
+      expect(
+        (await repository.searchPlaces('粽科2073'))
+            .uniqueExactMatch
+            ?.room
+            ?.number,
+        '2073',
+      );
+    });
+
     test('an incomplete local index cannot return a seemingly unique offline match', () async {
       await repository.refreshBuildings();
       await database
