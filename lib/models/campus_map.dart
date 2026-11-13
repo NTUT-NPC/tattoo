@@ -171,14 +171,3 @@ class CampusMapFloorData {
   /// Whether this floor has a successful fetch timestamp, even if empty.
   final bool hasCache;
 }
-
-/// Normalizes classroom queries, including full-width ASCII and separators.
-String normalizeCampusMapQuery(String value) => String.fromCharCodes(
-  value.runes.map(
-    (rune) => switch (rune) {
-      >= 0xff01 && <= 0xff5e => rune - 0xfee0,
-      0x3000 => 0x20,
-      _ => rune,
-    },
-  ),
-).toLowerCase().replaceAll(RegExp(r'[\s_\-()（）/]+'), '');

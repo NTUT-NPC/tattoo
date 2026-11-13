@@ -1,0 +1,51 @@
+/// Additional search terms by GeoServer building code. Display names use i18n.
+///
+/// See the [campus map](https://www.ntut.edu.tw/p/404-1007-53400.php),
+/// [new student handbook](https://oia.ntut.edu.tw/var/file/32/1032/img/GuideForNewStudents.pdf)
+/// (PDF page 4), [OIA FAQ](https://oia.ntut.edu.tw/p/412-1032-13817.php?Lang=en),
+/// and the [English timetable](https://aps.ntut.edu.tw/course/en/course.jsp).
+const campusMapBuildingAliases = <String, List<String>>{
+  'A1T': ['一教', '1TB', '1st Teaching Building', 'First Academic Building'],
+  'A2T': ['二教', '2TB', '2nd Teaching Building', 'Second Academic Building'],
+  'A3T': ['三教', '3TB', '3rd Teaching Building', 'Third Academic Building'],
+  'A4T': ['四教', '4TB', '4th Teaching Building', 'Fourth Academic Building'],
+  'A5T': ['五教', '5TB', '第五教學大樓', '生物科技館', '校友會館', '5th Teaching Building'],
+  'A6T': ['六教', '6TB', '6th Teaching Building', 'Sixth Academic Building'],
+  'AM': [
+    '先鋒',
+    '先鋒大樓',
+    '先鋒研發大樓',
+    'PIB',
+    'PB',
+    'Pioneer International Research and Development Building',
+    'Pioneer International R&D Building',
+  ],
+  'CB': ['綜科', '綜科館', '粽科', 'Complex Building'],
+  'CE': ['土木', 'CEB', 'Civil Engineering Building'],
+  'CH': ['化學', 'ChemB'],
+  'CM': [
+    '化工',
+    '化學工程館',
+    'ChemEB',
+    'Chemical Engineering Building',
+    'Chemistry Engineering Building',
+  ],
+  'DB': ['設計'],
+  'EL': ['億光', 'EB'],
+  'GB': ['共同', 'GSB', 'General Studies Building'],
+  'GH': ['光華', 'GHB', 'Guang Hua Building', 'The Guanghua Building'],
+  'HR': [
+    '宏裕',
+    '科技',
+    '科技大樓',
+    '科研',
+    '科研大樓',
+    '宏裕科技研究大樓',
+    'HYTRB',
+    'STRB',
+    'Hong-Yue Technology Research Building',
+  ],
+  'ME': ['分子', '分子科學與工程館', '分子科學工程館', 'MSE'],
+  'MR': ['材資', 'MRB'],
+  'SY': ['國百館', 'SYMH'],
+};

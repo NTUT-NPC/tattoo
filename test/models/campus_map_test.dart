@@ -32,11 +32,6 @@ void main() {
     });
   });
 
-  test('normalizes full-width query text and common separators', () {
-    expect(normalizeCampusMapQuery('Ａ１Ｔ（１０１）'), 'a1t101');
-    expect(normalizeCampusMapQuery('Ａ１Ｔ　－　１０１'), 'a1t101');
-  });
-
   test('round-trips polygons, multiple parts, and interior holes', () {
     final polygons = [
       CampusMapPolygon([

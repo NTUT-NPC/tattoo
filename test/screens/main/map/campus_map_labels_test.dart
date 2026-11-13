@@ -29,7 +29,7 @@ void main() {
       await LocaleSettings.setLocale(AppLocale.enUs);
       expect(
         campusMapBuildingName(code, fallbackName: fallback),
-        'Hong-Yue Technology Research Building',
+        'Hong-Yue Technology Research',
       );
       await LocaleSettings.setLocale(AppLocale.zhTw);
       expect(campusMapBuildingName(code, fallbackName: fallback), '宏裕科技大樓');

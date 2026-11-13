@@ -4,11 +4,11 @@ import 'package:tattoo/models/campus_map.dart';
 import 'package:tattoo/screens/main/map/campus_map_labels.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
-/// Lists ambiguous classroom matches so the user chooses a specific space.
+/// Lets the user choose a building or room from the search results.
 class CampusMapSearchResults extends StatelessWidget {
-  const CampusMapSearchResults({super.key, required this.rooms});
+  const CampusMapSearchResults({super.key, required this.results});
 
-  final List<CampusMapRoom> rooms;
+  final CampusMapSearchResult results;
 
   @override
   Widget build(BuildContext context) => SafeArea(
@@ -19,26 +19,42 @@ class CampusMapSearchResults extends StatelessWidget {
           Padding(
             padding: const .all(16),
             child: Text(
-              t.campusMap.searchResults(count: rooms.length).spaced,
+              (results.isExact
+                      ? t.campusMap.searchResults(count: results.matches.length)
+                      : t.campusMap.searchSuggestions)
+                  .spaced,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: rooms.length,
+              itemCount: results.matches.length,
               itemBuilder: (context, index) {
-                final room = rooms[index];
+                final match = results.matches[index];
+                final room = match.room;
                 final buildingName = campusMapBuildingName(
-                  room.buildingCode,
-                  fallbackName: room.buildingName,
+                  match.buildingCode,
+                  fallbackName: match.buildingName,
                 );
                 return ListTile(
-                  leading: const Icon(Icons.room_outlined),
-                  title: Text(campusMapRoomTitle(room).spaced),
-                  subtitle: Text(
-                    '$buildingName · ${room.floor.code}'.spaced,
+                  leading: Icon(
+                    room == null
+                        ? Icons.apartment_outlined
+                        : Icons.room_outlined,
                   ),
-                  onTap: () => Navigator.of(context).pop(room),
+                  title: Text(
+                    (room == null ? buildingName : campusMapRoomTitle(room))
+                        .spaced,
+                  ),
+                  subtitle: Text(
+                    (room == null
+                            ? t.campusMap.searchBuilding(
+                                code: match.buildingCode,
+                              )
+                            : '$buildingName · ${room.floor.code}')
+                        .spaced,
+                  ),
+                  onTap: () => Navigator.of(context).pop(match),
                 );
               },
             ),

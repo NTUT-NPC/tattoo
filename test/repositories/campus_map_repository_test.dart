@@ -5,6 +5,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/campus_map.dart';
 import 'package:tattoo/repositories/campus_map_first_floor_outlines.dart';
 import 'package:tattoo/repositories/campus_map_repository.dart';
@@ -142,30 +143,37 @@ void main() {
 
         repository = _repository(service, database, () => clock, bundled: true);
 
-        final hongYu = (await repository.searchRooms('宏裕科技研究大樓101')).single;
-        final sixth = (await repository.searchRooms('第六教學大樓101')).single;
+        final hongYu = (await repository.searchPlaces('宏裕科技研究大樓101'))
+            .uniqueExactMatch!
+            .room!;
+        final sixth = (await repository.searchPlaces('第六教學大樓101'))
+            .uniqueExactMatch!
+            .room!;
         expect(hongYu.buildingCode, 'HR');
         expect(hongYu.buildingName, '宏裕科技研究大樓');
         expect(sixth.buildingCode, 'A6T');
         expect(sixth.buildingName, '第六教學大樓');
         expect((await repository.locateRoom(hongYu))!.buildingName, '宏裕科技研究大樓');
-        const displayNames = {
-          'HR': 'Hong-Yue Technology Research Building',
-        };
-        expect(
-          (await repository.searchRooms(
+        final originalLocale = LocaleSettings.currentLocale;
+        addTearDown(() => LocaleSettings.setLocale(originalLocale));
+        for (final locale in AppLocale.values) {
+          await LocaleSettings.setLocale(locale);
+          for (final query in [
+            'Hong-Yue Technology Research101', // en-US i18n
+            '宏裕科技大樓101', // zh-TW i18n
+            '宏裕科技研究大樓101', // Bundled name
             'Hong-Yue Technology Research Building101',
-            buildingNames: displayNames,
-          )).single.id,
-          hongYu.id,
-        );
-        expect(
-          (await repository.searchRooms(
-            '宏裕科技研究大樓101',
-            buildingNames: displayNames,
-          )).single.id,
-          hongYu.id,
-        );
+            'HYTRB_101',
+            '科研101',
+            'STRB_101',
+          ]) {
+            final result = await repository.searchPlaces(query);
+            expect(result.uniqueExactMatch?.room?.id, hongYu.id, reason: query);
+          }
+        }
+        final sourceName = await repository.searchPlaces('宏裕科技大樓/第六教學大樓101');
+        expect(sourceName.uniqueExactMatch?.room?.id, sixth.id);
+        expect(service.indexCalls, 1);
         expect(service.roomCalls, ['gis_room:HR_1F']);
       },
     );
@@ -214,7 +222,7 @@ void main() {
             campusMapFirstFloorOutlines[building.code]!.name,
           );
         }
-        expect((await repository.searchRooms('P001')), isEmpty);
+        expect((await repository.searchPlaces('P001')).matches, isEmpty);
         expect(service.roomCalls, isEmpty);
         expect(
           await database.select(database.campusMapBuildings).get(),
@@ -271,8 +279,11 @@ void main() {
                 .map((building) => building.code),
             ['AD'],
           );
-          final results = await repository.searchRooms('201');
-          expect(results.map((room) => room.id), ['AD_2F.201A']);
+          final results = await repository.searchPlaces('201A');
+          expect(results.matches.map((match) => match.room?.id), [
+            'AD_2F.201A',
+          ]);
+          expect((await repository.searchPlaces('201')).matches, isEmpty);
           expect(service.roomCalls, isEmpty);
         },
       );
@@ -469,9 +480,17 @@ void main() {
         _room(_layerB, '２０２', nameZh: '設計教室', nameEn: 'Design Studio'),
       ];
 
-      expect((await repository.searchRooms('材料實驗室')).single.number, '101');
-      expect((await repository.searchRooms('materials')).single.number, '101');
-      expect((await repository.searchRooms('２０２')).single.nameZh, '設計教室');
+      expect(
+        (await repository.searchPlaces('材料實驗室')).uniqueExactMatch?.room?.number,
+        '101',
+      );
+      final suggestion = await repository.searchPlaces('materials');
+      expect(suggestion.matches.single.room?.number, '101');
+      expect(suggestion.uniqueExactMatch, isNull);
+      expect(
+        (await repository.searchPlaces('２０２')).uniqueExactMatch?.room?.nameZh,
+        '設計教室',
+      );
       expect(service.indexCalls, 1);
     });
 
@@ -481,9 +500,9 @@ void main() {
         _room(_layerB, '101A', nameZh: '會議室'),
       ];
 
-      final results = await repository.searchRooms('101');
+      final results = await repository.searchPlaces('101');
 
-      expect(results.map((room) => room.id), ['A1T_1F.101']);
+      expect(results.uniqueExactMatch?.room?.id, 'A1T_1F.101');
     });
 
     test(
@@ -494,9 +513,9 @@ void main() {
           _room(_layerB, '101', nameZh: '一般教室'),
         ];
 
-        final results = await repository.searchRooms('B2 101');
+        final results = await repository.searchPlaces('B2 101');
 
-        expect(results.map((room) => room.id), ['B2_1F.101']);
+        expect(results.uniqueExactMatch?.room?.id, 'B2_1F.101');
       },
     );
 
@@ -506,11 +525,46 @@ void main() {
         _room(_layerB, '101', nameZh: '教室乙'),
       ];
 
-      final results = await repository.searchRooms('101');
+      final results = await repository.searchPlaces('101');
 
-      expect(results, hasLength(2));
-      expect(results.map((room) => room.number), ['101', '101']);
+      expect(results.isExact, isTrue);
+      expect(results.matches.map((match) => match.room?.number), [
+        '101',
+        '101',
+      ]);
     });
+
+    test('search includes browsable buildings without indexed rooms', () async {
+      service.index = [_room(_layerB, '101')];
+
+      final result = await repository.searchPlaces('一教');
+
+      expect(result.uniqueExactMatch?.buildingCode, 'A1T');
+      expect(result.matches.single.room, isNull);
+      expect(service.roomCalls, isEmpty);
+    });
+
+    test(
+      'verified room aliases are tied to their building, floor and number',
+      () async {
+        const cbFirst = 'gis_room:CB_1F';
+        const cbThird = 'gis_room:CB_3F';
+        service.layers = [
+          (name: cbFirst, buildingCode: 'CB', floor: '1F'),
+          (name: cbThird, buildingCode: 'CB', floor: '3F'),
+        ];
+        service.index = [
+          _room(cbFirst, '302'),
+          _room(cbThird, '301'),
+          _room(cbThird, '302', nameZh: '高立人老師研究室'),
+        ];
+
+        for (final query in ['粽科高立人', '高立人 粽科']) {
+          final result = await repository.searchPlaces(query);
+          expect(result.uniqueExactMatch?.room?.id, 'CB_3F.302');
+        }
+      },
+    );
 
     test('an incomplete local index cannot return a seemingly unique offline match', () async {
       await repository.refreshBuildings();
@@ -522,7 +576,7 @@ void main() {
       service.indexHandler = (_) => Future.error(_networkError());
 
       await expectLater(
-        repository.searchRooms('101'),
+        repository.searchPlaces('101'),
         throwsA(isA<DioException>()),
       );
     });
@@ -553,12 +607,15 @@ void main() {
 
     test('stale search index remains usable when its refresh fails', () async {
       service.index = [_room(_layerA, '101', nameZh: '教室甲')];
-      expect((await repository.searchRooms('教室甲')).single.number, '101');
+      expect(
+        (await repository.searchPlaces('教室甲')).uniqueExactMatch?.room?.number,
+        '101',
+      );
       clock = clock.add(const Duration(days: 15));
       service.indexHandler = (_) => Future.error(_networkError());
 
-      final results = await repository.searchRooms('101');
-      expect(results.single.nameZh, '教室甲');
+      final results = await repository.searchPlaces('101');
+      expect(results.uniqueExactMatch?.room?.nameZh, '教室甲');
       expect(service.indexCalls, 2);
     });
 
@@ -575,7 +632,7 @@ void main() {
         indexStarted.complete();
         return indexGate.future;
       };
-      final search = repository.searchRooms('教室');
+      final search = repository.searchPlaces('教室');
       await indexStarted.future.timeout(const Duration(seconds: 5));
 
       final downloaded = [
@@ -601,7 +658,9 @@ void main() {
         _room(_layerA, '101', withGeometry: false),
         _room(_layerA, '102', withGeometry: false, nameZh: '新教室'),
       ];
-      final result = (await repository.searchRooms('102')).single;
+      final result = (await repository.searchPlaces('102'))
+          .uniqueExactMatch!
+          .room!;
       service.roomsByLayer[_layerA] = [
         _room(_layerA, '101'),
         _room(_layerA, '102', nameZh: '新教室'),
