@@ -69,13 +69,17 @@ class NtutCampusMapService implements CampusMapService {
         // GeoServer advertises a few layers whose backing table is absent.
         // Only this explicit absence is safe to treat as an empty layer;
         // a timeout or another server exception must fail the entire search.
-        final missing = RegExp(r"Schema '([^']+)' does not exist\.")
-            .firstMatch(element.innerText);
+        final message = element.innerText;
+        final missing =
+            RegExp(r"Schema '([^']+)' does not exist\.")
+                .firstMatch(message)?[1] ??
+            RegExp(r'relation "public\.([^"]+)" does not exist')
+                .firstMatch(message)?[1];
         if (missing == null) continue;
         final name = layers
-            .where((name) => name.split(':').last == missing[1])
+            .where((name) => name.split(':').last == missing)
             .firstOrNull;
-        if (name != null) throw _UnavailableLayer(name);
+        if (name case final name?) throw _UnavailableLayer(name);
       }
     }
     return response;
