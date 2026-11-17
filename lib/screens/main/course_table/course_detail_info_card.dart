@@ -78,37 +78,30 @@ class CourseDetailInfoCard extends StatelessWidget {
                 label: t.courseDetail.infoCard.period,
                 value: periods,
               ),
-              if (classrooms.isEmpty)
-                _InfoField(
-                  label: t.courseDetail.infoCard.classroom,
-                  value: '-',
-                )
-              else
-                for (final classroom in classrooms)
-                  _InfoField(
-                    label: t.courseDetail.infoCard.classroom,
-                    // icon: Icons.room_outlined,
-                    value: classroom,
-                    action: () {
-                      ScaffoldMessenger.of(context)
-                        ..hideCurrentSnackBar()
-                        ..showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              t
-                                  .courseDetail
-                                  .infoCard
-                                  .findClassroomComingSoon
-                                  .spaced,
-                            ),
-                            persist: false,
-                          ),
-                        );
-                    },
-                    actionIcon: Icons.map_outlined,
-                    actionTooltip:
-                        t.courseDetail.infoCard.findClassroomOnMap.spaced,
-                  ),
+              _InfoField(
+                label: t.courseDetail.infoCard.classroom,
+                // icon: Icons.room_outlined,
+                value: classrooms.join('\n'),
+                action: () {
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          t
+                              .courseDetail
+                              .infoCard
+                              .findClassroomComingSoon
+                              .spaced,
+                        ),
+                        persist: false,
+                      ),
+                    );
+                },
+                actionIcon: classrooms.isEmpty ? null : Icons.map_outlined,
+                actionTooltip:
+                    t.courseDetail.infoCard.findClassroomOnMap.spaced,
+              ),
               Wrap(
                 alignment: .spaceBetween,
                 spacing: 12,
