@@ -205,6 +205,8 @@ void main() {
     const key = (courseOfferingId: 1, courseNumber: '352902');
     const longTitle = '這是一門用來確認窄螢幕與大字縮放仍可顯示的非常長的課程名稱';
     final longDetail = (
+      semesterYear: detail.semesterYear,
+      semesterTerm: detail.semesterTerm,
       overview: detail.overview.copyWith(nameZh: Value(longTitle)),
       schedule: detail.schedule,
       teachers: detail.teachers,
