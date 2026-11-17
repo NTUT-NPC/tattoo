@@ -286,6 +286,7 @@ courseTable:
 courseDetail:
   infoCard:
     teacher: 老師
+    classes: 班級
     period: 上課時間
     credits: 學分
     hours: 時數

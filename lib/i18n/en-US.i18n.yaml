@@ -286,6 +286,7 @@ courseTable:
 courseDetail:
   infoCard:
     teacher: Instructor
+    classes: Classes
     period: Class Time
     credits: Credits
     hours: Hours

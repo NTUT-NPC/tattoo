@@ -30,6 +30,14 @@ class CourseDetailInfoCard extends StatelessWidget {
         .nonNulls
         .map((name) => name.split('').join('\u{2060}'))
         .join('、\u{200B}'); // Prevent line breaks within teacher names.
+    final classes = detail.classes
+        .map(
+          (courseClass) => _normalizedText(
+            localized(courseClass.nameZh, courseClass.nameEn),
+          ),
+        )
+        .nonNulls
+        .join('\n');
     final classrooms = detail.schedule
         .map(
           (slot) => _normalizedText(
@@ -73,6 +81,10 @@ class CourseDetailInfoCard extends StatelessWidget {
               _InfoField(
                 label: t.courseDetail.infoCard.teacher,
                 value: teachers,
+              ),
+              _InfoField(
+                label: t.courseDetail.infoCard.classes,
+                value: classes,
               ),
               _InfoField(
                 label: t.courseDetail.infoCard.period,

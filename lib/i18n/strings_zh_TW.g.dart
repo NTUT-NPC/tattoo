@@ -1291,6 +1291,9 @@ class Translations$courseDetail$infoCard$zh_TW {
 	/// zh-TW: '老師'
 	String get teacher => '老師';
 
+	/// zh-TW: '班級'
+	String get classes => '班級';
+
 	/// zh-TW: '上課時間'
 	String get period => '上課時間';
 
@@ -2408,6 +2411,7 @@ extension on Translations {
 			'courseTable.dayOfWeekLong.friday' => '星期五',
 			'courseTable.dayOfWeekLong.saturday' => '星期六',
 			'courseDetail.infoCard.teacher' => '老師',
+			'courseDetail.infoCard.classes' => '班級',
 			'courseDetail.infoCard.period' => '上課時間',
 			'courseDetail.infoCard.credits' => '學分',
 			'courseDetail.infoCard.hours' => '時數',

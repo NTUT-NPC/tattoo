@@ -821,6 +821,7 @@ class _Translations$courseDetail$infoCard$en_US extends Translations$courseDetai
 
 	// Translations
 	@override String get teacher => 'Instructor';
+	@override String get classes => 'Classes';
 	@override String get period => 'Class Time';
 	@override String get credits => 'Credits';
 	@override String get hours => 'Hours';
@@ -1551,6 +1552,7 @@ extension on TranslationsEnUs {
 			'courseTable.dayOfWeekLong.friday' => 'Friday',
 			'courseTable.dayOfWeekLong.saturday' => 'Saturday',
 			'courseDetail.infoCard.teacher' => 'Instructor',
+			'courseDetail.infoCard.classes' => 'Classes',
 			'courseDetail.infoCard.period' => 'Class Time',
 			'courseDetail.infoCard.credits' => 'Credits',
 			'courseDetail.infoCard.hours' => 'Hours',
