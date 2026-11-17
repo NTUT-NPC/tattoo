@@ -28,7 +28,7 @@ class CourseDetailInfoCard extends StatelessWidget {
           ),
         )
         .nonNulls
-        .map((name) => name.split('').join('\u{2060}'))
+        .map((name) => name.characters.join('\u{2060}'))
         .join('、\u{200B}'); // Prevent line breaks within teacher names.
     final classes = detail.classes
         .map(
