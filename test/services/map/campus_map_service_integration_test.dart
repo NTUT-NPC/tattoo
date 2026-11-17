@@ -3,12 +3,37 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/services/map/campus_map_service.dart';
 import 'package:tattoo/services/map/ntut_campus_map_service.dart';
+import 'package:tattoo/utils/dio_http_client.dart';
+import 'package:tattoo/utils/http.dart';
 
 const _runCampusMapIntegration = bool.fromEnvironment('TEST_CAMPUS_MAP');
 const _campusMapTimeout = Timeout(Duration(minutes: 3));
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test(
+    'OSM tiles load through shared Dio with cache metadata',
+    () async {
+      await HttpOverrides.runWithHttpOverrides(() async {
+        final client = DioHttpClient(createDio());
+        try {
+          final response = await client.get(
+            Uri.parse('https://tile.openstreetmap.org/0/0/0.png'),
+            headers: {'User-Agent': 'flutter_map (club.ntut.tattoo)'},
+          );
+          expect(response.statusCode, 200);
+          expect(response.headers['content-type'], contains('image/png'));
+          expect(response.headers['cache-control'], isNotEmpty);
+          expect(response.bodyBytes.take(8), [137, 80, 78, 71, 13, 10, 26, 10]);
+        } finally {
+          client.close();
+        }
+      }, _RealHttpOverrides());
+    },
+    skip: !_runCampusMapIntegration,
+    timeout: _campusMapTimeout,
+  );
 
   test(
     'validated public GeoServer supports catalog, floor, and metadata index requests',

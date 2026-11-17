@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'dart:math';
 
-import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tattoo/services/map/campus_map_parser.dart';
 import 'package:tattoo/services/map/campus_map_service.dart';
@@ -12,28 +10,16 @@ import 'package:xml/xml.dart';
 class NtutCampusMapService implements CampusMapService {
   /// Creates a client, optionally using an injected [dio] for protocol tests.
   ///
-  /// The caller owns an injected client. The default client uses Dart's TLS
-  /// stack on every platform and accepts an invalid certificate only for the
-  /// GeoServer host, whose server-side TLS setup is unreliable (it omits the
-  /// intermediate certificate from its chain). Other hosts are still validated.
+  /// Uses the shared HTTP configuration by default. The caller owns an
+  /// injected client.
   NtutCampusMapService({Dio? dio})
-    : _dio = dio ?? _createDio(),
+    : _dio = dio ?? createDio(),
       _ownsDio = dio == null;
 
   final Dio _dio;
   final bool _ownsDio;
 
   static const _endpoint = 'https://geoserver.oga.ntut.edu.tw/ows';
-  static const _endpointHost = 'geoserver.oga.ntut.edu.tw';
-
-  static Dio _createDio() => createDio()
-    ..options.connectTimeout = const Duration(seconds: 15)
-    ..options.receiveTimeout = const Duration(seconds: 30)
-    ..httpClientAdapter = IOHttpClientAdapter(
-      createHttpClient: () =>
-          HttpClient()
-            ..badCertificateCallback = (_, host, _) => host == _endpointHost,
-    );
 
   Future<String> _request(
     String request, [

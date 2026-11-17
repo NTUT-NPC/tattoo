@@ -6,7 +6,8 @@ import 'package:tattoo/screens/main/map/campus_map_building_labels.dart';
 import 'package:tattoo/screens/main/map/campus_map_campus_layer.dart';
 import 'package:tattoo/screens/main/map/campus_map_room_labels.dart';
 import 'package:tattoo/screens/main/map/campus_map_space_style.dart';
-import 'package:tattoo/screens/main/map/campus_map_tile_provider.dart';
+import 'package:tattoo/utils/dio_http_client.dart';
+import 'package:tattoo/utils/http.dart';
 import 'package:tattoo/utils/launch_url.dart';
 
 /// Renders campus outlines and the currently selected building-floor only.
@@ -55,14 +56,23 @@ class CampusMapViewport extends StatefulWidget {
 class _CampusMapViewportState extends State<CampusMapViewport> {
   final LayerHitNotifier<CampusMapBuilding> _buildingHits = ValueNotifier(null);
   final LayerHitNotifier<CampusMapRoom> _roomHits = ValueNotifier(null);
+  DioHttpClient? _tileClient;
   late final TileProvider _tiles =
-      widget.tileProvider ?? CampusMapTileProvider();
+      widget.tileProvider ??
+      NetworkTileProvider(
+        httpClient: _tileClient = DioHttpClient(createDio()),
+        silenceExceptions: true,
+        cachingProvider: BuiltInMapCachingProvider.getOrCreateInstance(
+          maxCacheSize: 64 * 1024 * 1024,
+        ),
+      );
 
   @override
   void dispose() {
     _buildingHits.dispose();
     _roomHits.dispose();
-    // TileLayer owns and disposes its TileProvider.
+    // TileLayer disposes its provider; the viewport owns this HTTP client.
+    _tileClient?.close();
     super.dispose();
   }
 
