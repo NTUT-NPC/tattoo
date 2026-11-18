@@ -23,12 +23,15 @@ Dio _createDio(SnapshotService service, {required bool verbose}) {
   }
 
   dio.interceptors.addAll([
-    CookieManager(_cookieJar),
+    _HttpsInterceptor(),
+    _RedirectCookieManager(_cookieJar),
     _NullHeaderInterceptor(),
     _ClientIdentifierInterceptor(),
-    _HttpsInterceptor(),
-    RedirectInterceptor(() => dio),
     if (verbose) _SnapshotLogInterceptor(),
+    RedirectInterceptor(
+      () => dio,
+      allowProtocolDowngrade: true,
+    ),
   ]);
 
   if (service == .ischool) {
@@ -45,6 +48,21 @@ Dio _createDio(SnapshotService service, {required bool verbose}) {
   }
 
   return dio;
+}
+
+class _RedirectCookieManager extends CookieManager {
+  _RedirectCookieManager(super.cookieJar);
+
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) {
+    if (options.redirectContext != null) {
+      options.headers[HttpHeaders.cookieHeader] = null;
+    }
+    return super.onRequest(options, handler);
+  }
 }
 
 class _HttpsInterceptor extends Interceptor {
