@@ -4,7 +4,15 @@ import 'package:tattoo/repositories/campus_map_search.dart';
 
 void main() {
   const buildings = <String, CampusMapSearchBuilding>{
-    'A3T': (name: '第三教學大樓', aliases: ['三教', '3TB', 'Third Academic Building']),
+    'A3T': (
+      name: '第三教學大樓',
+      aliases: [
+        '三教',
+        '3TB',
+        'Third Academic Building',
+        '3rd Teaching Building',
+      ],
+    ),
     'A4T': (name: '第四教學大樓', aliases: ['四教', '4TB', 'Fourth Academic Building']),
     'AD': (name: '行政大樓', aliases: ['行政', 'Administration Building']),
     'CB': (name: '綜合科館', aliases: ['綜科', '粽科', '合館']),
@@ -68,6 +76,18 @@ void main() {
       expect(search('合館').uniqueExactMatch, isNull);
     },
   );
+
+  test('building fragments containing digits remain suggestions', () {
+    final result = search('3rd');
+    expect(result.matches.single.buildingCode, 'A3T');
+    expect(result.matches.single.room, isNull);
+    expect(result.isExact, isFalse);
+    expect(result.uniqueExactMatch, isNull);
+    expect(search('3TB').uniqueExactMatch?.buildingCode, 'A3T');
+
+    final roomResult = search('205', spaces: [basement, room205A]);
+    expect(roomResult.matches, isEmpty);
+  });
 
   test(
     'qualified room numbers accept separators and preserve full room numbers',

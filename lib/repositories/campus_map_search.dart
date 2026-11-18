@@ -24,7 +24,7 @@ CampusMapSearchResult matchCampusMapPlaces(
     final match = (buildingCode: code, buildingName: building.name, room: null);
     if (names.contains(normalized)) {
       exact[(code, null)] = match;
-    } else if (names.any((name) => _isNameFragment(normalized, name))) {
+    } else if (names.any((name) => name.contains(normalized))) {
       suggestions[(code, null)] = match;
     }
 
