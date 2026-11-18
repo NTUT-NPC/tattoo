@@ -547,6 +547,35 @@ void main() {
     test(
       'verified room aliases are tied to their building, floor and number',
       () async {
+        const adFirst = 'gis_room:AD_1F';
+        const adFifth = 'gis_room:AD_5F';
+        const adSixth = 'gis_room:AD_6F';
+        const cbFirst = 'gis_room:CB_1F';
+        const cbSixth = 'gis_room:CB_6F';
+        service.layers = [
+          (name: adFirst, buildingCode: 'AD', floor: '1F'),
+          (name: adFifth, buildingCode: 'AD', floor: '5F'),
+          (name: adSixth, buildingCode: 'AD', floor: '6F'),
+          (name: cbFirst, buildingCode: 'CB', floor: '1F'),
+          (name: cbSixth, buildingCode: 'CB', floor: '6F'),
+        ];
+        service.index = [
+          _room(cbSixth, '602'),
+          _room(adFifth, '602'),
+          _room(adSixth, '601'),
+          _room(adSixth, '602', nameZh: '研發處辦公室'),
+        ];
+
+        for (final query in ['研發處', '行政大樓研發處', '研發處 行政大樓']) {
+          final result = await repository.searchPlaces(query);
+          expect(result.uniqueExactMatch?.room?.id, 'AD_6F.602', reason: query);
+        }
+      },
+    );
+
+    test(
+      'teacher-name fragments remain suggestions without a room alias',
+      () async {
         const cbFirst = 'gis_room:CB_1F';
         const cbThird = 'gis_room:CB_3F';
         service.layers = [
@@ -554,14 +583,18 @@ void main() {
           (name: cbThird, buildingCode: 'CB', floor: '3F'),
         ];
         service.index = [
-          _room(cbFirst, '302'),
-          _room(cbThird, '301'),
+          _room(cbFirst, '107-1', nameZh: '研究生綜合專題實驗室【高立人】'),
           _room(cbThird, '302', nameZh: '高立人老師研究室'),
         ];
 
-        for (final query in ['粽科高立人', '高立人 粽科']) {
+        for (final query in ['高立人', '粽科高立人', '高立人 粽科']) {
           final result = await repository.searchPlaces(query);
-          expect(result.uniqueExactMatch?.room?.id, 'CB_3F.302');
+          expect(result.isExact, isFalse, reason: query);
+          expect(result.uniqueExactMatch, isNull, reason: query);
+          expect(result.matches.map((match) => match.room?.id), [
+            'CB_1F.107-1',
+            'CB_3F.302',
+          ], reason: query);
         }
       },
     );

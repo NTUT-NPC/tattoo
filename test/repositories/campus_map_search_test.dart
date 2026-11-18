@@ -49,7 +49,6 @@ void main() {
     buildings: buildings,
     rooms: spaces ?? rooms,
     roomAliases: const {
-      (building: 'CB', floor: '3F', number: '302'): ['高立人'],
       (building: 'AD', floor: '6F', number: '602'): ['研發處'],
     },
   );
@@ -101,10 +100,9 @@ void main() {
   );
 
   test('space aliases match in both orders and only in their own building', () {
-    for (final query in ['粽科高立人', '高立人 粽科', '綜科/高立人', '高立人']) {
-      expect(search(query).uniqueExactMatch?.room, faculty, reason: query);
+    for (final query in ['行政大樓研發處', '研發處 行政大樓', '行政/研發處', '研發處']) {
+      expect(search(query).uniqueExactMatch?.room, research, reason: query);
     }
-    expect(search('行政大樓研發處').uniqueExactMatch?.room, research);
     expect(
       search('Office of Research and Development AD').uniqueExactMatch?.room,
       research,
@@ -112,6 +110,28 @@ void main() {
     expect(search('四教高立人').matches, isEmpty);
     expect(search('三教研發').matches, isEmpty);
   });
+
+  test(
+    'teacher-name fragments remain suggestions with one or multiple rooms',
+    () {
+      final lab = _room('CB', '1F', '107-1', '研究生綜合專題實驗室【高立人】');
+      for (final spaces in [
+        [faculty],
+        [lab, faculty],
+      ]) {
+        for (final query in ['粽科高立人', '高立人 粽科', '綜科/高立人', '高立人']) {
+          final result = search(query, spaces: spaces);
+          expect(result.isExact, isFalse, reason: query);
+          expect(result.uniqueExactMatch, isNull, reason: query);
+          expect(
+            result.matches.map((match) => match.room),
+            spaces,
+            reason: query,
+          );
+        }
+      }
+    },
+  );
 
   test('full room names survive overlapping building aliases', () {
     expect(search('科技創新中心').uniqueExactMatch?.room, innovation);
