@@ -156,6 +156,7 @@ String? _normalizedText(String? value) => switch (value?.trim()) {
 };
 
 String _formatDecimal(double? value) => switch (value) {
+  final value? when !value.isFinite => '-',
   final value? when value == value.roundToDouble() => value.toInt().toString(),
   final value? => value.toString(),
   null => '-',
