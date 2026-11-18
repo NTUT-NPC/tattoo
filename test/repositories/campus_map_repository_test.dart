@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart'
+    show ApplyInterceptor, QueryExecutor, QueryInterceptor, Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/database/database.dart';
@@ -643,6 +644,44 @@ void main() {
     });
 
     test(
+      'a catalog refresh after the index check cannot produce a unique match',
+      () async {
+        await database.close();
+        final interceptor = _AfterSyncRead();
+        database = AppDatabase(
+          NativeDatabase.memory().interceptWith(interceptor),
+        );
+        repository = _repository(service, database, () => clock);
+        service.index = [_room(_layerA, '101')];
+        expect(
+          (await repository.searchPlaces('101')).uniqueExactMatch,
+          isNotNull,
+        );
+
+        // Return the old complete stamp only after a new floor invalidates it.
+        interceptor.afterRead = () async {
+          service.layers = [
+            ...service.layers,
+            (name: _layerA2, buildingCode: 'A1T', floor: '2F'),
+          ];
+          await repository.refreshBuildings();
+        };
+
+        await expectLater(repository.searchPlaces('101'), throwsStateError);
+        expect(interceptor.afterRead, isNull);
+
+        // Once the new floor is indexed, both rooms must be offered for selection.
+        service.index = [_room(_layerA, '101'), _room(_layerA2, '101')];
+        final result = await repository.searchPlaces('101');
+        expect(result.uniqueExactMatch, isNull);
+        expect(result.matches.map((match) => match.room?.id), [
+          'A1T_1F.101',
+          'A1T_2F.101',
+        ]);
+      },
+    );
+
+    test(
       'stale geometry remains available when the refresh request fails',
       () async {
         await repository.refreshBuildings();
@@ -862,6 +901,25 @@ DioException _networkError() => DioException(
   requestOptions: RequestOptions(path: '/campus-map'),
   type: DioExceptionType.connectionError,
 );
+
+class _AfterSyncRead extends QueryInterceptor {
+  Future<void> Function()? afterRead;
+
+  @override
+  Future<List<Map<String, Object?>>> runSelect(
+    QueryExecutor executor,
+    String statement,
+    List<Object?> args,
+  ) async {
+    final rows = await executor.runSelect(statement, args);
+    if (afterRead case final action?
+        when statement.contains('campus_map_syncs')) {
+      afterRead = null;
+      await action();
+    }
+    return rows;
+  }
+}
 
 class _FakeCampusMapService implements CampusMapService {
   List<CampusMapBuildingDto> buildings = [

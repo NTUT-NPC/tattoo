@@ -367,6 +367,13 @@ class CampusMapRepository {
     if (normalizeCampusMapSearchText(query).isEmpty) {
       return const CampusMapSearchResult([]);
     }
+    final namesZh = AppLocale.zhTw.translations.campusMap.buildingNames;
+    // English translations are deferred. Build them directly if needed, since
+    // Slang can return the base locale while another caller is loading English.
+    final english = LocaleSettings.instance.isLocaleLoaded(.enUs)
+        ? AppLocale.enUs.translations
+        : await AppLocale.enUs.build();
+    final namesEn = english.campusMap.buildingNames;
     var stamp = (await _sync())?.indexFetchedAt;
     if (stamp == null || _now().difference(stamp) >= _cacheTtl) {
       try {
@@ -402,16 +409,17 @@ class CampusMapRepository {
     if (_firstFloorOutlines case final outlines?) {
       searchQuery.where(buildings.code.isIn(outlines.keys));
     }
-    final namesZh = AppLocale.zhTw.translations.campusMap.buildingNames;
-    // English translations are deferred. Build them directly if needed, since
-    // Slang can return the base locale while another caller is loading English.
-    final english = LocaleSettings.instance.isLocaleLoaded(.enUs)
-        ? AppLocale.enUs.translations
-        : await AppLocale.enUs.build();
-    final namesEn = english.campusMap.buildingNames;
+    final rows = await _db.transaction(() async {
+      // A concurrent catalog refresh may have invalidated the index since the
+      // initial check. Validate completeness in the same snapshot as the rows.
+      if ((await _sync())?.indexFetchedAt == null) {
+        throw StateError('Campus map catalog changed before search');
+      }
+      return searchQuery.get();
+    });
     final searchableBuildings = <String, CampusMapSearchBuilding>{};
     final rooms = <CampusMapRoom>[];
-    for (final row in await searchQuery.get()) {
+    for (final row in rows) {
       final code = row.read(buildings.code)!;
       final sourceName = row.read(buildings.name)!;
       final name = _firstFloorOutlines?[code]?.name ?? sourceName;
