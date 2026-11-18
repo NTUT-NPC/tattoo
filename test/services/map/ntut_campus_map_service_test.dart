@@ -79,6 +79,78 @@ void main() {
       },
     );
 
+    test(
+      'retries a missing relation without removing a prefix layer',
+      () async {
+        final adapter = _GeoServerAdapter(
+          bodyFor: (request) =>
+              (request.queryParameters['typeName'] as String)
+                  .split(',')
+                  .contains('gis_room:BL_B1F')
+              ? _wfsException(
+                  'java.io.IOExceptionERROR: relation "public.BL_B1F" does not exist',
+                )
+              : '''
+              {"type":"FeatureCollection","features":[
+                {"id":"BL_B1.1","geometry":null,"properties":{
+                  "room_name":"地下室","room_name_en":"Basement","class_num":"B101"
+                }}
+              ]}
+              ''',
+        );
+        final service = NtutCampusMapService(
+          dio: Dio()..httpClientAdapter = adapter,
+        );
+
+        final rooms = await service.getRoomIndex([
+          'gis_room:BL_B1',
+          'gis_room:BL_B1F',
+        ]);
+
+        expect(
+          adapter.requests.map(
+            (request) => request.queryParameters['typeName'],
+          ),
+          ['gis_room:BL_B1,gis_room:BL_B1F', 'gis_room:BL_B1'],
+        );
+        expect(
+          adapter.requests.map(
+            (request) => request.queryParameters['propertyName'],
+          ),
+          everyElement('room_name,room_name_en,class_num'),
+        );
+        expect(rooms, hasLength(1));
+        expect(rooms.single.layerName, 'gis_room:BL_B1');
+        expect(rooms.single.nameZh, '地下室');
+        expect(rooms.single.nameEn, 'Basement');
+        expect(rooms.single.number, 'B101');
+        expect(rooms.single.polygons, isEmpty);
+      },
+    );
+
+    for (final message in [
+      "Schema 'BL_B1F' does not exist.",
+      'java.io.IOExceptionERROR: relation "public.BL_B1F" does not exist',
+      'java.io.IOExceptionERROR: relation "other.BL_B1" does not exist',
+    ]) {
+      test('propagates an unmatched missing-layer error: $message', () async {
+        final adapter = _GeoServerAdapter(body: _wfsException(message));
+        final service = NtutCampusMapService(
+          dio: Dio()..httpClientAdapter = adapter,
+        );
+
+        await expectLater(
+          service.getRooms('gis_room:BL_B1'),
+          throwsFormatException,
+        );
+        await expectLater(
+          service.getRoomIndex(['gis_room:BL_B1']),
+          throwsFormatException,
+        );
+        expect(adapter.requests, hasLength(2));
+      });
+    }
+
     test('does not swallow unrelated WFS exceptions', () async {
       final body = _wfsException('The request could not be completed.');
       final floorService = NtutCampusMapService(

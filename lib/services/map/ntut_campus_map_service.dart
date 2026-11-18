@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'dart:math';
 
-import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:tattoo/services/map/campus_map_parser.dart';
 import 'package:tattoo/services/map/campus_map_service.dart';
@@ -12,28 +10,16 @@ import 'package:xml/xml.dart';
 class NtutCampusMapService implements CampusMapService {
   /// Creates a client, optionally using an injected [dio] for protocol tests.
   ///
-  /// The caller owns an injected client. The default client uses Dart's TLS
-  /// stack on every platform and accepts an invalid certificate only for the
-  /// GeoServer host, whose server-side TLS setup is unreliable (it omits the
-  /// intermediate certificate from its chain). Other hosts are still validated.
+  /// Uses the shared HTTP configuration by default. The caller owns an
+  /// injected client.
   NtutCampusMapService({Dio? dio})
-    : _dio = dio ?? _createDio(),
+    : _dio = dio ?? createDio(),
       _ownsDio = dio == null;
 
   final Dio _dio;
   final bool _ownsDio;
 
   static const _endpoint = 'https://geoserver.oga.ntut.edu.tw/ows';
-  static const _endpointHost = 'geoserver.oga.ntut.edu.tw';
-
-  static Dio _createDio() => createDio()
-    ..options.connectTimeout = const Duration(seconds: 15)
-    ..options.receiveTimeout = const Duration(seconds: 30)
-    ..httpClientAdapter = IOHttpClientAdapter(
-      createHttpClient: () =>
-          HttpClient()
-            ..badCertificateCallback = (_, host, _) => host == _endpointHost,
-    );
 
   Future<String> _request(
     String request, [
@@ -69,13 +55,17 @@ class NtutCampusMapService implements CampusMapService {
         // GeoServer advertises a few layers whose backing table is absent.
         // Only this explicit absence is safe to treat as an empty layer;
         // a timeout or another server exception must fail the entire search.
-        final missing = RegExp(r"Schema '([^']+)' does not exist\.")
-            .firstMatch(element.innerText);
+        final message = element.innerText;
+        final missing =
+            RegExp(r"Schema '([^']+)' does not exist\.")
+                .firstMatch(message)?[1] ??
+            RegExp(r'relation "public\.([^"]+)" does not exist')
+                .firstMatch(message)?[1];
         if (missing == null) continue;
         final name = layers
-            .where((name) => name.split(':').last == missing[1])
+            .where((name) => name.split(':').last == missing)
             .firstOrNull;
-        if (name != null) throw _UnavailableLayer(name);
+        if (name case final name?) throw _UnavailableLayer(name);
       }
     }
     return response;
