@@ -302,6 +302,16 @@ class _CourseDetailContent extends ConsumerWidget {
                 textAlign: .center,
                 style: theme.textTheme.titleLarge,
               ),
+              // Remark often contains the English lesson level or physical
+              // education type.
+              if (_normalizedText(overview.remarks) case final remark?)
+                Text(
+                  remark.spaced,
+                  textAlign: .center,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
               DotSeparatedWrap(
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
