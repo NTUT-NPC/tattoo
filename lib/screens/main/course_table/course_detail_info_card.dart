@@ -1,11 +1,14 @@
 import 'package:flutter/widget_previews.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:tattoo/components/anchored_popup_menu.dart';
 import 'package:tattoo/components/tap_to_copy.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/course_schedule.dart';
 import 'package:tattoo/utils/localized.dart';
@@ -92,27 +95,10 @@ class CourseDetailInfoCard extends StatelessWidget {
               ),
               _InfoField(
                 label: t.courseDetail.infoCard.classroom,
-                // icon: Icons.room_outlined,
                 value: classrooms.join('\n'),
-                action: () {
-                  ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          t
-                              .courseDetail
-                              .infoCard
-                              .findClassroomComingSoon
-                              .spaced,
-                        ),
-                        persist: false,
-                      ),
-                    );
-                },
-                actionIcon: classrooms.isEmpty ? null : Icons.map_outlined,
-                actionTooltip:
-                    t.courseDetail.infoCard.findClassroomOnMap.spaced,
+                actions: [
+                  ?_buildClassroomAction(context, classrooms),
+                ],
               ),
               Wrap(
                 alignment: .spaceBetween,
@@ -148,6 +134,50 @@ class CourseDetailInfoCard extends StatelessWidget {
       ),
     );
   }
+
+  Widget? _buildClassroomAction(BuildContext context, List<String> classrooms) {
+    if (classrooms.isEmpty) return null;
+
+    final tooltip = t.courseDetail.infoCard.findClassroomOnMap.spaced;
+    final colors = Theme.of(context).colorScheme;
+
+    void openMap(String classroom) {
+      if (!context.mounted) return;
+      context.push(AppRoutes.campusMapForRoom(classroom));
+    }
+
+    Widget buildButton(VoidCallback? onPressed, {String? tooltip}) {
+      return IconButton(
+        onPressed: onPressed,
+        icon: const Icon(Icons.map_outlined, size: 16),
+        tooltip: tooltip,
+        style: IconButton.styleFrom(
+          tapTargetSize: .shrinkWrap,
+          minimumSize: const Size.square(32),
+          maximumSize: const Size.square(32),
+          visualDensity: VisualDensity.standard,
+          padding: const .all(8),
+          shape: const CircleBorder(),
+          foregroundColor: colors.primary,
+          backgroundColor: colors.surfaceContainerLowest,
+        ),
+      );
+    }
+
+    if (classrooms.length == 1) {
+      return buildButton(() => openMap(classrooms.single), tooltip: tooltip);
+    }
+
+    return AnchoredPopupMenuButton<String>(
+      items: [
+        for (final classroom in classrooms)
+          PopupMenuItem(value: classroom, child: Text(classroom.spaced)),
+      ],
+      onSelected: openMap,
+      tooltip: tooltip,
+      triggerBuilder: (context, onPressed) => buildButton(onPressed),
+    );
+  }
 }
 
 String? _normalizedText(String? value) => switch (value?.trim()) {
@@ -167,9 +197,7 @@ class _InfoField extends StatelessWidget {
     required this.label,
     required this.value,
     this.icon,
-    this.actionIcon,
-    this.action,
-    this.actionTooltip,
+    this.actions = const [],
     this.compact = false,
     this.tapToCopy = true,
   });
@@ -177,9 +205,7 @@ class _InfoField extends StatelessWidget {
   final String label;
   final String value;
   final IconData? icon;
-  final IconData? actionIcon;
-  final VoidCallback? action;
-  final String? actionTooltip;
+  final List<Widget> actions;
   final bool compact;
   final bool tapToCopy;
 
@@ -218,25 +244,6 @@ class _InfoField extends StatelessWidget {
         ),
       ],
     );
-    final actionWidget = switch ((actionIcon, action)) {
-      (final icon?, final action?) => IconButton(
-        onPressed: action,
-        icon: Icon(icon, size: 16),
-        tooltip: actionTooltip,
-        style: IconButton.styleFrom(
-          tapTargetSize: .shrinkWrap,
-          minimumSize: const Size.square(32),
-          maximumSize: const Size.square(32),
-          visualDensity: VisualDensity.standard,
-          padding: const .all(8),
-          shape: const CircleBorder(),
-          foregroundColor: theme.colorScheme.primary,
-          backgroundColor: theme.colorScheme.surfaceContainerLowest,
-        ),
-      ),
-      _ => null,
-    };
-
     if (compact) {
       return Row(
         mainAxisSize: .min,
@@ -246,7 +253,10 @@ class _InfoField extends StatelessWidget {
           ?iconWidget,
           labelWidget,
           Flexible(child: valueWidget),
-          ?actionWidget,
+          Row(
+            spacing: 8,
+            children: [...actions],
+          ),
         ],
       );
     }
@@ -259,7 +269,6 @@ class _InfoField extends StatelessWidget {
           crossAxisAlignment: .center,
           children: [
             Expanded(child: valueWidget),
-            ?actionWidget,
           ],
         );
         if (stacked) {
@@ -279,6 +288,10 @@ class _InfoField extends StatelessWidget {
                 ),
                 child: trailing,
               ),
+              Row(
+                spacing: 8,
+                children: [...actions],
+              ),
             ],
           );
         }
@@ -290,6 +303,10 @@ class _InfoField extends StatelessWidget {
             ?iconWidget,
             SizedBox(width: labelWidth, child: labelWidget),
             Expanded(child: trailing),
+            Row(
+              spacing: 8,
+              children: [...actions],
+            ),
           ],
         );
       },
