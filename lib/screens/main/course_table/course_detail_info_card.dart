@@ -92,27 +92,8 @@ class CourseDetailInfoCard extends StatelessWidget {
               ),
               _InfoField(
                 label: t.courseDetail.infoCard.classroom,
-                // icon: Icons.room_outlined,
                 value: classrooms.join('\n'),
-                action: () {
-                  ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          t
-                              .courseDetail
-                              .infoCard
-                              .findClassroomComingSoon
-                              .spaced,
-                        ),
-                        persist: false,
-                      ),
-                    );
-                },
-                actionIcon: classrooms.isEmpty ? null : Icons.map_outlined,
-                actionTooltip:
-                    t.courseDetail.infoCard.findClassroomOnMap.spaced,
+                action: _buildClassroomAction(context, classrooms),
               ),
               Wrap(
                 alignment: .spaceBetween,
@@ -148,6 +129,40 @@ class CourseDetailInfoCard extends StatelessWidget {
       ),
     );
   }
+
+  Widget? _buildClassroomAction(BuildContext context, List<String> classrooms) {
+    if (classrooms.isEmpty) return null;
+
+    final tooltip = t.courseDetail.infoCard.findClassroomOnMap.spaced;
+    final colors = Theme.of(context).colorScheme;
+
+    return IconButton(
+      onPressed: () {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(
+                t.courseDetail.infoCard.findClassroomComingSoon.spaced,
+              ),
+              persist: false,
+            ),
+          );
+      },
+      icon: const Icon(Icons.map_outlined, size: 16),
+      tooltip: tooltip,
+      style: IconButton.styleFrom(
+        tapTargetSize: .shrinkWrap,
+        minimumSize: const Size.square(32),
+        maximumSize: const Size.square(32),
+        visualDensity: VisualDensity.standard,
+        padding: const .all(8),
+        shape: const CircleBorder(),
+        foregroundColor: colors.primary,
+        backgroundColor: colors.surfaceContainerLowest,
+      ),
+    );
+  }
 }
 
 String? _normalizedText(String? value) => switch (value?.trim()) {
@@ -167,9 +182,7 @@ class _InfoField extends StatelessWidget {
     required this.label,
     required this.value,
     this.icon,
-    this.actionIcon,
     this.action,
-    this.actionTooltip,
     this.compact = false,
     this.tapToCopy = true,
   });
@@ -177,9 +190,7 @@ class _InfoField extends StatelessWidget {
   final String label;
   final String value;
   final IconData? icon;
-  final IconData? actionIcon;
-  final VoidCallback? action;
-  final String? actionTooltip;
+  final Widget? action;
   final bool compact;
   final bool tapToCopy;
 
@@ -218,25 +229,6 @@ class _InfoField extends StatelessWidget {
         ),
       ],
     );
-    final actionWidget = switch ((actionIcon, action)) {
-      (final icon?, final action?) => IconButton(
-        onPressed: action,
-        icon: Icon(icon, size: 16),
-        tooltip: actionTooltip,
-        style: IconButton.styleFrom(
-          tapTargetSize: .shrinkWrap,
-          minimumSize: const Size.square(32),
-          maximumSize: const Size.square(32),
-          visualDensity: VisualDensity.standard,
-          padding: const .all(8),
-          shape: const CircleBorder(),
-          foregroundColor: theme.colorScheme.primary,
-          backgroundColor: theme.colorScheme.surfaceContainerLowest,
-        ),
-      ),
-      _ => null,
-    };
-
     if (compact) {
       return Row(
         mainAxisSize: .min,
@@ -246,7 +238,7 @@ class _InfoField extends StatelessWidget {
           ?iconWidget,
           labelWidget,
           Flexible(child: valueWidget),
-          ?actionWidget,
+          ?action,
         ],
       );
     }
@@ -259,7 +251,7 @@ class _InfoField extends StatelessWidget {
           crossAxisAlignment: .center,
           children: [
             Expanded(child: valueWidget),
-            ?actionWidget,
+            ?action,
           ],
         );
         if (stacked) {
