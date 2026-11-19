@@ -429,6 +429,7 @@ class AuthRepository {
     final completer = Completer<UserDto>();
     _reauthenticateInFlight = completer;
     try {
+      final userBeforeLogin = await getLocalUser();
       var username = await _secureStorage.read(key: _usernameKey);
       var password = await _secureStorage.read(key: _passwordKey);
 
@@ -448,6 +449,16 @@ class AuthRepository {
       final userDto = await _portalService.login(username, password);
       _ssoCache.clear();
       _ssoInFlight.clear();
+      if (userBeforeLogin case final user? when user.studentId == username) {
+        // A manual login creates a new row, even for the same account.
+        final days = userDto.passwordExpiresInDays;
+        await (_database.update(_database.users)..where(
+              (u) =>
+                  u.id.equals(user.id) &
+                  u.passwordExpiresInDays.isNotExp(Variable<int>(days)),
+            ))
+            .write(UsersCompanion(passwordExpiresInDays: Value(days)));
+      }
       completer.complete(userDto);
       return userDto;
     } on DioException catch (e, st) {
@@ -598,7 +609,6 @@ class AuthRepository {
           avatarFilename: Value(userDto.avatarFilename ?? ''),
           nameZh: Value(userDto.name ?? ''),
           email: Value(userDto.email ?? ''),
-          passwordExpiresInDays: Value(userDto.passwordExpiresInDays),
           nameEn: Value(profile.englishName),
           dateOfBirth: Value(profile.dateOfBirth),
           programZh: Value(profile.programZh),
