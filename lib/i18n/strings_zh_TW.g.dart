@@ -120,20 +120,26 @@ class Translations$campusMap$zh_TW {
 	/// zh-TW: '搜尋'
 	String get search => '搜尋';
 
-	/// zh-TW: '教室名稱或編號（如A1T101）'
-	String get searchHint => '教室名稱或編號（如A1T101）';
+	/// zh-TW: '建築、房名或房號（如三教303）'
+	String get searchHint => '建築、房名或房號（如三教303）';
 
-	/// zh-TW: '找到$count個空間'
-	String searchResults({required Object count}) => '找到${count}個空間';
+	/// zh-TW: '找到$count個地點'
+	String searchResults({required Object count}) => '找到${count}個地點';
 
-	/// zh-TW: '找不到符合的教室或空間，請試試其他名稱或編號。'
-	String get noResults => '找不到符合的教室或空間，請試試其他名稱或編號。';
+	/// zh-TW: '可能符合的地點'
+	String get searchSuggestions => '可能符合的地點';
+
+	/// zh-TW: '建築物 · $code'
+	String searchBuilding({required Object code}) => '建築物 · ${code}';
+
+	/// zh-TW: '找不到符合的地點，請試試其他名稱或編號。'
+	String get noResults => '找不到符合的地點，請試試其他名稱或編號。';
 
 	/// zh-TW: '無法完成搜尋，請檢查網路後重試。'
 	String get searchFailed => '無法完成搜尋，請檢查網路後重試。';
 
-	/// zh-TW: '目前沒有此空間的位置資料。'
-	String get locationUnavailable => '目前沒有此空間的位置資料。';
+	/// zh-TW: '目前沒有此地點的位置資料。'
+	String get locationUnavailable => '目前沒有此地點的位置資料。';
 
 	/// zh-TW: '無法載入地圖資料，請檢查網路後重試。'
 	String get loadFailed => '無法載入地圖資料，請檢查網路後重試。';
@@ -2131,11 +2137,13 @@ extension on Translations {
 			'campusMap.title' => '校園地圖',
 			'campusMap.selectBuilding' => '選擇建築物',
 			'campusMap.search' => '搜尋',
-			'campusMap.searchHint' => '教室名稱或編號（如A1T101）',
-			'campusMap.searchResults' => ({required Object count}) => '找到${count}個空間',
-			'campusMap.noResults' => '找不到符合的教室或空間，請試試其他名稱或編號。',
+			'campusMap.searchHint' => '建築、房名或房號（如三教303）',
+			'campusMap.searchResults' => ({required Object count}) => '找到${count}個地點',
+			'campusMap.searchSuggestions' => '可能符合的地點',
+			'campusMap.searchBuilding' => ({required Object code}) => '建築物 · ${code}',
+			'campusMap.noResults' => '找不到符合的地點，請試試其他名稱或編號。',
 			'campusMap.searchFailed' => '無法完成搜尋，請檢查網路後重試。',
-			'campusMap.locationUnavailable' => '目前沒有此空間的位置資料。',
+			'campusMap.locationUnavailable' => '目前沒有此地點的位置資料。',
 			'campusMap.loadFailed' => '無法載入地圖資料，請檢查網路後重試。',
 			'campusMap.refresh' => '更新地圖資料',
 			'campusMap.resetOrientation' => '回正地圖',

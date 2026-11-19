@@ -26,11 +26,13 @@ campusMap:
   title: Campus Map
   selectBuilding: Select a building
   search: Search
-  searchHint: Classroom name or number (e.g. A1T101)
-  searchResults: Found $count spaces
-  noResults: No matching classrooms or spaces. Try another name or number.
+  searchHint: Building, room name or number (e.g. 3TB_303)
+  searchResults: Found $count locations
+  searchSuggestions: Suggested locations
+  searchBuilding: Building · $code
+  noResults: No matching locations. Try another name or number.
   searchFailed: Search failed. Check your connection and try again.
-  locationUnavailable: This space has no available location data.
+  locationUnavailable: This location has no available map data.
   loadFailed: Map data could not be loaded. Check your connection and try again.
   refresh: Refresh map data
   resetOrientation: Reset map orientation

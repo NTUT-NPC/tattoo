@@ -58,7 +58,7 @@ abstract class AppRoutes {
   /// Builds a map location that searches a classroom name or number on opening.
   ///
   /// For example, `context.push(AppRoutes.campusMapForRoom('A1T101'))` locates
-  /// the room immediately if its normalized name or number has a unique match.
+  /// the room immediately if the query has a unique complete match.
   static String campusMapForRoom(String classroom) => Uri(
     path: campusMap,
     queryParameters: {'room': classroom},

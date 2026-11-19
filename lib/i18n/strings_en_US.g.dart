@@ -103,11 +103,13 @@ class _Translations$campusMap$en_US extends Translations$campusMap$zh_TW {
 	@override String get title => 'Campus Map';
 	@override String get selectBuilding => 'Select a building';
 	@override String get search => 'Search';
-	@override String get searchHint => 'Classroom name or number (e.g. A1T101)';
-	@override String searchResults({required Object count}) => 'Found ${count} spaces';
-	@override String get noResults => 'No matching classrooms or spaces. Try another name or number.';
+	@override String get searchHint => 'Building, room name or number (e.g. 3TB_303)';
+	@override String searchResults({required Object count}) => 'Found ${count} locations';
+	@override String get searchSuggestions => 'Suggested locations';
+	@override String searchBuilding({required Object code}) => 'Building · ${code}';
+	@override String get noResults => 'No matching locations. Try another name or number.';
 	@override String get searchFailed => 'Search failed. Check your connection and try again.';
-	@override String get locationUnavailable => 'This space has no available location data.';
+	@override String get locationUnavailable => 'This location has no available map data.';
 	@override String get loadFailed => 'Map data could not be loaded. Check your connection and try again.';
 	@override String get refresh => 'Refresh map data';
 	@override String get resetOrientation => 'Reset map orientation';
@@ -1302,11 +1304,13 @@ extension on TranslationsEnUs {
 			'campusMap.title' => 'Campus Map',
 			'campusMap.selectBuilding' => 'Select a building',
 			'campusMap.search' => 'Search',
-			'campusMap.searchHint' => 'Classroom name or number (e.g. A1T101)',
-			'campusMap.searchResults' => ({required Object count}) => 'Found ${count} spaces',
-			'campusMap.noResults' => 'No matching classrooms or spaces. Try another name or number.',
+			'campusMap.searchHint' => 'Building, room name or number (e.g. 3TB_303)',
+			'campusMap.searchResults' => ({required Object count}) => 'Found ${count} locations',
+			'campusMap.searchSuggestions' => 'Suggested locations',
+			'campusMap.searchBuilding' => ({required Object code}) => 'Building · ${code}',
+			'campusMap.noResults' => 'No matching locations. Try another name or number.',
 			'campusMap.searchFailed' => 'Search failed. Check your connection and try again.',
-			'campusMap.locationUnavailable' => 'This space has no available location data.',
+			'campusMap.locationUnavailable' => 'This location has no available map data.',
 			'campusMap.loadFailed' => 'Map data could not be loaded. Check your connection and try again.',
 			'campusMap.refresh' => 'Refresh map data',
 			'campusMap.resetOrientation' => 'Reset map orientation',

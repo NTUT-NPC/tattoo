@@ -5,9 +5,13 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:tattoo/database/database.dart';
+import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/campus_map.dart';
+import 'package:tattoo/models/campus_map_building_aliases.dart';
+import 'package:tattoo/models/campus_map_room_aliases.dart';
 import 'package:tattoo/repositories/campus_map_campus_outlines.dart';
 import 'package:tattoo/repositories/campus_map_first_floor_outlines.dart';
+import 'package:tattoo/repositories/campus_map_search.dart';
 import 'package:tattoo/services/demo_mode.dart';
 import 'package:tattoo/services/map/campus_map_service.dart';
 
@@ -351,22 +355,25 @@ class CampusMapRepository {
     );
   }
 
-  /// Searches room names, numbers, and building-qualified classroom references.
+  /// Searches buildings, room names, and building-qualified room references.
   ///
   /// The complete metadata index loads on first search and expires after 14 days.
   /// Existing complete data remains usable offline. Without a complete index,
   /// network failure propagates so a partial match cannot cause a wrong unique
-  /// navigation. Exact matches take precedence over substring matches.
-  /// [buildingNames] optionally maps building codes to additional display-name
-  /// aliases. Original server names remain searchable and are returned intact.
+  /// navigation. Both supported building-name locales are searched together.
   /// Only overview buildings with an advertised first floor are searchable;
   /// their rooms on other floors remain eligible.
-  Future<List<CampusMapRoom>> searchRooms(
-    String query, {
-    Map<String, String> buildingNames = const {},
-  }) async {
-    final normalized = normalizeCampusMapQuery(query);
-    if (normalized.isEmpty) return [];
+  Future<CampusMapSearchResult> searchPlaces(String query) async {
+    if (normalizeCampusMapSearchText(query).isEmpty) {
+      return const CampusMapSearchResult([]);
+    }
+    final namesZh = AppLocale.zhTw.translations.campusMap.buildingNames;
+    // English translations are deferred. Build them directly if needed, since
+    // Slang can return the base locale while another caller is loading English.
+    final english = LocaleSettings.instance.isLocaleLoaded(.enUs)
+        ? AppLocale.enUs.translations
+        : await AppLocale.enUs.build();
+    final namesEn = english.campusMap.buildingNames;
     var stamp = (await _sync())?.indexFetchedAt;
     if (stamp == null || _now().difference(stamp) >= _cacheTtl) {
       try {
@@ -383,7 +390,7 @@ class CampusMapRepository {
     final browsableBuildings = _db.selectOnly(floors)
       ..addColumns([floors.building])
       ..where(floors.code.equals('1F'));
-    final searchQuery = _db.selectOnly(table)
+    final searchQuery = _db.selectOnly(buildings)
       ..addColumns([
         table.id,
         table.layerName,
@@ -391,60 +398,66 @@ class CampusMapRepository {
         table.nameEn,
         table.number,
         floors.code,
-        floors.building,
+        buildings.code,
         buildings.name,
       ])
       ..join([
-        innerJoin(floors, floors.layerName.equalsExp(table.layerName)),
-        innerJoin(buildings, buildings.code.equalsExp(floors.building)),
+        leftOuterJoin(floors, floors.building.equalsExp(buildings.code)),
+        leftOuterJoin(table, table.layerName.equalsExp(floors.layerName)),
       ])
-      ..where(floors.building.isInQuery(browsableBuildings));
+      ..where(buildings.code.isInQuery(browsableBuildings));
     if (_firstFloorOutlines case final outlines?) {
-      searchQuery.where(floors.building.isIn(outlines.keys));
+      searchQuery.where(buildings.code.isIn(outlines.keys));
     }
-    final exact = <CampusMapRoom>[];
-    final partial = <CampusMapRoom>[];
-    for (final row in await searchQuery.get()) {
-      final room = CampusMapRoom(
-        id: row.read(table.id)!,
-        buildingCode: row.read(floors.building)!,
-        buildingName:
-            _firstFloorOutlines?[row.read(floors.building)!]?.name ??
-            row.read(buildings.name)!,
-        floor: CampusMapFloor(
-          layerName: row.read(table.layerName)!,
-          code: row.read(floors.code)!,
+    final rows = await _db.transaction(() async {
+      // A concurrent catalog refresh may have invalidated the index since the
+      // initial check. Validate completeness in the same snapshot as the rows.
+      if ((await _sync())?.indexFetchedAt == null) {
+        throw StateError('Campus map catalog changed before search');
+      }
+      return searchQuery.get();
+    });
+    final searchableBuildings = <String, CampusMapSearchBuilding>{};
+    final rooms = <CampusMapRoom>[];
+    for (final row in rows) {
+      final code = row.read(buildings.code)!;
+      final sourceName = row.read(buildings.name)!;
+      final name = _firstFloorOutlines?[code]?.name ?? sourceName;
+      searchableBuildings.putIfAbsent(
+        code,
+        () => (
+          name: name,
+          aliases: [
+            sourceName,
+            ?namesZh[code],
+            ?namesEn[code],
+            ...?campusMapBuildingAliases[code],
+          ],
         ),
-        nameZh: row.read(table.nameZh)!,
-        nameEn: row.read(table.nameEn)!,
-        number: row.read(table.number)!,
       );
-      final candidates = [
-        room.nameZh,
-        room.nameEn,
-        room.number,
-        '${room.buildingCode}${room.number}',
-        '${room.buildingName}${room.number}',
-        '${room.buildingName}${room.nameZh}',
-        if (buildingNames[room.buildingCode] case final displayName?) ...[
-          '$displayName${room.number}',
-          '$displayName${room.nameZh}',
-          '$displayName${room.nameEn}',
-        ],
-      ].where((value) => value.isNotEmpty).map(normalizeCampusMapQuery);
-      if (candidates.contains(normalized)) {
-        exact.add(room);
-      } else if (candidates.any((value) => value.contains(normalized))) {
-        partial.add(room);
+      if (row.read(table.id) case final id?) {
+        rooms.add(
+          CampusMapRoom(
+            id: id,
+            buildingCode: code,
+            buildingName: name,
+            floor: CampusMapFloor(
+              layerName: row.read(table.layerName)!,
+              code: row.read(floors.code)!,
+            ),
+            nameZh: row.read(table.nameZh)!,
+            nameEn: row.read(table.nameEn)!,
+            number: row.read(table.number)!,
+          ),
+        );
       }
     }
-    final matches = exact.isNotEmpty ? exact : partial;
-    return matches..sort((a, b) {
-      final byBuilding = a.buildingName.compareTo(b.buildingName);
-      if (byBuilding != 0) return byBuilding;
-      final byFloor = a.floor.order.compareTo(b.floor.order);
-      return byFloor == 0 ? a.number.compareTo(b.number) : byFloor;
-    });
+    return matchCampusMapPlaces(
+      query,
+      buildings: searchableBuildings,
+      rooms: rooms,
+      roomAliases: campusMapRoomAliases,
+    );
   }
 
   Future<void> _refreshRoomIndex() => _coalesce('index', () async {

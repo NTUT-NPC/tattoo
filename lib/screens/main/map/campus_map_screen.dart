@@ -8,6 +8,7 @@ import 'package:tattoo/components/floating_action_bar.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/campus_map.dart';
 import 'package:tattoo/repositories/campus_map_repository.dart';
+import 'package:tattoo/repositories/campus_map_search.dart';
 import 'package:tattoo/repositories/preferences_repository.dart';
 import 'package:tattoo/screens/main/map/campus_map_campus_selector.dart';
 import 'package:tattoo/screens/main/map/campus_map_floor_selector.dart';
@@ -21,12 +22,12 @@ import 'package:tattoo/screens/main/map/campus_map_zoom.dart';
 import 'package:tattoo/screens/main/profile/preference_providers.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
-/// A campus overview with building-scoped indoor browsing and room search.
+/// A campus overview with indoor browsing and place search.
 class CampusMapScreen extends ConsumerStatefulWidget {
   /// Opens the map and optionally searches [initialQuery] after its first frame.
   ///
-  /// A unique name or classroom number is located immediately; ambiguous
-  /// references show a result list. [tileProvider] supports offline widget tests.
+  /// A unique complete match is located immediately. Other matches show a
+  /// result list. [tileProvider] supports offline widget tests.
   const CampusMapScreen({super.key, this.initialQuery, this.tileProvider});
 
   final String? initialQuery;
@@ -256,35 +257,44 @@ class _CampusMapScreenState extends ConsumerState<CampusMapScreen>
   }
 
   Future<void> _search(String query) async {
-    if (normalizeCampusMapQuery(query).isEmpty) return;
+    if (normalizeCampusMapSearchText(query).isEmpty) return;
     final operation = ++_operation;
     setState(() => _busy = true);
     try {
       final repository = ref.read(campusMapRepositoryProvider);
-      final matches = await repository.searchRooms(
-        query,
-        buildingNames: t.campusMap.buildingNames,
-      );
+      final results = await repository.searchPlaces(query);
       if (!mounted || operation != _operation) return;
-      if (matches.isEmpty) {
+      if (results.matches.isEmpty) {
         _showMessage(t.campusMap.noResults);
         return;
       }
-      CampusMapRoom? result;
-      if (matches.length == 1) {
-        result = matches.single;
-      } else {
+      var result = results.uniqueExactMatch;
+      if (result == null) {
         setState(() => _busy = false);
-        result = await showModalBottomSheet<CampusMapRoom>(
+        result = await showModalBottomSheet<CampusMapSearchMatch>(
           context: context,
           isScrollControlled: true,
           showDragHandle: true,
-          builder: (context) => CampusMapSearchResults(rooms: matches),
+          builder: (context) => CampusMapSearchResults(results: results),
         );
       }
       if (!mounted || operation != _operation || result == null) return;
       setState(() => _busy = true);
-      final room = await repository.locateRoom(result);
+      final (:buildingCode, room: roomMatch, buildingName: _) = result;
+      if (roomMatch == null) {
+        final buildings = await ref.read(campusMapBuildingsProvider.future);
+        if (!mounted || operation != _operation) return;
+        final building = buildings
+            .where((building) => building.code == buildingCode)
+            .firstOrNull;
+        if (building == null) {
+          _showMessage(t.campusMap.locationUnavailable);
+          return;
+        }
+        _selectBuilding(building);
+        return;
+      }
+      final room = await repository.locateRoom(roomMatch);
       if (!mounted || operation != _operation) return;
       if (room == null) {
         _showMessage(t.campusMap.locationUnavailable);

@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 
-/// Asks for a classroom name or number and pops with the submitted query.
+/// Asks for a building or room reference and pops with the submitted query.
 class CampusMapSearchDialog extends StatefulWidget {
   const CampusMapSearchDialog({super.key, this.initialQuery = ''});
 
