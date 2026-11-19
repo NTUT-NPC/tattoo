@@ -15,6 +15,7 @@ CampusMapSearchResult matchCampusMapPlaces(
   if (normalized.isEmpty) return const CampusMapSearchResult([]);
 
   final exact = <(String, String?), CampusMapSearchMatch>{};
+  final zeroPaddingFallback = <(String, String?), CampusMapSearchMatch>{};
   final suggestions = <(String, String?), CampusMapSearchMatch>{};
   final qualified = <String, ({Set<String> after, Set<String> before})>{};
   for (final entry in buildings.entries) {
@@ -73,6 +74,10 @@ CampusMapSearchResult matchCampusMapPlaces(
         _matchesNumber(normalized, number) ||
         parts.after.any((part) => _matchesNumber(part, number))) {
       exact[key] = match;
+    } else if (parts.after.any(
+      (part) => _matchesZeroPaddedNumber(part, number),
+    )) {
+      zeroPaddingFallback[key] = match;
     } else if (names.any(
       (name) =>
           _isNameFragment(normalized, name) ||
@@ -83,14 +88,16 @@ CampusMapSearchResult matchCampusMapPlaces(
     }
   }
 
-  final matches = (exact.isNotEmpty ? exact : suggestions).values.toList()
+  final complete = exact.isNotEmpty ? exact : zeroPaddingFallback;
+  final matches = (complete.isNotEmpty ? complete : suggestions).values.toList()
     ..sort(_compareMatches);
-  return CampusMapSearchResult(matches, isExact: exact.isNotEmpty);
+  return CampusMapSearchResult(matches, isExact: complete.isNotEmpty);
 }
 
 final _leadingSeparator = RegExp(r'^[_/-]+');
 final _trailingSeparator = RegExp(r'[_/-]+$');
 final _roomNumber = RegExp(r'^[a-z0-9-]*[0-9][a-z0-9-]*室?$');
+final _numericRoomNumber = RegExp(r'^0*([0-9]+)$');
 final _whitespace = RegExp(r'\s+');
 
 Set<String> _searchTerms(Iterable<String> values) => {
@@ -99,6 +106,15 @@ Set<String> _searchTerms(Iterable<String> values) => {
 
 bool _matchesNumber(String query, String number) =>
     number.isNotEmpty && (query == number || query == '$number室');
+
+bool _matchesZeroPaddedNumber(String query, String number) {
+  final digits = query.endsWith('室')
+      ? query.substring(0, query.length - 1)
+      : query;
+  final numericQuery = _numericRoomNumber.firstMatch(digits)?.group(1);
+  return numericQuery != null &&
+      numericQuery == _numericRoomNumber.firstMatch(number)?.group(1);
+}
 
 bool _isNameFragment(String query, String name) =>
     !_roomNumber.hasMatch(query) && name.contains(query);

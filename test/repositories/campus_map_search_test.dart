@@ -1,9 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tattoo/models/campus_map.dart';
+import 'package:tattoo/models/campus_map_building_aliases.dart';
 import 'package:tattoo/repositories/campus_map_search.dart';
 
 void main() {
-  const buildings = <String, CampusMapSearchBuilding>{
+  final buildings = <String, CampusMapSearchBuilding>{
     'A3T': (
       name: '第三教學大樓',
       aliases: [
@@ -16,6 +17,7 @@ void main() {
     'A4T': (name: '第四教學大樓', aliases: ['四教', '4TB', 'Fourth Academic Building']),
     'AD': (name: '行政大樓', aliases: ['行政', 'Administration Building']),
     'CB': (name: '綜合科館', aliases: ['綜科', '粽科', '合館']),
+    'EL': (name: '億光大樓', aliases: campusMapBuildingAliases['EL']!),
     'HR': (name: '宏裕科技大樓', aliases: ['宏裕', '科技', '科研', 'HYTRB', 'STRB', '合館']),
   };
   final third303 = _room('A3T', '3F', '303', '教室');
@@ -116,6 +118,44 @@ void main() {
         isEmpty,
       );
       expect(search('宏裕205', spaces: [basement, room205A]).matches, isEmpty);
+    },
+  );
+
+  test(
+    'qualified numeric room numbers fall back to ignoring leading zeros',
+    () {
+      final room612 = _room('EL', '6F', '612', '教室');
+      final padded612 = _room('EL', '6F', '0612', '教室');
+      final other612 = _room('EL', '7F', '612', '教室');
+      final otherBuilding = _room('AD', '6F', '612', '教室');
+      final suffix = _room('EL', '6F', '612A', '教室');
+      final hyphen = _room('EL', '6F', '612-2', '教室');
+
+      for (final query in ['億光0612', 'ＥＢ（０６１２室）']) {
+        final result = search(query, spaces: [room612, otherBuilding]);
+        expect(result.uniqueExactMatch?.room, room612, reason: query);
+      }
+      expect(
+        search('億光612', spaces: [padded612]).uniqueExactMatch?.room,
+        padded612,
+      );
+      expect(
+        search('億光0612', spaces: [room612, padded612]).uniqueExactMatch?.room,
+        padded612,
+      );
+
+      final ambiguous = search('億光0612', spaces: [room612, other612]);
+      expect(ambiguous.isExact, isTrue);
+      expect(ambiguous.uniqueExactMatch, isNull);
+      expect(ambiguous.matches.map((match) => match.room), [room612, other612]);
+
+      expect(search('0612', spaces: [room612]).matches, isEmpty);
+      expect(
+        search('億光0612', spaces: [otherBuilding, suffix, hyphen]).matches,
+        isEmpty,
+      );
+      expect(search('億光0612A', spaces: [suffix]).matches, isEmpty);
+      expect(search('億光0612-2', spaces: [hyphen]).matches, isEmpty);
     },
   );
 
