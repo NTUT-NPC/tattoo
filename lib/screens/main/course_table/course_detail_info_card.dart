@@ -1,11 +1,14 @@
 import 'package:flutter/widget_previews.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:tattoo/components/anchored_popup_menu.dart';
 import 'package:tattoo/components/tap_to_copy.dart';
 import 'package:tattoo/components/widget_preview_frame.dart';
 import 'package:tattoo/database/database.dart';
 import 'package:tattoo/i18n/strings.g.dart';
 import 'package:tattoo/models/course.dart';
 import 'package:tattoo/repositories/course_repository.dart';
+import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
 import 'package:tattoo/utils/course_schedule.dart';
 import 'package:tattoo/utils/localized.dart';
@@ -136,31 +139,41 @@ class CourseDetailInfoCard extends StatelessWidget {
     final tooltip = t.courseDetail.infoCard.findClassroomOnMap.spaced;
     final colors = Theme.of(context).colorScheme;
 
-    return IconButton(
-      onPressed: () {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(
-              content: Text(
-                t.courseDetail.infoCard.findClassroomComingSoon.spaced,
-              ),
-              persist: false,
-            ),
-          );
-      },
-      icon: const Icon(Icons.map_outlined, size: 16),
+    void openMap(String classroom) {
+      if (!context.mounted) return;
+      context.push(AppRoutes.campusMapForRoom(classroom));
+    }
+
+    Widget buildButton(VoidCallback? onPressed, {String? tooltip}) {
+      return IconButton(
+        onPressed: onPressed,
+        icon: const Icon(Icons.map_outlined, size: 16),
+        tooltip: tooltip,
+        style: IconButton.styleFrom(
+          tapTargetSize: .shrinkWrap,
+          minimumSize: const Size.square(32),
+          maximumSize: const Size.square(32),
+          visualDensity: VisualDensity.standard,
+          padding: const .all(8),
+          shape: const CircleBorder(),
+          foregroundColor: colors.primary,
+          backgroundColor: colors.surfaceContainerLowest,
+        ),
+      );
+    }
+
+    if (classrooms.length == 1) {
+      return buildButton(() => openMap(classrooms.single), tooltip: tooltip);
+    }
+
+    return AnchoredPopupMenuButton<String>(
+      items: [
+        for (final classroom in classrooms)
+          PopupMenuItem(value: classroom, child: Text(classroom.spaced)),
+      ],
+      onSelected: openMap,
       tooltip: tooltip,
-      style: IconButton.styleFrom(
-        tapTargetSize: .shrinkWrap,
-        minimumSize: const Size.square(32),
-        maximumSize: const Size.square(32),
-        visualDensity: VisualDensity.standard,
-        padding: const .all(8),
-        shape: const CircleBorder(),
-        foregroundColor: colors.primary,
-        backgroundColor: colors.surfaceContainerLowest,
-      ),
+      triggerBuilder: (context, onPressed) => buildButton(onPressed),
     );
   }
 }
