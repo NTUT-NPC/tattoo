@@ -1,3 +1,5 @@
+import 'package:tattoo/i18n/strings.g.dart';
+
 // dart format off
 /// Day of the week for class schedules.
 enum DayOfWeek {
@@ -10,6 +12,10 @@ enum DayOfWeek {
   saturday;
 
   bool get isWeekday => this != sunday && this != saturday;
+
+  String toShortLabel() => t.courseTable.dayOfWeek[name]!;
+
+  String toLongLabel() => t.courseTable.dayOfWeekLong[name]!;
 }
 // dart format on
 
