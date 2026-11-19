@@ -96,7 +96,9 @@ class CourseDetailInfoCard extends StatelessWidget {
               _InfoField(
                 label: t.courseDetail.infoCard.classroom,
                 value: classrooms.join('\n'),
-                action: _buildClassroomAction(context, classrooms),
+                actions: [
+                  ?_buildClassroomAction(context, classrooms),
+                ],
               ),
               Wrap(
                 alignment: .spaceBetween,
@@ -195,7 +197,7 @@ class _InfoField extends StatelessWidget {
     required this.label,
     required this.value,
     this.icon,
-    this.action,
+    this.actions = const [],
     this.compact = false,
     this.tapToCopy = true,
   });
@@ -203,7 +205,7 @@ class _InfoField extends StatelessWidget {
   final String label;
   final String value;
   final IconData? icon;
-  final Widget? action;
+  final List<Widget> actions;
   final bool compact;
   final bool tapToCopy;
 
@@ -251,7 +253,10 @@ class _InfoField extends StatelessWidget {
           ?iconWidget,
           labelWidget,
           Flexible(child: valueWidget),
-          ?action,
+          Row(
+            spacing: 8,
+            children: [...actions],
+          ),
         ],
       );
     }
@@ -264,7 +269,6 @@ class _InfoField extends StatelessWidget {
           crossAxisAlignment: .center,
           children: [
             Expanded(child: valueWidget),
-            ?action,
           ],
         );
         if (stacked) {
@@ -284,6 +288,10 @@ class _InfoField extends StatelessWidget {
                 ),
                 child: trailing,
               ),
+              Row(
+                spacing: 8,
+                children: [...actions],
+              ),
             ],
           );
         }
@@ -295,6 +303,10 @@ class _InfoField extends StatelessWidget {
             ?iconWidget,
             SizedBox(width: labelWidth, child: labelWidget),
             Expanded(child: trailing),
+            Row(
+              spacing: 8,
+              children: [...actions],
+            ),
           ],
         );
       },
