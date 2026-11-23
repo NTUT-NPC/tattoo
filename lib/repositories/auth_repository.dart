@@ -87,6 +87,10 @@ final loginExceptionProvider =
       LoginExceptionNotifier.new,
     );
 
+final startupPortalLoginProvider = Provider<Future<void>>(
+  (ref) => Future.value(),
+);
+
 /// Provides the [AuthRepository] instance.
 final Provider<AuthRepository> authRepositoryProvider = Provider((ref) {
   return AuthRepository(
