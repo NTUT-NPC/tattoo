@@ -54,7 +54,12 @@ Future<void> main() async {
     }
   }
 
-  final container = ProviderContainer();
+  final startupPortalLogin = Completer<void>();
+  final container = ProviderContainer(
+    overrides: [
+      startupPortalLoginProvider.overrideWithValue(startupPortalLogin.future),
+    ],
+  );
   final pendingWidgetRoute = await container
       .read(courseWidgetPlatformProvider)
       .takePendingRoute();
@@ -228,8 +233,25 @@ Future<void> main() async {
       ),
     ),
   );
-  WidgetsBinding.instance.addPostFrameCallback((_) {
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
     unawaited(firebaseService.startBackgroundUpdates());
+    try {
+      // restoreSession already logged in if it returned a user.
+      if (user != null &&
+          user.studentId != demoUsername &&
+          !hadStoredLogin &&
+          container.read(sessionProvider)) {
+        await container.read(authRepositoryProvider).refreshPortalSession();
+      }
+    } catch (error, stackTrace) {
+      log(
+        'Startup portal login ended with ${error.runtimeType}',
+        name: 'AuthRepository',
+        stackTrace: stackTrace,
+      );
+    } finally {
+      startupPortalLogin.complete();
+    }
   });
 }
 

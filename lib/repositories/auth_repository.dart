@@ -87,6 +87,10 @@ final loginExceptionProvider =
       LoginExceptionNotifier.new,
     );
 
+final startupPortalLoginProvider = Provider<Future<void>>(
+  (ref) => Future.value(),
+);
+
 /// Provides the [AuthRepository] instance.
 final Provider<AuthRepository> authRepositoryProvider = Provider((ref) {
   return AuthRepository(
@@ -155,7 +159,7 @@ class AuthRepository {
 
   final _ssoCache = <PortalServiceCode>{};
   final _ssoInFlight = <PortalServiceCode, Completer<void>>{};
-  Completer<UserDto>? _reauthenticateInFlight;
+  Future<UserDto>? _reauthenticateInFlight;
 
   static const _usernameKey = 'username';
   static const _passwordKey = 'password';
@@ -415,6 +419,10 @@ class AuthRepository {
     }
   }
 
+  Future<void> refreshPortalSession() async {
+    await _reauthenticate().timeout(const Duration(seconds: 10));
+  }
+
   /// Re-authenticates using stored credentials, coalescing concurrent calls.
   ///
   /// Returns the [UserDto] from the login response. Concurrent callers
@@ -423,11 +431,12 @@ class AuthRepository {
   /// Throws [_AuthFailedException] if credentials are missing or rejected
   /// (session is already destroyed). Rethrows [DioException] on network
   /// failure.
-  Future<UserDto> _reauthenticate() async {
-    if (_reauthenticateInFlight case final existing?) return existing.future;
+  Future<UserDto> _reauthenticate() =>
+      _reauthenticateInFlight ??= _performReauthentication().whenComplete(() {
+        _reauthenticateInFlight = null;
+      });
 
-    final completer = Completer<UserDto>();
-    _reauthenticateInFlight = completer;
+  Future<UserDto> _performReauthentication() async {
     try {
       final userBeforeLogin = await getLocalUser();
       var username = await _secureStorage.read(key: _usernameKey);
@@ -459,22 +468,11 @@ class AuthRepository {
             ))
             .write(UsersCompanion(passwordExpiresInDays: Value(days)));
       }
-      completer.complete(userDto);
       return userDto;
-    } on DioException catch (e, st) {
-      completer.completeError(e, st);
-      rethrow;
     } on LoginException catch (e) {
       await _clearCredentials();
       _onSessionDestroyed(e);
       throw const _AuthFailedException();
-    } on _AuthFailedException {
-      rethrow;
-    } catch (e, st) {
-      completer.completeError(e, st);
-      rethrow;
-    } finally {
-      _reauthenticateInFlight = null;
     }
   }
 

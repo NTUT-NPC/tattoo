@@ -148,6 +148,40 @@ void main() {
       expect(secureStorage['password'], 'password');
     });
 
+    test(
+      'concurrent reauthentication shares a Dio error and keeps cached expiry',
+      () async {
+        portalService.loginResult = (
+          name: null,
+          avatarFilename: null,
+          email: null,
+          passwordExpiresInDays: 14,
+        );
+        await repository.login('111360109', 'password');
+        portalService.loginCalls.clear();
+        portalService.onLogin = (_, _) async {
+          throw DioException.connectionError(
+            requestOptions: RequestOptions(path: 'login.do'),
+            reason: 'network unavailable',
+          );
+        };
+
+        await Future.wait([
+          expectLater(
+            repository.refreshPortalSession(),
+            throwsA(isA<DioException>()),
+          ),
+          expectLater(
+            repository.refreshPortalSession(),
+            throwsA(isA<DioException>()),
+          ),
+        ]);
+
+        expect(portalService.loginCalls, hasLength(1));
+        expect((await repository.getLocalUser())?.passwordExpiresInDays, 14);
+      },
+    );
+
     group('withAuth SSO', () {
       test('preserves a single SSO network error', () async {
         await repository.login('111360109', 'password');

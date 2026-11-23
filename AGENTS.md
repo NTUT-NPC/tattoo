@@ -143,7 +143,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 
 **SSO Coalescing:** `AuthRepository._ensureSso` uses `Completer`-based coalescing — first caller creates a Completer and fires SSO, concurrent callers await the same future. Prevents redundant SSO calls during parallel repository fetches.
 
-**Re-auth Coalescing:** `AuthRepository._reauthenticate` uses the same `Completer` pattern — first caller triggers login, concurrent callers await the same future. Prevents redundant login attempts when multiple `withAuth` calls detect session expiry simultaneously.
+**Re-auth Coalescing:** `AuthRepository._reauthenticate` shares a single in-flight login future. For a cached real account, `main` calls `refreshPortalSession()` after the first frame. Home reads the password expiry from the database once that wait ends.
 
 **Session Lifecycle:** `sessionProvider` (`Notifier<bool>`) drives auth state. `true` = authenticated, `false` = unauthenticated. Router guard watches it for redirect. Repository providers `ref.watch(sessionProvider)` to be recreated with fresh state when the session ends. Startup normally restores the stored `Users` row; if schema recreation removed it, `AuthRepository.restoreSession()` revalidates secure credentials, then old TAT's plaintext `UserDataJsonKey`, and rebuilds the row. Successful migration and logout delete the legacy payload. Transient network failures retain credentials and open login for retry. On auth failure, `withAuth` destroys the session and returns a never-completing `Completer<T>().future` — session-scoped providers are already being disposed by the time callers would stall, so the hanging future is harmless. Callers only need to handle `DioException` for network failures.
 

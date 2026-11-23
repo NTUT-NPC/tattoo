@@ -1,15 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:tattoo/i18n/strings.g.dart';
+import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/router/app_router.dart';
 import 'package:tattoo/screens/main/profile/profile_providers.dart';
-import 'package:tattoo/screens/main/user_providers.dart';
 import 'package:tattoo/screens/whats_new_providers.dart';
 import 'package:tattoo/screens/whats_new_screen.dart';
 import 'package:tattoo/services/update_service.dart';
 import 'package:tattoo/shells/adaptive_navigation_scaffold.dart';
 import 'package:tattoo/utils/auto_spacing.dart';
+
+final _passwordWarningShownProvider =
+    NotifierProvider<_PasswordWarningShown, bool>(_PasswordWarningShown.new);
+
+class _PasswordWarningShown extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void markShown() => state = true;
+}
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -24,7 +36,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  bool _shownPasswordWarning = false;
   bool _versionCheckScheduled = false;
   bool _checkingVersion = false;
   bool _versionCheckAgain = false;
@@ -39,23 +50,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _scheduleVersionNotification();
     });
     _scheduleVersionNotification();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      ref.listenManual(
-        userProfileProvider.select(
-          (profile) => profile.asData?.value?.passwordExpiresInDays,
-        ),
-        (_, days) {
-          if (days != null && !_shownPasswordWarning) {
-            _shownPasswordWarning = true;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!mounted) return;
-              _showPasswordExpirySnackbar(context, days);
-            });
-          }
-        },
-      );
-    });
+    unawaited(_maybeShowPasswordExpirySnackbar());
   }
 
   void _scheduleVersionNotification() {
@@ -187,20 +182,51 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  Future<void> _maybeShowPasswordExpirySnackbar() async {
+    if (ref.read(_passwordWarningShownProvider)) return;
+    final auth = ref.read(authRepositoryProvider);
+    try {
+      await ref.read(startupPortalLoginProvider);
+      if (!mounted || !ref.read(sessionProvider)) return;
+
+      final user = await auth.getLocalUser();
+      if (!mounted ||
+          !ref.read(sessionProvider) ||
+          ref.read(_passwordWarningShownProvider)) {
+        return;
+      }
+      if (user?.passwordExpiresInDays case final days?) {
+        _showPasswordExpirySnackbar(context, days);
+        ref.read(_passwordWarningShownProvider.notifier).markShown();
+      }
+    } catch (error, stack) {
+      debugPrint('Failed to show password expiry notification: $error\n$stack');
+    }
+  }
+
   void _showPasswordExpirySnackbar(BuildContext context, int days) {
     final t = Translations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     messenger.showSnackBar(
       SnackBar(
-        content: Text(
-          t.profile.passwordExpiry.warning(days: days).spaced,
+        content: Consumer(
+          builder: (context, ref, _) {
+            final signedIn = ref.watch(sessionProvider);
+            return signedIn && mounted
+                ? Text(t.profile.passwordExpiry.warning(days: days).spaced)
+                : const SizedBox.shrink();
+          },
         ),
         // SnackBar defaults persist=true when an action is set; we want the
         // warning to auto-dismiss so the user isn't left staring at it.
         persist: false,
         action: SnackBarAction(
           label: t.profile.passwordExpiry.action,
-          onPressed: () => context.push(AppRoutes.changePassword),
+          onPressed: () {
+            if (mounted && ref.read(sessionProvider)) {
+              context.push(AppRoutes.changePassword);
+            }
+          },
         ),
       ),
     );
