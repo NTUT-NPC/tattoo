@@ -2,16 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:dio/dio.dart';
-import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tattoo/database/database.dart';
-import 'package:tattoo/repositories/auth_repository.dart';
 import 'package:tattoo/services/firebase_service.dart';
-import 'package:tattoo/services/portal/portal_service.dart';
-import 'package:tattoo/utils/avatar_payload.dart';
 import 'package:tattoo/utils/pref_type.dart';
 import 'package:tattoo/utils/shared_preferences.dart';
 
@@ -173,9 +167,6 @@ class TypedPreferenceStore {
 
   const TypedPreferenceStore(this._prefs);
 
-  /// Exposes the underlying [SharedPreferencesAsync] for direct, raw key access.
-  SharedPreferencesAsync get prefs => _prefs;
-
   /// Reads the value stored for [key], or `null` if absent.
   Future<T?> read<T>(PrefKey<T> key) async {
     final value = switch (key.type) {
@@ -209,10 +200,6 @@ class TypedPreferenceStore {
 final preferencesRepositoryProvider = Provider<PreferencesRepository>((ref) {
   return PreferencesRepository(
     store: ref.watch(typedPreferenceStoreProvider),
-    portalService: ref.watch(portalServiceProvider),
-    database: ref.watch(databaseProvider),
-    authRepository: ref.watch(authRepositoryProvider),
-    isLoggedIn: () => ref.read(sessionProvider),
   );
 });
 
@@ -222,42 +209,14 @@ final preferencesRepositoryProvider = Provider<PreferencesRepository>((ref) {
 /// `_force_override_flags`) > local override (SharedPreferences) > Remote
 /// Config value > the key's declared default. Remote Config lets the server
 /// control or force a preference; `PrefSource` records which layer answered.
-///
-/// Supports cloud sync by embedding the user's locally-set values as MessagePack
-/// in the avatar file uploaded to NTUT's portal (see [syncUp]/[syncDown]). Only
-/// values the user explicitly set are synced — server-controlled and default
-/// values are never baked into the payload. Sync runs only while logged in.
 class PreferencesRepository {
   final TypedPreferenceStore _store;
-  final PortalService _portalService;
-  final AppDatabase _database;
-  final AuthRepository _authRepository;
-  final bool Function() _isLoggedIn;
   final _updateController = StreamController<void>.broadcast();
-  bool _syncing = false;
-
-  /// The raw SharedPreferences key used to track unsynced local edits.
-  static const _preferencesDirtyKey = 'preferencesDirty';
-
-  /// Whether locally-set values have changed since the last successful sync.
-  Future<bool> _isDirty() async {
-    return await _store.prefs.getBool(_preferencesDirtyKey) ?? false;
-  }
-
-  Future<void> _setDirty(bool value) async {
-    await _store.prefs.setBool(_preferencesDirtyKey, value);
-  }
 
   /// Remote Config key holding the list of forced preference names.
   static const _forceOverrideKey = '_force_override_flags';
 
-  PreferencesRepository({
-    required this._store,
-    required this._portalService,
-    required this._database,
-    required this._authRepository,
-    required this._isLoggedIn,
-  });
+  PreferencesRepository({required this._store});
 
   /// Emits whenever a resolved value may have changed (override set/reset or a
   /// Remote Config update).
@@ -318,7 +277,7 @@ class PreferencesRepository {
     );
   }
 
-  /// Sets a preference's local value and marks state dirty for cloud sync.
+  /// Sets a preference's local value.
   ///
   /// No-op for forced preferences.
   Future<void> set<T>(PrefKey<T> key, T value) async {
@@ -335,16 +294,12 @@ class PreferencesRepository {
     }
 
     await _store.write(key, value);
-    await _setDirty(true);
-    _maybeSyncUp();
     _updateController.add(null);
   }
 
   /// Removes a preference's local value, reverting to remote/default.
   Future<void> reset(PrefKey key) async {
     await _store.remove(key);
-    await _setDirty(true);
-    _maybeSyncUp();
     _updateController.add(null);
   }
 
@@ -393,117 +348,5 @@ class PreferencesRepository {
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
         .toSet();
-  }
-
-  /// Uploads preferences embedded in the current avatar.
-  ///
-  /// Downloads the current avatar, appends serialized preferences, and
-  /// re-uploads. The avatar image is preserved — only the trailing
-  /// payload changes.
-  ///
-  /// If the user has no avatar, the server's generated placeholder is
-  /// used as the base image, which becomes the user's new avatar.
-  ///
-  /// Clears the dirty flag on success.
-  Future<void> syncUp() async {
-    final user = await _database.select(_database.users).getSingleOrNull();
-    // No user row (e.g. logged out mid-sync) — keep dirty flag set for a later retry
-    if (user == null) {
-      throw StateError('No user row — cannot sync preferences');
-    }
-    final filename = user.avatarFilename;
-
-    final avatarBytes = await _authRepository.withAuth(
-      () => _portalService.getAvatar(filename),
-    );
-
-    // Strip any existing payload to avoid nesting
-    final (:jpeg, version: _, data: _) = decodeAvatarPayload(avatarBytes);
-
-    final prefs = await _toMap();
-    final combined = encodeAvatarPayload(jpeg, prefs);
-
-    final newFilename = await _authRepository.withAuth(
-      () => _portalService.uploadAvatar(combined, filename),
-    );
-
-    await (_database.update(_database.users)
-          ..where((u) => u.id.equals(user.id)))
-        .write(UsersCompanion(avatarFilename: Value(newFilename)));
-
-    await _setDirty(false);
-  }
-
-  /// Syncs preferences with the cloud on app launch.
-  ///
-  /// If local changes were not uploaded (dirty flag set), syncs up first
-  /// to avoid overwriting them. Then syncs down to pull any cloud changes.
-  Future<void> syncOnLaunch() async {
-    if (!_isLoggedIn()) return;
-    if (await _isDirty()) await syncUp();
-    await syncDown();
-  }
-
-  /// Downloads the avatar and restores embedded preferences if present.
-  Future<void> syncDown() async {
-    final user = await _database.select(_database.users).getSingle();
-    final filename = user.avatarFilename;
-
-    final avatarBytes = await _authRepository.withAuth(
-      () => _portalService.getAvatar(filename),
-    );
-
-    final (:jpeg, :version, :data) = decodeAvatarPayload(avatarBytes);
-    if (data == null || version != 0x00) return;
-
-    await _fromMap(data);
-    _updateController.add(null);
-  }
-
-  /// Serializes the user's explicitly-set preferences for cloud sync.
-  ///
-  /// Only values present in local storage are included — server-controlled,
-  /// forced, and default values are deliberately omitted so they never get
-  /// baked into the synced payload.
-  Future<Map<String, dynamic>> _toMap() async {
-    final map = <String, dynamic>{};
-    for (final key in PrefKey.values) {
-      if (await _store.read(key) case final value?) {
-        map[key.name] = value;
-      }
-    }
-    return map;
-  }
-
-  /// Restores preferences from a cloud sync map.
-  ///
-  /// Writes directly to SharedPreferences to avoid triggering [set]'s
-  /// dirty flag and sync logic.
-  Future<void> _fromMap(Map<String, dynamic> map) async {
-    await Future.wait([
-      for (final key in PrefKey.values)
-        if (map[key.name] case final value?) _store.write(key, value),
-    ]);
-  }
-
-  /// Fire-and-forget sync with coalescing: if already syncing, the dirty
-  /// flag ensures one more sync runs after the current one finishes.
-  ///
-  /// No-op when logged out — the dirty flag persists until the next login.
-  Future<void> _maybeSyncUp() async {
-    if (!_isLoggedIn() || _syncing) return;
-    _syncing = true;
-    try {
-      while (await _isDirty()) {
-        await syncUp();
-      }
-    } on DioException catch (_) {
-      // Network failures are fine — dirty flag persists for next attempt
-    } catch (e) {
-      log("Failed to sync preferences: $e", name: 'PreferencesRepository');
-      // dirty flag persists for next attempt
-    } finally {
-      _syncing = false;
-    }
   }
 }

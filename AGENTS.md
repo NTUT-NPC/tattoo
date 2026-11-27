@@ -37,7 +37,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 - `lib/screens/` - Screen widgets organized by feature: `welcome/` (intro, login) and `main/` (home, course_table, score, calendar, portal, scanner, kiosk_login, profile). 4-tab `StatefulShellRoute` with `AnimatedShellContainer` for tab state preservation. Each tab owns its own `Scaffold`.
 - `lib/services/` - Clients that talk to external systems (NTUT HTTP services, Firebase, etc.) and `demo_mode.dart`
 - `lib/shells/` - Layout shells (AnimatedShellContainer for tab transitions, ShowcaseShell for onboarding, CenteredMaxWidthFrame and AdaptiveNavigationScaffold for the 580 logical-pixel adaptive breakpoint)
-- `lib/utils/` - HTTP utilities (cookie jar, interceptors, native adapter), localization, avatar payload, the `PrefType` SharedPreferences value-type enum, link URL override parsing
+- `lib/utils/` - HTTP utilities (cookie jar, interceptors, native adapter), localization, the `PrefType` SharedPreferences value-type enum, link URL override parsing
 - `tool/` - Dart CLI tools (credentials management, HTML/XML snapshot capture, portal endpoints scraper)
 
 **Provider placement:**
@@ -83,7 +83,7 @@ MVVM pattern with Riverpod for DI and reactive state (manual providers, no codeg
 **Repositories:**
 
 - AuthRepository — User identity, session, profile. Lazy auth via `withAuth<T>()` with SSO and re-auth coalescing (Completer pattern). Session persistence via flutter_secure_storage. When the database user row is missing, startup revalidates secure credentials and then old TAT's `UserDataJsonKey` payload to rebuild it. Successful legacy migration and logout remove the plaintext payload; transient network failures retain credentials and open login. Never-completing future on auth failure is harmless because session-scoped providers are already being disposed.
-- PreferencesRepository — Typed `PrefKey<T>` enum resolved through a source stack (forced > local override > Remote Config > declared default). Feature flags are unified here: Remote Config is a control layer over `PrefKey`, not a separate system. App-scoped; cloud sync embeds only the user's explicitly-set values in the avatar payload, and runs only while logged in.
+- PreferencesRepository — Typed `PrefKey<T>` enum resolved through a source stack (forced > local override > Remote Config > declared default). Feature flags are unified here: Remote Config is a control layer over `PrefKey`, not a separate system. App-scoped; user overrides are stored locally.
 - CourseRepository — Course catalog, schedules, offering details, and course materials. Normalizes bilingual names from multiple sources (catalog vs offering). Layout computation for course table grid (multi-period spans, noon-crossing, unscheduled courses).
 - Course table output excludes withdrawn offerings; the database retains their full data and status.
 - CalendarRepository — Academic calendar events from NTUT portal. Sliding window caching keyed to enrolled semesters.

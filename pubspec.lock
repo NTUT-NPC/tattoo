@@ -949,14 +949,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.5.0"
-  msgpack_dart:
-    dependency: "direct main"
-    description:
-      name: msgpack_dart
-      sha256: c2d235ed01f364719b5296aecf43ac330f0d7bc865fa134d0d7910a40454dffb
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
   native_dio_adapter:
     dependency: "direct main"
     description:
